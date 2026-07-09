@@ -7,6 +7,29 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-09
+
+Cross-platform (Windows) portability hardening. These changes remove the hard
+blockers to importing and running the core on non-POSIX platforms and are
+verified on macOS/Linux. **Native Windows is not yet verified end-to-end** —
+background-job scheduling (Task Scheduler) and a real-Windows test pass remain.
+
+### Fixed
+- **Cross-platform worker lock.** The single-writer singleton no longer does an
+  unconditional top-level `import fcntl`, which made `agentic_rag.worker`
+  unimportable on Windows. The non-blocking exclusive lock is now dispatched by
+  platform — `fcntl.flock` on POSIX, `msvcrt.locking` on Windows — behind an
+  identical "return a held handle or `None`, never crash" contract.
+- **UTF-8 subprocess decoding.** Output of the `claude` CLI is now decoded as
+  UTF-8 explicitly (`errors="replace"`), so non-ASCII content (e.g. German
+  umlauts) is no longer mangled on platforms whose default text encoding is not
+  UTF-8 (Windows `cp1252`).
+- **PATH resolution of the `claude` CLI.** The LLM seam and MCP registration
+  resolve the CLI through `shutil.which` before spawning, so a bare `claude`
+  also resolves where the executable is a `claude.cmd` shim (Windows). Falls
+  back to the configured name so the existing "binary not found" error still
+  fires with a helpful message.
+
 ## [0.1.0] - 2026-07-09
 
 Initial public release.
