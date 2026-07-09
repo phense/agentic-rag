@@ -1,5 +1,8 @@
 import errno
 import json
+import sys
+
+import pytest
 
 from agentic_rag import worker
 from agentic_rag.config import Config
@@ -33,11 +36,38 @@ def test_acquire_lock_inaccessible_location_returns_none(tmp_path,
     assert worker.acquire_lock(blocker / "state" / "worker.lock") is None
 
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="fcntl is POSIX-only; Windows uses the msvcrt "
+                           "branch of _flock_nb")
 def test_acquire_lock_flock_oserror_returns_none(tmp_path, monkeypatch):
     monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "w.log")
     def no_flock(fd, op):
         raise OSError(errno.ENOLCK, "no locks available")
     monkeypatch.setattr(worker.fcntl, "flock", no_flock)
+    assert worker.acquire_lock(tmp_path / "worker.lock") is None
+    assert "lock unavailable" in (tmp_path / "w.log").read_text()
+
+
+def test_acquire_lock_none_on_lock_contention(tmp_path, monkeypatch):
+    # The platform lock primitive signals "already held" with BlockingIOError
+    # (POSIX flock raises it directly; the Windows msvcrt shim re-raises as
+    # one). acquire_lock must translate that to "another worker is live → skip"
+    # WITHOUT logging it as an error (contention is normal, not a failure).
+    monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "w.log")
+    def busy(fd):
+        raise BlockingIOError("locked")
+    monkeypatch.setattr(worker, "_flock_nb", busy)
+    assert worker.acquire_lock(tmp_path / "worker.lock") is None
+    assert not (tmp_path / "w.log").exists()
+
+
+def test_acquire_lock_none_and_logs_on_lock_oserror(tmp_path, monkeypatch):
+    # A real lock failure (ENOLCK / lock-less FS) must also mean "do not run",
+    # but this one is logged so the operator can see it.
+    monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "w.log")
+    def broken(fd):
+        raise OSError(errno.ENOLCK, "no locks available")
+    monkeypatch.setattr(worker, "_flock_nb", broken)
     assert worker.acquire_lock(tmp_path / "worker.lock") is None
     assert "lock unavailable" in (tmp_path / "w.log").read_text()
 

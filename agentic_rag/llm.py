@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 
 from .config import Config
@@ -64,12 +65,24 @@ def run_structured(prompt: str, schema: dict, cfg: Config, *,
     a real process; the worker passes the default.
     """
     child_env = _child_env(env)
-    cmd = [cfg.llm_bin, "--model", cfg.llm_model]
+    # Resolve through PATH so a bare "claude" also works on Windows, where the
+    # CLI is a claude.cmd shim that CreateProcess won't find by bare name
+    # (shutil.which honors PATHEXT). Resolve against the CHILD env's PATH — the
+    # same one the subprocess runs with — not the parent process PATH. Fall
+    # back to the configured name so the "binary not found" error below still
+    # fires with a helpful message.
+    binary = shutil.which(cfg.llm_bin, path=child_env.get("PATH")) or cfg.llm_bin
+    cmd = [binary, "--model", cfg.llm_model]
     if system is not None:
         cmd += ["--system-prompt", system]
     cmd += ["-p", prompt, "--json-schema", json.dumps(schema)]
     try:
-        proc = runner(cmd, capture_output=True, text=True,
+        # encoding pinned to UTF-8: on Windows, text mode would otherwise decode
+        # the CLI's JSON with the locale codepage (cp1252) and mangle German
+        # content. Decoding stays STRICT — a bad byte fails loudly as an
+        # LLMError (retried like any CLI failure) rather than being silently
+        # replaced with U+FFFD, which would corrupt stored content.
+        proc = runner(cmd, capture_output=True, text=True, encoding="utf-8",
                       timeout=timeout or cfg.llm_timeout, env=child_env)
     except FileNotFoundError as e:
         raise LLMError(
@@ -78,6 +91,8 @@ def run_structured(prompt: str, schema: dict, cfg: Config, *,
     except subprocess.TimeoutExpired as e:
         raise LLMError(
             f"claude timed out after {timeout or cfg.llm_timeout}s") from e
+    except UnicodeDecodeError as e:
+        raise LLMError(f"claude output was not valid UTF-8: {e}") from e
     if proc.returncode != 0:
         raise LLMError(
             f"claude exited {proc.returncode}: {(proc.stderr or '')[:500]}")

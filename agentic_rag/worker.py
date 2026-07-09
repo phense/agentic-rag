@@ -12,7 +12,7 @@ worker crash must never surface into a hook or a session.
 """
 from __future__ import annotations
 
-import fcntl
+import errno
 import json
 import subprocess
 import sys
@@ -21,6 +21,41 @@ from pathlib import Path
 
 from . import backup, curation, db, mining, store
 from .config import Config, load_config
+
+# The singleton lock primitive, dispatched by platform. fcntl is POSIX-only —
+# a top-level `import fcntl` would make this module unimportable on Windows —
+# so the import is conditional and Windows uses msvcrt instead. Both raise
+# BlockingIOError on contention and a plain OSError on a genuine lock failure,
+# so acquire_lock's two-branch contract (silent skip vs. logged failure) is
+# identical on every platform.
+if sys.platform == "win32":
+    import msvcrt
+
+    # msvcrt.locking reports "region already held" with EDEADLOCK (LK_NBLCK's
+    # immediate-failure errno) or EACCES; ONLY those mean contention. Any other
+    # OSError (a lock-less/odd filesystem, a real I/O error) is a genuine
+    # failure and must propagate so acquire_lock logs it — matching POSIX,
+    # where flock raises ENOLCK as a plain OSError, not BlockingIOError.
+    _CONTENTION_ERRNOS = {errno.EACCES,
+                          getattr(errno, "EDEADLOCK", errno.EACCES)}
+
+    def _flock_nb(fd) -> None:
+        """Non-blocking exclusive lock (Windows). Translate contention into
+        BlockingIOError; let any other OSError propagate as a real failure."""
+        try:
+            fd.seek(0)
+            msvcrt.locking(fd.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as e:
+            if e.errno in _CONTENTION_ERRNOS:
+                raise BlockingIOError(str(e)) from e
+            raise
+else:
+    import fcntl
+
+    def _flock_nb(fd) -> None:
+        """Non-blocking exclusive lock (POSIX). Raises BlockingIOError on
+        contention, OSError (e.g. ENOLCK) on a lock-less filesystem."""
+        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 LOCK_PATH = Path.home() / ".agentic-rag" / "state" / "worker.lock"
 LOG_PATH = Path.home() / ".agentic-rag" / "log" / "worker.log"
@@ -49,7 +84,7 @@ def acquire_lock(path: Path = LOCK_PATH):
         _log(f"lock unavailable: {e!r}")
         return None
     try:
-        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _flock_nb(fd)
     except BlockingIOError:
         fd.close()
         return None

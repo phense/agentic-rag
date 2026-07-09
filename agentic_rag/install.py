@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -55,6 +56,9 @@ def register_mcp(python: str, run=subprocess.run) -> None:
     rag_reader role — spec §5's subagent server). Subagents inherit all
     session MCP servers, so containment additionally needs the subagent
     definition to allowlist only mcp__agentic-rag-ro__* tools."""
+    # Resolve through PATH so this works on Windows too, where the CLI is a
+    # claude.cmd shim unreachable by bare name (mirrors the llm.py seam).
+    claude = shutil.which("claude") or "claude"
     base = {"type": "stdio", "command": python,
             "args": ["-m", "agentic_rag.mcp_server"]}
     servers = [
@@ -62,9 +66,9 @@ def register_mcp(python: str, run=subprocess.run) -> None:
         (MCP_NAME_RO, {**base, "env": {"RAG_READONLY": "1"}}),
     ]
     for name, spec in servers:
-        run(["claude", "mcp", "remove", "-s", "user", name],
+        run([claude, "mcp", "remove", "-s", "user", name],
             capture_output=True, text=True)      # rc ignored: may not exist
-        proc = run(["claude", "mcp", "add-json", "-s", "user", name,
+        proc = run([claude, "mcp", "add-json", "-s", "user", name,
                     json.dumps(spec)], capture_output=True, text=True)
         if proc.returncode != 0:
             raise RuntimeError(

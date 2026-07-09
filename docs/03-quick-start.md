@@ -67,6 +67,30 @@ user timer yourself using the copy-pasteable recipes in
 After `rag install`, start a new Claude Code session (or restart your
 current one) so it picks up the newly registered MCP servers and hooks.
 
+## Platform support
+
+**macOS and Linux are the supported, tested platforms.** The test suite runs
+on both, and everything above works as written.
+
+**Windows:** as of 0.2.0 the core no longer makes POSIX-only assumptions that
+used to block it (the worker lock, CLI decoding, and CLI path resolution are
+all cross-platform now), but **native Windows is not yet verified end-to-end** —
+there is no Windows CI. If you want to run on Windows today:
+
+- **WSL2 is the smooth path.** Inside WSL2 you're on Linux, so follow the Linux
+  instructions — including the scheduling recipes in
+  [`docs/deploy/scheduling-linux.md`](deploy/scheduling-linux.md).
+- **Native Windows** additionally needs, beyond the prerequisites above (of
+  which building `pgvector` is the main friction):
+  - `[db] host = "localhost"` in your config — Windows has no local unix
+    socket, so the default empty host won't connect (see
+    [06 · Configuration reference](06-configuration-reference.md)).
+  - If your `claude` CLI is a `claude.cmd` shim that can't be launched directly
+    as a subprocess, point `[llm] bin` at a directly-runnable executable.
+  - **No auto-scheduling** — `rag install` schedules the backup job on macOS
+    only. On Windows, schedule the backup and maintenance jobs yourself with
+    Task Scheduler.
+
 ## Your first save and search
 
 Everything from here on can go through `uv run rag ...`, or plain `rag ...`

@@ -54,6 +54,7 @@ def test_merge_hooks_preserves_foreign_hooks_and_keys():
 
 
 def test_register_mcp_registers_rw_and_readonly(monkeypatch):
+    monkeypatch.setattr(install.shutil, "which", lambda name: None)  # argv[0]
     calls = []
     class P:
         returncode, stderr = 0, ""
@@ -73,6 +74,20 @@ def test_register_mcp_registers_rw_and_readonly(monkeypatch):
         "type": "stdio", "command": PY,
         "args": ["-m", "agentic_rag.mcp_server"],
         "env": {"RAG_READONLY": "1"}}
+
+
+def test_register_mcp_resolves_claude_via_which(monkeypatch):
+    # bare "claude" as argv[0] is unresolvable on Windows (the CLI is
+    # claude.cmd); register_mcp must resolve it through PATH like the LLM seam.
+    monkeypatch.setattr(install.shutil, "which", lambda name: "/opt/claude")
+    calls = []
+    class P:
+        returncode, stderr = 0, ""
+    def run(cmd, **kw):
+        calls.append(cmd)
+        return P()
+    install.register_mcp(PY, run=run)
+    assert calls and all(c[0] == "/opt/claude" for c in calls)
 
 
 def test_register_mcp_raises_on_add_failure():

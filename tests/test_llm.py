@@ -70,7 +70,9 @@ def test_disables_hooks_on_production_env_none_path(monkeypatch):
     assert seen["env"].get("AGENTIC_RAG_HOOKS_DISABLE") == "1"
 
 
-def test_command_shape_and_parsed_output():
+def test_command_shape_and_parsed_output(monkeypatch):
+    monkeypatch.setattr(llm.shutil, "which",
+                        lambda name, path=None: None)   # keep argv[0]
     seen = {}
     def runner(cmd, **kw):
         seen["cmd"] = cmd
@@ -119,3 +121,58 @@ def test_non_object_json_raises_llm_error():
         return FakeProc(stdout='["a", "list"]')
     with pytest.raises(llm.LLMError, match="not a JSON object"):
         llm.run_structured("p", SCHEMA, CFG, runner=runner, env={})
+
+
+def test_passes_utf8_encoding_to_subprocess():
+    # On Windows, subprocess text mode decodes with the locale codepage
+    # (cp1252), not UTF-8, so the CLI's JSON with German content (ä/ö/ü/ß)
+    # would be mangled. Pin UTF-8 everywhere. Decoding stays STRICT (no
+    # errors="replace"): silent U+FFFD substitution would corrupt stored
+    # content — a decode failure must be loud (see the LLMError test below).
+    seen = {}
+    def runner(cmd, **kw):
+        seen.update(kw)
+        return FakeProc(stdout='{"ok": true}')
+    llm.run_structured("p", SCHEMA, CFG, runner=runner, env={"PATH": "/bin"})
+    assert seen.get("encoding") == "utf-8"
+    assert seen.get("errors") in (None, "strict")
+
+
+def test_invalid_utf8_output_raises_llm_error():
+    # strict UTF-8: rather than silently substituting U+FFFD (data corruption),
+    # non-UTF-8 CLI output fails loudly as a domain error the worker retries.
+    def runner(cmd, **kw):
+        raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+    with pytest.raises(llm.LLMError, match="UTF-8"):
+        llm.run_structured("p", SCHEMA, CFG, runner=runner, env={"PATH": "/bin"})
+
+
+def test_resolves_binary_via_which(monkeypatch):
+    # bare "claude" as argv[0] is unresolvable on Windows (the CLI is
+    # claude.cmd); resolve through PATH first (shutil.which honors PATHEXT).
+    # Resolution must use the CHILD env's PATH, the same one the subprocess
+    # runs with — not the parent process PATH.
+    seen = {}
+    def fake_which(name, path=None):
+        seen["path"] = path
+        return f"/opt/{name}"
+    monkeypatch.setattr(llm.shutil, "which", fake_which)
+    def runner(cmd, **kw):
+        seen["cmd"] = cmd
+        return FakeProc(stdout='{"ok": true}')
+    llm.run_structured("p", SCHEMA, CFG, runner=runner,
+                       env={"PATH": "/opt/bin"})
+    assert seen["cmd"][0] == "/opt/claude"
+    assert seen["path"] == "/opt/bin"
+
+
+def test_falls_back_to_configured_bin_when_not_on_path(monkeypatch):
+    # which() finds nothing → keep the configured name so the existing
+    # "binary not found" error path still fires with a helpful message.
+    monkeypatch.setattr(llm.shutil, "which", lambda name, path=None: None)
+    seen = {}
+    def runner(cmd, **kw):
+        seen["cmd"] = cmd
+        return FakeProc(stdout='{"ok": true}')
+    llm.run_structured("p", SCHEMA, CFG, runner=runner, env={"PATH": "/bin"})
+    assert seen["cmd"][0] == "claude"
