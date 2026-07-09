@@ -1,0 +1,419 @@
+"""The `rag` CLI — thin argparse layer over the library."""
+from __future__ import annotations
+
+import argparse
+import dataclasses
+import json
+import shutil
+import sys
+from pathlib import Path
+
+import psycopg
+
+from . import backup as backup_mod
+from . import curation as curation_mod
+from . import db, search as search_mod, store
+from . import domains as domains_mod
+from . import embed
+from . import install as install_mod
+from . import maintenance as maintenance_mod
+from . import migration as migration_mod
+from . import pins as pins_mod
+from . import status as status_mod
+from . import worker as worker_mod
+from .config import load_config
+from .store import EdgeSpec
+
+
+def _json_default(o):
+    if dataclasses.is_dataclass(o):
+        return dataclasses.asdict(o)
+    return str(o)  # UUID, datetime, Path
+
+
+def _main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="rag")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    sub.add_parser("init-db")
+
+    p_inst = sub.add_parser("install")
+    p_inst.add_argument("--no-launchd", action="store_true")
+
+    p_dom = sub.add_parser("domain")
+    dom_sub = p_dom.add_subparsers(dest="domain_cmd", required=True)
+    d_add = dom_sub.add_parser("add")
+    d_add.add_argument("name")
+    d_add.add_argument("--description", default="")
+    dom_sub.add_parser("list")
+
+    p_save = sub.add_parser("save")
+    p_save.add_argument("--title", required=True)
+    p_save.add_argument("--domain", required=True)
+    p_save.add_argument("--dtype", required=True)
+    p_save.add_argument("--body")
+    p_save.add_argument("--file", type=Path)
+    p_save.add_argument("--slug", help="upsert: update the doc with this slug"
+                        " if it exists, else create it with this slug")
+    p_save.add_argument("--edge", action="append", default=[],
+                        metavar="PREDICATE:SLUG")
+
+    p_get = sub.add_parser("get")
+    p_get.add_argument("id_or_slug")
+    p_get.add_argument("--json", action="store_true")
+
+    p_search = sub.add_parser("search")
+    p_search.add_argument("query")
+    p_search.add_argument("--domain")
+    p_search.add_argument("-k", type=int, default=8)
+    p_search.add_argument("--json", action="store_true")
+
+    sub.add_parser("status")
+
+    p_pin = sub.add_parser("pin")
+    pin_sub = p_pin.add_subparsers(dest="pin_cmd", required=True)
+    pa = pin_sub.add_parser("add")
+    pa.add_argument("--body")
+    pa.add_argument("--document")
+    pa.add_argument("--scope", default="global")
+    pa.add_argument("--priority", type=int, default=100)
+    pin_sub.add_parser("list").add_argument("--all", action="store_true")
+    pin_sub.add_parser("rm").add_argument("pin_id")
+    pin_sub.add_parser("verify").add_argument("pin_id")
+
+    p_bk = sub.add_parser("backup")
+    p_bk.add_argument("--install-launchd", action="store_true")
+
+    p_maint = sub.add_parser("maintenance")
+    p_maint.add_argument("--install-launchd", action="store_true")
+    p_maint.add_argument("--verify-backup", action="store_true",
+                         help="force the weekly restore-test now")
+    p_maint.add_argument("--no-worker", action="store_true",
+                         help="skip the worker drain tick")
+
+    p_rs = sub.add_parser("restore")
+    p_rs.add_argument("dump", type=Path)
+    p_rs.add_argument("--yes", action="store_true")
+
+    sub.add_parser("review")
+
+    p_purge = sub.add_parser("purge")
+    p_purge.add_argument("--older-days", type=int, default=30)
+    p_purge.add_argument("--yes", action="store_true")
+
+    p_mig = sub.add_parser("migrate")
+    mig_sub = p_mig.add_subparsers(dest="migrate_cmd", required=True)
+    m_run = mig_sub.add_parser("run")
+    m_run.add_argument("--source", type=Path,
+                       default=Path.home() / ".ultra-memory",
+                       help="an llm-wiki store: a dir with wiki/ and optional"
+                            " memory.db")
+    m_run.add_argument("--yes", action="store_true")
+    m_run.add_argument("--dry-run", action="store_true")
+    m_run.add_argument("--limit", type=int, default=None)
+    m_run.add_argument("--skip-backup", action="store_true")
+    mig_sub.add_parser("classify")
+    m_apply = mig_sub.add_parser("apply-domains")
+    m_apply.add_argument("report_tsv", type=Path)
+    m_apply.add_argument("--yes", action="store_true")
+    m_rep = mig_sub.add_parser("report")
+    m_rep.add_argument("--golden", type=Path, default=None)
+
+    args = p.parse_args(argv)
+    cfg = load_config()
+
+    if args.cmd == "init-db":
+        applied = db.init_db(cfg)
+        print("applied:", ", ".join(applied) or "(none — up to date)")
+        return 0
+
+    if args.cmd == "backup":
+        if args.install_launchd:
+            if sys.platform != "darwin":
+                print("launchd is macOS-only; on Linux schedule 'rag backup'"
+                      " via cron or a systemd timer"
+                      " (see docs/deploy/scheduling-linux.md)", file=sys.stderr)
+                return 1
+            rag_bin = Path(shutil.which("rag") or sys.argv[0]).resolve()
+            plist = backup_mod.install_launchd(cfg, rag_bin)
+            print(f"launchd installed: {plist}")
+        res = backup_mod.run_backup(cfg)
+        print(f"local:  {res.local_path}")
+        print(f"cloud:  {res.cloud_path or '—'}")
+        for w in res.warnings:
+            print(f"WARNING: {w}", file=sys.stderr)
+        return 0
+
+    if args.cmd == "restore":
+        if not args.yes:
+            print("refusing without --yes", file=sys.stderr)
+            return 1
+        backup_mod.restore(cfg, args.dump, assume_yes=True)
+        print("restored.")
+        return 0
+
+    if args.cmd == "maintenance":
+        if args.install_launchd:
+            if sys.platform != "darwin":
+                print("launchd is macOS-only; on Linux schedule 'rag maintenance'"
+                      " via cron or a systemd timer"
+                      " (see docs/deploy/scheduling-linux.md)", file=sys.stderr)
+                return 1
+            rag_bin = Path(shutil.which("rag") or sys.argv[0]).resolve()
+            plist = maintenance_mod.install_launchd(cfg, rag_bin)
+            print(f"launchd installed: {plist}")
+            return 0
+        return maintenance_mod.run(cfg, force_verify=args.verify_backup,
+                                   skip_worker=args.no_worker)
+
+    if args.cmd == "purge":
+        if not args.yes:
+            print("refusing without --yes", file=sys.stderr)
+            return 1
+        admin = db.connect(cfg, role="admin")
+        try:
+            n = curation_mod.purge(admin, older_days=args.older_days,
+                                   assume_yes=True)
+        finally:
+            admin.close()
+        print(f"purged {n} refuted documents")
+        return 0
+
+    if args.cmd == "install":
+        rep = install_mod.install(cfg, with_launchd=not args.no_launchd)
+        print(f"mcp:      registered '{install_mod.MCP_NAME}' and"
+              f" '{install_mod.MCP_NAME_RO}' (user scope)")
+        print("          (restrict subagents by allowlisting only"
+              " mcp__agentic-rag-ro__* tools in their definitions)")
+        print(f"hooks:    {rep.settings_path}")
+        print(f"launchd:  {rep.plist_path or 'skipped'}")
+        return 0
+
+    if args.cmd == "migrate" and args.migrate_cmd == "run":
+        if not (args.yes or args.dry_run):
+            print("refusing without --yes (use --dry-run to preview)",
+                  file=sys.stderr)
+            return 1
+        lock = None
+        if not args.dry_run:
+            if not args.skip_backup:
+                backup_mod.run_backup(cfg)
+                print("pre-migration backup done")
+            if embed.try_embed_texts(["migration preflight"], cfg) is None:
+                print("error: Ollama/bge-m3 unreachable — the import embeds"
+                      " every chunk; only --dry-run works without embeddings",
+                      file=sys.stderr)
+                return 3
+            # pass LOCK_PATH explicitly — acquire_lock's default is bound at
+            # def time; the module attr is what tests monkeypatch (ffa86a2)
+            lock = worker_mod.acquire_lock(worker_mod.LOCK_PATH)
+            if lock is None:
+                print("error: another writer (worker) is active — retry in a"
+                      " moment", file=sys.stderr)
+                return 3
+        conn = db.connect(cfg, role="writer")
+        try:
+            migration_mod.run_migration(conn, cfg, args.source,
+                                        dry_run=args.dry_run,
+                                        limit=args.limit)
+        finally:
+            conn.close()
+            if lock is not None:
+                lock.close()
+        return 0
+
+    if args.cmd == "migrate" and args.migrate_cmd == "classify":
+        conn = db.connect(cfg, role="reader")
+        try:
+            out = migration_mod.classify_domains(conn, cfg)
+        finally:
+            conn.close()
+        print(f"report: {out}")
+        return 0
+
+    if args.cmd == "migrate" and args.migrate_cmd == "apply-domains":
+        if not args.yes:
+            print("refusing without --yes", file=sys.stderr)
+            return 1
+        # same worker flock as `migrate run` — apply-domains writes too
+        # (set_domain), so it must not race the worker's writes either
+        lock = worker_mod.acquire_lock(worker_mod.LOCK_PATH)
+        if lock is None:
+            print("error: another writer (worker) is active — retry in a"
+                  " moment", file=sys.stderr)
+            return 3
+        conn = db.connect(cfg, role="writer")
+        try:
+            applied, skipped = migration_mod.apply_domain_report(
+                conn, args.report_tsv)
+        finally:
+            conn.close()
+            lock.close()
+        print(f"domains applied: {applied}, skipped: {skipped}")
+        return 0
+
+    if args.cmd == "migrate" and args.migrate_cmd == "report":
+        conn = db.connect(cfg, role="reader")
+        try:
+            out = migration_mod.acceptance_report(conn, cfg,
+                                                  golden=args.golden)
+        finally:
+            conn.close()
+        print(f"report: {out}")
+        return 0
+
+    conn = db.connect(cfg, role="writer")
+    try:
+        if args.cmd == "domain" and args.domain_cmd == "add":
+            domains_mod.add_domain(conn, args.name, args.description)
+            print(f"domain '{args.name}' ready")
+            return 0
+
+        if args.cmd == "domain" and args.domain_cmd == "list":
+            for d in domains_mod.list_domains(conn):
+                print(f"{d.name:<20} {d.docs:>5}  {d.description}")
+            return 0
+
+        if args.cmd == "save":
+            body = args.body if args.body is not None else (
+                args.file.read_text() if args.file else "")
+            edges = []
+            for spec in args.edge:
+                pred, _, slug = spec.partition(":")
+                if not slug:
+                    print(f"bad --edge (want PREDICATE:SLUG): {spec}",
+                          file=sys.stderr)
+                    return 1
+                edges.append(EdgeSpec(pred, slug))
+            # --slug upserts: reuse the existing doc_id when that slug is live
+            # (update path), else create carrying the requested slug. Enables
+            # idempotent re-ingestion and read-modify-write appends.
+            doc_id = None
+            if args.slug:
+                row = conn.execute(
+                    "SELECT id FROM documents WHERE slug = %s", (args.slug,)
+                ).fetchone()
+                if row is not None:
+                    doc_id = str(row["id"])
+            res = store.save_document(
+                conn, cfg, title=args.title, body=body, domain=args.domain,
+                dtype=args.dtype, edges=edges, actor="cli",
+                slug=args.slug, doc_id=doc_id,
+            )
+            print(f"{'created' if res.created else 'updated'} {res.slug}"
+                  f" ({res.n_chunks} chunks, {res.n_edges} edges)")
+            for w in res.warnings:
+                print(f"WARNING: {w}", file=sys.stderr)
+            return 0
+
+        if args.cmd == "get":
+            doc = store.get_document(conn, args.id_or_slug)
+            if doc is None:
+                print("not found", file=sys.stderr)
+                return 1
+            if args.json:
+                print(json.dumps(doc, default=_json_default, indent=1))
+            else:
+                print(f"# {doc['title']}  [{doc['domain']}/{doc['dtype']}"
+                      f" · {doc['status']} · {doc['slug']}]\n")
+                print(doc["body"])
+                for e in doc["edges_out"]:
+                    print(f"  -> {e.predicate}: {e.peer_slug}")
+                for e in doc["edges_in"]:
+                    print(f"  <- {e.predicate}: {e.peer_slug}")
+            return 0
+
+        if args.cmd == "search":
+            hits, warnings = search_mod.search(
+                conn, cfg, args.query, domain=args.domain, k=args.k)
+            if args.json:
+                print(json.dumps({"results": hits, "warnings": warnings},
+                                 default=_json_default, indent=1))
+            else:
+                for h in hits:
+                    print(f"{h.score:.4f}  {h.slug:<40} [{h.domain}/{h.dtype}]")
+                for w in warnings:
+                    print(f"WARNING: {w}", file=sys.stderr)
+            return 0
+
+        if args.cmd == "status":
+            rep = status_mod.gather_status(conn, cfg)
+            print("documents:")
+            for r in rep.documents:
+                print(f"  {r['domain']:<20} {r['status']:<10} {r['n']}")
+            print("queue:")
+            for r in rep.queue:
+                print(f"  {r['kind']:<10} {r['status']:<12} {r['n']}")
+            for e in rep.queue_errors:
+                print(f"  ERROR #{e.id} {e.kind} ({e.session_id or '-'}, "
+                      f"{e.attempts} attempts): {e.last_error}")
+            print(f"last local backup: {rep.last_backup or '—'}")
+            if rep.backup_warning:
+                print(f"WARNING: {rep.backup_warning}")
+            if rep.last_curation_at:
+                print(f"last curation: {rep.last_curation_at:%Y-%m-%d %H:%M}")
+            return 0
+
+        if args.cmd == "review":
+            rep = curation_mod.review_report(conn, cfg)
+            print("duplicate candidates:")
+            for d in rep["duplicate_candidates"]:
+                print(f"  {d['src_slug']} duplicate_of {d['dst_slug']}")
+            print("dangling links:")
+            for d in rep["dangling"]:
+                print(f"  {d['src_slug']} -{d['predicate']}-> {d['dst_slug']}")
+            print("stale pins:")
+            for p_ in rep["stale_pins"]:
+                print(f"  {p_['id']}  (since {p_['anchor']:%Y-%m-%d})"
+                      f"  {p_['body'][:80]}")
+            print("mining suggestions:")
+            for s in rep["suggestions"]:
+                print(f"  [{s['op']}] {s['summary'][:100]}")
+            print("queue errors:")
+            for e in rep["queue_errors"]:
+                print(f"  #{e['id']} {e['kind']}: {e['last_error']}")
+            return 0
+
+        if args.cmd == "pin":
+            if args.pin_cmd == "add":
+                pid = pins_mod.add_pin(
+                    conn, body=args.body, document_id=args.document,
+                    scope=args.scope, priority=args.priority)
+                print(f"pinned {pid}")
+                return 0
+            if args.pin_cmd == "list":
+                for p in pins_mod.list_pins(conn, include_inactive=args.all):
+                    state = "" if p.active else " (inactive)"
+                    print(f"{p.id}  [{p.scope}] p{p.priority}{state}  {p.body}")
+                return 0
+            if args.pin_cmd == "rm":
+                ok = pins_mod.unpin(conn, args.pin_id)
+                print("unpinned" if ok else "no such active pin")
+                return 0 if ok else 1
+            if args.pin_cmd == "verify":
+                ok = pins_mod.verify_pin(conn, args.pin_id)
+                print("verified" if ok else "no such active pin")
+                return 0 if ok else 1
+    finally:
+        conn.close()
+    return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Exit-code contract: 0 ok · 1 user/data error · 3 infrastructure
+    (DB down, pg tools, Ollama) · 4 unexpected. argparse exits 2 itself."""
+    try:
+        return _main(argv)
+    except (psycopg.OperationalError, RuntimeError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 3
+    except (ValueError, FileNotFoundError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:  # noqa: BLE001 — last-resort mapping, never a traceback
+        print(f"unexpected error: {type(e).__name__}: {e}", file=sys.stderr)
+        return 4
+
+
+if __name__ == "__main__":
+    sys.exit(main())

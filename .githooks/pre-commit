@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# agentic-rag doc-discipline (WARN-ONLY, never blocks).
+#
+# If a commit stages changes under agentic_rag/ (the library) or sql/ but nothing
+# under docs/, print a reminder listing the changed modules so the handbook is
+# kept in lockstep with the code. This enforces the HABIT, not a gate — there is
+# deliberately no escape-hatch env var to abuse. See docs/12-contributing.md.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+set -u
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+code_changed=$(printf '%s\n' "$staged" | grep -E '^(agentic_rag/.*\.(py|sql)|sql/.*\.sql)$' || true)
+docs_changed=$(printf '%s\n' "$staged" | grep -E '^docs/' || true)
+
+if [ -n "$code_changed" ] && [ -z "$docs_changed" ]; then
+  echo ""
+  echo "⚠  agentic-rag doc-discipline reminder"
+  echo "   Code changed under agentic_rag/ or sql/, but docs/ was NOT touched:"
+  printf '%s\n' "$code_changed" | sed 's/^/     - /'
+  echo "   Consider updating the handbook:  docs/11-reference-cli-and-mcp.md ·"
+  echo "                       docs/10-architecture.md · docs/06-configuration-reference.md ·"
+  echo "                       docs/04-working-with-memory.md"
+  echo "   (warning only — the commit proceeds)"
+  echo ""
+fi
+
+exit 0
