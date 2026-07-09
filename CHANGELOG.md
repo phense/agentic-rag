@@ -3,9 +3,11 @@
 All notable changes to agentic-rag are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project uses
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
-milestones rather than every commit, and interfaces may still change between `0.0.x` releases.
+milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-07-09
 
 Initial public release.
 
