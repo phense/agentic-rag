@@ -19,8 +19,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from . import backup, curation, db, mining, store
+from . import backup, curation, db, mining, provider_health, store
 from .config import Config, load_config
+from .llm import LLMUnavailableError
+from .secrets import strip_secrets
 
 # The singleton lock primitive, dispatched by platform. fcntl is POSIX-only —
 # a top-level `import fcntl` would make this module unimportable on Windows —
@@ -187,9 +189,25 @@ def _fail(conn, cfg: Config, job: dict, error: Exception) -> None:
     conn.commit()
 
 
+def _provider_unavailable(conn, cfg: Config, job: dict,
+                          error: LLMUnavailableError) -> None:
+    """Restore a provider-blocked job without spending its attempt budget."""
+    conn.rollback()
+    clean = strip_secrets(str(error)[:500])[0]
+    conn.execute(
+        "UPDATE mining_queue SET status = 'pending',"
+        " attempts = GREATEST(attempts - 1, 0), finished_at = NULL,"
+        " last_error = %s,"
+        " next_attempt_at = now() + make_interval(secs => %s)"
+        " WHERE id = %s",
+        (clean, cfg.provider_backoff_seconds, job["id"]))
+    conn.commit()
+    provider_health.record_failure(cfg.llm_provider, clean)
+
+
 def drain(conn, cfg: Config, *, runner=subprocess.run,
           max_jobs: int = 50) -> dict:
-    done = failed = 0
+    done = failed = unavailable = 0
     for _ in range(max_jobs):
         job = claim_next(conn)
         if job is None:
@@ -197,12 +215,20 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
         try:
             new_uuid = process_job(conn, cfg, job, runner=runner)
             _complete(conn, job["id"], new_uuid)
+            if job["kind"] in {"mine", "curate"}:
+                provider_health.record_success(cfg.llm_provider)
             done += 1
+        except LLMUnavailableError as e:
+            _log(f"job {job['id']} ({job['kind']}) provider unavailable: {e!r}")
+            _provider_unavailable(conn, cfg, job, e)
+            unavailable += 1
+            break
         except Exception as e:  # noqa: BLE001 — per-job fail-open
             _log(f"job {job['id']} ({job['kind']}) failed: {e!r}")
             _fail(conn, cfg, job, e)
             failed += 1
-    return {"done": done, "failed": failed}
+    return {"done": done, "failed": failed,
+            "provider_unavailable": unavailable}
 
 
 def _opportunistic_backup(cfg: Config) -> None:
@@ -227,7 +253,8 @@ def main(argv: list[str] | None = None) -> int:
             requeue_orphans(conn, cfg)
             rep = drain(conn, cfg)
             _log(f"drain: {rep}")
-            curation.run_pass(conn, cfg)
+            if not rep["provider_unavailable"]:
+                curation.run_pass(conn, cfg)
         finally:
             conn.close()
         _opportunistic_backup(cfg)

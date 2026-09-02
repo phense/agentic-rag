@@ -6,6 +6,7 @@ import pytest
 
 from agentic_rag import worker
 from agentic_rag.config import Config
+from agentic_rag.llm import LLMJobError, LLMUnavailableError
 
 
 def _job(conn, kind, **cols):
@@ -148,6 +149,64 @@ def test_drain_failure_backs_off_then_errors(conn, cfg, monkeypatch):
     assert row["attempts"] == 2
 
 
+def test_provider_outage_preserves_attempt_and_stops_drain(
+        conn, cfg, tmp_path, monkeypatch):
+    _job(conn, "mine", session_id="s1", transcript_path="/a")
+    _job(conn, "mine", session_id="s2", transcript_path="/b")
+    monkeypatch.setattr(
+        worker.mining, "mine_session",
+        lambda *a, **k: (_ for _ in ()).throw(
+            LLMUnavailableError("codex login required")))
+    health = tmp_path / "provider-health.json"
+    monkeypatch.setattr(worker.provider_health, "HEALTH_PATH", health)
+    cfg2 = Config(db_name=cfg.db_name, llm_provider="codex",
+                  provider_backoff_seconds=3600)
+
+    rep = worker.drain(conn, cfg2)
+
+    rows = conn.execute(
+        "SELECT status, attempts FROM mining_queue ORDER BY id").fetchall()
+    assert rep == {"done": 0, "failed": 0, "provider_unavailable": 1}
+    assert [(r["status"], r["attempts"]) for r in rows] == [
+        ("pending", 0), ("pending", 0)]
+    delay = conn.execute(
+        "SELECT extract(epoch FROM (next_attempt_at - now())) AS d"
+        " FROM mining_queue ORDER BY id LIMIT 1").fetchone()["d"]
+    assert 3500 < delay <= 3600
+    assert worker.provider_health.read_health(health).available is False
+
+
+def test_job_error_keeps_ordinary_retry_policy(conn, cfg, monkeypatch):
+    _job(conn, "mine", session_id="s1", transcript_path="/a")
+    monkeypatch.setattr(
+        worker.mining, "mine_session",
+        lambda *a, **k: (_ for _ in ()).throw(
+            LLMJobError("bad structured output")))
+    rep = worker.drain(conn, cfg)
+    row = conn.execute(
+        "SELECT status, attempts FROM mining_queue").fetchone()
+    assert rep == {"done": 0, "failed": 1, "provider_unavailable": 0}
+    assert (row["status"], row["attempts"]) == ("pending", 1)
+
+
+def test_successful_llm_job_records_provider_recovery(
+        conn, cfg, tmp_path, monkeypatch):
+    _job(conn, "mine", session_id="s1", transcript_path="/a")
+    health = tmp_path / "provider-health.json"
+    monkeypatch.setattr(worker.provider_health, "HEALTH_PATH", health)
+    worker.provider_health.record_failure("codex", "login", path=health)
+
+    def fake_mine(*a, **k):
+        from agentic_rag.mining import MineResult
+        return MineResult(saved=0, new_last_uuid="u1")
+
+    monkeypatch.setattr(worker.mining, "mine_session", fake_mine)
+    cfg2 = Config(db_name=cfg.db_name, llm_provider="codex")
+    rep = worker.drain(conn, cfg2)
+    assert rep == {"done": 1, "failed": 0, "provider_unavailable": 0}
+    assert worker.provider_health.read_health(health).available is True
+
+
 def test_drain_dispatches_embed_and_backup(conn, cfg, monkeypatch):
     _job(conn, "embed", payload=json.dumps({"document_id": "d-1"}))
     _job(conn, "backup")
@@ -181,3 +240,26 @@ def test_main_never_raises(tmp_path, monkeypatch):
     monkeypatch.setattr(worker.db, "connect", broken_connect)
     assert worker.main([]) == 0                     # logged, not raised
     assert "db down" in (tmp_path / "worker.log").read_text()
+
+
+def test_main_skips_post_drain_curation_after_provider_outage(
+        tmp_path, monkeypatch):
+    class Conn:
+        def close(self):
+            pass
+
+    conn = Conn()
+    monkeypatch.setattr(worker, "LOCK_PATH", tmp_path / "worker.lock")
+    monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "worker.log")
+    monkeypatch.setattr(worker, "load_config", lambda: Config())
+    monkeypatch.setattr(worker.db, "connect", lambda *a, **k: conn)
+    monkeypatch.setattr(worker, "requeue_orphans", lambda *a, **k: 0)
+    monkeypatch.setattr(
+        worker, "drain", lambda *a, **k:
+        {"done": 0, "failed": 0, "provider_unavailable": 1})
+    monkeypatch.setattr(
+        worker.curation, "run_pass",
+        lambda *a, **k: (_ for _ in ()).throw(
+            AssertionError("must not make another LLM call")))
+    monkeypatch.setattr(worker, "_opportunistic_backup", lambda *a: None)
+    assert worker.main([]) == 0
