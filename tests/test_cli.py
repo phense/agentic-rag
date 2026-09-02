@@ -106,6 +106,14 @@ def test_status_surfaces_backup_warning(cli_env, tmp_path, monkeypatch, capsys):
     assert "WARNING: cloud backup dir unavailable" in out
 
 
+def test_status_surfaces_provider_health(cli_env, capsys):
+    cli.status_mod.provider_health.record_failure("codex", "login required")
+    assert main(["status"]) == 0
+    out = capsys.readouterr().out
+    assert "provider: codex unavailable" in out
+    assert "codex login" in out
+
+
 def test_pin_add_list_rm_roundtrip(cli_env, capsys):
     assert main(["pin", "add", "--body", "Immer uv benutzen."]) == 0
     pid = capsys.readouterr().out.split()[-1]

@@ -12,7 +12,7 @@ from __future__ import annotations
 import sys
 from datetime import datetime, timedelta, timezone
 
-from .. import db, jobs
+from .. import db, jobs, provider_health
 # module attribute so tests can monkeypatch session_start.WARNING_STATE
 from ..backup import WARNING_STATE
 from ..config import Config, load_config
@@ -35,6 +35,19 @@ def build_context(conn, cfg: Config, cwd: str | None) -> str:
     if n_err:
         warnings.append(
             f"⚠️ {n_err} queue job(s) in error state — see `rag status`")
+    health = provider_health.read_health()
+    if health is not None and not health.available:
+        since = (
+            f" since {health.first_failure_at:%Y-%m-%d %H:%M %Z}"
+            if health.first_failure_at is not None else ""
+        )
+        remediation = (
+            " — run `codex login`, then the next worker run resumes automatically"
+            if health.provider == "codex" else " — see `rag status`"
+        )
+        warnings.append(
+            f"⚠️ session mining provider {health.provider} unavailable"
+            f"{since}{remediation}")
 
     pin_list = matching_pins(conn, cwd)
     if pin_list:

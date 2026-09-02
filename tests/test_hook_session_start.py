@@ -1,7 +1,7 @@
 import io
 import json
 
-from agentic_rag import pins
+from agentic_rag import pins, provider_health
 from agentic_rag.hooks import session_start
 
 
@@ -86,6 +86,38 @@ def test_surfaces_backup_warning_and_queue_errors(conn, hook_env, tmp_path,
     ctx = _run(_payload())
     assert "cloud backup dir unavailable" in ctx
     assert "1 queue job(s) in error state" in ctx
+
+
+def test_surfaces_provider_remediation(conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    health = tmp_path / "provider-health.json"
+    monkeypatch.setattr(provider_health, "HEALTH_PATH", health)
+    provider_health.record_failure(
+        "codex", "login required", path=health)
+    ctx = _run(_payload())
+    assert "session mining provider codex unavailable" in ctx
+    assert "codex login" in ctx
+
+
+def test_recovered_provider_is_quiet(conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    health = tmp_path / "provider-health.json"
+    monkeypatch.setattr(provider_health, "HEALTH_PATH", health)
+    provider_health.record_failure("codex", "login", path=health)
+    provider_health.record_success("codex", path=health)
+    ctx = _run(_payload())
+    assert "session mining provider" not in ctx
+
+
+def test_malformed_provider_health_is_visible(
+        conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    health = tmp_path / "provider-health.json"
+    monkeypatch.setattr(provider_health, "HEALTH_PATH", health)
+    health.write_text("not json")
+    ctx = _run(_payload())
+    assert "session mining provider unknown unavailable" in ctx
+    assert "rag status" in ctx
 
 
 def test_stale_curation_enqueues_and_spawns(conn, hook_env, monkeypatch):

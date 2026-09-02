@@ -8,6 +8,7 @@ from datetime import datetime
 # status.WARNING_STATE independently
 from .backup import WARNING_STATE
 from .config import Config
+from . import provider_health
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,8 @@ class StatusReport:
     last_backup: str | None = None
     backup_warning: str | None = None
     last_curation_at: datetime | None = None
+    provider_health: provider_health.ProviderHealth | None = None
+    oldest_open_mine_at: datetime | None = None
 
 
 def gather_status(conn, cfg: Config) -> StatusReport:
@@ -48,10 +51,17 @@ def gather_status(conn, cfg: Config) -> StatusReport:
         "SELECT max(at) AS at FROM audit_log WHERE op = 'curation_pass'"
     ).fetchone()
     last_curation_at = row["at"] if row else None
+    open_row = conn.execute(
+        "SELECT min(enqueued_at) AS at FROM mining_queue"
+        " WHERE kind = 'mine'"
+        " AND status IN ('pending', 'processing', 'error')"
+    ).fetchone()
+    oldest_open_mine_at = open_row["at"] if open_row else None
     dumps = sorted(cfg.backup_local_dir.glob("*.dump"), reverse=True)
     last_backup = dumps[0].name if dumps else None
     backup_warning = None
     if WARNING_STATE.exists():
         backup_warning = WARNING_STATE.read_text().strip()
-    return StatusReport(documents, queue, queue_errors, last_backup,
-                        backup_warning, last_curation_at)
+    return StatusReport(
+        documents, queue, queue_errors, last_backup, backup_warning,
+        last_curation_at, provider_health.read_health(), oldest_open_mine_at)

@@ -347,6 +347,19 @@ def _main(argv: list[str] | None = None) -> int:
             for e in rep.queue_errors:
                 print(f"  ERROR #{e.id} {e.kind} ({e.session_id or '-'}, "
                       f"{e.attempts} attempts): {e.last_error}")
+            if rep.oldest_open_mine_at:
+                print("oldest open mine: "
+                      f"{rep.oldest_open_mine_at:%Y-%m-%d %H:%M}")
+            if rep.provider_health:
+                state = ("available" if rep.provider_health.available
+                         else "unavailable")
+                print(f"provider: {rep.provider_health.provider} {state}")
+                if not rep.provider_health.available:
+                    if rep.provider_health.reason:
+                        print(f"  reason: {rep.provider_health.reason}")
+                    if rep.provider_health.provider == "codex":
+                        print("  remediation: run `codex login`; queued jobs "
+                              "resume automatically")
             print(f"last local backup: {rep.last_backup or '—'}")
             if rep.backup_warning:
                 print(f"WARNING: {rep.backup_warning}")
