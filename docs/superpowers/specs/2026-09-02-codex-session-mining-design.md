@@ -75,6 +75,8 @@ The Codex adapter invokes a short-lived, non-interactive transform:
 - `--ephemeral`
 - `--sandbox read-only`
 - `--skip-git-repo-check`
+- `--ignore-user-config`
+- `--ignore-rules`
 - `--output-schema <temporary-schema-file>`
 - `--output-last-message <temporary-output-file>`
 
@@ -83,12 +85,14 @@ prompt because `codex exec` has no Claude-style `--system-prompt` argument. The
 adapter reads only the last-message file as the structured result, parses it as
 JSON, verifies that it is an object, and always removes temporary files.
 
-The subprocess working directory is the `agentic-rag` repository. It receives
-the existing hook-disabling environment marker and Codex-specific recursion
-guards as needed. Read-only sandboxing and an instruction that this is a pure
-JSON transform prevent the miner from modifying the repository or invoking the
-knowledge gateway itself. The application remains the only writer after it
-validates the returned candidates.
+The subprocess working directory is an empty temporary directory, not a source
+repository. It ignores user configuration and project rules/plugins/hooks while
+retaining Codex authentication from `CODEX_HOME`; it also receives the existing
+hook-disabling environment marker and Codex-specific recursion guards as needed.
+Read-only sandboxing and an instruction that this is a pure JSON transform
+prevent the miner from modifying a repository or invoking the knowledge gateway
+itself. The application remains the only writer after it validates the returned
+candidates.
 
 The existing Claude adapter remains supported behind `provider = "claude"` for
 rollback. Its existing command contract and tests remain intact. There is never
@@ -216,7 +220,8 @@ normal 50-job cap, inspect output counts/contracts, then drain the remainder.
 Implementation is test-driven. Required coverage:
 
 1. Codex argv contains Luna, high effort, ephemeral mode, read-only sandbox,
-   schema file, output file, and absolute configured binary.
+   ignored user/rule configuration, schema file, output file, and absolute
+   configured binary; cwd is an empty temporary directory.
 2. Prompt composition preserves system and user content without shell quoting.
 3. Valid JSON object output passes; missing/empty/non-JSON/non-object output fails.
 4. Temporary files are removed after success, non-zero exit, and timeout.
