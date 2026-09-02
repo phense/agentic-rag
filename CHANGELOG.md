@@ -7,6 +7,18 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Added
+- **Codex mining provider.** Mining and curation can use schema-constrained,
+  ephemeral `codex exec` calls with configurable model and reasoning effort;
+  the Claude adapter remains available as a compatibility rollback.
+- **Provider-health visibility.** `rag status` and SessionStart expose sustained
+  provider outages and their remediation without leaking subprocess secrets.
+
+### Fixed
+- **Lossless provider outages.** A missing CLI, timeout, or expired login now
+  returns the claimed job to `pending` without consuming an attempt, applies a
+  bounded backoff, records atomic health state, and stops the current drain.
+
 ## [0.2.0] - 2026-07-09
 
 Cross-platform (Windows) portability hardening. These changes remove the hard

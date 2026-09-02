@@ -124,7 +124,9 @@ it:
 | `pins.py` | User-owned standing rules injected at `SessionStart`; no cap, deterministic order, never written by automation. |
 | `migration.py` | The `migrate` importer — brings an existing llm-wiki store in through the write gateway, idempotent by source id, never writing to the source. |
 | `ultra_source.py` | Read-only readers for an llm-wiki source corpus (topic-partitioned Markdown + optional `memory.db`) that `migration.py` reads from. |
-| `mining.py` | Session mining — one structured `claude -p` call per queue job, extracting candidate memories/lessons/signals, written through the gateway. |
+| `llm.py` | Provider-neutral structured-output seam with Codex and Claude CLI adapters and typed job/provider failures. |
+| `provider_health.py` | Atomic, sanitized provider availability state consumed by status hooks and external monitoring. |
+| `mining.py` | Session mining — one structured provider call per queue job, extracting candidate memories/lessons/signals, written through the gateway. |
 | `worker.py` | The single writer — a short-lived, flock-singleton process that drains the mining queue, runs a bounded curation pass, and takes an opportunistic backup, then exits. |
 | `jobs.py` | `mining_queue` plumbing shared by hooks and the worker; deliberately import-light so hooks never pull in `llm`/`mining`/`curation`. |
 | `curation.py` | Bounded, justified curation that runs only inside the single writer — dangling-link resolution, exact-duplicate merges, contradiction review, refute/purge support. |

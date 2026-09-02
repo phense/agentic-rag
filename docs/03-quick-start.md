@@ -12,7 +12,7 @@ Install these first — agentic-rag doesn't bundle or manage any of them:
 |---|---|
 | **PostgreSQL 17** with the [`pgvector`](https://github.com/pgvector/pgvector) extension | The schema uses `halfvec`, which needs pgvector ≥ 0.7. This is where documents, chunks, and edges live. |
 | **[Ollama](https://ollama.com)**, with the embedding model pulled | `ollama pull bge-m3` — `bge-m3` produces the 1024-dim embeddings the schema is built for. Search degrades to full-text-only if Ollama is unreachable, but embeddings need it. |
-| **The [`claude` CLI](https://docs.claude.com/en/docs/claude-code)**, authenticated | Session mining and curation run `claude -p` using whatever auth your `claude` CLI already has — your Claude subscription (OAuth login) or an `ANTHROPIC_API_KEY`. The choice is yours; agentic-rag neither imposes nor refuses one. On a subscription these calls add nothing beyond your plan; with an API key they're metered by Anthropic like any API use. Either way, embeddings stay local (Ollama/`bge-m3`), so retrieval is free. |
+| **An authenticated LLM CLI** | Session mining and curation support `codex exec` (authenticate with `codex login`) and `claude -p`. Select it in `[llm]`; Claude/Haiku is the compatibility default. Embeddings stay local (Ollama/`bge-m3`). |
 | **[`uv`](https://docs.astral.sh/uv/)** | Dependency management and running the project. |
 | **Python ≥ 3.13** | `uv sync` will pick this up automatically if it's on your machine. |
 
@@ -21,7 +21,8 @@ Confirm the pieces you're less sure about before moving on:
 ```bash
 psql --version          # want 17.x
 ollama list              # bge-m3 should be in there after the pull below
-claude --version         # confirms the CLI is installed
+codex login status       # for provider = "codex"
+# or: claude --version   # for provider = "claude"
 ```
 
 ## Install, in this exact order

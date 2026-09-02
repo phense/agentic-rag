@@ -153,35 +153,25 @@ need them. The protection is real for the failure mode it targets — an
 ordinary write accidentally deleting something — and it isn't a claim to
 anything stronger than that.
 
-## Why auth-agnostic
+## Why the LLM provider is one configurable seam
 
-Every LLM call in the system — mining's extraction pass, curation's
-refute-review step — goes through one chokepoint, `agentic_rag/llm.py`, and
-that chokepoint shells out to the `claude` CLI. What that CLI is
-authenticated with is your call, not the RAG's: it uses whatever you've
-logged the `claude` CLI into — your Claude subscription (OAuth login) or an
-`ANTHROPIC_API_KEY` in the environment. agentic-rag neither imposes one nor
-refuses the other. It does not inspect your auth or refuse to run when a key
-is present; it just runs `claude -p` and lets the CLI use whatever credential
-it has.
+Every LLM call in the system — mining extraction and curation review — goes
+through `agentic_rag/llm.py`. That chokepoint has explicit Codex and Claude
+CLI adapters. Public defaults remain Claude/Haiku for compatibility; a local
+deployment can select Codex/Luna/high and use the CLI's ChatGPT login without
+adding a direct API client or key to agentic-rag.
 
-The reasoning: the RAG shouldn't dictate how you pay Anthropic. That's a
-billing relationship between you and Anthropic, and hard-coding a preference
-for one auth mode would only get in the way of whichever setup you actually
-have. The single chokepoint earns its keep a different way — not by policing
-credentials, but by keeping the LLM seam in exactly one place. `llm.py` is
-the one module to change if you ever want to repoint at a different backend
-(a local model via Ollama, say), rather than a codebase-wide hunt for every
-place an LLM gets called.
+The seam centralizes structured-output validation, timeouts, prompt handling,
+and failure classification. A bad model response is a job failure; a missing
+binary, timeout, or expired provider login is a provider outage. The latter
+returns the job to `pending` without consuming its retry budget, stops the
+current drain, and writes an atomic health artifact. This prevents one shared
+authentication problem from exhausting every independent queue item.
 
-The honest cost framing follows from the auth you pick. On a subscription,
-mining and curation add nothing beyond the plan you already pay for, however
-much of it happens. With an API key, those same `claude -p` calls are metered
-by Anthropic like any other API use — again, your choice. Either way,
-embeddings are always local (Ollama/bge-m3), so retrieval and re-embedding
-cost nothing regardless of how the `claude` CLI is authenticated. The only
-part of the system whose cost depends on auth is the LLM-assisted work, and
-only when you've pointed the CLI at a metered key.
+Codex runs ephemerally in an empty temporary directory with repository and
+user rules ignored and read-only sandboxing. Claude remains a configuration
+rollback path. In either case embeddings are local (Ollama/bge-m3); only the
+bounded mining/curation prompt goes to the configured provider.
 
 ## What this leaves open
 
@@ -196,11 +186,9 @@ None of the above is free, and it's worth saying so in one place:
 - Archive-not-delete means a store that's never curated accumulates archived
   and refuted rows forever until someone runs `rag purge` — the safety
   net is also, left unattended, a slow accumulation of dead weight.
-- Auth-agnostic LLM access means the marginal cost of mining and curation is
-  whatever your chosen auth implies — nothing beyond the plan on a
-  subscription, metered per-token with an API key — while embeddings stay
-  local and free either way; the RAG leaves that tradeoff in your hands
-  rather than deciding it for you.
+- Provider-configurable LLM access means mining and curation depend on the
+  account and limits of the selected CLI, while embeddings stay local; the
+  RAG leaves that tradeoff in your hands rather than deciding it for you.
 
 Each of these is a considered choice for what this project is — a
 local-first, single-user, RAM-lean memory layer — not an oversight. They're

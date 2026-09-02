@@ -2,7 +2,7 @@
 
 *What you'll learn: how a Claude Code session turns into stored knowledge with
 no action from you — the Stop hook, the queue, the single-writer worker, the
-`claude -p` extraction call, the near-duplicate gate — and how the store keeps
+provider-backed extraction call, the near-duplicate gate — and how the store keeps
 itself honest afterward: dedup, dangling-link and stale-pin review, and
 refute/purge.*
 
@@ -17,17 +17,15 @@ the memory fills itself.**
 2. Each time Claude finishes responding, the **Stop** hook fires. It
    enqueues the session's transcript for mining and returns in well under
    100 ms — it never blocks your terminal. (A debounce in the queue, not in
-   the hook, keeps this from triggering a `claude -p` call on every turn —
+   the hook, keeps this from triggering a provider call on every turn —
    see below.)
 3. A detached background process, the **worker**, wakes up. If another
    worker is already running, this one exits immediately — there is always
    at most one.
 4. The worker drains the queue: for each mining job, it builds a **digest**
    of the transcript (local file, redacted, only the new part since last
-   time) and runs `claude -p` — through your local `claude` CLI, using
-   whatever it's authenticated with (your Claude subscription or API key) — to
-   extract durable memories, lessons, and error signals as schema-constrained
-   JSON.
+   time) and calls the configured Codex or Claude CLI to extract durable
+   memories, lessons, and error signals as schema-constrained JSON.
 5. Each extracted item is checked against the store for a near-duplicate,
    then written through the write gateway (secret-stripped, chunked,
    embedded, audited).
@@ -38,10 +36,9 @@ the memory fills itself.**
    project-relevant documents that resulted, and **UserPromptSubmit** can
    recall a stored signal the instant you paste an error that matches one.
 
-Nothing in this loop reaches outside your machine except the `claude -p`
-call itself, which goes through your local `claude` CLI login — the same way
-a normal Claude Code session talks to Claude. There is no separate telemetry
-and no other transcript ever leaves your disk.
+Nothing in this loop reaches outside your machine except the configured LLM
+provider call. There is no separate telemetry or hosted RAG backend, and no
+other transcript ever leaves your disk.
 
 ## Three hooks: two that feed the loop, one that closes it
 
@@ -56,7 +53,7 @@ session at a time, and a fresh job only becomes due
 `mine_debounce_seconds` (default 600s / 10 minutes) after it's created. Once
 that job is queued, later Stop calls in the same session are no-ops until
 the worker actually processes it — so a long session doesn't trigger a
-`claude -p` call on every single turn. When the job does run, its digest
+provider call on every single turn. When the job does run, its digest
 covers everything since the last mined turn; any further tail turns get
 picked up by the next Stop, or by the next SessionStart that finds a due
 job. Any error is logged and swallowed; the hook always exits 0 and prints
@@ -133,20 +130,23 @@ in size (`mine_max_digest_chars`, default 12000 chars, `mine_per_block_chars`
 per message, default 800). Nothing about this step calls out to anything —
 it's pure local file parsing.
 
-### The `claude -p` call: your own Anthropic account, however you pay for it
+### The provider call
 
-The digest, the list of live domains, and any pins that scope to this
-project go into one prompt, sent to `claude -p --model <llm_model>
---json-schema <schema>` (default model `haiku`, configurable). This runs
-through your local `claude` CLI, using whatever that CLI is authenticated
-with — your Claude subscription (OAuth login) or an `ANTHROPIC_API_KEY`. The
-choice is yours; agentic-rag neither imposes nor refuses one. On a
-subscription these calls add nothing beyond your plan; with an API key they
-are metered by Anthropic like any other API use — your call. The child
-process also has the Claude-Code session markers stripped from its
-environment and an internal kill switch set, so a mining subprocess can't
-recurse into the parent session or trigger its own Stop hook and re-mine
-itself.
+The digest, live domains, and project-scoped pins go into one prompt through
+`agentic_rag.llm.run_structured`. The compatibility default is Claude/Haiku.
+With `provider = "codex"`, the adapter runs `codex exec` ephemerally in an
+empty temporary directory, with user/project rules ignored, read-only
+sandboxing, a configured reasoning effort, and schema-constrained output.
+Authentication still comes from the CLI (`codex login`). The Claude adapter
+remains a configuration-only rollback path and strips Claude Code session
+markers plus sets the existing hook kill switch.
+
+A provider-wide failure is not a bad transcript: the claimed job returns to
+`pending`, its attempt count is restored, a bounded backoff is set, and that
+worker drain stops after the first failure. The atomic provider-health file,
+`rag status`, SessionStart, and the external ops sentinel make the outage
+visible. For Codex, the human remediation is `codex login`; a later successful
+job closes the health state automatically.
 
 ### Grounded or dropped
 
@@ -204,7 +204,7 @@ default 20 actions total):
   with byte-identical bodies: the newer one is archived with a
   `duplicate_of` edge to the older. Safe because nothing about the content
   is lost — it's a literal copy.
-- **Reviews mined contradictions** — one `claude -p` call per candidate. A
+- **Reviews mined contradictions** — one configured provider call per candidate. A
   candidate is any active document with an incoming `contradicts` edge from
   mining that hasn't been reviewed since that edge appeared — this is a
   deterministic worklist, not a fuzzy search. The review call sees the
@@ -255,14 +255,12 @@ row naming which slugs were removed.
   parallel session — at most one worker ever touches the queue or runs
   curation. Contention means skip, never queue extra work.
 - **Fail-open hooks, never a blocked session.** Every hook swallows its own
-  errors and exits 0. A dead database, a missing `claude` binary, an
+  errors and exits 0. A dead database, a missing provider binary, an
   unreachable Ollama — none of it can stop you from working; at worst you
   lose the context injection (and SessionStart tells you so, visibly).
-- **Auth-agnostic, local-first.** Mining and curation run on your own
-  Anthropic account through your local `claude` CLI — subscription or API
-  key, your choice; agentic-rag never dictates which. There's no separate
-  hosted service in the loop, and embeddings are always local (Ollama), so
-  retrieval and embedding cost nothing either way.
+- **Provider-configurable, local-first.** Mining and curation use the local
+  Codex or Claude CLI you configure. There's no separate hosted RAG service,
+  and embeddings are always local (Ollama).
 - **Local transcripts only.** The only input to mining is a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all.

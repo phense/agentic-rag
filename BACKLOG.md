@@ -60,6 +60,12 @@
 
 ## §3 — Operational hardening
 
+- ✅ **3.0** _(bug)_ **Circuit-break provider-wide mining outages.** Added
+  Codex/Claude provider adapters, typed outage classification, lossless queue
+  restoration without attempt consumption, bounded backoff, atomic health
+  state, SessionStart/status visibility, and external ops-health coverage.
+  Claude remains the configuration-only rollback. *(M, completed 2026-09-02)*
+
 - ⬜ **3.1** _(enh)_ **`rag review duplicate_candidates` in the wild.** Dedup/retry behavior
   for duplicate candidates has only been exercised in controlled runs, not under sustained
   real-world load. → *Trigger:* observe behavior over a longer live window; adjust

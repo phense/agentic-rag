@@ -1,21 +1,19 @@
 # Privacy, cost & control
 
-*What you'll learn: how agentic-rag's cost works on whatever Anthropic auth
-you choose, what happens to secrets that wander into a saved document, who can
+*What you'll learn: how agentic-rag delegates LLM billing to your configured
+CLI provider, what happens to secrets that wander into a saved document, who can
 do what to your database, and how backups get proven to actually restore.*
 
-## Cost: whatever Anthropic auth you choose
+## Cost: whatever provider account you choose
 
-agentic-rag has no billing path of its own — it's auth-agnostic. Every AI call
-in the system — session mining, curation's LLM-assisted steps — runs through
-one chokepoint, `agentic_rag/llm.py`, and that chokepoint shells out to the
-`claude` CLI you already have logged in (`claude -p ... --json-schema ...`).
-There is no separate API client of agentic-rag's own; the `claude` CLI uses
-whatever *it* is authenticated with, and that choice is yours.
+agentic-rag has no billing path or direct provider API client of its own.
+Every AI call runs through `agentic_rag/llm.py`, which invokes the configured
+Codex or Claude CLI and therefore uses that CLI's account and limits.
 
-That auth can be either of two things, and agentic-rag imposes neither and
-refuses neither:
+Supported choices are:
 
+- **Codex with ChatGPT authentication.** Run `codex login`; a deployment can
+  select a Codex model and reasoning effort without storing an API key here.
 - **Your Claude subscription (OAuth login).** This is the same login your
   interactive Claude Code sessions use. Mining and curation add nothing beyond
   your existing plan — there's no per-token invoice, nothing extra to meter.
@@ -24,10 +22,9 @@ refuses neither:
   use. agentic-rag runs fine either way; the metering is between you and
   Anthropic, on the account you chose.
 
-Either way, **embeddings are always local** — retrieval and re-embedding run
-on your own Ollama (`bge-m3`) and cost nothing regardless of which auth the
-`claude` CLI uses. Only the LLM-assisted steps (mining, curation) touch
-Anthropic at all, and only through the CLI you already have.
+In every case, **embeddings are local** — retrieval and re-embedding run on
+your own Ollama (`bge-m3`). Only LLM-assisted mining and curation call the
+selected external provider.
 
 Two environment details worth knowing:
 - `_child_env` also strips `CLAUDECODE`, `CLAUDE_CODE_SESSION_ID`,
@@ -90,13 +87,11 @@ guarantee.
 There's no agentic-rag cloud service. `save_document`, `search`, and every
 CLI command talk directly to a PostgreSQL database you run — `localhost` by
 default, or another host you point `config.toml` at. Embeddings come from a
-local Ollama model (`bge-m3`). Nothing in the default configuration phones
-data anywhere: no telemetry endpoint, no hosted vector index, no third-party
-sync.
+local Ollama model (`bge-m3`). There is no telemetry endpoint, hosted vector
+index, or third-party sync.
 
-The one place data leaves your machine at all is the `claude -p` call itself
-(the same call your interactive Claude Code sessions already make), and the
-optional cloud copy of your own backups if you configure `[backup]
+The places data may leave your machine are the configured LLM provider call
+and the optional cloud copy of your own backups if you configure `[backup]
 cloud_dir` in `config.toml` — that's a path you choose (e.g. a mounted
 network drive or cloud-synced folder), not a service agentic-rag runs.
 

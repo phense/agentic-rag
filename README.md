@@ -2,7 +2,7 @@
 
 ### Long-term memory for Claude Code — in a real database, filled by your own sessions.
 
-**Claude forgets everything when a session ends. agentic-rag gives it a memory that lasts — a durable, searchable knowledge base in local PostgreSQL + pgvector — and fills that memory from the Claude sessions you already run. Hybrid vector + full-text search over a curated knowledge graph, on your machine and your own Anthropic account. No cloud service, no third-party RAG in the loop, no hosted memory to rent.**
+**Claude forgets everything when a session ends. agentic-rag gives it a memory that lasts — a durable, searchable knowledge base in local PostgreSQL + pgvector — and fills that memory from the Claude sessions you already run. Hybrid vector + full-text search over a curated knowledge graph, on your machine and through a CLI provider you control. No hosted RAG service and no hosted memory to rent.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![version](https://img.shields.io/badge/version-0.1.0-informational.svg)](pyproject.toml)
@@ -13,11 +13,11 @@
 
 Most "RAG memory" tools are a cloud retrieval layer you feed documents to: you push, you query, you pay per call. agentic-rag flips both halves. It stores knowledge in **local Postgres + pgvector** — real HNSW approximate-nearest-neighbour search blended with bilingual full-text — and it **populates itself from your own Claude sessions**. You don't curate a corpus by hand; the work you already do becomes the knowledge base.
 
-Every content write funnels through **one gateway**: it strips secret-shaped tokens, chunks and embeds the text with a local model, resolves the document's links into a **typed knowledge graph**, and logs the change — all in a single transaction. Search then fuses vector similarity and full-text into one ranked list. And when a session ends, a single-writer worker reads the transcript with your `claude` CLI and turns what you learned — the lessons, the decisions, the gotchas — into durable, findable memories, deduped on the way in.
+Every content write funnels through **one gateway**: it strips secret-shaped tokens, chunks and embeds the text with a local model, resolves the document's links into a **typed knowledge graph**, and logs the change — all in a single transaction. Search then fuses vector similarity and full-text into one ranked list. And when a session ends, a single-writer worker reads the transcript and uses the configured Codex or Claude CLI to turn what you learned — the lessons, the decisions, the gotchas — into durable, findable memories, deduped on the way in.
 
-It runs entirely on your machine and on **your own Anthropic account** — whatever your local `claude` CLI is logged in with, a Claude subscription or your own `ANTHROPIC_API_KEY`; the choice is yours. Embeddings are **always local** (Ollama), so retrieval costs nothing either way. It's RAM-lean by design: no always-on daemon beyond Postgres and Ollama, and an idle footprint near zero between sessions. And it's built data-safety-first — it archives rather than deletes, writes through a least-privilege role matrix, audits every change, and periodically restore-tests its own backups.
+It runs on your machine and uses **your configured CLI account** for LLM-assisted mining: Codex with ChatGPT login or Claude with its supported authentication. Embeddings are **always local** (Ollama), so retrieval does not call either provider. It's RAM-lean by design: no always-on daemon beyond Postgres and Ollama, and an idle footprint near zero between sessions. And it's built data-safety-first — it archives rather than deletes, writes through a least-privilege role matrix, audits every change, and periodically restore-tests its own backups.
 
-> **Your data stays yours.** This repository is **code only** — it ships no content. Your documents, embeddings, links, and any secrets live in *your* PostgreSQL database on *your* machine; nothing leaves it unless you explicitly configure a synced backup directory. The LLM calls that mine and curate your memory run through your local `claude` CLI on your own Anthropic account — never a third-party RAG service.
+> **Your data stays yours.** This repository is **code only** — it ships no content. Your documents, embeddings, links, and any secrets live in *your* PostgreSQL database on *your* machine; nothing leaves it unless you explicitly configure a synced backup directory. Mining and curation send only their bounded prompts through the configured local Codex or Claude CLI; agentic-rag has no separate hosted RAG backend.
 
 **[Why](#why-agentic-rag)** · **[Quick start](#quick-start)** · **[What's different](#what-makes-it-different)** · **[How it works](#how-it-works)** · **[Comparison](#comparison)** · **[Configuration](#configuration)** · **[📖 Handbook](#-documentation--handbook)** · **[Status](#status)** · **[Acknowledgments](#acknowledgments)** · **[License](#license)**
 
@@ -45,7 +45,7 @@ agentic-rag is a `rag` command-line tool plus two MCP servers that wire into Cla
 
 - **PostgreSQL 17** with the [`pgvector`](https://github.com/pgvector/pgvector) extension (the schema uses `halfvec`, pgvector ≥ 0.7).
 - **[Ollama](https://ollama.com)** with the embedding model pulled — `ollama pull bge-m3` (1024-dim, fixed to the schema).
-- The **[`claude` CLI](https://docs.claude.com/en/docs/claude-code)**, authenticated for `claude -p` — with a Claude subscription (OAuth login) or an `ANTHROPIC_API_KEY`, whichever you prefer. agentic-rag uses whatever the CLI is set up with.
+- An authenticated LLM CLI: **Codex** (`codex login`) or **Claude** (`claude -p`). Claude/Haiku remains the package default for compatibility; select the provider in `[llm]`.
 - **[`uv`](https://docs.astral.sh/uv/)** and **Python ≥ 3.13**.
 
 **Install, in order:**
@@ -81,7 +81,7 @@ Four things that, together, set it apart from both file-based knowledge wikis an
 Documents are chunked and embedded into `halfvec(1024)` columns indexed with **HNSW**, and each chunk is embedded with the multilingual `bge-m3` model — so semantic recall works in any language — and also carries generated `tsvector`s for English/German keyword full-text. A single query runs vector ANN and full-text together and returns **one ranked list**. Documents aren't an undifferentiated pile: they carry a type (`concept`, `lesson`, `signal`, `synthesis`, `reference`, …) and connect through a **typed edge graph** (`references`, `extends`, `depends_on`, `supersedes`, `contradicts`, …), so `rag get` shows you not just a document but its neighbourhood.
 
 ### 2. Automatic session-mining — the star feature
-This is what makes agentic-rag feel like it grows rather than sits there. When a Claude Code session ends, a Stop hook enqueues the transcript. A **single-writer worker** drains the queue and runs `claude -p` — **on whatever your `claude` CLI is authenticated with** — to pull out the durable memories, lessons, and signals from what you just did, each one saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something Claude can recall tomorrow, with no "remember to write this down" step. It reads only your **local** session transcripts.
+This is what makes agentic-rag feel like it grows rather than sits there. When a Claude Code session ends, a Stop hook enqueues the transcript. A **single-writer worker** drains the queue and calls the configured Codex or Claude CLI to pull out durable memories, lessons, and signals, each saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something Claude can recall tomorrow, with no "remember to write this down" step. It reads only your **local** session transcripts.
 
 ### 3. Knowledge domains you grow and curate
 Domains are just data — a label for *where to look* (`general` is seeded at init). Add them with `rag domain add`, scope any search with `--domain`, and let the importer derive them from an existing store's topics. Curation is first-class: `rag review` reports near-duplicates, dangling links, and stale pins; refuting a fact archives it with a required reason + evidence; `rag purge` removes only already-refuted documents, and only as `rag_admin`.
@@ -112,7 +112,7 @@ Domains are just data — a label for *where to look* (`general` is seeded at in
    session-start context · prompt-time recall · read-only MCP behind a privilege boundary
 ```
 
-- **Your own Anthropic account.** Every LLM call goes through the local `claude` command, using whatever auth you gave it — a Claude subscription or your own `ANTHROPIC_API_KEY`. On a subscription those calls add nothing beyond your plan; with a key they're metered by Anthropic like any API use — your choice, either way. Embeddings never leave the box (local Ollama), so retrieval is free regardless of auth.
+- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Embeddings never leave the box (local Ollama), so retrieval is independent of provider authentication.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
 - **Least privilege, by role.** Three login roles enforce a destruction-protection matrix: `rag_reader` (SELECT only, used by search and the read-only MCP), `rag_writer` (INSERT/UPDATE but **no DELETE/TRUNCATE/DROP**), and `rag_admin` (migrate, purge, restore).
 - **It steps aside, not in front.** If Ollama is down, search degrades to full-text-only and returns a warning rather than failing; the maintenance job always exits 0.
@@ -145,7 +145,7 @@ Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
 
 | Capability | **agentic-rag** | Typical RAG stack |
 |---|:--:|:--:|
-| Local-first — runs on your own Anthropic account, no third-party RAG service in the loop ¹ | ✅ | ⚠️ usually a hosted service |
+| Local-first store, provider CLI under your control, no hosted RAG service ¹ | ✅ | ⚠️ usually a hosted service |
 | Auto-populates from your own Claude sessions (mining) | ✅ | ❌ you feed it |
 | Self-curation (dedup, near-dup gate, refute/archive) | ✅ | ⚠️ |
 | Typed knowledge graph (edges) alongside vector search | ✅ | ⚠️ |
@@ -153,7 +153,7 @@ Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
 | Read/write privilege boundary for subagents (RO MCP) | ✅ | ⚠️ |
 | Turnkey managed hosting / large ecosystem ² | ⚠️ self-host, young | ✅ |
 
-**Bottom line:** a hosted RAG stack wins on turnkey scale and ecosystem. agentic-rag wins on being local-first, running on your own Anthropic account with no third-party service in the loop, self-populating-from-your-own-work, and self-curating — a memory that fills and tidies itself instead of one you have to keep feeding.
+**Bottom line:** a hosted RAG stack wins on turnkey scale and ecosystem. agentic-rag wins on being local-first, using a provider CLI under your control with no hosted RAG service in the loop, self-populating-from-your-own-work, and self-curating — a memory that fills and tidies itself instead of one you have to keep feeding.
 
 <sub>
 ¹ agentic-rag is <strong>auth-agnostic</strong>: its LLM-assisted mining and curation call your local <code>claude</code> CLI on whatever you gave it — a Claude subscription (no extra cost beyond your plan) or your own <code>ANTHROPIC_API_KEY</code> (metered by Anthropic, your choice). Either way <strong>embeddings are always local</strong> (Ollama), so retrieval is free, and there's no third-party RAG service between you and your data. Most hosted RAG stacks route your documents through a paid service.<br>
@@ -200,7 +200,7 @@ agentic-rag is **young but solid** — a real engine, openly developed. What's l
 
 - ✅ **Storage & search:** PostgreSQL + pgvector schema, HNSW ANN blended with EN/DE full-text into one ranked list, the typed edge graph, the three-role destruction-protection matrix.
 - ✅ **The write gateway:** secret stripping (in and out), one-transaction chunk + embed + edge-resolve + audit, embeddings that fail open with a retry queue.
-- ✅ **Session mining:** the hooks → queue → single-writer worker → `claude -p` → gateway loop, with a near-duplicate gate, on whatever auth your `claude` CLI carries.
+- ✅ **Session mining:** hooks → queue → single-writer worker → configured Codex/Claude CLI → gateway, with a near-duplicate gate and provider-outage circuit breaker.
 - ✅ **Curation & safety:** `rag review`, refute-as-archive, and admin-only `rag purge` (removes only already-refuted documents, as `rag_admin`).
 - ✅ **Maintenance & backups:** `pg_dump` backups with rotation, the tiny always-exit-0 maintenance job, and the **weekly report-only restore-test**. macOS auto-schedules via `launchd`; Linux uses the documented cron/systemd recipes.
 - ✅ **Claude integration:** two user-scope MCP servers (read-write + a read-only server behind a privilege boundary for subagents), idempotent install that preserves foreign hooks.

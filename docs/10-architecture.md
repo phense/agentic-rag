@@ -474,7 +474,7 @@ embedding model:
  worker.main()  ── flock(worker.lock) singleton ──► drain()
         │  claim_next()  [FOR UPDATE SKIP LOCKED, due jobs only]
         ▼
- mining.mine_session()  ── claude -p (your Claude subscription or API key)
+ mining.mine_session()  ── run_structured() ── configured Codex or Claude CLI
         │  near-duplicate gate on each candidate
         ▼
  save_document()  (same gateway as the write path)

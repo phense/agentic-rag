@@ -122,15 +122,37 @@ canonical home.
 
 ## `[llm]`
 
-The `claude -p` call every mining and curation pass makes — using
-whatever your Claude Code CLI is authenticated with (your Claude
-subscription or an API key; your choice).
+The CLI provider used by mining and curation. Public defaults remain
+Claude/Haiku for backward compatibility; a Codex deployment can use ChatGPT
+authentication without adding an API key.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
-| `model` | `llm_model` | `"haiku"` | Claude model alias passed to `claude -p --model`. |
-| `timeout` | `llm_timeout` | `300` | Seconds before a `claude -p` call is killed as hung. |
-| `bin` | `llm_bin` | `"claude"` | Name or path of the CLI binary invoked for mining/curation LLM calls. |
+| `provider` | `llm_provider` | `"claude"` | `claude` or `codex`. |
+| `model` | `llm_model` | `"haiku"` | Provider model or alias. |
+| `reasoning_effort` | `llm_reasoning_effort` | `"high"` | Codex reasoning effort. |
+| `timeout` | `llm_timeout` | `300` | Seconds before a provider call is killed as hung. |
+| `bin` | `llm_bin` | `"claude"` | Name or absolute path of the configured CLI. Use an absolute path for unattended jobs. |
+| `provider_backoff_seconds` | `provider_backoff_seconds` | `3600` | Delay before a provider-unavailable job becomes due again. |
+
+Peter's deployed Codex configuration is:
+
+```toml
+[llm]
+provider = "codex"
+bin = "/Users/peter/.local/bin/codex"
+model = "gpt-5.6-luna"
+reasoning_effort = "high"
+provider_backoff_seconds = 3600
+```
+
+Codex runs ephemerally in an empty temporary directory, ignores user/project
+rules and plugins, uses read-only sandboxing, and returns schema-constrained
+JSON. If authentication expires, run `codex login`. The claimed job returns to
+`pending` without consuming an attempt, a one-hour backoff is applied, and the
+worker stops that drain after the first provider-wide failure. `rag status`
+shows the outage. Set `provider = "claude"`, its binary, and a Claude model for
+the configuration-only rollback path.
 
 ## `[mining]`
 
@@ -139,7 +161,7 @@ curation](05-session-mining-and-curation.md) for the full pipeline.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
-| `debounce_seconds` | `mine_debounce_seconds` | `600` | Delay after a session's Stop event before its mine job becomes due — coalesces rapid-fire turns into one `claude -p` call instead of one per turn. |
+| `debounce_seconds` | `mine_debounce_seconds` | `600` | Delay after a session's Stop event before its mine job becomes due — coalesces rapid-fire turns into one provider call instead of one per turn. |
 | `max_digest_chars` | `mine_max_digest_chars` | `12000` | Max size of the transcript digest built for the miner LLM. |
 | `per_block_chars` | `mine_per_block_chars` | `800` | Max characters per transcript block inside that digest. |
 | `dedup_threshold` | `dedup_threshold` | `0.90` | Cosine-similarity threshold (embedding space) above which a newly mined item is treated as a near-duplicate of an existing document and linked with a `duplicate_of` edge instead of saved fresh. This field has no `mine_` prefix in the dataclass — it maps into `[mining]` via the same bare-key fallback as the `[hooks]` fields. |
