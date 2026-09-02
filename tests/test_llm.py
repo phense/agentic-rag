@@ -1,5 +1,6 @@
 import json
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -176,3 +177,145 @@ def test_falls_back_to_configured_bin_when_not_on_path(monkeypatch):
         return FakeProc(stdout='{"ok": true}')
     llm.run_structured("p", SCHEMA, CFG, runner=runner, env={"PATH": "/bin"})
     assert seen["cmd"][0] == "claude"
+
+
+def _codex_cfg(**overrides):
+    values = {
+        "llm_provider": "codex",
+        "llm_bin": "/x/codex",
+        "llm_model": "gpt-5.6-luna",
+        "llm_reasoning_effort": "high",
+    }
+    values.update(overrides)
+    return Config(**values)
+
+
+def test_codex_command_is_isolated_ephemeral_read_only_luna_high(tmp_path):
+    seen = {}
+
+    def runner(cmd, **kw):
+        if cmd[1:3] == ["login", "status"]:
+            return FakeProc(stdout="Logged in using ChatGPT")
+        seen["cmd"] = cmd
+        seen["cwd"] = kw["cwd"]
+        workdir = Path(kw["cwd"])
+        assert list(workdir.iterdir())  # schema file exists for the child
+        schema_path = Path(cmd[cmd.index("--output-schema") + 1])
+        assert json.loads(schema_path.read_text()) == SCHEMA
+        Path(cmd[cmd.index("--output-last-message") + 1]).write_text(
+            '{"ok": true}', encoding="utf-8")
+        return FakeProc()
+
+    out = llm.run_structured(
+        "mine", SCHEMA, _codex_cfg(), runner=runner,
+        env={"PATH": "/bin", "CODEX_HOME": "/auth"})
+
+    assert out == {"ok": True}
+    cmd = seen["cmd"]
+    assert cmd[:2] == ["/x/codex", "exec"]
+    assert cmd[cmd.index("--model") + 1] == "gpt-5.6-luna"
+    assert 'model_reasoning_effort="high"' in cmd
+    assert "--ephemeral" in cmd
+    assert cmd[cmd.index("--sandbox") + 1] == "read-only"
+    assert "--skip-git-repo-check" in cmd
+    assert "--ignore-user-config" in cmd
+    assert "--ignore-rules" in cmd
+    assert "SYSTEM INSTRUCTIONS" in cmd[-1]
+    assert "TASK\nmine" in cmd[-1]
+    assert not Path(seen["cwd"]).exists()  # TemporaryDirectory was removed
+
+
+def test_codex_prompt_combines_system_and_task_without_shell():
+    seen = {}
+
+    def runner(cmd, **kw):
+        if cmd[1:3] == ["login", "status"]:
+            return FakeProc(stdout="Logged in using ChatGPT")
+        seen["cmd"] = cmd
+        Path(cmd[cmd.index("--output-last-message") + 1]).write_text(
+            '{"ok": false}', encoding="utf-8")
+        return FakeProc()
+
+    out = llm.run_structured(
+        "literal $(touch nope)", SCHEMA, _codex_cfg(),
+        system="be terse", runner=runner, env={"PATH": "/bin"})
+    assert out == {"ok": False}
+    assert seen["cmd"][-1].endswith("TASK\nliteral $(touch nope)")
+
+
+def test_codex_login_failure_is_provider_unavailable():
+    def runner(cmd, **kw):
+        return FakeProc(returncode=1, stderr="not logged in")
+
+    with pytest.raises(llm.LLMUnavailableError, match="not logged in"):
+        llm.run_structured(
+            "p", SCHEMA, _codex_cfg(), runner=runner, env={"PATH": "/bin"})
+
+
+def test_codex_missing_binary_is_provider_unavailable():
+    def runner(cmd, **kw):
+        raise FileNotFoundError(cmd[0])
+
+    with pytest.raises(llm.LLMUnavailableError, match="not found"):
+        llm.check_provider(
+            _codex_cfg(), runner=runner, env={"PATH": "/bin"})
+
+
+def test_codex_empty_exit_one_is_provider_unavailable():
+    calls = 0
+
+    def runner(cmd, **kw):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return FakeProc(stdout="Logged in using ChatGPT")
+        return FakeProc(returncode=1)
+
+    with pytest.raises(llm.LLMUnavailableError, match="exited 1"):
+        llm.run_structured(
+            "p", SCHEMA, _codex_cfg(), runner=runner, env={"PATH": "/bin"})
+
+
+@pytest.mark.parametrize("body, match", [
+    (None, "did not produce"),
+    ("", "empty"),
+    ("not json", "not valid JSON"),
+    ('["not", "object"]', "not a JSON object"),
+])
+def test_codex_bad_structured_output_is_job_error(body, match):
+    def runner(cmd, **kw):
+        if cmd[1:3] == ["login", "status"]:
+            return FakeProc(stdout="Logged in using ChatGPT")
+        if body is not None:
+            Path(cmd[cmd.index("--output-last-message") + 1]).write_text(
+                body, encoding="utf-8")
+        return FakeProc()
+
+    with pytest.raises(llm.LLMJobError, match=match):
+        llm.run_structured(
+            "p", SCHEMA, _codex_cfg(), runner=runner, env={"PATH": "/bin"})
+
+
+def test_codex_timeout_is_provider_unavailable_and_cleans_tempdir():
+    workdirs = []
+
+    def runner(cmd, **kw):
+        if cmd[1:3] == ["login", "status"]:
+            return FakeProc(stdout="Logged in using ChatGPT")
+        workdirs.append(Path(kw["cwd"]))
+        raise subprocess.TimeoutExpired(cmd, kw["timeout"])
+
+    with pytest.raises(llm.LLMUnavailableError, match="timed out"):
+        llm.run_structured(
+            "p", SCHEMA, _codex_cfg(), runner=runner, env={"PATH": "/bin"})
+    assert workdirs and not workdirs[0].exists()
+
+
+def test_unknown_provider_refuses_before_subprocess():
+    def runner(cmd, **kw):
+        raise AssertionError("must not run")
+
+    with pytest.raises(ValueError, match="provider"):
+        llm.run_structured(
+            "p", SCHEMA, _codex_cfg(llm_provider="other"),
+            runner=runner, env={"PATH": "/bin"})

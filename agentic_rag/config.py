@@ -31,9 +31,12 @@ class Config:
     stale_days: int = 30
     pin_budget_chars: int = 16000
     context_docs: int = 5
+    llm_provider: str = "claude"
     llm_model: str = "haiku"
+    llm_reasoning_effort: str = "high"
     llm_timeout: int = 300
     llm_bin: str = "claude"
+    provider_backoff_seconds: int = 3600
     mine_debounce_seconds: int = 600
     mine_max_digest_chars: int = 12000
     mine_per_block_chars: int = 800

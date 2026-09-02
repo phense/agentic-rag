@@ -76,6 +76,27 @@ def test_llm_section_fields(tmp_path):
     assert cfg.llm_bin == "claude"
 
 
+def test_llm_codex_configuration(tmp_path):
+    p = tmp_path / "c.toml"
+    p.write_text(
+        '[llm]\nprovider = "codex"\nbin = "/x/codex"\n'
+        'model = "gpt-5.6-luna"\nreasoning_effort = "high"\n'
+        'provider_backoff_seconds = 3600\n'
+    )
+    cfg = load_config(p)
+    assert (cfg.llm_provider, cfg.llm_bin, cfg.llm_model) == (
+        "codex", "/x/codex", "gpt-5.6-luna")
+    assert cfg.llm_reasoning_effort == "high"
+    assert cfg.provider_backoff_seconds == 3600
+
+
+def test_public_llm_defaults_remain_backward_compatible():
+    cfg = Config()
+    assert cfg.llm_provider == "claude"
+    assert cfg.llm_bin == "claude"
+    assert cfg.llm_model == "haiku"
+
+
 def test_mining_section_fields(tmp_path):
     p = tmp_path / "c.toml"
     p.write_text("[mining]\ndebounce_seconds = 5\n")

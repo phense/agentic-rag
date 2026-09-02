@@ -1,20 +1,8 @@
-"""The auth-agnostic LLM chokepoint (spec §3): every `claude -p` call in the
-system goes through run_structured. It is agnostic about how the local `claude`
-CLI is authenticated — it uses WHATEVER that CLI is logged into, either your
-Claude subscription (OAuth login) or an ANTHROPIC_API_KEY. The choice is the
-user's; this module neither imposes nor refuses one. On a subscription, these
-calls add nothing beyond your plan; with an API key, they are metered by
-Anthropic like any API use. (Embeddings are always local — Ollama/bge-m3 — so
-retrieval is free regardless of auth.)
+"""Provider-neutral structured LLM chokepoint for mining and curation.
 
-It still strips inherited Claude-Code session markers (CLAUDECODE_*) so an
-in-session-spawned worker can never recurse into the parent session (recursion
-guard), and sets AGENTIC_RAG_HOOKS_DISABLE so a spawned child never re-mines
-its own transcript (mining-cascade guard). This module is the single seam to
-repoint at a local model.
-
-Verified CLI contract (claude 2.1.201): with -p and --json-schema, stdout is
-EXACTLY the schema-conforming JSON document (no envelope), exit 0.
+Claude remains the backward-compatible public default. Codex is an explicit
+provider that runs as an ephemeral, read-only JSON transform in an empty
+temporary directory, without loading user/project instructions or plugins.
 """
 from __future__ import annotations
 
@@ -22,8 +10,11 @@ import json
 import os
 import shutil
 import subprocess
+import tempfile
+from pathlib import Path
 
 from .config import Config
+from .secrets import strip_secrets
 
 _STRIP_ENV = (
     "CLAUDECODE",
@@ -34,7 +25,15 @@ _STRIP_ENV = (
 
 
 class LLMError(RuntimeError):
-    """The claude CLI failed (missing, timeout, non-zero exit, bad output)."""
+    """Base class for structured-provider failures."""
+
+
+class LLMJobError(LLMError):
+    """One invocation returned unusable structured content."""
+
+
+class LLMUnavailableError(LLMError):
+    """The configured provider is unavailable across jobs."""
 
 
 def _child_env(env: dict | None) -> dict:
@@ -56,51 +55,142 @@ def _child_env(env: dict | None) -> dict:
     return child
 
 
-def run_structured(prompt: str, schema: dict, cfg: Config, *,
-                   system: str | None = None, timeout: int | None = None,
-                   runner=subprocess.run, env: dict | None = None) -> dict:
-    """One structured `claude -p --json-schema` call. Returns the parsed dict.
+def _binary(cfg: Config, child_env: dict) -> str:
+    return shutil.which(cfg.llm_bin, path=child_env.get("PATH")) or cfg.llm_bin
 
-    `runner` is subprocess.run-compatible and injectable — tests never spawn
-    a real process; the worker passes the default.
-    """
+
+def _diagnostic(proc) -> str:
+    raw = (proc.stderr or proc.stdout or "").strip()[:500]
+    return strip_secrets(raw)[0]
+
+
+def _parse_object(raw: str, provider: str) -> dict:
+    if not raw:
+        raise LLMJobError(f"{provider} output was empty")
+    try:
+        data = json.loads(raw)
+    except ValueError as e:
+        raise LLMJobError(
+            f"{provider} output is not valid JSON: {raw[:200]!r}") from e
+    if not isinstance(data, dict):
+        raise LLMJobError(
+            f"{provider} output is not a JSON object: {data!r:.200}")
+    return data
+
+
+def check_provider(cfg: Config, *, runner=subprocess.run,
+                   env: dict | None = None) -> None:
+    """Cheap local preflight for providers that expose one."""
+    if cfg.llm_provider == "claude":
+        return
+    if cfg.llm_provider != "codex":
+        raise ValueError(f"unknown LLM provider: {cfg.llm_provider!r}")
     child_env = _child_env(env)
-    # Resolve through PATH so a bare "claude" also works on Windows, where the
-    # CLI is a claude.cmd shim that CreateProcess won't find by bare name
-    # (shutil.which honors PATHEXT). Resolve against the CHILD env's PATH — the
-    # same one the subprocess runs with — not the parent process PATH. Fall
-    # back to the configured name so the "binary not found" error below still
-    # fires with a helpful message.
-    binary = shutil.which(cfg.llm_bin, path=child_env.get("PATH")) or cfg.llm_bin
+    binary = _binary(cfg, child_env)
+    cmd = [binary, "login", "status"]
+    try:
+        proc = runner(cmd, capture_output=True, text=True, encoding="utf-8",
+                      timeout=min(cfg.llm_timeout, 30), env=child_env)
+    except FileNotFoundError as e:
+        raise LLMUnavailableError(
+            f"codex binary not found ({cfg.llm_bin!r}); is the CLI on PATH?") from e
+    except subprocess.TimeoutExpired as e:
+        raise LLMUnavailableError("codex login status timed out after 30s") from e
+    except UnicodeDecodeError as e:
+        raise LLMUnavailableError(
+            f"codex login status was not valid UTF-8: {e}") from e
+    if proc.returncode != 0:
+        detail = _diagnostic(proc)
+        suffix = f": {detail}" if detail else ""
+        raise LLMUnavailableError(
+            f"codex login status exited {proc.returncode}{suffix}")
+
+
+def _run_claude_structured(prompt: str, schema: dict, cfg: Config, *,
+                           system: str | None, timeout: int | None,
+                           runner, child_env: dict) -> dict:
+    binary = _binary(cfg, child_env)
     cmd = [binary, "--model", cfg.llm_model]
     if system is not None:
         cmd += ["--system-prompt", system]
     cmd += ["-p", prompt, "--json-schema", json.dumps(schema)]
     try:
-        # encoding pinned to UTF-8: on Windows, text mode would otherwise decode
-        # the CLI's JSON with the locale codepage (cp1252) and mangle German
-        # content. Decoding stays STRICT — a bad byte fails loudly as an
-        # LLMError (retried like any CLI failure) rather than being silently
-        # replaced with U+FFFD, which would corrupt stored content.
         proc = runner(cmd, capture_output=True, text=True, encoding="utf-8",
                       timeout=timeout or cfg.llm_timeout, env=child_env)
     except FileNotFoundError as e:
-        raise LLMError(
+        raise LLMUnavailableError(
             f"claude binary not found ({cfg.llm_bin!r}); is the CLI on "
             f"PATH?") from e
     except subprocess.TimeoutExpired as e:
-        raise LLMError(
+        raise LLMUnavailableError(
             f"claude timed out after {timeout or cfg.llm_timeout}s") from e
     except UnicodeDecodeError as e:
-        raise LLMError(f"claude output was not valid UTF-8: {e}") from e
+        raise LLMJobError(f"claude output was not valid UTF-8: {e}") from e
     if proc.returncode != 0:
-        raise LLMError(
-            f"claude exited {proc.returncode}: {(proc.stderr or '')[:500]}")
-    try:
-        data = json.loads(proc.stdout)
-    except ValueError as e:
-        raise LLMError(
-            f"claude output is not valid JSON: {proc.stdout[:200]!r}") from e
-    if not isinstance(data, dict):
-        raise LLMError(f"claude output is not a JSON object: {data!r:.200}")
-    return data
+        detail = _diagnostic(proc)
+        suffix = f": {detail}" if detail else ""
+        raise LLMUnavailableError(
+            f"claude exited {proc.returncode}{suffix}")
+    return _parse_object(proc.stdout, "claude")
+
+
+def _run_codex_structured(prompt: str, schema: dict, cfg: Config, *,
+                          system: str | None, timeout: int | None,
+                          runner, child_env: dict) -> dict:
+    check_provider(cfg, runner=runner, env=child_env)
+    binary = _binary(cfg, child_env)
+    combined = (
+        "SYSTEM INSTRUCTIONS\n"
+        + (system or "Return only the requested schema-valid JSON object.")
+        + "\n\nTASK\n" + prompt
+    )
+    with tempfile.TemporaryDirectory(prefix="agentic-rag-codex-") as tmp:
+        workdir = Path(tmp)
+        schema_path = workdir / "schema.json"
+        output_path = workdir / "output.json"
+        schema_path.write_text(json.dumps(schema), encoding="utf-8")
+        cmd = [
+            binary, "exec", "--model", cfg.llm_model,
+            "-c", f'model_reasoning_effort="{cfg.llm_reasoning_effort}"',
+            "--ephemeral", "--sandbox", "read-only",
+            "--skip-git-repo-check", "--ignore-user-config", "--ignore-rules",
+            "--output-schema", str(schema_path),
+            "--output-last-message", str(output_path), combined,
+        ]
+        try:
+            proc = runner(
+                cmd, capture_output=True, text=True, encoding="utf-8",
+                timeout=timeout or cfg.llm_timeout, env=child_env,
+                cwd=str(workdir))
+        except FileNotFoundError as e:
+            raise LLMUnavailableError(
+                f"codex binary not found ({cfg.llm_bin!r}); is the CLI on PATH?") from e
+        except subprocess.TimeoutExpired as e:
+            raise LLMUnavailableError(
+                f"codex timed out after {timeout or cfg.llm_timeout}s") from e
+        except UnicodeDecodeError as e:
+            raise LLMJobError(f"codex output was not valid UTF-8: {e}") from e
+        if proc.returncode != 0:
+            detail = _diagnostic(proc)
+            suffix = f": {detail}" if detail else ""
+            raise LLMUnavailableError(
+                f"codex exited {proc.returncode}{suffix}")
+        if not output_path.exists():
+            raise LLMJobError("codex did not produce structured output")
+        return _parse_object(output_path.read_text(encoding="utf-8"), "codex")
+
+
+def run_structured(prompt: str, schema: dict, cfg: Config, *,
+                   system: str | None = None, timeout: int | None = None,
+                   runner=subprocess.run, env: dict | None = None) -> dict:
+    """Run one provider-backed structured transform and return a JSON object."""
+    child_env = _child_env(env)
+    if cfg.llm_provider == "claude":
+        return _run_claude_structured(
+            prompt, schema, cfg, system=system, timeout=timeout,
+            runner=runner, child_env=child_env)
+    if cfg.llm_provider == "codex":
+        return _run_codex_structured(
+            prompt, schema, cfg, system=system, timeout=timeout,
+            runner=runner, child_env=child_env)
+    raise ValueError(f"unknown LLM provider: {cfg.llm_provider!r}")
