@@ -17,6 +17,16 @@ from datetime import datetime
 from .config import Config
 
 
+_LEGACY_PROVIDER_FAILURE_SQL = """
+kind = 'mine'
+AND status = 'error'
+AND (
+    last_error LIKE 'claude binary not found (%'
+    OR last_error LIKE 'claude exited 1:%'
+)
+"""
+
+
 def _serialize_enqueue(conn) -> None:
     """Transaction-scoped advisory lock: INSERT..WHERE NOT EXISTS alone is
     NOT race-safe under READ COMMITTED — two concurrent connections can
@@ -75,3 +85,27 @@ def last_curation_at(conn) -> datetime | None:
         "SELECT max(at) AS at FROM audit_log WHERE op = 'curation_pass'"
     ).fetchone()
     return row["at"] if row else None
+
+
+def count_legacy_provider_failures(conn) -> int:
+    """Count only the two known pre-circuit-break Claude outage signatures."""
+    row = conn.execute(
+        f"SELECT count(*) AS n FROM mining_queue WHERE {_LEGACY_PROVIDER_FAILURE_SQL}"
+    ).fetchone()
+    return int(row["n"])
+
+
+def requeue_legacy_provider_failures(conn, *, expected_count: int) -> bool:
+    """Atomically requeue the exact legacy outage cohort, or change nothing on mismatch."""
+    _serialize_enqueue(conn)
+    if count_legacy_provider_failures(conn) != expected_count:
+        conn.rollback()
+        return False
+    conn.execute(
+        f"UPDATE mining_queue SET status = 'pending', attempts = 0, "
+        "next_attempt_at = now(), finished_at = NULL, "
+        "last_error = 'requeued: legacy Claude provider failure; Codex migration 2026-09-02' "
+        f"WHERE {_LEGACY_PROVIDER_FAILURE_SQL}"
+    )
+    conn.commit()
+    return True

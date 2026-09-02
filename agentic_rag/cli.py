@@ -12,7 +12,7 @@ import psycopg
 
 from . import backup as backup_mod
 from . import curation as curation_mod
-from . import db, search as search_mod, store
+from . import db, jobs as jobs_mod, search as search_mod, store
 from . import domains as domains_mod
 from . import embed
 from . import install as install_mod
@@ -69,6 +69,12 @@ def _main(argv: list[str] | None = None) -> int:
     p_search.add_argument("--json", action="store_true")
 
     sub.add_parser("status")
+
+    p_queue = sub.add_parser("queue")
+    queue_sub = p_queue.add_subparsers(dest="queue_cmd", required=True)
+    q_requeue = queue_sub.add_parser("requeue-legacy-provider-failures")
+    q_requeue.add_argument("--expect", type=int, default=60)
+    q_requeue.add_argument("--yes", action="store_true")
 
     p_pin = sub.add_parser("pin")
     pin_sub = p_pin.add_subparsers(dest="pin_cmd", required=True)
@@ -365,6 +371,23 @@ def _main(argv: list[str] | None = None) -> int:
                 print(f"WARNING: {rep.backup_warning}")
             if rep.last_curation_at:
                 print(f"last curation: {rep.last_curation_at:%Y-%m-%d %H:%M}")
+            return 0
+
+        if args.cmd == "queue" and args.queue_cmd == "requeue-legacy-provider-failures":
+            count = jobs_mod.count_legacy_provider_failures(conn)
+            print(f"candidate count: {count}")
+            if count != args.expect:
+                print(f"count mismatch: expected {args.expect}, found {count}; no changes",
+                      file=sys.stderr)
+                return 1
+            if not args.yes:
+                print("refusing without --yes", file=sys.stderr)
+                return 1
+            if not jobs_mod.requeue_legacy_provider_failures(
+                    conn, expected_count=args.expect):
+                print("count changed during requeue; no changes", file=sys.stderr)
+                return 1
+            print(f"requeued {count} legacy provider-failure job(s)")
             return 0
 
         if args.cmd == "review":

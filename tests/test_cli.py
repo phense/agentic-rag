@@ -114,6 +114,19 @@ def test_status_surfaces_provider_health(cli_env, capsys):
     assert "codex login" in out
 
 
+def test_queue_requeue_requires_yes_and_exact_count(cli_env, capsys):
+    cli_env.execute(
+        "INSERT INTO mining_queue(kind, status, attempts, last_error, finished_at) "
+        "VALUES ('mine', 'error', 3, 'claude exited 1: ', now())")
+    cli_env.commit()
+    assert main(["queue", "requeue-legacy-provider-failures", "--expect", "1"]) == 1
+    assert "candidate count: 1" in capsys.readouterr().out
+    assert main(["queue", "requeue-legacy-provider-failures", "--expect", "2", "--yes"]) == 1
+    assert "count mismatch" in capsys.readouterr().err
+    assert main(["queue", "requeue-legacy-provider-failures", "--expect", "1", "--yes"]) == 0
+    assert "requeued 1" in capsys.readouterr().out
+
+
 def test_pin_add_list_rm_roundtrip(cli_env, capsys):
     assert main(["pin", "add", "--body", "Immer uv benutzen."]) == 0
     pid = capsys.readouterr().out.split()[-1]

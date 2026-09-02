@@ -52,6 +52,37 @@ def test_enqueue_curate_idempotent(conn):
     assert len(rows) == 1
 
 
+def test_requeue_legacy_provider_failures_is_exact_and_preserves_job_data(conn):
+    original = {
+        "session_id": "legacy-session", "transcript_path": "/tmp/legacy.jsonl",
+        "payload": '{"project":"/work"}', "last_uuid": "turn-7",
+    }
+    conn.execute(
+        "INSERT INTO mining_queue(kind, session_id, transcript_path, payload, status, "
+        "attempts, last_uuid, last_error, finished_at) VALUES "
+        "('mine', %(session_id)s, %(transcript_path)s, %(payload)s, 'error', 3, "
+        "%(last_uuid)s, 'claude binary not found (''claude''); is the CLI on PATH?', now()),"
+        "('mine', 's2', '/tmp/b', '{}', 'error', 3, NULL, 'claude exited 1: ', now()),"
+        "('mine', 'other', '/tmp/c', '{}', 'error', 3, NULL, 'bad transcript', now())",
+        original,
+    )
+    conn.commit()
+
+    assert jobs.count_legacy_provider_failures(conn) == 2
+    assert jobs.requeue_legacy_provider_failures(conn, expected_count=3) is False
+    assert jobs.requeue_legacy_provider_failures(conn, expected_count=2) is True
+
+    rows = conn.execute("SELECT * FROM mining_queue ORDER BY id").fetchall()
+    assert [(r["status"], r["attempts"]) for r in rows] == [
+        ("pending", 0), ("pending", 0), ("error", 3)]
+    assert rows[0]["session_id"] == original["session_id"]
+    assert rows[0]["transcript_path"] == original["transcript_path"]
+    assert rows[0]["payload"] == {"project": "/work"}
+    assert rows[0]["last_uuid"] == original["last_uuid"]
+    assert rows[0]["finished_at"] is None
+    assert "legacy Claude provider failure" in rows[0]["last_error"]
+
+
 def test_due_jobs_exist_respects_next_attempt_at(conn):
     assert jobs.due_jobs_exist(conn) is False
     jobs.enqueue_curate(conn, reason="now")           # immediate
