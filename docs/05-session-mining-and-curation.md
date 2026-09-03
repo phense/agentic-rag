@@ -1,10 +1,8 @@
 # Session mining & curation
 
-*What you'll learn: how a Claude Code session turns into stored knowledge with
-no action from you — the Stop hook, the queue, the single-writer worker, the
-provider-backed extraction call, the near-duplicate gate — and how the store keeps
-itself honest afterward: dedup, dangling-link and stale-pin review, and
-refute/purge.*
+*What you'll learn: how a supported coding session turns into stored knowledge,
+how Codex resumes across compaction, how provider failures recover, and how the
+store keeps itself honest afterward.*
 
 This is the headline feature. Everything else in agentic-rag — the schema,
 the search, the gateway — exists to make this loop possible: **you work, and
@@ -12,7 +10,7 @@ the memory fills itself.**
 
 ## The loop, end to end
 
-1. You have a Claude Code session. Nothing you do is special — no
+1. You have a supported coding session. Nothing you do is special — no
    `memory_save` calls required.
 2. Each time Claude finishes responding, the **Stop** hook fires. It
    enqueues the session's transcript for mining and returns in well under
@@ -37,10 +35,46 @@ the memory fills itself.**
    recall a stored signal the instant you paste an error that matches one.
 
 Nothing in this loop reaches outside your machine except the configured LLM
-provider call. There is no separate telemetry or hosted RAG backend, and no
-other transcript ever leaves your disk.
+provider call. There is no separate telemetry or hosted RAG backend.
 
-## Three hooks: two that feed the loop, one that closes it
+## Codex continuity around compaction
+
+Mining creates durable knowledge for later sessions. Continuation checkpoints
+preserve the smaller set of operational facts needed to resume the current
+task immediately after context compaction:
+
+1. `PreCompact` validates an interactive manual/automatic event and commits a
+   fast deterministic snapshot: session/cursor identity, canonical repository
+   location, bounded branch/HEAD/status metadata, and approved artifact paths.
+   It never invokes an LLM inline, so provider downtime cannot block
+   compaction.
+2. If a transcript is available, `PreCompact` queues one priority
+   `checkpoint_enrich` job from the prior cursor and spawns the singleton
+   worker. Enrichment is bounded, schema-constrained, secret-rejecting, and may
+   add evidence-grounded goal, criteria, decisions, tests, blockers, next
+   action, and RAG slugs. A snapshot remains usable while enrichment is pending.
+3. `PostCompact` marks the matching checkpoint boundary. **`PostCompact`
+   cannot inject context** under the Codex hook contract; on success it is
+   silent, and on bookkeeping failure it emits only a system message.
+4. `SessionStart(source="compact")` runs before the next model request and
+   restores the latest open checkpoint from that same session. Normal startup
+   or resume can fall back to an exact canonical-project match, but compact
+   restoration never crosses sessions or projects.
+5. `SessionEnd(reason="other")` uses the same delta enqueue path as `Stop` so a
+   final unmatched transcript tail is queued without duplicating an already
+   open mining job.
+
+The renderer has a hard character budget and keeps checkpoint identity,
+blockers, and next exact action even when optional sections must be dropped.
+It labels snapshot-only state as semantic enrichment pending and volatile
+process/external observations as requiring revalidation. Superseded checkpoint
+history remains stored and audited rather than deleted.
+
+Native Codex memories are complementary and inspectable with `/memories`.
+They can supply lightweight native adaptation; agentic-rag remains canonical
+for durable searchable knowledge and explicit continuation state.
+
+## The original mining hooks
 
 ### Stop — enqueue for mining
 
@@ -59,12 +93,13 @@ picked up by the next Stop, or by the next SessionStart that finds a due
 job. Any error is logged and swallowed; the hook always exits 0 and prints
 nothing.
 
-### SessionStart — inject context, and check for overdue curation
+### SessionStart — inject context, restore continuity, and check maintenance
 
 At the start of an interactive session, this hook builds and injects: every
 matching pin (uncapped, with a warning if the pin budget is exceeded), the
 domain map, and the most recently touched documents scoped to your current
-project. It also checks two things that spawn the worker without doing any
+project. On Codex it also injects the bounded checkpoint selected by the rules
+above. It checks two things that spawn the worker without doing any
 work itself: whether curation hasn't run in the last 24 hours (if so, it
 enqueues a `curate` job), and whether any queued job is already due (the
 tail of a previous session that the debounce window hadn't reached yet). On
@@ -261,9 +296,14 @@ row naming which slugs were removed.
 - **Provider-configurable, local-first.** Mining and curation use the local
   Codex or Claude CLI you configure. There's no separate hosted RAG service,
   and embeddings are always local (Ollama).
-- **Local transcripts only.** The only input to mining is a JSONL file
+- **Local source, bounded provider input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
-  than a memory-tool slug/query hint) never enter the digest at all.
+  than a memory-tool slug/query hint) never enter the digest at all. The
+  resulting bounded, redacted digest does leave the machine through the
+  configured Codex or Claude CLI for mining/enrichment.
+- **Compaction does not depend on the provider.** `PreCompact` commits the
+  deterministic snapshot before optional asynchronous enrichment; provider
+  outage recovery preserves the enrichment attempt budget.
 - **Audited.** Every save, merge, refute, purge, and even the inert
   suggestions carry an `audit_log` row with an actor (`mining` or `cli`) and
   a summary.

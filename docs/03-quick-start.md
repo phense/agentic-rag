@@ -25,10 +25,11 @@ codex login status       # for provider = "codex"
 # or: claude --version   # for provider = "claude"
 ```
 
-## Install, in this exact order
+## Install the common foundation, then choose an integration
 
-The four commands below have a hard dependency order. Run them from the
-project directory:
+The first three commands below have a hard dependency order. The fourth is the
+legacy Claude integration; skip it if you want only the Codex target described
+next. Run them from the project directory:
 
 ```bash
 uv sync
@@ -48,12 +49,13 @@ Here's why the order matters:
    organized under (`general` already exists after `init-db`, so this step
    is optional — skip it if `general` is enough for now, and add more
    domains later with the same command).
-4. **`rag install`** — registers the `agentic-rag` and `agentic-rag-ro` MCP
+4. **`rag install`** *(Claude only)* — registers the `agentic-rag` and `agentic-rag-ro` MCP
    servers with the `claude` CLI (user scope) and merges the SessionStart /
    UserPromptSubmit / Stop hooks into `~/.claude/settings.json`.
 
-**`rag install` does NOT create the database.** It only wires up MCP servers,
-hooks, and (on macOS) job scheduling. If you run it before `rag init-db`,
+**Neither install target creates the database.** The no-option command wires up
+Claude MCP/hooks and (on macOS) job scheduling; `--codex` manages Codex
+continuity artifacts only. If you run either before `rag init-db`,
 every command that touches the store will fail with a connection or
 schema error. `init-db` first, always.
 
@@ -67,6 +69,78 @@ user timer yourself using the copy-pasteable recipes in
 
 After `rag install`, start a new Claude Code session (or restart your
 current one) so it picks up the newly registered MCP servers and hooks.
+
+### Install the Codex continuity target
+
+The no-option command above remains the Claude installer. Codex is an explicit,
+separate target; it does not register the Claude MCP servers or install another
+scheduler. Preview it first:
+
+```bash
+uv run rag install --codex --check
+```
+
+The report lists the managed values and any of these paths that would change:
+
+- `~/.codex/config.toml`
+- `~/.codex/hooks.json`
+- `~/.codex/compact_prompt.md`
+
+It also reports the detected Codex version, whether the managed configuration
+passed the isolated runtime probe (or only local parsing was available), and
+that no files were written. The probe uses an ephemeral `CODEX_HOME`, a
+10-second timeout, and never loads or edits the target files.
+
+If the preview is correct, install:
+
+```bash
+uv run rag install --codex
+```
+
+For a Codex-only macOS setup, schedule database backups separately with
+`uv run rag backup --install-launchd`; the Codex target intentionally does not
+touch schedulers. Linux uses the documented cron/systemd recipe.
+
+The installer losslessly merges owned TOML keys and hook commands, preserves
+foreign settings/handlers, validates staged TOML/JSON/prompt content, and
+publishes changes without overwriting a concurrent edit. Existing changed
+files receive unique sibling backups such as `config.toml.bak.<transaction>`.
+A successful changing install also writes a mode-`0600` record under
+`~/.agentic-rag/state/codex-rollback-<id>.json` and prints its exact restore
+command.
+
+Start Codex, run `/hooks`, inspect every new command/hash, and trust only the
+six `python -m agentic_rag.hooks.…` handlers you recognize. Installation cannot
+make that trust decision for you. A duplicated foreign
+`herdr-agent-state.sh` is reported for review but deliberately left untouched.
+
+Verify the store and continuity health:
+
+```bash
+uv run rag status
+```
+
+Look for `checkpoints:`, newest checkpoint quality/project when one exists,
+`checkpoint enrichments:`, provider availability, queue errors, and backup
+freshness. Zero checkpoints immediately after install is healthy; the first is
+created by `PreCompact`.
+
+To undo the Codex transaction, run the exact command printed during install:
+
+```bash
+uv run rag install --codex --restore \
+  /absolute/path/to/codex-rollback-<id>.json
+```
+
+Restore validates the record, backup bytes, and installed-file identities
+before changing anything. It refuses if a target or backup changed
+concurrently and retains recovery evidence rather than overwriting the new
+content. The rollback record is distinct from `rag restore <dump> --yes`, which
+restores the PostgreSQL database.
+
+The installer and tests are shipped; the real global install, `/hooks` trust,
+and manual/automatic smoke tests remain explicitly open in backlog 0.2 until
+the operational rollout is performed.
 
 ## Platform support
 
@@ -136,8 +210,9 @@ output.
 
 ## Verify it's working
 
-`rag status` gives you one snapshot: document counts, background queue
-health, and backup/curation freshness.
+`rag status` gives you one snapshot: document counts, background queue and
+provider health, continuation-checkpoint/enrichment freshness, and
+backup/curation freshness.
 
 ```bash
 uv run rag status
@@ -147,13 +222,15 @@ uv run rag status
 documents:
   science              active     1
 queue:
+checkpoints: 0 open
+checkpoint enrichments: 0 pending
 last local backup: —
 ```
 
 Only domains that actually hold a document show up under `documents:` —
 `general` won't appear yet since you haven't saved anything into it. An
 empty `queue:` section is expected right after install — the mining queue
-only fills up once you've had a Claude Code session with the hooks active.
+only fills up once you've had a supported session with the hooks active.
 No `last local backup` yet is also expected; that appears after your first
 `rag backup` (or the first scheduled run).
 

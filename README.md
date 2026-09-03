@@ -1,19 +1,32 @@
 # agentic-rag
 
-### Long-term memory for Claude Code — in a real database, filled by your own sessions.
+### Provider-neutral long-term memory and compaction continuity — in a real database.
 
-**Claude forgets everything when a session ends. agentic-rag gives it a memory that lasts — a durable, searchable knowledge base in local PostgreSQL + pgvector — and fills that memory from the Claude sessions you already run. Hybrid vector + full-text search over a curated knowledge graph, on your machine and through a CLI provider you control. No hosted RAG service and no hosted memory to rent.**
+**Coding sessions end and long contexts compact. agentic-rag preserves both:
+a canonical, searchable knowledge base in local PostgreSQL + pgvector, plus
+bounded checkpoints that let Codex resume after compaction. Hybrid vector +
+full-text search, lifecycle hooks, and a provider CLI you control — without a
+hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![version](https://img.shields.io/badge/version-0.1.0-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
-[![tests](https://img.shields.io/badge/tests-316%20passing-brightgreen.svg)](tests/)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-native-8A63D2.svg)](https://docs.claude.com/en/docs/claude-code)
 
-Most "RAG memory" tools are a cloud retrieval layer you feed documents to: you push, you query, you pay per call. agentic-rag flips both halves. It stores knowledge in **local Postgres + pgvector** — real HNSW approximate-nearest-neighbour search blended with bilingual full-text — and it **populates itself from your own Claude sessions**. You don't curate a corpus by hand; the work you already do becomes the knowledge base.
+Most "RAG memory" tools are a cloud retrieval layer you feed documents to:
+you push, you query, you pay per call. agentic-rag flips both halves. It stores
+knowledge in **local Postgres + pgvector** — real HNSW
+approximate-nearest-neighbour search blended with bilingual full-text — and it
+**populates itself from supported coding sessions**. It also stores compact,
+audited continuation checkpoints at Codex compaction boundaries.
 
-Every content write funnels through **one gateway**: it strips secret-shaped tokens, chunks and embeds the text with a local model, resolves the document's links into a **typed knowledge graph**, and logs the change — all in a single transaction. Search then fuses vector similarity and full-text into one ranked list. And when a session ends, a single-writer worker reads the transcript and uses the configured Codex or Claude CLI to turn what you learned — the lessons, the decisions, the gotchas — into durable, findable memories, deduped on the way in.
+Every content write funnels through **one gateway**: it strips secret-shaped
+tokens, chunks and embeds the text with a local model, resolves the document's
+links into a **typed knowledge graph**, and logs the change — all in one
+transaction. When a session ends, a single-writer worker uses the configured
+Codex or Claude CLI to turn the bounded transcript digest into durable,
+findable memories. The core data model and provider seam are provider-neutral;
+integrations adapt each coding agent's lifecycle and output contracts.
 
 It runs on your machine and uses **your configured CLI account** for LLM-assisted mining: Codex with ChatGPT login or Claude with its supported authentication. Embeddings are **always local** (Ollama), so retrieval does not call either provider. It's RAM-lean by design: no always-on daemon beyond Postgres and Ollama, and an idle footprint near zero between sessions. And it's built data-safety-first — it archives rather than deletes, writes through a least-privilege role matrix, audits every change, and periodically restore-tests its own backups.
 
@@ -27,11 +40,17 @@ It runs on your machine and uses **your configured CLI account** for LLM-assiste
 
 🔎 **Hybrid search that actually ranks.** Vector ANN over `pgvector` (HNSW, cosine) — multilingual by way of `bge-m3` embeddings — blended with GIN keyword full-text into one ranked query. Search in **any language**; not a file scan, not lexical-only.
 
-🌱 **It mines your Claude sessions into durable knowledge.** When a session ends, the transcript is queued and a worker uses your `claude` CLI to extract the lessons and decisions worth keeping — saved as findable memories, not left to rot in a log. This is the headline feature.
+🌱 **It turns sessions into durable knowledge and continuation state.** Mining
+uses your configured Codex or Claude CLI. On Codex, `PreCompact` also captures
+a fast checkpoint so `SessionStart(source="compact")` can restore the goal,
+blockers, next action, repository state, and evidence references.
 
 ♻️ **It curates itself.** A near-duplicate gate stops the store from bloating; `rag review` surfaces duplicates, dangling links, and stale pins; refuting a fact **archives** it (with a reason and evidence), never hard-deletes it.
 
-🔒 **Local-first, on your own account.** Everything lives in your Postgres. LLM-assisted work runs through your local `claude` CLI on whatever auth you gave it — a Claude subscription *or* your own `ANTHROPIC_API_KEY`, your call. Embeddings are always local (Ollama), so search and retrieval cost nothing regardless. On a subscription, mining and curation add nothing beyond your plan.
+🔒 **Local-first, on your own account.** Canonical knowledge and checkpoints
+live in your Postgres. LLM-assisted work runs through the local Codex or Claude
+CLI you configured. Embeddings are always local (Ollama), so search and
+retrieval do not call either provider.
 
 ⚡ **RAM-lean.** A single-writer worker (flock singleton), no long-lived daemon of its own. Between sessions the footprint is essentially Postgres + Ollama idling — nothing else.
 
@@ -39,7 +58,9 @@ It runs on your machine and uses **your configured CLI account** for LLM-assiste
 
 ## Quick start
 
-agentic-rag is a `rag` command-line tool plus two MCP servers that wire into Claude Code.
+agentic-rag is a `rag` command-line tool with provider integrations. The legacy
+no-option install wires two MCP servers and hooks into Claude Code; the explicit
+Codex target installs continuity configuration and hooks.
 
 **Prerequisites:**
 
@@ -48,20 +69,24 @@ agentic-rag is a `rag` command-line tool plus two MCP servers that wire into Cla
 - An authenticated LLM CLI: **Codex** (`codex login`) or **Claude** (`claude -p`). Claude/Haiku remains the package default for compatibility; select the provider in `[llm]`.
 - **[`uv`](https://docs.astral.sh/uv/)** and **Python ≥ 3.13**.
 
-**Install, in order:**
+**Install the common foundation, then choose an integration:**
 
 ```bash
 uv sync
 uv run rag init-db          # creates the DB + schema + roles, seeds the 'general' domain
 uv run rag domain add programming --description "Software engineering notes"
-uv run rag install          # registers the MCP servers + hooks; schedules the backup job (macOS)
+uv run rag install          # Claude MCP/hooks + macOS backup schedule; omit for Codex-only
 ```
 
 - `rag init-db` creates the database if needed, applies the migrations in `sql/`, creates the three least-privilege roles, and seeds the built-in `general` domain. **Run it first** — `rag install` does *not* create the database.
 - `rag domain add <name>` adds any domains you want to organize documents under (`general` always exists; add more anytime).
-- `rag install` registers the `agentic-rag` (read-write) and `agentic-rag-ro` (read-only, for subagents) MCP servers with `claude` and merges three session hooks into `~/.claude/settings.json`. On **macOS** it also auto-schedules the nightly **backup** job via `launchd` (the **maintenance** job is enabled separately with `rag maintenance --install-launchd`); on **Linux** scheduling is skipped — see [`docs/deploy/scheduling-linux.md`](docs/deploy/scheduling-linux.md) for cron/systemd recipes.
+- The no-option `rag install` is the Claude target: it registers the
+  `agentic-rag` (read-write) and `agentic-rag-ro` (read-only) MCP servers and
+  merges three hooks into `~/.claude/settings.json`. On macOS it also schedules
+  nightly backup; omit this command for a Codex-only setup.
 
-Restart Claude Code afterward so it picks up the new servers and hooks. Then just work — the hooks inject relevant memory at session start, recall on your prompts, and queue each finished session for mining. For humans there's the CLI:
+If you ran the Claude target, restart Claude Code so it picks up the new
+servers and hooks. For humans the same store is available through the CLI:
 
 ```bash
 rag save --title "Postgres VACUUM tuning" --domain programming \
@@ -70,6 +95,33 @@ rag search "vacuum tuning" --domain programming
 rag get <slug-or-id>          # body + incoming/outgoing graph edges
 rag status                    # counts, queue health, last backup/curation
 ```
+
+For Codex continuity, preview before touching your user configuration, install,
+then inspect and trust the changed commands in Codex:
+
+```bash
+uv run rag install --codex --check
+uv run rag install --codex
+# Start Codex, run /hooks, inspect all six agentic-rag commands, then trust them.
+uv run rag status
+```
+
+The Codex transaction manages only `~/.codex/config.toml`,
+`~/.codex/hooks.json`, and `~/.codex/compact_prompt.md`. It prints every
+changed path, backup, validation result, and a ready-to-run rollback command:
+
+```bash
+uv run rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
+```
+
+Use the exact rollback-record pathname printed by the successful install.
+Check mode writes nothing. The global rollout and end-to-end smoke tests are
+still open in [`BACKLOG.md`](BACKLOG.md); repository support does not mean this
+checkout has modified or verified a live user configuration.
+
+The Codex target never installs a scheduler. On a Codex-only macOS setup, use
+`uv run rag backup --install-launchd` for scheduled database backups; Linux
+uses the handbook's cron/systemd recipes.
 
 ---
 
@@ -81,7 +133,7 @@ Four things that, together, set it apart from both file-based knowledge wikis an
 Documents are chunked and embedded into `halfvec(1024)` columns indexed with **HNSW**, and each chunk is embedded with the multilingual `bge-m3` model — so semantic recall works in any language — and also carries generated `tsvector`s for English/German keyword full-text. A single query runs vector ANN and full-text together and returns **one ranked list**. Documents aren't an undifferentiated pile: they carry a type (`concept`, `lesson`, `signal`, `synthesis`, `reference`, …) and connect through a **typed edge graph** (`references`, `extends`, `depends_on`, `supersedes`, `contradicts`, …), so `rag get` shows you not just a document but its neighbourhood.
 
 ### 2. Automatic session-mining — the star feature
-This is what makes agentic-rag feel like it grows rather than sits there. When a Claude Code session ends, a Stop hook enqueues the transcript. A **single-writer worker** drains the queue and calls the configured Codex or Claude CLI to pull out durable memories, lessons, and signals, each saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something Claude can recall tomorrow, with no "remember to write this down" step. It reads only your **local** session transcripts.
+This is what makes agentic-rag feel like it grows rather than sits there. When a supported coding session ends, a lifecycle hook enqueues the transcript. A **single-writer worker** drains the queue and calls the configured Codex or Claude CLI to pull out durable memories, lessons, and signals, each saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something a future session can recall, with no "remember to write this down" step. It reads only your **local** session transcripts.
 
 ### 3. Knowledge domains you grow and curate
 Domains are just data — a label for *where to look* (`general` is seeded at init). Add them with `rag domain add`, scope any search with `--domain`, and let the importer derive them from an existing store's topics. Curation is first-class: `rag review` reports near-duplicates, dangling links, and stale pins; refuting a fact archives it with a required reason + evidence; `rag purge` removes only already-refuted documents, and only as `rag_admin`.
@@ -94,7 +146,7 @@ Domains are just data — a label for *where to look* (`general` is seeded at in
 ## How it works
 
 ```
-   Your Claude sessions                     rag save · migrate import · MCP write tools
+   Supported coding sessions                rag save · migrate import · MCP write tools
    (queued & mined on session end)          (you, or an agent)
             │                                               │
             └───────────────────┬───────────────────────────┘
@@ -111,6 +163,24 @@ Domains are just data — a label for *where to look* (`general` is seeded at in
                                 │
    session-start context · prompt-time recall · read-only MCP behind a privilege boundary
 ```
+
+Codex continuity uses a separate operational path:
+
+```text
+PreCompact ──► bounded deterministic snapshot ──► audited checkpoint
+     │                    └──► priority enrichment job ──► provider CLI
+     ▼
+Codex compacts
+     │
+PostCompact ──► mark boundary only (cannot inject context)
+     │
+SessionStart(source="compact") ──► bounded checkpoint context ──► next request
+```
+
+Native Codex memories are complementary, not the canonical record. With the
+installed policy they remain enabled and can be inspected with `/memories`;
+agentic-rag is canonical for durable searchable knowledge, audit history, and
+explicit continuation checkpoints.
 
 - **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Embeddings never leave the box (local Ollama), so retrieval is independent of provider authentication.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
@@ -146,7 +216,7 @@ Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
 | Capability | **agentic-rag** | Typical RAG stack |
 |---|:--:|:--:|
 | Local-first store, provider CLI under your control, no hosted RAG service ¹ | ✅ | ⚠️ usually a hosted service |
-| Auto-populates from your own Claude sessions (mining) | ✅ | ❌ you feed it |
+| Auto-populates from supported coding sessions (mining) | ✅ | ❌ you feed it |
 | Self-curation (dedup, near-dup gate, refute/archive) | ✅ | ⚠️ |
 | Typed knowledge graph (edges) alongside vector search | ✅ | ⚠️ |
 | One audited write gateway with secret stripping | ✅ | ❌ |
@@ -179,6 +249,13 @@ Config lives in one TOML file at `~/.agentic-rag/config.toml`. Every key is opti
 
 Roles are created **passwordless** by default, relying on local `peer`/`trust` auth (Postgres and agentic-rag on the same machine). For a networked or shared instance, set role passwords with `ALTER ROLE …` and let libpq authenticate via `~/.pgpass` or `PGHOST`/`PGPORT`/`PGPASSWORD` — see the handbook's privacy chapter.
 
+The Codex target separately manages a 600000 context window and a 500000
+total-token compaction threshold, leaving a 100K reserve, plus native memories
+and the compact prompt. Official GPT-5.6 capacity is 1.05M, but inputs above
+272K are subject to higher provider pricing and may add latency; see
+[Configuration](docs/06-configuration-reference.md) and
+[Privacy, cost & control](docs/07-privacy-and-cost.md).
+
 ---
 
 ## 📖 Documentation / Handbook
@@ -196,7 +273,8 @@ Start at the **[handbook index](docs/README.md)** for the one-line "what you'll 
 
 ## Status
 
-agentic-rag is **young but solid** — a real engine, openly developed. What's live today:
+agentic-rag is **young but solid** — a real engine, openly developed. Repository
+and rollout state are listed separately below:
 
 - ✅ **Storage & search:** PostgreSQL + pgvector schema, HNSW ANN blended with EN/DE full-text into one ranked list, the typed edge graph, the three-role destruction-protection matrix.
 - ✅ **The write gateway:** secret stripping (in and out), one-transaction chunk + embed + edge-resolve + audit, embeddings that fail open with a retry queue.
@@ -204,7 +282,17 @@ agentic-rag is **young but solid** — a real engine, openly developed. What's l
 - ✅ **Curation & safety:** `rag review`, refute-as-archive, and admin-only `rag purge` (removes only already-refuted documents, as `rag_admin`).
 - ✅ **Maintenance & backups:** `pg_dump` backups with rotation, the tiny always-exit-0 maintenance job, and the **weekly report-only restore-test**. macOS auto-schedules via `launchd`; Linux uses the documented cron/systemd recipes.
 - ✅ **Claude integration:** two user-scope MCP servers (read-write + a read-only server behind a privilege boundary for subagents), idempotent install that preserves foreign hooks.
-- ✅ **Quality:** **316 passing tests** and a content-free repository.
+- ✅ **Codex continuity in code:** audited checkpoints, bounded capture and
+  restoration, asynchronous enrichment, all six lifecycle handlers, a
+  versioned compact prompt, recoverable installer/check mode, and checkpoint
+  health in `rag status`.
+- ⬜ **Codex continuity live rollout:** the pre-install whole-diff/security
+  review and live global install, `/hooks` trust, manual/automatic compaction,
+  provider-recovery, and SessionEnd smoke tests remain open. See
+  [`FEATURES.md`](FEATURES.md) and blocker-first [`BACKLOG.md`](BACKLOG.md).
+- ✅ **Quality:** a content-free repository with a comprehensive local test
+  suite; exact verification counts belong in rollout evidence, not a static
+  badge.
 
 The clearest gap relative to the field is maturity: it's newly public and self-hosted, without the turnkey hosting or large ecosystem of established RAG stacks.
 

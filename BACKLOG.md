@@ -12,6 +12,29 @@
 
 ---
 
+## §0 — Codex continuity rollout blockers
+
+- ⬜ **0.1** _(chore)_ **Complete the pre-install whole-diff and security
+  review.** The checkpoint, lifecycle, prompt, installer, CLI/status, and
+  documentation work is implemented, but the complete branch has not yet had
+  Task 9's specification diff review, focused secret/role/install/provider
+  checks, fresh full suite, explicit temporary-home check-mode exercise, and
+  final code review. It is not done because Task 8 documentation must land
+  first. → *Trigger:* start Task 9 after this documentation commit; run every
+  command in its brief and add regression tests only for verified findings.
+  → *Dependency:* Task 8. *(M)*
+- 🔒 **0.2** _(chore)_ **Install and prove Codex continuity globally.** The
+  repository implementation is not the same as a live rollout: Peter's real
+  Codex configuration has not been changed by this branch, the six handlers
+  have not been reviewed/trusted through `/hooks`, and manual/automatic
+  compaction, provider outage/recovery, and SessionEnd tail capture have not
+  been smoke-tested end to end. → *Trigger:* after 0.1 passes, execute Task 10
+  with healthy PostgreSQL/Ollama/Codex login, preserve reported backups and the
+  rollback command, restore the 600000/500000 policy after the automatic test,
+  then record only sanitized evidence in this backlog, `FEATURES.md`, and
+  `CHANGELOG.md`. → *Dependency:* 0.1 and access to the live user environment.
+  *(L)*
+
 ## §1 — Mining & curation pipeline
 
 - ⬜ **1.1** _(enh)_ **Measure `prompt_recall` firing rate.** The prompt-recall detector's

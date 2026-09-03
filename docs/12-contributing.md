@@ -79,7 +79,8 @@ uv run pytest -x                             # stop at first failure
 The suite covers every module below — config, db init, roles, the store
 gateway, search, embeddings, chunking, secrets, domains, pins, migration
 (including an end-to-end import test), mining, the worker, jobs, curation,
-maintenance, backups, install, the CLI, the MCP server, and each hook —
+maintenance, backups, install, the CLI, the MCP server, continuation capture /
+render / enrichment / storage, Codex install preservation/rollback, and each hook —
 each with its own `tests/test_*.py` file.
 
 There's no CI wired up yet for this repo; running the suite locally before
@@ -126,15 +127,17 @@ it:
 | `ultra_source.py` | Read-only readers for an llm-wiki source corpus (topic-partitioned Markdown + optional `memory.db`) that `migration.py` reads from. |
 | `llm.py` | Provider-neutral structured-output seam with Codex and Claude CLI adapters and typed job/provider failures. |
 | `provider_health.py` | Atomic, sanitized provider availability state consumed by status hooks and external monitoring. |
+| `continuity/` | Provider-neutral checkpoint contracts, bounded deterministic capture, strict rendering, audited persistence, and schema-constrained asynchronous enrichment. |
+| `integrations/codex/` | Comment-preserving Codex TOML merge, command-level hook merge, isolated runtime probe, staged installation, unique backups, identity-bound rollback, and concurrency-safe recovery. |
 | `mining.py` | Session mining — one structured provider call per queue job, extracting candidate memories/lessons/signals, written through the gateway. |
 | `worker.py` | The single writer — a short-lived, flock-singleton process that drains the mining queue, runs a bounded curation pass, and takes an opportunistic backup, then exits. |
 | `jobs.py` | `mining_queue` plumbing shared by hooks and the worker; deliberately import-light so hooks never pull in `llm`/`mining`/`curation`. |
 | `curation.py` | Bounded, justified curation that runs only inside the single writer — dangling-link resolution, exact-duplicate merges, contradiction review, refute/purge support. |
 | `maintenance.py` | `rag maintenance` — spawns the worker if it's idle, rotates logs, and runs the weekly report-only restore-test. |
 | `backup.py` | `pg_dump` backups — local always, an optional cloud copy when configured and mounted, rotation either way. |
-| `install.py` | `rag install` — registers the MCP servers with the `claude` CLI, merges hooks into `~/.claude/settings.json`, and installs the platform scheduler. |
+| `install.py` | Target-aware `rag install` composition: the legacy Claude MCP/hooks/scheduler path and the explicit Codex check/install/restore transaction. |
 | `mcp_server.py` | The per-session MCP server — SQL plus one Ollama HTTP call for search, never a model in-process; read-write or read-only depending on `RAG_READONLY`. |
-| `hooks/` | The three Claude Code hook entry points — `session_start.py`, `prompt_recall.py`, `stop_enqueue.py` — plus `common.py`'s shared rule: a hook never blocks a session, every error is swallowed and logged, and it always exits 0. |
+| `hooks/` | Shared provider hook entry points for SessionStart, prompt recall, Stop, PreCompact, PostCompact, SessionEnd, and the shared transcript-delta/common paths. Hooks never block a session; only supported event-specific output shapes are emitted. |
 | `cli.py` | The `rag` CLI — a thin `argparse` layer over everything above it. |
 
 Deeper detail on how these fit together lives in
@@ -150,9 +153,21 @@ help with that:
 - **`BACKLOG.md`** at the repo root is the single, numbered backlog for
   open work — worked top-down, kept current, every open item carrying a
   reason it isn't done yet and a trigger for resuming it.
+- **`FEATURES.md`** is the shipped/planned registry. Keep “implemented in the
+  repository” distinct from “installed and proven live”; an operational
+  rollout stays planned until its smoke-test evidence exists.
 - **`CHANGELOG.md`** follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   and [semantic versioning](https://semver.org/); it's pre-1.0, so entries
   summarize milestones rather than every commit.
+
+For Codex continuity changes, preserve these boundaries across all three
+records and the handbook: agentic-rag is canonical while native Codex memories
+are complementary; `PreCompact` captures without inline provider work;
+`PostCompact` never injects context; `SessionStart(source="compact")` restores;
+and `rag install --codex --check` stays non-writing. Update the managed
+600000/500000 policy, restore instructions, privacy/cost warning, hook trust
+step, status fields, feature state, and blocker-first backlog together whenever
+one of those contracts changes.
 
 ### The doc-reminder git hook
 

@@ -11,7 +11,7 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | Command | Flags | What it does |
 |---|---|---|
 | `rag init-db` | — | Applies pending SQL migrations from `sql/`, creates the schema, seeds the `general` domain. Prints which migrations applied. |
-| `rag install` | `--no-launchd` | Registers the two MCP servers (`agentic-rag`, `agentic-rag-ro`) user-scope, wires the three Claude Code hooks into `~/.claude/settings.json`, and installs the **backup** launchd job (macOS only, unless `--no-launchd`). Does **not** create the database — run `init-db` first. |
+| `rag install` | `--no-launchd` · `--codex` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges three Claude hooks, and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` requires `--codex` and writes nothing. `--restore` requires `--codex`, is mutually exclusive with `--check`, and restores the home encoded in the record. Does **not** create the database. |
 
 ### Domains
 
@@ -27,7 +27,7 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `rag save` | `--title` (required) · `--domain` (required) · `--dtype` (required) · `--body` · `--file <path>` · `--slug` · `--edge PREDICATE:SLUG` (repeatable) | Saves through `save_document()` — the one audited write gateway. Body comes from `--body` or from reading `--file`; if neither is given, the body is empty. `--slug` upserts: if a document with that slug already exists, this save updates it in place; otherwise the new document is created carrying that slug. `--edge` can be repeated to attach one or more typed edges (predicate:target-slug) in the same write. Prints `created`/`updated <slug> (N chunks, N edges)`; any secret-stripping or embedding-retry warning goes to stderr. |
 | `rag get <id_or_slug>` | `--json` | Fetches one document by UUID or slug, plus its incoming and outgoing edges. Human-readable by default; `--json` for the raw structure. Exits 1 if not found. |
 | `rag search <query>` | `--domain` · `-k <int>` (default `8`) · `--json` | Runs the same hybrid search the MCP tools use. Prints `score  slug  [domain/dtype]` per hit by default; `--json` for the full result plus any degrade warnings. |
-| `rag status` | — | One-screen health check: document counts, queue counts/errors and oldest open mine, provider health/remediation, backup freshness, and last curation run. |
+| `rag status` | — | One-screen health check: document counts; queue counts/errors and oldest open mine; provider health/remediation; open checkpoint count; newest checkpoint time/quality/project; pending checkpoint-enrichment count/age/warnings; backup freshness; and last curation run. |
 | `rag queue requeue-legacy-provider-failures` | `--expect <int>` (default `60`) · `--yes` | One-time recovery for the exact legacy Claude missing-binary/exit-1 cohort. Always prints the candidate count; refuses without `--yes` or on count mismatch. Preserves job identity, payload, transcript cursor/path, resets attempts, and makes only that cohort pending. |
 
 ### Pins
@@ -75,6 +75,47 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `4` | Unexpected error | Anything else — caught, printed as `unexpected error: <type>: <message>`, never a raw traceback. |
 
 `argparse` itself exits `2` for malformed invocations (missing a required flag, unknown subcommand) — that's argparse's own contract, before any of this code runs.
+
+### Codex install, check, and restore
+
+```bash
+rag install --codex --check
+rag install --codex
+rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
+```
+
+Check/install output enumerates every managed setting, including
+`model_context_window=600000`,
+`model_auto_compact_token_limit=500000`, total-token scope, hooks/memories,
+and Luna memory models. It reports would-change/changed paths, unique sibling
+backups, foreign `herdr-agent-state.sh` duplicate counts, Codex version when
+available, runtime-validation coverage, isolated-probe guarantees, and the
+required `/hooks` trust review. Check mode ends with “no files written.”
+
+A changing install prints an exact rollback command whose record normally
+lives under `~/.agentic-rag/state/`. Restore prints each restored path and
+`rollback complete`. It authenticates both the rollback backup bytes and the
+installed target identities; conflicts abort without overwriting concurrent
+content and retain named recovery evidence.
+
+`--codex-home <path>` also exists as a deliberately hidden test/rollout flag.
+With `--check` it allows an explicit temporary home to exercise the full plan
+and isolated Codex probe without touching the real `~/.codex`. It cannot be
+combined with `--restore`, because restore obtains its target home from the
+validated rollback record.
+
+### Codex hook output contract
+
+| Event | Observable result |
+|---|---|
+| `PreCompact` | Silent, always exit 0; snapshot persistence/enqueue failures are logged and never block compaction. |
+| `PostCompact` | Silent on success. It cannot inject context; a DB failure may emit only `{"systemMessage":"checkpoint bookkeeping delayed"}`. |
+| `SessionStart(source="compact")` | Emits the same-session bounded checkpoint as `additionalContext` before the next model request. This is the restoration event. |
+| `SessionEnd(reason="other")` | Silent delta enqueue through the same deduplicating path as `Stop`. |
+
+After any Codex install, run `/hooks`, inspect the six owned commands/hashes,
+and trust only those you recognize. Installation writes configuration but does
+not make the trust decision.
 
 ## MCP servers
 

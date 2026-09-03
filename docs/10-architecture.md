@@ -1,16 +1,17 @@
 # Architecture
 
 *What you'll learn: the schema (documents, chunks, edges, domains, pins,
-mining_queue, audit_log) and its constraints, the three-role
+mining_queue, audit_log, continuation_checkpoints) and its constraints, the three-role
 destruction-protection matrix and the `replace_chunks()` escape hatch, the
 HNSW and GIN indexes that make search fast, the single write gateway, the
-single-writer worker and its flock, the three Claude Code hooks, and the two
+single-writer worker and its flock, the Claude and Codex lifecycle hooks, and the two
 MCP servers. This chapter verifies against the actual SQL and Python — if
 something here looks surprising, it's meant to; that's what makes it
 architecture rather than a recap of [02 · The mental model](02-mental-model.md).*
 
-Everything below lives in `sql/001_init.sql` through `sql/005_plan2.sql` and
-`agentic_rag/{db,store,search,worker,mcp_server,install}.py`. `rag init-db`
+Everything below lives in `sql/001_init.sql` through
+`sql/007_checkpoint_predecessor.sql` and under `agentic_rag/`, including the
+`continuity/` and `integrations/codex/` packages. `rag init-db`
 applies the SQL files in filename order inside one transaction
 (`apply_migrations()` in `agentic_rag/db.py`) and records each in
 `schema_migrations(filename PRIMARY KEY, applied_at)` so re-running is a
@@ -125,13 +126,14 @@ the CLI's `actor="cli"` gets mapped to `manual` before the row is written
 (`_CREATED_BY = {"cli": "manual"}` in `store.py`). `valid_from`/`valid_to`
 make edges bi-temporal, which is what `memory_timeline` reads.
 
-### `domains`, `pins`, `mining_queue`, `audit_log`, `schema_migrations`
+### Operational tables
 
 | Table | Key columns | Constraints / notes |
 |---|---|---|
 | `domains` | `name` (PK, text), `description`, `created_at` | Referenced by `documents.domain`; `general` is seeded by `domains.seed_defaults()` right after migrations apply. |
 | `pins` | `document_id` (nullable FK → `documents`), `body`, `scope` (default `'global'`), `priority` (default `100`), `active` (bool), `last_verified` | `scope` is a free string interpreted by app code as `global`, a domain name, or an absolute project path — no CHECK constrains it. |
-| `mining_queue` | `kind` CHECK(`mine`/`curate`/`backup`/`embed`), `session_id`, `transcript_path`, `payload` jsonb, `status` CHECK(`pending`/`processing`/`done`/`error`), `attempts`, `next_attempt_at`, `last_uuid`, `last_error`, `enqueued_at`, `finished_at` | `next_attempt_at` (default `now()`) was added in `005_plan2.sql` for backoff/debounce; `idx_queue_due(status, next_attempt_at)` backs the "what's due" scan. |
+| `mining_queue` | `kind` CHECK(`mine`/`curate`/`backup`/`embed`/`checkpoint_enrich`), `session_id`, `transcript_path`, `payload` jsonb, `status` CHECK(`pending`/`processing`/`done`/`error`), `attempts`, `next_attempt_at`, `last_uuid`, `last_error`, `enqueued_at`, `finished_at` | `checkpoint_enrich` carries a checkpoint id plus the prior transcript cursor and is prioritized after maintenance but before ordinary mining/embed work. `idx_queue_due(status, next_attempt_at)` backs the due scan. |
+| `continuation_checkpoints` | `(session_id, cursor)` unique, `turn_id`, fingerprint, source/trigger, cwd/project root, bounded Git/snapshot/enrichment/reference/warning JSON, predecessor cursor, lifecycle/quality, compaction/timestamps | Operational continuation state, separate from documents. Open rows are indexed by session and canonical project; new cursors supersede old open rows, history is retained, and writer has no delete grant. Snapshot/enrichment/compaction mutations append audit events. |
 | `audit_log` | `id` (identity PK), `actor`, `op`, `document_id`, `summary`, `at` | Append-only by grant (see the role matrix) — nothing can edit or delete a past entry, including the role that writes it. |
 | `schema_migrations` | `filename` (PK), `applied_at` | Bookkeeping only; `rag_writer` gets `SELECT`, nobody but the owner/admin connection writes to it. |
 
@@ -150,6 +152,8 @@ make edges bi-temporal, which is what `memory_timeline` reads.
 | `idx_queue_due` | `mining_queue(status, next_attempt_at)` | btree | The worker's "what's due right now" claim query. |
 | `idx_audit_doc` | `audit_log.document_id` | btree | Per-document audit history (refute-justification trigger, `rag review`). |
 | `idx_audit_op_at` | `audit_log(op, at DESC)` | btree | "When did curation last run" (`jobs.last_curation_at`). |
+| `idx_continuation_checkpoints_session_open` | `continuation_checkpoints(session_id, state, updated_at DESC)` | btree | Latest same-session checkpoint for compact restoration. |
+| `idx_continuation_checkpoints_project_open` | `continuation_checkpoints(project_root, state, updated_at DESC)` | partial btree | Startup/resume fallback within one canonical project. |
 
 HNSW over the alternative (IVFFlat) is a fixed decision baked into
 `001_init.sql`, not a runtime option; there's no config knob to switch index
@@ -168,8 +172,8 @@ shared/remote Postgres instances.
 
 | Role | Grants | Notably absent |
 |---|---|---|
-| `rag_reader` | `SELECT` on every table | Any write, anywhere. |
-| `rag_writer` | `SELECT/INSERT/UPDATE` on `domains`, `documents`, `edges`, `pins`, `mining_queue`; `SELECT` only on `chunks`; `SELECT/INSERT` on `audit_log` (append-only); `SELECT` on `schema_migrations`; `USAGE` on all sequences | `DELETE`/`TRUNCATE`/`DROP` on **anything** — not even `audit_log` rows it just inserted. |
+| `rag_reader` | `SELECT` on every table, including continuation checkpoints | Any write, anywhere. |
+| `rag_writer` | `SELECT/INSERT/UPDATE` on `domains`, `documents`, `edges`, `pins`, `mining_queue`, and `continuation_checkpoints`; `SELECT` only on `chunks`; `SELECT/INSERT` on `audit_log` (append-only); `SELECT` on `schema_migrations`; `USAGE` on all sequences | `DELETE`/`TRUNCATE`/`DROP` on **anything** — not even checkpoints or audit rows it inserted. |
 | `rag_admin` | `ALL` on all tables, `USAGE` on all sequences | Nothing — used only by `migrate`, `purge`, `restore`. |
 
 `rag_writer` has *no* `DELETE` grant on `chunks`, which is the interesting
@@ -309,7 +313,7 @@ already attached by `search()` before the SQL call.
 ## The single writer: flock, never a PID file
 
 Exactly one `worker.py` process may be draining `mining_queue` at any time,
-across however many Claude Code sessions are open. The guarantee is a kernel
+across however many supported sessions are open. The guarantee is a kernel
 `flock`, not an application-level check:
 
 ```python
@@ -345,8 +349,11 @@ RETURNING ...
 `FOR UPDATE SKIP LOCKED` is defense-in-depth on top of the flock — even if
 two writers somehow ran, they couldn't double-claim the same row. Each job
 dispatches by `kind`: `mine` → `mining.mine_session()`, `embed` →
-`store.reembed_document()`, `curate` → `curation.run_pass()`, `backup` →
-`backup.run_backup()`. On success the row becomes `'done'`. On failure,
+`store.reembed_document()`, `checkpoint_enrich` →
+`continuity.enrich.enrich_checkpoint()`, `curate` → `curation.run_pass()`,
+`backup` → `backup.run_backup()`. Maintenance is claimed first, checkpoint
+enrichment second, and ordinary mining/embed work third. On success the row
+becomes `'done'`. On failure,
 `_fail()` rolls back the job's half-done writes and either reschedules with
 exponential backoff (`worker_backoff_seconds * 2 ** (attempts - 1)`, default
 base 300s) or, past `worker_max_attempts` (default 3), marks the row
@@ -360,9 +367,9 @@ throwing, backup failing — is caught, logged to
 `~/.agentic-rag/log/worker.log`, and the process still exits `0`: **a worker
 crash must never surface into a hook or a session.**
 
-## Triggering work: the three hooks
+## Triggering work: provider lifecycle hooks
 
-`rag install` wires three hooks into `~/.claude/settings.json`
+The legacy `rag install` wires three hooks into `~/.claude/settings.json`
 (`agentic_rag/install.py`), each shelling out to a small stdlib-only module
 under `agentic_rag/hooks/`:
 
@@ -372,7 +379,20 @@ under `agentic_rag/hooks/`:
 | `UserPromptSubmit` | (no matcher), 5s | `reader` | Regex-detects a *strong* error signature (traceback, `FooError:`, `file:line`, `panic`/`segfault`, ...), turns distinctive tokens into a sanitized OR-`tsquery`, and calls `recall_signals()` (English-only, `dtype='signal'` documents) plus a pin lookup. | **Silent on error** (logged, not surfaced) — precision over recall by design; a false warning on every prompt would be worse than an occasional missed recall. |
 | `Stop` | (no matcher), 10s | `writer` | Debounced enqueue of the session transcript as a `mine` job (`jobs.enqueue_mine`: at most one open `mine` job per session, due `mine_debounce_seconds` — default 600s — in the future, carrying over `last_uuid` so the next drain only mines the delta), then fire-and-forget spawns the worker. | **Fail open, silent** — every error logged and swallowed; the hook always exits 0 and prints nothing. |
 
-All three share one contract from `agentic_rag/hooks/common.py`: never block
+The explicit `rag install --codex` target writes six entries to
+`~/.codex/hooks.json`, removing only owned handler commands and preserving
+every foreign entry:
+
+| Codex event | Matcher / timeout / context budget | Continuity behavior |
+|---|---|---|
+| `SessionStart` | `startup\|resume\|clear\|compact`, 10s, `additionalContextLimit=10000` | Injects ordinary memory context and a bounded checkpoint. Same-session wins; only startup/resume can fall back to the same canonical project. This is the only post-compaction restoration point. |
+| `UserPromptSubmit` | 5s, `additionalContextLimit=5000` | Same deterministic signal/pin recall as the Claude integration. |
+| `Stop` | 10s | Uses the shared transcript-delta path to enqueue debounced mining. |
+| `PreCompact` | `manual\|auto`, 3s | Commits deterministic snapshot state, then best-effort captures repository state and queues asynchronous enrichment. No inline provider call. |
+| `PostCompact` | `manual\|auto`, 3s | Marks the latest same-session checkpoint compacted. It cannot emit `additionalContext`; success is silent and failure is only a `systemMessage`. |
+| `SessionEnd` | 3s | For `reason="other"`, uses the shared delta enqueue path to capture a final tail once. |
+
+All handlers share one contract from `agentic_rag/hooks/common.py`: never block
 the session. `spawn_worker()` launches `python -m agentic_rag.worker`
 detached (`start_new_session=True`, stdio redirected to
 `worker.log`) and is a no-op if a worker is already running — it relies on
@@ -385,6 +405,16 @@ three event lists), and appends fresh ones — any hook you or another tool
 added stays untouched. A corrupt settings file aborts loudly rather than
 being silently replaced; a valid one is backed up to `.json.bak` before every
 write.
+
+Codex installation is a separate recoverable transaction. It snapshots and
+parses the three target files, probes only managed values in an ephemeral
+`CODEX_HOME`, stages/validates every desired artifact, creates unique sibling
+backups for existing changed files, and publishes only while the original file
+identity still matches. A changing install records backup and installed-file
+identities in a mode-`0600` rollback record. Restore verifies those identities
+again and preserves concurrent destinations/recovery evidence rather than
+overwriting. The user must inspect and trust changed handlers with `/hooks`;
+the installer cannot grant trust.
 
 ## The two MCP servers
 
@@ -465,7 +495,7 @@ embedding model:
 **Mining path** — a session becomes knowledge without you doing anything:
 
 ```
- Claude Code session ends
+ Supported coding session ends
         │  Stop hook → jobs.enqueue_mine()  (debounced, ≤1 open job/session)
         ▼
  mining_queue (kind='mine', status='pending')
@@ -479,8 +509,34 @@ embedding model:
         ▼
  save_document()  (same gateway as the write path)
         ▼
- documents · chunks · edges · audit_log
+documents · chunks · edges · audit_log
 ```
+
+**Continuity path** — captures usable state before any asynchronous provider
+work and restores only at the hook boundary that accepts additional context:
+
+```text
+PreCompact
+   │  capture_snapshot_seed() → audited upsert (fast deterministic state)
+   │  capture_repository_state() → audited upsert (bounded Git/artifact refs)
+   └─ enqueue checkpoint_enrich(after_cursor=predecessor_cursor) → worker
+                           │
+                           ▼
+                  validate bounded schema/evidence
+                           │
+Codex compacts             └─► apply_enrichment() [optional]
+   │
+PostCompact ──► mark_compacted() [bookkeeping; no additional context]
+   │
+SessionStart(source="compact")
+   └─ latest_for_session() → render_checkpoint(max_chars) → additionalContext
+```
+
+A provider-wide enrichment failure restores the claimed job to `pending`,
+restores its attempt count, applies the configured provider backoff, records
+sanitized health state, and stops the drain. The deterministic snapshot remains
+available throughout. A later successful job enriches that same checkpoint and
+clears provider health.
 
 ## Next →
 

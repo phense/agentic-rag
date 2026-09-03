@@ -26,6 +26,42 @@ In every case, **embeddings are local** — retrieval and re-embedding run on
 your own Ollama (`bge-m3`). Only LLM-assisted mining and curation call the
 selected external provider.
 
+Codex continuity enrichment is another bounded provider call through that same
+seam. The safety-critical checkpoint does not depend on it: `PreCompact`
+commits deterministic state locally first, and a provider outage leaves the
+enrichment pending without consuming its attempt budget. `rag status` and
+SessionStart expose the outage; after `codex login`, the next successful worker
+run closes the circuit automatically and enriches the same checkpoint.
+
+### Native Codex memories and external context
+
+The managed Codex policy enables native Codex memories and sets
+`disable_on_external_context = false`. That means native memory generation/use
+remains eligible even when a hook supplies external agentic-rag context. This
+is deliberate complementarity, not ownership ambiguity:
+
+- inspect and manage native Codex memories with `/memories`;
+- treat agentic-rag as the canonical, locally queryable and audited store for
+  durable knowledge and explicit continuation checkpoints;
+- apply your Codex account's data controls to native memory and model calls in
+  addition to the local secret/capture limits described here.
+
+If you do not want native memory operating alongside externally injected
+context, change that Codex setting after considering that the next
+`rag install --codex` intentionally restores the managed policy.
+
+### Long-context pricing and latency
+
+The installer configures `model_context_window = 600000` and a total-scope
+`model_auto_compact_token_limit = 500000`, leaving a 100K reserve. This stays
+within the official 1.05M GPT-5.6 context window, but it is above the official
+272K input boundary where GPT-5.6 requests receive higher provider pricing for
+the full request. Large inputs can also take longer. This repository does not
+claim the 600K/500K policy is cost- or latency-neutral; Task 10 must measure it
+in the real rollout. Current values and pricing conditions are documented on
+the [official GPT-5.6 Sol page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+and [GPT-5.6 Luna page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
+
 Two environment details worth knowing:
 - `_child_env` also strips `CLAUDECODE`, `CLAUDE_CODE_SESSION_ID`,
   `CLAUDE_CODE_ENTRYPOINT`, and `CLAUDE_CODE_EXECPATH` from the child process,
@@ -35,8 +71,26 @@ Two environment details worth knowing:
   Stop hook doesn't enqueue its own transcript for mining — otherwise a
   mining run could end up mining itself.
 
-Ollama (embeddings) and PostgreSQL both run on your machine too. Nothing in
-the default path calls a hosted service.
+Ollama (embeddings) and PostgreSQL both run on your machine too. There is no
+separate hosted RAG service, but the configured Codex or Claude CLI normally
+contacts its provider for mining, curation, and checkpoint enrichment.
+
+## Lifecycle capture and hook trust
+
+The deterministic checkpoint intentionally captures references and bounded
+state, not arbitrary bodies: canonical CWD/Git paths, branch/HEAD, a capped
+`git status --short`, transcript cursor/fingerprint metadata, and approved
+artifact paths. It does not store a transcript, diff, or artifact body.
+Optional semantic enrichment receives a bounded redacted transcript delta and
+rejects secret-bearing, transcript-like, diff-like, or unrecognized output
+instead of persisting it.
+
+Hooks are commands running under your account. `rag install --codex` can merge
+and validate their JSON, but it cannot decide whether you trust them. After
+installation, use `/hooks`, inspect all six `python -m
+agentic_rag.hooks.…` commands/hashes, and trust only what you recognize. The
+installer reports duplicated foreign `herdr-agent-state.sh` commands but
+neither trusts nor removes them.
 
 ## The secret-stripping gateway
 
@@ -175,6 +229,21 @@ night's dump actually restores to something sane. `rag restore` (the
 real, deliberate recovery path) requires an explicit `--yes` and restores
 inside a single transaction, so a failure partway through can't leave the
 database half-dropped.
+
+Codex configuration rollback is separate from database backup/restore. A
+changing `rag install --codex` creates a unique sibling backup for each
+existing changed file and an atomically published mode-`0600` rollback record
+under `~/.agentic-rag/state/`. The printed command is:
+
+```bash
+rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
+```
+
+Use that exact printed path. Restore authenticates the recorded backup and
+installed-file identities and refuses concurrent substitutions rather than
+overwriting them; retained recovery files are named in any manual-recovery
+error. `rag install --codex --check` creates no backups because it writes
+nothing.
 
 ## Next →
 

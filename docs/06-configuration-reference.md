@@ -18,7 +18,7 @@ agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
-`[curation]`, `[worker]`. Unknown sections and unknown keys inside a known
+`[curation]`, `[worker]`, `[continuity]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -108,7 +108,7 @@ Local dumps always happen; a cloud/synced copy is opt-in.
 
 ## `[hooks]`
 
-Controls what the SessionStart hook injects into a new Claude Code
+Controls what the SessionStart hook injects into a new supported
 session, and doubles as the staleness threshold `rag review` uses for
 pins. These fields have no section prefix in the underlying dataclass —
 the loader matches them by bare field name, and `[hooks]` is their
@@ -181,6 +181,69 @@ Retry policy for the single-writer background worker that drains
 |---|---|---|---|
 | `max_attempts` | `worker_max_attempts` | `3` | Attempts a queued job gets before it's marked `error` and left for a human to inspect (`rag status`). |
 | `backoff_seconds` | `worker_backoff_seconds` | `300` | Base retry delay; the actual wait is `backoff_seconds × 2^(attempts-1)` — exponential backoff. |
+
+## `[continuity]`
+
+Bounds deterministic capture and the context restored by SessionStart. These
+values belong to agentic-rag's `~/.agentic-rag/config.toml`; they are not Codex
+model-context settings.
+
+| Key | Field | Default | What it does |
+|---|---|---|---|
+| `status_max_chars` | `checkpoint_status_max_chars` | `4000` | Maximum captured characters from `git status --short`; truncation becomes a checkpoint warning. |
+| `render_max_chars` | `checkpoint_render_max_chars` | `8000` | Maximum restored checkpoint text. Runtime clamps lower values to the renderer's safe 192-character minimum. |
+| `artifact_max` | `checkpoint_artifact_max` | `16` | Maximum approved root/spec/plan artifact paths captured; file bodies are never stored in the checkpoint. |
+
+## Managed Codex configuration
+
+`rag install --codex` separately manages selected values in
+`~/.codex/config.toml`; it does not copy them into agentic-rag's TOML. The
+installer preserves comments and every foreign key while enforcing this
+continuity policy:
+
+```toml
+model_context_window = 600000
+model_auto_compact_token_limit = 500000
+model_auto_compact_token_limit_scope = "total"
+experimental_compact_prompt_file = "/absolute/home/.codex/compact_prompt.md"
+
+[features]
+hooks = true
+memories = true
+
+[memories]
+generate_memories = true
+use_memories = true
+disable_on_external_context = false
+min_rollout_idle_hours = 6
+max_rollout_age_days = 90
+max_rollouts_per_startup = 32
+max_raw_memories_for_consolidation = 1024
+max_unused_days = 180
+min_rate_limit_remaining_percent = 15
+extract_model = "gpt-5.6-luna"
+consolidation_model = "gpt-5.6-luna"
+```
+
+The 500000 total-token compaction limit leaves a 100K reserve inside the
+configured 600000 window. This is a local operating policy, not the model's
+maximum: official GPT-5.6 Sol and Luna documentation lists a 1,050,000-token
+context window and says prompts above 272K input tokens receive higher
+provider pricing for the full request. Long-context latency/quota impact must
+therefore be measured during rollout rather than assumed neutral. See the
+[official GPT-5.6 Sol model page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+and [GPT-5.6 Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
+
+`disable_on_external_context = false` is intentional: native Codex memories
+remain eligible even when agentic-rag injects external context. Inspect them
+with `/memories`. They complement rather than replace the canonical
+agentic-rag store.
+
+The associated `~/.codex/hooks.json` entries set
+`additionalContextLimit = 10000` for `SessionStart` and `5000` for
+`UserPromptSubmit`; the other four handlers do not declare additional-context
+budgets because they do not inject it. Run `/hooks` after installation and
+trust only the commands you have inspected.
 
 ## Next →
 

@@ -8,6 +8,22 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
+- **Codex continuity implementation (rollout pending).** Added provider-neutral,
+  audited continuation checkpoints; bounded deterministic capture and
+  rendering; asynchronous provider-backed enrichment; six Codex lifecycle
+  handlers; and a versioned, reference-oriented compact prompt. `PreCompact`
+  persists state without an inline model call, `PostCompact` records only the
+  boundary, and `SessionStart(source="compact")` performs restoration.
+- **Recoverable Codex installer.** `rag install --codex --check` previews the
+  three managed artifacts without writing; `rag install --codex` preserves
+  foreign TOML/hooks, stages and validates changes, creates unique backups and
+  a mode-0600 rollback record, and prints the exact `--restore` command plus
+  `/hooks` trust guidance. Checkpoint and enrichment health now appears in
+  `rag status`.
+- **Codex context/native-memory policy.** The installer manages a 600000-token
+  context window, 500000-token total-scope compaction threshold (100K reserve),
+  native Codex memories, and Luna extraction/consolidation. agentic-rag remains
+  the canonical durable store; native memories are complementary.
 - **Codex mining provider.** Mining and curation can use schema-constrained,
   ephemeral `codex exec` calls with configurable model and reasoning effort;
   the Claude adapter remains available as a compatibility rollback.
@@ -18,6 +34,12 @@ milestones rather than every commit, and interfaces may still change between `0.
 - **Lossless provider outages.** A missing CLI, timeout, or expired login now
   returns the claimed job to `pending` without consuming an attempt, applies a
   bounded backoff, records atomic health state, and stops the current drain.
+
+### Not yet rolled out
+- The whole-branch pre-install review and the live global install, `/hooks`
+  trust, manual/automatic compaction, provider recovery, and SessionEnd smoke
+  tests remain open in backlog 0.1/0.2. This changelog does not claim the
+  global Codex configuration is installed or operationally verified.
 
 ## [0.2.0] - 2026-07-09
 

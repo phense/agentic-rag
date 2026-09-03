@@ -2,7 +2,8 @@
 
 **What you'll learn:** the handful of objects agentic-rag is built from — documents, domains, edges, chunks — how a write actually happens, how search actually ranks, and how a session turns into knowledge. Everything here is "at a glance"; internals live in [10 · Architecture](10-architecture.md).
 
-Five ideas cover the whole system. Once they click, every CLI command and MCP tool is just a door into one of them.
+Six ideas cover the whole system. Once they click, every CLI command, MCP tool,
+and lifecycle hook is just a door into one of them.
 
 ## Documents: the unit of knowledge
 
@@ -52,7 +53,7 @@ If Ollama is unreachable, the vector leg simply contributes nothing — `search(
 
 ## The write gateway: one audited path in
 
-However a document gets into the store — `rag save`, an MCP tool call from inside a Claude session, the session miner, or the wiki importer — it goes through exactly one function: `save_document()`. That single choke point is what makes every other guarantee in this handbook possible:
+However a document gets into the store — `rag save`, an MCP tool call, the session miner, or the wiki importer — it goes through exactly one function: `save_document()`. That single choke point is what makes every other guarantee in this handbook possible:
 
 1. **Secrets are stripped first.** Title, body, meta, provenance, and edge evidence all pass through the secret gateway *before* anything is written. Nothing bypasses this — not even automated mining output, which is the whole reason it exists there and not just on the CLI's manual-entry path. Full detail: [07 · Privacy, cost & control](07-privacy-and-cost.md).
 2. **The slug is assigned and made unique.** A new document without an explicit slug gets one slugified from its title, with a numeric suffix appended if that slug's already taken.
@@ -67,14 +68,42 @@ The payoff of routing every writer through one place: you get secret-stripping, 
 
 The store is meant to fill itself from the sessions you already have, not just from things you deliberately `rag save`. The shape of the loop:
 
-**hooks → queue → worker → configured LLM CLI → gateway.** A `Stop` hook fires when a Claude Code session ends and enqueues that session's transcript. A single-writer background worker drains the queue and uses the configured Codex or Claude adapter to extract durable memories, lessons, and signals from the session digest. Each candidate item is checked for a near-duplicate against what's already stored before it is written, and every extracted item still goes through `save_document()`. Provider-wide outages restore the job's attempt budget, pause that drain, and remain visible until a later success. The miner can also flag contradictions with existing documents or pins, and propose new domains — those surface for review rather than mutating anything unattended.
+**hooks → queue → worker → configured LLM CLI → gateway.** A lifecycle hook enqueues a supported session's transcript. A single-writer background worker drains the queue and uses the configured Codex or Claude adapter to extract durable memories, lessons, and signals from the session digest. Each candidate item is checked for a near-duplicate against what's already stored before it is written, and every extracted item still goes through `save_document()`. Provider-wide outages restore the job's attempt budget, pause that drain, and remain visible until a later success. The miner can also flag contradictions with existing documents or pins, and propose new domains — those surface for review rather than mutating anything unattended.
 
 Full mechanics — the digest format, the extraction schema, the dedup threshold, curation (`rag review` / `rag purge`) — live in [05 · Session mining & curation](05-session-mining-and-curation.md).
+
+## Continuation checkpoints: operational state, not knowledge
+
+A **continuation checkpoint** answers “what must the next model know to resume
+this exact task?” It is deliberately separate from general RAG documents. The
+checkpoint has its own audited lifecycle (`open`, `superseded`, `completed`),
+quality (`snapshot` or `enriched`), same-session cursor, canonical project root,
+bounded Git state, artifact references, blockers, and next action. Superseded
+history is retained; there is no checkpoint delete path.
+
+The fast path is deterministic. `PreCompact` persists a snapshot without
+calling an LLM, then queues optional schema-constrained enrichment for the
+single-writer worker. The renderer always preserves checkpoint identity,
+blockers, and the next exact action within its configured budget, labels
+snapshot-only state as enrichment pending, and tells the next model to
+revalidate volatile process or external state.
+
+The restoration boundary matters: `PostCompact` cannot inject context and
+never tries. It only marks the stored checkpoint as compacted.
+`SessionStart(source="compact")` runs before the next model request and injects
+the latest open checkpoint for that same session. A normal startup/resume may
+fall back to the newest checkpoint for the same canonical Git project; compact
+restoration never crosses sessions or projects.
+
+Native Codex memories solve a different problem. They are complementary
+adaptation managed by Codex and inspectable with `/memories`; agentic-rag is the
+canonical store for durable, searchable knowledge and explicit, auditable
+continuation state.
 
 ## How the pieces fit together
 
 ```
- session ──(mining)──┐
+ supported session ──(mining)──┐
  rag save ───────────┤
  MCP tool call ───────┼──► save_document() ──► documents + chunks + edges
  wiki import ─────────┘        (gateway)              │
@@ -83,6 +112,10 @@ Full mechanics — the digest format, the extraction schema, the dedup threshold
                                                         │
                                                         ▼
                                               ranked results back to you
+
+ Codex PreCompact ──► continuation checkpoint ──► async enrichment
+        │                         │
+        └── Codex compacts ───────┴──► SessionStart(source="compact")
 ```
 
 Every arrow into the gateway is a different *source* of knowledge; every arrow out of it is the same audited, secret-stripped, transactional write. That's the mental model — one shape, four entry points, one exit into search.
