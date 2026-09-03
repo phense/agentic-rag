@@ -207,6 +207,7 @@ def test_enrichment_rejects_total_payload_over_the_byte_limit_before_sql(conn):
 @pytest.mark.parametrize("enrichment", [
     {"goal": "--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old\n+new"},
     {"tests": ["--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old\n+new"]},
+    {"goal": "--- old.py\n+++ new.py\n@@ -1 +1 @@\n-old\n+new"},
     {"goal": "***************\n*** 1,2 ****\n-old\n--- 1,2 ----\n+new"},
     {"goal": "user: Please implement the change.\nassistant: I will inspect it."},
     {"next_action": (
@@ -231,6 +232,16 @@ def test_enrichment_allows_a_single_user_label_in_ordinary_short_prose(conn):
     )
 
     assert enriched.enrichment == {"goal": "The user: admin owns this next action."}
+
+
+def test_enrichment_allows_header_like_short_prose_without_a_unified_hunk(conn):
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+
+    enriched = store.apply_enrichment(
+        conn, checkpoint.id, {"goal": "--- old.py\n+++ new.py\nReview the names."}
+    )
+
+    assert enriched.enrichment["goal"].endswith("Review the names.")
 
 
 def test_latest_selectors_only_return_open_checkpoints(conn):

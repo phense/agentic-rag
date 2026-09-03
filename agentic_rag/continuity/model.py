@@ -25,8 +25,8 @@ MAX_ENRICHMENT_LIST_ITEMS = 32
 MAX_ENRICHMENT_BYTES = 16_000
 _UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
 _UNIFIED_DIFF_HUNK = re.compile(
-    r"(?m)^---[ \t]+(?:a/|/dev/null)[^\r\n]*\r?\n"
-    r"^\+\+\+[ \t]+(?:b/|/dev/null)[^\r\n]*\r?\n"
+    r"(?m)^---[ \t]+[^\s\r\n][^\r\n]*\r?\n"
+    r"^\+\+\+[ \t]+[^\s\r\n][^\r\n]*\r?\n"
     r"^@@[ \t]+-\d+(?:,\d+)?[ \t]+\+\d+(?:,\d+)?[ \t]+@@"
 )
 _CONTEXT_DIFF_HUNK = re.compile(
