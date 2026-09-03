@@ -130,11 +130,17 @@ def test_worker_dispatches_checkpoint_enrich(conn, cfg, monkeypatch):
         "transcript_path": "/t", "payload": {"checkpoint_id": "cp-1"},
         "last_uuid": "u1", "attempts": 1,
     }
+    def on_provider_success():
+        pass
 
-    assert worker.process_job(conn, cfg, job, runner="runner") == "u2"
+    assert worker.process_job(
+        conn, cfg, job, runner="runner",
+        on_provider_success=on_provider_success,
+    ) == "u2"
     args, kwargs = seen["call"]
     assert args[:3] == (conn, cfg, job)
-    assert kwargs == {"runner": "runner"}
+    assert kwargs["runner"] == "runner"
+    assert kwargs["on_provider_success"] is on_provider_success
 
 
 def test_drain_mine_job_completes_and_stamps_last_uuid(conn, cfg, tmp_path,

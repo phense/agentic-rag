@@ -139,7 +139,7 @@ def claim_next(conn) -> dict | None:
 
 
 def process_job(conn, cfg: Config, job: dict, *,
-                runner=subprocess.run) -> str | None:
+                runner=subprocess.run, on_provider_success=None) -> str | None:
     payload = job.get("payload") or {}
     if isinstance(payload, str):
         payload = json.loads(payload)
@@ -155,7 +155,10 @@ def process_job(conn, cfg: Config, job: dict, *,
              f" skipped={res.skipped or '-'}")
         return res.new_last_uuid
     if job["kind"] == "checkpoint_enrich":
-        cursor = enrich.enrich_checkpoint(conn, cfg, job, runner=runner)
+        cursor = enrich.enrich_checkpoint(
+            conn, cfg, job, runner=runner,
+            on_provider_success=on_provider_success,
+        )
         _log(f"checkpoint_enrich {payload.get('checkpoint_id')}: done")
         return cursor
     if job["kind"] == "embed":
@@ -221,10 +224,19 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
         job = claim_next(conn)
         if job is None:
             break
+        provider_succeeded = False
+
+        def note_provider_success() -> None:
+            nonlocal provider_succeeded
+            provider_succeeded = True
+
         try:
-            new_uuid = process_job(conn, cfg, job, runner=runner)
+            new_uuid = process_job(
+                conn, cfg, job, runner=runner,
+                on_provider_success=note_provider_success,
+            )
             _complete(conn, job["id"], new_uuid)
-            if job["kind"] in {"mine", "curate", "checkpoint_enrich"}:
+            if job["kind"] in {"mine", "curate"} or provider_succeeded:
                 provider_health.record_success(cfg.llm_provider)
             done += 1
         except LLMUnavailableError as e:

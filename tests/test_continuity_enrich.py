@@ -38,13 +38,13 @@ def _valid_enrichment(**overrides):
         "completed_steps": ["Captured deterministic state"],
         "remaining_steps": ["Integrate lifecycle hooks"],
         "files": ["agentic_rag/continuity/enrich.py"],
-        "tests": ["pytest focused: passed"],
-        "processes": ["worker pid 42 was observed running"],
-        "external_states": ["provider login was observed healthy"],
+        "tests": [],
+        "processes": [],
+        "external_states": [],
         "blockers": [],
         "risks": ["volatile state requires revalidation"],
         "next_action": "Run the focused checks",
-        "rag_slugs": ["checkpoint-continuity"],
+        "rag_slugs": [],
     }
     data.update(overrides)
     return data
@@ -66,15 +66,33 @@ def test_enrich_checkpoint_uses_delta_schema_and_audited_gateway(
     _transcript(
         transcript,
         _event("u1", "user", "old context must be skipped"),
-        _event("u2", "assistant", f"new context credential {secret}"),
+        _event("u2", "assistant", (
+            f"new context credential {secret}. Pytest focused: PASSED. "
+            "Worker   PID 42 was observed running. Provider login was "
+            "observed healthy. Related memory [[checkpoint-continuity]]."
+        )),
     )
     seen = {}
+    expected = _valid_enrichment(
+        tests=[
+            "pytest focused: passed | evidence: pytest focused: passed",
+        ],
+        processes=[
+            "worker pid 42 was observed running | evidence: "
+            "worker pid 42 was observed running",
+        ],
+        external_states=[
+            "provider login was observed healthy | evidence: "
+            "provider login was observed healthy",
+        ],
+        rag_slugs=["checkpoint-continuity"],
+    )
 
     def runner(cmd, **kwargs):
         seen["prompt"] = cmd[cmd.index("-p") + 1]
         seen["schema"] = json.loads(cmd[cmd.index("--json-schema") + 1])
         return subprocess.CompletedProcess(
-            cmd, 0, stdout=json.dumps(_valid_enrichment()), stderr="")
+            cmd, 0, stdout=json.dumps(expected), stderr="")
 
     cursor = enrich.enrich_checkpoint(
         conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)), runner)
@@ -89,7 +107,7 @@ def test_enrich_checkpoint_uses_delta_schema_and_audited_gateway(
     assert seen["schema"]["additionalProperties"] is False
     saved = store.get(conn, checkpoint.id)
     assert saved.quality == "enriched"
-    assert saved.enrichment == _valid_enrichment()
+    assert saved.enrichment == expected
     assert conn.execute(
         "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_enriched'"
     ).fetchone()["n"] == 1
@@ -143,6 +161,56 @@ def test_enrich_checkpoint_rejects_unsafe_model_output_before_persistence(
     saved = store.get(conn, checkpoint.id)
     assert saved.quality == "snapshot"
     assert saved.enrichment == {}
+
+
+@pytest.mark.parametrize(("field", "claim", "digest_text"), [
+    ("tests", "All tests passed | evidence: pytest", "pytest was requested"),
+    ("processes", "Worker is running | evidence: worker",
+     "worker configuration changed"),
+    ("external_states", "Provider is healthy | evidence: provider",
+     "provider setting documented"),
+])
+def test_enrich_checkpoint_rejects_ungrounded_volatile_claims(
+        conn, cfg, tmp_path, monkeypatch, field, claim, digest_text):
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event("u2", "user", digest_text))
+    output = _valid_enrichment(**{field: [claim]})
+    jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path=str(transcript), after_cursor="u1",
+    )
+    monkeypatch.setattr(
+        enrich.llm, "run_structured", lambda *args, **kwargs: output)
+
+    assert worker.drain(conn, cfg) == {
+        "done": 0, "failed": 1, "provider_unavailable": 0,
+    }
+    row = conn.execute("SELECT status, attempts FROM mining_queue").fetchone()
+    assert (row["status"], row["attempts"]) == ("pending", 1)
+    assert store.get(conn, checkpoint.id).quality == "snapshot"
+
+
+def test_enrich_checkpoint_rejects_slug_without_accepted_digest_reference(
+        conn, cfg, tmp_path, monkeypatch):
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event(
+        "u2", "user", "checkpoint-continuity appears only as plain prose"))
+    output = _valid_enrichment(rag_slugs=["checkpoint-continuity"])
+    jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path=str(transcript), after_cursor="u1",
+    )
+    monkeypatch.setattr(
+        enrich.llm, "run_structured", lambda *args, **kwargs: output)
+
+    assert worker.drain(conn, cfg) == {
+        "done": 0, "failed": 1, "provider_unavailable": 0,
+    }
+    row = conn.execute("SELECT status, attempts FROM mining_queue").fetchone()
+    assert (row["status"], row["attempts"]) == ("pending", 1)
+    assert store.get(conn, checkpoint.id).quality == "snapshot"
 
 
 def test_malformed_enrichment_uses_ordinary_retry_policy(
@@ -232,5 +300,50 @@ def test_provider_outage_preserves_attempt_then_recovers_same_checkpoint(
     assert (row["status"], row["attempts"], row["last_uuid"]) == (
         "done", 1, "u2",
     )
+    assert store.get(conn, checkpoint.id).quality == "enriched"
+    assert worker.provider_health.read_health().available is True
+
+
+def test_empty_digest_completion_does_not_clear_unavailable_provider_health(
+        conn, cfg, tmp_path):
+    checkpoint = _checkpoint(conn)
+    missing_transcript = tmp_path / "missing.jsonl"
+    jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path=str(missing_transcript), after_cursor="u1",
+    )
+    worker.provider_health.record_failure("codex", "login required")
+    cfg2 = Config(db_name=cfg.db_name, llm_provider="codex")
+
+    assert worker.drain(conn, cfg2) == {
+        "done": 1, "failed": 0, "provider_unavailable": 0,
+    }
+
+    row = conn.execute("SELECT status, last_uuid FROM mining_queue").fetchone()
+    assert (row["status"], row["last_uuid"]) == ("done", "u1")
+    assert store.get(conn, checkpoint.id).quality == "snapshot"
+    assert worker.provider_health.read_health().available is False
+
+
+def test_provider_success_without_new_cursor_clears_unavailable_health(
+        conn, cfg, tmp_path):
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event(None, "user", "continue implementation"))
+    jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path=str(transcript), after_cursor="u1",
+    )
+    worker.provider_health.record_failure("claude", "login required")
+    cfg2 = Config(db_name=cfg.db_name, llm_provider="claude")
+
+    def runner(cmd, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 0, stdout=json.dumps(_valid_enrichment()), stderr="")
+
+    assert worker.drain(conn, cfg2, runner=runner)["done"] == 1
+
+    row = conn.execute("SELECT status, last_uuid FROM mining_queue").fetchone()
+    assert (row["status"], row["last_uuid"]) == ("done", "u1")
     assert store.get(conn, checkpoint.id).quality == "enriched"
     assert worker.provider_health.read_health().available is True
