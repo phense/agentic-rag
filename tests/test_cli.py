@@ -254,6 +254,7 @@ def test_install_command_wires_everything(tmp_path, monkeypatch, capsys):
     cfg_toml = tmp_path / "config.toml"
     cfg_toml.write_text("")
     monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    monkeypatch.setenv("HOME", str(tmp_path))   # rollback record stays in tmp
     monkeypatch.setattr(cli.install_mod, "register_mcp",
                         lambda python, run: None)
     monkeypatch.setattr(cli.install_mod.backup, "install_launchd",
@@ -269,6 +270,7 @@ def test_install_no_launchd_skips_plist(tmp_path, monkeypatch, capsys):
     cfg_toml = tmp_path / "config.toml"
     cfg_toml.write_text("")
     monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    monkeypatch.setenv("HOME", str(tmp_path))   # rollback record stays in tmp
     monkeypatch.setattr(cli.install_mod, "register_mcp",
                         lambda python, run: None)
     def exploding_launchd(cfg, rag_bin):
@@ -314,15 +316,24 @@ def test_install_codex_check_reports_changed_paths_without_writing(
     assert not (tmp_path / ".codex").exists()
 
 
-def test_install_check_requires_explicit_codex_target(tmp_path, monkeypatch):
+def test_cli_install_flags_allow_claude_check_and_restore(
+        tmp_path, monkeypatch, capsys):
     cfg_toml = tmp_path / "config.toml"
     cfg_toml.write_text("")
     monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    calls = []
 
-    with pytest.raises(SystemExit) as exc:
-        cli._main(["install", "--check"])
+    def fake_install(cfg, **kwargs):
+        calls.append(kwargs)
+        return cli.install_mod.InstallReport(None, None, False)
+    monkeypatch.setattr(cli.install_mod, "install", fake_install)
 
-    assert exc.value.code == 2
+    assert cli._main(["install", "--check"]) == 0
+    assert calls[-1]["check"] is True and calls[-1]["codex"] is False
+    with pytest.raises(SystemExit):
+        cli._main(["install", "--check", "--restore", "/x.json"])
+    with pytest.raises(SystemExit):
+        cli._main(["install", "--codex-home", "/h"])
 
 
 def test_install_error_diagnostic_is_sanitized(tmp_path, monkeypatch, capsys):

@@ -120,24 +120,24 @@ class _RecoveryConflict(RuntimeError):
         self.recovery_paths = recovery_paths
 
 
-def _snapshot(path: Path) -> FileSnapshot:
+def _snapshot(path: Path, *, label: str = "Codex") -> FileSnapshot:
     """Read a stable regular-file snapshot without following a leaf symlink."""
     try:
         before = path.lstat()
     except FileNotFoundError:
         return FileSnapshot(FileIdentity(False), b"")
     if stat.S_ISLNK(before.st_mode):
-        raise RuntimeError(f"refusing Codex leaf symbolic link: {path}")
+        raise RuntimeError(f"refusing {label} leaf symbolic link: {path}")
     if not stat.S_ISREG(before.st_mode):
-        raise RuntimeError(f"refusing non-regular Codex file: {path}")
+        raise RuntimeError(f"refusing non-regular {label} file: {path}")
     content = path.read_bytes()
     try:
         after = path.lstat()
     except FileNotFoundError as exc:
-        raise RuntimeError(f"Codex file changed concurrently: {path}") from exc
+        raise RuntimeError(f"{label} file changed concurrently: {path}") from exc
     stable_fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_mode")
     if any(getattr(before, field) != getattr(after, field) for field in stable_fields):
-        raise RuntimeError(f"Codex file changed concurrently: {path}")
+        raise RuntimeError(f"{label} file changed concurrently: {path}")
     identity = FileIdentity(
         True,
         after.st_dev,

@@ -64,10 +64,10 @@ def _main(argv: list[str] | None = None) -> int:
     p_inst.add_argument("--codex", action="store_true",
                         help="target Codex config and lifecycle hooks")
     p_inst.add_argument("--check", action="store_true",
-                        help="show Codex changes without writing files")
+                        help="show the changes without writing files")
     p_inst.add_argument("--restore", type=Path, default=None,
                         metavar="ROLLBACK_RECORD",
-                        help="restore a recorded Codex installation")
+                        help="restore a recorded Claude or Codex installation")
     p_inst.add_argument("--codex-home", type=Path, default=None,
                         help=argparse.SUPPRESS)
 
@@ -157,10 +157,6 @@ def _main(argv: list[str] | None = None) -> int:
     m_rep.add_argument("--golden", type=Path, default=None)
 
     args = p.parse_args(argv)
-    if args.cmd == "install" and args.check and not args.codex:
-        p.error("--check requires --codex")
-    if args.cmd == "install" and args.restore is not None and not args.codex:
-        p.error("--restore requires --codex")
     if args.cmd == "install" and args.restore is not None and args.check:
         p.error("--restore and --check are mutually exclusive")
     if (args.cmd == "install" and args.codex_home is not None
@@ -239,9 +235,9 @@ def _main(argv: list[str] | None = None) -> int:
                 restore_path=args.restore,
             )
         else:
-            # Preserve the legacy call contract as well as its behavior.
             rep = install_mod.install(
-                cfg, with_launchd=not args.no_launchd
+                cfg, with_launchd=not args.no_launchd, codex=False,
+                check=args.check, restore_path=args.restore,
             )
         if rep.restored_paths:
             for path in rep.restored_paths:
@@ -280,12 +276,34 @@ def _main(argv: list[str] | None = None) -> int:
                 record = shlex.quote(_safe(rep.rollback_path))
                 print(f"rollback: rag install --codex --restore {record}")
             return 0
+        claude_rep = rep.claude_report
+        if claude_rep is not None:
+            for key, value in claude_rep.managed:
+                print(f"managed: {key}={json.dumps(value)}")
+            if claude_rep.changed:
+                action = "would change" if claude_rep.check else "changed"
+                print(f"{action}: {_safe(claude_rep.settings_path)}")
+            else:
+                print("Claude settings: already up to date")
+            if claude_rep.backup is not None:
+                print(f"backup: {_safe(claude_rep.backup.target_path)} <- "
+                      f"{_safe(claude_rep.backup.backup_path)}")
+            for warning in claude_rep.warnings:
+                print(f"warning: {_safe(warning)}")
+            if claude_rep.check:
+                print("hooks: review changed handlers with `/hooks` after installing")
+                print("check complete: no files written; MCP and launchd untouched")
+                return 0
         print(f"mcp:      registered '{install_mod.MCP_NAME}' and"
               f" '{install_mod.MCP_NAME_RO}' (user scope)")
         print("          (restrict subagents by allowlisting only"
               " mcp__agentic-rag-ro__* tools in their definitions)")
-        print(f"hooks:    {rep.settings_path}")
+        print(f"hooks:    {rep.settings_path} — review changed handlers with `/hooks`")
+        print("autocompact: verify with `/autocompact` (expect 500000 tokens from settings)")
         print(f"launchd:  {rep.plist_path or 'skipped'}")
+        if rep.rollback_path is not None:
+            record = shlex.quote(_safe(rep.rollback_path))
+            print(f"rollback: rag install --restore {record}")
         return 0
 
     if args.cmd == "migrate" and args.migrate_cmd == "run":

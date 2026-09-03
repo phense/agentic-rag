@@ -20,6 +20,7 @@ from pathlib import Path
 
 from . import backup
 from .config import Config
+from .integrations.claude import install as claude_install
 from .integrations.claude import settings as claude_settings
 from .integrations.codex import config as codex_config
 from .integrations.codex import install as codex_install
@@ -29,6 +30,7 @@ HOOK_MARKER = "agentic_rag.hooks."
 MCP_NAME = "agentic-rag"
 MCP_NAME_RO = "agentic-rag-ro"   # spec §5: the subagent server, rag_reader
 CODEX_ROLLBACK_VERSION = 1
+CLAUDE_ROLLBACK_VERSION = 1
 
 
 def managed_codex_settings() -> tuple[tuple[str, object], ...]:
@@ -86,6 +88,7 @@ class InstallReport:
     codex_report: codex_install.CodexInstallReport | None = None
     rollback_path: Path | None = None
     restored_paths: tuple[Path, ...] = ()
+    claude_report: claude_install.ClaudeInstallReport | None = None
 
     @property
     def codex(self) -> codex_install.CodexInstallReport | None:
@@ -166,16 +169,12 @@ def _record_data(report: codex_install.CodexInstallReport) -> dict:
     }
 
 
-def record_codex_rollback(report: codex_install.CodexInstallReport) -> Path:
-    """Atomically persist the identities needed by ``restore_codex``."""
-    data = _record_data(report)
-    state_dir = report.paths.home / ".agentic-rag" / "state"
+def _write_rollback_record(state_dir: Path, name: str, data: dict) -> Path:
     state_dir.mkdir(parents=True, exist_ok=True)
-    record_path = state_dir / f"codex-rollback-{uuid.uuid4().hex}.json"
-    descriptor, name = tempfile.mkstemp(
-        prefix=".codex-rollback-", suffix=".tmp", dir=state_dir
-    )
-    staged = Path(name)
+    record_path = state_dir / name
+    descriptor, tmp_name = tempfile.mkstemp(
+        prefix=f".{name}.", suffix=".tmp", dir=state_dir)
+    staged = Path(tmp_name)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             json.dump(data, stream, sort_keys=True)
@@ -187,6 +186,42 @@ def record_codex_rollback(report: codex_install.CodexInstallReport) -> Path:
     finally:
         staged.unlink(missing_ok=True)
     return record_path
+
+
+def record_codex_rollback(report: codex_install.CodexInstallReport) -> Path:
+    """Atomically persist the identities needed by ``restore_codex``."""
+    data = _record_data(report)
+    state_dir = report.paths.home / ".agentic-rag" / "state"
+    return _write_rollback_record(
+        state_dir, f"codex-rollback-{uuid.uuid4().hex}.json", data)
+
+
+def record_claude_rollback(
+    report: claude_install.ClaudeInstallReport, *, state_dir: Path | None = None
+) -> Path:
+    if report.check or not report.changed or report.installed is None:
+        raise RuntimeError("Claude install did not produce a restorable report")
+    backup = None
+    if report.backup is not None:
+        current = codex_install._snapshot(
+            report.backup.backup_path, label="Claude settings")
+        if report.backup.identity is None or current.identity != report.backup.identity:
+            raise RuntimeError(
+                f"valid rollback backup is unavailable: {report.backup.backup_path}")
+        backup = {
+            "backup_path": str(report.backup.backup_path),
+            "identity": _identity_data(report.backup.identity),
+        }
+    data = {
+        "version": CLAUDE_ROLLBACK_VERSION,
+        "target": "claude",
+        "settings_path": str(report.settings_path),
+        "backup": backup,
+        "installed": {"identity": _identity_data(report.installed.identity)},
+    }
+    directory = state_dir or (Path.home() / ".agentic-rag" / "state")
+    return _write_rollback_record(
+        directory, f"claude-rollback-{uuid.uuid4().hex}.json", data)
 
 
 def _record_path(value: object, *, label: str) -> Path:
@@ -297,19 +332,89 @@ def restore_codex_rollback(record_path: Path) -> tuple[Path, ...]:
     return codex_install.restore_codex(report)
 
 
+def _load_claude_rollback(record_path: Path) -> tuple[
+    Path, codex_install.BackupRecord | None, codex_install.InstalledFile
+]:
+    record_path = _absolute(record_path)
+    snapshot = codex_install._snapshot(record_path, label="rollback record")
+    if not snapshot.identity.exists:
+        raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+    try:
+        data = json.loads(snapshot.content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"invalid Claude rollback record: {record_path}") from exc
+    expected = {"version", "target", "settings_path", "backup", "installed"}
+    if (
+        not isinstance(data, dict)
+        or set(data) != expected
+        or data["version"] != CLAUDE_ROLLBACK_VERSION
+        or data["target"] != "claude"
+    ):
+        raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+    try:
+        settings_path = _record_path(data["settings_path"], label="settings path")
+        backup = None
+        if data["backup"] is not None:
+            backup_path = _record_path(
+                data["backup"]["backup_path"], label="backup path")
+            if (
+                backup_path.parent != settings_path.parent
+                or re.fullmatch(
+                    r"[0-9a-f]{32}",
+                    backup_path.name.removeprefix(settings_path.name + ".bak."),
+                ) is None
+            ):
+                raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+            backup = codex_install.BackupRecord(
+                settings_path, backup_path,
+                _identity_from_data(data["backup"]["identity"], label="backup"))
+        installed = codex_install.InstalledFile(
+            settings_path,
+            _identity_from_data(data["installed"]["identity"], label="installed"))
+    except (KeyError, TypeError) as exc:
+        raise RuntimeError(f"invalid Claude rollback record: {record_path}") from exc
+    return settings_path, backup, installed
+
+
+def restore_claude_rollback(record_path: Path) -> tuple[Path, ...]:
+    settings_path, backup, installed = _load_claude_rollback(record_path)
+    return claude_install.restore_claude(settings_path, backup, installed)
+
+
+def _record_target(record_path: Path) -> str:
+    try:
+        data = json.loads(Path(record_path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"invalid rollback record: {record_path}") from exc
+    if not isinstance(data, dict):
+        raise RuntimeError(f"invalid rollback record: {record_path}")
+    return "claude" if data.get("target") == "claude" else "codex"
+
+
+def restore_rollback(record_path: Path, *, codex_flag: bool) -> tuple[Path, ...]:
+    """Dispatch on the record's target; Codex records carry no target key."""
+    target = _record_target(record_path)
+    if target == "claude" and codex_flag:
+        raise ValueError(
+            "rollback record targets Claude settings; run rag install "
+            "--restore without --codex")
+    if target == "claude":
+        return restore_claude_rollback(record_path)
+    return restore_codex_rollback(record_path)
+
+
 def install(cfg: Config, *, settings_path: Path | None = None,
             run=subprocess.run, with_launchd: bool = True,
             codex: bool = False, check: bool = False,
             codex_home: Path | None = None,
-            restore_path: Path | None = None) -> InstallReport:
-    if restore_path is not None and not codex:
-        raise ValueError("restore_path requires codex=True")
+            restore_path: Path | None = None,
+            state_dir: Path | None = None) -> InstallReport:
     if restore_path is not None and check:
-        raise ValueError("Codex restore and check are mutually exclusive")
+        raise ValueError("restore and check are mutually exclusive")
+    if restore_path is not None:
+        restored = restore_rollback(restore_path, codex_flag=codex)
+        return InstallReport(None, None, False, restored_paths=restored)
     if codex:
-        if restore_path is not None:
-            restored = restore_codex_rollback(restore_path)
-            return InstallReport(None, None, False, restored_paths=restored)
         paths = codex_install.CodexPaths.for_home(
             _absolute(Path.home() if codex_home is None else codex_home)
         )
@@ -337,38 +442,34 @@ def install(cfg: Config, *, settings_path: Path | None = None,
         return InstallReport(
             None, None, False, report, rollback_path=rollback_path
         )
-    if check:
-        raise ValueError("--check requires --codex")
 
     python = sys.executable
-    register_mcp(python, run=run)
-
     settings_path = settings_path or SETTINGS_PATH
-    settings_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        current = json.loads(settings_path.read_text())
-    except OSError:
-        current = {}        # no settings file yet — start fresh
-    except ValueError as e:
-        # a CORRUPT settings.json must never be silently replaced with a
-        # hooks-only file — that would drop the user's model/permissions/
-        # foreign hooks from the live config (the .bak of garbage is no
-        # recovery). Abort loudly; the user fixes or moves the file aside.
-        raise RuntimeError(
-            f"{settings_path} is not valid JSON ({e}) — fix it or move it "
-            f"aside, then re-run rag install") from e
-    if settings_path.exists():
-        settings_path.with_suffix(".json.bak").write_text(
-            settings_path.read_text())
-    merged = merge_hooks(current, python)
-    tmp = settings_path.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(merged, indent=2) + "\n")
-    os.replace(tmp, settings_path)
+    report = claude_install.install_claude(
+        settings_path, python=python, check=check)
+    if check:
+        return InstallReport(settings_path, None, False, claude_report=report)
 
+    rollback_path = None
+    if report.changed:
+        try:
+            rollback_path = record_claude_rollback(report, state_dir=state_dir)
+        except BaseException as record_failure:
+            claude_install.restore_claude(
+                settings_path, report.backup, report.installed)
+            raise RuntimeError(
+                "Claude installation was restored because its rollback "
+                "record could not be written"
+            ) from record_failure
+
+    register_mcp(python, run=run)
     plist = None
     if with_launchd and sys.platform == "darwin":
         # the launchd gate: resolve rag NEXT TO the current interpreter —
         # never trust a stale plist or an inherited PATH
         rag_bin = Path(python).with_name("rag")
         plist = backup.install_launchd(cfg, rag_bin)
-    return InstallReport(settings_path, plist, True)
+    return InstallReport(
+        settings_path, plist, True, rollback_path=rollback_path,
+        claude_report=report,
+    )

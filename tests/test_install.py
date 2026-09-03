@@ -82,25 +82,74 @@ def test_install_aborts_on_corrupt_settings(tmp_path, monkeypatch):
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="launchd is macOS-only")
-def test_install_writes_settings_and_reresolves_launchd(tmp_path,
-                                                        monkeypatch):
+def test_install_writes_settings_records_rollback_and_reresolves_launchd(
+        tmp_path, monkeypatch):
     settings = tmp_path / "settings.json"
     settings.write_text('{"model": "opus"}')
-    monkeypatch.setattr(install, "register_mcp",
-                        lambda python, run: None)
+    monkeypatch.setattr(install, "register_mcp", lambda python, run: None)
     seen = {}
+
     def fake_launchd(cfg, rag_bin):
         seen["rag_bin"] = rag_bin
         return tmp_path / "plist"
     monkeypatch.setattr(install.backup, "install_launchd", fake_launchd)
-    rep = install.install(Config(), settings_path=settings)
+
+    rep = install.install(Config(), settings_path=settings,
+                          state_dir=tmp_path / "state")
+
     data = json.loads(settings.read_text())
     assert data["model"] == "opus"
-    assert "SessionStart" in data["hooks"]
-    assert (settings.with_suffix(".json.bak")).exists()
-    # the launchd gate: rag_bin re-resolved from the CURRENT interpreter
+    assert set(data["hooks"]) >= {"SessionStart", "PreCompact", "SessionEnd"}
+    assert data["autoCompactWindow"] == 500000
+    assert rep.claude_report is not None and rep.claude_report.changed
+    assert rep.rollback_path is not None
+    assert rep.rollback_path.parent == tmp_path / "state"
+    assert (rep.rollback_path.stat().st_mode & 0o777) == 0o600
+    assert json.loads(rep.rollback_path.read_text())["target"] == "claude"
     assert str(seen["rag_bin"]).endswith("/rag")
     assert rep.plist_path == tmp_path / "plist"
+
+
+def test_install_check_for_claude_registers_nothing_and_writes_nothing(
+        tmp_path, monkeypatch):
+    def must_not_run(*args, **kwargs):
+        raise AssertionError("check mode must not register MCP or launchd")
+    monkeypatch.setattr(install, "register_mcp", must_not_run)
+    monkeypatch.setattr(install.backup, "install_launchd", must_not_run)
+    settings = tmp_path / "settings.json"
+    settings.write_text('{"model": "claude-fable-5-1[1m]"}')
+
+    rep = install.install(Config(), settings_path=settings, check=True,
+                          state_dir=tmp_path / "state")
+
+    assert rep.claude_report is not None
+    assert rep.claude_report.check is True
+    assert rep.mcp_registered is False
+    assert rep.rollback_path is None
+    assert json.loads(settings.read_text()) == {"model": "claude-fable-5-1[1m]"}
+    assert not (tmp_path / "state").exists()
+
+
+def test_restore_dispatches_on_record_target(tmp_path, monkeypatch):
+    monkeypatch.setattr(install, "register_mcp", lambda python, run: None)
+    monkeypatch.setattr(install.sys, "platform", "linux")
+    settings = tmp_path / "settings.json"
+    settings.write_text('{"model": "before"}')
+    rep = install.install(Config(), settings_path=settings,
+                          state_dir=tmp_path / "state")
+
+    with pytest.raises(ValueError, match="targets Claude"):
+        install.install(Config(), codex=True, restore_path=rep.rollback_path)
+
+    restored = install.install(Config(), restore_path=rep.rollback_path)
+
+    assert restored.restored_paths == (settings,)
+    assert settings.read_text() == '{"model": "before"}'
+
+
+def test_restore_rejects_check_combination(tmp_path):
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        install.install(Config(), check=True, restore_path=tmp_path / "r.json")
 
 
 def test_install_skips_launchd_off_darwin(tmp_path, monkeypatch):
@@ -113,7 +162,8 @@ def test_install_skips_launchd_off_darwin(tmp_path, monkeypatch):
         return tmp_path / "plist"
     monkeypatch.setattr(install.backup, "install_launchd", fake_launchd)
     settings = tmp_path / "settings.json"
-    rep = install.install(Config(), settings_path=settings, with_launchd=True)
+    rep = install.install(Config(), settings_path=settings, with_launchd=True,
+                          state_dir=tmp_path / "state")
     assert rep.plist_path is None
     assert called is False
 
@@ -190,19 +240,3 @@ def test_managed_codex_settings_come_from_canonical_constants():
             for key, value in install.codex_config.MEMORY_VALUES.items()
         },
     }
-
-
-def test_restore_requires_codex_and_cannot_be_combined_with_check(
-        tmp_path, monkeypatch):
-    def legacy_must_not_run(*args, **kwargs):
-        raise AssertionError("invalid restore flags must not install Claude")
-
-    monkeypatch.setattr(install, "register_mcp", legacy_must_not_run)
-    record = tmp_path / "rollback.json"
-
-    with pytest.raises(ValueError, match="requires.*codex"):
-        install.install(Config(), restore_path=record)
-    with pytest.raises(ValueError, match="mutually exclusive"):
-        install.install(
-            Config(), codex=True, check=True, restore_path=record,
-        )
