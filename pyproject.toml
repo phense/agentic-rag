@@ -29,10 +29,12 @@ packages = ["agentic_rag"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
+"assets/claude/compact_prompt.md" = "assets/claude/compact_prompt.md"
 "sql" = "sql"
 
 [tool.hatch.build.targets.sdist.force-include]
 "assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
+"assets/claude/compact_prompt.md" = "assets/claude/compact_prompt.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

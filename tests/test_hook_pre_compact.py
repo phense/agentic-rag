@@ -176,3 +176,66 @@ def test_pre_compact_replay_recovers_persisted_predecessor_after_enqueue_failure
     digest = build_digest(job["transcript_path"], after_uuid=job["last_uuid"])
     assert "new context" in digest.text
     assert "old context" not in digest.text
+
+
+def _claude_payload(tmp_path, **over):
+    payload = _payload(tmp_path)
+    del payload["turn_id"]
+    payload["permission_mode"] = "default"
+    payload["custom_instructions"] = None
+    payload.update(over)
+    return payload
+
+
+def test_pre_compact_claude_prints_prompt_and_checkpoint_line(
+        conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+    stdout = io.StringIO()
+    payload = _claude_payload(tmp_path)
+
+    pre_compact.run(payload, stdout)
+
+    checkpoint = store.latest_for_session(conn, payload["session_id"])
+    out = stdout.getvalue()
+    assert out.startswith("# Claude compact continuation instructions")
+    assert out.rstrip().endswith(f"agentic-rag checkpoint: {checkpoint.id}")
+    assert _queue_count(conn, "checkpoint_enrich") == 1
+
+
+def test_pre_compact_claude_prints_prompt_without_line_when_db_down(
+        hook_env, tmp_path, monkeypatch):
+    hook_env.write_text('[db]\nname = "no_such_database_xyz"\n')
+    monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+    stdout = io.StringIO()
+
+    pre_compact.run(_claude_payload(tmp_path), stdout)
+
+    out = stdout.getvalue()
+    assert out.startswith("# Claude compact continuation instructions")
+    # the prompt body names the line as an instruction; only an appended
+    # trailing line (starting with the prefix) would carry a checkpoint id
+    assert not any(
+        line.startswith(pre_compact.CHECKPOINT_LINE_PREFIX)
+        for line in out.splitlines()
+    )
+    assert "no_such_database_xyz" not in out
+
+
+def test_pre_compact_codex_stays_silent_on_stdout(
+        conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+    stdout = io.StringIO()
+
+    pre_compact.run(_payload(tmp_path), stdout)
+
+    assert stdout.getvalue() == ""
+
+
+def test_pre_compact_kill_switch_silences_claude_prompt(
+        hook_env, tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENTIC_RAG_HOOKS_DISABLE", "1")
+    stdout = io.StringIO()
+
+    pre_compact.run(_claude_payload(tmp_path), stdout)
+
+    assert stdout.getvalue() == ""
