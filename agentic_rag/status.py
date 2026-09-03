@@ -34,6 +34,7 @@ class StatusReport:
     newest_checkpoint_at: datetime | None = None
     newest_checkpoint_quality: str | None = None
     newest_checkpoint_project: str | None = None
+    newest_checkpoint_handoff_at: datetime | None = None
     pending_checkpoint_enrichments: int = 0
     oldest_pending_checkpoint_enrichment_at: datetime | None = None
     oldest_pending_checkpoint_enrichment_age: timedelta | None = None
@@ -46,7 +47,7 @@ def _checkpoint_health(conn, cfg: Config) -> dict:
         "WHERE state = 'open'"
     ).fetchone()
     newest = conn.execute(
-        "SELECT updated_at, quality, project_root "
+        "SELECT updated_at, quality, project_root, handoff_at "
         "FROM continuation_checkpoints WHERE state = 'open' "
         "ORDER BY updated_at DESC, id DESC LIMIT 1"
     ).fetchone()
@@ -84,6 +85,7 @@ def _checkpoint_health(conn, cfg: Config) -> dict:
         "newest_checkpoint_at": newest_at,
         "newest_checkpoint_quality": newest["quality"] if newest else None,
         "newest_checkpoint_project": newest["project_root"] if newest else None,
+        "newest_checkpoint_handoff_at": newest["handoff_at"] if newest else None,
         "pending_checkpoint_enrichments": int(pending["n"] if pending else 0),
         "oldest_pending_checkpoint_enrichment_at": oldest_pending_at,
         "oldest_pending_checkpoint_enrichment_age": oldest_pending_age,

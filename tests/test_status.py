@@ -137,3 +137,14 @@ def test_gather_status_warns_for_configured_stale_and_pending_conditions(
 
     assert any("stale" in warning for warning in rep.checkpoint_warnings)
     assert any("pending" in warning for warning in rep.checkpoint_warnings)
+
+
+def test_gather_status_reports_handoff_age(conn, cfg, tmp_path, monkeypatch):
+    monkeypatch.setattr(status, "WARNING_STATE", tmp_path / "absent")
+    checkpoint = store.upsert_snapshot(conn, _snapshot())
+    assert status.gather_status(conn, cfg).newest_checkpoint_handoff_at is None
+
+    store.attach_handoff(conn, checkpoint.id, "summary text", max_chars=400)
+
+    rep = status.gather_status(conn, cfg)
+    assert rep.newest_checkpoint_handoff_at is not None

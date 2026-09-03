@@ -7,6 +7,7 @@ import json
 import shlex
 import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import psycopg
@@ -469,6 +470,13 @@ def _main(argv: list[str] | None = None) -> int:
                     f"{rep.newest_checkpoint_at:%Y-%m-%d %H:%M} "
                     f"[{rep.newest_checkpoint_quality}] {_safe(project)}"
                 )
+                handoff_at = rep.newest_checkpoint_handoff_at
+                if handoff_at is not None:
+                    age = datetime.now(timezone.utc) - handoff_at
+                    print(f"checkpoint handoff: {handoff_at:%Y-%m-%d %H:%M} "
+                          f"({_format_age(age)} ago)")
+                else:
+                    print("checkpoint handoff: none")
             print(
                 "checkpoint enrichments: "
                 f"{rep.pending_checkpoint_enrichments} pending"

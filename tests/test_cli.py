@@ -554,3 +554,17 @@ def test_migrate_apply_domains_aborts_when_worker_lock_held(cli_env, tmp_path,
         assert "another writer (worker) is active" in capsys.readouterr().err
     finally:
         held.close()
+
+
+def test_status_prints_handoff_line(cli_env, capsys):
+    # cli_env yields the test-database connection (see the fixture above)
+    checkpoint = continuity_store.upsert_snapshot(cli_env, CheckpointSnapshot(
+        session_id="s", turn_id=None, cursor="c", source="PreCompact",
+        trigger="auto", cwd="/p", project_root="/p"))
+    continuity_store.attach_handoff(cli_env, checkpoint.id, "summary",
+                                    max_chars=400)
+
+    assert cli._main(["status"]) == 0
+
+    out = capsys.readouterr().out
+    assert "checkpoint handoff:" in out
