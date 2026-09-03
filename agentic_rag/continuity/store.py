@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 
-from .model import Checkpoint, CheckpointSnapshot
+from .model import Checkpoint, CheckpointSnapshot, validate_enrichment
 
 
 def _checkpoint(row) -> Checkpoint:
@@ -42,6 +42,20 @@ def _checkpoint_summary(checkpoint_id: str, action: str) -> str:
     return f"checkpoint {checkpoint_id} {action}"
 
 
+def _serialize_session(conn, session_id: str) -> None:
+    """Serialize checkpoint writes for one session, including an empty set.
+
+    Row locks cannot protect the first checkpoint because there is no row to
+    lock.  This transaction-scoped advisory lock follows the queue gateway's
+    established PostgreSQL pattern and releases automatically at commit/rollback.
+    """
+    conn.execute(
+        "SELECT pg_advisory_xact_lock("
+        "hashtext('continuation_checkpoints'), hashtext(%s))",
+        (session_id,),
+    )
+
+
 def get(conn, checkpoint_id: str) -> Checkpoint | None:
     row = conn.execute(
         "SELECT * FROM continuation_checkpoints WHERE id = %s", (checkpoint_id,)
@@ -62,8 +76,10 @@ def upsert_snapshot(conn, snapshot: CheckpointSnapshot) -> Checkpoint:
         references = _json(list(snapshot.artifacts), "artifacts")
         warnings = _json(list(snapshot.warnings), "warnings")
 
-        # Concurrent PreCompact deliveries serialize per session.  Lock first,
-        # then upsert the exact cursor, then supersede only other open cursors.
+        # Serialize before row locking: an empty session has no row lock to
+        # acquire. Then lock its current open rows and supersede only after a
+        # genuinely new cursor is inserted.
+        _serialize_session(conn, snapshot.session_id)
         conn.execute(
             "SELECT id FROM continuation_checkpoints "
             "WHERE session_id = %s AND state = 'open' FOR UPDATE",
@@ -125,9 +141,7 @@ def upsert_snapshot(conn, snapshot: CheckpointSnapshot) -> Checkpoint:
 
 def apply_enrichment(conn, checkpoint_id: str, enrichment: Mapping[str, object]) -> Checkpoint:
     """Attach validated semantic state without changing its lifecycle state."""
-    if not isinstance(enrichment, Mapping):
-        raise ValueError("enrichment must be a mapping")
-    encoded = _json(dict(enrichment), "enrichment")
+    encoded = _json(validate_enrichment(enrichment), "enrichment")
     try:
         row = conn.execute(
             "UPDATE continuation_checkpoints SET enrichment = %s, quality = 'enriched', "

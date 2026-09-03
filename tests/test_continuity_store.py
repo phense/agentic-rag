@@ -1,3 +1,5 @@
+import threading
+
 import psycopg
 import pytest
 
@@ -54,6 +56,76 @@ def test_new_cursor_supersedes_without_deleting(conn):
     ).fetchone()["n"] == 2
 
 
+def test_concurrent_new_cursors_leave_one_open_checkpoint(dbinit, cfg, conn):
+    """The first session scan pauses while it holds the real DB lock.
+
+    Without a per-session advisory lock, the second connection completes its
+    own empty-session scan and inserts before the first transaction continues,
+    leaving two open rows.  The test uses two independent psycopg connections,
+    not a mocked database or a timing-dependent race.
+    """
+    first_ready = threading.Event()
+    release_first = threading.Event()
+    second_finished = threading.Event()
+    errors = []
+
+    class PauseAfterSessionScan:
+        def __init__(self, real_conn):
+            self.real_conn = real_conn
+
+        def execute(self, query, *args, **kwargs):
+            cursor = self.real_conn.execute(query, *args, **kwargs)
+            if "FOR UPDATE" in query:
+                first_ready.set()
+                assert release_first.wait(timeout=3)
+            return cursor
+
+        def __getattr__(self, name):
+            return getattr(self.real_conn, name)
+
+    first_conn = db.connect(cfg, role="owner")
+    second_conn = db.connect(cfg, role="owner")
+
+    def save_first():
+        try:
+            store.upsert_snapshot(PauseAfterSessionScan(first_conn), snapshot(cursor="u7"))
+        except BaseException as exc:  # recorded so cleanup cannot hide a thread failure
+            errors.append(exc)
+
+    def save_second():
+        try:
+            store.upsert_snapshot(second_conn, snapshot(cursor="u8"))
+        except BaseException as exc:  # recorded so cleanup cannot hide a thread failure
+            errors.append(exc)
+        finally:
+            second_finished.set()
+
+    first = threading.Thread(target=save_first)
+    second = threading.Thread(target=save_second)
+    try:
+        first.start()
+        assert first_ready.wait(timeout=3)
+        second.start()
+        blocked_by_session_lock = not second_finished.wait(timeout=0.2)
+        release_first.set()
+        first.join(timeout=3)
+        second.join(timeout=3)
+
+        assert blocked_by_session_lock
+        assert not first.is_alive() and not second.is_alive()
+        assert errors == []
+        rows = conn.execute(
+            "SELECT state FROM continuation_checkpoints WHERE session_id = 'session-1'"
+        ).fetchall()
+        assert sorted(row["state"] for row in rows) == ["open", "superseded"]
+    finally:
+        release_first.set()
+        first.join(timeout=3)
+        second.join(timeout=3)
+        first_conn.close()
+        second_conn.close()
+
+
 def test_replayed_superseded_cursor_cannot_replace_newer_open_checkpoint(conn):
     old = store.upsert_snapshot(conn, snapshot(cursor="u7"))
     new = store.upsert_snapshot(conn, snapshot(cursor="u8"))
@@ -89,6 +161,47 @@ def test_enrichment_and_compaction_are_audited(conn):
     ]
     assert all(row["document_id"] is None for row in rows)
     assert all(str(checkpoint.id) in row["summary"] for row in rows)
+
+
+@pytest.mark.parametrize("enrichment", [
+    {"transcript": "verbatim transcript"},
+    {"goal": "transcript content must not be stored"},
+    {"diff": "diff --git a/secret b/secret"},
+    {"goal": "diff --git a/secret b/secret"},
+    {"body": "copied body"},
+    {"api_key": "sk-abcdefghijklmnopqrstuv"},
+    {"goal": "password=super-secret-value"},
+    {"not_in_the_contract": "unknown"},
+    {"goal": ["not a string"]},
+    {"tests": "not a list"},
+    {"goal": "x" * 2_001},
+])
+def test_enrichment_rejects_unsafe_or_oversized_payload_before_sql(conn, enrichment):
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+
+    with pytest.raises(ValueError):
+        store.apply_enrichment(conn, checkpoint.id, enrichment)
+
+    unchanged = store.get(conn, checkpoint.id)
+    assert unchanged.quality == "snapshot"
+    assert unchanged.enrichment == {}
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_enriched'"
+    ).fetchone()["n"] == 0
+
+
+def test_enrichment_rejects_total_payload_over_the_byte_limit_before_sql(conn):
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+    enrichment = {
+        "goal": "x" * 2_000,
+        "next_action": "x" * 2_000,
+        "tests": ["x" * 2_000] * 7,
+    }
+
+    with pytest.raises(ValueError, match="byte limit"):
+        store.apply_enrichment(conn, checkpoint.id, enrichment)
+
+    assert store.get(conn, checkpoint.id).enrichment == {}
 
 
 def test_latest_selectors_only_return_open_checkpoints(conn):
