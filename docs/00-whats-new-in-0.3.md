@@ -61,7 +61,8 @@ session-start context.
 
 Provider-bound transcript and pin copies are secret-stripped without mutating
 the canonical stored pins. Diagnostics are redacted before they are bounded or
-persisted.
+persisted. The release lock also uses `cryptography` 50.0.1, above the patched
+50.0.0 floor for CVE-2026-69247.
 
 ## Upgrade notes
 

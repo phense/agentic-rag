@@ -44,6 +44,16 @@ def test_wheel_configuration_includes_runtime_migrations():
     assert force_include["sql"] == "sql"
 
 
+def test_release_lock_uses_patched_cryptography():
+    lock = tomllib.loads(Path("uv.lock").read_text())
+    cryptography = next(
+        package for package in lock["package"] if package["name"] == "cryptography"
+    )
+    version = tuple(int(part) for part in cryptography["version"].split("."))
+
+    assert version >= (50, 0, 0)
+
+
 def docs_text() -> str:
     return "\n".join(path.read_text() for path in DOC_PATHS)
 
