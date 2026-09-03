@@ -213,6 +213,39 @@ def test_enrich_checkpoint_rejects_slug_without_accepted_digest_reference(
     assert store.get(conn, checkpoint.id).quality == "snapshot"
 
 
+@pytest.mark.parametrize(("reference", "accepted"), [
+    ("not-a-slug: checkpoint-continuity", False),
+    ("xslug: checkpoint-continuity", False),
+    ("slug: checkpoint-continuity", True),
+    ("id_or_slug: checkpoint-continuity", True),
+    ("[[checkpoint-continuity]]", True),
+])
+def test_enrich_checkpoint_requires_exact_slug_reference_label(
+        conn, cfg, tmp_path, reference, accepted):
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event("u2", "user", f"Related memory {reference}"))
+    output = _valid_enrichment(rag_slugs=["checkpoint-continuity"])
+
+    def runner(cmd, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 0, stdout=json.dumps(output), stderr="")
+
+    if accepted:
+        enrich.enrich_checkpoint(
+            conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)),
+            runner,
+        )
+        assert store.get(conn, checkpoint.id).quality == "enriched"
+    else:
+        with pytest.raises(ValueError, match="slug"):
+            enrich.enrich_checkpoint(
+                conn, cfg,
+                _job(checkpoint.id, transcript_path=str(transcript)), runner,
+            )
+        assert store.get(conn, checkpoint.id).quality == "snapshot"
+
+
 def test_malformed_enrichment_uses_ordinary_retry_policy(
         conn, cfg, tmp_path, monkeypatch):
     checkpoint = _checkpoint(conn)

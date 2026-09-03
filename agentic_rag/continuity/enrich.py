@@ -116,7 +116,7 @@ def _slug_is_referenced(slug: str, digest: str) -> bool:
     escaped = re.escape(slug)
     explicit = re.compile(
         rf"(?:\[\[\s*{escaped}\s*\]\]|"
-        rf"\b(?:slug|id_or_slug)\s*[:=]\s*{escaped}"
+        rf"(?<![A-Za-z0-9_-])(?:slug|id_or_slug)\s*[:=]\s*{escaped}"
         rf"(?![a-z0-9-]))"
     )
     if explicit.search(digest):
