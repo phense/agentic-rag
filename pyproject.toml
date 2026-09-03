@@ -26,5 +26,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["agentic_rag"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
+
+[tool.hatch.build.targets.sdist.force-include]
+"assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
