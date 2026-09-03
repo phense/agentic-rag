@@ -1,5 +1,7 @@
 from agentic_rag import jobs
 from agentic_rag.config import Config
+from agentic_rag.continuity import store
+from agentic_rag.continuity.model import CheckpointSnapshot
 
 CFG = Config(mine_debounce_seconds=600)
 
@@ -50,6 +52,28 @@ def test_enqueue_curate_idempotent(conn):
     assert jobs.enqueue_curate(conn, reason="stale again") is False
     rows = _q(conn, kind="curate")
     assert len(rows) == 1
+
+
+def test_enrichment_enqueue_deduplicates_checkpoint(conn):
+    checkpoint = store.upsert_snapshot(conn, CheckpointSnapshot(
+        session_id="s", turn_id="t2", cursor="u2", source="PreCompact",
+        trigger="auto", cwd="/work", project_root="/work",
+    ))
+
+    assert jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path="/t", after_cursor="u1",
+    )
+    assert not jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path="/t", after_cursor="u1",
+    )
+
+    row = _q(conn, kind="checkpoint_enrich")[0]
+    assert row["session_id"] == "s"
+    assert row["transcript_path"] == "/t"
+    assert row["last_uuid"] == "u1"
+    assert row["payload"] == {"checkpoint_id": checkpoint.id}
 
 
 def test_requeue_legacy_provider_failures_is_exact_and_preserves_job_data(conn):

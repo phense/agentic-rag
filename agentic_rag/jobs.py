@@ -73,6 +73,30 @@ def enqueue_curate(conn, *, reason: str) -> bool:
     return bool(n)
 
 
+def enqueue_checkpoint_enrichment(
+        conn, *, checkpoint_id: str, session_id: str,
+        transcript_path: str, after_cursor: str | None) -> bool:
+    """Enqueue one semantic pass for a checkpoint, idempotently."""
+    _serialize_enqueue(conn)
+    n = conn.execute(
+        "INSERT INTO mining_queue"
+        " (kind, session_id, transcript_path, payload, last_uuid)"
+        " SELECT 'checkpoint_enrich', %(sid)s, %(path)s, %(payload)s, %(cursor)s"
+        " WHERE NOT EXISTS ("
+        "   SELECT 1 FROM mining_queue WHERE kind = 'checkpoint_enrich'"
+        "   AND payload ->> 'checkpoint_id' = %(checkpoint_id)s)",
+        {
+            "sid": session_id,
+            "path": transcript_path,
+            "payload": json.dumps({"checkpoint_id": checkpoint_id}),
+            "cursor": after_cursor,
+            "checkpoint_id": checkpoint_id,
+        },
+    ).rowcount
+    conn.commit()
+    return bool(n)
+
+
 def due_jobs_exist(conn) -> bool:
     return conn.execute(
         "SELECT 1 FROM mining_queue WHERE status = 'pending'"

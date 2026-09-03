@@ -100,6 +100,43 @@ def test_claim_next_claims_oldest_due_only(conn):
     assert worker.claim_next(conn) is None          # the future job not due
 
 
+def test_claim_next_prioritizes_maintenance_then_checkpoint_over_mining(conn):
+    mine = _job(conn, "mine", session_id="s-mine", transcript_path="/mine")
+    checkpoint = _job(
+        conn, "checkpoint_enrich", session_id="s-checkpoint",
+        transcript_path="/checkpoint",
+        payload=json.dumps({"checkpoint_id": "cp-1"}),
+    )
+    curate = _job(conn, "curate")
+    conn.commit()
+
+    assert worker.claim_next(conn)["id"] == curate
+    assert worker.claim_next(conn)["id"] == checkpoint
+    assert worker.claim_next(conn)["id"] == mine
+
+
+def test_worker_dispatches_checkpoint_enrich(conn, cfg, monkeypatch):
+    seen = {}
+
+    def fake_enrich(*args, **kwargs):
+        seen["call"] = (args, kwargs)
+        return "u2"
+
+    monkeypatch.setattr(
+        worker.enrich, "enrich_checkpoint", fake_enrich,
+    )
+    job = {
+        "id": 1, "kind": "checkpoint_enrich", "session_id": "s",
+        "transcript_path": "/t", "payload": {"checkpoint_id": "cp-1"},
+        "last_uuid": "u1", "attempts": 1,
+    }
+
+    assert worker.process_job(conn, cfg, job, runner="runner") == "u2"
+    args, kwargs = seen["call"]
+    assert args[:3] == (conn, cfg, job)
+    assert kwargs == {"runner": "runner"}
+
+
 def test_drain_mine_job_completes_and_stamps_last_uuid(conn, cfg, tmp_path,
                                                        monkeypatch):
     p = tmp_path / "t.jsonl"

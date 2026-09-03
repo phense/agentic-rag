@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from . import backup, curation, db, mining, provider_health, store
+from .continuity import enrich
 from .config import Config, load_config
 from .llm import LLMUnavailableError
 from .secrets import strip_secrets
@@ -126,7 +127,11 @@ def claim_next(conn) -> dict | None:
         " attempts = attempts + 1"
         " WHERE id = (SELECT id FROM mining_queue WHERE status = 'pending'"
         "             AND next_attempt_at <= now()"
-        "             ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED)"
+        "             ORDER BY CASE"
+        "               WHEN kind IN ('backup', 'curate') THEN 0"
+        "               WHEN kind = 'checkpoint_enrich' THEN 1"
+        "               ELSE 2 END, id"
+        "             LIMIT 1 FOR UPDATE SKIP LOCKED)"
         " RETURNING id, kind, session_id, transcript_path, payload,"
         "           last_uuid, attempts").fetchone()
     conn.commit()
@@ -149,6 +154,10 @@ def process_job(conn, cfg: Config, job: dict, *,
              f" pin_contra={res.pin_contradictions}"
              f" skipped={res.skipped or '-'}")
         return res.new_last_uuid
+    if job["kind"] == "checkpoint_enrich":
+        cursor = enrich.enrich_checkpoint(conn, cfg, job, runner=runner)
+        _log(f"checkpoint_enrich {payload.get('checkpoint_id')}: done")
+        return cursor
     if job["kind"] == "embed":
         n = store.reembed_document(conn, cfg, payload["document_id"])
         _log(f"embed {payload['document_id']}: {n} chunks")
@@ -215,7 +224,7 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
         try:
             new_uuid = process_job(conn, cfg, job, runner=runner)
             _complete(conn, job["id"], new_uuid)
-            if job["kind"] in {"mine", "curate"}:
+            if job["kind"] in {"mine", "curate", "checkpoint_enrich"}:
                 provider_health.record_success(cfg.llm_provider)
             done += 1
         except LLMUnavailableError as e:
