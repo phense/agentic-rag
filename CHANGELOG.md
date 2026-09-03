@@ -8,7 +8,7 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
-- **Codex continuity implementation (rollout pending).** Added provider-neutral,
+- **Codex continuity implementation (live verification pending).** Added provider-neutral,
   audited continuation checkpoints; bounded deterministic capture and
   rendering; asynchronous provider-backed enrichment; six Codex lifecycle
   handlers; and a versioned, reference-oriented compact prompt. `PreCompact`
@@ -46,11 +46,14 @@ milestones rather than every commit, and interfaces may still change between `0.
   focused security/preservation checks, isolated wheel installation, complete
   test suite, and immutable temporary-home check mode passed review.
 
-### Not yet rolled out
-- The live global install, `/hooks` trust, manual/automatic compaction,
-  provider recovery, and SessionEnd smoke tests remain open in backlog 0.2.
-  This changelog does not claim the global Codex configuration is installed or
-  operationally verified.
+### Partially rolled out
+- On 2026-09-03, migrations 006/007 and the global Codex configuration were
+  installed successfully. The real configuration now contains native memories,
+  the 600000/500000 context policy, the compact prompt, and all six merged
+  handlers. The post-install check is idempotent; `rag status` and host-side
+  `codex doctor` passed. `/hooks` trust plus manual/automatic compaction,
+  provider recovery, and SessionEnd smoke tests remain open in backlog 0.2, so
+  end-to-end operation is not yet claimed.
 
 ## [0.2.0] - 2026-07-09
 

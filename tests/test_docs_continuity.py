@@ -69,7 +69,7 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
         assert "no-secrets rule" not in outbound_summary
         assert "all matching pin bodies" in outbound_summary
     assert "disable_on_external_context = false" in privacy
-    assert "live rollout pending" in corpus
+    assert "live verification pending" in corpus
     assert "Only LLM-assisted mining and curation" not in corpus
     assert "Mining and curation send only" not in corpus
     assert "not independently secret-stripped" not in corpus
@@ -132,12 +132,12 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
         assert "completed 2026-09-03" in item
 
     rollout = _backlog_item("0.2")
-    assert rollout.startswith("- 🔒 **0.2**")
-    assert "Task 10" in rollout
+    assert rollout.startswith("- 🔵 **0.2**")
+    assert "install completed on 2026-09-03" in rollout
     assert "Why not done:" in rollout
     assert "Trigger:" in rollout
     assert "Dependency:" in rollout
-    assert "live user environment" in " ".join(rollout.split())
+    assert "interactive Codex sessions" in " ".join(rollout.split())
     assert re.search(r"\*\([SMLX]+\)\*", rollout)
     assert re.search(
         r"^- ⬜ \*\*2\.2\*\*.*Refute-trigger checks existence, not recency",
@@ -161,7 +161,7 @@ def test_feature_registry_and_numbered_backlog_exist():
     assert "without mutating stored pin text" in normalized_features
     assert "✅ **Pre-install review.**" in features
     assert "BACKLOG 0.0" not in features
-    assert "live rollout pending" in features
+    assert "Live verification remains pending" in normalized_features
     assert re.search(
         r"^- [⬜🔵✅🔒⏸] \*\*\d+\.\d+",
         Path("BACKLOG.md").read_text(),
@@ -178,7 +178,7 @@ def test_codex_install_docs_separate_policy_settings_from_prompt_artifact():
 
 def test_comparison_distinguishes_code_shipped_from_operationally_live():
     readme = Path("README.md").read_text()
-    assert "shipped in code, live rollout pending" in readme
+    assert "shipped and installed, live verification pending" in readme
     assert re.search(
         r"^\| Codex session mining and continuity \| 🧪 \| ❌ you feed it \|$",
         readme,

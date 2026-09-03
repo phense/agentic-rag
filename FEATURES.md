@@ -62,12 +62,14 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 - ✅ **Pre-install review.** Whole-branch review, focused security/preservation
   tests, the full suite, isolated wheel installation, and an immutable
   temporary-home check-mode exercise are complete.
-- 🔒 **Global Codex rollout.** Installation into the real user configuration,
-  `/hooks` trust, manual and automatic compaction smoke tests, provider
-  outage/recovery, SessionEnd tail capture, and evidence recording remain
-  blocked on access to the live user environment.
-  Codex live rollout pending under backlog 0.2 means continuity is not yet
-  claimed operationally live.
+- 🔵 **Global Codex rollout.** The real user configuration and database
+  migrations are installed: native memories, the 600000/500000 context policy,
+  compact prompt, and six merged lifecycle handlers pass the idempotent
+  installer probe, `rag status`, and host-side `codex doctor`. Live verification
+  remains pending under backlog 0.2: Peter must trust only the six agentic-rag
+  hashes through `/hooks`, then exercise manual/automatic compaction, provider
+  outage/recovery, and SessionEnd tail capture. Continuity is therefore
+  partially installed but not yet claimed operationally proven end to end.
 
 Native Codex memories are complementary: they may adapt Codex from prior work
 and remain inspectable with `/memories`. agentic-rag is the canonical store for

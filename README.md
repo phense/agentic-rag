@@ -214,7 +214,7 @@ The full story is in the **[handbook](docs/README.md)** — the mental model, ev
 
 agentic-rag sits between two worlds: the file-based **LLM-Wiki** family (human-readable Markdown with a lint/graph layer) and typical **RAG stacks** (hosted or API-driven retrieval you feed documents to). Every cell below is marked honestly — including the rows where each of them beats us.
 
-Legend: ✅ shipped in code and operationally established · 🧪 shipped in code, live rollout pending · ⚠️ partial / caveated · ❌ absent
+Legend: ✅ shipped in code and operationally established · 🧪 shipped and installed, live verification pending · ⚠️ partial / caveated · ❌ absent
 
 ### vs LLM-Wiki systems (file-based knowledge wikis)
 

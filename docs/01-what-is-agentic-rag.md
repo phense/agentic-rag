@@ -50,9 +50,10 @@ continuation checkpoints.
 - **Not a hosted RAG service.** It doesn't call a third-party RAG backend — LLM work goes through your configured local Codex or Claude CLI. If that provider is unavailable, jobs remain pending and the outage is surfaced.
 - **Not a file-based wiki.** Knowledge lives in Postgres, not a folder of Markdown you edit by hand — though it can import an existing file-based wiki store (see the migration chapters later).
 - **Not a general document-ingestion pipeline.** It's not built to bulk-load arbitrary PDFs or websites; its primary knowledge source is supported coding sessions, plus what you save directly with `rag save`.
-- **Not proof of a live rollout.** The implementation and installer are shipped
-  in this repository, but the global Codex install and end-to-end smoke tests
-  remain open until backlog 0.2 is completed.
+- **Not yet proof of end-to-end continuity.** The implementation, database
+  migrations, and global Codex configuration are installed, but `/hooks` trust
+  and the real compaction/outage/SessionEnd smoke scenarios remain open until
+  backlog 0.2 is completed.
 - **Not zero-config.** It expects PostgreSQL 17 with `pgvector`, a running Ollama with the `bge-m3` model pulled, and a logged-in Codex or Claude CLI. There's real infrastructure here in exchange for the search quality and transactional safety a database buys you.
 
 ## Next →

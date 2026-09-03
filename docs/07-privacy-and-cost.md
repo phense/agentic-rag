@@ -71,8 +71,8 @@ The installer configures `model_context_window = 600000` and a total-scope
 within the official 1.05M GPT-5.6 context window, but it is above the official
 272K input boundary where GPT-5.6 requests receive higher provider pricing for
 the full request. Large inputs can also take longer. This repository does not
-claim the 600K/500K policy is cost- or latency-neutral; Task 10 must measure it
-in the real rollout. Current values and pricing conditions are documented on
+claim the 600K/500K policy is cost- or latency-neutral; backlog 0.2 retains the
+required observation across representative real sessions. Current values and pricing conditions are documented on
 the [official GPT-5.6 Sol page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
 and [GPT-5.6 Luna page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
 
