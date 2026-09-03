@@ -78,6 +78,31 @@ def test_reader_is_select_only(dbinit, cfg):
     r.close()
 
 
+def test_checkpoint_privileges_follow_the_writer_reader_matrix(dbinit, cfg):
+    w = db.connect(cfg, role="writer")
+    try:
+        w.execute(
+            "INSERT INTO continuation_checkpoints(session_id, cursor, source)"
+            " VALUES ('roles-session', 'roles-cursor', 'PreCompact')"
+        )
+        w.commit()
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            w.execute("DELETE FROM continuation_checkpoints")
+        w.rollback()
+    finally:
+        w.close()
+
+    r = db.connect(cfg, role="reader")
+    try:
+        assert r.execute("SELECT count(*) AS n FROM continuation_checkpoints").fetchone()["n"] >= 1
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            r.execute(
+                "UPDATE continuation_checkpoints SET source = 'changed'"
+            )
+    finally:
+        r.close()
+
+
 def test_future_tables_inherit_reader_admin_grants(conn, cfg):
     conn.autocommit = True
     conn.execute("CREATE TABLE _future_probe (id int, note text)")

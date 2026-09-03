@@ -18,7 +18,7 @@ def test_migrations_are_idempotent(conn):
 
 def test_core_tables_exist(conn):
     for table in ["domains", "documents", "chunks", "edges", "pins",
-                  "mining_queue", "audit_log"]:
+                  "mining_queue", "audit_log", "continuation_checkpoints"]:
         assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 0
 
 
@@ -45,6 +45,21 @@ def test_005_next_attempt_at_exists(conn):
         " WHERE table_name = 'mining_queue'"
         " AND column_name = 'next_attempt_at'").fetchone()
     assert row is not None
+
+
+def test_006_continuity_schema_and_queue_kind_exist(conn):
+    columns = {
+        row["column_name"]
+        for row in conn.execute(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_name = 'continuation_checkpoints'"
+        ).fetchall()
+    }
+    assert {"session_id", "turn_id", "cursor", "transcript_fingerprint", "cwd",
+            "project_root", "git", "snapshot", "enrichment", "references",
+            "warnings", "state", "quality", "compacted_at", "created_at",
+            "updated_at"} <= columns
+    conn.execute("INSERT INTO mining_queue(kind) VALUES ('checkpoint_enrich')")
 
 
 def test_refute_without_edge_and_audit_fails_at_commit(conn):
