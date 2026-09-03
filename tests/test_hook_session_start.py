@@ -403,3 +403,70 @@ def test_continuity_query_failure_rolls_back_before_maintenance(
     assert "Context survives a selector failure." in ctx
     assert "checkpoint restoration delayed" in ctx
     assert maintained == [True]
+
+
+def test_compact_restores_handoff_within_budget(conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    checkpoint = _checkpoint(
+        conn, session_id="s1", project_root="/Users/example/proj",
+        cursor="c1", goal="ship handoff")
+    store.attach_handoff(conn, checkpoint.id, "Goal: ship handoff\nNext: docs",
+                         max_chars=400)
+
+    ctx = _run(_payload(source="compact"))
+
+    assert "Handoff (Claude compact summary, CURRENT" in ctx
+    assert "Next: docs" in ctx
+
+
+def test_fit_context_trims_in_order_and_warns_visibly():
+    parts = [
+        ("header", "# agentic-rag memory"),
+        ("pins", "## Pinned rules\n" + "\n".join(
+            f"- pin {i} " + "p" * 80 for i in range(40))),
+        ("domains", "## Knowledge domains\n" + "d" * 1500),
+        ("knowledge", "## Recent knowledge\n" + "k" * 1500),
+        ("checkpoint", "## Continuation checkpoint\n" + "c" * 1500),
+    ]
+
+    fitted = session_start.fit_context(parts, [], 6000)
+
+    assert len(fitted) <= 6000
+    assert "## Recent knowledge" not in fitted
+    assert "## Knowledge domains" not in fitted
+    assert "## Continuation checkpoint" in fitted
+    assert "pin 0 " in fitted
+    assert "⚠️ context truncated" in fitted
+    assert "knowledge" in fitted and "domains" in fitted
+
+    tighter = session_start.fit_context(parts, ["⚠️ existing warning"], 1500)
+
+    assert len(tighter) <= 1500
+    assert "⚠️ existing warning" in tighter
+    assert "## Continuation checkpoint" not in tighter
+    assert "pins cut" in tighter
+    assert "pin 0 " in tighter
+
+
+def test_fit_context_never_exceeds_hard_limit_even_with_one_huge_pin():
+    parts = [("header", "# agentic-rag memory"),
+             ("pins", "## Pinned rules\n- " + "x" * 20000)]
+
+    fitted = session_start.fit_context(parts, [], 1000)
+
+    assert len(fitted) <= 1000
+    assert "⚠️ context truncated" in fitted
+
+
+def test_session_start_caps_total_output_from_config(conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    hook_env.write_text(
+        hook_env.read_text() + "\n[continuity]\ncontext_max_chars = 1000\n")
+    for i in range(30):
+        pins.add_pin(conn, body=f"Rule {i}: " + "r" * 100)
+
+    ctx = _run(_payload())
+
+    assert len(ctx) <= 1000
+    assert "⚠️ context truncated" in ctx
+    assert "Rule 0:" in ctx

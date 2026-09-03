@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from .. import db, jobs, provider_health
 # module attribute so tests can monkeypatch session_start.WARNING_STATE
 from ..backup import WARNING_STATE
-from ..config import Config, load_config
+from ..config import MAX_CONTEXT_CHARS, Config, load_config
 from ..continuity import capture, store
 from ..continuity.render import MIN_RENDER_CHARS, render_checkpoint
 from ..domains import list_domains
@@ -23,6 +23,62 @@ from ..pins import matching_pins, render_pins
 from . import common
 
 CURATION_MAX_AGE_H = 24
+_TRIM_ORDER = ("knowledge", "domains", "checkpoint")
+_TRUNCATED = "⚠️ context truncated to fit the {limit}-char Claude hook limit: {detail}"
+
+
+def _join(parts: list[tuple[str, str]], warnings: list[str]) -> str:
+    body = [text for _, text in parts]
+    if warnings:
+        body.insert(1, "\n".join(warnings))
+    return "\n\n".join(body)
+
+
+def fit_context(
+    parts: list[tuple[str, str]], warnings: list[str], max_chars: int
+) -> str:
+    """Trim named sections (knowledge, domains, checkpoint, then pins) until
+    the joined context fits ``max_chars``; every cut is announced up front."""
+    kept = list(parts)
+    notes = list(warnings)
+    text = _join(kept, notes)
+    if len(text) <= max_chars:
+        return text
+    dropped: list[str] = []
+    for name in _TRIM_ORDER:
+        if not any(part_name == name for part_name, _ in kept):
+            continue
+        kept = [part for part in kept if part[0] != name]
+        dropped.append(name)
+        text = _join(kept, notes + [_TRUNCATED.format(
+            limit=max_chars, detail="dropped " + ", ".join(dropped))])
+        if len(text) <= max_chars:
+            return text
+    # Pins are law: cut whole trailing pin lines, say how many, keep the rest.
+    pin_index = next(
+        (i for i, (name, _) in enumerate(kept) if name == "pins"), None)
+    if pin_index is not None:
+        heading, _, body = kept[pin_index][1].partition("\n")
+        lines = body.split("\n")
+        total = len(lines)
+        while lines:
+            lines.pop()
+            detail = (
+                f"{total - len(lines)} of {total} pins cut"
+                + (f"; dropped {', '.join(dropped)}" if dropped else "")
+                + " — curate pins (rag pin list)"
+            )
+            trial = kept[:pin_index] + [
+                ("pins", heading + "\n" + "\n".join(lines))
+            ] + kept[pin_index + 1:]
+            text = _join(trial, notes + [
+                _TRUNCATED.format(limit=max_chars, detail=detail)])
+            if len(text) <= max_chars:
+                return text
+    detail = "hard cut" + (f"; dropped {', '.join(dropped)}" if dropped else "")
+    warning = _TRUNCATED.format(limit=max_chars, detail=detail)
+    text = _join(kept, notes + [warning])
+    return text[:max_chars]
 
 
 def _checkpoint_for_context(
@@ -52,7 +108,7 @@ def _checkpoint_for_context(
 def build_context(
         conn, cfg: Config, cwd: str | None, session_id: str | None = None,
         source: str | None = None) -> str:
-    parts: list[str] = ["# agentic-rag memory"]
+    parts: list[tuple[str, str]] = [("header", "# agentic-rag memory")]
     warnings: list[str] = []
 
     if WARNING_STATE.exists():
@@ -85,13 +141,17 @@ def build_context(
             pin_list, stale_days=cfg.stale_days,
             budget_chars=cfg.pin_budget_chars)
         warnings.extend(f"⚠️ {w}" for w in pin_warnings)
-        parts.append("## Pinned rules (all of them — pins are law)\n" + text)
+        parts.append(
+            ("pins", "## Pinned rules (all of them — pins are law)\n" + text))
 
     domain_list = list_domains(conn)
     if domain_list:
-        parts.append("## Knowledge domains (memory_search accepts domain=)\n"
-                     + "\n".join(f"- {d.name} ({d.docs} docs) — "
-                                 f"{d.description}" for d in domain_list))
+        parts.append((
+            "domains",
+            "## Knowledge domains (memory_search accepts domain=)\n"
+            + "\n".join(f"- {d.name} ({d.docs} docs) — "
+                        f"{d.description}" for d in domain_list),
+        ))
 
     if cwd:
         # same path-prefix semantics as pins.matching_pins — a session in a
@@ -111,10 +171,12 @@ def build_context(
             " ORDER BY COALESCE(verified_at, updated_at) DESC"
             " LIMIT %(k)s", {"cwd": cwd, "k": cfg.context_docs}).fetchall()
         if rows:
-            parts.append(
+            parts.append((
+                "knowledge",
                 "## Recent knowledge for this project (memory_get <slug>)\n"
                 + "\n".join(f"- [[{r['slug']}]] {r['title']} ({r['dtype']},"
-                            f" {r['ts']:%Y-%m-%d})" for r in rows))
+                            f" {r['ts']:%Y-%m-%d})" for r in rows),
+            ))
 
     try:
         checkpoint = _checkpoint_for_context(
@@ -133,8 +195,9 @@ def build_context(
                 max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
                 current_cwd=cwd,
                 current_project_root=current_project_root,
+                stale_days=cfg.stale_days,
             )
-            parts.append("## Continuation checkpoint\n" + rendered)
+            parts.append(("checkpoint", "## Continuation checkpoint\n" + rendered))
     except Exception as exc:  # noqa: BLE001 — continuity is optional context
         common.log_hook_error("session_start.continuity", repr(exc))
         try:
@@ -146,9 +209,8 @@ def build_context(
             + common.sanitize_error(f"{type(exc).__name__}: {exc}")
         )
 
-    if warnings:
-        parts.insert(1, "\n".join(warnings))
-    return "\n\n".join(parts)
+    return fit_context(
+        parts, warnings, min(cfg.context_max_chars, MAX_CONTEXT_CHARS))
 
 
 def _trigger_maintenance(conn) -> None:

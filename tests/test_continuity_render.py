@@ -171,3 +171,31 @@ def test_renderer_minimum_retains_meaningful_mandatory_values():
     assert "Checkpoint checkpoint-123" in text
     assert "Blockers: blocked by required" in text
     assert "Next exact action: run the bounded" in text
+
+
+def test_renderer_includes_labelled_handoff_and_drops_it_before_mandatory():
+    from datetime import timedelta
+    saved = replace(checkpoint(), handoff="Goal: finish\nNext: run the suite",
+                    handoff_at=datetime.now(UTC))
+
+    text = render_checkpoint(saved, max_chars=2000,
+                             current_project_root="/work/project")
+    assert "Handoff (Claude compact summary, CURRENT" in text
+    assert "Goal: finish\nNext: run the suite" in text
+
+    old = replace(saved, handoff_at=datetime.now(UTC) - timedelta(days=45))
+    text = render_checkpoint(old, max_chars=2000, stale_days=30)
+    assert "Handoff (Claude compact summary, HISTORICAL" in text
+
+    tiny = render_checkpoint(saved, max_chars=MIN_RENDER_CHARS)
+    assert "Handoff" not in tiny
+    assert "Next exact action" in tiny and "Blockers:" in tiny
+
+
+def test_renderer_handoff_is_dropped_before_goal_and_after_references():
+    saved = replace(checkpoint(), handoff="H" * 600, handoff_at=datetime.now(UTC))
+
+    text = render_checkpoint(saved, max_chars=900)
+
+    assert "Goal:" in text
+    assert "Handoff" not in text or "H" * 600 not in text

@@ -171,11 +171,29 @@ def _repository_context(
     )
 
 
+def _handoff_label(checkpoint: Checkpoint, now: datetime, stale_days: int) -> str:
+    attached = checkpoint.handoff_at or checkpoint.updated_at
+    if attached.tzinfo is None:
+        attached = attached.replace(tzinfo=UTC)
+    current = now if now.tzinfo is not None else now.replace(tzinfo=UTC)
+    age_hours = max(0, int((current - attached).total_seconds() // 3600))
+    state = "HISTORICAL" if age_hours > stale_days * 24 else "CURRENT"
+    return f"Handoff (Claude compact summary, {state}, age={age_hours}h): "
+
+
+def _handoff_value(checkpoint: Checkpoint) -> str:
+    if not isinstance(checkpoint.handoff, str):
+        return ""
+    cleaned, _ = strip_secrets(checkpoint.handoff.strip())
+    return cleaned
+
+
 def render_checkpoint(
     checkpoint: Checkpoint, *, max_chars: int,
     current_cwd: str | None = None,
     current_project_root: str | None = None,
     now: datetime | None = None,
+    stale_days: int = 30,
 ) -> str:
     """Render state within ``max_chars``, which must be at least 400 chars."""
     if (
@@ -229,6 +247,12 @@ def render_checkpoint(
         optional.append(
             _Section(50, 110, "Volatile state (revalidate): ", "; ".join(volatile))
         )
+
+    if handoff := _handoff_value(checkpoint):
+        optional.append(_Section(
+            85, 85, _handoff_label(checkpoint, now or datetime.now(UTC), stale_days),
+            handoff,
+        ))
 
     references = [
         reference for value in checkpoint.references if (reference := _artifact(value))
