@@ -241,7 +241,8 @@ The installer manages the following intended user-level values while preserving
 unrelated settings:
 
 ```toml
-model_auto_compact_token_limit = 200000
+model_context_window = 600000
+model_auto_compact_token_limit = 500000
 model_auto_compact_token_limit_scope = "total"
 experimental_compact_prompt_file = "/Users/peter/.codex/compact_prompt.md"
 
@@ -263,10 +264,13 @@ extract_model = "gpt-5.6-luna"
 consolidation_model = "gpt-5.6-luna"
 ```
 
-The values are within the current documented limits. `200000` is a deliberate
-operational default, not a universal model limit: it favors a longer
-uncompacted working phase while retaining room for hooks, handoff generation,
-and continuation before maximum context pressure. The
+The active GPT-5.6 family documents a 1,050,000-token context window, and both
+keys are supported Codex overrides. `600000` deliberately uses only part of
+that maximum; `500000` leaves a 100,000-token reserve for hooks, handoff
+generation, reasoning/output, and continuation before the configured context
+ceiling. Inputs above 272,000 tokens can have higher provider pricing and may
+increase latency, so rollout must measure real behavior rather than claiming
+the larger window is cost- or latency-neutral. The
 installer must validate the installed Codex version/configuration and report an
 unsupported key rather than silently writing a configuration Codex cannot load.
 
@@ -406,7 +410,8 @@ Rollout is staged by evidence, not by a dormant feature flag:
 5. Review/trust the new hooks via `/hooks` and start a fresh Codex session.
 6. Exercise one manual compaction, inspect checkpoint and immediate injection.
 7. Exercise automatic compaction with a lowered test-only threshold in an
-   isolated session, then restore `200000`.
+   isolated session, then restore `model_context_window = 600000` and
+   `model_auto_compact_token_limit = 500000`.
 8. Simulate provider unavailability and verify snapshot continuity plus delayed
    enrichment/recovery.
 9. Confirm `SessionEnd` captures the final delta and `rag status` is healthy.

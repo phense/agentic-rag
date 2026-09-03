@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - `agentic-rag` remains the canonical, audited memory and continuation store; native Codex memories are complementary.
-- Automatic compaction uses `model_auto_compact_token_limit = 200000` and `model_auto_compact_token_limit_scope = "total"`.
+- The active context uses `model_context_window = 600000`; automatic compaction uses `model_auto_compact_token_limit = 500000` and `model_auto_compact_token_limit_scope = "total"`, leaving a 100000-token reserve.
 - Checkpoint capture and every lifecycle hook fail open; compaction, continuation, and shutdown never wait for an LLM or login.
 - Every database mutation passes through a focused gateway and writes `audit_log` in the same transaction.
 - Preserve foreign Codex/Claude settings, hooks, MCP registrations, and unknown configuration keys.
@@ -417,7 +417,8 @@ def test_merge_config_preserves_comments_unknown_keys_and_sets_values():
     merged = merge_config('# mine\ncustom = "keep"\n[features]\nhooks = true\n', home=HOME)
     assert "# mine" in merged and 'custom = "keep"' in merged
     parsed = tomllib.loads(merged)
-    assert parsed["model_auto_compact_token_limit"] == 200000
+    assert parsed["model_context_window"] == 600000
+    assert parsed["model_auto_compact_token_limit"] == 500000
     assert parsed["features"]["memories"] is True
     assert parsed["memories"]["extract_model"] == "gpt-5.6-luna"
     assert merge_config(merged, home=HOME) == merged
@@ -539,7 +540,7 @@ git commit -m "feat: expose Codex continuity installation and health"
 ```python
 def test_docs_explain_memory_ownership_and_compaction_limit():
     corpus = docs_text()
-    assert "200000" in corpus
+    assert "600000" in corpus and "500000" in corpus
     assert "native Codex memories" in corpus
     assert "agentic-rag" in corpus and "canonical" in corpus
     assert "SessionStart" in corpus and "PostCompact" in corpus
@@ -558,7 +559,7 @@ Expected: FAIL because `FEATURES.md` and continuity documentation are absent.
 
 - [ ] **Step 3: Update positioning and operating documentation**
 
-Describe agentic-rag as provider-neutral memory plus continuity; document native-memory complementarity, `/memories`, privacy implications of `disable_on_external_context=false`, the 200K threshold, hook trust, lifecycle data flow, status output, installation, verification, rollback, and auth-circuit recovery. Explicitly state that `PostCompact` cannot inject context and `SessionStart(source="compact")` restores it.
+Describe agentic-rag as provider-neutral memory plus continuity; document native-memory complementarity, `/memories`, privacy implications of `disable_on_external_context=false`, the 600K context window, 500K compaction threshold, 100K reserve, the documented higher-pricing boundary above 272K input, hook trust, lifecycle data flow, status output, installation, verification, rollback, and auth-circuit recovery. Explicitly state that `PostCompact` cannot inject context and `SessionStart(source="compact")` restores it.
 
 - [ ] **Step 4: Update feature/backlog/change records**
 
@@ -612,7 +613,7 @@ Run: `fixture_path="$(mktemp -d /private/tmp/agentic-rag-codex.XXXXXX)"`
 
 Run: `uv run rag install --codex --check --codex-home "$fixture_path"`
 
-Expected: report contains config, hooks, prompt, 200000, Luna models, and “no files written”; fixture hashes remain unchanged.
+Expected: report contains config, hooks, prompt, 600000/500000, Luna models, and “no files written”; fixture hashes remain unchanged.
 
 - [ ] **Step 5: Run a code review and fix only verified findings**
 
@@ -651,7 +652,7 @@ Expected: Codex login valid, services healthy or explicitly diagnosed, check rep
 
 Run: `uv run rag install --codex`
 
-Expected: installer reports backups and changed paths; config contains `200000`, memories enabled, Luna extraction/consolidation, and the installed prompt path.
+Expected: installer reports backups and changed paths; config contains context window `600000`, compaction threshold `500000`, memories enabled, Luna extraction/consolidation, and the installed prompt path.
 
 - [ ] **Step 3: Validate and trust hooks**
 
@@ -663,7 +664,7 @@ In a disposable session, establish a goal, dirty test fixture, observed passing/
 
 - [ ] **Step 5: Exercise automatic compaction safely**
 
-Back up config, temporarily lower only the threshold in an isolated disposable session, trigger automatic compaction, verify the same lifecycle path, then atomically restore `model_auto_compact_token_limit = 200000` and validate config again.
+Back up config, temporarily lower only the threshold in an isolated disposable session, trigger automatic compaction, verify the same lifecycle path, then atomically restore `model_context_window = 600000` and `model_auto_compact_token_limit = 500000` and validate config again.
 
 - [ ] **Step 6: Exercise provider outage and recovery**
 
@@ -685,7 +686,7 @@ Run: `uv run rag status`
 
 Run: `git diff --check && git status --short`
 
-Expected: 0 test failures; no unexplained queue errors/processing rows; global threshold restored to 200000; only intended documentation records uncommitted.
+Expected: 0 test failures; no unexplained queue errors/processing rows; global context/threshold restored to 600000/500000; only intended documentation records uncommitted.
 
 ```bash
 git add BACKLOG.md FEATURES.md CHANGELOG.md
@@ -700,7 +701,7 @@ Before declaring the feature complete:
 
 - Run the full suite fresh and quote its exact pass count.
 - Confirm `git status --short` is empty in the feature worktree.
-- Confirm live `~/.codex/config.toml` parses and contains the intended 200K/memory values.
+- Confirm live `~/.codex/config.toml` parses and contains the intended 600K context, 500K compaction, and memory values.
 - Confirm `/hooks` shows the owned handlers trusted and no foreign handlers removed.
 - Confirm one manual and one automatic compaction restored the correct checkpoint before continuation.
 - Confirm an auth/provider outage did not block compaction or consume enrichment attempts.
