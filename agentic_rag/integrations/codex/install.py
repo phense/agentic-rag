@@ -58,6 +58,7 @@ class CodexPaths:
 class BackupRecord:
     target_path: Path
     backup_path: Path
+    identity: FileIdentity | None = None
 
 
 @dataclass(frozen=True)
@@ -336,7 +337,7 @@ def _backup_changed(
                 stream.write(snapshot.content)
             if snapshot.identity.mode is not None:
                 backup.chmod(snapshot.identity.mode)
-            records.append(BackupRecord(target, backup))
+            records.append(BackupRecord(target, backup, _snapshot(backup).identity))
     return tuple(records)
 
 
@@ -598,39 +599,86 @@ def install_codex(
 
 def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
     """Restore a completed transaction using its retained recovery records."""
-    by_target = {record.target_path: record.backup_path for record in report.backups}
+    by_target = {record.target_path: record for record in report.backups}
     installed = {item.target_path: item.identity for item in report.installed_files}
-    for target in reversed(report.changed_paths):
-        expected = installed.get(target)
-        if expected is None:
-            raise RuntimeError(
-                f"no installed identity is available to restore {target} safely"
-            )
-        backup = by_target.get(target)
-        staged = None
-        if backup is not None:
-            backup_snapshot = _snapshot(backup)
+    staged_backups: dict[Path, Path] = {}
+    try:
+        # Snapshot, authenticate, and stage every backup before touching any
+        # managed target. The staged bytes are the bytes from the exact stable
+        # snapshot whose identity was compared with the install record.
+        for target in reversed(report.changed_paths):
+            expected = installed.get(target)
+            if expected is None:
+                raise RuntimeError(
+                    f"no installed identity is available to restore {target} safely"
+                )
+            record = by_target.get(target)
+            if record is None:
+                continue
+            if record.identity is None:
+                raise RuntimeError(
+                    f"valid rollback backup identity is unavailable: "
+                    f"{record.backup_path}"
+                )
+            try:
+                backup_snapshot = _snapshot(record.backup_path)
+            except RuntimeError as exc:
+                raise RuntimeError(
+                    f"valid rollback backup is unavailable: {record.backup_path}"
+                ) from exc
+            if backup_snapshot.identity != record.identity:
+                raise RuntimeError(
+                    f"valid rollback backup changed since installation: "
+                    f"{record.backup_path}"
+                )
             staged = _stage_bytes(
                 target,
                 backup_snapshot.content,
                 mode=backup_snapshot.identity.mode,
             )
-        captured = _claim_expected(target, expected, label="restore")
-        if backup is None:
-            captured.unlink()
-            continue
-        try:
-            _publish_no_replace(staged, target)
-        except OSError as exc:
-            staged.unlink(missing_ok=True)
-            if _entry_exists(target):
+            if _snapshot(staged).identity.digest != record.identity.digest:
+                staged.unlink(missing_ok=True)
                 raise RuntimeError(
-                    "Codex restore found a concurrent destination; it was not "
-                    "overwritten and manual recovery is required from "
-                    f"{backup} and {captured}"
-                ) from exc
-            _restore_captured(captured, target)
-            raise
-        staged.unlink()
-        captured.unlink()
+                    f"could not stage exact rollback backup: {record.backup_path}"
+                )
+            staged_backups[target] = staged
+
+        # A known conflict on any managed target must fail before a preceding
+        # target can be restored. _claim_expected repeats the identity check at
+        # the atomic mutation boundary to retain the existing race protection.
+        for target in reversed(report.changed_paths):
+            expected = installed.get(target)
+            if expected is None:
+                raise RuntimeError(
+                    f"no installed identity is available to restore {target} safely"
+                )
+            if _snapshot(target).identity != expected:
+                raise RuntimeError(
+                    f"Codex target changed since installation: {target}"
+                )
+
+        for target in reversed(report.changed_paths):
+            expected = installed[target]
+            record = by_target.get(target)
+            staged = staged_backups.get(target)
+            captured = _claim_expected(target, expected, label="restore")
+            if record is None:
+                captured.unlink()
+                continue
+            try:
+                _publish_no_replace(staged, target)
+            except OSError as exc:
+                if _entry_exists(target):
+                    raise RuntimeError(
+                        "Codex restore found a concurrent destination; it was not "
+                        "overwritten and manual recovery is required from "
+                        f"{record.backup_path} and {captured}"
+                    ) from exc
+                _restore_captured(captured, target)
+                raise
+            staged.unlink()
+            captured.unlink()
+    finally:
+        for staged in staged_backups.values():
+            staged.unlink(missing_ok=True)
     return report.changed_paths

@@ -388,6 +388,47 @@ def test_install_codex_restore_preserves_conflicting_target(
     assert {path: path.read_bytes() for path in paths.targets} == before
 
 
+@pytest.mark.parametrize("substitution", ["file", "symlink"])
+def test_install_codex_restore_rejects_backup_substitution_at_restore_boundary(
+        tmp_path, monkeypatch, capsys, substitution):
+    paths, _ = _seed_codex_cli_home(tmp_path, monkeypatch)
+    assert main([
+        "install", "--codex", "--codex-home", str(tmp_path),
+    ]) == 0
+    command = _rollback_command(capsys.readouterr().out)
+    installed = {path: path.read_bytes() for path in paths.targets}
+    real_restore = cli.install_mod.codex_install.restore_codex
+    evidence = {}
+
+    def substitute_then_restore(report):
+        backup = report.backups[0].backup_path
+        backup.unlink()
+        if substitution == "file":
+            backup.write_text("concurrent backup replacement")
+        else:
+            target = tmp_path / "foreign-backup"
+            target.write_text("foreign backup target")
+            backup.symlink_to(target)
+        evidence["backup"] = backup
+        return real_restore(report)
+
+    monkeypatch.setattr(
+        cli.install_mod.codex_install,
+        "restore_codex",
+        substitute_then_restore,
+    )
+
+    assert main(shlex.split(command)[1:]) == 3
+
+    assert "rollback backup" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in paths.targets} == installed
+    backup = evidence["backup"]
+    if substitution == "file":
+        assert backup.read_text() == "concurrent backup replacement"
+    else:
+        assert backup.is_symlink()
+
+
 def test_migrate_run_refuses_without_yes(cli_env, mig_source):
     rc = cli.main(["migrate", "run", "--source", str(mig_source)])
     assert rc == 1

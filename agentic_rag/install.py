@@ -158,14 +158,14 @@ def _record_data(report: codex_install.CodexInstallReport) -> dict:
     backups = []
     for item in report.backups:
         snapshot = codex_install._snapshot(item.backup_path)
-        if not snapshot.identity.exists:
+        if item.identity is None or snapshot.identity != item.identity:
             raise RuntimeError(
                 f"valid rollback backup is unavailable: {item.backup_path}"
             )
         backups.append({
             "target_path": str(item.target_path),
             "backup_path": str(item.backup_path),
-            "identity": _identity_data(snapshot.identity),
+            "identity": _identity_data(item.identity),
         })
     return {
         "version": CODEX_ROLLBACK_VERSION,
@@ -217,10 +217,7 @@ def _record_path(value: object, *, label: str) -> Path:
 
 def _load_codex_rollback(
         record_path: Path,
-) -> tuple[
-    codex_install.CodexInstallReport,
-    dict[Path, codex_install.FileIdentity],
-]:
+) -> codex_install.CodexInstallReport:
     record_path = _absolute(record_path)
     snapshot = codex_install._snapshot(record_path)
     if not snapshot.identity.exists:
@@ -254,14 +251,10 @@ def _load_codex_rollback(
             codex_install.BackupRecord(
                 _record_path(item["target_path"], label="backup target"),
                 _record_path(item["backup_path"], label="backup path"),
+                _identity_from_data(item["identity"], label="backup"),
             )
             for item in data["backups"]
         )
-        backup_identities = {
-            _record_path(item["backup_path"], label="backup path"):
-            _identity_from_data(item["identity"], label="backup")
-            for item in data["backups"]
-        }
         installed = tuple(
             codex_install.InstalledFile(
                 _record_path(item["target_path"], label="installed target"),
@@ -297,7 +290,6 @@ def _load_codex_rollback(
         or installed_targets != changed_set
         or len(installed_targets) != len(installed)
         or len(set(backup_paths)) != len(backup_paths)
-        or set(backup_paths) != set(backup_identities)
         or not valid_backup_names
     ):
         raise RuntimeError(f"invalid Codex rollback record: {record_path}")
@@ -313,32 +305,12 @@ def _load_codex_rollback(
         probe_isolation="not applicable during rollback",
         installed_files=installed,
     )
-    return report, backup_identities
+    return report
 
 
 def restore_codex_rollback(record_path: Path) -> tuple[Path, ...]:
     """Validate a recorded transaction, then use Task 6's safe restore."""
-    report, backup_identities = _load_codex_rollback(record_path)
-    for backup, expected in backup_identities.items():
-        try:
-            current = codex_install._snapshot(backup).identity
-        except RuntimeError as exc:
-            raise RuntimeError(
-                f"valid rollback backup is unavailable: {backup}"
-            ) from exc
-        if current != expected:
-            raise RuntimeError(f"valid rollback backup is unavailable: {backup}")
-    for item in report.installed_files:
-        try:
-            current = codex_install._snapshot(item.target_path).identity
-        except RuntimeError as exc:
-            raise RuntimeError(
-                f"Codex target changed since installation: {item.target_path}"
-            ) from exc
-        if current != item.identity:
-            raise RuntimeError(
-                f"Codex target changed since installation: {item.target_path}"
-            )
+    report = _load_codex_rollback(record_path)
     return codex_install.restore_codex(report)
 
 
