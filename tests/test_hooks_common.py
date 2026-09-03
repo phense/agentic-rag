@@ -58,3 +58,21 @@ def test_hook_errors_are_sanitized(monkeypatch, tmp_path):
     logged = (tmp_path / "hooks.log").read_text()
     assert secret not in logged
     assert "[REDACTED]" in logged
+
+
+def test_client_kind_prefers_explicit_argv():
+    assert common.client_kind({"turn_id": "t1"}, ["--client", "claude"]) == "claude"
+    assert common.client_kind({}, ["--client=codex"]) == "codex"
+    assert common.client_kind({"turn_id": "t1"}, ["--client", "bogus"]) == "codex"
+
+
+def test_client_kind_uses_turn_id_for_codex_and_defaults_to_claude(monkeypatch):
+    monkeypatch.setenv("CLAUDECODE", "1")
+    assert common.client_kind({"turn_id": "turn-7"}, []) == "codex"
+    assert common.client_kind({"turn_id": "  "}, []) == "claude"
+    assert common.client_kind({"session_id": "s"}, []) == "claude"
+
+
+def test_client_kind_reads_sys_argv_by_default(monkeypatch):
+    monkeypatch.setattr("sys.argv", ["hook", "--client", "codex"])
+    assert common.client_kind({}) == "codex"
