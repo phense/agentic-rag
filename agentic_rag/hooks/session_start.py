@@ -120,9 +120,19 @@ def build_context(
         checkpoint = _checkpoint_for_context(
             conn, cwd=cwd, session_id=session_id, source=source)
         if checkpoint is not None:
+            current_project_root = None
+            if isinstance(cwd, str) and cwd.strip() and session_id:
+                current_project_root = capture.capture_snapshot({
+                    "session_id": session_id,
+                    "hook_event_name": "SessionStart",
+                    "source": source or "startup",
+                    "cwd": cwd,
+                }).project_root
             rendered = render_checkpoint(
                 checkpoint,
                 max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
+                current_cwd=cwd,
+                current_project_root=current_project_root,
             )
             parts.append("## Continuation checkpoint\n" + rendered)
     except Exception as exc:  # noqa: BLE001 — continuity is optional context

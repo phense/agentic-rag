@@ -168,6 +168,7 @@ def enrich_checkpoint(
         after_uuid=job.get("last_uuid"),
         max_chars=cfg.mine_max_digest_chars,
         per_block=cfg.mine_per_block_chars,
+        keep="tail",
     )
     clean_digest, _ = strip_secrets(digest.text)
     if not clean_digest.strip():

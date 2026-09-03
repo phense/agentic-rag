@@ -133,8 +133,37 @@ def test_enrich_checkpoint_caps_digest_with_existing_mining_config(
         conn, cfg2, _job(checkpoint.id, last_uuid=None,
                          transcript_path=str(transcript)), runner)
 
-    assert "z" * 33 in seen["prompt"]
-    assert "z" * 34 not in seen["prompt"]
+    assert "z" * 8 in seen["prompt"]
+    assert "[... earlier delta omitted ...]" in seen["prompt"]
+
+
+def test_enrich_checkpoint_keeps_latest_action_when_digest_is_bounded(
+        conn, cfg, tmp_path):
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(
+        transcript,
+        _event("u2", "user", "old context " * 100),
+        _event("u3", "assistant", "NEXT ACTION run release-check now"),
+    )
+    cfg2 = Config(
+        db_name=cfg.db_name, mine_max_digest_chars=100,
+        mine_per_block_chars=500,
+    )
+    seen = {}
+
+    def runner(cmd, **kwargs):
+        seen["prompt"] = cmd[cmd.index("-p") + 1]
+        return subprocess.CompletedProcess(
+            cmd, 0, stdout=json.dumps(_valid_enrichment()), stderr="")
+
+    cursor = enrich.enrich_checkpoint(
+        conn, cfg2, _job(checkpoint.id, last_uuid=None,
+                         transcript_path=str(transcript)), runner)
+
+    assert cursor == "u3"
+    assert "NEXT ACTION run release-check now" in seen["prompt"]
+    assert "[... earlier delta omitted ...]" in seen["prompt"]
 
 
 @pytest.mark.parametrize("unsafe", [

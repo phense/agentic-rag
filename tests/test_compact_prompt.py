@@ -32,3 +32,15 @@ def test_compact_prompt_is_versioned_and_reference_oriented():
     assert "slug" in text
     assert "do not ask" in text or "without asking" in text
     assert "body" in text
+
+
+def test_compact_prompt_explicitly_generates_a_bounded_handoff_from_history():
+    text = compact_prompt_text().lower()
+
+    assert "active conversation history" in text
+    assert "handoff summary" in text
+    assert "bounded" in text
+    assert "timestamp" in text
+    assert "current" in text and "historical" in text
+    assert "canonical" in text and "[[slug]]" in text
+    assert "do not continue the task" in text

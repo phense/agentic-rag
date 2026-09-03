@@ -50,10 +50,13 @@ task immediately after context compaction:
    compaction.
 2. If a transcript is available, `PreCompact` queues one priority
    `checkpoint_enrich` job from the prior cursor and spawns the singleton
-   worker. Enrichment is bounded, schema-constrained, secret-rejecting, and may
+   worker. Enrichment keeps the bounded recent tail (with an explicit omission
+   marker), is schema-constrained, secret-rejecting, and may
    add evidence-grounded goal, criteria, decisions, tests, blockers, next
    action, and RAG slugs. A snapshot remains usable while enrichment is pending.
-3. `PostCompact` marks the matching checkpoint boundary. **`PostCompact`
+3. `PostCompact` correlates the documented session, turn, and trigger fields
+   back to the matching checkpoint, including a checkpoint superseded by a
+   newer `PreCompact`, and marks that boundary. **`PostCompact`
    cannot inject context** under the Codex hook contract; on success it is
    silent, and on bookkeeping failure it emits only a system message.
 4. `SessionStart(source="compact")` runs before the next model request. The
@@ -67,9 +70,12 @@ task immediately after context compaction:
 
 The renderer has a hard character budget and keeps checkpoint identity,
 blockers, and next exact action even when optional sections must be dropped.
-It labels snapshot-only state as semantic enrichment pending and volatile
-process/external observations as requiring revalidation. Superseded checkpoint
-history remains stored and audited rather than deleted.
+It labels snapshot-only state as semantic enrichment pending, renders capture
+and update timestamps/age, compares the captured canonical project with the
+current SessionStart project, and labels mismatched or unverifiable repository
+state as historical. Volatile process/external observations require
+revalidation. Superseded checkpoint history remains stored and audited rather
+than deleted.
 
 Native Codex memories are complementary and inspectable with `/memories`.
 They can supply lightweight native adaptation; agentic-rag remains canonical

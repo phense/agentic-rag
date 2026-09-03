@@ -74,6 +74,27 @@ def test_renderer_labels_snapshot_and_stale_processes():
     assert "provider was healthy" in text
 
 
+def test_renderer_reports_freshness_and_repository_mismatch():
+    saved = replace(
+        checkpoint(),
+        created_at=datetime(2026, 9, 3, 10, 0, tzinfo=UTC),
+        updated_at=datetime(2026, 9, 3, 10, 5, tzinfo=UTC),
+    )
+
+    text = render_checkpoint(
+        saved, max_chars=2_000,
+        current_cwd="/work/other/subdir",
+        current_project_root="/work/other",
+        now=datetime(2026, 9, 3, 12, 5, tzinfo=UTC),
+    )
+
+    assert "Captured: 2026-09-03T10:00:00+00:00" in text
+    assert "Updated: 2026-09-03T10:05:00+00:00" in text
+    assert "age=2h" in text
+    assert "HISTORICAL/MISMATCHED" in text
+    assert "current_project=/work/other" in text
+
+
 def test_renderer_retains_identity_blocker_and_next_action_under_pressure():
     saved = replace(
         checkpoint(),

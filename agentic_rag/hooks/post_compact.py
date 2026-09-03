@@ -12,24 +12,30 @@ from . import common
 _TRIGGERS = frozenset({"manual", "auto"})
 
 
-def _session_id(payload: dict) -> str | None:
+def _identity(payload: dict) -> tuple[str, str, str] | None:
     session_id = payload.get("session_id")
     if not isinstance(session_id, str) or not session_id.strip():
         return None
-    if payload.get("trigger") not in _TRIGGERS:
+    turn_id = payload.get("turn_id")
+    if not isinstance(turn_id, str) or not turn_id.strip():
         return None
-    return session_id
+    trigger = payload.get("trigger")
+    if trigger not in _TRIGGERS:
+        return None
+    return session_id, turn_id, trigger
 
 
 def run(payload: dict, stdout) -> None:
-    session_id = _session_id(payload)
-    if session_id is None or not common.is_interactive(payload):
+    identity = _identity(payload)
+    if identity is None or not common.is_interactive(payload):
         return
+    session_id, turn_id, trigger = identity
     try:
         cfg = load_config()
         conn = db.connect(cfg, role="writer")
         try:
-            checkpoint = store.latest_for_session(conn, session_id)
+            checkpoint = store.matching_compaction(
+                conn, session_id, turn_id, trigger)
             if checkpoint is not None:
                 store.mark_compacted(conn, session_id, checkpoint.cursor)
         finally:

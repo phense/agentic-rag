@@ -45,7 +45,7 @@ def owned_hook_entries(python: str) -> dict[str, list[dict]]:
         if matcher is not None:
             entry["matcher"] = matcher
         if context_limit is not None:
-            entry["additionalContextLimit"] = context_limit
+            entry["hooks"][0]["additionalContextLimit"] = context_limit
         result[event] = [entry]
     return result
 

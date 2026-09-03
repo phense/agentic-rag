@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
 from agentic_rag.secrets import strip_secrets
 
@@ -121,7 +122,7 @@ def _fit_sections(
     if not optional:
         return _fit_required(required, max_chars)
 
-    retained = optional[0]
+    retained = min(optional, key=lambda section: section.drop_order or 0)
     without_value = _render([*required, _Section(
         retained.order, retained.drop_order, retained.label, ""
     )])
@@ -137,7 +138,41 @@ def _fit_sections(
     return _render([*required, truncated])
 
 
-def render_checkpoint(checkpoint: Checkpoint, *, max_chars: int) -> str:
+def _freshness(checkpoint: Checkpoint, now: datetime) -> str:
+    updated = checkpoint.updated_at
+    if updated.tzinfo is None:
+        updated = updated.replace(tzinfo=UTC)
+    current = now if now.tzinfo is not None else now.replace(tzinfo=UTC)
+    hours = max(0, int((current - updated).total_seconds() // 3600))
+    return (
+        f"Captured: {checkpoint.created_at.isoformat()}; "
+        f"Updated: {checkpoint.updated_at.isoformat()}; age={hours}h"
+    )
+
+
+def _repository_context(
+    checkpoint: Checkpoint, current_cwd: str | None,
+    current_project_root: str | None,
+) -> str:
+    captured = _clean(checkpoint.project_root) or _clean(checkpoint.cwd)
+    current_project = _clean(current_project_root)
+    current = current_project or _clean(current_cwd)
+    if captured and current_project and captured != current_project:
+        return (
+            "HISTORICAL/MISMATCHED repository state; "
+            f"captured_project={captured}; current_project={current_project}"
+        )
+    if captured and current:
+        return f"CURRENT project match={captured}; current_cwd={current}"
+    return "HISTORICAL repository state; current project could not be verified"
+
+
+def render_checkpoint(
+    checkpoint: Checkpoint, *, max_chars: int,
+    current_cwd: str | None = None,
+    current_project_root: str | None = None,
+    now: datetime | None = None,
+) -> str:
     """Render state within ``max_chars``, which must be at least 192 chars."""
     if (
         not isinstance(max_chars, int)
@@ -161,6 +196,13 @@ def render_checkpoint(checkpoint: Checkpoint, *, max_chars: int) -> str:
         _Section(70, None, "Next exact action: ", next_action),
     ]
     optional: list[_Section] = []
+    optional.append(_Section(
+        5, 130, "Freshness: ", _freshness(checkpoint, now or datetime.now(UTC))
+    ))
+    optional.append(_Section(
+        6, 120, "Repository applicability: ",
+        _repository_context(checkpoint, current_cwd, current_project_root),
+    ))
     if goal := _clean(enrichment.get("goal")):
         optional.append(_Section(10, 40, "Goal: ", goal))
     criteria = _items(enrichment.get("success_criteria"))

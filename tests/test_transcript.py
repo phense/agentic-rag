@@ -122,6 +122,14 @@ def test_per_block_and_total_caps(tmp_path):
     assert "block 0" in d.text                     # head kept, deterministic
 
 
+def test_tail_digest_honors_budget_smaller_than_omission_marker(tmp_path):
+    p = _write(tmp_path, [_user("u1", "latest action " * 20)])
+
+    d = build_digest(p, max_chars=10, keep="tail")
+
+    assert len(d.text) <= 10
+
+
 import os
 from pathlib import Path
 

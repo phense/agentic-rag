@@ -240,6 +240,20 @@ def latest_for_session(conn, session_id: str) -> Checkpoint | None:
     return _checkpoint(row) if row is not None else None
 
 
+def matching_compaction(
+    conn, session_id: str, turn_id: str, trigger: str
+) -> Checkpoint | None:
+    """Find a PreCompact row using Codex's documented stable event fields."""
+    row = conn.execute(
+        "SELECT * FROM continuation_checkpoints "
+        "WHERE session_id = %s AND turn_id = %s AND trigger = %s "
+        "AND source = 'PreCompact' "
+        "ORDER BY created_at DESC, id DESC LIMIT 1",
+        (session_id, turn_id, trigger),
+    ).fetchone()
+    return _checkpoint(row) if row is not None else None
+
+
 def latest_for_project(conn, project_root: str) -> Checkpoint | None:
     row = conn.execute(
         "SELECT * FROM continuation_checkpoints "

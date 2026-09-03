@@ -53,6 +53,20 @@ def test_post_compact_replay_is_idempotent(conn, hook_env):
     assert store.get(conn, checkpoint.id).compacted_at is not None
 
 
+def test_delayed_post_compact_marks_matching_superseded_turn(conn, hook_env):
+    older = _seed(conn, cursor="event-a")
+    newer = store.upsert_snapshot(conn, CheckpointSnapshot(
+        session_id="session-1", turn_id="turn-b", cursor="event-b",
+        source="PreCompact", trigger="auto", cwd="/work/project",
+        project_root="/work/project",
+    ))
+
+    post_compact.run(_payload(turn_id="turn-7"), io.StringIO())
+
+    assert store.get(conn, older.id).compacted_at is not None
+    assert store.get(conn, newer.id).compacted_at is None
+
+
 def test_post_compact_db_failure_emits_only_system_message(
         hook_env):
     hook_env.write_text('[db]\nname = "no_such_database_xyz"\n')

@@ -43,7 +43,8 @@ def _events(path: Path):
 
 
 def build_digest(path, *, after_uuid: str | None = None,
-                 max_chars: int = 12000, per_block: int = 800) -> Digest:
+                 max_chars: int = 12000, per_block: int = 800,
+                 keep: str = "head") -> Digest:
     path = Path(path)
     events = list(_events(path))
     start = 0
@@ -95,7 +96,20 @@ def build_digest(path, *, after_uuid: str | None = None,
                         label += f" {hint[:120]}"
                 lines.append(f"[{role} tool: {label}]")
             # tool_result bodies deliberately skipped (secret + size surface)
-    return Digest("\n".join(lines)[:max_chars], last_uuid, n)
+    text = "\n".join(lines)
+    if keep == "head":
+        bounded = text[:max_chars]
+    elif keep == "tail":
+        marker = "[... earlier delta omitted ...]\n"
+        if len(text) <= max_chars:
+            bounded = text
+        elif max_chars <= len(marker):
+            bounded = marker[:max_chars]
+        else:
+            bounded = marker + text[-(max_chars - len(marker)):]
+    else:
+        raise ValueError("keep must be 'head' or 'tail'")
+    return Digest(bounded, last_uuid, n)
 
 
 def _append_prose(lines: list[str], role: str, text: str,

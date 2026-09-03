@@ -112,7 +112,8 @@ def test_merge_hooks_installs_each_owned_lifecycle_event_once():
         entry = entries[-1]
         assert entry.get("matcher") == matcher
         assert owned[0]["timeout"] == timeout
-        assert entry.get("additionalContextLimit") == context_limit
+        assert "additionalContextLimit" not in entry
+        assert owned[0].get("additionalContextLimit") == context_limit
 
 
 def test_merge_hooks_shell_quotes_python_executable():

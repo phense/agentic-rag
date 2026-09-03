@@ -1,57 +1,32 @@
-# Codex compact continuation prompt
+# Codex compact continuation prompt — bounded handoff
 
-Version: 1.0
+Version: 2.0
 
-Use this bounded prompt when restoring a Codex session from an agentic-rag
-checkpoint. Continue the work from the recorded state; do not ask Peter to
-repeat known context. Ask a question only when a genuinely missing decision
-or authorization prevents safe progress.
+Generate a bounded handoff summary from the active conversation history.
+Do not continue the task, call tools, or invent missing state. Preserve only
+evidence-backed information needed for another model invocation to continue
+without asking for context that is already known.
 
-## Continuity contract
+Include, in this order:
 
-Treat the checkpoint as evidence, not as a claim that the world is unchanged.
-Preserve these fields and their distinctions:
+1. Current objective and explicit success criteria.
+2. Still-active user instructions, approvals, constraints, and prohibitions.
+3. Decisions made, rejected alternatives, and the evidence or reason for each.
+4. Current repository, canonical project root, CWD, branch/worktree, HEAD, and
+   user-owned or uncommitted changes. Label repository facts as current only
+   when recently verified; otherwise label them historical/unverified.
+5. Completed and remaining plan steps, including exact artifact paths rather
+   than copied file bodies.
+6. Test results: commands and their actual outcomes, each with an observation timestamp
+   or an explicit historical/unverified label.
+7. Active processes and external states only when observed, with timestamp and
+   a mandatory instruction to revalidate them.
+8. Blockers, risks, and the next exact action.
+9. Relevant agentic-rag slugs only as canonical `[[slug]]` references. Do not
+   copy any memory body or document body.
 
-- Objective: the concrete goal being pursued.
-- Success criteria: the observable conditions that define completion.
-- User instructions: constraints and approvals that remain authoritative.
-- Decisions: accepted choices and rejected alternatives; do not silently
-  reverse them.
-- Worktree: current project root, branch, HEAD, and repository status.
-- Uncommitted: user-owned dirty files and changes. Preserve user-owned dirty
-  files: never reset, clean, checkout, overwrite, or discard them without
-  explicit authorization.
-- Test results: only report tests as verified when the checkpoint records a
-  direct result; otherwise label them unverified.
-- Active processes: process observations are historical and must be labeled
-  stale or unverified unless rechecked now.
-- Blockers: known impediments, including their evidence and owner if recorded.
-- Next exact action: the smallest safe action to perform next.
-
-## Evidence and freshness
-
-Label every important state as verified, stale, or unverified. A snapshot is
-deterministic state with semantic enrichment pending; it is not proof that
-tests passed, a process is still active, or an external service is healthy.
-Enriched claims remain evidence-backed observations. Revalidate volatile state
-before relying on active processes, external states, branch/status, test
-results, or blockers that may have changed. If revalidation contradicts a
-checkpoint, prefer the fresh observation and record the discrepancy.
-
-## References and bounded context
-
-Use artifact paths and agentic-rag slugs as pointers to source material. Open
-the relevant artifact only when needed; do not embed an artifact body,
-transcript bodies, diffs, or large documents in this compact prompt. Preserve the
-recorded `[[slug]]` references and cite the path or slug when using them.
-
-## Continuation procedure
-
-1. Read the objective, success criteria, user instructions, decisions,
-   blockers, and next exact action.
-2. Inspect the current worktree and uncommitted files before editing. Preserve
-   all user-owned dirty files and account for any drift from the checkpoint.
-3. Revalidate stale or unverified state that affects the next action, then run
-   the smallest relevant test or inspection.
-4. Continue with the next exact action, updating the plan when evidence changes
-   it. Do not restart completed work or re-ask known context.
+Keep the handoff bounded and concise: prefer identifiers, paths, hashes,
+timestamps, outcomes, and canonical slugs over prose. Distinguish current,
+historical, stale, and unverified facts explicitly. Preserve security-sensitive
+boundaries while omitting credentials, secrets, raw transcripts, diffs, logs,
+and large artifact bodies.
