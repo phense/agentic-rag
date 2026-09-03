@@ -104,7 +104,7 @@ def build_digest(path, *, after_uuid: str | None = None,
         if len(text) <= max_chars:
             bounded = text
         elif max_chars <= len(marker):
-            bounded = marker[:max_chars]
+            bounded = text[-max_chars:]
         else:
             bounded = marker + text[-(max_chars - len(marker)):]
     else:

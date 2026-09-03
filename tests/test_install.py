@@ -160,7 +160,8 @@ def test_install_codex_check_reports_changes_without_legacy_side_effects(
     monkeypatch.setattr(
         install.codex_install,
         "_probe_codex",
-        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+        lambda paths, desired, run: (
+            "codex-cli test", "managed configuration and hooks validated"),
     )
 
     rep = install.install(
@@ -182,7 +183,7 @@ def test_install_codex_replaces_owned_hooks_after_virtualenv_move(
     monkeypatch.setattr(
         install.codex_install,
         "_probe_codex",
-        lambda paths, run: (None, "local parsing only"),
+        lambda paths, desired, run: (None, "local parsing only"),
     )
     monkeypatch.setattr(install.sys, "executable", "/old venv/bin/python")
     first = install.install(Config(), codex=True, codex_home=tmp_path)

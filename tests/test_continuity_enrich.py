@@ -119,7 +119,7 @@ def test_enrich_checkpoint_caps_digest_with_existing_mining_config(
     transcript = tmp_path / "session.jsonl"
     _transcript(transcript, _event("u2", "user", "z" * 500))
     cfg2 = Config(
-        db_name=cfg.db_name, mine_max_digest_chars=40,
+        db_name=cfg.db_name, mine_max_digest_chars=128,
         mine_per_block_chars=200,
     )
     seen = {}
@@ -133,7 +133,7 @@ def test_enrich_checkpoint_caps_digest_with_existing_mining_config(
         conn, cfg2, _job(checkpoint.id, last_uuid=None,
                          transcript_path=str(transcript)), runner)
 
-    assert "z" * 8 in seen["prompt"]
+    assert "z" * 90 in seen["prompt"]
     assert "[... earlier delta omitted ...]" in seen["prompt"]
 
 
@@ -147,7 +147,7 @@ def test_enrich_checkpoint_keeps_latest_action_when_digest_is_bounded(
         _event("u3", "assistant", "NEXT ACTION run release-check now"),
     )
     cfg2 = Config(
-        db_name=cfg.db_name, mine_max_digest_chars=100,
+        db_name=cfg.db_name, mine_max_digest_chars=128,
         mine_per_block_chars=500,
     )
     seen = {}

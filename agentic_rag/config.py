@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 DEFAULT_PATH = Path.home() / ".agentic-rag" / "config.toml"
+MIN_DIGEST_CHARS = 128
 
 # TOML section -> field prefix. [db] name  ->  db_name, etc.
 _SECTION_PREFIX = {
@@ -59,6 +60,17 @@ class Config:
     checkpoint_status_max_chars: int = 4000
     checkpoint_render_max_chars: int = 8000
     checkpoint_artifact_max: int = 16
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.mine_max_digest_chars, int)
+            or isinstance(self.mine_max_digest_chars, bool)
+            or self.mine_max_digest_chars < MIN_DIGEST_CHARS
+        ):
+            raise ValueError(
+                "mining max_digest_chars must be an integer of at least "
+                f"{MIN_DIGEST_CHARS}"
+            )
 
 
 _PATH_FIELDS = {"backup_cloud_dir", "backup_local_dir", "pg_bin_dir"}

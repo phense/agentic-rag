@@ -86,10 +86,11 @@ The report lists the managed values and any of these paths that would change:
 - `~/.codex/hooks.json`
 - `~/.codex/compact_prompt.md`
 
-It also reports the detected Codex version, whether the managed configuration
-passed the isolated runtime probe (or only local parsing was available), and
-that no files were written. The probe uses an ephemeral `CODEX_HOME`, a
-10-second timeout, and never loads or edits the target files.
+It also reports the detected Codex version, whether the generated managed
+configuration and hooks passed the isolated Codex runtime probe (or only local
+parsing was available), and that no files were written. The probe loads copies
+of the generated artifacts in an ephemeral `CODEX_HOME`, uses a 10-second
+timeout, and never loads or edits the target files.
 
 If the preview is correct, install:
 

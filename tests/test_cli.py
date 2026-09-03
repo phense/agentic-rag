@@ -289,7 +289,8 @@ def test_install_codex_check_reports_changed_paths_without_writing(
     monkeypatch.setattr(
         cli.install_mod.codex_install,
         "_probe_codex",
-        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+        lambda paths, desired, run: (
+            "codex-cli test", "managed configuration and hooks validated"),
     )
 
     assert main([
@@ -357,7 +358,8 @@ def _seed_codex_cli_home(tmp_path, monkeypatch):
     monkeypatch.setattr(
         cli.install_mod.codex_install,
         "_probe_codex",
-        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+        lambda paths, desired, run: (
+            "codex-cli test", "managed configuration and hooks validated"),
     )
     return paths, originals
 

@@ -50,9 +50,9 @@ def checkpoint() -> Checkpoint:
 def test_renderer_is_bounded_ordered_and_reference_oriented():
     saved = checkpoint()
 
-    text = render_checkpoint(saved, max_chars=500)
+    text = render_checkpoint(saved, max_chars=800)
 
-    assert len(text) <= 500
+    assert len(text) <= 800
     assert "Checkpoint checkpoint-123" in text
     assert "Blockers:" in text
     assert "hook integration is not implemented" in text
@@ -93,6 +93,29 @@ def test_renderer_reports_freshness_and_repository_mismatch():
     assert "age=2h" in text
     assert "HISTORICAL/MISMATCHED" in text
     assert "current_project=/work/other" in text
+
+
+def test_renderer_never_calls_unverified_cwd_a_current_project():
+    text = render_checkpoint(
+        checkpoint(), max_chars=2_000,
+        current_cwd="/work/other", current_project_root=None,
+    )
+
+    assert "HISTORICAL/UNVERIFIED" in text
+    assert "current_cwd=/work/other" in text
+    assert "CURRENT project match" not in text
+
+
+def test_renderer_keeps_freshness_and_applicability_at_minimum_budget():
+    text = render_checkpoint(
+        checkpoint(), max_chars=MIN_RENDER_CHARS,
+        current_cwd="/work/other", current_project_root=None,
+    )
+
+    assert len(text) <= MIN_RENDER_CHARS
+    assert "Freshness:" in text
+    assert "Repository applicability:" in text
+    assert "HISTORICAL" in text
 
 
 def test_renderer_retains_identity_blocker_and_next_action_under_pressure():

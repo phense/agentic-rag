@@ -184,7 +184,7 @@ def _toml_override(key: str, value: object) -> str:
 
 
 def _probe_codex(
-    paths: CodexPaths, *, run: Run
+    paths: CodexPaths, desired: dict[Path, str], *, run: Run
 ) -> tuple[str | None, str]:
     codex = shutil.which("codex") or "codex"
     options = {**ROOT_VALUES}
@@ -193,6 +193,13 @@ def _probe_codex(
     with tempfile.TemporaryDirectory(prefix="agentic-rag-codex-validate-") as probe_home:
         probe_prompt = Path(probe_home) / "compact_prompt.md"
         probe_prompt.write_text(_prompt_text(), encoding="utf-8")
+        # Load the exact generated hooks through Codex itself.  The config is
+        # likewise the generated artifact; the CLI override below redirects
+        # only its prompt path into this disposable home.
+        (Path(probe_home) / "config.toml").write_text(
+            desired[paths.config_path], encoding="utf-8")
+        (Path(probe_home) / "hooks.json").write_text(
+            desired[paths.hooks_path], encoding="utf-8")
         env = dict(os.environ)
         env["CODEX_HOME"] = probe_home
         common = {
@@ -254,7 +261,7 @@ def _probe_codex(
         raise RuntimeError(
             f"Codex managed configuration validation failed: {safe_detail}"
         )
-    return version, "managed configuration validated"
+    return version, "managed configuration and hooks validated"
 
 
 def _plan_install(
@@ -642,7 +649,7 @@ def install_codex(
         for path in paths.targets
         if snapshots[path].content != desired[path].encode("utf-8")
     )
-    version, validation = _probe_codex(paths, run=run)
+    version, validation = _probe_codex(paths, desired, run=run)
     _assert_snapshots_unchanged(snapshots)
     if check or not changed:
         return CodexInstallReport(

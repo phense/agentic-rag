@@ -407,8 +407,8 @@ being silently replaced; a valid one is backed up to `.json.bak` before every
 write.
 
 Codex installation is a separate recoverable transaction. It snapshots and
-parses the three target files, probes only managed values in an ephemeral
-`CODEX_HOME`, stages/validates every desired artifact, creates unique sibling
+parses the three target files, then has Codex load generated configuration and
+hooks copies in an ephemeral `CODEX_HOME`. It stages/validates every desired artifact, creates unique sibling
 backups for existing changed files, and publishes only while the original file
 identity still matches. A changing install records backup and installed-file
 identities in a mode-`0600` rollback record. Restore verifies those identities

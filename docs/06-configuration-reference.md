@@ -163,7 +163,7 @@ curation](05-session-mining-and-curation.md) for the full pipeline.
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `debounce_seconds` | `mine_debounce_seconds` | `600` | Delay after a session's Stop event before its mine job becomes due — coalesces rapid-fire turns into one provider call instead of one per turn. |
-| `max_digest_chars` | `mine_max_digest_chars` | `12000` | Max size of the transcript digest built for the miner LLM. |
+| `max_digest_chars` | `mine_max_digest_chars` | `12000` | Max size of the transcript digest built for the miner LLM; values below 128 are rejected so checkpoint tail retention remains actionable. |
 | `per_block_chars` | `mine_per_block_chars` | `800` | Max characters per transcript block inside that digest. |
 | `dedup_threshold` | `dedup_threshold` | `0.90` | Cosine-similarity threshold (embedding space) above which a newly mined item is treated as a near-duplicate of an existing document and linked with a `duplicate_of` edge instead of saved fresh. This field has no `mine_` prefix in the dataclass — it maps into `[mining]` via the same bare-key fallback as the `[hooks]` fields. |
 
@@ -192,7 +192,7 @@ model-context settings.
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `status_max_chars` | `checkpoint_status_max_chars` | `4000` | Maximum captured characters from `git status --short`; truncation becomes a checkpoint warning. |
-| `render_max_chars` | `checkpoint_render_max_chars` | `8000` | Maximum restored checkpoint text. Runtime clamps lower values to the renderer's safe 192-character minimum. |
+| `render_max_chars` | `checkpoint_render_max_chars` | `8000` | Maximum restored checkpoint text. Runtime clamps lower values to the renderer's safe 400-character minimum so identity, freshness, repository applicability, blockers, and next action remain visible. |
 | `artifact_max` | `checkpoint_artifact_max` | `16` | Maximum approved root/spec/plan artifact paths captured; file bodies are never stored in the checkpoint. |
 
 ## Managed Codex configuration

@@ -128,6 +128,7 @@ def test_tail_digest_honors_budget_smaller_than_omission_marker(tmp_path):
     d = build_digest(p, max_chars=10, keep="tail")
 
     assert len(d.text) <= 10
+    assert d.text == "est action"
 
 
 import os

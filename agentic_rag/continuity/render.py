@@ -16,7 +16,7 @@ _ROOT_ARTIFACTS = frozenset({"AGENTS.md", "CLAUDE.md", "BACKLOG.md", "FEATURES.m
 _ARTIFACT_PREFIXES = ("docs/superpowers/specs/", "docs/superpowers/plans/")
 # The three mandatory labels plus 24 meaningful characters from each value fit
 # within this budget, with room for useful short identities/actions in full.
-MIN_RENDER_CHARS = 192
+MIN_RENDER_CHARS = 400
 _MIN_MANDATORY_VALUE_CHARS = 24
 
 
@@ -162,9 +162,13 @@ def _repository_context(
             "HISTORICAL/MISMATCHED repository state; "
             f"captured_project={captured}; current_project={current_project}"
         )
-    if captured and current:
+    if captured and current_project and captured == current_project:
         return f"CURRENT project match={captured}; current_cwd={current}"
-    return "HISTORICAL repository state; current project could not be verified"
+    suffix = f"; current_cwd={current}" if current else ""
+    return (
+        "HISTORICAL/UNVERIFIED repository state; canonical current project "
+        f"could not be verified{suffix}"
+    )
 
 
 def render_checkpoint(
@@ -173,7 +177,7 @@ def render_checkpoint(
     current_project_root: str | None = None,
     now: datetime | None = None,
 ) -> str:
-    """Render state within ``max_chars``, which must be at least 192 chars."""
+    """Render state within ``max_chars``, which must be at least 400 chars."""
     if (
         not isinstance(max_chars, int)
         or isinstance(max_chars, bool)
@@ -192,17 +196,18 @@ def render_checkpoint(
     next_action = _clean(enrichment.get("next_action")) or "Revalidate state and determine the next action"
     required = [
         _Section(0, None, "Checkpoint ", identity),
+        _Section(
+            5, None, "Freshness: ", _freshness(
+                checkpoint, now or datetime.now(UTC))
+        ),
+        _Section(
+            6, None, "Repository applicability: ",
+            _repository_context(checkpoint, current_cwd, current_project_root),
+        ),
         _Section(60, None, "Blockers: ", blockers),
         _Section(70, None, "Next exact action: ", next_action),
     ]
     optional: list[_Section] = []
-    optional.append(_Section(
-        5, 130, "Freshness: ", _freshness(checkpoint, now or datetime.now(UTC))
-    ))
-    optional.append(_Section(
-        6, 120, "Repository applicability: ",
-        _repository_context(checkpoint, current_cwd, current_project_root),
-    ))
     if goal := _clean(enrichment.get("goal")):
         optional.append(_Section(10, 40, "Goal: ", goal))
     criteria = _items(enrichment.get("success_criteria"))

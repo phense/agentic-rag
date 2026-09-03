@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from agentic_rag.config import Config, load_config
+import pytest
+
+from agentic_rag.config import MIN_DIGEST_CHARS, Config, load_config
 
 
 def test_defaults_when_file_missing(tmp_path):
@@ -105,11 +107,21 @@ def test_mining_section_fields(tmp_path):
 
 def test_mining_caps_and_dedup(tmp_path):
     p = tmp_path / "c.toml"
-    p.write_text("[mining]\nmax_digest_chars = 100\ndedup_threshold = 0.5\n")
+    p.write_text(
+        f"[mining]\nmax_digest_chars = {MIN_DIGEST_CHARS}\n"
+        "dedup_threshold = 0.5\n")
     cfg = load_config(p)
-    assert cfg.mine_max_digest_chars == 100
+    assert cfg.mine_max_digest_chars == MIN_DIGEST_CHARS
     assert cfg.dedup_threshold == 0.5
     assert cfg.mine_per_block_chars == 800
+
+
+def test_mining_digest_budget_rejects_too_small_value(tmp_path):
+    p = tmp_path / "c.toml"
+    p.write_text(f"[mining]\nmax_digest_chars = {MIN_DIGEST_CHARS - 1}\n")
+
+    with pytest.raises(ValueError, match="max_digest_chars"):
+        load_config(p)
 
 
 def test_curation_section(tmp_path):

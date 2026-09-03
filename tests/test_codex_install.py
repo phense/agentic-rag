@@ -278,7 +278,7 @@ def test_install_codex_stages_validates_backs_up_and_can_restore(tmp_path):
         for item in report.foreign_hook_duplicates
     ] == [("herdr-agent-state.sh", 2)]
     assert report.codex_version == "codex-cli 0.152.1"
-    assert report.runtime_validation == "managed configuration validated"
+    assert report.runtime_validation == "managed configuration and hooks validated"
     assert tomllib.loads(paths.config_path.read_text())["model_context_window"] == 600000
     installed_hooks = json.loads(paths.hooks_path.read_text())
     assert installed_hooks["metadata"] == {"keep": True}
@@ -332,6 +332,28 @@ def test_probe_isolates_and_bounds_every_codex_subprocess(tmp_path, monkeypatch)
     assert sentinel.read_text() == "untouched"
     assert not paths.config_path.parent.exists()
     assert "ephemeral isolated CODEX_HOME" in report.probe_isolation
+
+
+def test_runtime_probe_loads_generated_hooks_json(tmp_path):
+    paths = codex_paths(tmp_path)
+    seen = {}
+
+    def run(command, **kwargs):
+        if "app-server" in command and "--strict-config" in command:
+            probe_home = Path(kwargs["env"]["CODEX_HOME"])
+            seen["hooks"] = json.loads(
+                (probe_home / "hooks.json").read_text(encoding="utf-8"))
+            seen["config"] = (probe_home / "config.toml").read_text(
+                encoding="utf-8")
+        return SuccessfulCodex()(command, **kwargs)
+
+    report = install_codex(paths, check=True, run=run)
+
+    assert report.runtime_validation == "managed configuration and hooks validated"
+    session_handler = seen["hooks"]["hooks"]["SessionStart"][0]["hooks"][0]
+    assert session_handler["additionalContextLimit"] == 10000
+    assert "additionalContextLimit" not in seen["hooks"]["hooks"]["SessionStart"][0]
+    assert "model_context_window = 600000" in seen["config"]
 
 
 def test_probe_timeout_reports_local_only_validation(tmp_path):
