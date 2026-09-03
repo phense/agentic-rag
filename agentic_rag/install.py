@@ -20,6 +20,7 @@ from pathlib import Path
 
 from . import backup
 from .config import Config
+from .integrations.claude import settings as claude_settings
 from .integrations.codex import config as codex_config
 from .integrations.codex import install as codex_install
 
@@ -42,31 +43,13 @@ def managed_codex_settings() -> tuple[tuple[str, object], ...]:
 
 
 def hook_entries(python: str) -> dict:
-    def block(module: str, timeout: int) -> dict:
-        return {"hooks": [{"type": "command",
-                           "command": f"{python} -m {module}",
-                           "timeout": timeout}]}
-    return {
-        "SessionStart": [{"matcher": "startup|resume|clear|compact",
-                          **block("agentic_rag.hooks.session_start", 10)}],
-        "UserPromptSubmit": [block("agentic_rag.hooks.prompt_recall", 5)],
-        "Stop": [block("agentic_rag.hooks.stop_enqueue", 10)],
-    }
-
-
-def _is_ours(entry: dict) -> bool:
-    return any(HOOK_MARKER in h.get("command", "")
-               for h in entry.get("hooks", []))
+    """Owned Claude hook entries (six lifecycle events)."""
+    return claude_settings.owned_hook_entries(python)
 
 
 def merge_hooks(settings: dict, python: str) -> dict:
-    out = dict(settings)
-    hooks = {k: list(v) for k, v in dict(out.get("hooks") or {}).items()}
-    for event, entries in hook_entries(python).items():
-        kept = [e for e in hooks.get(event, []) if not _is_ours(e)]
-        hooks[event] = kept + entries
-    out["hooks"] = hooks
-    return out
+    """Lossless merge of owned hooks plus the managed compaction policy."""
+    return claude_settings.merge_settings(settings, python)
 
 
 def register_mcp(python: str, run=subprocess.run) -> None:

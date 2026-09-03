@@ -11,47 +11,14 @@ from agentic_rag.integrations.codex.install import CodexPaths
 PY = "/venv/bin/python"
 
 
-def test_hook_entries_reference_all_three_hooks():
-    entries = install.hook_entries(PY)
-    assert set(entries) == {"SessionStart", "UserPromptSubmit", "Stop"}
-    ss = entries["SessionStart"][0]
-    assert ss["matcher"] == "startup|resume|clear|compact"
-    assert ss["hooks"][0]["command"] == (
-        f"{PY} -m agentic_rag.hooks.session_start")
-    assert all(e[0]["hooks"][0]["command"].startswith(PY)
-               for e in entries.values())
-
-
-def test_merge_hooks_into_empty_settings():
-    out = install.merge_hooks({}, PY)
-    assert set(out["hooks"]) == {"SessionStart", "UserPromptSubmit", "Stop"}
-
-
-def test_merge_hooks_is_idempotent_and_replaces_stale_paths():
-    once = install.merge_hooks({}, "/old/python")
-    twice = install.merge_hooks(once, PY)
-    ss = twice["hooks"]["SessionStart"]
-    assert len(ss) == 1                        # replaced, not duplicated
-    assert ss[0]["hooks"][0]["command"].startswith(PY)
-
-
-def test_merge_hooks_preserves_foreign_hooks_and_keys():
-    settings = {
-        "model": "opus",
-        "hooks": {
-            "SessionStart": [{"hooks": [
-                {"type": "command", "command": "other-tool --init"}]}],
-            "PreToolUse": [{"matcher": "Bash", "hooks": [
-                {"type": "command", "command": "guard.sh"}]}],
-        },
+def test_legacy_helpers_delegate_to_claude_settings():
+    assert set(install.hook_entries(PY)) == {
+        "SessionStart", "UserPromptSubmit", "Stop",
+        "PreCompact", "PostCompact", "SessionEnd",
     }
-    out = install.merge_hooks(settings, PY)
-    assert out["model"] == "opus"
-    ss_cmds = [h["command"] for e in out["hooks"]["SessionStart"]
-               for h in e["hooks"]]
-    assert "other-tool --init" in ss_cmds
-    assert any("agentic_rag.hooks.session_start" in c for c in ss_cmds)
-    assert out["hooks"]["PreToolUse"][0]["hooks"][0]["command"] == "guard.sh"
+    merged = install.merge_hooks({"model": "opus"}, PY)
+    assert merged["model"] == "opus"
+    assert merged["autoCompactWindow"] == 500000
 
 
 def test_register_mcp_registers_rw_and_readonly(monkeypatch):
