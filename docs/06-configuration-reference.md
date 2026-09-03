@@ -95,7 +95,7 @@ Local dumps always happen; a cloud/synced copy is opt-in.
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `local_dir` | `backup_local_dir` | `~/.agentic-rag/backups` | Where `pg_dump -Fc` writes local backups. |
-| `cloud_dir` | `backup_cloud_dir` | unset (`None`) | Opt-in second copy directory (e.g. a mounted/synced volume). Unset means local-only — nothing leaves the machine. |
+| `cloud_dir` | `backup_cloud_dir` | unset (`None`) | Opt-in second copy directory (e.g. a mounted/synced volume). Unset means backups remain local; provider-bound LLM inputs are disclosed in chapter 07. |
 | `keep_local` | `backup_keep_local` | `7` | How many of the newest local dumps `rag backup` keeps before deleting older ones. |
 | `keep_daily` | `backup_keep_daily` | `14` | How many of the newest **cloud** dumps to keep (daily rotation slots; only applies once `cloud_dir` is set). |
 | `keep_weekly` | `backup_keep_weekly` | `8` | Additional weekly **cloud** retention slots beyond the daily window — one extra dump per week, further back in time. |

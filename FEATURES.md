@@ -64,8 +64,9 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 - 🔒 **Global Codex rollout.** Installation into the real user configuration,
   `/hooks` trust, manual and automatic compaction smoke tests, provider
   outage/recovery, SessionEnd tail capture, and evidence recording remain
-  blocked on the pre-install review. Codex live rollout pending under backlog
-  0.2 means continuity is not yet claimed operationally live.
+  blocked on provider-bound pin hardening and the pre-install review.
+  Codex live rollout pending under backlog 0.2 means continuity is not yet
+  claimed operationally live.
 
 Native Codex memories are complementary: they may adapt Codex from prior work
 and remain inspectable with `/memories`. agentic-rag is the canonical store for
@@ -73,6 +74,8 @@ durable, searchable, auditable knowledge and explicit continuation state.
 
 ## Planned hardening
 
+- ⬜ Secret-strip provider-bound matching pin bodies without mutating stored pin
+  text ([BACKLOG 0.0](BACKLOG.md#0--codex-continuity-rollout-blockers)).
 - ⬜ Measure and tune prompt-recall firing behavior.
 - ⬜ Correct curation cadence/audit growth and cap-aware mining cursors.
 - ⬜ Define the intended refute-trigger recency semantics, then decide whether

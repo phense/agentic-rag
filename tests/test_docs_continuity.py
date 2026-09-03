@@ -39,15 +39,42 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
     corpus = docs_text()
     readme = Path("README.md").read_text()
     privacy = Path("docs/07-privacy-and-cost.md").read_text()
-    for outbound_summary in (readme, privacy):
-        assert "checkpoint enrichment" in outbound_summary
-        assert "mining, curation, and" in outbound_summary
+    readme_summary = re.search(
+        r"> \*\*Your data stays.*?(?=\n\n)", readme, re.S
+    )
+    privacy_summary = re.search(
+        r"In every case, \*\*embeddings are local\*\*.*?(?=\n### Native)",
+        privacy,
+        re.S,
+    )
+    assert readme_summary and privacy_summary
+    for outbound_summary in (readme_summary.group(0), privacy_summary.group(0)):
+        outbound_summary = " ".join(
+            outbound_summary.replace("**", "").replace(">", "").split()
+        )
+        for disclosed_input in (
+            "mining",
+            "curation",
+            "checkpoint enrichment",
+            "matching pin bodies",
+        ):
+            assert disclosed_input in outbound_summary
+        assert "not independently redacted" in outbound_summary
+        assert "no-secrets rule" in outbound_summary
     assert "disable_on_external_context = false" in privacy
     assert "live rollout pending" in corpus
     assert "Only LLM-assisted mining and curation" not in corpus
     assert "Mining and curation send only" not in corpus
     assert "Each time Claude" not in corpus
     assert "your Claude subscription or API key" not in corpus
+    assert "send bounded, redacted inputs" not in corpus
+    assert "nothing leaves" not in corpus.lower()
+    assert not re.search(
+        r"nothing leaves.{0,160}(?:unless|except).*backups?", corpus, re.I | re.S
+    )
+    assert not re.search(
+        r"all provider(?:-bound)? inputs (?:are|remain) redacted", corpus, re.I
+    )
 
 
 def test_privacy_role_matrix_includes_checkpoint_writer_grants():
@@ -70,6 +97,7 @@ def _backlog_item(number: str) -> str:
 
 def test_rollout_backlog_records_are_actionable_and_ordered_first():
     backlog = Path("BACKLOG.md").read_text()
+    assert backlog.index("**0.0**") < backlog.index("**0.1**")
     assert backlog.index("**0.1**") < backlog.index("**1.1**")
     for number, task, status in (("0.1", "Task 9", "⬜"), ("0.2", "Task 10", "🔒")):
         item = _backlog_item(number)
@@ -87,6 +115,14 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
         re.M,
     )
 
+    pin_security = _backlog_item("0.0")
+    assert pin_security.startswith("- ⬜ **0.0**")
+    assert "provider-bound pin bodies" in pin_security
+    assert "Why not done:" in pin_security
+    assert "Trigger:" in pin_security
+    assert "Dependency:" in pin_security
+    assert re.search(r"\*\([SMLX]+\)\*", pin_security)
+
 
 def test_feature_registry_and_numbered_backlog_exist():
     assert Path("FEATURES.md").is_file()
@@ -94,6 +130,8 @@ def test_feature_registry_and_numbered_backlog_exist():
     assert "Codex continuity" in features
     assert "BACKLOG 2.2" in features
     assert "refute-trigger recency semantics" in features
+    assert "BACKLOG 0.0" in features
+    assert "provider-bound matching pin bodies" in features
     assert "live rollout pending" in features
     assert re.search(
         r"^- [⬜🔵✅🔒⏸] \*\*\d+\.\d+",
@@ -112,4 +150,8 @@ def test_codex_install_docs_separate_policy_settings_from_prompt_artifact():
 def test_comparison_distinguishes_code_shipped_from_operationally_live():
     readme = Path("README.md").read_text()
     assert "shipped in code, live rollout pending" in readme
-    assert "Codex session mining and continuity" in readme
+    assert re.search(
+        r"^\| Codex session mining and continuity \| 🧪 \| ❌ you feed it \|$",
+        readme,
+        re.M,
+    )

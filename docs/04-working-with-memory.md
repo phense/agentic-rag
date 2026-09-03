@@ -94,6 +94,10 @@ rag pin verify PIN_ID
 - `--scope` is `global` (default, injected everywhere), an absolute project path (injected only for sessions in that directory or a subdirectory of it), or the name of an existing domain (domain-scoped pins aren't auto-injected at session start — no domain is knowable from a working directory — but they do show up in `rag pin list` and the `rag review` report).
 - `--priority` (default `100`) sets injection order — lower first, then by creation time.
 - If you pass `--document` without `--body`, the pin body is generated for you as `[[slug]] — title`.
+- **Never put credentials or other secrets in a pin.** Matching global and
+  path-scoped pin bodies can be included in session-mining provider prompts.
+  They are not independently secret-stripped at that boundary today; the
+  defense-in-depth fix is tracked in root backlog 0.0.
 - `rag pin rm` deactivates the pin (`active = false`); it isn't deleted. `rag pin verify` stamps `last_verified`, resetting the staleness clock a pin is measured against.
 
 ```

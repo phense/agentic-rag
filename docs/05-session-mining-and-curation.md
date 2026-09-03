@@ -168,8 +168,12 @@ it's pure local file parsing.
 
 ### The provider call
 
-The digest, live domains, and project-scoped pins go into one prompt through
-`agentic_rag.llm.run_structured`. The compatibility default is Claude/Haiku.
+The secret-stripped digest, live domains, and matching global/path-scoped pin
+bodies go into one prompt through `agentic_rag.llm.run_structured`. Pin bodies
+are passed as stored and are not independently redacted at this boundary, so
+the current safety contract is the user-owned pin no-secrets rule; defense in
+depth is tracked in root backlog 0.0. The compatibility default is
+Claude/Haiku.
 With `provider = "codex"`, the adapter runs `codex exec` ephemerally in an
 empty temporary directory, with user/project rules ignored, read-only
 sandboxing, a configured reasoning effort, and schema-constrained output.
@@ -301,8 +305,9 @@ row naming which slugs were removed.
 - **Local source, bounded provider input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all. The
-  resulting bounded, redacted digest does leave the machine through the
-  configured Codex or Claude CLI for mining/enrichment.
+  resulting bounded, secret-stripped digest leaves the machine through the
+  configured Codex or Claude CLI for mining/enrichment; the mining prompt also
+  carries matching pin bodies under the no-secrets rule described above.
 - **Compaction does not depend on the provider.** `PreCompact` commits the
   deterministic snapshot before optional asynchronous enrichment; provider
   outage recovery preserves the enrichment attempt budget.

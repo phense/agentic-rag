@@ -14,6 +14,15 @@
 
 ## §0 — Codex continuity rollout blockers
 
+- ⬜ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
+  currently places matching global/path-scoped pin bodies into its bounded
+  provider prompt exactly as stored. → *Why not done:* pins are user-owned and
+  carry a no-secrets rule, but the mining prompt builder does not independently
+  enforce that rule; Task 8 records the gap without expanding into runtime
+  implementation. → *Trigger:* apply `strip_secrets` to a copy of every
+  matching pin body at the provider-prompt boundary and add regression tests
+  covering global, matching-path, and document-reference pins without mutating
+  stored pin text. → *Dependency:* none. *(S)*
 - ⬜ **0.1** _(chore)_ **Complete the pre-install whole-diff and security
   review.** The checkpoint, lifecycle, prompt, installer, CLI/status, and
   documentation work is implemented. → *Why not done:* Task 8 is landed, but
@@ -31,8 +40,8 @@
   execute Task 10 with healthy PostgreSQL/Ollama/Codex login, preserve reported
   backups and the rollback command, restore the 600000/500000 policy after the
   automatic test, then record only sanitized evidence in this backlog,
-  `FEATURES.md`, and `CHANGELOG.md`. → *Dependency:* 0.1 and access to the live
-  user environment. *(L)*
+  `FEATURES.md`, and `CHANGELOG.md`. → *Dependency:* 0.0, 0.1, and access to the
+  live user environment. *(L)*
 
 ## §1 — Mining & curation pipeline
 

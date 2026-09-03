@@ -24,15 +24,30 @@ Supported choices are:
   Anthropic, on the account you chose.
 
 In every case, **embeddings are local** — retrieval and re-embedding run on
-your own Ollama (`bge-m3`). LLM-assisted mining, curation, and checkpoint
-enrichment are the bounded paths that call the selected external provider.
+your own Ollama (`bge-m3`). The bounded provider inputs are:
 
-Codex continuity enrichment is another bounded provider call through that same
-seam. The safety-critical checkpoint does not depend on it: `PreCompact`
-commits deterministic state locally first, and a provider outage leaves the
-enrichment pending without consuming its attempt budget. `rag status` and
-SessionStart expose the outage; after `codex login`, the next successful worker
-run closes the circuit automatically and enriches the same checkpoint.
+- **mining:** a secret-stripped transcript digest, live domain names, and
+  matching pin bodies for global or matching path scopes;
+- **curation:** selected stored document bodies and contradiction evidence that
+  previously passed through the document write gateway's secret stripping;
+- **checkpoint enrichment:** a bounded, secret-stripped transcript delta.
+
+Matching pin bodies are passed to mining as stored and are **not independently
+redacted** at the provider boundary. Pins therefore carry a **no-secrets rule**:
+do not store credentials or other sensitive values in them. Adding
+defense-in-depth stripping is an open security blocker in [BACKLOG
+0.0](../BACKLOG.md#0--codex-continuity-rollout-blockers), not a shipped
+guarantee.
+
+Codex continuity enrichment uses the same provider seam. The deterministic
+checkpoint capture secret-strips bounded Git output; the enrichment path
+strips its transcript delta again and validates schema, grounding, and
+secret-shaped output before persistence. The safety-critical checkpoint does
+not depend on enrichment: `PreCompact` commits deterministic state locally
+first, and a provider outage leaves enrichment pending without consuming its
+attempt budget. `rag status` and SessionStart expose the outage; after `codex
+login`, the next successful worker run closes the circuit automatically and
+enriches the same checkpoint.
 
 ### Native Codex memories and external context
 
@@ -145,10 +160,12 @@ default, or another host you point `config.toml` at. Embeddings come from a
 local Ollama model (`bge-m3`). There is no telemetry endpoint, hosted vector
 index, or third-party sync.
 
-The places data may leave your machine are the configured LLM provider call
-and the optional cloud copy of your own backups if you configure `[backup]
-cloud_dir` in `config.toml` — that's a path you choose (e.g. a mounted
-network drive or cloud-synced folder), not a service agentic-rag runs.
+The configured LLM provider receives the bounded mining, curation, and
+checkpoint enrichment inputs enumerated above, including matching pin bodies
+where mining uses them. Those pin bodies are not independently redacted and
+remain subject to the no-secrets rule. Separately, `[backup] cloud_dir` can
+copy your backup to a path you choose (for example a mounted network drive or
+cloud-synced folder); it is not a service agentic-rag runs.
 
 ## The role matrix: destruction protection by design
 
