@@ -9,20 +9,36 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass
+import tempfile
+import uuid
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from . import backup
 from .config import Config
+from .integrations.codex import config as codex_config
 from .integrations.codex import install as codex_install
 
 SETTINGS_PATH = Path.home() / ".claude" / "settings.json"
 HOOK_MARKER = "agentic_rag.hooks."
 MCP_NAME = "agentic-rag"
 MCP_NAME_RO = "agentic-rag-ro"   # spec §5: the subagent server, rag_reader
+CODEX_ROLLBACK_VERSION = 1
+
+
+def managed_codex_settings() -> tuple[tuple[str, object], ...]:
+    """Return the exact managed values from the canonical Codex policy."""
+    return tuple(codex_config.ROOT_VALUES.items()) + tuple(
+        (f"features.{key}", value)
+        for key, value in codex_config.FEATURE_VALUES.items()
+    ) + tuple(
+        (f"memories.{key}", value)
+        for key, value in codex_config.MEMORY_VALUES.items()
+    )
 
 
 def hook_entries(python: str) -> dict:
@@ -85,6 +101,8 @@ class InstallReport:
     plist_path: Path | None
     mcp_registered: bool
     codex_report: codex_install.CodexInstallReport | None = None
+    rollback_path: Path | None = None
+    restored_paths: tuple[Path, ...] = ()
 
     @property
     def codex(self) -> codex_install.CodexInstallReport | None:
@@ -92,16 +110,278 @@ class InstallReport:
         return self.codex_report
 
 
+def _absolute(path: Path) -> Path:
+    return Path(os.path.abspath(path.expanduser()))
+
+
+def _identity_data(identity: codex_install.FileIdentity) -> dict:
+    return asdict(identity)
+
+
+def _identity_from_data(data: object, *, label: str) -> codex_install.FileIdentity:
+    fields = {
+        "exists", "device", "inode", "size", "modified_ns", "digest", "mode",
+    }
+    if not isinstance(data, dict) or set(data) != fields:
+        raise RuntimeError(f"invalid Codex rollback {label} identity")
+    identity = codex_install.FileIdentity(**data)
+    integers = (
+        identity.device,
+        identity.inode,
+        identity.size,
+        identity.modified_ns,
+        identity.mode,
+    )
+    if (
+        identity.exists is not True
+        or any(not isinstance(value, int) for value in integers)
+        or not isinstance(identity.digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", identity.digest) is None
+    ):
+        raise RuntimeError(f"invalid Codex rollback {label} identity")
+    return identity
+
+
+def _record_data(report: codex_install.CodexInstallReport) -> dict:
+    changed = set(report.changed_paths)
+    created = set(report.created_paths)
+    backup_targets = {item.target_path for item in report.backups}
+    installed_targets = {item.target_path for item in report.installed_files}
+    if (
+        report.check
+        or not changed
+        or created & backup_targets
+        or created | backup_targets != changed
+        or installed_targets != changed
+    ):
+        raise RuntimeError("Codex install did not produce a restorable report")
+    backups = []
+    for item in report.backups:
+        snapshot = codex_install._snapshot(item.backup_path)
+        if not snapshot.identity.exists:
+            raise RuntimeError(
+                f"valid rollback backup is unavailable: {item.backup_path}"
+            )
+        backups.append({
+            "target_path": str(item.target_path),
+            "backup_path": str(item.backup_path),
+            "identity": _identity_data(snapshot.identity),
+        })
+    return {
+        "version": CODEX_ROLLBACK_VERSION,
+        "home": str(report.paths.home),
+        "changed_paths": [str(path) for path in report.changed_paths],
+        "created_paths": [str(path) for path in report.created_paths],
+        "backups": backups,
+        "installed_files": [
+            {
+                "target_path": str(item.target_path),
+                "identity": _identity_data(item.identity),
+            }
+            for item in report.installed_files
+        ],
+    }
+
+
+def record_codex_rollback(report: codex_install.CodexInstallReport) -> Path:
+    """Atomically persist the identities needed by ``restore_codex``."""
+    data = _record_data(report)
+    state_dir = report.paths.home / ".agentic-rag" / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    record_path = state_dir / f"codex-rollback-{uuid.uuid4().hex}.json"
+    descriptor, name = tempfile.mkstemp(
+        prefix=".codex-rollback-", suffix=".tmp", dir=state_dir
+    )
+    staged = Path(name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(data, stream, sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        staged.chmod(0o600)
+        os.link(staged, record_path, follow_symlinks=False)
+    finally:
+        staged.unlink(missing_ok=True)
+    return record_path
+
+
+def _record_path(value: object, *, label: str) -> Path:
+    if not isinstance(value, str) or not value:
+        raise RuntimeError(f"invalid Codex rollback {label}")
+    path = Path(value)
+    if not path.is_absolute() or _absolute(path) != path:
+        raise RuntimeError(f"invalid Codex rollback {label}")
+    return path
+
+
+def _load_codex_rollback(
+        record_path: Path,
+) -> tuple[
+    codex_install.CodexInstallReport,
+    dict[Path, codex_install.FileIdentity],
+]:
+    record_path = _absolute(record_path)
+    snapshot = codex_install._snapshot(record_path)
+    if not snapshot.identity.exists:
+        raise RuntimeError(f"invalid Codex rollback record: {record_path}")
+    try:
+        data = json.loads(snapshot.content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"invalid Codex rollback record: {record_path}") from exc
+    expected_keys = {
+        "version", "home", "changed_paths", "created_paths", "backups",
+        "installed_files",
+    }
+    if (
+        not isinstance(data, dict)
+        or set(data) != expected_keys
+        or data["version"] != CODEX_ROLLBACK_VERSION
+    ):
+        raise RuntimeError(f"invalid Codex rollback record: {record_path}")
+    try:
+        home = _record_path(data["home"], label="home")
+        paths = codex_install.CodexPaths.for_home(home)
+        changed = tuple(
+            _record_path(value, label="changed path")
+            for value in data["changed_paths"]
+        )
+        created = tuple(
+            _record_path(value, label="created path")
+            for value in data["created_paths"]
+        )
+        backups = tuple(
+            codex_install.BackupRecord(
+                _record_path(item["target_path"], label="backup target"),
+                _record_path(item["backup_path"], label="backup path"),
+            )
+            for item in data["backups"]
+        )
+        backup_identities = {
+            _record_path(item["backup_path"], label="backup path"):
+            _identity_from_data(item["identity"], label="backup")
+            for item in data["backups"]
+        }
+        installed = tuple(
+            codex_install.InstalledFile(
+                _record_path(item["target_path"], label="installed target"),
+                _identity_from_data(item["identity"], label="installed"),
+            )
+            for item in data["installed_files"]
+        )
+    except (KeyError, TypeError) as exc:
+        raise RuntimeError(f"invalid Codex rollback record: {record_path}") from exc
+
+    target_set = set(paths.targets)
+    changed_set = set(changed)
+    created_set = set(created)
+    backup_targets = {item.target_path for item in backups}
+    installed_targets = {item.target_path for item in installed}
+    backup_paths = [item.backup_path for item in backups]
+    valid_backup_names = all(
+        item.backup_path.parent == item.target_path.parent
+        and item.backup_path.name.startswith(item.target_path.name + ".bak.")
+        and re.fullmatch(
+            r"[0-9a-f]{32}",
+            item.backup_path.name.removeprefix(item.target_path.name + ".bak."),
+        ) is not None
+        for item in backups
+    )
+    if (
+        not changed
+        or len(changed_set) != len(changed)
+        or not changed_set <= target_set
+        or len(created_set) != len(created)
+        or created_set & backup_targets
+        or created_set | backup_targets != changed_set
+        or installed_targets != changed_set
+        or len(installed_targets) != len(installed)
+        or len(set(backup_paths)) != len(backup_paths)
+        or set(backup_paths) != set(backup_identities)
+        or not valid_backup_names
+    ):
+        raise RuntimeError(f"invalid Codex rollback record: {record_path}")
+    report = codex_install.CodexInstallReport(
+        paths=paths,
+        changed_paths=changed,
+        backups=backups,
+        created_paths=created,
+        foreign_hook_duplicates=(),
+        check=False,
+        codex_version=None,
+        runtime_validation="recorded rollback",
+        probe_isolation="not applicable during rollback",
+        installed_files=installed,
+    )
+    return report, backup_identities
+
+
+def restore_codex_rollback(record_path: Path) -> tuple[Path, ...]:
+    """Validate a recorded transaction, then use Task 6's safe restore."""
+    report, backup_identities = _load_codex_rollback(record_path)
+    for backup, expected in backup_identities.items():
+        try:
+            current = codex_install._snapshot(backup).identity
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"valid rollback backup is unavailable: {backup}"
+            ) from exc
+        if current != expected:
+            raise RuntimeError(f"valid rollback backup is unavailable: {backup}")
+    for item in report.installed_files:
+        try:
+            current = codex_install._snapshot(item.target_path).identity
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"Codex target changed since installation: {item.target_path}"
+            ) from exc
+        if current != item.identity:
+            raise RuntimeError(
+                f"Codex target changed since installation: {item.target_path}"
+            )
+    return codex_install.restore_codex(report)
+
+
 def install(cfg: Config, *, settings_path: Path | None = None,
             run=subprocess.run, with_launchd: bool = True,
             codex: bool = False, check: bool = False,
-            codex_home: Path | None = None) -> InstallReport:
+            codex_home: Path | None = None,
+            restore_path: Path | None = None) -> InstallReport:
+    if restore_path is not None and not codex:
+        raise ValueError("restore_path requires codex=True")
+    if restore_path is not None and check:
+        raise ValueError("Codex restore and check are mutually exclusive")
     if codex:
+        if restore_path is not None:
+            restored = restore_codex_rollback(restore_path)
+            return InstallReport(None, None, False, restored_paths=restored)
         paths = codex_install.CodexPaths.for_home(
-            Path.home() if codex_home is None else codex_home
+            _absolute(Path.home() if codex_home is None else codex_home)
         )
         report = codex_install.install_codex(paths, check=check, run=run)
-        return InstallReport(None, None, False, report)
+        rollback_path = None
+        if not report.check and report.changed_paths:
+            try:
+                rollback_path = record_codex_rollback(report)
+            except BaseException as record_failure:
+                try:
+                    codex_install.restore_codex(report)
+                except BaseException as restore_failure:
+                    backups = ", ".join(
+                        str(item.backup_path) for item in report.backups
+                    )
+                    raise RuntimeError(
+                        "Codex installation could not record rollback and "
+                        "automatic restoration failed; manual recovery "
+                        f"required from [{backups}]"
+                    ) from restore_failure
+                raise RuntimeError(
+                    "Codex installation was restored because its rollback "
+                    "record could not be written"
+                ) from record_failure
+        return InstallReport(
+            None, None, False, report, rollback_path=rollback_path
+        )
     if check:
         raise ValueError("--check requires --codex")
 

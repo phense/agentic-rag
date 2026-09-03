@@ -206,3 +206,35 @@ def test_install_codex_replaces_owned_hooks_after_virtualenv_move(
     assert second.codex.changed_paths == (
         tmp_path / ".codex" / "hooks.json",
     )
+
+
+def test_managed_codex_settings_come_from_canonical_constants():
+    settings = dict(install.managed_codex_settings())
+
+    assert settings == {
+        **install.codex_config.ROOT_VALUES,
+        **{
+            f"features.{key}": value
+            for key, value in install.codex_config.FEATURE_VALUES.items()
+        },
+        **{
+            f"memories.{key}": value
+            for key, value in install.codex_config.MEMORY_VALUES.items()
+        },
+    }
+
+
+def test_restore_requires_codex_and_cannot_be_combined_with_check(
+        tmp_path, monkeypatch):
+    def legacy_must_not_run(*args, **kwargs):
+        raise AssertionError("invalid restore flags must not install Claude")
+
+    monkeypatch.setattr(install, "register_mcp", legacy_must_not_run)
+    record = tmp_path / "rollback.json"
+
+    with pytest.raises(ValueError, match="requires.*codex"):
+        install.install(Config(), restore_path=record)
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        install.install(
+            Config(), codex=True, check=True, restore_path=record,
+        )

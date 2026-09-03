@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import shlex
 import shutil
 import sys
 from pathlib import Path
@@ -59,6 +60,9 @@ def _main(argv: list[str] | None = None) -> int:
                         help="target Codex config and lifecycle hooks")
     p_inst.add_argument("--check", action="store_true",
                         help="show Codex changes without writing files")
+    p_inst.add_argument("--restore", type=Path, default=None,
+                        metavar="ROLLBACK_RECORD",
+                        help="restore a recorded Codex installation")
     p_inst.add_argument("--codex-home", type=Path, default=None,
                         help=argparse.SUPPRESS)
 
@@ -150,9 +154,16 @@ def _main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     if args.cmd == "install" and args.check and not args.codex:
         p.error("--check requires --codex")
+    if args.cmd == "install" and args.restore is not None and not args.codex:
+        p.error("--restore requires --codex")
+    if args.cmd == "install" and args.restore is not None and args.check:
+        p.error("--restore and --check are mutually exclusive")
     if (args.cmd == "install" and args.codex_home is not None
             and not args.codex):
         p.error("--codex-home requires --codex")
+    if (args.cmd == "install" and args.restore is not None
+            and args.codex_home is not None):
+        p.error("--restore reads its target home from the rollback record")
     cfg = load_config()
 
     if args.cmd == "init-db":
@@ -220,14 +231,22 @@ def _main(argv: list[str] | None = None) -> int:
                 codex=True,
                 check=args.check,
                 codex_home=args.codex_home,
+                restore_path=args.restore,
             )
         else:
             # Preserve the legacy call contract as well as its behavior.
             rep = install_mod.install(
                 cfg, with_launchd=not args.no_launchd
             )
+        if rep.restored_paths:
+            for path in rep.restored_paths:
+                print(f"restored: {_safe(path)}")
+            print("rollback complete")
+            return 0
         if rep.codex is not None:
             codex_rep = rep.codex
+            for key, value in install_mod.managed_codex_settings():
+                print(f"managed: {key}={json.dumps(value)}")
             action = "would change" if codex_rep.check else "changed"
             if codex_rep.changed_paths:
                 for path in codex_rep.changed_paths:
@@ -250,7 +269,11 @@ def _main(argv: list[str] | None = None) -> int:
             print(f"probe: {_safe(codex_rep.probe_isolation)}")
             print("hooks: review and trust changed handlers with `/hooks`")
             if codex_rep.check:
+                print("rollback: not needed in check mode; no files were changed")
                 print("check complete: no files written")
+            elif rep.rollback_path is not None:
+                record = shlex.quote(_safe(rep.rollback_path))
+                print(f"rollback: rag install --codex --restore {record}")
             return 0
         print(f"mcp:      registered '{install_mod.MCP_NAME}' and"
               f" '{install_mod.MCP_NAME_RO}' (user scope)")

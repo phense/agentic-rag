@@ -1,4 +1,5 @@
 import json
+import shlex
 from pathlib import Path
 
 import psycopg
@@ -247,6 +248,16 @@ def test_install_codex_check_reports_changed_paths_without_writing(
     assert ".codex/config.toml" in out
     assert "no files written" in out.lower()
     assert "/hooks" in out
+    assert "managed: model_context_window=600000" in out
+    assert "managed: model_auto_compact_token_limit=500000" in out
+    assert 'managed: model_auto_compact_token_limit_scope="total"' in out
+    assert "managed: features.memories=true" in out
+    assert "managed: memories.generate_memories=true" in out
+    assert "managed: memories.use_memories=true" in out
+    assert "managed: memories.disable_on_external_context=false" in out
+    assert 'managed: memories.extract_model="gpt-5.6-luna"' in out
+    assert 'managed: memories.consolidation_model="gpt-5.6-luna"' in out
+    assert "rollback: not needed in check mode" in out
     assert not (tmp_path / ".codex").exists()
 
 
@@ -276,6 +287,105 @@ def test_install_error_diagnostic_is_sanitized(tmp_path, monkeypatch, capsys):
     err = capsys.readouterr().err
     assert secret not in err
     assert "[REDACTED]" in err
+
+
+def _seed_codex_cli_home(tmp_path, monkeypatch):
+    cfg_toml = tmp_path / "agentic-rag.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    paths = cli.install_mod.codex_install.CodexPaths.for_home(tmp_path)
+    paths.config_path.parent.mkdir(parents=True)
+    originals = {
+        paths.config_path: b'custom = "keep"\n',
+        paths.hooks_path: b'{"metadata": "keep"}\n',
+        paths.prompt_path: b"original prompt\n",
+    }
+    for path, content in originals.items():
+        path.write_bytes(content)
+    monkeypatch.setattr(
+        cli.install_mod.codex_install,
+        "_probe_codex",
+        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+    )
+    return paths, originals
+
+
+def _rollback_command(output):
+    line = next(line for line in output.splitlines()
+                if line.startswith("rollback: rag "))
+    return line.removeprefix("rollback: ")
+
+
+def test_install_codex_printed_rollback_command_restores_all_originals(
+        tmp_path, monkeypatch, capsys):
+    home = tmp_path / "home with spaces"
+    home.mkdir()
+    paths, originals = _seed_codex_cli_home(home, monkeypatch)
+
+    assert main([
+        "install", "--codex", "--codex-home", str(home),
+    ]) == 0
+
+    install_output = capsys.readouterr().out
+    assert install_output.count("backup:") == 3
+    command = _rollback_command(install_output)
+    assert main(shlex.split(command)[1:]) == 0
+    assert "restored:" in capsys.readouterr().out
+    assert {path: path.read_bytes() for path in paths.targets} == originals
+
+
+def test_install_codex_restore_rejects_missing_backup_without_changes(
+        tmp_path, monkeypatch, capsys):
+    paths, _ = _seed_codex_cli_home(tmp_path, monkeypatch)
+    assert main([
+        "install", "--codex", "--codex-home", str(tmp_path),
+    ]) == 0
+    command = _rollback_command(capsys.readouterr().out)
+    record_path = Path(shlex.split(command)[-1])
+    record = json.loads(record_path.read_text())
+    Path(record["backups"][0]["backup_path"]).unlink()
+    installed = {path: path.read_bytes() for path in paths.targets}
+
+    assert main(shlex.split(command)[1:]) == 3
+
+    assert "valid rollback backup" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in paths.targets} == installed
+
+
+def test_install_codex_restore_rejects_modified_backup_without_changes(
+        tmp_path, monkeypatch, capsys):
+    paths, _ = _seed_codex_cli_home(tmp_path, monkeypatch)
+    assert main([
+        "install", "--codex", "--codex-home", str(tmp_path),
+    ]) == 0
+    command = _rollback_command(capsys.readouterr().out)
+    record_path = Path(shlex.split(command)[-1])
+    record = json.loads(record_path.read_text())
+    Path(record["backups"][-1]["backup_path"]).write_text("not the backup")
+    installed = {path: path.read_bytes() for path in paths.targets}
+
+    assert main(shlex.split(command)[1:]) == 3
+
+    assert "valid rollback backup" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in paths.targets} == installed
+
+
+def test_install_codex_restore_preserves_conflicting_target(
+        tmp_path, monkeypatch, capsys):
+    paths, _ = _seed_codex_cli_home(tmp_path, monkeypatch)
+    assert main([
+        "install", "--codex", "--codex-home", str(tmp_path),
+    ]) == 0
+    command = _rollback_command(capsys.readouterr().out)
+    conflict = b'custom = "concurrent edit"\n'
+    paths.config_path.write_bytes(conflict)
+    before = {path: path.read_bytes() for path in paths.targets}
+
+    assert main(shlex.split(command)[1:]) == 3
+
+    assert "changed since installation" in capsys.readouterr().err
+    assert paths.config_path.read_bytes() == conflict
+    assert {path: path.read_bytes() for path in paths.targets} == before
 
 
 def test_migrate_run_refuses_without_yes(cli_env, mig_source):
