@@ -71,6 +71,28 @@ def test_capture_labels_detached_head_and_resolves_git_paths(tmp_path):
     assert checkpoint.git["git_common_dir"] == str((tmp_path / ".git").resolve())
 
 
+def test_capture_redacts_secret_shaped_branch_name(tmp_path):
+    secret = "sk-abcdefghijklmnop1234"
+
+    checkpoint = capture.capture_snapshot(
+        payload(tmp_path), run=fake_git_for(tmp_path, branch=f"feat/{secret}")
+    )
+
+    assert secret not in checkpoint.git["branch"]
+    assert checkpoint.git["branch"] == "feat/[REDACTED]"
+
+
+def test_capture_redacts_secret_shaped_status_filename(tmp_path):
+    secret = "ghp_abcdefghijklmnopqrstuvwxyz123456"
+
+    checkpoint = capture.capture_snapshot(
+        payload(tmp_path), run=fake_git_for(tmp_path, status=f"?? {secret}.txt")
+    )
+
+    assert secret not in checkpoint.git["status"]
+    assert checkpoint.git["status"] == "?? [REDACTED].txt"
+
+
 def test_capture_non_git_and_missing_transcript_still_has_stable_cursor(tmp_path):
     def not_a_repo(argv, **kwargs):
         return subprocess.CompletedProcess(argv, 128, "", "not a git repository")
@@ -88,6 +110,18 @@ def test_capture_non_git_and_missing_transcript_still_has_stable_cursor(tmp_path
     assert checkpoint.git == {}
     assert checkpoint.cursor.startswith("event:")
     assert checkpoint.cursor == repeated.cursor
+
+
+def test_capture_passes_whitespace_significant_cwd_to_git_unchanged(tmp_path):
+    project = tmp_path / " project "
+    project.mkdir()
+    cwd_argument = str(project)
+    fake_git = fake_git_for(project)
+
+    checkpoint = capture.capture_snapshot(payload(project), run=fake_git)
+
+    assert all(call[0][2] == cwd_argument for call in fake_git.calls)
+    assert checkpoint.cwd == str(project.resolve())
 
 
 def test_capture_uses_digest_cursor_and_fingerprints_metadata_not_content(tmp_path):
@@ -161,3 +195,67 @@ def test_capture_honors_configured_status_and_artifact_caps(tmp_path, monkeypatc
     assert checkpoint.git["status"] == "M abc"
     assert checkpoint.artifacts == ("AGENTS.md",)
     assert checkpoint.warnings == ("git status truncated", "artifact list truncated")
+
+
+def test_default_git_execution_reads_stdout_with_an_explicit_bound(monkeypatch):
+    read_sizes: list[int] = []
+    processes = []
+
+    class BoundedStream:
+        def read(self, size=-1):
+            read_sizes.append(size)
+            if size < 0:
+                raise AssertionError("stdout read was unbounded")
+            return b"x" * size
+
+        def close(self):
+            pass
+
+    class Process:
+        def __init__(self):
+            self.stdout = BoundedStream()
+            self.returncode = None
+            self.killed = False
+
+        def kill(self):
+            self.killed = True
+            self.returncode = -9
+
+        def wait(self, timeout=None):
+            if self.returncode is None:
+                self.returncode = 0
+            return self.returncode
+
+    def popen(*args, **kwargs):
+        process = Process()
+        processes.append(process)
+        return process
+
+    monkeypatch.setattr(capture.subprocess, "Popen", popen)
+
+    ok, output, warning, truncated = capture._run_git(
+        "/work/project", ("status", "--short"), subprocess.run, max_chars=32
+    )
+
+    assert ok
+    assert len(output) <= 32
+    assert warning is None
+    assert truncated
+    assert read_sizes and all(0 < size < 2_000 for size in read_sizes)
+    assert processes[0].killed
+
+
+def test_artifact_candidate_storage_is_bounded_before_result_rendering():
+    candidates = capture._ArtifactCandidates(limit=3)
+
+    for index in reversed(range(100)):
+        candidates.add(f"docs/superpowers/plans/{index:03d}.md")
+        assert candidates.retained_count <= 4
+
+    artifacts, truncated = candidates.result()
+    assert artifacts == (
+        "docs/superpowers/plans/000.md",
+        "docs/superpowers/plans/001.md",
+        "docs/superpowers/plans/002.md",
+    )
+    assert truncated

@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import UTC, datetime
 
+import pytest
+
 from agentic_rag.continuity.model import Checkpoint
-from agentic_rag.continuity.render import render_checkpoint
+from agentic_rag.continuity.render import MIN_RENDER_CHARS, render_checkpoint
 
 
 LARGE_SPEC_BODY = "copied specification body " * 200
@@ -84,9 +86,9 @@ def test_renderer_retains_identity_blocker_and_next_action_under_pressure():
         },
     )
 
-    text = render_checkpoint(saved, max_chars=180)
+    text = render_checkpoint(saved, max_chars=MIN_RENDER_CHARS)
 
-    assert len(text) <= 180
+    assert len(text) <= MIN_RENDER_CHARS
     assert "checkpoint-123" in text
     assert "Goal:" in text
     assert "Blockers:" in text and "blocked by review" in text
@@ -101,3 +103,27 @@ def test_renderer_rejects_non_positive_budget():
             assert "positive" in str(exc)
         else:
             raise AssertionError("non-positive render budget was accepted")
+
+
+def test_renderer_rejects_budget_below_documented_minimum():
+    with pytest.raises(ValueError, match=str(MIN_RENDER_CHARS)):
+        render_checkpoint(checkpoint(), max_chars=MIN_RENDER_CHARS - 1)
+
+
+def test_renderer_minimum_retains_meaningful_mandatory_values():
+    saved = replace(
+        checkpoint(),
+        enrichment={
+            **checkpoint().enrichment,
+            "goal": "g" * 2_000,
+            "blockers": ["blocked by required security review " + "b" * 2_000],
+            "next_action": "run the bounded capture regression tests " + "n" * 2_000,
+        },
+    )
+
+    text = render_checkpoint(saved, max_chars=MIN_RENDER_CHARS)
+
+    assert len(text) <= MIN_RENDER_CHARS
+    assert "Checkpoint checkpoint-123" in text
+    assert "Blockers: blocked by required" in text
+    assert "Next exact action: run the bounded" in text

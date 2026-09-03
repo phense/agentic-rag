@@ -4,11 +4,15 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+import threading
+import time
+from bisect import insort
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
 from agentic_rag.config import load_config
+from agentic_rag.secrets import strip_secrets
 from agentic_rag.transcript import build_digest
 
 from .model import CheckpointSnapshot
@@ -29,35 +33,119 @@ _ARTIFACT_DIRECTORIES = (
 )
 _GIT_TIMEOUT_SECONDS = 0.35
 _GIT_METADATA_MAX_CHARS = 1_024
+_GIT_PATH_MAX_CHARS = 4_096
+_SECRET_SCAN_OVERLAP_CHARS = 256
+_MAX_UTF8_BYTES_PER_CHAR = 4
 
 
 def _text(value: object) -> str | None:
     return value.strip() if isinstance(value, str) and value.strip() else None
 
 
+def _path_text(value: object) -> str | None:
+    """Validate path text without changing whitespace-significant names."""
+    return value if isinstance(value, str) and value.strip() else None
+
+
 def _run_git(
     cwd_argument: str,
     command: tuple[str, ...],
     run: Callable[..., Any],
-) -> tuple[bool, str, str | None]:
+    *,
+    max_chars: int,
+) -> tuple[bool, str, str | None, bool]:
     argv = ["git", "-C", cwd_argument, *command]
+    read_chars = max(0, max_chars) + _SECRET_SCAN_OVERLAP_CHARS
     try:
-        result = run(
-            argv,
-            shell=False,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=_GIT_TIMEOUT_SECONDS,
-        )
+        if run is subprocess.run:
+            returncode, stdout, timed_out, read_truncated = _bounded_git_process(
+                argv, read_chars
+            )
+            if timed_out:
+                return False, "", f"git {' '.join(command)} timed out", False
+        else:
+            result = run(
+                argv,
+                shell=False,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=_GIT_TIMEOUT_SECONDS,
+            )
+            returncode = result.returncode
+            raw_stdout = result.stdout if isinstance(result.stdout, str) else ""
+            read_truncated = len(raw_stdout) > read_chars
+            stdout = raw_stdout[:read_chars]
     except subprocess.TimeoutExpired:
-        return False, "", f"git {' '.join(command)} timed out"
+        return False, "", f"git {' '.join(command)} timed out", False
     except OSError:
-        return False, "", f"git {' '.join(command)} unavailable"
-    if result.returncode != 0:
-        return False, "", None
-    stdout = result.stdout if isinstance(result.stdout, str) else ""
-    return True, stdout.rstrip("\r\n"), None
+        return False, "", f"git {' '.join(command)} unavailable", False
+    if returncode != 0 and not read_truncated:
+        return False, "", None, False
+    raw = stdout.rstrip("\r\n")
+    sanitized = strip_secrets(raw)[0]
+    truncated = read_truncated or len(raw) > max_chars or len(sanitized) > max_chars
+    return True, sanitized[:max_chars], None, truncated
+
+
+def _bounded_git_process(
+    argv: list[str], read_chars: int
+) -> tuple[int, str, bool, bool]:
+    """Read a finite prefix, enforcing one deadline and always reaping Git."""
+    process = subprocess.Popen(
+        argv,
+        shell=False,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    if process.stdout is None:  # pragma: no cover - PIPE guarantees a stream
+        process.kill()
+        process.wait()
+        return process.returncode, "", False, False
+
+    byte_limit = read_chars * _MAX_UTF8_BYTES_PER_CHAR
+    read_size = byte_limit + 1
+    result: list[bytes] = []
+    read_errors: list[BaseException] = []
+
+    def read_prefix() -> None:
+        try:
+            result.append(process.stdout.read(read_size))
+        except BaseException as exc:  # propagated after process cleanup
+            read_errors.append(exc)
+
+    deadline = time.monotonic() + _GIT_TIMEOUT_SECONDS
+    reader = threading.Thread(target=read_prefix, daemon=True)
+    reader.start()
+    reader.join(timeout=_GIT_TIMEOUT_SECONDS)
+    timed_out = reader.is_alive()
+    read_truncated = bool(result and len(result[0]) > byte_limit)
+    if timed_out or read_truncated:
+        try:
+            process.kill()
+        except OSError:
+            pass
+    try:
+        process.wait(timeout=max(0.001, deadline - time.monotonic()))
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        try:
+            process.kill()
+        except OSError:
+            pass
+        process.wait()
+    reader.join(timeout=0.1)
+    process.stdout.close()
+    if read_errors:
+        raise OSError("failed to read git output") from read_errors[0]
+    data = result[0][:byte_limit] if result else b""
+    return (
+        process.returncode,
+        data.decode("utf-8", errors="replace"),
+        timed_out,
+        read_truncated,
+    )
 
 
 def _canonical(value: str, *, relative_to: Path | None = None) -> str:
@@ -73,19 +161,40 @@ def _git_state(
     run: Callable[..., Any],
     status_max_chars: int,
 ) -> tuple[str | None, dict[str, object], list[str]]:
-    ok, root_value, warning = _run_git(cwd_argument, _GIT_COMMANDS[0][1], run)
+    ok, root_value, warning, root_truncated = _run_git(
+        cwd_argument,
+        _GIT_COMMANDS[0][1],
+        run,
+        max_chars=_GIT_PATH_MAX_CHARS,
+    )
     warnings = [warning] if warning else []
-    if not ok or not root_value:
+    if root_truncated:
+        warnings.append("git rev-parse --show-toplevel output truncated")
+    if not ok or not root_value or root_truncated:
         return None, {}, warnings
 
     project_root = _canonical(root_value, relative_to=cwd)
     values: dict[str, str] = {"root": project_root}
     for name, command in _GIT_COMMANDS[1:]:
-        succeeded, output, warning = _run_git(cwd_argument, command, run)
+        output_limit = (
+            status_max_chars
+            if name == "status"
+            else _GIT_PATH_MAX_CHARS
+            if name in {"git_dir", "git_common_dir"}
+            else _GIT_METADATA_MAX_CHARS
+        )
+        succeeded, output, warning, truncated = _run_git(
+            cwd_argument, command, run, max_chars=output_limit
+        )
         if warning:
             warnings.append(warning)
         if succeeded:
             values[name] = output
+        if truncated:
+            if name == "status":
+                warnings.append("git status truncated")
+            else:
+                warnings.append(f"git {' '.join(command)} output truncated")
 
     git: dict[str, object] = {
         "worktree": str(cwd),
@@ -95,14 +204,12 @@ def _git_state(
         if value := values.get(name):
             git[name] = _canonical(value, relative_to=cwd)
     if "branch" in values:
-        git["branch"] = values["branch"] or "detached HEAD"
+        branch = values["branch"] or "detached HEAD"
+        git["branch"] = branch
     if head := values.get("head"):
         git["head"] = head[:_GIT_METADATA_MAX_CHARS]
     if "status" in values:
-        status = values["status"]
-        git["status"] = status[:status_max_chars]
-        if len(status) > status_max_chars:
-            warnings.append("git status truncated")
+        git["status"] = values["status"]
     return project_root, git, warnings
 
 
@@ -139,23 +246,50 @@ def _event_cursor(
     return "event:" + hashlib.sha256(encoded.encode()).hexdigest()
 
 
+class _ArtifactCandidates:
+    """Keep only the lexically first ``limit + 1`` paths while streaming."""
+
+    def __init__(self, limit: int):
+        self.limit = max(0, limit)
+        self._capacity = self.limit + 1
+        self._items: list[str] = []
+        self._seen = 0
+
+    @property
+    def retained_count(self) -> int:
+        return len(self._items)
+
+    def add(self, candidate: str) -> None:
+        self._seen += 1
+        if len(self._items) < self._capacity:
+            insort(self._items, candidate)
+        elif candidate < self._items[-1]:
+            self._items.pop()
+            insort(self._items, candidate)
+
+    def result(self) -> tuple[tuple[str, ...], bool]:
+        return tuple(self._items[:self.limit]), self._seen > self.limit
+
+
 def _artifacts(project_root: str, limit: int) -> tuple[tuple[str, ...], bool]:
     root = Path(project_root)
-    found: list[str] = []
+    found = _ArtifactCandidates(limit)
     for relative in _ROOT_ARTIFACTS:
         if (root / relative).is_file():
-            found.append(relative)
+            found.add(relative)
     for directory in _ARTIFACT_DIRECTORIES:
         absolute = root / directory
         try:
-            entries = sorted(absolute.iterdir(), key=lambda path: path.name)
+            entries = absolute.iterdir()
         except OSError:
             continue
-        for entry in entries:
-            if entry.is_file():
-                found.append((directory / entry.name).as_posix())
-    found.sort()
-    return tuple(found[:limit]), len(found) > limit
+        try:
+            for entry in entries:
+                if entry.is_file():
+                    found.add((directory / entry.name).as_posix())
+        except OSError:
+            continue
+    return found.result()
 
 
 def capture_snapshot(
@@ -167,7 +301,7 @@ def capture_snapshot(
     if not isinstance(payload, Mapping):
         raise TypeError("payload must be a mapping")
     cfg = load_config()
-    cwd_argument = _text(payload.get("cwd"))
+    cwd_argument = _path_text(payload.get("cwd"))
     cwd = Path(cwd_argument).expanduser().resolve(strict=False) if cwd_argument else None
     project_root: str | None = None
     git: dict[str, object] = {}

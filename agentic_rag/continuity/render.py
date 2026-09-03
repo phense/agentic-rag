@@ -13,6 +13,10 @@ from .model import Checkpoint
 _SPACE = re.compile(r"\s+")
 _ROOT_ARTIFACTS = frozenset({"AGENTS.md", "CLAUDE.md", "BACKLOG.md", "FEATURES.md"})
 _ARTIFACT_PREFIXES = ("docs/superpowers/specs/", "docs/superpowers/plans/")
+# The three mandatory labels plus 24 meaningful characters from each value fit
+# within this budget, with room for useful short identities/actions in full.
+MIN_RENDER_CHARS = 192
+_MIN_MANDATORY_VALUE_CHARS = 24
 
 
 @dataclass(frozen=True)
@@ -83,22 +87,21 @@ def _render(sections: Iterable[_Section]) -> str:
 
 def _fit_required(required: list[_Section], max_chars: int) -> str:
     label_chars = sum(len(section.label) for section in required) + len(required) - 1
-    if max_chars <= label_chars:
-        return _render(required)[:max_chars]
     available = max_chars - label_chars
     values = [section.value for section in required]
-    while sum(len(value) for value in values) > available:
-        index = max(range(len(values)), key=lambda item: len(values[item]))
-        excess = sum(len(value) for value in values) - available
-        new_length = max(1, len(values[index]) - excess)
-        if new_length >= len(values[index]):
+    lengths = [min(len(value), _MIN_MANDATORY_VALUE_CHARS) for value in values]
+    remaining = available - sum(lengths)
+    for index, value in enumerate(values):
+        if remaining <= 0:
             break
-        values[index] = values[index][:new_length]
+        extra = min(len(value) - lengths[index], remaining)
+        lengths[index] += extra
+        remaining -= extra
     fitted = [
-        _Section(section.order, section.drop_order, section.label, value)
-        for section, value in zip(required, values, strict=True)
+        _Section(section.order, section.drop_order, section.label, value[:length])
+        for section, value, length in zip(required, values, lengths, strict=True)
     ]
-    return _render(fitted)[:max_chars]
+    return _render(fitted)
 
 
 def _fit_sections(
@@ -135,9 +138,15 @@ def _fit_sections(
 
 
 def render_checkpoint(checkpoint: Checkpoint, *, max_chars: int) -> str:
-    """Render checkpoint state in semantic priority order within ``max_chars``."""
-    if not isinstance(max_chars, int) or isinstance(max_chars, bool) or max_chars <= 0:
-        raise ValueError("max_chars must be a positive integer")
+    """Render state within ``max_chars``, which must be at least 192 chars."""
+    if (
+        not isinstance(max_chars, int)
+        or isinstance(max_chars, bool)
+        or max_chars < MIN_RENDER_CHARS
+    ):
+        raise ValueError(
+            f"max_chars must be a positive integer of at least {MIN_RENDER_CHARS}"
+        )
     enrichment = checkpoint.enrichment if isinstance(checkpoint.enrichment, Mapping) else {}
     quality = _clean(checkpoint.quality) or "unknown"
     identity = f"{_clean(checkpoint.id)} [{quality}]"
