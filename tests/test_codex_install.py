@@ -703,12 +703,73 @@ def test_restore_rejects_a_new_leaf_symlink(tmp_path):
     assert target.read_text() == "do not change"
 
 
+@pytest.mark.parametrize("substitution", ["regular", "symlink"])
+def test_restore_aborts_if_backup_reappears_after_staging(
+    tmp_path, monkeypatch, substitution
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    report = install_codex(paths, run=SuccessfulCodex())
+    managed_before = {
+        path: install_module._snapshot(path) for path in paths.targets
+    }
+    challenged = report.backups[0]
+    authenticated = install_module._snapshot(challenged.backup_path)
+    real_stage = install_module._stage_bytes
+    staged_count = 0
+
+    def interpose(path, content, *, mode=None):
+        nonlocal staged_count
+        staged = real_stage(path, content, mode=mode)
+        staged_count += 1
+        if staged_count == len(report.backups):
+            challenged.backup_path.unlink(missing_ok=True)
+            if substitution == "regular":
+                challenged.backup_path.write_text("concurrent backup substitute")
+            else:
+                challenged.backup_path.symlink_to(
+                    tmp_path / "missing-backup-substitute"
+                )
+        return staged
+
+    monkeypatch.setattr(install_module, "_stage_bytes", interpose)
+
+    with pytest.raises(RuntimeError, match="backup path"):
+        restore_codex(report)
+
+    for target, before in managed_before.items():
+        after = install_module._snapshot(target)
+        assert after.content == before.content
+        assert after.identity == before.identity
+    if substitution == "regular":
+        assert challenged.backup_path.read_text() == "concurrent backup substitute"
+    else:
+        assert challenged.backup_path.is_symlink()
+        assert challenged.backup_path.readlink() == (
+            tmp_path / "missing-backup-substitute"
+        )
+    recovery = tuple(
+        challenged.backup_path.parent.glob(
+            f".{challenged.backup_path.name}.restore-backup.*"
+        )
+    )
+    assert recovery
+    assert any(
+        install_module._snapshot(path) == authenticated for path in recovery
+    )
+
+
 def test_restore_publish_never_overwrites_concurrent_entry(tmp_path, monkeypatch):
     from agentic_rag.integrations.codex import install as install_module
 
     paths = codex_paths(tmp_path)
     seed_codex_files(paths)
     report = install_codex(paths, run=SuccessfulCodex())
+    installed_before = {
+        path: install_module._snapshot(path) for path in paths.targets
+    }
     real_publish = install_module._publish_no_replace
     injected = False
 
@@ -726,7 +787,19 @@ def test_restore_publish_never_overwrites_concurrent_entry(tmp_path, monkeypatch
 
     assert paths.config_path.read_text() == "concurrent restore edit"
     assert tuple(paths.config_path.parent.glob(".config.toml.restore.*"))
+    for target in (paths.hooks_path, paths.prompt_path):
+        assert install_module._snapshot(target) == installed_before[target]
     assert all(record.backup_path.exists() for record in report.backups)
+    for record in report.backups:
+        claims = tuple(
+            record.backup_path.parent.glob(
+                f".{record.backup_path.name}.restore-backup.*"
+            )
+        )
+        assert any(
+            install_module._snapshot(path).identity == record.identity
+            for path in claims
+        )
 
 
 def test_install_codex_rolls_back_a_partial_replace_failure(tmp_path, monkeypatch):

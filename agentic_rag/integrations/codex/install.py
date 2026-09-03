@@ -86,6 +86,13 @@ class Replacement:
 
 
 @dataclass(frozen=True)
+class RestoreReplacement:
+    target_path: Path
+    restored_identity: FileIdentity | None
+    installed_path: Path
+
+
+@dataclass(frozen=True)
 class InstalledFile:
     target_path: Path
     identity: FileIdentity
@@ -506,6 +513,100 @@ def _discard_displaced(replacements: list[Replacement]) -> None:
             replacement.displaced_path.unlink(missing_ok=True)
 
 
+def _publish_claimed_backups(
+    claimed: dict[Path, tuple[BackupRecord, Path]],
+) -> list[str]:
+    """Publish authenticated claims without discarding recovery evidence."""
+    errors = []
+    for backup_path, (record, captured) in claimed.items():
+        try:
+            if _snapshot(captured).identity != record.identity:
+                errors.append(
+                    f"authenticated rollback backup changed: {captured}"
+                )
+                continue
+            if _entry_exists(backup_path):
+                try:
+                    current = _snapshot(backup_path).identity
+                except RuntimeError:
+                    current = None
+                if current != record.identity:
+                    errors.append(
+                        f"rollback backup path has a concurrent entry: "
+                        f"{backup_path}; authenticated recovery retained at "
+                        f"{captured}"
+                    )
+                continue
+            _publish_no_replace(captured, backup_path)
+        except (OSError, RuntimeError) as exc:
+            errors.append(
+                f"could not safely restore rollback backup path {backup_path}; "
+                f"authenticated recovery retained at {captured}: {exc}"
+            )
+    return errors
+
+
+def _assert_claimed_backup_paths(
+    claimed: dict[Path, tuple[BackupRecord, Path]],
+) -> None:
+    for backup_path, (record, captured) in claimed.items():
+        try:
+            current = _snapshot(backup_path).identity
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"rollback backup path changed; authenticated recovery is "
+                f"retained at {captured}: {backup_path}"
+            ) from exc
+        if current != record.identity:
+            raise RuntimeError(
+                f"rollback backup path changed; authenticated recovery is "
+                f"retained at {captured}: {backup_path}"
+            )
+
+
+def _rollback_restore_replacement(replacement: RestoreReplacement) -> None:
+    target = replacement.target_path
+    if replacement.restored_identity is None:
+        try:
+            _publish_no_replace(replacement.installed_path, target)
+        except OSError as exc:
+            raise RuntimeError(
+                "Codex restore rollback found a concurrent destination; it was "
+                "not overwritten and manual recovery is required from "
+                f"{replacement.installed_path}"
+            ) from exc
+        replacement.installed_path.unlink()
+        return
+
+    restored = _claim_expected(
+        target, replacement.restored_identity, label="restore-rollback"
+    )
+    try:
+        _publish_no_replace(replacement.installed_path, target)
+    except OSError as exc:
+        if not _entry_exists(target):
+            _restore_captured(restored, target)
+        raise RuntimeError(
+            "Codex restore rollback found a concurrent destination; it was not "
+            "overwritten and manual recovery is required from "
+            f"{replacement.installed_path} and {restored}"
+        ) from exc
+    replacement.installed_path.unlink()
+    restored.unlink()
+
+
+def _rollback_restore_replacements(
+    replacements: list[RestoreReplacement],
+) -> list[str]:
+    errors = []
+    for replacement in reversed(replacements):
+        try:
+            _rollback_restore_replacement(replacement)
+        except (OSError, RuntimeError) as exc:
+            errors.append(f"{replacement.target_path}: {exc}")
+    return errors
+
+
 def install_codex(
     paths: CodexPaths, *, check: bool = False, run: Run = subprocess.run
 ) -> CodexInstallReport:
@@ -601,35 +702,56 @@ def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
     """Restore a completed transaction using its retained recovery records."""
     by_target = {record.target_path: record for record in report.backups}
     installed = {item.target_path: item.identity for item in report.installed_files}
+    claimed_backups: dict[Path, tuple[BackupRecord, Path]] = {}
     staged_backups: dict[Path, Path] = {}
+    replacements: list[RestoreReplacement] = []
+
+    for target in report.changed_paths:
+        if target not in installed:
+            raise RuntimeError(
+                f"no installed identity is available to restore {target} safely"
+            )
+
     try:
-        # Snapshot, authenticate, and stage every backup before touching any
-        # managed target. The staged bytes are the bytes from the exact stable
-        # snapshot whose identity was compared with the install record.
-        for target in reversed(report.changed_paths):
-            expected = installed.get(target)
-            if expected is None:
-                raise RuntimeError(
-                    f"no installed identity is available to restore {target} safely"
-                )
-            record = by_target.get(target)
-            if record is None:
-                continue
+        # Atomically claim every rollback entry before reading it. The claimed
+        # entry, rather than a separately authenticated pathname, is the
+        # transaction's authoritative recovery copy.
+        for record in report.backups:
             if record.identity is None:
                 raise RuntimeError(
                     f"valid rollback backup identity is unavailable: "
                     f"{record.backup_path}"
                 )
             try:
-                backup_snapshot = _snapshot(record.backup_path)
+                captured = _claim_expected(
+                    record.backup_path,
+                    record.identity,
+                    label="restore-backup",
+                )
+            except (OSError, RuntimeError) as exc:
+                raise RuntimeError(
+                    f"valid rollback backup changed or is unavailable: "
+                    f"{record.backup_path}"
+                ) from exc
+            claimed_backups[record.backup_path] = (record, captured)
+
+        # Stage only bytes read from the stable, authenticated claims. Keep
+        # both claims and stages until the entire restore transaction succeeds.
+        for target in reversed(report.changed_paths):
+            record = by_target.get(target)
+            if record is None:
+                continue
+            captured = claimed_backups[record.backup_path][1]
+            try:
+                backup_snapshot = _snapshot(captured)
             except RuntimeError as exc:
                 raise RuntimeError(
-                    f"valid rollback backup is unavailable: {record.backup_path}"
+                    f"authenticated rollback backup is unavailable: {captured}"
                 ) from exc
             if backup_snapshot.identity != record.identity:
                 raise RuntimeError(
-                    f"valid rollback backup changed since installation: "
-                    f"{record.backup_path}"
+                    f"authenticated rollback backup changed after it was "
+                    f"claimed: {captured}"
                 )
             staged = _stage_bytes(
                 target,
@@ -643,27 +765,32 @@ def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
                 )
             staged_backups[target] = staged
 
-        # A known conflict on any managed target must fail before a preceding
-        # target can be restored. _claim_expected repeats the identity check at
-        # the atomic mutation boundary to retain the existing race protection.
+        # Re-publish authenticated backups without releasing the claims. A
+        # concurrent substitute therefore blocks restore before any managed
+        # target changes, remains untouched, and leaves authenticated evidence.
+        backup_errors = _publish_claimed_backups(claimed_backups)
+        if backup_errors:
+            raise RuntimeError("; ".join(backup_errors))
+        _assert_claimed_backup_paths(claimed_backups)
+
+        # A known target conflict must fail before any managed target changes.
         for target in reversed(report.changed_paths):
-            expected = installed.get(target)
-            if expected is None:
-                raise RuntimeError(
-                    f"no installed identity is available to restore {target} safely"
-                )
+            expected = installed[target]
             if _snapshot(target).identity != expected:
                 raise RuntimeError(
                     f"Codex target changed since installation: {target}"
                 )
 
         for target in reversed(report.changed_paths):
+            # Keep checking the published backup entries immediately before
+            # each first mutation of a managed target.
+            _assert_claimed_backup_paths(claimed_backups)
             expected = installed[target]
             record = by_target.get(target)
             staged = staged_backups.get(target)
             captured = _claim_expected(target, expected, label="restore")
             if record is None:
-                captured.unlink()
+                replacements.append(RestoreReplacement(target, None, captured))
                 continue
             try:
                 _publish_no_replace(staged, target)
@@ -672,13 +799,37 @@ def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
                     raise RuntimeError(
                         "Codex restore found a concurrent destination; it was not "
                         "overwritten and manual recovery is required from "
-                        f"{record.backup_path} and {captured}"
+                        f"{record.backup_path}, {captured}, and {staged}"
                     ) from exc
-                _restore_captured(captured, target)
+                if not _restore_captured(captured, target):
+                    raise RuntimeError(
+                        "Codex restore could not recover the installed target; "
+                        f"manual recovery is required from {captured}"
+                    ) from exc
                 raise
-            staged.unlink()
-            captured.unlink()
-    finally:
-        for staged in staged_backups.values():
-            staged.unlink(missing_ok=True)
+            restored_identity = _snapshot(staged).identity
+            replacements.append(
+                RestoreReplacement(target, restored_identity, captured)
+            )
+
+        # Backup paths must still name the authenticated entries before any
+        # recovery evidence is discarded.
+        _assert_claimed_backup_paths(claimed_backups)
+    except BaseException as failure:
+        rollback_errors = _rollback_restore_replacements(replacements)
+        backup_errors = _publish_claimed_backups(claimed_backups)
+        if rollback_errors or backup_errors:
+            details = "; ".join((*rollback_errors, *backup_errors))
+            raise RuntimeError(
+                "Codex restore failed and safe rollback was incomplete; manual "
+                f"recovery is required from retained evidence ({details})"
+            ) from failure
+        raise
+
+    for replacement in replacements:
+        replacement.installed_path.unlink(missing_ok=True)
+    for staged in staged_backups.values():
+        staged.unlink(missing_ok=True)
+    for _, captured in claimed_backups.values():
+        captured.unlink(missing_ok=True)
     return report.changed_paths
