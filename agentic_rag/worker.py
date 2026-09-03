@@ -67,10 +67,11 @@ BACKUP_MAX_AGE_H = 24
 
 def _log(msg: str) -> None:
     try:
+        safe = strip_secrets(msg)[0]
         LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with LOG_PATH.open("a", encoding="utf-8") as fh:
             fh.write(f"{datetime.now().isoformat(timespec='seconds')} "
-                     f"{msg}\n")
+                     f"{safe}\n")
     except OSError:
         pass
 
@@ -186,18 +187,19 @@ def _complete(conn, job_id: int, last_uuid: str | None) -> None:
 
 def _fail(conn, cfg: Config, job: dict, error: Exception) -> None:
     conn.rollback()   # discard any half-done writes of this job
+    clean = strip_secrets(str(error))[0][:500]
     if job["attempts"] >= cfg.worker_max_attempts:
         conn.execute(
             "UPDATE mining_queue SET status = 'error', finished_at = now(),"
             " last_error = %s WHERE id = %s",
-            (str(error)[:500], job["id"]))
+            (clean, job["id"]))
     else:
         delay = cfg.worker_backoff_seconds * 2 ** (job["attempts"] - 1)
         conn.execute(
             "UPDATE mining_queue SET status = 'pending', last_error = %s,"
             " next_attempt_at = now() + make_interval(secs => %s)"
             " WHERE id = %s",
-            (str(error)[:500], delay, job["id"]))
+            (clean, delay, job["id"]))
     conn.commit()
 
 
@@ -205,7 +207,7 @@ def _provider_unavailable(conn, cfg: Config, job: dict,
                           error: LLMUnavailableError) -> None:
     """Restore a provider-blocked job without spending its attempt budget."""
     conn.rollback()
-    clean = strip_secrets(str(error)[:500])[0]
+    clean = strip_secrets(str(error))[0][:500]
     conn.execute(
         "UPDATE mining_queue SET status = 'pending',"
         " attempts = GREATEST(attempts - 1, 0), finished_at = NULL,"

@@ -35,12 +35,22 @@ milestones rather than every commit, and interfaces may still change between `0.
 - **Lossless provider outages.** A missing CLI, timeout, or expired login now
   returns the claimed job to `pending` without consuming an attempt, applies a
   bounded backoff, records atomic health state, and stops the current drain.
+- **Provider-bound pin defense in depth.** Mining secret-strips a copy of every
+  matching pin body before assembling the provider prompt, without changing
+  the stored pin text.
+- **Secret-safe diagnostics.** Worker failures are secret-stripped before they
+  reach logs or queue state; provider, health, and Codex-probe excerpts redact
+  their full input before truncation; and status scrubs stored queue/backup
+  diagnostics before display.
+- **Codex continuity pre-install verification.** The whole feature diff,
+  focused security/preservation checks, isolated wheel installation, complete
+  test suite, and immutable temporary-home check mode passed review.
 
 ### Not yet rolled out
-- The whole-branch pre-install review and the live global install, `/hooks`
-  trust, manual/automatic compaction, provider recovery, and SessionEnd smoke
-  tests remain open in backlog 0.1/0.2. This changelog does not claim the
-  global Codex configuration is installed or operationally verified.
+- The live global install, `/hooks` trust, manual/automatic compaction,
+  provider recovery, and SessionEnd smoke tests remain open in backlog 0.2.
+  This changelog does not claim the global Codex configuration is installed or
+  operationally verified.
 
 ## [0.2.0] - 2026-07-09
 

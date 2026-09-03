@@ -14,34 +14,26 @@
 
 ## §0 — Codex continuity rollout blockers
 
-- ⬜ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
-  currently places matching global/path-scoped pin bodies into its bounded
-  provider prompt exactly as stored. → *Why not done:* pins are user-owned and
-  carry a no-secrets rule, but the mining prompt builder does not independently
-  enforce that rule; Task 8 records the gap without expanding into runtime
-  implementation. → *Trigger:* apply `strip_secrets` to a copy of every
-  matching pin body at the provider-prompt boundary and add regression tests
-  covering global, matching-path, and document-reference pins without mutating
-  stored pin text. → *Dependency:* none. *(S)*
-- ⬜ **0.1** _(chore)_ **Complete the pre-install whole-diff and security
-  review.** The checkpoint, lifecycle, prompt, installer, CLI/status, and
-  documentation work is implemented. → *Why not done:* Task 8 is landed, but
-  Task 9's specification diff review, focused secret/role/install/provider
-  checks, fresh full suite, explicit temporary-home check-mode exercise, and
-  final code review have not run. → *Trigger:* begin Task 9 now; run every
-  command in its brief and add regression tests only for verified findings.
-  → *Dependency:* Task 8 is satisfied; no unsatisfied dependency remains. *(M)*
+- ✅ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
+  now strips secret-shaped values from copied global, matching-path, and
+  document-reference pin bodies at the provider boundary without mutating
+  stored pin text. Regression coverage proves both properties. *(S, completed 2026-09-03)*
+- ✅ **0.1** _(chore)_ **Task 9 pre-install whole-diff and security review.**
+  The complete specification diff, focused security/preservation checks, full
+  suite, isolated wheel install, immutable temporary-home check mode, and final
+  code review passed. Verified findings have focused regressions and minimal
+  fixes. *(M, completed 2026-09-03)*
 - 🔒 **0.2** _(chore)_ **Install and prove Codex continuity globally.** The
   repository implementation is not the same as a live rollout.
   → *Why not done:* Task 10 has not changed Peter's real Codex configuration, the six
   handlers have not been reviewed/trusted through `/hooks`, and
   manual/automatic compaction, provider outage/recovery, and SessionEnd tail
-  capture have not been smoke-tested end to end. → *Trigger:* after 0.1 passes,
-  execute Task 10 with healthy PostgreSQL/Ollama/Codex login, preserve reported
+  capture have not been smoke-tested end to end. → *Trigger:* execute Task 10
+  with healthy PostgreSQL/Ollama/Codex login, preserve reported
   backups and the rollback command, restore the 600000/500000 policy after the
   automatic test, then record only sanitized evidence in this backlog,
-  `FEATURES.md`, and `CHANGELOG.md`. → *Dependency:* 0.0, 0.1, and access to the
-  live user environment. *(L)*
+  `FEATURES.md`, and `CHANGELOG.md`. → *Dependency:* access to the live user
+  environment; repository Tasks 1–9 are satisfied. *(L)*
 
 ## §1 — Mining & curation pipeline
 

@@ -133,6 +133,26 @@ def test_status_sanitizes_provider_diagnostics(cli_env, monkeypatch, capsys):
     assert "[REDACTED]" in out
 
 
+def test_status_sanitizes_queue_and_backup_diagnostics(
+        cli_env, tmp_path, monkeypatch, capsys):
+    secret = "sk-abcdefghijklmnop1234"
+    cli_env.execute(
+        "INSERT INTO mining_queue(kind, status, attempts, last_error) "
+        "VALUES ('mine', 'error', 3, %s)",
+        (f"failed with {secret}",),
+    )
+    cli_env.commit()
+    warning = tmp_path / "backup-warning"
+    warning.write_text(f"backup failed with {secret}")
+    monkeypatch.setattr(cli.status_mod, "WARNING_STATE", warning)
+
+    assert main(["status"]) == 0
+
+    out = capsys.readouterr().out
+    assert secret not in out
+    assert out.count("[REDACTED]") >= 2
+
+
 def test_status_prints_checkpoint_health(cli_env, capsys):
     checkpoint = continuity_store.upsert_snapshot(
         cli_env,

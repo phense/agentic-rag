@@ -192,6 +192,59 @@ def test_drain_failure_backs_off_then_errors(conn, cfg, monkeypatch):
     assert row["attempts"] == 2
 
 
+def test_ordinary_job_failure_sanitizes_queue_error_and_worker_log(
+        conn, cfg, tmp_path, monkeypatch):
+    secret = "sk-abcdefghijklmnop1234"
+    log_path = tmp_path / "worker.log"
+    monkeypatch.setattr(worker, "LOG_PATH", log_path)
+    _job(conn, "mine", session_id="s1", transcript_path="/t.jsonl")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError(f"processing failed with {secret}")
+
+    monkeypatch.setattr(worker.mining, "mine_session", boom)
+
+    assert worker.drain(conn, cfg)["failed"] == 1
+
+    last_error = conn.execute(
+        "SELECT last_error FROM mining_queue"
+    ).fetchone()["last_error"]
+    logged = log_path.read_text()
+    assert secret not in last_error
+    assert secret not in logged
+    assert "[REDACTED]" in last_error
+    assert "[REDACTED]" in logged
+
+
+@pytest.mark.parametrize(
+    ("error_type", "result_key"),
+    ((RuntimeError, "failed"), (LLMUnavailableError, "provider_unavailable")),
+)
+def test_job_failure_redacts_before_bounding_queue_error(
+        conn, cfg, tmp_path, monkeypatch, error_type, result_key):
+    secret = "sk-abcdefghijklmnop1234"
+    message = "x" * 489 + " " + secret
+    _job(conn, "mine", session_id="s1", transcript_path="/t.jsonl")
+    monkeypatch.setattr(
+        worker.mining,
+        "mine_session",
+        lambda *args, **kwargs: (_ for _ in ()).throw(error_type(message)),
+    )
+    monkeypatch.setattr(
+        worker.provider_health, "HEALTH_PATH", tmp_path / "provider-health.json"
+    )
+
+    result = worker.drain(conn, cfg)
+
+    assert result[result_key] == 1
+    last_error = conn.execute(
+        "SELECT last_error FROM mining_queue"
+    ).fetchone()["last_error"]
+    assert "sk-" not in last_error
+    assert "[REDACTED]" in last_error
+    assert len(last_error) <= 500
+
+
 def test_provider_outage_preserves_attempt_and_stops_drain(
         conn, cfg, tmp_path, monkeypatch):
     _job(conn, "mine", session_id="s1", transcript_path="/a")

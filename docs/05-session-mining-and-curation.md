@@ -168,12 +168,11 @@ it's pure local file parsing.
 
 ### The provider call
 
-The secret-stripped digest, live domains, and matching global/path-scoped pin
-bodies go into one prompt through `agentic_rag.llm.run_structured`. Pin bodies
-are passed as stored and are not independently redacted at this boundary, so
-the current safety contract is the user-owned pin no-secrets rule; defense in
-depth is tracked in root backlog 0.0. The compatibility default is
-Claude/Haiku.
+The bounded secret-stripped digest, live domains, and all matching
+global/path-scoped pin bodies go into one prompt through
+`agentic_rag.llm.run_structured`. Mining secret-strips a copy of every pin body
+at this provider boundary without mutating stored pin text. The compatibility
+default is Claude/Haiku.
 With `provider = "codex"`, the adapter runs `codex exec` ephemerally in an
 empty temporary directory, with user/project rules ignored, read-only
 sandboxing, a configured reasoning effort, and schema-constrained output.
@@ -302,12 +301,13 @@ row naming which slugs were removed.
   bounded checkpoint enrichment use the local Codex or Claude CLI you
   configure. There's no separate hosted RAG service, and embeddings are always
   local (Ollama).
-- **Local source, bounded provider input.** The input to mining starts as a JSONL file
+- **Local source, bounded transcript input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all. The
   resulting bounded, secret-stripped digest leaves the machine through the
   configured Codex or Claude CLI for mining/enrichment; the mining prompt also
-  carries matching pin bodies under the no-secrets rule described above.
+  carries secret-stripped copies of all matching pin bodies while leaving
+  stored pin text unchanged.
 - **Compaction does not depend on the provider.** `PreCompact` commits the
   deterministic snapshot before optional asynchronous enrichment; provider
   outage recovery preserves the enrichment attempt budget.

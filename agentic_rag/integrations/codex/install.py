@@ -16,6 +16,8 @@ from importlib import resources
 from pathlib import Path
 from typing import Callable
 
+from agentic_rag.secrets import strip_secrets
+
 from .config import FEATURE_VALUES, MEMORY_VALUES, ROOT_VALUES, merge_config
 from .hooks import ForeignHookDuplicate, duplicate_herdr_commands, merge_hooks
 
@@ -248,7 +250,10 @@ def _probe_codex(
         detail = (probe.stderr or probe.stdout or "Codex rejected the configuration").strip()
         if "--strict-config" in detail and "not supported" in detail:
             return version, LOCAL_ONLY_VALIDATION
-        raise RuntimeError(f"Codex managed configuration validation failed: {detail[:500]}")
+        safe_detail = strip_secrets(detail)[0][:500]
+        raise RuntimeError(
+            f"Codex managed configuration validation failed: {safe_detail}"
+        )
     return version, "managed configuration validated"
 
 

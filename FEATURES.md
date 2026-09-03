@@ -25,8 +25,9 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   read-only MCP surface are shipped.
 - ✅ **Provider-neutral session mining.** Schema-constrained Codex and Claude
   CLI adapters, bounded delta-only transcript digests, single-writer background
-  jobs, near-duplicate detection, and lossless outage recovery are shipped.
-  Claude remains the configuration-only provider rollback.
+  jobs, secret-stripped provider-bound matching pin bodies without mutating
+  stored pin text, near-duplicate detection, and lossless outage recovery are
+  shipped. Claude remains the configuration-only provider rollback.
 - ✅ **Curation and human review.** Bounded dangling-edge resolution,
   exact-duplicate merging, contradiction review, inert suggestions,
   refute-as-archive, confirmed admin-only purge, and `rag review` are shipped.
@@ -58,13 +59,13 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   unique backups, a mode-0600 rollback record, conflict-safe restoration, hook
   trust instructions, and checkpoint/provider fields in `rag status` are
   shipped in code.
-- ⬜ **Pre-install review.** Whole-branch review, focused security/preservation
-  tests, the full suite, and a temporary-home check-mode exercise remain
-  planned as [`BACKLOG.md` 0.1](BACKLOG.md#0--codex-continuity-rollout-blockers).
+- ✅ **Pre-install review.** Whole-branch review, focused security/preservation
+  tests, the full suite, isolated wheel installation, and an immutable
+  temporary-home check-mode exercise are complete.
 - 🔒 **Global Codex rollout.** Installation into the real user configuration,
   `/hooks` trust, manual and automatic compaction smoke tests, provider
   outage/recovery, SessionEnd tail capture, and evidence recording remain
-  blocked on provider-bound pin hardening and the pre-install review.
+  blocked on access to the live user environment.
   Codex live rollout pending under backlog 0.2 means continuity is not yet
   claimed operationally live.
 
@@ -74,8 +75,6 @@ durable, searchable, auditable knowledge and explicit continuation state.
 
 ## Planned hardening
 
-- ⬜ Secret-strip provider-bound matching pin bodies without mutating stored pin
-  text ([BACKLOG 0.0](BACKLOG.md#0--codex-continuity-rollout-blockers)).
 - ⬜ Measure and tune prompt-recall firing behavior.
 - ⬜ Correct curation cadence/audit growth and cap-aware mining cursors.
 - ⬜ Define the intended refute-trigger recency semantics, then decide whether

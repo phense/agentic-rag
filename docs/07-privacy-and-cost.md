@@ -24,20 +24,18 @@ Supported choices are:
   Anthropic, on the account you chose.
 
 In every case, **embeddings are local** — retrieval and re-embedding run on
-your own Ollama (`bge-m3`). The bounded provider inputs are:
+your own Ollama (`bge-m3`). The provider inputs are:
 
 - **mining:** a secret-stripped transcript digest, live domain names, and
-  matching pin bodies for global or matching path scopes;
+  secret-stripped copies of all matching pin bodies for global or matching
+  path scopes without mutating stored pin text;
 - **curation:** selected stored document bodies and contradiction evidence that
   previously passed through the document write gateway's secret stripping;
 - **checkpoint enrichment:** a bounded, secret-stripped transcript delta.
 
-Matching pin bodies are passed to mining as stored and are **not independently
-redacted** at the provider boundary. Pins therefore carry a **no-secrets rule**:
-do not store credentials or other sensitive values in them. Adding
-defense-in-depth stripping is an open security blocker in [BACKLOG
-0.0](../BACKLOG.md#0--codex-continuity-rollout-blockers), not a shipped
-guarantee.
+Matching pin bodies receive defense-in-depth stripping on the copy assembled
+for the mining prompt. The stored pin remains unchanged, so local rendering
+and later edits retain the user-owned text.
 
 Codex continuity enrichment uses the same provider seam. The deterministic
 checkpoint capture secret-strips bounded Git output; the enrichment path
@@ -160,12 +158,13 @@ default, or another host you point `config.toml` at. Embeddings come from a
 local Ollama model (`bge-m3`). There is no telemetry endpoint, hosted vector
 index, or third-party sync.
 
-The configured LLM provider receives the bounded mining, curation, and
-checkpoint enrichment inputs enumerated above, including matching pin bodies
-where mining uses them. Those pin bodies are not independently redacted and
-remain subject to the no-secrets rule. Separately, `[backup] cloud_dir` can
-copy your backup to a path you choose (for example a mounted network drive or
-cloud-synced folder); it is not a service agentic-rag runs.
+The configured LLM provider receives the mining, curation, and checkpoint
+enrichment inputs enumerated above. The transcript digest and checkpoint delta
+are bounded; mining also includes all matching pin bodies, secret-stripped on
+the provider-bound copy without mutating stored pin text. Separately,
+`[backup] cloud_dir` can copy your backup to a path you choose (for example a
+mounted network drive or cloud-synced folder); it is not a service agentic-rag
+runs.
 
 ## The role matrix: destruction protection by design
 

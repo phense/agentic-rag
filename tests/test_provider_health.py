@@ -23,6 +23,18 @@ def test_failure_preserves_first_failure_and_sanitizes(tmp_path):
     assert second.available is False
 
 
+def test_failure_redacts_before_bounding_reason(tmp_path):
+    path = tmp_path / "provider-health.json"
+    secret = "sk-abcdefghijklmnop1234"
+
+    state = provider_health.record_failure(
+        "codex", "x" * 489 + " " + secret, path=path, now=NOW)
+
+    assert "sk-" not in state.reason
+    assert "[REDACTED]" in state.reason
+    assert len(state.reason) <= 500
+
+
 def test_success_closes_circuit_atomically(tmp_path):
     path = tmp_path / "provider-health.json"
     provider_health.record_failure(

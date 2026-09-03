@@ -96,6 +96,20 @@ def test_nonzero_exit_raises_llm_error():
         llm.run_structured("p", SCHEMA, CFG, runner=runner, env={})
 
 
+def test_nonzero_exit_redacts_before_bounding_diagnostic():
+    secret = "sk-abcdefghijklmnop1234"
+
+    def runner(cmd, **kw):
+        return FakeProc(returncode=1, stderr="x" * 489 + " " + secret)
+
+    with pytest.raises(llm.LLMError) as raised:
+        llm.run_structured("p", SCHEMA, CFG, runner=runner, env={})
+
+    message = str(raised.value)
+    assert "sk-" not in message
+    assert "[REDACTED]" in message
+
+
 def test_timeout_raises_llm_error():
     def runner(cmd, **kw):
         raise subprocess.TimeoutExpired(cmd, kw.get("timeout"))
@@ -115,6 +129,25 @@ def test_non_json_stdout_raises_llm_error():
         return FakeProc(stdout="I refuse to answer in JSON")
     with pytest.raises(llm.LLMError, match="not valid JSON"):
         llm.run_structured("p", SCHEMA, CFG, runner=runner, env={})
+
+
+@pytest.mark.parametrize(
+    "stdout",
+    (
+        "x" * 188 + " " + "sk-abcdefghijklmnop1234",
+        json.dumps(["x" * 187 + " " + "sk-abcdefghijklmnop1234"]),
+    ),
+)
+def test_bad_output_redacts_before_bounding_diagnostic(stdout):
+    def runner(cmd, **kw):
+        return FakeProc(stdout=stdout)
+
+    with pytest.raises(llm.LLMError) as raised:
+        llm.run_structured("p", SCHEMA, CFG, runner=runner, env={})
+
+    message = str(raised.value)
+    assert "sk-" not in message
+    assert "[REDACTED]" in message
 
 
 def test_non_object_json_raises_llm_error():

@@ -59,8 +59,14 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
             "matching pin bodies",
         ):
             assert disclosed_input in outbound_summary
-        assert "not independently redacted" in outbound_summary
-        assert "no-secrets rule" in outbound_summary
+        assert re.search(
+            r"secret-stripped (?:copies of )?(?:all )?matching pin bodies",
+            outbound_summary,
+        )
+        assert "without mutating stored pin text" in outbound_summary
+        assert "not independently redacted" not in outbound_summary
+        assert "no-secrets rule" not in outbound_summary
+        assert "all matching pin bodies" in outbound_summary
     assert "disable_on_external_context = false" in privacy
     assert "live rollout pending" in corpus
     assert "Only LLM-assisted mining and curation" not in corpus
@@ -68,6 +74,10 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
     assert "Each time Claude" not in corpus
     assert "your Claude subscription or API key" not in corpus
     assert "send bounded, redacted inputs" not in corpus
+    assert "bounded provider inputs" not in corpus
+    assert "Provider-bound prompts are bounded" not in corpus
+    assert "curation inputs are bounded" not in corpus
+    assert "bounded mining, curation" not in corpus
     assert "nothing leaves" not in corpus.lower()
     assert not re.search(
         r"nothing leaves.{0,160}(?:unless|except).*backups?", corpus, re.I | re.S
@@ -99,16 +109,20 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
     backlog = Path("BACKLOG.md").read_text()
     assert backlog.index("**0.0**") < backlog.index("**0.1**")
     assert backlog.index("**0.1**") < backlog.index("**1.1**")
-    for number, task, status in (("0.1", "Task 9", "⬜"), ("0.2", "Task 10", "🔒")):
+    for number, task in (("0.0", "Secret-strip"), ("0.1", "Task 9")):
         item = _backlog_item(number)
-        assert item.startswith(f"- {status} **{number}**")
+        assert item.startswith(f"- ✅ **{number}**")
         assert task in item
-        assert "Why not done:" in item
-        assert "Trigger:" in item
-        assert "Dependency:" in item
-        assert re.search(r"\*\([SMLX]+\)\*", item)
+        assert "completed 2026-09-03" in item
 
-    assert "Task 8 is landed" in _backlog_item("0.1")
+    rollout = _backlog_item("0.2")
+    assert rollout.startswith("- 🔒 **0.2**")
+    assert "Task 10" in rollout
+    assert "Why not done:" in rollout
+    assert "Trigger:" in rollout
+    assert "Dependency:" in rollout
+    assert "live user environment" in " ".join(rollout.split())
+    assert re.search(r"\*\([SMLX]+\)\*", rollout)
     assert re.search(
         r"^- ⬜ \*\*2\.2\*\*.*Refute-trigger checks existence, not recency",
         backlog,
@@ -116,12 +130,8 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
     )
 
     pin_security = _backlog_item("0.0")
-    assert pin_security.startswith("- ⬜ **0.0**")
     assert "provider-bound pin bodies" in pin_security
-    assert "Why not done:" in pin_security
-    assert "Trigger:" in pin_security
-    assert "Dependency:" in pin_security
-    assert re.search(r"\*\([SMLX]+\)\*", pin_security)
+    assert "without mutating stored pin text" in " ".join(pin_security.split())
 
 
 def test_feature_registry_and_numbered_backlog_exist():
@@ -130,8 +140,11 @@ def test_feature_registry_and_numbered_backlog_exist():
     assert "Codex continuity" in features
     assert "BACKLOG 2.2" in features
     assert "refute-trigger recency semantics" in features
-    assert "BACKLOG 0.0" in features
-    assert "provider-bound matching pin bodies" in features
+    normalized_features = " ".join(features.split())
+    assert "secret-stripped provider-bound matching pin bodies" in normalized_features
+    assert "without mutating stored pin text" in normalized_features
+    assert "✅ **Pre-install review.**" in features
+    assert "BACKLOG 0.0" not in features
     assert "live rollout pending" in features
     assert re.search(
         r"^- [⬜🔵✅🔒⏸] \*\*\d+\.\d+",

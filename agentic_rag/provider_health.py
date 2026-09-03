@@ -86,7 +86,7 @@ def record_failure(provider: str, reason: str, *, path: Path | None = None,
         previous is not None and not previous.available
         and previous.provider == provider
     )
-    clean = strip_secrets(reason[:500])[0]
+    clean = strip_secrets(reason)[0][:500]
     state = ProviderHealth(
         provider=provider,
         available=False,

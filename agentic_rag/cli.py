@@ -439,8 +439,10 @@ def _main(argv: list[str] | None = None) -> int:
             for r in rep.queue:
                 print(f"  {r['kind']:<10} {r['status']:<12} {r['n']}")
             for e in rep.queue_errors:
-                print(f"  ERROR #{e.id} {e.kind} ({e.session_id or '-'}, "
-                      f"{e.attempts} attempts): {e.last_error}")
+                session = _safe(e.session_id or "-")
+                diagnostic = _safe(e.last_error or "-")
+                print(f"  ERROR #{e.id} {e.kind} ({session}, "
+                      f"{e.attempts} attempts): {diagnostic}")
             if rep.oldest_open_mine_at:
                 print("oldest open mine: "
                       f"{rep.oldest_open_mine_at:%Y-%m-%d %H:%M}")
@@ -476,7 +478,7 @@ def _main(argv: list[str] | None = None) -> int:
                 print(f"WARNING: {_safe(warning)}")
             print(f"last local backup: {rep.last_backup or '—'}")
             if rep.backup_warning:
-                print(f"WARNING: {rep.backup_warning}")
+                print(f"WARNING: {_safe(rep.backup_warning)}")
             if rep.last_curation_at:
                 print(f"last curation: {rep.last_curation_at:%Y-%m-%d %H:%M}")
             return 0

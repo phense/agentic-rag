@@ -1008,3 +1008,26 @@ def test_install_codex_runtime_rejection_leaves_live_files_unchanged(tmp_path):
     assert paths.config_path.read_bytes() == original
     assert not paths.hooks_path.exists()
     assert not paths.prompt_path.exists()
+
+
+def test_runtime_rejection_redacts_before_bounding_diagnostic(tmp_path):
+    paths = codex_paths(tmp_path)
+    secret = "sk-abcdefghijklmnop1234"
+
+    def run(command, **kwargs):
+        if command[-1] == "--version":
+            return subprocess.CompletedProcess(command, 0, "codex-cli test\n", "")
+        if command[-1] == "--help":
+            return subprocess.CompletedProcess(
+                command, 0, "--strict-config\n--listen\n", ""
+            )
+        return subprocess.CompletedProcess(
+            command, 2, "", "x" * 489 + " " + secret
+        )
+
+    with pytest.raises(RuntimeError) as raised:
+        install_codex(paths, check=True, run=run)
+
+    message = str(raised.value)
+    assert "sk-" not in message
+    assert "[REDACTED]" in message

@@ -15,6 +15,7 @@ from .domains import list_domains
 from .embed import try_embed_texts, vec_literal
 from .llm import run_structured
 from .pins import matching_pins
+from .secrets import strip_secrets
 from .store import EdgeSpec, save_document
 from .transcript import build_digest
 
@@ -126,7 +127,9 @@ def build_schema(domain_names: list[str]) -> dict:
 
 def build_prompt(digest_text: str, domain_names: list[str],
                  pin_bodies: list[str]) -> str:
-    pins_block = "\n".join(f"- {b}" for b in pin_bodies) or "(none)"
+    pins_block = "\n".join(
+        f"- {strip_secrets(body)[0]}" for body in pin_bodies
+    ) or "(none)"
     return (
         f"{DIGEST_HEADER}\n"
         f"{digest_text}\n\n"

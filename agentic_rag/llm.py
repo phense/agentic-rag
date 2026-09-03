@@ -60,8 +60,12 @@ def _binary(cfg: Config, child_env: dict) -> str:
 
 
 def _diagnostic(proc) -> str:
-    raw = (proc.stderr or proc.stdout or "").strip()[:500]
-    return strip_secrets(raw)[0]
+    raw = (proc.stderr or proc.stdout or "").strip()
+    return _safe_excerpt(raw, 500)
+
+
+def _safe_excerpt(text: str, max_chars: int) -> str:
+    return strip_secrets(text)[0][:max_chars]
 
 
 def _parse_object(raw: str, provider: str) -> dict:
@@ -71,10 +75,12 @@ def _parse_object(raw: str, provider: str) -> dict:
         data = json.loads(raw)
     except ValueError as e:
         raise LLMJobError(
-            f"{provider} output is not valid JSON: {raw[:200]!r}") from e
+            f"{provider} output is not valid JSON: "
+            f"{_safe_excerpt(repr(raw), 200)}") from e
     if not isinstance(data, dict):
         raise LLMJobError(
-            f"{provider} output is not a JSON object: {data!r:.200}")
+            f"{provider} output is not a JSON object: "
+            f"{_safe_excerpt(repr(data), 200)}")
     return data
 
 

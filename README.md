@@ -31,8 +31,8 @@ integrations adapt each coding agent's lifecycle and output contracts.
 It runs on your machine and uses **your configured CLI account** for
 LLM-assisted mining, curation, and bounded checkpoint enrichment: Codex with
 ChatGPT login or Claude with its supported OAuth or API-key authentication.
-Mining prompts can also include matching pin bodies; those currently rely on
-the pin no-secrets rule rather than independent prompt-boundary redaction.
+Mining prompts can also include all matching pin bodies; mining secret-strips
+the provider-bound copies without mutating stored pin text.
 Embeddings are **always local** (Ollama), so retrieval does not call either
 provider. It's RAM-lean by design: no always-on daemon beyond Postgres and
 Ollama, and an idle footprint near zero between sessions. And it's built
@@ -43,16 +43,13 @@ restore-tests its own backups.
 > **Your data stays under your control, with explicit provider calls.** This
 > repository is **code only** — it ships no content. The canonical store lives
 > in *your* PostgreSQL database, but the configured CLI intentionally sends
-> bounded provider inputs: mining sends a secret-stripped transcript digest,
-> live domain names, and matching pin bodies; curation sends selected stored
+> these provider inputs: mining sends a bounded, secret-stripped transcript
+> digest, live domain names, and secret-stripped copies of all matching pin
+> bodies without mutating stored pin text; curation sends selected stored
 > documents and contradiction evidence; checkpoint enrichment sends a
 > secret-stripped transcript delta and validates the returned checkpoint
-> content before persistence. Matching pin bodies are passed as stored and are
-> **not independently redacted**; they currently rely on the pin **no-secrets
-> rule**, with prompt-boundary stripping tracked in [BACKLOG
-> 0.0](BACKLOG.md#0--codex-continuity-rollout-blockers). Optional synced
-> backups copy data only to a directory you configure. agentic-rag has no
-> separate hosted RAG backend.
+> content before persistence. Optional synced backups copy data only to a
+> directory you configure. agentic-rag has no separate hosted RAG backend.
 
 **[Why](#why-agentic-rag)** · **[Quick start](#quick-start)** · **[What's different](#what-makes-it-different)** · **[How it works](#how-it-works)** · **[Comparison](#comparison)** · **[Configuration](#configuration)** · **[📖 Handbook](#-documentation--handbook)** · **[Status](#status)** · **[Acknowledgments](#acknowledgments)** · **[License](#license)**
 
@@ -204,7 +201,7 @@ installed policy they remain enabled and can be inspected with `/memories`;
 agentic-rag is canonical for durable searchable knowledge, audit history, and
 explicit continuation checkpoints.
 
-- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Provider-bound prompts are bounded but can include matching pin bodies under the documented no-secrets rule; embeddings never leave the box (local Ollama), so retrieval is independent of provider authentication.
+- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Transcript digests and checkpoint deltas are character-bounded; each curation call covers one selected document/evidence set. Mining also sends secret-stripped copies of all matching pin bodies without changing the stored pins. Embeddings never leave the box (local Ollama), so retrieval is independent of provider authentication.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
 - **Least privilege, by role.** Three login roles enforce a destruction-protection matrix: `rag_reader` (SELECT only, used by search and the read-only MCP), `rag_writer` (INSERT/UPDATE but **no DELETE/TRUNCATE/DROP**), and `rag_admin` (migrate, purge, restore).
 - **It steps aside, not in front.** If Ollama is down, search degrades to full-text-only and returns a warning rather than failing; the maintenance job always exits 0.
@@ -253,9 +250,9 @@ Legend: ✅ shipped in code and operationally established · 🧪 shipped in cod
 and bounded checkpoint enrichment use the configured local CLI — Codex with a
 ChatGPT login, or Claude with its supported OAuth or
 <code>ANTHROPIC_API_KEY</code> authentication. Account limits and any metering
-belong to that chosen provider. Mining can include matching pin bodies as
-stored; they are not independently redacted and must follow the pin no-secrets
-rule pending backlog 0.0. <strong>Embeddings are always local</strong>
+belong to that chosen provider. Mining can include secret-stripped copies of
+all matching pin bodies without mutating stored pin text. <strong>Embeddings are
+always local</strong>
 (Ollama), so retrieval does not call a model provider, and there is no
 third-party RAG service between you and your data. Most hosted RAG stacks route
 your documents through a paid service.<br>
@@ -320,10 +317,10 @@ and rollout state are listed separately below:
   restoration, asynchronous enrichment, all six lifecycle handlers, a
   versioned compact prompt, recoverable installer/check mode, and checkpoint
   health in `rag status`.
-- ⬜ **Codex continuity live rollout:** provider-bound pin stripping, the
-  pre-install whole-diff/security review, live global install, `/hooks` trust,
-  manual/automatic compaction, provider-recovery, and SessionEnd smoke tests
-  remain open. See
+- 🔒 **Codex continuity live rollout:** the pre-install whole-diff/security
+  review and provider-bound pin hardening are complete. The live global
+  install, `/hooks` trust, manual/automatic compaction, provider-recovery, and
+  SessionEnd smoke tests remain open. See
   [`FEATURES.md`](FEATURES.md) and blocker-first [`BACKLOG.md`](BACKLOG.md).
 - ✅ **Quality:** a content-free repository with a comprehensive local test
   suite; exact verification counts belong in rollout evidence, not a static

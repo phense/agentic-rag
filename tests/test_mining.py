@@ -1,6 +1,6 @@
 import json
 
-from agentic_rag import mining
+from agentic_rag import mining, pins
 from agentic_rag.config import Config
 from agentic_rag.store import EdgeSpec, get_document
 
@@ -114,6 +114,62 @@ def _transcript(tmp_path):
         "uuid": "u1", "type": "user",
         "message": {"role": "user", "content": "we learned a thing"}}) + "\n")
     return str(p)
+
+
+def test_mine_session_redacts_all_matching_pin_kinds_without_mutating_them(
+        conn, tmp_path):
+    _seed_domains(conn)
+    project = "/Users/example/Agents/agentic-rag"
+    global_secret = "sk-abcdefghijklmnop1234"
+    path_secret = "api_key=abcdefghijklmnop"
+    document_secret = "Bearer abcdef1234567890abcdef"
+
+    global_id = pins.add_pin(
+        conn, body=f"Never send {global_secret}.")
+    path_id = pins.add_pin(
+        conn, body=f"Keep {path_secret} local.", scope=project)
+    doc = conn.execute(
+        "INSERT INTO documents(slug, domain, dtype, title, body) VALUES"
+        " ('private-rule', 'programming', 'lesson', %s, 'fixture')"
+        " RETURNING id",
+        (f"Authorization: {document_secret}",)).fetchone()
+    conn.commit()
+    document_id = pins.add_pin(conn, document_id=str(doc["id"]))
+    original = {
+        str(row["id"]): row["body"]
+        for row in conn.execute(
+            "SELECT id, body FROM pins WHERE id = ANY(%s::uuid[])",
+            ([global_id, path_id, document_id],)).fetchall()
+    }
+
+    seen = {}
+
+    def runner(cmd, **kwargs):
+        seen["prompt"] = cmd[cmd.index("-p") + 1]
+
+        class P:
+            returncode, stderr = 0, ""
+            stdout = json.dumps(_raw())
+
+        return P()
+
+    mining.mine_session(
+        conn, _no_embed_cfg(), session_id="pin-redaction",
+        transcript_path=_transcript(tmp_path), last_uuid=None,
+        project=f"{project}/subdir", runner=runner)
+
+    prompt = seen["prompt"]
+    assert global_secret not in prompt
+    assert path_secret not in prompt
+    assert document_secret not in prompt
+    assert prompt.count("[REDACTED]") >= 3
+    stored = {
+        str(row["id"]): row["body"]
+        for row in conn.execute(
+            "SELECT id, body FROM pins WHERE id = ANY(%s::uuid[])",
+            ([global_id, path_id, document_id],)).fetchall()
+    }
+    assert stored == original
 
 
 def test_mine_session_saves_items_with_provenance(conn, tmp_path):

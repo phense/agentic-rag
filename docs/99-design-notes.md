@@ -155,11 +155,11 @@ anything stronger than that.
 
 ## Why the LLM provider is one configurable seam
 
-Every LLM call in the system — mining extraction and curation review — goes
-through `agentic_rag/llm.py`. That chokepoint has explicit Codex and Claude
-CLI adapters. Public defaults remain Claude/Haiku for compatibility; a local
-deployment can select Codex/Luna/high and use the CLI's ChatGPT login without
-adding a direct API client or key to agentic-rag.
+Every LLM call in the system — mining extraction, curation review, and bounded
+checkpoint enrichment — goes through `agentic_rag/llm.py`. That chokepoint has
+explicit Codex and Claude CLI adapters. Public defaults remain Claude/Haiku
+for compatibility; a local deployment can select Codex/Luna/high and use the
+CLI's ChatGPT login without adding a direct API client or key to agentic-rag.
 
 The seam centralizes structured-output validation, timeouts, prompt handling,
 and failure classification. A bad model response is a job failure; a missing
@@ -170,8 +170,11 @@ authentication problem from exhausting every independent queue item.
 
 Codex runs ephemerally in an empty temporary directory with repository and
 user rules ignored and read-only sandboxing. Claude remains a configuration
-rollback path. In either case embeddings are local (Ollama/bge-m3); only the
-bounded mining/curation prompt goes to the configured provider.
+rollback path. In either case embeddings are local (Ollama/bge-m3). The
+configured provider receives mining inputs (a bounded secret-stripped digest,
+live domain names, and secret-stripped copies of all matching pin bodies),
+selected curation content for one document/evidence set, or a bounded
+secret-stripped checkpoint delta.
 
 ## What this leaves open
 
@@ -186,9 +189,10 @@ None of the above is free, and it's worth saying so in one place:
 - Archive-not-delete means a store that's never curated accumulates archived
   and refuted rows forever until someone runs `rag purge` — the safety
   net is also, left unattended, a slow accumulation of dead weight.
-- Provider-configurable LLM access means mining and curation depend on the
-  account and limits of the selected CLI, while embeddings stay local; the
-  RAG leaves that tradeoff in your hands rather than deciding it for you.
+- Provider-configurable LLM access means mining, curation, and checkpoint
+  enrichment depend on the account and limits of the selected CLI, while
+  embeddings stay local; the RAG leaves that tradeoff in your hands rather
+  than deciding it for you.
 
 Each of these is a considered choice for what this project is — a
 local-first, single-user, RAM-lean memory layer — not an oversight. They're
