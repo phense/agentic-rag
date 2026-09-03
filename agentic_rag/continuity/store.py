@@ -4,7 +4,9 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 
-from .model import Checkpoint, CheckpointSnapshot, validate_enrichment
+from .model import (
+    Checkpoint, CheckpointSnapshot, bound_handoff, validate_enrichment,
+)
 
 
 def _checkpoint(row) -> Checkpoint:
@@ -29,6 +31,8 @@ def _checkpoint(row) -> Checkpoint:
         compacted_at=row["compacted_at"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
+        handoff=row["handoff"],
+        handoff_at=row["handoff_at"],
     )
 
 
@@ -260,5 +264,48 @@ def latest_for_project(conn, project_root: str) -> Checkpoint | None:
         "WHERE project_root = %s AND state = 'open' "
         "ORDER BY updated_at DESC, id DESC LIMIT 1",
         (project_root,),
+    ).fetchone()
+    return _checkpoint(row) if row is not None else None
+
+
+def attach_handoff(
+    conn, checkpoint_id: str, handoff: str, *, max_chars: int
+) -> Checkpoint:
+    """Attach the client's bounded compact summary; identical replays are no-ops."""
+    bounded = bound_handoff(handoff, max_chars=max_chars)
+    try:
+        current = conn.execute(
+            "SELECT handoff FROM continuation_checkpoints WHERE id = %s FOR UPDATE",
+            (checkpoint_id,),
+        ).fetchone()
+        if current is None:
+            raise ValueError(f"no such checkpoint: {checkpoint_id}")
+        if current["handoff"] == bounded:
+            conn.rollback()
+            return get(conn, checkpoint_id)  # type: ignore[return-value]
+        row = conn.execute(
+            "UPDATE continuation_checkpoints SET handoff = %s, handoff_at = now(), "
+            "updated_at = now() WHERE id = %s RETURNING *",
+            (bounded, checkpoint_id),
+        ).fetchone()
+        conn.execute(
+            "INSERT INTO audit_log(actor, op, summary) VALUES (%s, %s, %s)",
+            ("continuity", "checkpoint_handoff",
+             _checkpoint_summary(str(row["id"]), "handoff attached")),
+        )
+        conn.commit()
+        return _checkpoint(row)
+    except Exception:
+        conn.rollback()
+        raise
+
+
+def latest_pre_compact(conn, session_id: str, trigger: str) -> Checkpoint | None:
+    """Newest PreCompact row for clients whose PostCompact carries no turn_id."""
+    row = conn.execute(
+        "SELECT * FROM continuation_checkpoints "
+        "WHERE session_id = %s AND trigger = %s AND source = 'PreCompact' "
+        "ORDER BY created_at DESC, id DESC LIMIT 1",
+        (session_id, trigger),
     ).fetchone()
     return _checkpoint(row) if row is not None else None

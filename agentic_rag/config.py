@@ -9,6 +9,9 @@ from pathlib import Path
 
 DEFAULT_PATH = Path.home() / ".agentic-rag" / "config.toml"
 MIN_DIGEST_CHARS = 128
+MIN_HANDOFF_CHARS = 400
+MIN_CONTEXT_CHARS = 1_000
+MAX_CONTEXT_CHARS = 10_000   # Claude Code's per-hook additionalContext limit
 
 # TOML section -> field prefix. [db] name  ->  db_name, etc.
 _SECTION_PREFIX = {
@@ -60,6 +63,8 @@ class Config:
     checkpoint_status_max_chars: int = 4000
     checkpoint_render_max_chars: int = 8000
     checkpoint_artifact_max: int = 16
+    checkpoint_handoff_max_chars: int = 8000
+    context_max_chars: int = 9500
 
     def __post_init__(self) -> None:
         if (
@@ -70,6 +75,24 @@ class Config:
             raise ValueError(
                 "mining max_digest_chars must be an integer of at least "
                 f"{MIN_DIGEST_CHARS}"
+            )
+        if (
+            not isinstance(self.checkpoint_handoff_max_chars, int)
+            or isinstance(self.checkpoint_handoff_max_chars, bool)
+            or self.checkpoint_handoff_max_chars < MIN_HANDOFF_CHARS
+        ):
+            raise ValueError(
+                "continuity handoff_max_chars must be an integer of at least "
+                f"{MIN_HANDOFF_CHARS}"
+            )
+        if (
+            not isinstance(self.context_max_chars, int)
+            or isinstance(self.context_max_chars, bool)
+            or not MIN_CONTEXT_CHARS <= self.context_max_chars <= MAX_CONTEXT_CHARS
+        ):
+            raise ValueError(
+                "continuity context_max_chars must be an integer between "
+                f"{MIN_CONTEXT_CHARS} and {MAX_CONTEXT_CHARS}"
             )
 
 

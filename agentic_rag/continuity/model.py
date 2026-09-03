@@ -23,6 +23,10 @@ ENRICHMENT_FIELDS = _ENRICHMENT_STRING_FIELDS | _ENRICHMENT_LIST_FIELDS
 MAX_ENRICHMENT_STRING_CHARS = 2_000
 MAX_ENRICHMENT_LIST_ITEMS = 32
 MAX_ENRICHMENT_BYTES = 16_000
+MIN_HANDOFF_CHARS = 400
+HANDOFF_TRUNCATION_MARKER = "…[truncated]"
+_HORIZONTAL_SPACE = re.compile(r"[ \t]+")
+_BLANK_RUN = re.compile(r"\n{3,}")
 _UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
 _UNIFIED_DIFF_HUNK = re.compile(
     r"(?m)^---[ \t]+[^\s\r\n][^\r\n]*\r?\n"
@@ -110,6 +114,32 @@ def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
     return normalized
 
 
+def bound_handoff(text: object, *, max_chars: int) -> str:
+    """Normalize, secret-strip, and truncate a client compact summary.
+
+    The handoff keeps its line structure (it is prose the client wrote for
+    its own continuation) but never grows past ``max_chars`` and never
+    carries a secret-shaped value into the store.
+    """
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("handoff must be a non-blank string")
+    if (
+        not isinstance(max_chars, int)
+        or isinstance(max_chars, bool)
+        or max_chars < MIN_HANDOFF_CHARS
+    ):
+        raise ValueError(
+            f"max_chars must be an integer of at least {MIN_HANDOFF_CHARS}"
+        )
+    normalized = _HORIZONTAL_SPACE.sub(" ", text.replace("\r\n", "\n")).strip()
+    normalized = _BLANK_RUN.sub("\n\n", normalized)
+    stripped, _ = strip_secrets(normalized)
+    if len(stripped) > max_chars:
+        cut = max_chars - len(HANDOFF_TRUNCATION_MARKER)
+        stripped = stripped[:cut].rstrip() + HANDOFF_TRUNCATION_MARKER
+    return stripped
+
+
 @dataclass(frozen=True)
 class CheckpointSnapshot:
     session_id: str
@@ -157,6 +187,8 @@ class Checkpoint:
     created_at: datetime | None
     updated_at: datetime | None
     predecessor_cursor: str | None = None
+    handoff: str | None = None
+    handoff_at: datetime | None = None
 
     def __post_init__(self) -> None:
         _require_nonblank(self.id, "id")

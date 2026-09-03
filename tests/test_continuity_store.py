@@ -328,3 +328,68 @@ def test_writer_can_mutate_checkpoints_and_reader_can_only_select(dbinit, cfg, c
             )
     finally:
         reader.close()
+
+
+def _pre_compact(conn, *, session_id="session-1", cursor="event-1", trigger="auto",
+                 turn_id=None):
+    from agentic_rag.continuity.model import CheckpointSnapshot
+    return store.upsert_snapshot(conn, CheckpointSnapshot(
+        session_id=session_id, turn_id=turn_id, cursor=cursor,
+        source="PreCompact", trigger=trigger, cwd="/work/project",
+        project_root="/work/project",
+    ))
+
+
+def test_attach_handoff_bounds_strips_and_audits(conn):
+    checkpoint = _pre_compact(conn)
+    summary = "Goal: ship\nAPI key sk-ant-api03-" + "a" * 40 + "\n" + "x" * 9000
+
+    saved = store.attach_handoff(conn, checkpoint.id, summary, max_chars=800)
+
+    assert saved.handoff is not None
+    assert len(saved.handoff) <= 800
+    assert saved.handoff.endswith("…[truncated]")
+    assert "sk-ant-api03-" not in saved.handoff
+    assert saved.handoff_at is not None
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_handoff'"
+    ).fetchone()["n"] == 1
+
+
+def test_attach_handoff_identical_replay_is_noop_and_change_replaces(conn):
+    checkpoint = _pre_compact(conn)
+    store.attach_handoff(conn, checkpoint.id, "first summary", max_chars=400)
+
+    again = store.attach_handoff(conn, checkpoint.id, "first summary", max_chars=400)
+    replaced = store.attach_handoff(conn, checkpoint.id, "second summary", max_chars=400)
+
+    assert again.handoff == "first summary"
+    assert replaced.handoff == "second summary"
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_handoff'"
+    ).fetchone()["n"] == 2
+
+
+def test_attach_handoff_rejects_blank_and_small_budget(conn):
+    import pytest
+    checkpoint = _pre_compact(conn)
+    with pytest.raises(ValueError, match="non-blank"):
+        store.attach_handoff(conn, checkpoint.id, "   ", max_chars=400)
+    with pytest.raises(ValueError, match="at least 400"):
+        store.attach_handoff(conn, checkpoint.id, "summary", max_chars=399)
+    with pytest.raises(ValueError, match="no such checkpoint"):
+        store.attach_handoff(
+            conn, "00000000-0000-0000-0000-000000000000", "summary",
+            max_chars=400)
+
+
+def test_latest_pre_compact_ignores_turn_and_prefers_newest_same_trigger(conn):
+    older = _pre_compact(conn, cursor="event-a", trigger="auto")
+    manual = _pre_compact(conn, cursor="event-b", trigger="manual")
+    newest = _pre_compact(conn, cursor="event-c", trigger="auto")
+
+    assert store.latest_pre_compact(conn, "session-1", "auto").id == newest.id
+    assert store.latest_pre_compact(conn, "session-1", "manual").id == manual.id
+    assert store.latest_pre_compact(conn, "session-1", "unknown") is None
+    assert store.latest_pre_compact(conn, "other", "auto") is None
+    assert store.get(conn, older.id).state == "superseded"   # retained, never deleted

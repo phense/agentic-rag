@@ -173,3 +173,23 @@ def test_continuity_section_fields(tmp_path):
     assert cfg.checkpoint_status_max_chars == 120
     assert cfg.checkpoint_render_max_chars == 240
     assert cfg.checkpoint_artifact_max == 3
+
+
+def test_continuity_handoff_and_context_bounds(tmp_path):
+    import pytest
+    from agentic_rag.config import Config, load_config
+
+    assert Config().checkpoint_handoff_max_chars == 8000
+    assert Config().context_max_chars == 9500
+    path = tmp_path / "config.toml"
+    path.write_text(
+        "[continuity]\nhandoff_max_chars = 1200\ncontext_max_chars = 4000\n")
+    cfg = load_config(path)
+    assert cfg.checkpoint_handoff_max_chars == 1200
+    assert cfg.context_max_chars == 4000
+    with pytest.raises(ValueError, match="handoff_max_chars"):
+        Config(checkpoint_handoff_max_chars=399)
+    with pytest.raises(ValueError, match="context_max_chars"):
+        Config(context_max_chars=10001)
+    with pytest.raises(ValueError, match="context_max_chars"):
+        Config(context_max_chars=999)
