@@ -199,3 +199,24 @@ def test_renderer_handoff_is_dropped_before_goal_and_after_references():
 
     assert "Goal:" in text
     assert "Handoff" not in text or "H" * 600 not in text
+
+
+def test_renderer_truncates_full_length_handoff_instead_of_dropping_it():
+    from agentic_rag.continuity.model import HANDOFF_TRUNCATION_MARKER
+    # Shipped defaults: handoff_max_chars == render_max_chars == 8000.  A
+    # handoff that fills its bound must still surface at SessionStart, and
+    # its presence must not evict unrelated reference/volatile sections.
+    body = " ".join(f"line{index}" for index in range(2000))[:8000]
+    saved = replace(checkpoint(), handoff=body, handoff_at=datetime.now(UTC))
+
+    text = render_checkpoint(saved, max_chars=8000,
+                             current_project_root="/work/project")
+
+    assert len(text) <= 8000
+    assert "Handoff (Claude compact summary, CURRENT" in text
+    assert body[:2000] in text
+    assert HANDOFF_TRUNCATION_MARKER in text
+    assert "Artifacts/slugs: AGENTS.md" in text and "[[relevant-slug]]" in text
+    assert "Volatile state (revalidate): processes=worker pid 42" in text
+    assert "Warnings: git status truncated" in text
+    assert "Next exact action: Implement the lifecycle hook integration" in text

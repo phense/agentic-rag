@@ -240,3 +240,47 @@ def test_managed_codex_settings_come_from_canonical_constants():
             for key, value in install.codex_config.MEMORY_VALUES.items()
         },
     }
+
+
+def test_install_registers_mcp_before_touching_settings(tmp_path, monkeypatch):
+    settings = tmp_path / "settings.json"
+    settings.write_text('{"model": "opus"}\n')
+    monkeypatch.setattr(install.sys, "platform", "linux")
+
+    class P:
+        def __init__(self, rc):
+            self.returncode, self.stderr = rc, "claude unavailable"
+
+    def run(cmd, **kw):
+        return P(0 if cmd[2] == "remove" else 1)
+
+    with pytest.raises(RuntimeError, match="claude mcp add-json"):
+        install.install(Config(), settings_path=settings, run=run,
+                        state_dir=tmp_path / "state")
+
+    assert settings.read_text() == '{"model": "opus"}\n'
+    assert list(tmp_path.glob("settings.json*.bak*")) == []
+    assert not (tmp_path / "state").exists()
+
+
+def test_install_launchd_failure_names_the_rollback_command(
+        tmp_path, monkeypatch):
+    settings = tmp_path / "settings.json"
+    settings.write_text('{"model": "opus"}')
+    monkeypatch.setattr(install, "register_mcp", lambda python, run: None)
+    monkeypatch.setattr(install.sys, "platform", "darwin")
+
+    def broken_launchd(cfg, rag_bin):
+        raise RuntimeError("launchctl bootstrap failed")
+    monkeypatch.setattr(install.backup, "install_launchd", broken_launchd)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        install.install(Config(), settings_path=settings,
+                        state_dir=tmp_path / "state")
+
+    records = list((tmp_path / "state").glob("claude-rollback-*.json"))
+    assert len(records) == 1
+    message = str(excinfo.value)
+    assert "launchctl bootstrap failed" in message
+    assert f"rag install --restore {records[0]}" in message
+    assert excinfo.value.__cause__ is not None

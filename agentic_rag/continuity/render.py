@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from agentic_rag.secrets import strip_secrets
 
-from .model import Checkpoint
+from .model import HANDOFF_TRUNCATION_MARKER, Checkpoint
 
 
 _SPACE = re.compile(r"\s+")
@@ -18,6 +18,11 @@ _ARTIFACT_PREFIXES = ("docs/superpowers/specs/", "docs/superpowers/plans/")
 # within this budget, with room for useful short identities/actions in full.
 MIN_RENDER_CHARS = 400
 _MIN_MANDATORY_VALUE_CHARS = 24
+# The handoff is prose the client wrote; when the budget is exceeded it is
+# shortened to whatever remains before any other section is dropped, and only
+# dropped whole when fewer than this many characters would survive.
+_HANDOFF_ORDER = 85
+_MIN_HANDOFF_RENDER_CHARS = 200
 
 
 @dataclass(frozen=True)
@@ -105,6 +110,32 @@ def _fit_required(required: list[_Section], max_chars: int) -> str:
     return _render(fitted)
 
 
+def _shrink_handoff(selected: list[_Section], max_chars: int) -> list[_Section] | None:
+    """Truncate an over-long handoff to the remaining budget with a marker.
+
+    Returns the fitted section list, or ``None`` when there is no handoff,
+    the handoff already fits (the overflow lies elsewhere), or fewer than
+    ``_MIN_HANDOFF_RENDER_CHARS`` would survive — the caller then falls back
+    to dropping whole sections in ``drop_order``.
+    """
+    handoff = next(
+        (section for section in selected if section.order == _HANDOFF_ORDER), None
+    )
+    if handoff is None:
+        return None
+    others = [section for section in selected if section is not handoff]
+    label_only = _Section(handoff.order, handoff.drop_order, handoff.label, "")
+    budget = max_chars - len(_render([*others, label_only]))
+    if budget < _MIN_HANDOFF_RENDER_CHARS or len(handoff.value) <= budget:
+        return None
+    cut = budget - len(HANDOFF_TRUNCATION_MARKER)
+    truncated = _Section(
+        handoff.order, handoff.drop_order, handoff.label,
+        handoff.value[:cut].rstrip() + HANDOFF_TRUNCATION_MARKER,
+    )
+    return [*others, truncated]
+
+
 def _fit_sections(
     required: list[_Section], optional: list[_Section], max_chars: int
 ) -> str:
@@ -113,6 +144,8 @@ def _fit_sections(
 
     selected = [*required, *optional]
     while len(_render(selected)) > max_chars and len(optional) > 1:
+        if (shrunk := _shrink_handoff(selected, max_chars)) is not None:
+            return _render(shrunk)
         removable = max(optional, key=lambda section: section.drop_order or 0)
         optional.remove(removable)
         selected.remove(removable)
@@ -250,7 +283,8 @@ def render_checkpoint(
 
     if handoff := _handoff_value(checkpoint):
         optional.append(_Section(
-            85, 85, _handoff_label(checkpoint, now or datetime.now(UTC), stale_days),
+            _HANDOFF_ORDER, 85,
+            _handoff_label(checkpoint, now or datetime.now(UTC), stale_days),
             handoff,
         ))
 

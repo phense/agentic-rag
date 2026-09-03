@@ -95,8 +95,10 @@ untouched:
    prompt, so every automatic or manual compaction is guided without
    `/compact <text>`. The prompt is printed even when persistence failed; the
    hook never exits 2 and never blocks compaction.
-2. `PostCompact` (`manual|auto`) selects the newest uncompacted same-session
-   `PreCompact` checkpoint with the same trigger (no `turn_id` needed), marks
+2. `PostCompact` (`manual|auto`) selects the newest same-session
+   `PreCompact` checkpoint with the same trigger (no `turn_id` needed;
+   compacted or not — the newest compaction wins, so a summary still lands
+   when the preceding `PreCompact` failed to persist), marks
    the boundary, and stores Claude's own `compact_summary` as the checkpoint
    **handoff**: whitespace-normalized, secret-stripped, truncated to
    `[continuity] handoff_max_chars` (default 8,000) with a `…[truncated]`
@@ -106,8 +108,10 @@ untouched:
 3. `SessionStart(source="compact")` restores the same-session checkpoint
    exactly as for Codex and adds a `Handoff (Claude compact summary,
    CURRENT|HISTORICAL, age=…h)` section — labelled HISTORICAL beyond
-   `stale_days`, dropped before the mandatory goal/next-action/blocker
-   sections when the render budget is exceeded. The whole injected context is
+   `stale_days`, truncated to the remaining render budget (`…[truncated]`)
+   when the budget is exceeded, and dropped only when fewer than 200
+   characters would survive, always before the mandatory
+   goal/next-action/blocker sections. The whole injected context is
    capped at `[continuity] context_max_chars` (default 9,500; Claude discards
    per-hook context above 10,000 characters) and trims recent knowledge, then
    the domain map, then the checkpoint, then pins — each cut announced with a

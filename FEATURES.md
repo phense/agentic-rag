@@ -86,13 +86,16 @@ durable, searchable, auditable knowledge and explicit continuation state.
   `assets/claude/compact_prompt.md` (≤ 4,000 chars, `Version: 1.0`) plus the
   checkpoint id on stdout, which Claude appends to its compaction prompt; the
   prompt is printed even when persistence fails and the hook never exits 2.
-- ✅ **Handoff.** `PostCompact` matches the newest uncompacted same-session
-  checkpoint without a `turn_id`, marks the boundary, and stores Claude's
+- ✅ **Handoff.** `PostCompact` matches the newest same-session/same-trigger
+  `PreCompact` checkpoint without a `turn_id` (compacted or not — the newest
+  compaction wins), marks the boundary, and stores Claude's
   `compact_summary` as a bounded (`handoff_max_chars`, default 8,000),
   secret-stripped, audited handoff (migration 008: `handoff`, `handoff_at`).
   Replays are idempotent; a newer summary replaces the older one.
 - ✅ **Context cap.** `SessionStart` renders the handoff with a
-  `CURRENT`/`HISTORICAL` age label and caps its whole output at
+  `CURRENT`/`HISTORICAL` age label (truncated to the remaining render budget
+  rather than dropped, so a full-length handoff still surfaces) and caps its
+  whole output at
   `context_max_chars` (default 9,500; hard maximum 10,000, Claude's per-hook
   limit), trimming knowledge, domains, checkpoint, then pins with a visible
   warning that counts the pins cut. `SessionEnd` enqueues the final delta for

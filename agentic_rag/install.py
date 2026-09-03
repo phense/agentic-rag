@@ -445,10 +445,15 @@ def install(cfg: Config, *, settings_path: Path | None = None,
 
     python = sys.executable
     settings_path = settings_path or SETTINGS_PATH
-    report = claude_install.install_claude(
-        settings_path, python=python, check=check)
     if check:
+        report = claude_install.install_claude(
+            settings_path, python=python, check=True)
         return InstallReport(settings_path, None, False, claude_report=report)
+
+    # Register MCP before touching settings (spec §5.9: "as today"), so a
+    # missing or failing `claude` CLI leaves the user's settings untouched.
+    register_mcp(python, run=run)
+    report = claude_install.install_claude(settings_path, python=python)
 
     rollback_path = None
     if report.changed:
@@ -462,13 +467,22 @@ def install(cfg: Config, *, settings_path: Path | None = None,
                 "record could not be written"
             ) from record_failure
 
-    register_mcp(python, run=run)
     plist = None
     if with_launchd and sys.platform == "darwin":
         # the launchd gate: resolve rag NEXT TO the current interpreter —
         # never trust a stale plist or an inherited PATH
         rag_bin = Path(python).with_name("rag")
-        plist = backup.install_launchd(cfg, rag_bin)
+        try:
+            plist = backup.install_launchd(cfg, rag_bin)
+        except Exception as launchd_failure:
+            if rollback_path is None:
+                raise
+            # Settings are already published; surface the recorded rollback
+            # command in the error because the CLI prints nothing else.
+            raise RuntimeError(
+                f"{launchd_failure}; Claude settings were already written — "
+                f"rollback: rag install --restore {rollback_path}"
+            ) from launchd_failure
     return InstallReport(
         settings_path, plist, True, rollback_path=rollback_path,
         claude_report=report,

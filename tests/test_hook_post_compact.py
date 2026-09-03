@@ -187,3 +187,27 @@ def test_post_compact_claude_handoff_failure_keeps_boundary(
     log = (tmp_path / "hooks.log").read_text()
     assert "post_compact.handoff" in log
     assert "sk-ant-api03-" not in log
+
+
+def test_post_compact_claude_rematches_newest_checkpoint_even_when_compacted(
+        conn, hook_env):
+    # Pinned decision (spec §5.4 deviation): the newest same-trigger
+    # PreCompact row wins, compacted or not.  When a later PreCompact failed
+    # to persist, the next PostCompact re-matches the previous checkpoint and
+    # replaces its handoff instead of silently losing the newer summary.
+    older_uncompacted = _seed_claude(conn, cursor="event-a")
+    newest = _seed_claude(conn, cursor="event-b")
+    post_compact.run(_claude_payload(compact_summary="first summary"),
+                     io.StringIO())
+    assert store.get(conn, newest.id).compacted_at is not None
+
+    post_compact.run(_claude_payload(compact_summary="second summary"),
+                     io.StringIO())
+
+    saved = store.get(conn, newest.id)
+    assert saved.handoff == "second summary"
+    assert store.get(conn, older_uncompacted.id).compacted_at is None
+    assert store.get(conn, older_uncompacted.id).handoff is None
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_compacted'"
+    ).fetchone()["n"] == 1
