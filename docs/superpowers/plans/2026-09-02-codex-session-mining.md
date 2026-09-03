@@ -12,8 +12,8 @@
 
 ## Global Constraints
 
-- Peter's deployed provider is `codex`; model is exactly `gpt-5.6-luna`; reasoning effort is exactly `high`. Public package defaults remain Claude/Haiku for backward compatibility.
-- Use Peter's ChatGPT-authenticated Codex CLI; do not add an OpenAI API key or direct Responses API integration.
+- The reference deployment provider is `codex`; model is exactly `gpt-5.6-luna`; reasoning effort is exactly `high`. Public package defaults remain Claude/Haiku for backward compatibility.
+- Use the operator's ChatGPT-authenticated Codex CLI; do not add an OpenAI API key or direct Responses API integration.
 - Do not automate `codex login`, browser/device authentication, or credential refresh.
 - Do not add a queue, database, scheduler, parallel miner, or automatic provider fallback.
 - Codex runs ephemeral, read-only, bounded by the existing 300-second timeout, and returns schema-constrained JSON.
@@ -315,8 +315,8 @@ git commit -m "feat: surface session-mining provider health"
 ### Task 4: Trading Ops-Health Integration
 
 **Files:**
-- Modify: `/Users/peter/Agents/Trading/scripts/ops_health_sentinel.py`
-- Modify: the existing test file returned by `rg -l "ops_health_sentinel" /Users/peter/Agents/Trading/tests /Users/peter/Agents/Trading/scripts/tests`
+- Modify: `/Users/example/Agents/Trading/scripts/ops_health_sentinel.py`
+- Modify: the existing test file returned by `rg -l "ops_health_sentinel" /Users/example/Agents/Trading/tests /Users/example/Agents/Trading/scripts/tests`
 
 **Interfaces:**
 - Consumes: read-only `~/.agentic-rag/state/provider-health.json`; optionally `rag status --json` only if the current CLI already exposes a stable JSON contract.
@@ -398,7 +398,7 @@ Record `DONE`/`N/A`/`BLOCKED` for scheduler, watchdogs, writers/consumers, test 
 
 ```bash
 rg -n "claude -p|llm_provider|llm_bin|haiku|Claude session|Anthropic" agentic_rag tests README.md docs
-rg -n "agentic-rag|session mining|Claude OAuth" /Users/peter/Agents/Trading/CLAUDE.md /Users/peter/Agents/Trading/docs/FEATURES.md /Users/peter/Agents/Trading/BACKLOG.md /Users/peter/Agents/Trading/scripts
+rg -n "agentic-rag|session mining|Claude OAuth" /Users/example/Agents/Trading/CLAUDE.md /Users/example/Agents/Trading/docs/FEATURES.md /Users/example/Agents/Trading/BACKLOG.md /Users/example/Agents/Trading/scripts
 ```
 
 Production LLM calls must all pass through `run_structured`; historical text may remain only when clearly labeled as prior behavior or Claude rollback.
@@ -410,7 +410,7 @@ Document:
 ```toml
 [llm]
 provider = "codex"
-bin = "/Users/peter/.local/bin/codex"
+bin = "/Users/example/.local/bin/codex"
 model = "gpt-5.6-luna"
 reasoning_effort = "high"
 provider_backoff_seconds = 3600

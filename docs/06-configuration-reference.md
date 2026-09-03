@@ -136,12 +136,12 @@ Claude CLI supports its OAuth and API-key authentication paths.
 | `bin` | `llm_bin` | `"claude"` | Name or absolute path of the configured CLI. Use an absolute path for unattended jobs. |
 | `provider_backoff_seconds` | `provider_backoff_seconds` | `3600` | Delay before a provider-unavailable job becomes due again. |
 
-Peter's deployed Codex configuration is:
+A Codex deployment can use:
 
 ```toml
 [llm]
 provider = "codex"
-bin = "/Users/peter/.local/bin/codex"
+bin = "/absolute/path/to/codex"
 model = "gpt-5.6-luna"
 reasoning_effort = "high"
 provider_backoff_seconds = 3600

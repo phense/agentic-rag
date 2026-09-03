@@ -1,8 +1,8 @@
 # Codex-backed session mining with auth circuit breaking
 
-**Date:** 2026-09-02  
-**Status:** Approved in chat; implementation pending  
-**Owner:** Peter  
+**Date:** 2026-09-02
+**Status:** Approved in chat; implementation pending
+**Owner:** Project maintainer
 **Scope:** `agentic-rag` mining and curation LLM seam, worker failure policy,
 unattended health signalling, documentation, and migration of existing error jobs
 
@@ -28,14 +28,14 @@ being produced until a human noticed and repaired authentication.
 ### Goals
 
 - Run mining and LLM-assisted curation with Codex using `gpt-5.6-luna` at
-  `high` reasoning effort and Peter's existing ChatGPT login.
+  `high` reasoning effort and the operator's existing ChatGPT login.
 - Keep the single audited knowledge store and existing schema-constrained output
   contract.
 - Distinguish provider-wide/authentication failures from bad individual jobs.
 - Pause losslessly after one provider-wide failure instead of exhausting every
   job's retry budget.
 - Resume automatically on a later worker run after authentication becomes valid.
-- Make sustained provider/queue failure reach Peter without mail storms.
+- Make sustained provider/queue failure reach the operator without mail storms.
 - Preserve Claude as an explicit rollback provider; do not keep it active in
   parallel.
 - Requeue and drain the existing 60 failed mining jobs only after the new path is
@@ -61,7 +61,7 @@ chokepoint. Configuration gains an explicit provider and reasoning effort:
 ```toml
 [llm]
 provider = "codex"
-bin = "/Users/peter/.local/bin/codex"
+bin = "/Users/example/.local/bin/codex"
 model = "gpt-5.6-luna"
 reasoning_effort = "high"
 timeout = 300
@@ -121,7 +121,7 @@ caused it. Invalid JSON after a successful invocation remains a job error.
 
 No code attempts `codex login`, device authentication, browser automation, or
 credential refresh directly. Codex owns token refresh. When user interaction is
-truly required, the system tells Peter to run `codex login`.
+truly required, the system tells the operator to run `codex login`.
 
 ### 3.3 Circuit-breaker queue semantics
 
@@ -257,7 +257,7 @@ The migration is complete only when:
 ## 7. Key decisions
 
 - Use the ChatGPT-authenticated Codex CLI, not a metered OpenAI API key.
-- Use `gpt-5.6-luna` with `high` reasoning, as explicitly requested by Peter.
+- Use `gpt-5.6-luna` with `high` reasoning, as explicitly selected for the reference deployment.
 - Preserve provider choice in configuration, but never silently fall back.
 - Treat missing/expired provider authentication as infrastructure unavailability,
   not as 60 independent bad transcripts.

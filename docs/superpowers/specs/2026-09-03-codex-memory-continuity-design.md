@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-03
 **Status:** Approved in chat; implementation pending
-**Owner:** Peter
+**Owner:** Project maintainer
 **Scope:** Global Codex memory and compaction configuration, provider-neutral
 continuation checkpoints in `agentic-rag`, Codex lifecycle hooks, installation,
 documentation, and operational rollout
@@ -134,7 +134,7 @@ The synchronous stage:
    diagnostics.
 
 Semantic enrichment uses the existing single-writer queue and configured Codex
-provider. It extracts the current goal and success criteria, applicable Peter
+provider. It extracts the current goal and success criteria, applicable user
 instructions/approvals, decisions and rejected alternatives, completed and
 remaining plan steps, actual test results, known processes/external states,
 blockers/risks, next exact action, and relevant `agentic-rag` slugs. The job is
@@ -244,7 +244,7 @@ unrelated settings:
 model_context_window = 600000
 model_auto_compact_token_limit = 500000
 model_auto_compact_token_limit_scope = "total"
-experimental_compact_prompt_file = "/Users/peter/.codex/compact_prompt.md"
+experimental_compact_prompt_file = "/Users/example/.codex/compact_prompt.md"
 
 [features]
 hooks = true

@@ -287,7 +287,7 @@ def test_apply_domain_report_aborts_on_unknown_domain(conn, source, tmp_path):
 
 def test_apply_domain_report_rejects_malformed_row_with_location(
         conn, source, tmp_path):
-    # Peter hand-edits this TSV — a bad row must fail with file:line,
+    # An operator hand-edits this TSV — a bad row must fail with file:line,
     # not a bare tuple-unpack traceback.
     migration.run_migration(conn, _no_embed_cfg(), source)
     tsv = tmp_path / "r.tsv"
@@ -363,7 +363,7 @@ def test_acceptance_report_without_golden_is_visible(conn, source):
 
 def test_acceptance_report_malformed_golden_rows_visible(conn, source,
                                                          tmp_path):
-    # Peter hand-edits this living checklist — a malformed row must degrade
+    # An operator hand-edits this living checklist — a malformed row must degrade
     # to a visible MALFORMED line, never unpack-crash the whole report.
     migration.run_migration(conn, _no_embed_cfg(), source)
     golden = tmp_path / "golden.tsv"

@@ -9,9 +9,13 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.1.0-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.3.0-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+> **New in v0.3.0:** Codex compaction continuity, native-memory policy,
+> recoverable global installation, and provider-neutral mining. Read
+> **[What’s New in 0.3.0](docs/00-whats-new-in-0.3.md)**.
 
 Most "RAG memory" tools are a cloud retrieval layer you feed documents to:
 you push, you query, you pay per call. agentic-rag flips both halves. It stores
@@ -134,9 +138,9 @@ uv run rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
 ```
 
 Use the exact rollback-record pathname printed by the successful install.
-Check mode writes nothing. The global rollout and end-to-end smoke tests are
-still open in [`BACKLOG.md`](BACKLOG.md); repository support does not mean this
-checkout has modified or verified a live user configuration.
+Check mode writes nothing. Repository support does not mean a particular
+machine has completed hook trust or live compaction verification; review
+`/hooks` and confirm `rag status` after every installation.
 
 The Codex target never installs a scheduler. On a Codex-only macOS setup, use
 `uv run rag backup --install-launchd` for scheduled database backups; Linux

@@ -380,7 +380,7 @@ Expected: FAIL because the packaged prompt is absent.
 
 - [ ] **Step 3: Write the prompt and package it**
 
-Require evidence-backed state, explicit unverified labels, user-owned dirty-file preservation, artifact paths/slugs instead of bodies, and continuation without asking Peter to repeat known context. Add the asset to Hatch wheel/sdist configuration and test retrieval from `importlib.resources`.
+Require evidence-backed state, explicit unverified labels, user-owned dirty-file preservation, artifact paths/slugs instead of bodies, and continuation without asking the operator to repeat known context. Add the asset to Hatch wheel/sdist configuration and test retrieval from `importlib.resources`.
 
 - [ ] **Step 4: Run and commit**
 
@@ -599,7 +599,7 @@ Expected: all specified components present and no whitespace errors.
 
 Run: `uv run pytest tests/test_secrets.py tests/test_roles.py tests/test_codex_install.py tests/test_provider_health.py -v`
 
-Expected: PASS; no tests access Peter's real home configuration or database.
+Expected: PASS; no tests access the operator's real home configuration or database.
 
 - [ ] **Step 3: Run the complete suite fresh**
 
@@ -668,7 +668,7 @@ Back up config, temporarily lower only the threshold in an isolated disposable s
 
 - [ ] **Step 6: Exercise provider outage and recovery**
 
-Using test configuration that does not alter Peter's real credential, force the provider preflight to report unavailable. Verify compaction continues, snapshot remains usable, enrichment stays pending without attempt loss, and SessionStart warns. Restore normal provider configuration and verify the same job enriches and health clears.
+Using test configuration that does not alter the operator's real credential, force the provider preflight to report unavailable. Verify compaction continues, snapshot remains usable, enrichment stays pending without attempt loss, and SessionStart warns. Restore normal provider configuration and verify the same job enriches and health clears.
 
 - [ ] **Step 7: Exercise SessionEnd tail capture**
 

@@ -23,21 +23,19 @@
   suite, isolated wheel install, immutable temporary-home check mode, and final
   code review passed. Verified findings have focused regressions and minimal
   fixes. *(M, completed 2026-09-03)*
-- 🔵 **0.2** _(chore)_ **Prove Codex continuity end to end.** The live
-  install completed on 2026-09-03: migrations 006/007 were applied; the real
-  Codex configuration now has the 600000/500000 policy, native memories, the
-  compact prompt, and all six merged handlers; the post-install check is
-  idempotent; `rag status` reports PostgreSQL/provider health; and host-side
-  `codex doctor` reports healthy state databases and provider connectivity.
-  Backups and the printed mode-0600 rollback record were retained.
-  → *Why not done:* the six agentic-rag handler hashes still require Peter's
-  explicit `/hooks` trust, and manual/automatic compaction, provider
-  outage/recovery, and SessionEnd tail capture have not yet been exercised end
-  to end in real sessions. → *Trigger:* trust only the six agentic-rag handlers
-  in `/hooks`, then run and record the four live smoke scenarios while leaving
-  the two foreign `herdr-agent-state.sh` entries unchanged. → *Dependency:*
-  interactive Codex sessions long enough to exercise lifecycle boundaries.
-  *(L)*
+- 🔵 **0.2** _(chore)_ **Prove Codex continuity end to end.** A reference
+  macOS deployment completed on 2026-09-03: migrations 006/007 were applied;
+  the 600000/500000 policy, native memories, compact prompt, and all six merged
+  handlers were installed; the post-install check is idempotent; the handler
+  hashes were reviewed and trusted; and a fresh Codex session recovered with
+  its MCP connections available. `rag status` and host-side `codex doctor`
+  report healthy storage, provider connectivity, and configuration. Backups
+  and the printed mode-0600 rollback record were retained.
+  → *Why not done:* manual/automatic compaction, provider outage/recovery, and
+  SessionEnd tail capture have not yet been exercised end to end in sustained
+  real sessions. → *Trigger:* run and record those remaining smoke scenarios
+  during normal long-session use. → *Dependency:* interactive Codex sessions
+  long enough to exercise lifecycle boundaries. *(L)*
 
 ## §1 — Mining & curation pipeline
 

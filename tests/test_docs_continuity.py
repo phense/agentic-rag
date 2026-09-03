@@ -1,9 +1,11 @@
 import re
+import tomllib
 from pathlib import Path
 
 
 DOC_PATHS = (
     Path("README.md"),
+    Path("docs/00-whats-new-in-0.3.md"),
     Path("docs/01-what-is-agentic-rag.md"),
     Path("docs/02-mental-model.md"),
     Path("docs/03-quick-start.md"),
@@ -16,6 +18,30 @@ DOC_PATHS = (
     Path("docs/12-contributing.md"),
     Path("docs/README.md"),
 )
+
+
+def test_v030_release_metadata_and_whats_new_are_linked():
+    pyproject = Path("pyproject.toml").read_text()
+    changelog = Path("CHANGELOG.md").read_text()
+    readme = Path("README.md").read_text()
+    handbook = Path("docs/README.md").read_text()
+    whats_new = Path("docs/00-whats-new-in-0.3.md")
+
+    assert 'version = "0.3.0"' in pyproject
+    assert "## [0.3.0] - 2026-09-03" in changelog
+    assert whats_new.is_file()
+    assert "What’s New in 0.3.0" in whats_new.read_text()
+    assert "docs/00-whats-new-in-0.3.md" in readme
+    assert "00-whats-new-in-0.3.md" in handbook
+
+
+def test_wheel_configuration_includes_runtime_migrations():
+    project = tomllib.loads(Path("pyproject.toml").read_text())
+    force_include = project["tool"]["hatch"]["build"]["targets"]["wheel"][
+        "force-include"
+    ]
+
+    assert force_include["sql"] == "sql"
 
 
 def docs_text() -> str:
@@ -133,7 +159,7 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
 
     rollout = _backlog_item("0.2")
     assert rollout.startswith("- 🔵 **0.2**")
-    assert "install completed on 2026-09-03" in rollout
+    assert "deployment completed on 2026-09-03" in rollout
     assert "Why not done:" in rollout
     assert "Trigger:" in rollout
     assert "Dependency:" in rollout

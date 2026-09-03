@@ -7,6 +7,9 @@ learn. Shipped versus still-planned rollout state lives in
 [`../FEATURES.md`](../FEATURES.md) and the blocker-first
 [`../BACKLOG.md`](../BACKLOG.md).
 
+## Start here
+- [What’s New in 0.3.0](00-whats-new-in-0.3.md) — Codex continuity, native memories, safe installation, upgrade steps, and operational boundaries.
+
 ## Understand
 - [01 · What is agentic-rag?](01-what-is-agentic-rag.md) — provider-neutral memory, Codex continuity, native-memory complementarity, and boundaries.
 - [02 · The mental model](02-mental-model.md) — documents, graph/search, the write gateway, mining, and continuation checkpoints.
