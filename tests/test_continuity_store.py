@@ -56,6 +56,17 @@ def test_new_cursor_supersedes_without_deleting(conn):
     ).fetchone()["n"] == 2
 
 
+def test_checkpoint_predecessor_survives_same_cursor_replay(conn):
+    first = store.upsert_snapshot(conn, snapshot(cursor="u7"))
+    second = store.upsert_snapshot(conn, snapshot(cursor="u8"))
+
+    replayed = store.upsert_snapshot(conn, snapshot(cursor="u8"))
+
+    assert first.predecessor_cursor is None
+    assert second.predecessor_cursor == "u7"
+    assert replayed.predecessor_cursor == "u7"
+
+
 def test_concurrent_new_cursors_leave_one_open_checkpoint(dbinit, cfg, conn):
     """The first session scan pauses while it holds the real DB lock.
 

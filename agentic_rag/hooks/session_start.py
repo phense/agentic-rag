@@ -56,7 +56,8 @@ def build_context(
     warnings: list[str] = []
 
     if WARNING_STATE.exists():
-        warnings.append(f"⚠️ backup: {WARNING_STATE.read_text().strip()}")
+        warnings.append(
+            f"⚠️ backup: {common.sanitize_error(WARNING_STATE.read_text().strip())}")
     n_err = conn.execute(
         "SELECT count(*) AS n FROM mining_queue WHERE status = 'error'"
     ).fetchone()["n"]
@@ -114,14 +115,25 @@ def build_context(
                 + "\n".join(f"- [[{r['slug']}]] {r['title']} ({r['dtype']},"
                             f" {r['ts']:%Y-%m-%d})" for r in rows))
 
-    checkpoint = _checkpoint_for_context(
-        conn, cwd=cwd, session_id=session_id, source=source)
-    if checkpoint is not None:
-        rendered = render_checkpoint(
-            checkpoint,
-            max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
+    try:
+        checkpoint = _checkpoint_for_context(
+            conn, cwd=cwd, session_id=session_id, source=source)
+        if checkpoint is not None:
+            rendered = render_checkpoint(
+                checkpoint,
+                max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
+            )
+            parts.append("## Continuation checkpoint\n" + rendered)
+    except Exception as exc:  # noqa: BLE001 — continuity is optional context
+        common.log_hook_error("session_start.continuity", repr(exc))
+        try:
+            conn.rollback()
+        except Exception:  # noqa: BLE001 — the outer visible failure remains
+            pass
+        warnings.append(
+            "⚠️ checkpoint restoration delayed: "
+            + common.sanitize_error(f"{type(exc).__name__}: {exc}")
         )
-        parts.append("## Continuation checkpoint\n" + rendered)
 
     if warnings:
         parts.insert(1, "\n".join(warnings))
@@ -163,9 +175,10 @@ def run(payload: dict, stdout) -> None:
         common.emit_context(stdout, "SessionStart", text)
     except Exception as e:  # noqa: BLE001 — fail closed, VISIBLY
         common.log_hook_error("session_start", repr(e))
+        safe_error = common.sanitize_error(f"{type(e).__name__}: {e}")
         common.emit_context(
             stdout, "SessionStart",
-            f"⚠️ agentic-rag unavailable: {type(e).__name__}: {e}")
+            f"⚠️ agentic-rag unavailable: {safe_error}")
 
 
 def main() -> int:

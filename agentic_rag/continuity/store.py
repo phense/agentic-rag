@@ -17,6 +17,7 @@ def _checkpoint(row) -> Checkpoint:
         trigger=row["trigger"],
         cwd=row["cwd"],
         project_root=row["project_root"],
+        predecessor_cursor=row["predecessor_cursor"],
         transcript_fingerprint=row["transcript_fingerprint"],
         git=row["git"],
         snapshot=row["snapshot"],
@@ -63,8 +64,18 @@ def get(conn, checkpoint_id: str) -> Checkpoint | None:
     return _checkpoint(row) if row is not None else None
 
 
-def upsert_snapshot(conn, snapshot: CheckpointSnapshot) -> Checkpoint:
-    """Persist one cursor idempotently and supersede prior open session state."""
+def upsert_snapshot(
+    conn,
+    snapshot: CheckpointSnapshot,
+    *,
+    update_existing: bool = True,
+) -> Checkpoint:
+    """Persist one cursor idempotently and supersede prior open session state.
+
+    ``update_existing=False`` is the early-durability path: a replay returns
+    the existing checkpoint without erasing repository metadata captured after
+    its initial seed commit.
+    """
     if not isinstance(snapshot, CheckpointSnapshot):
         raise TypeError("snapshot must be a CheckpointSnapshot")
     snapshot_json = {"source": snapshot.source, "trigger": snapshot.trigger}
@@ -77,19 +88,24 @@ def upsert_snapshot(conn, snapshot: CheckpointSnapshot) -> Checkpoint:
         warnings = _json(list(snapshot.warnings), "warnings")
 
         # Serialize before row locking: an empty session has no row lock to
-        # acquire. Then lock its current open rows and supersede only after a
-        # genuinely new cursor is inserted.
+        # acquire. Lock an exact replay or the current predecessor and
+        # supersede only after a genuinely new cursor is inserted.
         _serialize_session(conn, snapshot.session_id)
-        conn.execute(
-            "SELECT id FROM continuation_checkpoints "
-            "WHERE session_id = %s AND state = 'open' FOR UPDATE",
-            (snapshot.session_id,),
-        )
-        row = conn.execute(
-            "INSERT INTO continuation_checkpoints("
-            "session_id, turn_id, cursor, transcript_fingerprint, source, trigger, "
-            "cwd, project_root, git, snapshot, \"references\", warnings) "
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+        existing = conn.execute(
+            "SELECT predecessor_cursor FROM continuation_checkpoints "
+            "WHERE session_id = %s AND cursor = %s FOR UPDATE",
+            (snapshot.session_id, snapshot.cursor),
+        ).fetchone()
+        predecessor_cursor = existing["predecessor_cursor"] if existing else None
+        if existing is None:
+            predecessor = conn.execute(
+                "SELECT cursor FROM continuation_checkpoints "
+                "WHERE session_id = %s AND state = 'open' "
+                "ORDER BY updated_at DESC, id DESC LIMIT 1 FOR UPDATE",
+                (snapshot.session_id,),
+            ).fetchone()
+            predecessor_cursor = predecessor["cursor"] if predecessor else None
+        conflict = (
             "ON CONFLICT (session_id, cursor) DO UPDATE SET "
             "turn_id = EXCLUDED.turn_id, "
             "transcript_fingerprint = EXCLUDED.transcript_fingerprint, "
@@ -108,10 +124,32 @@ def upsert_snapshot(conn, snapshot: CheckpointSnapshot) -> Checkpoint:
             "(EXCLUDED.turn_id, EXCLUDED.transcript_fingerprint, EXCLUDED.source, "
             " EXCLUDED.trigger, EXCLUDED.cwd, EXCLUDED.project_root, EXCLUDED.git, "
             " EXCLUDED.snapshot, EXCLUDED.\"references\", EXCLUDED.warnings) "
-            "RETURNING *, (xmax = 0) AS inserted",
-            (snapshot.session_id, snapshot.turn_id, snapshot.cursor,
-             snapshot.transcript_fingerprint, snapshot.source, snapshot.trigger,
-             snapshot.cwd, snapshot.project_root, git, capture, references, warnings),
+            if update_existing
+            else "ON CONFLICT (session_id, cursor) DO NOTHING "
+        )
+        row = conn.execute(
+            "INSERT INTO continuation_checkpoints("
+            "session_id, turn_id, cursor, predecessor_cursor, "
+            "transcript_fingerprint, source, trigger, "
+            "cwd, project_root, git, snapshot, \"references\", warnings) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) "
+            + conflict
+            + "RETURNING *, (xmax = 0) AS inserted",
+            (
+                snapshot.session_id,
+                snapshot.turn_id,
+                snapshot.cursor,
+                predecessor_cursor,
+                snapshot.transcript_fingerprint,
+                snapshot.source,
+                snapshot.trigger,
+                snapshot.cwd,
+                snapshot.project_root,
+                git,
+                capture,
+                references,
+                warnings,
+            ),
         ).fetchone()
         changed = row is not None
         if row is None:

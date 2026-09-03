@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 
@@ -138,6 +139,70 @@ def test_capture_uses_digest_cursor_and_fingerprints_metadata_not_content(tmp_pa
     assert checkpoint.transcript_fingerprint.startswith("sha256:")
     assert "TOP SECRET BODY" not in checkpoint.transcript_fingerprint
     assert "session.jsonl" not in checkpoint.transcript_fingerprint
+
+
+def test_capture_reads_only_a_bounded_transcript_tail(tmp_path, monkeypatch):
+    transcript = tmp_path / "large-session.jsonl"
+    old_events = [
+        json.dumps({
+            "uuid": f"old-{index}",
+            "message": {"role": "user", "content": "x" * 80},
+        })
+        for index in range(30_000)
+    ]
+    transcript.write_text(
+        "\n".join(old_events)
+        + '\n{"uuid":"tail-last","message":{"role":"user","content":"latest"}}\n'
+        + '{"uuid":"malformed-tail"'
+    )
+    observed = {
+        "read_bytes": 0,
+        "read_sizes": [],
+        "iterated_bytes": 0,
+        "iterated_lines": 0,
+    }
+    original_open = Path.open
+
+    class CountingFile:
+        def __init__(self, raw):
+            self.raw = raw
+
+        def __enter__(self):
+            self.raw.__enter__()
+            return self
+
+        def __exit__(self, *args):
+            return self.raw.__exit__(*args)
+
+        def __getattr__(self, name):
+            return getattr(self.raw, name)
+
+        def read(self, size=-1):
+            observed["read_sizes"].append(size)
+            data = self.raw.read(size)
+            observed["read_bytes"] += len(data)
+            return data
+
+        def __iter__(self):
+            for line in self.raw:
+                observed["iterated_lines"] += 1
+                observed["iterated_bytes"] += len(line.encode("utf-8"))
+                yield line
+
+    def counting_open(path, *args, **kwargs):
+        raw = original_open(path, *args, **kwargs)
+        return CountingFile(raw) if path == transcript else raw
+
+    monkeypatch.setattr(Path, "open", counting_open)
+
+    checkpoint = capture.capture_snapshot(
+        payload(tmp_path, transcript), run=fake_git_for(tmp_path))
+
+    assert checkpoint.cursor == "tail-last"
+    assert observed["iterated_lines"] == 0
+    assert observed["iterated_bytes"] == 0
+    assert observed["read_sizes"] == [capture.TRANSCRIPT_TAIL_BYTES]
+    assert observed["read_bytes"] <= capture.TRANSCRIPT_TAIL_BYTES
 
 
 def test_capture_discovers_only_bounded_authoritative_artifact_paths(tmp_path):

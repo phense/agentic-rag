@@ -35,18 +35,24 @@ def run(payload: dict) -> None:
         if not common.is_interactive(payload):
             return
         cfg = load_config()
+        snapshot = capture.capture_snapshot_seed(payload)
         conn = db.connect(cfg, role="writer")
         try:
-            prior = store.latest_for_session(conn, session_id)
             checkpoint = store.upsert_snapshot(
-                conn, capture.capture_snapshot(payload))
+                conn, snapshot, update_existing=False)
+            try:
+                repository_snapshot = capture.capture_repository_state(
+                    snapshot, cwd=payload.get("cwd"))
+                checkpoint = store.upsert_snapshot(conn, repository_snapshot)
+            except Exception as exc:  # noqa: BLE001 — seed is already durable
+                common.log_hook_error("pre_compact", repr(exc))
             if transcript and Path(transcript).is_file():
                 jobs.enqueue_checkpoint_enrichment(
                     conn,
                     checkpoint_id=checkpoint.id,
                     session_id=session_id,
                     transcript_path=transcript,
-                    after_cursor=prior.cursor if prior is not None else None,
+                    after_cursor=checkpoint.predecessor_cursor,
                 )
                 common.spawn_worker()
         finally:

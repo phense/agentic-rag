@@ -181,6 +181,26 @@ def test_db_down_injects_visible_unavailability(hook_env):
     assert "agentic-rag unavailable" in ctx      # fail closed, VISIBLY
 
 
+def test_visible_session_start_failure_sanitizes_stdout_and_log(
+        hook_env, tmp_path, monkeypatch):
+    secret = "sk-abcdefghijklmnop1234"
+    monkeypatch.setattr(
+        session_start.db,
+        "connect",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            RuntimeError(f"connection failed with {secret}")),
+    )
+    stdout = io.StringIO()
+
+    session_start.run(_payload(), stdout)
+
+    assert secret not in stdout.getvalue()
+    assert "[REDACTED]" in stdout.getvalue()
+    logged = (tmp_path / "hooks.log").read_text()
+    assert secret not in logged
+    assert "[REDACTED]" in logged
+
+
 def test_non_interactive_source_injects_nothing(conn, hook_env):
     out = io.StringIO()
     session_start.run(_payload(source="cron-thing"), out)
@@ -304,3 +324,66 @@ def test_checkpoint_context_follows_warnings_and_pins(
 
     assert ctx.index("queue job(s) in error") < ctx.index("Pinned instruction")
     assert ctx.index("Pinned instruction") < ctx.index("Continuation checkpoint")
+
+
+def test_continuity_failure_keeps_existing_context_and_runs_maintenance(
+        conn, hook_env, tmp_path, monkeypatch):
+    secret = "ghp_abcdefghijklmnopqrstuvwxyz123456"
+    pins.add_pin(conn, body="Keep this pinned rule visible.")
+    _seed(conn)
+    conn.execute(
+        "INSERT INTO documents(slug, domain, dtype, title, provenance)"
+        " VALUES ('kept-note', 'nature', 'memory', 'Kept note',"
+        " '{\"project\": \"/Users/example/proj\"}')")
+    conn.commit()
+    _checkpoint(
+        conn,
+        session_id="s1",
+        project_root="/Users/example/proj",
+        cursor="render-failure",
+        goal="continuity renderer will fail",
+    )
+    maintained = []
+    monkeypatch.setattr(
+        session_start,
+        "render_checkpoint",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            RuntimeError(f"render failed with {secret}")),
+    )
+    monkeypatch.setattr(
+        session_start, "_trigger_maintenance", lambda _conn: maintained.append(True))
+
+    ctx = _run(_payload(source="compact"))
+
+    assert "Keep this pinned rule visible." in ctx
+    assert "nature" in ctx and "field observations" in ctx
+    assert "kept-note" in ctx
+    assert "checkpoint restoration delayed" in ctx
+    assert secret not in ctx
+    assert "[REDACTED]" in ctx
+    assert maintained == [True]
+    logged = (tmp_path / "hooks.log").read_text()
+    assert secret not in logged
+
+
+def test_continuity_query_failure_rolls_back_before_maintenance(
+        conn, hook_env, monkeypatch):
+    pins.add_pin(conn, body="Context survives a selector failure.")
+    maintained = []
+
+    def broken_selector(runtime_conn, **kwargs):
+        runtime_conn.execute("SELECT 1 / 0")
+
+    def maintenance(runtime_conn):
+        assert runtime_conn.execute("SELECT 1 AS n").fetchone()["n"] == 1
+        maintained.append(True)
+
+    monkeypatch.setattr(
+        session_start, "_checkpoint_for_context", broken_selector)
+    monkeypatch.setattr(session_start, "_trigger_maintenance", maintenance)
+
+    ctx = _run(_payload(source="compact"))
+
+    assert "Context survives a selector failure." in ctx
+    assert "checkpoint restoration delayed" in ctx
+    assert maintained == [True]

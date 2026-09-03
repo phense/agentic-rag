@@ -56,7 +56,8 @@ def test_006_continuity_schema_and_queue_kind_exist(conn):
         ).fetchall()
     }
     assert {"session_id", "turn_id", "cursor", "transcript_fingerprint", "cwd",
-            "project_root", "git", "snapshot", "enrichment", "references",
+            "project_root", "predecessor_cursor", "git", "snapshot",
+            "enrichment", "references",
             "warnings", "state", "quality", "compacted_at", "created_at",
             "updated_at"} <= columns
     conn.execute("INSERT INTO mining_queue(kind) VALUES ('checkpoint_enrich')")

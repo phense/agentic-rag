@@ -156,6 +156,7 @@ class Checkpoint:
     compacted_at: datetime | None
     created_at: datetime | None
     updated_at: datetime | None
+    predecessor_cursor: str | None = None
 
     def __post_init__(self) -> None:
         _require_nonblank(self.id, "id")

@@ -1,12 +1,14 @@
 import io
 import json
+import subprocess
 
 from agentic_rag.continuity import store
+from agentic_rag.transcript import build_digest
 from agentic_rag.hooks import pre_compact
 
 
 def _payload(tmp_path, **over):
-    transcript = tmp_path / "session.jsonl"
+    transcript = tmp_path / "replay.jsonl"
     transcript.write_text(json.dumps({
         "uuid": "event-9",
         "message": {"role": "user", "content": "keep working"},
@@ -49,15 +51,29 @@ def test_pre_compact_snapshots_and_enqueues(
 def test_pre_compact_replay_is_idempotent(conn, hook_env, tmp_path,
                                           monkeypatch):
     monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+    subprocess.run(
+        ["git", "init", "-q", str(tmp_path)], check=True,
+        capture_output=True, text=True,
+    )
     payload = _payload(tmp_path)
 
     pre_compact.run(payload)
+    before = store.latest_for_session(conn, payload["session_id"])
+    audit_count = conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_snapshot'"
+    ).fetchone()["n"]
     pre_compact.run(payload)
 
+    after = store.latest_for_session(conn, payload["session_id"])
     assert conn.execute(
         "SELECT count(*) AS n FROM continuation_checkpoints"
     ).fetchone()["n"] == 1
     assert _queue_count(conn, "checkpoint_enrich") == 1
+    assert after.git == before.git
+    assert after.project_root == before.project_root
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op = 'checkpoint_snapshot'"
+    ).fetchone()["n"] == audit_count
 
 
 def test_pre_compact_missing_transcript_keeps_snapshot_without_enqueue(
@@ -92,3 +108,71 @@ def test_pre_compact_rejects_invalid_trigger_without_stdout(
         "SELECT count(*) AS n FROM continuation_checkpoints"
     ).fetchone()["n"] == 0
     assert capsys.readouterr().out == ""
+
+
+def test_pre_compact_persists_before_optional_repository_probe(
+        conn, hook_env, tmp_path, monkeypatch):
+    payload = _payload(tmp_path)
+    observed = []
+    monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+
+    def failing_git_probe(*args, **kwargs):
+        observed.append(
+            store.latest_for_session(conn, payload["session_id"]) is not None)
+        raise OSError("git probe unavailable")
+
+    monkeypatch.setattr(pre_compact.capture, "_git_state", failing_git_probe)
+
+    pre_compact.run(payload)
+
+    assert observed == [True]
+    assert store.latest_for_session(conn, payload["session_id"]) is not None
+    assert _queue_count(conn, "checkpoint_enrich") == 1
+
+
+def test_pre_compact_replay_recovers_persisted_predecessor_after_enqueue_failure(
+        conn, hook_env, tmp_path, monkeypatch):
+    transcript = tmp_path / "session.jsonl"
+    transcript.write_text(
+        json.dumps({
+            "uuid": "u1",
+            "message": {"role": "user", "content": "old context"},
+        }) + "\n" + json.dumps({
+            "uuid": "u2",
+            "message": {"role": "user", "content": "new context"},
+        }) + "\n"
+    )
+    payload = _payload(tmp_path, transcript_path=str(transcript))
+    store.upsert_snapshot(conn, pre_compact.capture.CheckpointSnapshot(
+        session_id=payload["session_id"],
+        turn_id="turn-6",
+        cursor="u1",
+        source="PreCompact",
+        trigger="auto",
+        cwd=str(tmp_path),
+        project_root=None,
+    ))
+    real_enqueue = pre_compact.jobs.enqueue_checkpoint_enrichment
+    monkeypatch.setattr(pre_compact.common, "spawn_worker", lambda: None)
+    monkeypatch.setattr(
+        pre_compact.jobs,
+        "enqueue_checkpoint_enrichment",
+        lambda *args, **kwargs: (_ for _ in ()).throw(OSError("queue down")),
+    )
+
+    pre_compact.run(payload)
+    saved = store.latest_for_session(conn, payload["session_id"])
+    assert saved.cursor == "u2"
+    assert saved.predecessor_cursor == "u1"
+
+    monkeypatch.setattr(
+        pre_compact.jobs, "enqueue_checkpoint_enrichment", real_enqueue)
+    pre_compact.run(payload)
+
+    job = conn.execute(
+        "SELECT * FROM mining_queue WHERE kind = 'checkpoint_enrich'"
+    ).fetchone()
+    assert job["last_uuid"] == "u1"
+    digest = build_digest(job["transcript_path"], after_uuid=job["last_uuid"])
+    assert "new context" in digest.text
+    assert "old context" not in digest.text

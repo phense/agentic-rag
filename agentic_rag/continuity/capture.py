@@ -8,12 +8,12 @@ import threading
 import time
 from bisect import insort
 from collections.abc import Callable, Mapping
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from agentic_rag.config import load_config
 from agentic_rag.secrets import strip_secrets
-from agentic_rag.transcript import build_digest
 
 from .model import CheckpointSnapshot
 
@@ -36,6 +36,7 @@ _GIT_METADATA_MAX_CHARS = 1_024
 _GIT_PATH_MAX_CHARS = 4_096
 _SECRET_SCAN_OVERLAP_CHARS = 256
 _MAX_UTF8_BYTES_PER_CHAR = 4
+TRANSCRIPT_TAIL_BYTES = 64 * 1024
 
 
 def _text(value: object) -> str | None:
@@ -217,14 +218,41 @@ def _transcript_state(path_value: str | None) -> tuple[str | None, str | None]:
     if path_value is None:
         return None, None
     path = Path(path_value).expanduser()
-    cursor = build_digest(path, max_chars=0).last_uuid
     try:
         stat = path.stat()
     except OSError:
-        return cursor, None
+        return None, None
     canonical = str(path.resolve(strict=False))
     metadata = f"{canonical}\0{stat.st_size}\0{stat.st_mtime_ns}"
     fingerprint = "sha256:" + hashlib.sha256(metadata.encode()).hexdigest()
+    cursor = None
+    try:
+        # Reserve one byte for boundary detection.  One capped read then
+        # contains the complete tail through EOF plus the byte immediately
+        # preceding it, without scanning or materializing the whole JSONL.
+        content_limit = TRANSCRIPT_TAIL_BYTES - 1
+        start = max(0, stat.st_size - content_limit)
+        read_start = start - 1 if start else 0
+        with path.open("rb") as fh:
+            fh.seek(read_start)
+            tail = fh.read(TRANSCRIPT_TAIL_BYTES)
+        if start:
+            if tail[:1] == b"\n":
+                tail = tail[1:]
+            else:
+                boundary = tail.find(b"\n")
+                tail = tail[boundary + 1:] if boundary >= 0 else b""
+        for raw in reversed(tail.splitlines()):
+            try:
+                event = json.loads(raw)
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                continue
+            value = event.get("uuid") if isinstance(event, dict) else None
+            if isinstance(value, str) and value.strip():
+                cursor = value
+                break
+    except OSError:
+        pass
     return cursor, fingerprint
 
 
@@ -292,29 +320,12 @@ def _artifacts(project_root: str, limit: int) -> tuple[tuple[str, ...], bool]:
     return found.result()
 
 
-def capture_snapshot(
-    payload: Mapping[str, object],
-    *,
-    run: Callable[..., Any] = subprocess.run,
-) -> CheckpointSnapshot:
-    """Capture one idempotent operational snapshot without artifact bodies."""
+def capture_snapshot_seed(payload: Mapping[str, object]) -> CheckpointSnapshot:
+    """Capture the bounded state that precedes optional repository probes."""
     if not isinstance(payload, Mapping):
         raise TypeError("payload must be a mapping")
-    cfg = load_config()
     cwd_argument = _path_text(payload.get("cwd"))
     cwd = Path(cwd_argument).expanduser().resolve(strict=False) if cwd_argument else None
-    project_root: str | None = None
-    git: dict[str, object] = {}
-    warnings: list[str] = []
-    if cwd_argument and cwd is not None:
-        project_root, git, git_warnings = _git_state(
-            cwd_argument,
-            cwd,
-            run,
-            cfg.checkpoint_status_max_chars,
-        )
-        warnings.extend(git_warnings)
-
     transcript_path = _text(payload.get("transcript_path"))
     transcript_cursor, transcript_fingerprint = _transcript_state(transcript_path)
     cursor = transcript_cursor or _event_cursor(
@@ -322,12 +333,6 @@ def capture_snapshot(
         cwd=str(cwd) if cwd else None,
         transcript_fingerprint=transcript_fingerprint,
     )
-
-    artifacts: tuple[str, ...] = ()
-    if project_root:
-        artifacts, truncated = _artifacts(project_root, cfg.checkpoint_artifact_max)
-        if truncated:
-            warnings.append("artifact list truncated")
 
     return CheckpointSnapshot(
         session_id=_text(payload.get("session_id")) or "",
@@ -340,9 +345,49 @@ def capture_snapshot(
         ),
         trigger=_text(payload.get("trigger")),
         cwd=str(cwd) if cwd else None,
-        project_root=project_root,
+        project_root=None,
         transcript_fingerprint=transcript_fingerprint,
+    )
+
+
+def capture_repository_state(
+    snapshot: CheckpointSnapshot,
+    *,
+    cwd: object,
+    run: Callable[..., Any] = subprocess.run,
+) -> CheckpointSnapshot:
+    """Add bounded Git/artifact metadata to an already captured seed."""
+    if not isinstance(snapshot, CheckpointSnapshot):
+        raise TypeError("snapshot must be a CheckpointSnapshot")
+    cwd_argument = _path_text(cwd)
+    if cwd_argument is None or snapshot.cwd is None:
+        return snapshot
+    cfg = load_config()
+    project_root, git, warnings = _git_state(
+        cwd_argument,
+        Path(snapshot.cwd),
+        run,
+        cfg.checkpoint_status_max_chars,
+    )
+    artifacts: tuple[str, ...] = ()
+    if project_root:
+        artifacts, truncated = _artifacts(project_root, cfg.checkpoint_artifact_max)
+        if truncated:
+            warnings.append("artifact list truncated")
+    return replace(
+        snapshot,
+        project_root=project_root,
         git=git,
         artifacts=artifacts,
-        warnings=tuple(warnings),
+        warnings=(*snapshot.warnings, *warnings),
     )
+
+
+def capture_snapshot(
+    payload: Mapping[str, object],
+    *,
+    run: Callable[..., Any] = subprocess.run,
+) -> CheckpointSnapshot:
+    """Capture one idempotent operational snapshot without artifact bodies."""
+    seed = capture_snapshot_seed(payload)
+    return capture_repository_state(seed, cwd=payload.get("cwd"), run=run)
