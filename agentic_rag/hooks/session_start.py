@@ -16,6 +16,8 @@ from .. import db, jobs, provider_health
 # module attribute so tests can monkeypatch session_start.WARNING_STATE
 from ..backup import WARNING_STATE
 from ..config import Config, load_config
+from ..continuity import capture, store
+from ..continuity.render import MIN_RENDER_CHARS, render_checkpoint
 from ..domains import list_domains
 from ..pins import matching_pins, render_pins
 from . import common
@@ -23,7 +25,33 @@ from . import common
 CURATION_MAX_AGE_H = 24
 
 
-def build_context(conn, cfg: Config, cwd: str | None) -> str:
+def _checkpoint_for_context(
+        conn, *, cwd: str | None, session_id: str | None,
+        source: str | None):
+    checkpoint = None
+    if isinstance(session_id, str) and session_id.strip():
+        checkpoint = store.latest_for_session(conn, session_id)
+    if checkpoint is not None or source not in {"startup", "resume"}:
+        return checkpoint
+    if not isinstance(cwd, str) or not cwd.strip() or not session_id:
+        return None
+
+    # Reuse the public capture boundary to discover and canonicalize the Git
+    # project root.  This does not persist a new checkpoint.
+    location = capture.capture_snapshot({
+        "session_id": session_id,
+        "hook_event_name": "SessionStart",
+        "source": source,
+        "cwd": cwd,
+    })
+    if location.project_root is None:
+        return None
+    return store.latest_for_project(conn, location.project_root)
+
+
+def build_context(
+        conn, cfg: Config, cwd: str | None, session_id: str | None = None,
+        source: str | None = None) -> str:
     parts: list[str] = ["# agentic-rag memory"]
     warnings: list[str] = []
 
@@ -86,6 +114,15 @@ def build_context(conn, cfg: Config, cwd: str | None) -> str:
                 + "\n".join(f"- [[{r['slug']}]] {r['title']} ({r['dtype']},"
                             f" {r['ts']:%Y-%m-%d})" for r in rows))
 
+    checkpoint = _checkpoint_for_context(
+        conn, cwd=cwd, session_id=session_id, source=source)
+    if checkpoint is not None:
+        rendered = render_checkpoint(
+            checkpoint,
+            max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
+        )
+        parts.append("## Continuation checkpoint\n" + rendered)
+
     if warnings:
         parts.insert(1, "\n".join(warnings))
     return "\n\n".join(parts)
@@ -113,7 +150,13 @@ def run(payload: dict, stdout) -> None:
         cfg = load_config()
         conn = db.connect(cfg, role="writer")
         try:
-            text = build_context(conn, cfg, payload.get("cwd"))
+            text = build_context(
+                conn,
+                cfg,
+                payload.get("cwd"),
+                session_id=payload.get("session_id"),
+                source=payload.get("source"),
+            )
             _trigger_maintenance(conn)
         finally:
             conn.close()

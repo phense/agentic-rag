@@ -1,7 +1,10 @@
 import io
 import json
+import subprocess
 
 from agentic_rag import pins, provider_health
+from agentic_rag.continuity import store
+from agentic_rag.continuity.model import CheckpointSnapshot
 from agentic_rag.hooks import session_start
 
 
@@ -24,6 +27,34 @@ def _seed(conn):
     conn.execute("INSERT INTO domains(name, description) VALUES"
                  " ('nature', 'field observations')")
     conn.commit()
+
+
+def _checkpoint(conn, *, session_id, project_root, cursor, goal):
+    checkpoint = store.upsert_snapshot(conn, CheckpointSnapshot(
+        session_id=session_id,
+        turn_id="turn-7",
+        cursor=cursor,
+        source="PreCompact",
+        trigger="auto",
+        cwd=project_root,
+        project_root=project_root,
+    ))
+    return store.apply_enrichment(conn, checkpoint.id, {
+        "goal": goal,
+        "next_action": f"Continue {goal}",
+    })
+
+
+def _git_project(tmp_path, name):
+    project = tmp_path / name
+    project.mkdir()
+    subprocess.run(
+        ["git", "init", "-q", str(project)], check=True,
+        capture_output=True, text=True,
+    )
+    nested = project / "nested"
+    nested.mkdir()
+    return project, nested
 
 
 def test_injects_pins_domains_and_project_docs(conn, hook_env, monkeypatch):
@@ -154,3 +185,122 @@ def test_non_interactive_source_injects_nothing(conn, hook_env):
     out = io.StringIO()
     session_start.run(_payload(source="cron-thing"), out)
     assert out.getvalue() == ""
+
+
+def test_compact_session_start_restores_same_session_checkpoint(
+        conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    checkpoint = _checkpoint(
+        conn,
+        session_id="s1",
+        project_root="/Users/example/proj",
+        cursor="event-9",
+        goal="finish lifecycle hooks",
+    )
+
+    ctx = _run(_payload(source="compact"))
+
+    assert checkpoint.id in ctx
+    assert "finish lifecycle hooks" in ctx
+
+
+def test_startup_falls_back_to_same_canonical_project(
+        conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    project, nested = _git_project(tmp_path, "project")
+    checkpoint = _checkpoint(
+        conn,
+        session_id="older-session",
+        project_root=str(project.resolve()),
+        cursor="event-project",
+        goal="resume project work",
+    )
+
+    ctx = _run(_payload(
+        session_id="new-session", cwd=str(nested), source="startup"))
+
+    assert checkpoint.id in ctx
+    assert "resume project work" in ctx
+
+
+def test_same_session_wins_over_newer_same_project_checkpoint(
+        conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    current = _checkpoint(
+        conn,
+        session_id="s1",
+        project_root="/Users/example/proj",
+        cursor="current-session",
+        goal="continue this session",
+    )
+    other = _checkpoint(
+        conn,
+        session_id="other-session",
+        project_root="/Users/example/proj",
+        cursor="newer-project",
+        goal="do not restore this checkpoint",
+    )
+
+    ctx = _run(_payload(source="startup"))
+
+    assert current.id in ctx
+    assert other.id not in ctx
+
+
+def test_compact_does_not_fall_back_to_another_session(
+        conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    other = _checkpoint(
+        conn,
+        session_id="other-session",
+        project_root="/Users/example/proj",
+        cursor="other-session-only",
+        goal="must not cross the compact boundary",
+    )
+
+    ctx = _run(_payload(session_id="new-session", source="compact"))
+
+    assert other.id not in ctx
+    assert "must not cross the compact boundary" not in ctx
+
+
+def test_startup_never_falls_back_across_projects(
+        conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    project_a, _ = _git_project(tmp_path, "project-a")
+    _, project_b_nested = _git_project(tmp_path, "project-b")
+    other = _checkpoint(
+        conn,
+        session_id="other-session",
+        project_root=str(project_a.resolve()),
+        cursor="other-project",
+        goal="private project-a state",
+    )
+
+    ctx = _run(_payload(
+        session_id="new-session", cwd=str(project_b_nested), source="startup"))
+
+    assert other.id not in ctx
+    assert "private project-a state" not in ctx
+
+
+def test_checkpoint_context_follows_warnings_and_pins(
+        conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    pins.add_pin(conn, body="Pinned instruction before continuation.")
+    conn.execute(
+        "INSERT INTO mining_queue(kind, status, attempts, last_error)"
+        " VALUES ('mine', 'error', 3, 'timeout')")
+    conn.commit()
+    _checkpoint(
+        conn,
+        session_id="s1",
+        project_root="/Users/example/proj",
+        cursor="ordered",
+        goal="ordered continuation",
+    )
+
+    ctx = _run(_payload(source="compact"))
+
+    assert ctx.index("queue job(s) in error") < ctx.index("Pinned instruction")
+    assert ctx.index("Pinned instruction") < ctx.index("Continuation checkpoint")

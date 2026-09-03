@@ -6,33 +6,12 @@ prints nothing."""
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
-from .. import db, jobs
-from ..config import load_config
-from . import common
+from . import common, transcript_delta
 
 
 def run(payload: dict) -> None:
-    try:
-        if not common.is_interactive(payload):
-            return
-        transcript = payload.get("transcript_path")
-        session_id = payload.get("session_id")
-        if (not transcript or not session_id
-                or not Path(transcript).is_file()):
-            return
-        cfg = load_config()
-        conn = db.connect(cfg, role="writer")
-        try:
-            jobs.enqueue_mine(conn, cfg, session_id=str(session_id),
-                              transcript_path=str(transcript),
-                              project=payload.get("cwd"))
-        finally:
-            conn.close()
-        common.spawn_worker()
-    except Exception as e:  # noqa: BLE001 — never block the session
-        common.log_hook_error("stop_enqueue", repr(e))
+    transcript_delta.enqueue_transcript_delta(payload, hook="stop_enqueue")
 
 
 def main() -> int:

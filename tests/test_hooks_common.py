@@ -47,3 +47,14 @@ def test_spawn_worker_is_detached_and_fail_open(monkeypatch, tmp_path):
         raise OSError("no fork")
     monkeypatch.setattr(common.subprocess, "Popen", boom)
     common.spawn_worker()          # must not raise
+
+
+def test_hook_errors_are_sanitized(monkeypatch, tmp_path):
+    secret = "sk-abcdefghijklmnop1234"
+    monkeypatch.setattr(common, "HOOK_LOG", tmp_path / "hooks.log")
+
+    common.log_hook_error("pre_compact", f"failed with {secret}")
+
+    logged = (tmp_path / "hooks.log").read_text()
+    assert secret not in logged
+    assert "[REDACTED]" in logged

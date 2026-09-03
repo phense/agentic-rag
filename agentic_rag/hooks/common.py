@@ -54,9 +54,17 @@ def spawn_worker() -> None:
 
 def log_hook_error(hook: str, err: str) -> None:
     try:
+        # Keep the module import-light at hook startup.  Error logging is the
+        # only path that needs the shared credential scrubber, and a scrubber
+        # import failure must degrade to a non-sensitive diagnostic.
+        try:
+            from ..secrets import strip_secrets
+            safe_err = strip_secrets(str(err))[0]
+        except Exception:  # noqa: BLE001 — never leak the original on failure
+            safe_err = "hook failure (diagnostic unavailable)"
         HOOK_LOG.parent.mkdir(parents=True, exist_ok=True)
         with HOOK_LOG.open("a", encoding="utf-8") as fh:
             fh.write(f"{datetime.now().isoformat(timespec='seconds')} "
-                     f"[{hook}] {err}\n")
+                     f"[{hook}] {safe_err}\n")
     except OSError:
         pass
