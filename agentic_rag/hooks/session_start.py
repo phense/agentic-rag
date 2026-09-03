@@ -66,6 +66,7 @@ def build_context(
             f"⚠️ {n_err} queue job(s) in error state — see `rag status`")
     health = provider_health.read_health()
     if health is not None and not health.available:
+        safe_provider = common.sanitize_error(health.provider)
         since = (
             f" since {health.first_failure_at:%Y-%m-%d %H:%M %Z}"
             if health.first_failure_at is not None else ""
@@ -75,7 +76,7 @@ def build_context(
             if health.provider == "codex" else " — see `rag status`"
         )
         warnings.append(
-            f"⚠️ session mining provider {health.provider} unavailable"
+            f"⚠️ session mining provider {safe_provider} unavailable"
             f"{since}{remediation}")
 
     pin_list = matching_pins(conn, cwd)

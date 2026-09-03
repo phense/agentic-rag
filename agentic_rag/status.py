@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # module attribute (not a re-read from backup) so tests can monkeypatch
 # status.WARNING_STATE independently
@@ -30,6 +30,65 @@ class StatusReport:
     last_curation_at: datetime | None = None
     provider_health: provider_health.ProviderHealth | None = None
     oldest_open_mine_at: datetime | None = None
+    open_checkpoints: int = 0
+    newest_checkpoint_at: datetime | None = None
+    newest_checkpoint_quality: str | None = None
+    newest_checkpoint_project: str | None = None
+    pending_checkpoint_enrichments: int = 0
+    oldest_pending_checkpoint_enrichment_at: datetime | None = None
+    oldest_pending_checkpoint_enrichment_age: timedelta | None = None
+    checkpoint_warnings: tuple[str, ...] = ()
+
+
+def _checkpoint_health(conn, cfg: Config) -> dict:
+    open_row = conn.execute(
+        "SELECT count(*) AS n FROM continuation_checkpoints "
+        "WHERE state = 'open'"
+    ).fetchone()
+    newest = conn.execute(
+        "SELECT updated_at, quality, project_root "
+        "FROM continuation_checkpoints WHERE state = 'open' "
+        "ORDER BY updated_at DESC, id DESC LIMIT 1"
+    ).fetchone()
+    pending = conn.execute(
+        "SELECT count(*) AS n, min(enqueued_at) AS oldest_at "
+        "FROM mining_queue WHERE kind = 'checkpoint_enrich' "
+        "AND status = 'pending'"
+    ).fetchone()
+
+    now = datetime.now(timezone.utc)
+    newest_at = newest["updated_at"] if newest else None
+    oldest_pending_at = pending["oldest_at"] if pending else None
+    oldest_pending_age = (
+        now - oldest_pending_at if oldest_pending_at is not None else None
+    )
+    warnings = []
+    if (
+        newest_at is not None
+        and now - newest_at > timedelta(days=cfg.stale_days)
+    ):
+        warnings.append(
+            f"newest open checkpoint is stale (>{cfg.stale_days} days)"
+        )
+    if (
+        oldest_pending_age is not None
+        and oldest_pending_age
+        > timedelta(seconds=cfg.worker_backoff_seconds)
+    ):
+        warnings.append(
+            "checkpoint enrichment pending longer than configured worker "
+            f"backoff ({cfg.worker_backoff_seconds}s)"
+        )
+    return {
+        "open_checkpoints": int(open_row["n"] if open_row else 0),
+        "newest_checkpoint_at": newest_at,
+        "newest_checkpoint_quality": newest["quality"] if newest else None,
+        "newest_checkpoint_project": newest["project_root"] if newest else None,
+        "pending_checkpoint_enrichments": int(pending["n"] if pending else 0),
+        "oldest_pending_checkpoint_enrichment_at": oldest_pending_at,
+        "oldest_pending_checkpoint_enrichment_age": oldest_pending_age,
+        "checkpoint_warnings": tuple(warnings),
+    }
 
 
 def gather_status(conn, cfg: Config) -> StatusReport:
@@ -62,6 +121,9 @@ def gather_status(conn, cfg: Config) -> StatusReport:
     backup_warning = None
     if WARNING_STATE.exists():
         backup_warning = WARNING_STATE.read_text().strip()
+    checkpoint_health = _checkpoint_health(conn, cfg)
     return StatusReport(
         documents, queue, queue_errors, last_backup, backup_warning,
-        last_curation_at, provider_health.read_health(), oldest_open_mine_at)
+        last_curation_at, provider_health.read_health(), oldest_open_mine_at,
+        **checkpoint_health,
+    )

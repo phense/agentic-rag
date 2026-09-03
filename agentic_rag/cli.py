@@ -22,6 +22,7 @@ from . import pins as pins_mod
 from . import status as status_mod
 from . import worker as worker_mod
 from .config import load_config
+from .secrets import strip_secrets
 from .store import EdgeSpec
 
 
@@ -29,6 +30,21 @@ def _json_default(o):
     if dataclasses.is_dataclass(o):
         return dataclasses.asdict(o)
     return str(o)  # UUID, datetime, Path
+
+
+def _safe(value: object) -> str:
+    return strip_secrets(str(value))[0]
+
+
+def _format_age(value) -> str:
+    seconds = max(0, int(value.total_seconds()))
+    if seconds >= 86400:
+        return f"{seconds // 86400}d"
+    if seconds >= 3600:
+        return f"{seconds // 3600}h"
+    if seconds >= 60:
+        return f"{seconds // 60}m"
+    return f"{seconds}s"
 
 
 def _main(argv: list[str] | None = None) -> int:
@@ -39,6 +55,12 @@ def _main(argv: list[str] | None = None) -> int:
 
     p_inst = sub.add_parser("install")
     p_inst.add_argument("--no-launchd", action="store_true")
+    p_inst.add_argument("--codex", action="store_true",
+                        help="target Codex config and lifecycle hooks")
+    p_inst.add_argument("--check", action="store_true",
+                        help="show Codex changes without writing files")
+    p_inst.add_argument("--codex-home", type=Path, default=None,
+                        help=argparse.SUPPRESS)
 
     p_dom = sub.add_parser("domain")
     dom_sub = p_dom.add_subparsers(dest="domain_cmd", required=True)
@@ -126,6 +148,11 @@ def _main(argv: list[str] | None = None) -> int:
     m_rep.add_argument("--golden", type=Path, default=None)
 
     args = p.parse_args(argv)
+    if args.cmd == "install" and args.check and not args.codex:
+        p.error("--check requires --codex")
+    if (args.cmd == "install" and args.codex_home is not None
+            and not args.codex):
+        p.error("--codex-home requires --codex")
     cfg = load_config()
 
     if args.cmd == "init-db":
@@ -186,7 +213,45 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "install":
-        rep = install_mod.install(cfg, with_launchd=not args.no_launchd)
+        if args.codex:
+            rep = install_mod.install(
+                cfg,
+                with_launchd=not args.no_launchd,
+                codex=True,
+                check=args.check,
+                codex_home=args.codex_home,
+            )
+        else:
+            # Preserve the legacy call contract as well as its behavior.
+            rep = install_mod.install(
+                cfg, with_launchd=not args.no_launchd
+            )
+        if rep.codex is not None:
+            codex_rep = rep.codex
+            action = "would change" if codex_rep.check else "changed"
+            if codex_rep.changed_paths:
+                for path in codex_rep.changed_paths:
+                    print(f"{action}: {_safe(path)}")
+            else:
+                print("Codex files: already up to date")
+            for record in codex_rep.backups:
+                print(
+                    f"backup: {_safe(record.target_path)} <- "
+                    f"{_safe(record.backup_path)}"
+                )
+            for duplicate in codex_rep.foreign_hook_duplicates:
+                print(
+                    "review: foreign herdr-agent-state.sh hook appears "
+                    f"{duplicate.count} times"
+                )
+            if codex_rep.codex_version:
+                print(f"codex: {_safe(codex_rep.codex_version)}")
+            print(f"validation: {_safe(codex_rep.runtime_validation)}")
+            print(f"probe: {_safe(codex_rep.probe_isolation)}")
+            print("hooks: review and trust changed handlers with `/hooks`")
+            if codex_rep.check:
+                print("check complete: no files written")
+            return 0
         print(f"mcp:      registered '{install_mod.MCP_NAME}' and"
               f" '{install_mod.MCP_NAME_RO}' (user scope)")
         print("          (restrict subagents by allowlisting only"
@@ -359,13 +424,33 @@ def _main(argv: list[str] | None = None) -> int:
             if rep.provider_health:
                 state = ("available" if rep.provider_health.available
                          else "unavailable")
-                print(f"provider: {rep.provider_health.provider} {state}")
+                provider = _safe(rep.provider_health.provider)
+                print(f"provider: {provider} {state}")
                 if not rep.provider_health.available:
                     if rep.provider_health.reason:
-                        print(f"  reason: {rep.provider_health.reason}")
+                        print(f"  reason: {_safe(rep.provider_health.reason)}")
                     if rep.provider_health.provider == "codex":
                         print("  remediation: run `codex login`; queued jobs "
                               "resume automatically")
+            print(f"checkpoints: {rep.open_checkpoints} open")
+            if rep.newest_checkpoint_at:
+                project = rep.newest_checkpoint_project or "-"
+                print(
+                    "  newest: "
+                    f"{rep.newest_checkpoint_at:%Y-%m-%d %H:%M} "
+                    f"[{rep.newest_checkpoint_quality}] {_safe(project)}"
+                )
+            print(
+                "checkpoint enrichments: "
+                f"{rep.pending_checkpoint_enrichments} pending"
+            )
+            if rep.oldest_pending_checkpoint_enrichment_age is not None:
+                print(
+                    "  oldest pending: "
+                    f"{_format_age(rep.oldest_pending_checkpoint_enrichment_age)}"
+                )
+            for warning in rep.checkpoint_warnings:
+                print(f"WARNING: {_safe(warning)}")
             print(f"last local backup: {rep.last_backup or '—'}")
             if rep.backup_warning:
                 print(f"WARNING: {rep.backup_warning}")
@@ -441,13 +526,16 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return _main(argv)
     except (psycopg.OperationalError, RuntimeError) as e:
-        print(f"error: {e}", file=sys.stderr)
+        print(f"error: {_safe(e)}", file=sys.stderr)
         return 3
     except (ValueError, FileNotFoundError) as e:
-        print(f"error: {e}", file=sys.stderr)
+        print(f"error: {_safe(e)}", file=sys.stderr)
         return 1
     except Exception as e:  # noqa: BLE001 — last-resort mapping, never a traceback
-        print(f"unexpected error: {type(e).__name__}: {e}", file=sys.stderr)
+        print(
+            f"unexpected error: {type(e).__name__}: {_safe(e)}",
+            file=sys.stderr,
+        )
         return 4
 
 

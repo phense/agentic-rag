@@ -151,6 +151,22 @@ def test_malformed_provider_health_is_visible(
     assert "rag status" in ctx
 
 
+def test_provider_health_warning_sanitizes_provider_diagnostic(
+        conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    secret = "sk-abcdefghijklmnop1234"
+    monkeypatch.setattr(
+        provider_health,
+        "read_health",
+        lambda: provider_health.ProviderHealth(secret, False),
+    )
+
+    ctx = _run(_payload())
+
+    assert secret not in ctx
+    assert "[REDACTED]" in ctx
+
+
 def test_stale_curation_enqueues_and_spawns(conn, hook_env, monkeypatch):
     spawned = []
     monkeypatch.setattr(session_start.common, "spawn_worker",

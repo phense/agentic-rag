@@ -1,8 +1,10 @@
-"""rag install (spec §3): MCP registration (user scope, via the claude CLI),
-hook wiring in ~/.claude/settings.json (idempotent merge — foreign hooks and
-unknown keys survive untouched), and the backup LaunchAgent with a FRESHLY
-resolved rag path (a recreated .venv must never leave launchd pointing at a
-dead interpreter — Plan-1 review gate)."""
+"""Targeted Claude and Codex installation for the ``rag install`` CLI.
+
+The no-option path remains the legacy Claude installation: user-scoped MCP
+registration, additive ``~/.claude/settings.json`` hook wiring, and the one
+existing backup LaunchAgent.  Codex installation is an explicit, separate
+target and never registers Claude MCP servers or another scheduler.
+"""
 from __future__ import annotations
 
 import json
@@ -15,6 +17,7 @@ from pathlib import Path
 
 from . import backup
 from .config import Config
+from .integrations.codex import install as codex_install
 
 SETTINGS_PATH = Path.home() / ".claude" / "settings.json"
 HOOK_MARKER = "agentic_rag.hooks."
@@ -78,13 +81,30 @@ def register_mcp(python: str, run=subprocess.run) -> None:
 
 @dataclass(frozen=True)
 class InstallReport:
-    settings_path: Path
+    settings_path: Path | None
     plist_path: Path | None
     mcp_registered: bool
+    codex_report: codex_install.CodexInstallReport | None = None
+
+    @property
+    def codex(self) -> codex_install.CodexInstallReport | None:
+        """Short compatibility alias for target-aware CLI consumers."""
+        return self.codex_report
 
 
 def install(cfg: Config, *, settings_path: Path | None = None,
-            run=subprocess.run, with_launchd: bool = True) -> InstallReport:
+            run=subprocess.run, with_launchd: bool = True,
+            codex: bool = False, check: bool = False,
+            codex_home: Path | None = None) -> InstallReport:
+    if codex:
+        paths = codex_install.CodexPaths.for_home(
+            Path.home() if codex_home is None else codex_home
+        )
+        report = codex_install.install_codex(paths, check=check, run=run)
+        return InstallReport(None, None, False, report)
+    if check:
+        raise ValueError("--check requires --codex")
+
     python = sys.executable
     register_mcp(python, run=run)
 

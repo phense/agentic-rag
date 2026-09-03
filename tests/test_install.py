@@ -6,6 +6,7 @@ import pytest
 
 from agentic_rag import install
 from agentic_rag.config import Config
+from agentic_rag.integrations.codex.install import CodexPaths
 
 PY = "/venv/bin/python"
 
@@ -148,3 +149,60 @@ def test_install_skips_launchd_off_darwin(tmp_path, monkeypatch):
     rep = install.install(Config(), settings_path=settings, with_launchd=True)
     assert rep.plist_path is None
     assert called is False
+
+
+def test_install_codex_check_reports_changes_without_legacy_side_effects(
+        tmp_path, monkeypatch):
+    def legacy_must_not_run(*args, **kwargs):
+        raise AssertionError("Codex targeting must not register Claude MCP")
+
+    monkeypatch.setattr(install, "register_mcp", legacy_must_not_run)
+    monkeypatch.setattr(
+        install.codex_install,
+        "_probe_codex",
+        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+    )
+
+    rep = install.install(
+        Config(), codex=True, check=True, codex_home=tmp_path,
+    )
+
+    assert rep.settings_path is None
+    assert rep.plist_path is None
+    assert rep.mcp_registered is False
+    assert rep.codex is not None
+    assert rep.codex_report is rep.codex
+    assert rep.codex.check is True
+    assert rep.codex.changed_paths == CodexPaths.for_home(tmp_path).targets
+    assert not (tmp_path / ".codex").exists()
+
+
+def test_install_codex_replaces_owned_hooks_after_virtualenv_move(
+        tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        install.codex_install,
+        "_probe_codex",
+        lambda paths, run: (None, "local parsing only"),
+    )
+    monkeypatch.setattr(install.sys, "executable", "/old venv/bin/python")
+    first = install.install(Config(), codex=True, codex_home=tmp_path)
+    monkeypatch.setattr(install.sys, "executable", "/new venv/bin/python")
+
+    second = install.install(Config(), codex=True, codex_home=tmp_path)
+
+    hooks = json.loads((tmp_path / ".codex" / "hooks.json").read_text())
+    commands = [
+        handler["command"]
+        for entries in hooks["hooks"].values()
+        for entry in entries
+        for handler in entry["hooks"]
+        if "agentic_rag.hooks." in handler["command"]
+    ]
+    assert commands
+    assert all("/new venv/bin/python" in command for command in commands)
+    assert all("/old venv/bin/python" not in command for command in commands)
+    assert first.codex is not None
+    assert second.codex is not None
+    assert second.codex.changed_paths == (
+        tmp_path / ".codex" / "hooks.json",
+    )

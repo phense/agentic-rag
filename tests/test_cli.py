@@ -4,8 +4,11 @@ from pathlib import Path
 import psycopg
 import pytest
 
-from agentic_rag import cli
+from agentic_rag import cli, jobs
 from agentic_rag.cli import main
+from agentic_rag.continuity import store as continuity_store
+from agentic_rag.continuity.model import CheckpointSnapshot
+from agentic_rag.provider_health import ProviderHealth
 
 from tests._mig_fixture import build_source
 
@@ -114,6 +117,50 @@ def test_status_surfaces_provider_health(cli_env, capsys):
     assert "codex login" in out
 
 
+def test_status_sanitizes_provider_diagnostics(cli_env, monkeypatch, capsys):
+    secret = "sk-abcdefghijklmnop1234"
+    monkeypatch.setattr(
+        cli.status_mod.provider_health,
+        "read_health",
+        lambda: ProviderHealth(secret, False, reason=f"token={secret}"),
+    )
+
+    assert main(["status"]) == 0
+
+    out = capsys.readouterr().out
+    assert secret not in out
+    assert "[REDACTED]" in out
+
+
+def test_status_prints_checkpoint_health(cli_env, capsys):
+    checkpoint = continuity_store.upsert_snapshot(
+        cli_env,
+        CheckpointSnapshot(
+            session_id="status-session",
+            turn_id="turn-1",
+            cursor="event-1",
+            source="PreCompact",
+            trigger="auto",
+            cwd="/project",
+            project_root="/project",
+        ),
+    )
+    jobs.enqueue_checkpoint_enrichment(
+        cli_env,
+        checkpoint_id=checkpoint.id,
+        session_id="status-session",
+        transcript_path="/transcript.jsonl",
+        after_cursor=None,
+    )
+
+    assert main(["status"]) == 0
+
+    out = capsys.readouterr().out
+    assert "checkpoints: 1 open" in out
+    assert "[snapshot] /project" in out
+    assert "checkpoint enrichments: 1 pending" in out
+
+
 def test_queue_requeue_requires_yes_and_exact_count(cli_env, capsys):
     cli_env.execute(
         "INSERT INTO mining_queue(kind, status, attempts, last_error, finished_at) "
@@ -179,6 +226,56 @@ def test_install_no_launchd_skips_plist(tmp_path, monkeypatch, capsys):
                         tmp_path / "settings.json")
     assert main(["install", "--no-launchd"]) == 0
     assert "skipped" in capsys.readouterr().out
+
+
+def test_install_codex_check_reports_changed_paths_without_writing(
+        tmp_path, monkeypatch, capsys):
+    cfg_toml = tmp_path / "config.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    monkeypatch.setattr(
+        cli.install_mod.codex_install,
+        "_probe_codex",
+        lambda paths, run: ("codex-cli test", "managed configuration validated"),
+    )
+
+    assert main([
+        "install", "--codex", "--check", "--codex-home", str(tmp_path),
+    ]) == 0
+
+    out = capsys.readouterr().out
+    assert ".codex/config.toml" in out
+    assert "no files written" in out.lower()
+    assert "/hooks" in out
+    assert not (tmp_path / ".codex").exists()
+
+
+def test_install_check_requires_explicit_codex_target(tmp_path, monkeypatch):
+    cfg_toml = tmp_path / "config.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+
+    with pytest.raises(SystemExit) as exc:
+        cli._main(["install", "--check"])
+
+    assert exc.value.code == 2
+
+
+def test_install_error_diagnostic_is_sanitized(tmp_path, monkeypatch, capsys):
+    cfg_toml = tmp_path / "config.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    secret = "sk-abcdefghijklmnop1234"
+
+    def fail(*args, **kwargs):
+        raise RuntimeError(f"Codex rejected token={secret}")
+
+    monkeypatch.setattr(cli.install_mod, "install", fail)
+
+    assert main(["install", "--codex", "--check"]) == 3
+    err = capsys.readouterr().err
+    assert secret not in err
+    assert "[REDACTED]" in err
 
 
 def test_migrate_run_refuses_without_yes(cli_env, mig_source):

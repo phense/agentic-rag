@@ -1,7 +1,22 @@
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from agentic_rag import provider_health, status
+from agentic_rag import jobs, provider_health, status
 from agentic_rag.config import Config
+from agentic_rag.continuity import store
+from agentic_rag.continuity.model import CheckpointSnapshot
+
+
+def _snapshot(*, session_id="s", cursor="u1", project_root="/project"):
+    return CheckpointSnapshot(
+        session_id=session_id,
+        turn_id="turn-1",
+        cursor=cursor,
+        source="PreCompact",
+        trigger="auto",
+        cwd=project_root,
+        project_root=project_root,
+    )
 
 
 def test_gather_status_counts_docs_and_queue(conn, cfg, tmp_path, monkeypatch):
@@ -57,3 +72,68 @@ def test_gather_status_includes_provider_health_and_oldest_open_mine(
     assert rep.provider_health.available is False
     assert rep.oldest_open_mine_at is not None
     assert rep.oldest_open_mine_at < rep.provider_health.last_failure_at
+
+
+def test_gather_status_reports_checkpoint_freshness(conn, cfg, tmp_path,
+                                                     monkeypatch):
+    monkeypatch.setattr(status, "WARNING_STATE", tmp_path / "absent")
+    checkpoint = store.upsert_snapshot(conn, _snapshot())
+    jobs.enqueue_checkpoint_enrichment(
+        conn,
+        checkpoint_id=checkpoint.id,
+        session_id="s",
+        transcript_path="/transcript.jsonl",
+        after_cursor=None,
+    )
+
+    rep = status.gather_status(conn, cfg)
+
+    assert rep.open_checkpoints == 1
+    assert rep.pending_checkpoint_enrichments == 1
+    assert rep.newest_checkpoint_at == checkpoint.updated_at
+    assert rep.newest_checkpoint_quality == "snapshot"
+    assert rep.newest_checkpoint_project == "/project"
+    assert rep.oldest_pending_checkpoint_enrichment_at is not None
+
+
+def test_gather_status_has_no_checkpoint_warning_when_none_exist(
+        conn, cfg, tmp_path, monkeypatch):
+    monkeypatch.setattr(status, "WARNING_STATE", tmp_path / "absent")
+
+    rep = status.gather_status(conn, cfg)
+
+    assert rep.open_checkpoints == 0
+    assert rep.pending_checkpoint_enrichments == 0
+    assert rep.checkpoint_warnings == ()
+
+
+def test_gather_status_warns_for_configured_stale_and_pending_conditions(
+        conn, cfg, tmp_path, monkeypatch):
+    monkeypatch.setattr(status, "WARNING_STATE", tmp_path / "absent")
+    checkpoint = store.upsert_snapshot(conn, _snapshot())
+    old = datetime.now(timezone.utc) - timedelta(days=cfg.stale_days + 1)
+    conn.execute(
+        "UPDATE continuation_checkpoints SET updated_at = %s WHERE id = %s",
+        (old, checkpoint.id),
+    )
+    jobs.enqueue_checkpoint_enrichment(
+        conn,
+        checkpoint_id=checkpoint.id,
+        session_id="s",
+        transcript_path="/transcript.jsonl",
+        after_cursor=None,
+    )
+    pending_old = datetime.now(timezone.utc) - timedelta(
+        seconds=cfg.worker_backoff_seconds + 1
+    )
+    conn.execute(
+        "UPDATE mining_queue SET enqueued_at = %s "
+        "WHERE kind = 'checkpoint_enrich'",
+        (pending_old,),
+    )
+    conn.commit()
+
+    rep = status.gather_status(conn, cfg)
+
+    assert any("stale" in warning for warning in rep.checkpoint_warnings)
+    assert any("pending" in warning for warning in rep.checkpoint_warnings)
