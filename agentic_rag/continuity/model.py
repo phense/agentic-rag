@@ -24,6 +24,31 @@ MAX_ENRICHMENT_STRING_CHARS = 2_000
 MAX_ENRICHMENT_LIST_ITEMS = 32
 MAX_ENRICHMENT_BYTES = 16_000
 _UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
+_UNIFIED_DIFF_HUNK = re.compile(
+    r"(?m)^---[ \t]+(?:a/|/dev/null)[^\r\n]*\r?\n"
+    r"^\+\+\+[ \t]+(?:b/|/dev/null)[^\r\n]*\r?\n"
+    r"^@@[ \t]+-\d+(?:,\d+)?[ \t]+\+\d+(?:,\d+)?[ \t]+@@"
+)
+_CONTEXT_DIFF_HUNK = re.compile(
+    r"(?ms)^\*{15}\r?\n^\*{3}[ \t]+\d+(?:,\d+)?[ \t]+\*{4}[ \t]*\r?\n"
+    r".*?^---[ \t]+\d+(?:,\d+)?[ \t]-{4}[ \t]*$"
+)
+_SPEAKER_DIALOGUE = re.compile(
+    r"(?im)^\s*(?:user|assistant|system|tool)\s*:\s*\S[^\r\n]*\r?\n"
+    r"\s*(?:user|assistant|system|tool)\s*:\s*\S"
+)
+_JSONL_ROLE_CONTENT_DIALOGUE = re.compile(
+    r'(?im)^\s*\{(?=[^\r\n{}]*"role"\s*:\s*"(?:user|assistant|system|tool)")'
+    r'(?=[^\r\n{}]*"content"\s*:)[^\r\n]*\}\s*\r?\n'
+    r'\s*\{(?=[^\r\n{}]*"role"\s*:\s*"(?:user|assistant|system|tool)")'
+    r'(?=[^\r\n{}]*"content"\s*:)[^\r\n]*\}'
+)
+_UNSAFE_ENRICHMENT_STRUCTURES = (
+    _UNIFIED_DIFF_HUNK,
+    _CONTEXT_DIFF_HUNK,
+    _SPEAKER_DIALOGUE,
+    _JSONL_ROLE_CONTENT_DIALOGUE,
+)
 
 
 def _require_nonblank(value: str, name: str) -> None:
@@ -36,7 +61,8 @@ def _validate_enrichment_string(value: object, field_name: str) -> str:
         raise ValueError(f"enrichment {field_name} must be a string")
     if len(value) > MAX_ENRICHMENT_STRING_CHARS:
         raise ValueError(f"enrichment {field_name} exceeds the character limit")
-    if _UNSAFE_ENRICHMENT_CONTENT.search(value):
+    if (_UNSAFE_ENRICHMENT_CONTENT.search(value)
+            or any(pattern.search(value) for pattern in _UNSAFE_ENRICHMENT_STRUCTURES)):
         raise ValueError(f"enrichment {field_name} contains prohibited content")
     _, redactions = strip_secrets(value)
     if redactions:

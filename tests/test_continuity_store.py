@@ -204,6 +204,35 @@ def test_enrichment_rejects_total_payload_over_the_byte_limit_before_sql(conn):
     assert store.get(conn, checkpoint.id).enrichment == {}
 
 
+@pytest.mark.parametrize("enrichment", [
+    {"goal": "--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old\n+new"},
+    {"tests": ["--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old\n+new"]},
+    {"goal": "***************\n*** 1,2 ****\n-old\n--- 1,2 ----\n+new"},
+    {"goal": "user: Please implement the change.\nassistant: I will inspect it."},
+    {"next_action": (
+        '{"role":"user","content":"Please implement the change."}\n'
+        '{"role":"assistant","content":"I will inspect it."}'
+    )},
+])
+def test_enrichment_rejects_structural_diff_and_dialogue_payloads(conn, enrichment):
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+
+    with pytest.raises(ValueError, match="prohibited content"):
+        store.apply_enrichment(conn, checkpoint.id, enrichment)
+
+    assert store.get(conn, checkpoint.id).enrichment == {}
+
+
+def test_enrichment_allows_a_single_user_label_in_ordinary_short_prose(conn):
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+
+    enriched = store.apply_enrichment(
+        conn, checkpoint.id, {"goal": "The user: admin owns this next action."}
+    )
+
+    assert enriched.enrichment == {"goal": "The user: admin owns this next action."}
+
+
 def test_latest_selectors_only_return_open_checkpoints(conn):
     first = store.upsert_snapshot(conn, snapshot(cursor="first"))
     second = store.upsert_snapshot(conn, snapshot(cursor="second"))
