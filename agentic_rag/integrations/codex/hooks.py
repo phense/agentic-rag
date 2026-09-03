@@ -1,36 +1,51 @@
 """Lossless merge support for Codex lifecycle hooks."""
 from __future__ import annotations
 
+import shlex
 from copy import deepcopy
+from dataclasses import dataclass
 
 
 HOOK_MARKER = "agentic_rag.hooks."
 
 _HOOK_MODULES = {
-    "SessionStart": ("session_start", 10, "startup|resume|clear|compact"),
-    "UserPromptSubmit": ("prompt_recall", 5, None),
-    "Stop": ("stop_enqueue", 10, None),
-    "PreCompact": ("pre_compact", 10, "manual|auto"),
-    "PostCompact": ("post_compact", 10, "manual|auto"),
-    "SessionEnd": ("session_end", 10, None),
+    "SessionStart": (
+        "session_start", 10, "startup|resume|clear|compact", 10000
+    ),
+    "UserPromptSubmit": ("prompt_recall", 5, None, 5000),
+    "Stop": ("stop_enqueue", 10, None, None),
+    "PreCompact": ("pre_compact", 3, "manual|auto", None),
+    "PostCompact": ("post_compact", 3, "manual|auto", None),
+    "SessionEnd": ("session_end", 3, None, None),
 }
+
+
+@dataclass(frozen=True)
+class ForeignHookDuplicate:
+    basename: str
+    count: int
 
 
 def owned_hook_entries(python: str) -> dict[str, list[dict]]:
     """Build the six hook entries owned by agentic-rag."""
     result = {}
-    for event, (module, timeout, matcher) in _HOOK_MODULES.items():
+    quoted_python = shlex.quote(python)
+    for event, (module, timeout, matcher, context_limit) in _HOOK_MODULES.items():
         entry = {
             "hooks": [
                 {
                     "type": "command",
-                    "command": f"{python} -m agentic_rag.hooks.{module}",
+                    "command": (
+                        f"{quoted_python} -m agentic_rag.hooks.{module}"
+                    ),
                     "timeout": timeout,
                 }
             ]
         }
         if matcher is not None:
             entry["matcher"] = matcher
+        if context_limit is not None:
+            entry["additionalContextLimit"] = context_limit
         result[event] = [entry]
     return result
 
@@ -79,9 +94,9 @@ def merge_hooks(data: dict, python: str) -> dict:
     return result
 
 
-def duplicate_herdr_commands(data: dict) -> tuple[str, ...]:
-    """Return duplicated foreign herdr commands without changing them."""
-    counts: dict[str, int] = {}
+def duplicate_herdr_commands(data: dict) -> tuple[ForeignHookDuplicate, ...]:
+    """Summarize duplicated herdr handlers without retaining command text."""
+    count = 0
     hooks = data.get("hooks")
     if not isinstance(hooks, dict):
         return ()
@@ -96,5 +111,7 @@ def duplicate_herdr_commands(data: dict) -> tuple[str, ...]:
                     continue
                 command = str(handler.get("command", ""))
                 if "herdr-agent-state.sh" in command:
-                    counts[command] = counts.get(command, 0) + 1
-    return tuple(sorted(command for command, count in counts.items() if count > 1))
+                    count += 1
+    if count < 2:
+        return ()
+    return (ForeignHookDuplicate("herdr-agent-state.sh", count),)

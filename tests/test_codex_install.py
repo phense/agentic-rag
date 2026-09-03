@@ -8,7 +8,10 @@ from pathlib import Path
 import pytest
 
 from agentic_rag.integrations.codex.config import merge_config
-from agentic_rag.integrations.codex.hooks import merge_hooks
+from agentic_rag.integrations.codex.hooks import (
+    duplicate_herdr_commands,
+    merge_hooks,
+)
 from agentic_rag.integrations.codex.install import (
     CodexPaths,
     install_codex,
@@ -34,6 +37,15 @@ class SuccessfulCodex:
 
 def codex_paths(tmp_path: Path) -> CodexPaths:
     return CodexPaths.for_home(tmp_path)
+
+
+def seed_codex_files(paths: CodexPaths) -> dict[Path, bytes]:
+    paths.config_path.parent.mkdir(parents=True)
+    for path, text in zip(
+        paths.targets, ('custom = "keep"\n', "{}\n", "old prompt\n")
+    ):
+        path.write_text(text)
+    return {path: path.read_bytes() for path in paths.targets}
 
 
 def test_merge_config_preserves_comments_unknown_keys_and_sets_values():
@@ -78,6 +90,14 @@ def test_merge_hooks_installs_each_owned_lifecycle_event_once():
         "PostCompact",
         "SessionEnd",
     }
+    expected = {
+        "SessionStart": ("startup|resume|clear|compact", 10, 10000),
+        "UserPromptSubmit": (None, 5, 5000),
+        "Stop": (None, 10, None),
+        "PreCompact": ("manual|auto", 3, None),
+        "PostCompact": ("manual|auto", 3, None),
+        "SessionEnd": (None, 3, None),
+    }
     for event, entries in merged["hooks"].items():
         owned = [
             handler
@@ -87,11 +107,69 @@ def test_merge_hooks_installs_each_owned_lifecycle_event_once():
         ]
         assert len(owned) == 1, event
         assert owned[0]["command"].startswith(PYTHON)
-    assert merged["hooks"]["SessionStart"][-1]["matcher"] == (
-        "startup|resume|clear|compact"
+        matcher, timeout, context_limit = expected[event]
+        entry = entries[-1]
+        assert entry.get("matcher") == matcher
+        assert owned[0]["timeout"] == timeout
+        assert entry.get("additionalContextLimit") == context_limit
+
+
+def test_merge_hooks_shell_quotes_python_executable():
+    python = "/tmp/venv with spaces/bin/py;not-a-command"
+
+    merged = merge_hooks({}, python)
+
+    commands = [
+        handler["command"]
+        for entries in merged["hooks"].values()
+        for entry in entries
+        for handler in entry["hooks"]
+    ]
+    assert all(
+        command.startswith("'/tmp/venv with spaces/bin/py;not-a-command' -m ")
+        for command in commands
     )
-    assert merged["hooks"]["PreCompact"][-1]["matcher"] == "manual|auto"
-    assert merged["hooks"]["PostCompact"][-1]["matcher"] == "manual|auto"
+
+
+def test_duplicate_herdr_diagnostic_contains_only_safe_basename_and_count():
+    secret = "do-not-leak-this-token"
+    hooks = {
+        "hooks": {
+            "SessionStart": [
+                {"hooks": [{"command": f"TOKEN={secret} /x/herdr-agent-state.sh"}]},
+                {"hooks": [{"command": f"/x/herdr-agent-state.sh --key={secret}"}]},
+            ]
+        }
+    }
+
+    diagnostics = duplicate_herdr_commands(hooks)
+
+    assert [(item.basename, item.count) for item in diagnostics] == [
+        ("herdr-agent-state.sh", 2)
+    ]
+    assert secret not in repr(diagnostics)
+
+
+def test_install_report_never_contains_inline_foreign_hook_secret(tmp_path):
+    secret = "do-not-leak-this-token"
+    paths = codex_paths(tmp_path)
+    paths.hooks_path.parent.mkdir(parents=True)
+    paths.hooks_path.write_text(json.dumps({
+        "hooks": {
+            "SessionStart": [
+                {"hooks": [{"command": f"TOKEN={secret} /x/herdr-agent-state.sh"}]},
+                {"hooks": [{"command": f"/x/herdr-agent-state.sh --key={secret}"}]},
+            ]
+        }
+    }))
+
+    report = install_codex(paths, check=True, run=SuccessfulCodex())
+
+    assert secret not in repr(report.foreign_hook_duplicates)
+    assert [
+        (item.basename, item.count)
+        for item in report.foreign_hook_duplicates
+    ] == [("herdr-agent-state.sh", 2)]
 
 
 def test_merge_hooks_replaces_only_owned_commands_and_preserves_foreign_data():
@@ -193,7 +271,10 @@ def test_install_codex_stages_validates_backs_up_and_can_restore(tmp_path):
     )
     assert len(report.backups) == 3
     assert all(backup.backup_path.exists() for backup in report.backups)
-    assert report.foreign_hook_duplicates == ("herdr-agent-state.sh",)
+    assert [
+        (item.basename, item.count)
+        for item in report.foreign_hook_duplicates
+    ] == [("herdr-agent-state.sh", 2)]
     assert report.codex_version == "codex-cli 0.152.1"
     assert report.runtime_validation == "managed configuration validated"
     assert tomllib.loads(paths.config_path.read_text())["model_context_window"] == 600000
@@ -226,7 +307,41 @@ def test_install_codex_check_reports_changes_without_writing(tmp_path):
         paths.prompt_path,
     )
     assert report.backups == ()
+    assert "ephemeral isolated CODEX_HOME" in report.probe_isolation
     assert set(tmp_path.rglob("*")) == before
+
+
+def test_probe_isolates_and_bounds_every_codex_subprocess(tmp_path, monkeypatch):
+    paths = codex_paths(tmp_path)
+    real_codex_home = tmp_path / "real-codex-home"
+    real_codex_home.mkdir()
+    sentinel = real_codex_home / "sentinel"
+    sentinel.write_text("untouched")
+    monkeypatch.setenv("CODEX_HOME", str(real_codex_home))
+    runner = SuccessfulCodex()
+
+    report = install_codex(paths, check=True, run=runner)
+
+    probe_homes = {kwargs["env"]["CODEX_HOME"] for _, kwargs in runner.calls}
+    assert len(probe_homes) == 1
+    assert str(real_codex_home) not in probe_homes
+    assert all(kwargs["timeout"] == 10 for _, kwargs in runner.calls)
+    assert not Path(probe_homes.pop()).exists()
+    assert sentinel.read_text() == "untouched"
+    assert not paths.config_path.parent.exists()
+    assert "ephemeral isolated CODEX_HOME" in report.probe_isolation
+
+
+def test_probe_timeout_reports_local_only_validation(tmp_path):
+    paths = codex_paths(tmp_path)
+
+    def run(command, **kwargs):
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+    report = install_codex(paths, check=True, run=run)
+
+    assert "rollout step" in report.runtime_validation
+    assert "ephemeral isolated CODEX_HOME" in report.probe_isolation
 
 
 def test_install_codex_accepts_empty_existing_files(tmp_path):
@@ -294,6 +409,123 @@ def test_install_codex_staging_failure_leaves_live_files_unchanged(
 
     assert {path: path.read_bytes() for path in paths.targets} == originals
     assert not tuple(paths.config_path.parent.glob("*.bak.*"))
+
+
+def test_concurrent_edit_during_probe_aborts_without_overwrite(tmp_path):
+    paths = codex_paths(tmp_path)
+    originals = seed_codex_files(paths)
+    edited = b'custom = "concurrent"\n'
+    runner = SuccessfulCodex()
+
+    def run(command, **kwargs):
+        if not runner.calls:
+            paths.config_path.write_bytes(edited)
+        return runner(command, **kwargs)
+
+    with pytest.raises(RuntimeError, match="changed concurrently"):
+        install_codex(paths, run=run)
+
+    assert paths.config_path.read_bytes() == edited
+    assert paths.hooks_path.read_bytes() == originals[paths.hooks_path]
+    assert paths.prompt_path.read_bytes() == originals[paths.prompt_path]
+
+
+def test_partial_failure_does_not_rollback_never_replaced_concurrent_edit(
+    tmp_path, monkeypatch
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    originals = seed_codex_files(paths)
+    prompt_edit = b"concurrent third-target edit\n"
+    real_replace = install_module.os.replace
+    calls = 0
+
+    def fail_second(source, target):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            paths.prompt_path.write_bytes(prompt_edit)
+            raise OSError("simulated replace failure")
+        return real_replace(source, target)
+
+    monkeypatch.setattr(install_module.os, "replace", fail_second)
+
+    with pytest.raises(OSError, match="replace"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert paths.config_path.read_bytes() == originals[paths.config_path]
+    assert paths.hooks_path.read_bytes() == originals[paths.hooks_path]
+    assert paths.prompt_path.read_bytes() == prompt_edit
+
+
+def test_partial_failure_does_not_overwrite_replaced_target_concurrent_edit(
+    tmp_path, monkeypatch
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    concurrent = b'custom = "edited-after-replace"\n'
+    real_replace = install_module.os.replace
+    calls = 0
+
+    def fail_second(source, target):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            paths.config_path.write_bytes(concurrent)
+            raise OSError("simulated replace failure")
+        return real_replace(source, target)
+
+    monkeypatch.setattr(install_module.os, "replace", fail_second)
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert paths.config_path.read_bytes() == concurrent
+    assert tuple(paths.config_path.parent.glob("config.toml.bak.*"))
+
+
+@pytest.mark.parametrize("leaf", ["config_path", "hooks_path", "prompt_path"])
+@pytest.mark.parametrize("broken", [False, True])
+def test_install_codex_rejects_existing_leaf_symlinks(
+    tmp_path, leaf, broken
+):
+    paths = codex_paths(tmp_path)
+    originals = seed_codex_files(paths)
+    link = getattr(paths, leaf)
+    link.unlink()
+    target = tmp_path / f"{leaf}-target"
+    if not broken:
+        target.write_text("do not change")
+    link.symlink_to(target)
+
+    with pytest.raises(RuntimeError, match="symbolic link"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert link.is_symlink()
+    if not broken:
+        assert target.read_text() == "do not change"
+    for path in paths.targets:
+        if path != link:
+            assert path.read_bytes() == originals[path]
+
+
+def test_restore_rejects_a_new_leaf_symlink(tmp_path):
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    report = install_codex(paths, run=SuccessfulCodex())
+    paths.config_path.unlink()
+    target = tmp_path / "restore-target"
+    target.write_text("do not change")
+    paths.config_path.symlink_to(target)
+
+    with pytest.raises(RuntimeError, match="symbolic link"):
+        restore_codex(report)
+
+    assert paths.config_path.is_symlink()
+    assert target.read_text() == "do not change"
 
 
 def test_install_codex_rolls_back_a_partial_replace_failure(tmp_path, monkeypatch):
