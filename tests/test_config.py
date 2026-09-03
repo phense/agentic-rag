@@ -138,3 +138,26 @@ def test_pg_section_sets_bin_dir(tmp_path):
     p = tmp_path / "c.toml"
     p.write_text('[pg]\nbin_dir = "/opt/pg/bin"\n')
     assert load_config(p).pg_bin_dir == Path("/opt/pg/bin")
+
+
+def test_continuity_defaults():
+    cfg = Config()
+    assert cfg.checkpoint_status_max_chars == 4000
+    assert cfg.checkpoint_render_max_chars == 8000
+    assert cfg.checkpoint_artifact_max == 16
+
+
+def test_continuity_section_fields(tmp_path):
+    p = tmp_path / "c.toml"
+    p.write_text(
+        "[continuity]\n"
+        "status_max_chars = 120\n"
+        "render_max_chars = 240\n"
+        "artifact_max = 3\n"
+    )
+
+    cfg = load_config(p)
+
+    assert cfg.checkpoint_status_max_chars == 120
+    assert cfg.checkpoint_render_max_chars == 240
+    assert cfg.checkpoint_artifact_max == 3

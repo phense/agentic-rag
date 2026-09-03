@@ -10,7 +10,19 @@ from pathlib import Path
 DEFAULT_PATH = Path.home() / ".agentic-rag" / "config.toml"
 
 # TOML section -> field prefix. [db] name  ->  db_name, etc.
-_SECTION_PREFIX = {"db": "db", "embed": "embed", "ollama": "ollama", "backup": "backup", "hooks": "hooks", "llm": "llm", "mining": "mine", "curation": "curation", "worker": "worker", "pg": "pg"}
+_SECTION_PREFIX = {
+    "db": "db",
+    "embed": "embed",
+    "ollama": "ollama",
+    "backup": "backup",
+    "hooks": "hooks",
+    "llm": "llm",
+    "mining": "mine",
+    "curation": "curation",
+    "worker": "worker",
+    "pg": "pg",
+    "continuity": "checkpoint",
+}
 
 
 @dataclass(frozen=True)
@@ -44,6 +56,9 @@ class Config:
     curation_budget: int = 20
     worker_max_attempts: int = 3
     worker_backoff_seconds: int = 300
+    checkpoint_status_max_chars: int = 4000
+    checkpoint_render_max_chars: int = 8000
+    checkpoint_artifact_max: int = 16
 
 
 _PATH_FIELDS = {"backup_cloud_dir", "backup_local_dir", "pg_bin_dir"}
