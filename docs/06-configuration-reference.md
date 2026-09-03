@@ -122,9 +122,10 @@ canonical home.
 
 ## `[llm]`
 
-The CLI provider used by mining and curation. Public defaults remain
-Claude/Haiku for backward compatibility; a Codex deployment can use ChatGPT
-authentication without adding an API key.
+The CLI provider used by mining, curation, and bounded checkpoint enrichment.
+Public defaults remain Claude/Haiku for backward compatibility; a Codex
+deployment can use ChatGPT authentication without adding an API key. The
+Claude CLI supports its OAuth and API-key authentication paths.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
@@ -247,7 +248,7 @@ trust only the commands you have inspected.
 
 ## Next →
 
-[07 · Privacy, cost & control](07-privacy-and-cost.md) — auth-agnostic
-LLM calls (your Claude subscription or API key), the secret-stripping
-gateway, the role matrix, and how
+[07 · Privacy, cost & control](07-privacy-and-cost.md) — provider-configurable
+LLM calls (Codex with ChatGPT login or Claude with supported OAuth/API-key
+authentication), the secret-stripping gateway, the role matrix, and how
 backups get restore-tested rather than trusted blindly.

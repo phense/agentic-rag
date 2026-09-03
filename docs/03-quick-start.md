@@ -12,7 +12,7 @@ Install these first — agentic-rag doesn't bundle or manage any of them:
 |---|---|
 | **PostgreSQL 17** with the [`pgvector`](https://github.com/pgvector/pgvector) extension | The schema uses `halfvec`, which needs pgvector ≥ 0.7. This is where documents, chunks, and edges live. |
 | **[Ollama](https://ollama.com)**, with the embedding model pulled | `ollama pull bge-m3` — `bge-m3` produces the 1024-dim embeddings the schema is built for. Search degrades to full-text-only if Ollama is unreachable, but embeddings need it. |
-| **An authenticated LLM CLI** | Session mining and curation support `codex exec` (authenticate with `codex login`) and `claude -p`. Select it in `[llm]`; Claude/Haiku is the compatibility default. Embeddings stay local (Ollama/`bge-m3`). |
+| **An authenticated LLM CLI** | Mining, curation, and bounded checkpoint enrichment support `codex exec` (authenticate with `codex login`) and `claude -p` (supported OAuth or API-key authentication). Select it in `[llm]`; Claude/Haiku is the compatibility default. Embeddings stay local (Ollama/`bge-m3`). |
 | **[`uv`](https://docs.astral.sh/uv/)** | Dependency management and running the project. |
 | **Python ≥ 3.13** | `uv sync` will pick this up automatically if it's on your machine. |
 

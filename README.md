@@ -28,9 +28,22 @@ Codex or Claude CLI to turn the bounded transcript digest into durable,
 findable memories. The core data model and provider seam are provider-neutral;
 integrations adapt each coding agent's lifecycle and output contracts.
 
-It runs on your machine and uses **your configured CLI account** for LLM-assisted mining: Codex with ChatGPT login or Claude with its supported authentication. Embeddings are **always local** (Ollama), so retrieval does not call either provider. It's RAM-lean by design: no always-on daemon beyond Postgres and Ollama, and an idle footprint near zero between sessions. And it's built data-safety-first — it archives rather than deletes, writes through a least-privilege role matrix, audits every change, and periodically restore-tests its own backups.
+It runs on your machine and uses **your configured CLI account** for
+LLM-assisted mining, curation, and bounded checkpoint enrichment: Codex with
+ChatGPT login or Claude with its supported OAuth or API-key authentication.
+Embeddings are **always local** (Ollama), so retrieval does not call either
+provider. It's RAM-lean by design: no always-on daemon beyond Postgres and
+Ollama, and an idle footprint near zero between sessions. And it's built
+data-safety-first — it archives rather than deletes, writes through a
+least-privilege role matrix, audits every change, and periodically
+restore-tests its own backups.
 
-> **Your data stays yours.** This repository is **code only** — it ships no content. Your documents, embeddings, links, and any secrets live in *your* PostgreSQL database on *your* machine; nothing leaves it unless you explicitly configure a synced backup directory. Mining and curation send only their bounded prompts through the configured local Codex or Claude CLI; agentic-rag has no separate hosted RAG backend.
+> **Your data stays yours.** This repository is **code only** — it ships no
+> content. Your documents, embeddings, links, and any secrets live in *your*
+> PostgreSQL database on *your* machine; nothing leaves it unless you explicitly
+> configure a synced backup directory. LLM-assisted mining, curation, and
+> checkpoint enrichment send bounded, redacted inputs through the configured
+> local Codex or Claude CLI; agentic-rag has no separate hosted RAG backend.
 
 **[Why](#why-agentic-rag)** · **[Quick start](#quick-start)** · **[What's different](#what-makes-it-different)** · **[How it works](#how-it-works)** · **[Comparison](#comparison)** · **[Configuration](#configuration)** · **[📖 Handbook](#-documentation--handbook)** · **[Status](#status)** · **[Acknowledgments](#acknowledgments)** · **[License](#license)**
 
@@ -195,7 +208,7 @@ The full story is in the **[handbook](docs/README.md)** — the mental model, ev
 
 agentic-rag sits between two worlds: the file-based **LLM-Wiki** family (human-readable Markdown with a lint/graph layer) and typical **RAG stacks** (hosted or API-driven retrieval you feed documents to). Every cell below is marked honestly — including the rows where each of them beats us.
 
-Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
+Legend: ✅ shipped in code and operationally established · 🧪 shipped in code, live rollout pending · ⚠️ partial / caveated · ❌ absent
 
 ### vs LLM-Wiki systems (file-based knowledge wikis)
 
@@ -216,7 +229,8 @@ Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
 | Capability | **agentic-rag** | Typical RAG stack |
 |---|:--:|:--:|
 | Local-first store, provider CLI under your control, no hosted RAG service ¹ | ✅ | ⚠️ usually a hosted service |
-| Auto-populates from supported coding sessions (mining) | ✅ | ❌ you feed it |
+| Auto-populates from Claude Code sessions (mining) | ✅ | ❌ you feed it |
+| Codex session mining and continuity | 🧪 | ❌ you feed it |
 | Self-curation (dedup, near-dup gate, refute/archive) | ✅ | ⚠️ |
 | Typed knowledge graph (edges) alongside vector search | ✅ | ⚠️ |
 | One audited write gateway with secret stripping | ✅ | ❌ |
@@ -226,7 +240,14 @@ Legend: ✅ shipped & live · ⚠️ partial / caveated · ❌ absent
 **Bottom line:** a hosted RAG stack wins on turnkey scale and ecosystem. agentic-rag wins on being local-first, using a provider CLI under your control with no hosted RAG service in the loop, self-populating-from-your-own-work, and self-curating — a memory that fills and tidies itself instead of one you have to keep feeding.
 
 <sub>
-¹ agentic-rag is <strong>auth-agnostic</strong>: its LLM-assisted mining and curation call your local <code>claude</code> CLI on whatever you gave it — a Claude subscription (no extra cost beyond your plan) or your own <code>ANTHROPIC_API_KEY</code> (metered by Anthropic, your choice). Either way <strong>embeddings are always local</strong> (Ollama), so retrieval is free, and there's no third-party RAG service between you and your data. Most hosted RAG stacks route your documents through a paid service.<br>
+¹ agentic-rag is <strong>provider-configurable</strong>: LLM-assisted mining, curation,
+and bounded checkpoint enrichment use the configured local CLI — Codex with a
+ChatGPT login, or Claude with its supported OAuth or
+<code>ANTHROPIC_API_KEY</code> authentication. Account limits and any metering
+belong to that chosen provider. <strong>Embeddings are always local</strong>
+(Ollama), so retrieval does not call a model provider, and there is no
+third-party RAG service between you and your data. Most hosted RAG stacks route
+your documents through a paid service.<br>
 ² agentic-rag is <strong>newly public</strong> and self-hosted — the field's clearest edge over us is turnkey managed hosting and a large plugin/integration ecosystem.
 </sub>
 

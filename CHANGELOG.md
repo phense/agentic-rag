@@ -24,9 +24,10 @@ milestones rather than every commit, and interfaces may still change between `0.
   context window, 500000-token total-scope compaction threshold (100K reserve),
   native Codex memories, and Luna extraction/consolidation. agentic-rag remains
   the canonical durable store; native memories are complementary.
-- **Codex mining provider.** Mining and curation can use schema-constrained,
-  ephemeral `codex exec` calls with configurable model and reasoning effort;
-  the Claude adapter remains available as a compatibility rollback.
+- **Codex provider adapter.** Mining, curation, and bounded checkpoint
+  enrichment can use schema-constrained, ephemeral `codex exec` calls with
+  configurable model and reasoning effort; the Claude adapter remains
+  available as a compatibility rollback.
 - **Provider-health visibility.** `rag status` and SessionStart expose sustained
   provider outages and their remediation without leaking subprocess secrets.
 

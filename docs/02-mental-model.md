@@ -88,12 +88,14 @@ blockers, and the next exact action within its configured budget, labels
 snapshot-only state as enrichment pending, and tells the next model to
 revalidate volatile process or external state.
 
-The restoration boundary matters: `PostCompact` cannot inject context and
+The restoration boundary matters: **PostCompact cannot inject context** and
 never tries. It only marks the stored checkpoint as compacted.
-`SessionStart(source="compact")` runs before the next model request and injects
-the latest open checkpoint for that same session. A normal startup/resume may
-fall back to the newest checkpoint for the same canonical Git project; compact
-restoration never crosses sessions or projects.
+`SessionStart(source="compact")` runs before the next model request. Lookup
+first takes the latest open same-session checkpoint: the **same-session
+checkpoint wins regardless of project metadata**. Only when no same-session
+checkpoint exists may a normal startup/resume fall back to the newest
+checkpoint for the same canonical Git project. **Compact never falls back to
+another session or project.**
 
 Native Codex memories solve a different problem. They are complementary
 adaptation managed by Codex and inspectable with `/memories`; agentic-rag is the

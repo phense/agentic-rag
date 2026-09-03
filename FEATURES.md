@@ -64,8 +64,8 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 - 🔒 **Global Codex rollout.** Installation into the real user configuration,
   `/hooks` trust, manual and automatic compaction smoke tests, provider
   outage/recovery, SessionEnd tail capture, and evidence recording remain
-  blocked on the pre-install review. Codex continuity is therefore not yet
-  claimed live; see backlog 0.2.
+  blocked on the pre-install review. Codex live rollout pending under backlog
+  0.2 means continuity is not yet claimed operationally live.
 
 Native Codex memories are complementary: they may adapt Codex from prior work
 and remain inspectable with `/memories`. agentic-rag is the canonical store for
@@ -75,6 +75,8 @@ durable, searchable, auditable knowledge and explicit continuation state.
 
 - ⬜ Measure and tune prompt-recall firing behavior.
 - ⬜ Correct curation cadence/audit growth and cap-aware mining cursors.
+- ⬜ Define the intended refute-trigger recency semantics, then decide whether
+  a recency check is warranted ([BACKLOG 2.2](BACKLOG.md#2--housekeeping--test-coverage)).
 - ⬜ Improve worker-death idempotency and complete the listed coverage gaps.
 - ⬜ Validate duplicate review under sustained load, normalize interactive save
   confidence, preserve built SessionStart context on maintenance failure, and

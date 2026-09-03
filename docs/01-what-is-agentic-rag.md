@@ -31,7 +31,11 @@ not a service you sign up for.
   after compaction. `PostCompact` cannot inject context; it only marks the
   boundary.
 - **Self-curating.** A background process de-duplicates near-identical entries, flags dangling links and stale pins, and gives you a `rag review` report instead of letting the store rot silently.
-- **Local-first and provider-configurable.** Your data lives in a Postgres database on your machine (or one you control). Mining and curation call the configured Codex or Claude CLI. Embeddings are always local (Ollama), and there's no separate hosted RAG service in the loop.
+- **Local-first and provider-configurable.** Your data lives in a Postgres
+  database on your machine (or one you control). LLM-assisted mining,
+  curation, and bounded checkpoint enrichment call the configured Codex or
+  Claude CLI. Embeddings are always local (Ollama), and there's no separate
+  hosted RAG service in the loop.
 - **RAM-lean.** There's no always-on daemon beyond Postgres and Ollama themselves. The background worker is single-writer and event-driven; between sessions, agentic-rag's own footprint is close to zero.
 - **Data-safety-first.** Writes go through one gateway that strips secret-shaped tokens before anything reaches disk, refuting a document archives it instead of deleting it, and backups get a real weekly restore-test — not just a file that might be a backup.
 

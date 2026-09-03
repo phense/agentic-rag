@@ -84,13 +84,14 @@ rag install --codex
 rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
 ```
 
-Check/install output enumerates every managed setting, including
+Check/install output enumerates the managed policy settings, including
 `model_context_window=600000`,
 `model_auto_compact_token_limit=500000`, total-token scope, hooks/memories,
-and Luna memory models. It reports would-change/changed paths, unique sibling
-backups, foreign `herdr-agent-state.sh` duplicate counts, Codex version when
-available, runtime-validation coverage, isolated-probe guarantees, and the
-required `/hooks` trust review. Check mode ends with “no files written.”
+and Luna memory models. Separately, its would-change/changed paths report the
+managed prompt artifact path along with config and hooks paths. It also reports
+unique sibling backups, foreign `herdr-agent-state.sh` duplicate counts, Codex
+version when available, runtime-validation coverage, isolated-probe guarantees,
+and the required `/hooks` trust review. Check mode ends with “no files written.”
 
 A changing install prints an exact rollback command whose record normally
 lives under `~/.agentic-rag/state/`. Restore prints each restored path and
@@ -110,7 +111,7 @@ validated rollback record.
 |---|---|
 | `PreCompact` | Silent, always exit 0; snapshot persistence/enqueue failures are logged and never block compaction. |
 | `PostCompact` | Silent on success. It cannot inject context; a DB failure may emit only `{"systemMessage":"checkpoint bookkeeping delayed"}`. |
-| `SessionStart(source="compact")` | Emits the same-session bounded checkpoint as `additionalContext` before the next model request. This is the restoration event. |
+| `SessionStart(source="compact")` | Emits the same-session bounded checkpoint as `additionalContext` before the next model request. Same-session lookup wins regardless of project metadata. Startup/resume alone may fall back within the same canonical project; compact never falls back to another session or project. This is the restoration event. |
 | `SessionEnd(reason="other")` | Silent delta enqueue through the same deduplicating path as `Stop`. |
 
 After any Codex install, run `/hooks`, inspect the six owned commands/hashes,

@@ -15,16 +15,17 @@ Supported choices are:
 - **Codex with ChatGPT authentication.** Run `codex login`; a deployment can
   select a Codex model and reasoning effort without storing an API key here.
 - **Your Claude subscription (OAuth login).** This is the same login your
-  interactive Claude Code sessions use. Mining and curation add nothing beyond
-  your existing plan — there's no per-token invoice, nothing extra to meter.
+  interactive Claude Code sessions use. Mining, curation, and checkpoint
+  enrichment use that authenticated CLI account rather than an agentic-rag
+  billing path; provider plan limits still apply.
 - **An `ANTHROPIC_API_KEY`.** If your `claude` CLI is set up against an API
   key, those `claude -p` calls are metered by Anthropic like any other API
   use. agentic-rag runs fine either way; the metering is between you and
   Anthropic, on the account you chose.
 
 In every case, **embeddings are local** — retrieval and re-embedding run on
-your own Ollama (`bge-m3`). Only LLM-assisted mining and curation call the
-selected external provider.
+your own Ollama (`bge-m3`). LLM-assisted mining, curation, and checkpoint
+enrichment are the bounded paths that call the selected external provider.
 
 Codex continuity enrichment is another bounded provider call through that same
 seam. The safety-critical checkpoint does not depend on it: `PreCompact`
@@ -157,7 +158,7 @@ agentic-rag talks to Postgres through three login roles, defined in
 | Role | Can do | Cannot do |
 |---|---|---|
 | `rag_reader` | `SELECT` on every table | Any write |
-| `rag_writer` | `SELECT`/`INSERT`/`UPDATE` on `domains`, `documents`, `edges`, `pins`, `mining_queue`; `SELECT`/`INSERT` (append-only) on `audit_log`; `SELECT` on `chunks` and `schema_migrations` | `DELETE`, `TRUNCATE`, `DROP` — anywhere, on anything |
+| `rag_writer` | `SELECT`/`INSERT`/`UPDATE` on `domains`, `documents`, `edges`, `pins`, `mining_queue`, and `continuation_checkpoints`; `SELECT`/`INSERT` (append-only) on `audit_log`; `SELECT` on `chunks` and `schema_migrations` | `DELETE`, `TRUNCATE`, `DROP` — anywhere, on anything |
 | `rag_admin` | Everything | — used only by `migrate`, `purge`, `restore` |
 
 The interesting row is `rag_writer`. It has no `DELETE` grant on `chunks` at

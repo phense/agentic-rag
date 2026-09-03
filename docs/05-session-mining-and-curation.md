@@ -12,7 +12,7 @@ the memory fills itself.**
 
 1. You have a supported coding session. Nothing you do is special — no
    `memory_save` calls required.
-2. Each time Claude finishes responding, the **Stop** hook fires. It
+2. Each time the coding agent finishes responding, the **Stop** hook fires. It
    enqueues the session's transcript for mining and returns in well under
    100 ms — it never blocks your terminal. (A debounce in the queue, not in
    the hook, keeps this from triggering a provider call on every turn —
@@ -56,10 +56,11 @@ task immediately after context compaction:
 3. `PostCompact` marks the matching checkpoint boundary. **`PostCompact`
    cannot inject context** under the Codex hook contract; on success it is
    silent, and on bookkeeping failure it emits only a system message.
-4. `SessionStart(source="compact")` runs before the next model request and
-   restores the latest open checkpoint from that same session. Normal startup
-   or resume can fall back to an exact canonical-project match, but compact
-   restoration never crosses sessions or projects.
+4. `SessionStart(source="compact")` runs before the next model request. The
+   latest open same-session checkpoint wins regardless of project metadata.
+   Only when that lookup finds no row may normal startup or resume fall back to
+   an exact canonical-project match; compact never falls back to another
+   session or project.
 5. `SessionEnd(reason="other")` uses the same delta enqueue path as `Stop` so a
    final unmatched transcript tail is queued without duplicating an already
    open mining job.
@@ -123,9 +124,9 @@ becomes something a future session's identical error can recall.
 
 ## The queue and the single writer
 
-Every mining, curation, retry-embed, and opportunistic-backup job lives in
-one `mining_queue` table. The worker is a short-lived process, spawned
-on-demand by hooks (never a daemon), that:
+Every mining, curation, checkpoint-enrichment, retry-embed, and
+opportunistic-backup job lives in one `mining_queue` table. The worker is a
+short-lived process, spawned on-demand by hooks (never a daemon), that:
 
 - Takes an exclusive `flock` on a lock file before doing anything. If the
   lock is held, it exits 0 immediately — it never queues extra work behind
@@ -293,9 +294,10 @@ row naming which slugs were removed.
   errors and exits 0. A dead database, a missing provider binary, an
   unreachable Ollama — none of it can stop you from working; at worst you
   lose the context injection (and SessionStart tells you so, visibly).
-- **Provider-configurable, local-first.** Mining and curation use the local
-  Codex or Claude CLI you configure. There's no separate hosted RAG service,
-  and embeddings are always local (Ollama).
+- **Provider-configurable, local-first.** LLM-assisted mining, curation, and
+  bounded checkpoint enrichment use the local Codex or Claude CLI you
+  configure. There's no separate hosted RAG service, and embeddings are always
+  local (Ollama).
 - **Local source, bounded provider input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all. The

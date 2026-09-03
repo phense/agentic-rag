@@ -385,7 +385,7 @@ every foreign entry:
 
 | Codex event | Matcher / timeout / context budget | Continuity behavior |
 |---|---|---|
-| `SessionStart` | `startup\|resume\|clear\|compact`, 10s, `additionalContextLimit=10000` | Injects ordinary memory context and a bounded checkpoint. Same-session wins; only startup/resume can fall back to the same canonical project. This is the only post-compaction restoration point. |
+| `SessionStart` | `startup\|resume\|clear\|compact`, 10s, `additionalContextLimit=10000` | Injects ordinary memory context and a bounded checkpoint. The same-session checkpoint wins regardless of project metadata. Only when no same-session row exists may startup/resume fall back to the same canonical project; compact never falls back to another session or project. This is the only post-compaction restoration point. |
 | `UserPromptSubmit` | 5s, `additionalContextLimit=5000` | Same deterministic signal/pin recall as the Claude integration. |
 | `Stop` | 10s | Uses the shared transcript-delta path to enqueue debounced mining. |
 | `PreCompact` | `manual\|auto`, 3s | Commits deterministic snapshot state, then best-effort captures repository state and queues asynchronous enrichment. No inline provider call. |
