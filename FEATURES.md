@@ -37,9 +37,10 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   local plus opt-in synced backups, retention, deliberate database restore,
   log rotation, scheduled maintenance, and report-only restore-testing are
   shipped.
-- ✅ **Claude Code integration.** The legacy no-option installer registers
-  read-write/read-only MCP servers and merges the three Claude hooks without
-  replacing foreign settings.
+- ✅ **Claude Code integration.** The default no-option installer registers
+  read-write/read-only MCP servers and merges six Claude hooks plus the managed
+  `autoCompactWindow` without replacing foreign settings; `rag install --check`
+  previews the merge and writes nothing.
 
 ## Codex continuity
 
@@ -74,6 +75,47 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 Native Codex memories are complementary: they may adapt Codex from prior work
 and remain inspectable with `/memories`. agentic-rag is the canonical store for
 durable, searchable, auditable knowledge and explicit continuation state.
+
+## Claude continuity
+
+- ✅ **Six Claude handlers.** `SessionStart`, `UserPromptSubmit`, `Stop`,
+  `PreCompact`, `PostCompact`, and `SessionEnd` share the Codex modules;
+  `hooks.common.client_kind()` selects the Claude branch from argv and the
+  payload, and every existing Codex test stays green.
+- ✅ **Compact prompt channel.** `PreCompact` prints the versioned
+  `assets/claude/compact_prompt.md` (≤ 4,000 chars, `Version: 1.0`) plus the
+  checkpoint id on stdout, which Claude appends to its compaction prompt; the
+  prompt is printed even when persistence fails and the hook never exits 2.
+- ✅ **Handoff.** `PostCompact` matches the newest uncompacted same-session
+  checkpoint without a `turn_id`, marks the boundary, and stores Claude's
+  `compact_summary` as a bounded (`handoff_max_chars`, default 8,000),
+  secret-stripped, audited handoff (migration 008: `handoff`, `handoff_at`).
+  Replays are idempotent; a newer summary replaces the older one.
+- ✅ **Context cap.** `SessionStart` renders the handoff with a
+  `CURRENT`/`HISTORICAL` age label and caps its whole output at
+  `context_max_chars` (default 9,500; hard maximum 10,000, Claude's per-hook
+  limit), trimming knowledge, domains, checkpoint, then pins with a visible
+  warning that counts the pins cut. `SessionEnd` enqueues the final delta for
+  every Claude reason within a 1 s timeout (measured about 0.12 s).
+- ✅ **Managed 1M/500K policy.** The installer sets `autoCompactWindow =
+  500000` only; it reports a `model` without the `[1m]` suffix,
+  `autoCompactEnabled=false`, and overriding `CLAUDE_CODE_AUTO_COMPACT_WINDOW`
+  / `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` / `DISABLE_AUTO_COMPACT` /
+  `DISABLE_COMPACT` without rewriting anything.
+- ✅ **Check and restore.** `rag install --check` previews the merge and
+  writes nothing; a changing install stages, backs up to a unique
+  `settings.json.bak.<id>`, publishes atomically, records a mode-0600
+  rollback record, and prints the exact `rag install --restore <record>`
+  command, which is target-aware for Claude and Codex records. `rag status`
+  shows `checkpoint handoff:` freshness.
+- 🔵 **Live rollout.** Code, tests, and docs are shipped; the maintainer
+  machine has not yet run `rag install`, reviewed `/hooks`, confirmed
+  `/autocompact` = 500000, or exercised manual/automatic compaction and a
+  SessionEnd tail capture. See backlog 0.3.
+
+Claude auto-memory is the Claude analogue of native Codex memories: a
+complementary local layer that this feature neither installs nor changes.
+agentic-rag remains canonical.
 
 ## Planned hardening
 

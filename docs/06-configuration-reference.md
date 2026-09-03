@@ -186,14 +186,44 @@ Retry policy for the single-writer background worker that drains
 ## `[continuity]`
 
 Bounds deterministic capture and the context restored by SessionStart. These
-values belong to agentic-rag's `~/.agentic-rag/config.toml`; they are not Codex
-model-context settings.
+values belong to agentic-rag's `~/.agentic-rag/config.toml`; they are not
+Claude or Codex model-context settings.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `status_max_chars` | `checkpoint_status_max_chars` | `4000` | Maximum captured characters from `git status --short`; truncation becomes a checkpoint warning. |
 | `render_max_chars` | `checkpoint_render_max_chars` | `8000` | Maximum restored checkpoint text. Runtime clamps lower values to the renderer's safe 400-character minimum so identity, freshness, repository applicability, blockers, and next action remain visible. |
 | `artifact_max` | `checkpoint_artifact_max` | `16` | Maximum approved root/spec/plan artifact paths captured; file bodies are never stored in the checkpoint. |
+| `handoff_max_chars` | `checkpoint_handoff_max_chars` | `8000` | Maximum characters of Claude's `compact_summary` stored as the checkpoint handoff by `PostCompact` (secret-stripped, then truncated with a `…[truncated]` marker). Minimum 400; lower values are rejected at load time. |
+| `context_max_chars` | `context_max_chars` | `9500` | Cap on the whole `additionalContext` that SessionStart emits (1000–10000). Claude drops per-hook context above 10,000 characters; agentic-rag trims knowledge, domains, checkpoint, then pins, and says so with a visible warning. |
+
+## Managed Claude configuration
+
+The default `rag install` manages exactly one value in `~/.claude/settings.json`
+besides its six owned hook entries; every foreign key and hook is preserved:
+
+```json
+{
+  "autoCompactWindow": 500000
+}
+```
+
+`autoCompactWindow` is a token count, capped by the model's window. With a
+`[1m]` model (for example `claude-fable-5-1[1m]`) it yields a 1M context with
+automatic compaction at 500K — the same reserve logic as the Codex 600K/500K
+policy. `model` is reported, never rewritten: the installer warns when no
+model is configured or the suffix is missing (the window is then capped to the
+model's own limit), when `autoCompactEnabled` is `false` (compaction and
+continuity stay idle), and when `CLAUDE_CODE_AUTO_COMPACT_WINDOW`,
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, `DISABLE_AUTO_COMPACT`, or
+`DISABLE_COMPACT` is present in the settings `env` block or the installer's
+environment (they override the managed window). Verify with `/autocompact`,
+which prints `500000 tokens (from settings)` or `capped to … by model`.
+
+The owned hook timeouts are `SessionStart 10`, `UserPromptSubmit 5`,
+`Stop 10`, `PreCompact 3`, `PostCompact 3`, and `SessionEnd 1` seconds. Claude
+has no per-hook `additionalContextLimit` field; the 10,000-character cap is
+enforced by agentic-rag's `context_max_chars` instead.
 
 ## Managed Codex configuration
 

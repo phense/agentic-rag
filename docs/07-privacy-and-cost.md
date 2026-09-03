@@ -76,6 +76,17 @@ required observation across representative real sessions. Current values and pri
 the [official GPT-5.6 Sol page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
 and [GPT-5.6 Luna page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
 
+### Claude 1M context cost
+
+The Claude installer sets `autoCompactWindow = 500000`; with a `[1m]` model
+that is a 1M-token context compacting at 500K. On API billing, requests above
+200K input tokens are priced at the long-context rate for the full request,
+and on a subscription the larger requests consume plan usage faster. This
+repository does not claim the 1M/500K policy is cost- or latency-neutral: the
+effect must be measured across representative real sessions (backlog 0.3), not
+assumed. A model without the `[1m]` suffix caps the window at its own limit;
+the installer reports that and never rewrites `model`.
+
 Two environment details worth knowing:
 - `_child_env` also strips `CLAUDECODE`, `CLAUDE_CODE_SESSION_ID`,
   `CLAUDE_CODE_ENTRYPOINT`, and `CLAUDE_CODE_EXECPATH` from the child process,
@@ -99,10 +110,27 @@ Optional semantic enrichment receives a bounded redacted transcript delta and
 rejects secret-bearing, transcript-like, diff-like, or unrecognized output
 instead of persisting it.
 
-Hooks are commands running under your account. `rag install --codex` can merge
-and validate their JSON, but it cannot decide whether you trust them. After
-installation, use `/hooks`, inspect all six `python -m
-agentic_rag.hooks.…` commands/hashes, and trust only what you recognize. The
+### Handoff retention (Claude)
+
+On Claude, `PostCompact` receives Claude's own compaction summary as
+`compact_summary` and stores it on the checkpoint as the **handoff**. It is
+whitespace-normalized, passed through `strip_secrets`, and truncated to
+`[continuity] handoff_max_chars` (default 8,000 characters) before it is
+written; the write is audited as `checkpoint_handoff`. Because Claude produced
+it, it may contain whatever Claude chose to summarize about the session —
+file paths, command lines, decisions, error text — so treat it like any other
+stored memory: local, retained with the checkpoint history, and never deleted
+by the writer role. Inspect what was stored with
+`SELECT handoff, handoff_at FROM continuation_checkpoints ORDER BY created_at DESC LIMIT 3;`
+and its age with `rag status` (`checkpoint handoff:`). Codex never supplies a
+summary, so Codex checkpoints carry no handoff.
+
+Hooks are commands running under your account. `rag install` (Claude) and
+`rag install --codex` can merge and validate their JSON, but they cannot decide
+whether you trust them. After installation, use `/hooks`, inspect all six
+`python -m agentic_rag.hooks.…` commands/hashes, and trust only what you
+recognize. On Claude, `rag install --check` shows the merge before anything is
+written, and the printed `rag install --restore <record>` command undoes it. The
 installer reports duplicated foreign `herdr-agent-state.sh` commands but
 neither trusts nor removes them.
 

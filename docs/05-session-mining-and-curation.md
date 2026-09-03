@@ -81,6 +81,50 @@ Native Codex memories are complementary and inspectable with `/memories`.
 They can supply lightweight native adaptation; agentic-rag remains canonical
 for durable searchable knowledge and explicit continuation state.
 
+## Claude continuity around compaction
+
+Claude Code reuses the same checkpoint store, selection rules, and renderer,
+bound to Claude's hook contract. `hooks.common.client_kind()` picks the Claude
+branch from the payload (Claude sends no `turn_id`), so Codex handlers are
+untouched:
+
+1. `PreCompact` (`manual|auto`) commits the same deterministic snapshot and
+   queues enrichment, then prints the versioned compact instructions from
+   `assets/claude/compact_prompt.md` plus one `agentic-rag checkpoint: <id>`
+   line on stdout. Claude appends a PreCompact hook's stdout to its compaction
+   prompt, so every automatic or manual compaction is guided without
+   `/compact <text>`. The prompt is printed even when persistence failed; the
+   hook never exits 2 and never blocks compaction.
+2. `PostCompact` (`manual|auto`) selects the newest uncompacted same-session
+   `PreCompact` checkpoint with the same trigger (no `turn_id` needed), marks
+   the boundary, and stores Claude's own `compact_summary` as the checkpoint
+   **handoff**: whitespace-normalized, secret-stripped, truncated to
+   `[continuity] handoff_max_chars` (default 8,000) with a `…[truncated]`
+   marker, audited as `checkpoint_handoff`. A replay with the same summary is
+   a no-op; a different summary for the same cursor replaces it. PostCompact
+   never emits `additionalContext`.
+3. `SessionStart(source="compact")` restores the same-session checkpoint
+   exactly as for Codex and adds a `Handoff (Claude compact summary,
+   CURRENT|HISTORICAL, age=…h)` section — labelled HISTORICAL beyond
+   `stale_days`, dropped before the mandatory goal/next-action/blocker
+   sections when the render budget is exceeded. The whole injected context is
+   capped at `[continuity] context_max_chars` (default 9,500; Claude discards
+   per-hook context above 10,000 characters) and trims recent knowledge, then
+   the domain map, then the checkpoint, then pins — each cut announced with a
+   visible `⚠️ context truncated …` warning that names how many pins were cut.
+4. `SessionEnd` enqueues the final transcript delta for every Claude reason
+   (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`) through the
+   same deduplicating path as `Stop`. Claude gives all SessionEnd hooks 1.5 s
+   together; the hook is installed with a 1 s timeout and measures about
+   0.12 s (interpreter start, import, and enqueue) in the suite.
+5. `Stop` remains the guaranteed enqueue path: it already queued a debounced
+   delta after the last assistant turn, so an overrun SessionEnd loses at most
+   the tail after that turn.
+
+Claude auto-memory is complementary; agentic-rag stays canonical. Nothing about
+Claude's auto-memory (`~/.claude/projects/<slug>/memory/`) is installed or
+changed by this feature.
+
 ## The original mining hooks
 
 ### Stop — enqueue for mining
@@ -105,8 +149,9 @@ nothing.
 At the start of an interactive session, this hook builds and injects: every
 matching pin (uncapped, with a warning if the pin budget is exceeded), the
 domain map, and the most recently touched documents scoped to your current
-project. On Codex it also injects the bounded checkpoint selected by the rules
-above. It checks two things that spawn the worker without doing any
+project. On Claude and Codex it also injects the bounded checkpoint selected by
+the rules above (on Claude including the handoff, within the 10,000-character
+hook limit). It checks two things that spawn the worker without doing any
 work itself: whether curation hasn't run in the last 24 hours (if so, it
 enqueues a `curate` job), and whether any queued job is already due (the
 tail of a previous session that the debounce window hadn't reached yet). On

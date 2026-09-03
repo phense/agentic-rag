@@ -6,6 +6,7 @@ from pathlib import Path
 DOC_PATHS = (
     Path("README.md"),
     Path("docs/00-whats-new-in-0.3.md"),
+    Path("docs/00-whats-new-in-0.4.md"),
     Path("docs/01-what-is-agentic-rag.md"),
     Path("docs/02-mental-model.md"),
     Path("docs/03-quick-start.md"),
@@ -220,3 +221,20 @@ def test_comparison_distinguishes_code_shipped_from_operationally_live():
         readme,
         re.M,
     )
+
+
+def test_docs_explain_claude_continuity_contract():
+    corpus = docs_text()
+    assert "autoCompactWindow" in corpus and "500000" in corpus
+    assert "[1m]" in corpus
+    assert "compact_summary" in corpus
+    assert "stdout" in corpus and "PreCompact" in corpus
+    assert "10,000" in corpus or "10000" in corpus
+    assert "1.5" in corpus and "SessionEnd" in corpus
+    assert "handoff" in corpus
+    assert "rag install --check" in corpus
+    assert "rag install --restore" in corpus
+    assert "Claude auto-memory" in corpus or "auto-memory" in corpus
+    assert "00-whats-new-in-0.4.md" in Path("docs/README.md").read_text()
+    assert "## [Unreleased]" in Path("CHANGELOG.md").read_text()
+    assert "Claude continuity" in Path("FEATURES.md").read_text()

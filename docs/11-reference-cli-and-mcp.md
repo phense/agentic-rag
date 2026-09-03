@@ -11,7 +11,7 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | Command | Flags | What it does |
 |---|---|---|
 | `rag init-db` | — | Applies pending SQL migrations from `sql/`, creates the schema, seeds the `general` domain. Prints which migrations applied. |
-| `rag install` | `--no-launchd` · `--codex` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges three Claude hooks, and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` requires `--codex` and writes nothing. `--restore` requires `--codex`, is mutually exclusive with `--check`, and restores the home encoded in the record. Does **not** create the database. |
+| `rag install` | `--no-launchd` · `--codex` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges six Claude hooks plus `autoCompactWindow = 500000` into `~/.claude/settings.json` (unique `settings.json.bak.<id>` backup, mode-0600 rollback record, printed restore command), and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` previews either target and writes nothing (for Claude: no MCP registration, no launchd). `--restore` is mutually exclusive with `--check`, accepts a Claude or Codex record, and dispatches on the record's target: `--codex --restore` still works for Codex records; a Claude record with `--codex` is refused. Does **not** create the database. |
 
 ### Domains
 
@@ -76,6 +76,34 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 
 `argparse` itself exits `2` for malformed invocations (missing a required flag, unknown subcommand) — that's argparse's own contract, before any of this code runs.
 
+### Claude install, check, and restore
+
+```bash
+rag install --check
+rag install
+rag install --restore /absolute/path/to/claude-rollback-<id>.json
+```
+
+Check/install output prints the managed value (`managed:
+autoCompactWindow=500000`), the `would change:`/`changed:` settings path (or
+`Claude settings: already up to date`), the `backup:` line for a changing
+install, and any `warning:` lines — no `model` or one without the `[1m]`
+suffix (the window is capped to the model's own), `autoCompactEnabled=false`,
+or `CLAUDE_CODE_AUTO_COMPACT_WINDOW` / `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` /
+`DISABLE_AUTO_COMPACT` / `DISABLE_COMPACT` in the settings `env` block or the
+process environment. Check mode ends with `check complete: no files written;
+MCP and launchd untouched`. A real install continues with the `mcp:`,
+`hooks:` (review with `/hooks`), `autocompact:` (verify with `/autocompact`,
+expect 500000 tokens from settings), and `launchd:` lines and, when the file
+changed, the exact `rollback: rag install --restore <record>` command.
+
+The record lives under `~/.agentic-rag/state/claude-rollback-<id>.json`
+(mode 0600) and names the settings path, the unique sibling backup
+`settings.json.bak.<32 hex>`, and both file identities. Restore verifies those
+identities, refuses a backup or target that changed since the install, prints
+each restored path and `rollback complete`. Claude Code reloads hook edits
+live; MCP registration is untouched by restore.
+
 ### Codex install, check, and restore
 
 ```bash
@@ -104,6 +132,15 @@ With `--check` it allows an explicit temporary home to exercise the full plan
 and isolated Codex probe without touching the real `~/.codex`. It cannot be
 combined with `--restore`, because restore obtains its target home from the
 validated rollback record.
+
+### Claude hook output contract
+
+| Event | Observable result |
+|---|---|
+| `PreCompact` | Exit 0, always. Persists the checkpoint, then writes the versioned compact instructions (`assets/claude/compact_prompt.md`, `Version: 1.0`) plus `agentic-rag checkpoint: <id>` to **stdout**; Claude appends that stdout to its compaction prompt. The prompt is printed even when the database step failed; the hook never exits 2. |
+| `PostCompact` | Silent on success. Matches the newest uncompacted same-session/same-trigger `PreCompact` checkpoint without a `turn_id`, marks it compacted, and stores the payload's `compact_summary` as the bounded, secret-stripped handoff (`handoff_max_chars`, default 8,000). Never emits `additionalContext`; no match is a no-op; a DB failure emits only `{"systemMessage":"checkpoint bookkeeping delayed"}`. |
+| `SessionStart(source="compact")` | Emits the same-session checkpoint, including the `Handoff (Claude compact summary, CURRENT|HISTORICAL, age=…h)` section, as `additionalContext`. The whole output is capped at `context_max_chars` (default 9,500; Claude discards per-hook context above 10,000 characters) and starts with a `⚠️ context truncated …` warning when anything was cut. Same selection rules as Codex; compact never falls back to another session or project. |
+| `SessionEnd` | Silent delta enqueue for every reason (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`) through the same deduplicating path as `Stop`. Installed with `timeout: 1`; Claude allows 1.5 s for all SessionEnd hooks together, and `Stop` is the guaranteed path if the budget is overrun. |
 
 ### Codex hook output contract
 

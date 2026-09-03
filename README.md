@@ -4,7 +4,7 @@
 
 **Coding sessions end and long contexts compact. agentic-rag preserves both:
 a canonical, searchable knowledge base in local PostgreSQL + pgvector, plus
-bounded checkpoints that let Codex resume after compaction. Hybrid vector +
+bounded checkpoints that let Claude Code and Codex resume after compaction. Hybrid vector +
 full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
@@ -13,6 +13,11 @@ hosted RAG service.**
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
+> **Unreleased (0.4.0):** Claude compaction continuity — six Claude hooks,
+> the managed 1M/500K `autoCompactWindow` policy, the `compact_summary`
+> handoff, and `rag install --check`/`--restore`. Read
+> **[What’s New in 0.4.0](docs/00-whats-new-in-0.4.md)**.
+>
 > **New in v0.3.0:** Codex compaction continuity, native-memory policy,
 > recoverable global installation, and provider-neutral mining. Read
 > **[What’s New in 0.3.0](docs/00-whats-new-in-0.3.md)**.
@@ -22,7 +27,9 @@ you push, you query, you pay per call. agentic-rag flips both halves. It stores
 knowledge in **local Postgres + pgvector** — real HNSW
 approximate-nearest-neighbour search blended with bilingual full-text — and it
 **populates itself from supported coding sessions**. It also stores compact,
-audited continuation checkpoints at Codex compaction boundaries.
+audited continuation checkpoints at Claude Code and Codex compaction
+boundaries — on Claude including Claude's own compact summary as a bounded
+handoff.
 
 Every content write funnels through **one gateway**: it strips secret-shaped
 tokens, chunks and embeds the text with a local model, resolves the document's
@@ -64,9 +71,10 @@ restore-tests its own backups.
 🔎 **Hybrid search that actually ranks.** Vector ANN over `pgvector` (HNSW, cosine) — multilingual by way of `bge-m3` embeddings — blended with GIN keyword full-text into one ranked query. Search in **any language**; not a file scan, not lexical-only.
 
 🌱 **It turns sessions into durable knowledge and continuation state.** Mining
-uses your configured Codex or Claude CLI. On Codex, `PreCompact` also captures
-a fast checkpoint so `SessionStart(source="compact")` can restore the goal,
-blockers, next action, repository state, and evidence references.
+uses your configured Codex or Claude CLI. On Claude Code and Codex,
+`PreCompact` also captures a fast checkpoint so `SessionStart(source="compact")`
+can restore the goal, blockers, next action, repository state, and evidence
+references; on Claude the checkpoint also carries Claude's compact summary.
 
 ♻️ **It curates itself.** A near-duplicate gate stops the store from bloating; `rag review` surfaces duplicates, dangling links, and stale pins; refuting a fact **archives** it (with a reason and evidence), never hard-deletes it.
 
@@ -81,9 +89,10 @@ retrieval do not call either provider.
 
 ## Quick start
 
-agentic-rag is a `rag` command-line tool with provider integrations. The legacy
-no-option install wires two MCP servers and hooks into Claude Code; the explicit
-Codex target installs continuity configuration and hooks.
+agentic-rag is a `rag` command-line tool with provider integrations. The
+no-option install wires two MCP servers, six lifecycle hooks, and the managed
+compaction window into Claude Code; the explicit Codex target installs
+continuity configuration and hooks.
 
 **Prerequisites:**
 
@@ -98,18 +107,28 @@ Codex target installs continuity configuration and hooks.
 uv sync
 uv run rag init-db          # creates the DB + schema + roles, seeds the 'general' domain
 uv run rag domain add programming --description "Software engineering notes"
+uv run rag install --check  # preview the Claude settings merge; writes nothing
 uv run rag install          # Claude MCP/hooks + macOS backup schedule; omit for Codex-only
 ```
 
 - `rag init-db` creates the database if needed, applies the migrations in `sql/`, creates the three least-privilege roles, and seeds the built-in `general` domain. **Run it first** — `rag install` does *not* create the database.
 - `rag domain add <name>` adds any domains you want to organize documents under (`general` always exists; add more anytime).
+- `rag install --check` previews the Claude merge (`managed:
+  autoCompactWindow=500000`, the would-change path, policy warnings) and
+  writes nothing.
 - The no-option `rag install` is the Claude target: it registers the
-  `agentic-rag` (read-write) and `agentic-rag-ro` (read-only) MCP servers and
-  merges three hooks into `~/.claude/settings.json`. On macOS it also schedules
-  nightly backup; omit this command for a Codex-only setup.
+  `agentic-rag` (read-write) and `agentic-rag-ro` (read-only) MCP servers,
+  merges six hooks (`SessionStart`, `UserPromptSubmit`, `Stop`, `PreCompact`,
+  `PostCompact`, `SessionEnd`) plus `autoCompactWindow = 500000` into
+  `~/.claude/settings.json`, backs the file up to a unique
+  `settings.json.bak.<id>`, and prints a `rag install --restore <record>`
+  rollback command. On macOS it also schedules nightly backup; omit this
+  command for a Codex-only setup.
 
-If you ran the Claude target, restart Claude Code so it picks up the new
-servers and hooks. For humans the same store is available through the CLI:
+If you ran the Claude target, hooks reload live; start a new Claude Code
+session so it picks up the MCP servers, then review the handlers with `/hooks`
+and confirm `/autocompact` reports 500000 tokens from settings. For humans the
+same store is available through the CLI:
 
 ```bash
 rag save --title "Postgres VACUUM tuning" --domain programming \
@@ -187,7 +206,21 @@ Domains are just data — a label for *where to look* (`general` is seeded at in
    session-start context · prompt-time recall · read-only MCP behind a privilege boundary
 ```
 
-Codex continuity uses a separate operational path:
+Claude Code and Codex continuity use a separate operational path. The Claude
+flow:
+
+```text
+PreCompact ──► bounded deterministic snapshot ──► audited checkpoint
+     │                    └──► priority enrichment job ──► provider CLI
+     └──► stdout: versioned compact instructions (+ checkpoint id)
+Claude compacts (instructions appended)
+     │
+PostCompact ──► mark boundary + store compact_summary as bounded handoff
+     │
+SessionStart(source="compact") ──► checkpoint + handoff, ≤ 10,000 chars ──► next request
+```
+
+The Codex flow (`PreCompact` stays silent; `PostCompact` stores no handoff):
 
 ```text
 PreCompact ──► bounded deterministic snapshot ──► audited checkpoint
@@ -241,6 +274,7 @@ Legend: ✅ shipped in code and operationally established · 🧪 shipped and in
 | Local-first store, provider CLI under your control, no hosted RAG service ¹ | ✅ | ⚠️ usually a hosted service |
 | Auto-populates from Claude Code sessions (mining) | ✅ | ❌ you feed it |
 | Codex session mining and continuity | 🧪 | ❌ you feed it |
+| Claude Code compaction continuity (checkpoint + handoff) | 🧪 | ❌ |
 | Self-curation (dedup, near-dup gate, refute/archive) | ✅ | ⚠️ |
 | Typed knowledge graph (edges) alongside vector search | ✅ | ⚠️ |
 | One audited write gateway with secret stripping | ✅ | ❌ |
@@ -282,8 +316,11 @@ Config lives in one TOML file at `~/.agentic-rag/config.toml`. Every key is opti
 
 Roles are created **passwordless** by default, relying on local `peer`/`trust` auth (Postgres and agentic-rag on the same machine). For a networked or shared instance, set role passwords with `ALTER ROLE …` and let libpq authenticate via `~/.pgpass` or `PGHOST`/`PGPORT`/`PGPASSWORD` — see the handbook's privacy chapter.
 
-The Codex target separately manages a 600000 context window and a 500000
-total-token compaction threshold, leaving a 100K reserve, plus native memories
+The Claude target separately manages `autoCompactWindow = 500000` in
+`~/.claude/settings.json` — a 1M context compacting at 500K with a `[1m]`
+model; `model` is reported, never rewritten, and long-context requests above
+200K input tokens cost more on API billing. The Codex target separately
+manages a 600000 context window and a 500000 total-token compaction threshold, leaving a 100K reserve, plus native memories
 and the compact prompt. Official GPT-5.6 capacity is 1.05M, but inputs above
 272K are subject to higher provider pricing and may add latency; see
 [Configuration](docs/06-configuration-reference.md) and
@@ -317,6 +354,13 @@ and rollout state are listed separately below:
 - ✅ **Curation & safety:** `rag review`, refute-as-archive, and admin-only `rag purge` (removes only already-refuted documents, as `rag_admin`).
 - ✅ **Maintenance & backups:** `pg_dump` backups with rotation, the tiny always-exit-0 maintenance job, and the **weekly report-only restore-test**. macOS auto-schedules via `launchd`; Linux uses the documented cron/systemd recipes.
 - ✅ **Claude integration:** two user-scope MCP servers (read-write + a read-only server behind a privilege boundary for subagents), idempotent install that preserves foreign hooks.
+- ✅ **Claude continuity in code:** six Claude hooks, the `PreCompact` stdout
+  compact prompt, the bounded `compact_summary` handoff, the 10,000-character
+  SessionStart cap, the managed 1M/500K policy, and `rag install
+  --check`/`--restore`.
+- 🔒 **Claude continuity live rollout:** `rag install`, `/hooks` review,
+  `/autocompact`, manual/automatic compaction, and SessionEnd tail capture
+  on the maintainer machine remain open (backlog 0.3).
 - ✅ **Codex continuity in code:** audited checkpoints, bounded capture and
   restoration, asynchronous enrichment, all six lifecycle handlers, a
   versioned compact prompt, recoverable installer/check mode, and checkpoint

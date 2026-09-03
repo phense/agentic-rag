@@ -10,8 +10,8 @@ something here looks surprising, it's meant to; that's what makes it
 architecture rather than a recap of [02 · The mental model](02-mental-model.md).*
 
 Everything below lives in `sql/001_init.sql` through
-`sql/007_checkpoint_predecessor.sql` and under `agentic_rag/`, including the
-`continuity/` and `integrations/codex/` packages. `rag init-db`
+`sql/008_checkpoint_handoff.sql` and under `agentic_rag/`, including the
+`continuity/`, `integrations/claude/`, and `integrations/codex/` packages. `rag init-db`
 applies the SQL files in filename order inside one transaction
 (`apply_migrations()` in `agentic_rag/db.py`) and records each in
 `schema_migrations(filename PRIMARY KEY, applied_at)` so re-running is a
@@ -133,7 +133,7 @@ make edges bi-temporal, which is what `memory_timeline` reads.
 | `domains` | `name` (PK, text), `description`, `created_at` | Referenced by `documents.domain`; `general` is seeded by `domains.seed_defaults()` right after migrations apply. |
 | `pins` | `document_id` (nullable FK → `documents`), `body`, `scope` (default `'global'`), `priority` (default `100`), `active` (bool), `last_verified` | `scope` is a free string interpreted by app code as `global`, a domain name, or an absolute project path — no CHECK constrains it. |
 | `mining_queue` | `kind` CHECK(`mine`/`curate`/`backup`/`embed`/`checkpoint_enrich`), `session_id`, `transcript_path`, `payload` jsonb, `status` CHECK(`pending`/`processing`/`done`/`error`), `attempts`, `next_attempt_at`, `last_uuid`, `last_error`, `enqueued_at`, `finished_at` | `checkpoint_enrich` carries a checkpoint id plus the prior transcript cursor and is prioritized after maintenance but before ordinary mining/embed work. `idx_queue_due(status, next_attempt_at)` backs the due scan. |
-| `continuation_checkpoints` | `(session_id, cursor)` unique, `turn_id`, fingerprint, source/trigger, cwd/project root, bounded Git/snapshot/enrichment/reference/warning JSON, predecessor cursor, lifecycle/quality, compaction/timestamps | Operational continuation state, separate from documents. Open rows are indexed by session and canonical project; new cursors supersede old open rows, history is retained, and writer has no delete grant. Snapshot/enrichment/compaction mutations append audit events. |
+| `continuation_checkpoints` | `(session_id, cursor)` unique, `turn_id`, fingerprint, source/trigger, cwd/project root, bounded Git/snapshot/enrichment/reference/warning JSON, predecessor cursor, lifecycle/quality, compaction/timestamps, `handoff`, `handoff_at` (migration 008; Claude's bounded, secret-stripped `compact_summary`) | Operational continuation state, separate from documents. Open rows are indexed by session and canonical project; new cursors supersede old open rows, history is retained, and writer has no delete grant. Snapshot/enrichment/compaction mutations append audit events. |
 | `audit_log` | `id` (identity PK), `actor`, `op`, `document_id`, `summary`, `at` | Append-only by grant (see the role matrix) — nothing can edit or delete a past entry, including the role that writes it. |
 | `schema_migrations` | `filename` (PK), `applied_at` | Bookkeeping only; `rag_writer` gets `SELECT`, nobody but the owner/admin connection writes to it. |
 
@@ -369,15 +369,26 @@ crash must never surface into a hook or a session.**
 
 ## Triggering work: provider lifecycle hooks
 
-The legacy `rag install` wires three hooks into `~/.claude/settings.json`
-(`agentic_rag/install.py`), each shelling out to a small stdlib-only module
-under `agentic_rag/hooks/`:
+The default `rag install` wires six hooks into `~/.claude/settings.json`
+(`agentic_rag/install.py` over `integrations/claude/`), each shelling out to a
+small stdlib-only module under `agentic_rag/hooks/`. The same modules serve
+Codex; `hooks/common.client_kind()` selects the Claude branch from argv and the
+payload (Claude sends no `turn_id`):
 
 | Hook | Matcher / timeout | DB role | Does | Failure mode |
 |---|---|---|---|---|
 | `SessionStart` | `startup\|resume\|clear\|compact`, 10s | `writer` | Injects every matching pin, the domain map, recent project-relevant documents, and any operational warnings (stale backup, queue errors); also enqueues a `curate` job if the last one is >24h old and spawns the worker if anything is due. | **Fail-closed, visibly** — on any exception it still emits `"⚠️ agentic-rag unavailable: <error>"` as context, so absence of memory is never silent. |
 | `UserPromptSubmit` | (no matcher), 5s | `reader` | Regex-detects a *strong* error signature (traceback, `FooError:`, `file:line`, `panic`/`segfault`, ...), turns distinctive tokens into a sanitized OR-`tsquery`, and calls `recall_signals()` (English-only, `dtype='signal'` documents) plus a pin lookup. | **Silent on error** (logged, not surfaced) — precision over recall by design; a false warning on every prompt would be worse than an occasional missed recall. |
 | `Stop` | (no matcher), 10s | `writer` | Debounced enqueue of the session transcript as a `mine` job (`jobs.enqueue_mine`: at most one open `mine` job per session, due `mine_debounce_seconds` — default 600s — in the future, carrying over `last_uuid` so the next drain only mines the delta), then fire-and-forget spawns the worker. | **Fail open, silent** — every error logged and swallowed; the hook always exits 0 and prints nothing. |
+| `PreCompact` | `manual\|auto`, 3s | `writer` | Commits the deterministic snapshot, captures bounded repository state, queues asynchronous enrichment — then prints the versioned compact instructions (`assets/claude/compact_prompt.md`) plus `agentic-rag checkpoint: <id>` on **stdout**, which Claude appends to its compaction prompt. | **Fail open** — the prompt is printed even when persistence failed; never exits 2, never blocks compaction. |
+| `PostCompact` | `manual\|auto`, 3s | `writer` | Selects the newest uncompacted same-session/same-trigger `PreCompact` checkpoint (turn-less match), marks the boundary, and stores the payload's `compact_summary` as the bounded, secret-stripped **handoff** (`store.attach_handoff`, audited). Never emits `additionalContext`. | **Fail open** — no match is a silent no-op; a DB failure emits only a `systemMessage`. |
+| `SessionEnd` | (no matcher), 1s | `writer` | For **every** Claude reason (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`), enqueues the final transcript delta through the same deduplicating path as `Stop`. Claude budgets 1.5 s for all SessionEnd hooks together; the suite measures about 0.12 s. | **Fail open, silent** — an overrun is tolerated; `Stop` is the guaranteed path. |
+
+On Claude, `SessionStart` additionally renders the checkpoint's handoff with a
+`CURRENT`/`HISTORICAL` age label and caps its whole `additionalContext` at
+`context_max_chars` (default 9,500; hard maximum 10,000, Claude's per-hook
+limit), trimming recent knowledge, domains, checkpoint, then pins with a
+visible warning that counts the pins cut.
 
 The explicit `rag install --codex` target writes six entries to
 `~/.codex/hooks.json`, removing only owned handler commands and preserving
@@ -401,10 +412,17 @@ the same flock, not on tracking whether it already spawned one.
 Installation is an **idempotent merge**, not a file overwrite: `rag install`
 reads the existing `~/.claude/settings.json`, strips only the hook entries
 whose command contains the `agentic_rag.hooks.` marker (from each of the
-three event lists), and appends fresh ones — any hook you or another tool
-added stays untouched. A corrupt settings file aborts loudly rather than
-being silently replaced; a valid one is backed up to `.json.bak` before every
-write.
+six event lists), appends fresh ones, and sets `autoCompactWindow = 500000` —
+any hook or key you or another tool added stays untouched, and `model` is
+reported but never rewritten. A corrupt settings file aborts loudly rather
+than being silently replaced. `--check` computes the merge and prints the
+managed values, would-change path, and policy warnings without writing
+anything. A changing install stages the new file next to the target, backs
+the current file up to a unique sibling `settings.json.bak.<32 hex>` (mode
+0600), publishes with `os.replace`, and records both identities in a
+mode-0600 `~/.agentic-rag/state/claude-rollback-<id>.json`; `rag install
+--restore <record>` dispatches on the record's `target` field (Claude or
+Codex) and refuses a backup that changed since it was taken.
 
 Codex installation is a separate recoverable transaction. It snapshots and
 parses the three target files, then has Codex load generated configuration and
@@ -530,6 +548,17 @@ PostCompact ──► mark_compacted() [bookkeeping; no additional context]
    │
 SessionStart(source="compact")
    └─ latest_for_session() → render_checkpoint(max_chars) → additionalContext
+```
+
+**Claude continuity path** — the same store and renderer, bound to Claude's
+hook contract (stdout prompt, `compact_summary` handoff, 10,000-char cap):
+
+```text
+PreCompact ──► snapshot + enqueue ──► stdout: compact instructions (+ checkpoint id)
+Claude compacts (custom instructions appended)
+PostCompact ──► latest_pre_compact() → mark_compacted() → attach_handoff(compact_summary)
+SessionStart(source="compact")
+   └─ latest_for_session() → render_checkpoint(+handoff) → fit_context(≤ context_max_chars)
 ```
 
 A provider-wide enrichment failure restores the claimed job to `pending`,

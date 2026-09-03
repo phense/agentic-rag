@@ -7,6 +7,26 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Added
+- **Claude compaction continuity.** The default `rag install` now wires six
+  Claude lifecycle hooks. `PreCompact` prints the versioned compact
+  instructions (Claude appends hook stdout to its compaction prompt),
+  `PostCompact` stores Claude's `compact_summary` as a bounded, secret-stripped
+  handoff on the checkpoint, `SessionStart` restores it with an age label and
+  caps its whole output at Claude's 10,000-character hook limit, and
+  `SessionEnd` queues the final delta for every Claude reason within a 1 s
+  timeout. Client detection is payload-driven; Codex behavior is unchanged.
+- **Managed 1M/500K Claude policy.** The installer sets
+  `autoCompactWindow = 500000`, reports (never rewrites) a model without the
+  `[1m]` suffix, and warns about `autoCompactEnabled=false` and overriding
+  environment variables.
+- **Previewable, recoverable Claude install.** `rag install --check` previews
+  the settings merge; a changing install writes a unique `settings.json.bak.<id>`
+  backup and a mode-0600 rollback record; `rag install --restore <record>` is
+  target-aware for Claude and Codex records.
+- **Migration 008** adds `handoff`/`handoff_at` to `continuation_checkpoints`;
+  `rag status` shows `checkpoint handoff:` freshness.
+
 ## [0.3.0] - 2026-09-03
 
 ### Added

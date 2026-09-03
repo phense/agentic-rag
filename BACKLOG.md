@@ -12,7 +12,7 @@
 
 ---
 
-## §0 — Codex continuity rollout blockers
+## §0 — Continuity rollout blockers (Codex and Claude)
 
 - ✅ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
   now strips secret-shaped values from copied global, matching-path, and
@@ -36,6 +36,16 @@
   real sessions. → *Trigger:* run and record those remaining smoke scenarios
   during normal long-session use. → *Dependency:* interactive Codex sessions
   long enough to exercise lifecycle boundaries. *(L)*
+- 🔵 **0.3** _(chore)_ **Prove Claude continuity end to end.** Code, tests, and
+  docs landed on 2026-09-03 (branch `feat/claude-compaction-continuity`).
+  Measured `SessionEnd` wall time in the suite: 0.121 s (interpreter start +
+  import + enqueue against a local database; Claude budget 1.5 s, hook
+  timeout 1 s).
+  → *Why not done:* the maintainer machine has not yet run `rag install`,
+  reviewed `/hooks`, confirmed `/autocompact` = 500000, exercised a manual
+  `/compact` (checkpoint + handoff + restored context), an automatic
+  compaction, and a `SessionEnd` tail capture. → *Trigger:* Task 11 smoke
+  run; record each outcome here. *(M)*
 
 ## §1 — Mining & curation pipeline
 

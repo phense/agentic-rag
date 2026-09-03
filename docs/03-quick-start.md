@@ -27,14 +27,15 @@ codex login status       # for provider = "codex"
 
 ## Install the common foundation, then choose an integration
 
-The first three commands below have a hard dependency order. The fourth is the
-legacy Claude integration; skip it if you want only the Codex target described
-next. Run them from the project directory:
+The first three commands below have a hard dependency order. The last two are
+the Claude Code integration (preview, then install); skip them if you want only
+the Codex target described next. Run them from the project directory:
 
 ```bash
 uv sync
 uv run rag init-db
 uv run rag domain add science --description "Notes on scientific topics"
+uv run rag install --check
 uv run rag install
 ```
 
@@ -49,9 +50,29 @@ Here's why the order matters:
    organized under (`general` already exists after `init-db`, so this step
    is optional — skip it if `general` is enough for now, and add more
    domains later with the same command).
-4. **`rag install`** *(Claude only)* — registers the `agentic-rag` and `agentic-rag-ro` MCP
-   servers with the `claude` CLI (user scope) and merges the SessionStart /
-   UserPromptSubmit / Stop hooks into `~/.claude/settings.json`.
+4. **`rag install --check`** *(Claude only)* — previews the settings merge:
+   it prints `managed: autoCompactWindow=500000`, the `would change:` path,
+   and any policy warnings, and writes nothing (no MCP registration, no
+   launchd).
+5. **`rag install`** *(Claude only)* — registers the `agentic-rag` and
+   `agentic-rag-ro` MCP servers with the `claude` CLI (user scope), merges six
+   hooks into `~/.claude/settings.json`, and sets the managed
+   `autoCompactWindow = 500000`:
+   - `SessionStart` (`startup|resume|clear|compact`, 10 s) — context and
+     checkpoint restoration, capped at Claude's 10,000-character hook limit;
+   - `UserPromptSubmit` (5 s) — prompt-time signal recall;
+   - `Stop` (10 s) — debounced mining enqueue;
+   - `PreCompact` (`manual|auto`, 3 s) — checkpoint snapshot, then the
+     compact instructions on stdout;
+   - `PostCompact` (`manual|auto`, 3 s) — boundary bookkeeping and the
+     bounded `compact_summary` handoff;
+   - `SessionEnd` (1 s) — final transcript delta for every Claude reason.
+
+   A changing install backs the current file up to a unique sibling
+   `settings.json.bak.<id>`, writes a mode-`0600` record under
+   `~/.agentic-rag/state/claude-rollback-<id>.json`, and prints the exact
+   `rag install --restore <record>` command that undoes it. Foreign hooks
+   and keys are preserved; `model` is reported, never rewritten.
 
 **Neither install target creates the database.** The no-option command wires up
 Claude MCP/hooks and (on macOS) job scheduling; `--codex` manages Codex
@@ -67,12 +88,25 @@ neither job is auto-scheduled; set up the equivalent cron jobs or a systemd
 user timer yourself using the copy-pasteable recipes in
 [`docs/deploy/scheduling-linux.md`](deploy/scheduling-linux.md).
 
-After `rag install`, start a new Claude Code session (or restart your
-current one) so it picks up the newly registered MCP servers and hooks.
+Claude Code reloads hook edits in `~/.claude/settings.json` live, so no
+restart is needed for the hooks; MCP registration still needs a new session.
+In Claude Code, review the six `python -m agentic_rag.hooks.…` handlers with
+`/hooks` and confirm `/autocompact` shows 500000 tokens from settings (a model
+without the `[1m]` suffix caps the window lower; the installer warns about
+that and about `autoCompactEnabled=false` or overriding environment
+variables). To undo the settings change, run the printed command:
+
+```bash
+uv run rag install --restore \
+  /absolute/path/to/claude-rollback-<id>.json
+```
+
+`--restore` reads the target from the record, so the same flag restores a
+Claude or a Codex record; a Claude record combined with `--codex` is refused.
 
 ### Install the Codex continuity target
 
-The no-option command above remains the Claude installer. Codex is an explicit,
+The no-option command above is the Claude installer. Codex is an explicit,
 separate target; it does not register the Claude MCP servers or install another
 scheduler. Preview it first:
 
@@ -122,6 +156,7 @@ uv run rag status
 ```
 
 Look for `checkpoints:`, newest checkpoint quality/project when one exists,
+`checkpoint handoff:` (Claude only — the age of the stored compact summary),
 `checkpoint enrichments:`, provider availability, queue errors, and backup
 freshness. Zero checkpoints immediately after install is healthy; the first is
 created by `PreCompact`.
@@ -140,8 +175,8 @@ content. The rollback record is distinct from `rag restore <dump> --yes`, which
 restores the PostgreSQL database.
 
 The installer and tests are shipped; the real global install, `/hooks` trust,
-and manual/automatic smoke tests remain explicitly open in backlog 0.2 until
-the operational rollout is performed.
+and manual/automatic smoke tests remain explicitly open in backlog 0.2 (Codex)
+and 0.3 (Claude) until the operational rollout is performed.
 
 ## Platform support
 
