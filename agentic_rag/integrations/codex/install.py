@@ -81,6 +81,13 @@ class FileSnapshot:
 class Replacement:
     target_path: Path
     installed_identity: FileIdentity
+    displaced_path: Path | None
+
+
+@dataclass(frozen=True)
+class InstalledFile:
+    target_path: Path
+    identity: FileIdentity
 
 
 @dataclass(frozen=True)
@@ -94,6 +101,13 @@ class CodexInstallReport:
     codex_version: str | None
     runtime_validation: str
     probe_isolation: str
+    installed_files: tuple[InstalledFile, ...]
+
+
+class _RecoveryConflict(RuntimeError):
+    def __init__(self, message: str, *recovery_paths: Path) -> None:
+        super().__init__(message)
+        self.recovery_paths = recovery_paths
 
 
 def _snapshot(path: Path) -> FileSnapshot:
@@ -300,9 +314,13 @@ def _validate_stages(staged: dict[Path, Path], paths: CodexPaths) -> None:
         raise ValueError("staged compact prompt is empty")
 
 
-def _cleanup_stages(staged: dict[Path, Path]) -> None:
+def _cleanup_stages(
+    staged: dict[Path, Path], *, preserve: tuple[Path, ...] = ()
+) -> None:
+    preserved = set(preserve)
     for path in staged.values():
-        path.unlink(missing_ok=True)
+        if path not in preserved:
+            path.unlink(missing_ok=True)
 
 
 def _backup_changed(
@@ -322,34 +340,169 @@ def _backup_changed(
     return tuple(records)
 
 
+def _entry_exists(path: Path) -> bool:
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def _reserve_recovery_path(target: Path, label: str) -> Path:
+    descriptor, name = tempfile.mkstemp(
+        prefix=f".{target.name}.{label}.", dir=target.parent
+    )
+    os.close(descriptor)
+    return Path(name)
+
+
+def _claim_entry(target: Path, displaced: Path) -> None:
+    """Atomically move the current pathname into a reserved recovery entry."""
+    os.replace(target, displaced)
+
+
+def _publish_no_replace(source: Path, target: Path) -> None:
+    """Atomically publish one same-filesystem entry only when target is absent."""
+    os.link(source, target, follow_symlinks=False)
+
+
+def _restore_captured(captured: Path, target: Path) -> bool:
+    """Restore a claimed entry only if no concurrent target now exists."""
+    try:
+        _publish_no_replace(captured, target)
+    except FileExistsError:
+        return False
+    captured.unlink()
+    return True
+
+
+def _retain_unpublished(staged: Path, target: Path) -> Path:
+    recovery = _reserve_recovery_path(target, "unpublished")
+    try:
+        os.replace(staged, recovery)
+    except BaseException:
+        recovery.unlink(missing_ok=True)
+        raise
+    return recovery
+
+
+def _claim_expected(
+    target: Path, expected: FileIdentity, *, label: str
+) -> Path:
+    displaced = _reserve_recovery_path(target, label)
+    try:
+        _claim_entry(target, displaced)
+    except BaseException:
+        displaced.unlink(missing_ok=True)
+        raise
+    try:
+        captured = _snapshot(displaced)
+        if captured.identity != expected:
+            raise RuntimeError(f"Codex file changed concurrently: {target}")
+    except BaseException as exc:
+        try:
+            restored = _restore_captured(displaced, target)
+        except OSError as restore_exc:
+            raise RuntimeError(
+                "Codex could not restore a captured entry; manual recovery "
+                f"required from {displaced}"
+            ) from restore_exc
+        if not restored:
+            raise RuntimeError(
+                "Codex captured a changed or symbolic-link entry and a "
+                "concurrent destination prevented restoration; manual recovery "
+                f"required from {displaced}"
+            ) from exc
+        raise
+    return displaced
+
+
+def _publish_staged(
+    target: Path,
+    staged: Path,
+    expected: FileIdentity,
+) -> Replacement:
+    installed_identity = _snapshot(staged).identity
+    displaced = (
+        _claim_expected(target, expected, label="displaced")
+        if expected.exists
+        else None
+    )
+    try:
+        _publish_no_replace(staged, target)
+    except OSError as exc:
+        if displaced is not None:
+            restored = _restore_captured(displaced, target)
+            recovery = displaced
+        elif _entry_exists(target):
+            restored = False
+            try:
+                recovery = _retain_unpublished(staged, target)
+            except OSError as recovery_exc:
+                raise _RecoveryConflict(
+                    "Codex publish found a concurrent destination; it was not "
+                    "overwritten and manual recovery is required from "
+                    f"{staged}",
+                    staged,
+                ) from recovery_exc
+        else:
+            restored = True
+            recovery = staged
+        if not restored:
+            raise _RecoveryConflict(
+                "Codex publish found a concurrent destination; it was not "
+                "overwritten and manual recovery is required from "
+                f"{recovery}",
+                recovery,
+            ) from exc
+        raise
+    return Replacement(target, installed_identity, displaced)
+
+
+def _rollback_replacement(replacement: Replacement) -> None:
+    target = replacement.target_path
+    captured = _claim_expected(
+        target, replacement.installed_identity, label="rollback"
+    )
+    if replacement.displaced_path is None:
+        # The original target was absent. Claiming removes our installed entry;
+        # any concurrent new destination remains outside this recovery entry.
+        captured.unlink()
+        return
+    try:
+        _publish_no_replace(replacement.displaced_path, target)
+    except OSError as exc:
+        raise RuntimeError(
+            "Codex rollback found a concurrent destination; it was not "
+            "overwritten and manual recovery is required from "
+            f"{replacement.displaced_path} and {captured}"
+        ) from exc
+    replacement.displaced_path.unlink()
+    captured.unlink()
+
+
 def _rollback_replacements(
     replacements: list[Replacement], backups: tuple[BackupRecord, ...]
 ) -> None:
-    by_target = {record.target_path: record.backup_path for record in backups}
     errors = []
     for replacement in reversed(replacements):
-        target = replacement.target_path
         try:
-            _assert_identity(target, replacement.installed_identity)
-            backup = by_target.get(target)
-            if backup is None:
-                target.unlink(missing_ok=True)
-            else:
-                backup_snapshot = _snapshot(backup)
-                staged = _stage_bytes(
-                    target,
-                    backup_snapshot.content,
-                    mode=backup_snapshot.identity.mode,
-                )
-                os.replace(staged, target)
+            _rollback_replacement(replacement)
         except (OSError, RuntimeError) as exc:
-            errors.append(f"{target}: {exc}")
+            errors.append(f"{replacement.target_path}: {exc}")
     if errors:
+        backup_paths = ", ".join(str(item.backup_path) for item in backups)
         raise RuntimeError(
             "Codex installation failed and concurrent edits prevented safe "
             "rollback; manual recovery required from retained backups "
-            f"({'; '.join(errors)})"
+            f"[{backup_paths}] ({'; '.join(errors)})"
         )
+
+
+def _discard_displaced(replacements: list[Replacement]) -> None:
+    for replacement in replacements:
+        if replacement.displaced_path is not None:
+            replacement.displaced_path.unlink(missing_ok=True)
 
 
 def install_codex(
@@ -381,6 +534,7 @@ def install_codex(
             codex_version=version,
             runtime_validation=validation,
             probe_isolation=PROBE_ISOLATION,
+            installed_files=(),
         )
 
     for parent in {path.parent for path in paths.targets}:
@@ -406,17 +560,23 @@ def install_codex(
     replacements: list[Replacement] = []
     try:
         for target in changed:
-            _assert_identity(target, snapshots[target].identity)
-            installed_identity = _snapshot(staged[target]).identity
-            os.replace(staged[target], target)
-            replacements.append(Replacement(target, installed_identity))
-            _assert_identity(target, installed_identity)
-    except BaseException:
+            replacement = _publish_staged(
+                target, staged[target], snapshots[target].identity
+            )
+            replacements.append(replacement)
+            _assert_identity(target, replacement.installed_identity)
+    except BaseException as failure:
+        preserve = (
+            failure.recovery_paths
+            if isinstance(failure, _RecoveryConflict)
+            else ()
+        )
         try:
             _rollback_replacements(replacements, backups)
         finally:
-            _cleanup_stages(staged)
+            _cleanup_stages(staged, preserve=preserve)
         raise
+    _discard_displaced(replacements)
     _cleanup_stages(staged)
 
     return CodexInstallReport(
@@ -429,26 +589,48 @@ def install_codex(
         codex_version=version,
         runtime_validation=validation,
         probe_isolation=PROBE_ISOLATION,
+        installed_files=tuple(
+            InstalledFile(item.target_path, item.installed_identity)
+            for item in replacements
+        ),
     )
 
 
 def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
     """Restore a completed transaction using its retained recovery records."""
-    for target in report.changed_paths:
-        _snapshot(target)
     by_target = {record.target_path: record.backup_path for record in report.backups}
+    installed = {item.target_path: item.identity for item in report.installed_files}
     for target in reversed(report.changed_paths):
+        expected = installed.get(target)
+        if expected is None:
+            raise RuntimeError(
+                f"no installed identity is available to restore {target} safely"
+            )
         backup = by_target.get(target)
+        staged = None
+        if backup is not None:
+            backup_snapshot = _snapshot(backup)
+            staged = _stage_bytes(
+                target,
+                backup_snapshot.content,
+                mode=backup_snapshot.identity.mode,
+            )
+        captured = _claim_expected(target, expected, label="restore")
         if backup is None:
-            if target in report.created_paths:
-                target.unlink(missing_ok=True)
+            captured.unlink()
             continue
-        target.parent.mkdir(parents=True, exist_ok=True)
-        backup_snapshot = _snapshot(backup)
-        staged = _stage_bytes(
-            target,
-            backup_snapshot.content,
-            mode=backup_snapshot.identity.mode,
-        )
-        os.replace(staged, target)
+        try:
+            _publish_no_replace(staged, target)
+        except OSError as exc:
+            staged.unlink(missing_ok=True)
+            if _entry_exists(target):
+                raise RuntimeError(
+                    "Codex restore found a concurrent destination; it was not "
+                    "overwritten and manual recovery is required from "
+                    f"{backup} and {captured}"
+                ) from exc
+            _restore_captured(captured, target)
+            raise
+        staged.unlink()
+        captured.unlink()
     return report.changed_paths

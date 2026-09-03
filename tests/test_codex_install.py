@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tomllib
 from pathlib import Path
@@ -487,6 +488,180 @@ def test_partial_failure_does_not_overwrite_replaced_target_concurrent_edit(
     assert tuple(paths.config_path.parent.glob("config.toml.bak.*"))
 
 
+def _create_concurrent_entry(path: Path, kind: str, text: str) -> None:
+    if kind == "file":
+        path.write_text(text)
+    else:
+        path.symlink_to(path.parent / f"missing-{text}")
+
+
+@pytest.mark.parametrize("kind", ["file", "symlink"])
+def test_publish_create_if_absent_preserves_entry_interposed_after_claim(
+    tmp_path, monkeypatch, kind
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    originals = seed_codex_files(paths)
+    real_publish = getattr(
+        install_module,
+        "_publish_no_replace",
+        lambda source, target: os.link(source, target),
+    )
+    injected = False
+
+    def interpose(source, target):
+        nonlocal injected
+        if target == paths.config_path and not injected:
+            injected = True
+            _create_concurrent_entry(target, kind, "forward-concurrent")
+        return real_publish(source, target)
+
+    monkeypatch.setattr(
+        install_module, "_publish_no_replace", interpose, raising=False
+    )
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    if kind == "file":
+        assert paths.config_path.read_text() == "forward-concurrent"
+    else:
+        assert paths.config_path.is_symlink()
+    displaced = tuple(paths.config_path.parent.glob(".config.toml.displaced.*"))
+    assert any(path.read_bytes() == originals[paths.config_path] for path in displaced)
+
+
+def test_absent_target_publish_conflict_retains_unpublished_recovery(
+    tmp_path, monkeypatch
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    real_publish = install_module._publish_no_replace
+    injected = False
+
+    def interpose(source, target):
+        nonlocal injected
+        if target == paths.config_path and not injected:
+            injected = True
+            target.write_text("concurrent creation")
+        return real_publish(source, target)
+
+    monkeypatch.setattr(install_module, "_publish_no_replace", interpose)
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert paths.config_path.read_text() == "concurrent creation"
+    recovery = tuple(paths.config_path.parent.glob(".config.toml.unpublished.*"))
+    assert len(recovery) == 1
+    assert b"model_context_window = 600000" in recovery[0].read_bytes()
+
+
+def test_publish_conflict_cleanup_retains_stage_if_recovery_rename_fails(
+    tmp_path, monkeypatch
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    real_publish = install_module._publish_no_replace
+    real_replace = install_module.os.replace
+    injected = False
+
+    def interpose_publish(source, target):
+        nonlocal injected
+        if target == paths.config_path and not injected:
+            injected = True
+            target.write_text("concurrent creation")
+        return real_publish(source, target)
+
+    def fail_recovery_rename(source, target):
+        if ".unpublished." in Path(target).name:
+            raise OSError("simulated recovery rename failure")
+        return real_replace(source, target)
+
+    monkeypatch.setattr(install_module, "_publish_no_replace", interpose_publish)
+    monkeypatch.setattr(install_module.os, "replace", fail_recovery_rename)
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert paths.config_path.read_text() == "concurrent creation"
+    recovery = tuple(paths.config_path.parent.glob(".config.toml.*.tmp"))
+    assert len(recovery) == 1
+    assert b"model_context_window = 600000" in recovery[0].read_bytes()
+
+
+@pytest.mark.parametrize("kind", ["file", "symlink"])
+def test_rollback_publish_preserves_entry_interposed_after_claim(
+    tmp_path, monkeypatch, kind
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    originals = seed_codex_files(paths)
+    real_publish = getattr(
+        install_module,
+        "_publish_no_replace",
+        lambda source, target: os.link(source, target),
+    )
+    config_publishes = 0
+
+    def interpose(source, target):
+        nonlocal config_publishes
+        if target == paths.config_path:
+            config_publishes += 1
+            if config_publishes == 2:
+                _create_concurrent_entry(target, kind, "rollback-concurrent")
+        if target == paths.hooks_path and ".tmp" in source.name:
+            raise OSError("force rollback")
+        return real_publish(source, target)
+
+    monkeypatch.setattr(
+        install_module, "_publish_no_replace", interpose, raising=False
+    )
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    if kind == "file":
+        assert paths.config_path.read_text() == "rollback-concurrent"
+    else:
+        assert paths.config_path.is_symlink()
+    displaced = tuple(paths.config_path.parent.glob(".config.toml.displaced.*"))
+    assert any(path.read_bytes() == originals[paths.config_path] for path in displaced)
+    assert paths.hooks_path.read_bytes() == originals[paths.hooks_path]
+
+
+def test_claim_rejects_symlink_inserted_after_staging(tmp_path, monkeypatch):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    real_claim = getattr(
+        install_module,
+        "_claim_entry",
+        lambda target, displaced: os.rename(target, displaced),
+    )
+    injected = False
+
+    def interpose(target, displaced):
+        nonlocal injected
+        if target == paths.config_path and not injected:
+            injected = True
+            target.unlink()
+            target.symlink_to(tmp_path / "missing-concurrent-target")
+        return real_claim(target, displaced)
+
+    monkeypatch.setattr(install_module, "_claim_entry", interpose, raising=False)
+
+    with pytest.raises(RuntimeError, match="symbolic link"):
+        install_codex(paths, run=SuccessfulCodex())
+
+    assert paths.config_path.is_symlink()
+
+
 @pytest.mark.parametrize("leaf", ["config_path", "hooks_path", "prompt_path"])
 @pytest.mark.parametrize("broken", [False, True])
 def test_install_codex_rejects_existing_leaf_symlinks(
@@ -526,6 +701,32 @@ def test_restore_rejects_a_new_leaf_symlink(tmp_path):
 
     assert paths.config_path.is_symlink()
     assert target.read_text() == "do not change"
+
+
+def test_restore_publish_never_overwrites_concurrent_entry(tmp_path, monkeypatch):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    report = install_codex(paths, run=SuccessfulCodex())
+    real_publish = install_module._publish_no_replace
+    injected = False
+
+    def interpose(source, target):
+        nonlocal injected
+        if target == paths.config_path and not injected:
+            injected = True
+            target.write_text("concurrent restore edit")
+        return real_publish(source, target)
+
+    monkeypatch.setattr(install_module, "_publish_no_replace", interpose)
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        restore_codex(report)
+
+    assert paths.config_path.read_text() == "concurrent restore edit"
+    assert tuple(paths.config_path.parent.glob(".config.toml.restore.*"))
+    assert all(record.backup_path.exists() for record in report.backups)
 
 
 def test_install_codex_rolls_back_a_partial_replace_failure(tmp_path, monkeypatch):
