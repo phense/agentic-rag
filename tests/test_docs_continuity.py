@@ -7,6 +7,7 @@ DOC_PATHS = (
     Path("docs/01-what-is-agentic-rag.md"),
     Path("docs/02-mental-model.md"),
     Path("docs/03-quick-start.md"),
+    Path("docs/04-working-with-memory.md"),
     Path("docs/05-session-mining-and-curation.md"),
     Path("docs/06-configuration-reference.md"),
     Path("docs/07-privacy-and-cost.md"),
@@ -71,6 +72,7 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
     assert "live rollout pending" in corpus
     assert "Only LLM-assisted mining and curation" not in corpus
     assert "Mining and curation send only" not in corpus
+    assert "not independently secret-stripped" not in corpus
     assert "Each time Claude" not in corpus
     assert "your Claude subscription or API key" not in corpus
     assert "send bounded, redacted inputs" not in corpus
@@ -103,6 +105,20 @@ def _backlog_item(number: str) -> str:
     )
     assert match, f"missing backlog item {number}"
     return match.group(0)
+
+
+def test_working_with_memory_matches_completed_pin_security_boundary():
+    chapter = " ".join(
+        Path("docs/04-working-with-memory.md").read_text().split()
+    )
+    pin_security = _backlog_item("0.0")
+
+    assert pin_security.startswith("- ✅ **0.0**")
+    assert (
+        "secret-strips a provider-bound copy of each matching pin body "
+        "without mutating stored pin text"
+    ) in chapter
+    assert "backlog 0.0 is complete" in chapter
 
 
 def test_rollout_backlog_records_are_actionable_and_ordered_first():

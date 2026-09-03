@@ -37,6 +37,10 @@ def _safe(value: object) -> str:
     return strip_secrets(str(value))[0]
 
 
+def _safe_excerpt(value: object, max_chars: int) -> str:
+    return _safe(value)[:max_chars]
+
+
 def _format_age(value) -> str:
     seconds = max(0, int(value.total_seconds()))
     if seconds >= 86400:
@@ -439,8 +443,8 @@ def _main(argv: list[str] | None = None) -> int:
             for r in rep.queue:
                 print(f"  {r['kind']:<10} {r['status']:<12} {r['n']}")
             for e in rep.queue_errors:
-                session = _safe(e.session_id or "-")
-                diagnostic = _safe(e.last_error or "-")
+                session = _safe_excerpt(e.session_id or "-", 500)
+                diagnostic = _safe_excerpt(e.last_error or "-", 500)
                 print(f"  ERROR #{e.id} {e.kind} ({session}, "
                       f"{e.attempts} attempts): {diagnostic}")
             if rep.oldest_open_mine_at:
@@ -517,7 +521,10 @@ def _main(argv: list[str] | None = None) -> int:
                 print(f"  [{s['op']}] {s['summary'][:100]}")
             print("queue errors:")
             for e in rep["queue_errors"]:
-                print(f"  #{e['id']} {e['kind']}: {e['last_error']}")
+                session = _safe_excerpt(e["session_id"] or "-", 500)
+                diagnostic = _safe_excerpt(e["last_error"] or "-", 500)
+                print(f"  #{e['id']} {e['kind']} ({session}, "
+                      f"{e['attempts']} attempts): {diagnostic}")
             return 0
 
         if args.cmd == "pin":

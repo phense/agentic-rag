@@ -95,9 +95,10 @@ rag pin verify PIN_ID
 - `--priority` (default `100`) sets injection order — lower first, then by creation time.
 - If you pass `--document` without `--body`, the pin body is generated for you as `[[slug]] — title`.
 - **Never put credentials or other secrets in a pin.** Matching global and
-  path-scoped pin bodies can be included in session-mining provider prompts.
-  They are not independently secret-stripped at that boundary today; the
-  defense-in-depth fix is tracked in root backlog 0.0.
+  path-scoped pin bodies can be included in session-mining provider
+  prompts. Mining secret-strips a provider-bound copy of each matching pin body
+  without mutating stored pin text. The defense-in-depth work tracked in root
+  backlog 0.0 is complete.
 - `rag pin rm` deactivates the pin (`active = false`); it isn't deleted. `rag pin verify` stamps `last_verified`, resetting the staleness clock a pin is measured against.
 
 ```

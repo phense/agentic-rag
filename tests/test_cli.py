@@ -135,22 +135,30 @@ def test_status_sanitizes_provider_diagnostics(cli_env, monkeypatch, capsys):
 
 def test_status_sanitizes_queue_and_backup_diagnostics(
         cli_env, tmp_path, monkeypatch, capsys):
-    secret = "sk-abcdefghijklmnop1234"
+    error_secret = "sk-status-error-abcdefghijklmnop"
+    session_secret = "sk-status-session-abcdefghijklmnop"
     cli_env.execute(
-        "INSERT INTO mining_queue(kind, status, attempts, last_error) "
-        "VALUES ('mine', 'error', 3, %s)",
-        (f"failed with {secret}",),
+        "INSERT INTO mining_queue"
+        " (kind, status, attempts, session_id, last_error) "
+        "VALUES ('mine', 'error', 3, %s, %s)",
+        (
+            f"queue-session={session_secret}",
+            f"{'x' * 480} token={error_secret}",
+        ),
     )
     cli_env.commit()
     warning = tmp_path / "backup-warning"
-    warning.write_text(f"backup failed with {secret}")
+    warning.write_text(f"backup failed with {error_secret}")
     monkeypatch.setattr(cli.status_mod, "WARNING_STATE", warning)
 
     assert main(["status"]) == 0
 
     out = capsys.readouterr().out
-    assert secret not in out
-    assert out.count("[REDACTED]") >= 2
+    assert error_secret not in out
+    assert "sk-status-" not in out
+    assert session_secret not in out
+    assert "queue-session=[REDACTED]" in out
+    assert out.count("[REDACTED]") >= 3
 
 
 def test_status_prints_checkpoint_health(cli_env, capsys):
@@ -210,6 +218,30 @@ def test_review_renders_empty_worklists(cli_env, capsys):
     out = capsys.readouterr().out
     assert "duplicate candidates:" in out
     assert "stale pins:" in out
+
+
+def test_review_sanitizes_legacy_queue_diagnostics(cli_env, capsys):
+    error_secret = "sk-review-error-abcdefghijklmnop"
+    session_secret = "sk-review-session-abcdefghijklmnop"
+    cli_env.execute(
+        "INSERT INTO mining_queue"
+        " (kind, status, attempts, session_id, last_error) "
+        "VALUES ('mine', 'error', 3, %s, %s)",
+        (
+            f"queue-session={session_secret}",
+            f"{'x' * 480} token={error_secret}",
+        ),
+    )
+    cli_env.commit()
+
+    assert main(["review"]) == 0
+
+    out = capsys.readouterr().out
+    assert error_secret not in out
+    assert "sk-review-" not in out
+    assert session_secret not in out
+    assert "queue-session=[REDACTED]" in out
+    assert out.count("[REDACTED]") >= 2
 
 
 def test_purge_refuses_without_yes(cli_env, capsys):
