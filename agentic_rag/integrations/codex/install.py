@@ -374,6 +374,24 @@ def _publish_no_replace(source: Path, target: Path) -> None:
     os.link(source, target, follow_symlinks=False)
 
 
+def _publish_detached_no_replace(source: Path, target: Path) -> FileIdentity:
+    """Publish an independent copy and return its pre-publication identity."""
+    source_snapshot = _snapshot(source)
+    publication = _stage_bytes(
+        target,
+        source_snapshot.content,
+        mode=source_snapshot.identity.mode,
+    )
+    try:
+        published_identity = _snapshot(publication).identity
+        _publish_no_replace(publication, target)
+    finally:
+        # The target keeps the publication inode after a successful link, while
+        # the authenticated source remains detached from in-place target edits.
+        publication.unlink(missing_ok=True)
+    return published_identity
+
+
 def _restore_captured(captured: Path, target: Path) -> bool:
     """Restore a claimed entry only if no concurrent target now exists."""
     try:
@@ -793,7 +811,10 @@ def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
                 replacements.append(RestoreReplacement(target, None, captured))
                 continue
             try:
-                _publish_no_replace(staged, target)
+                # Capture the exact target identity before its pathname is
+                # published. Publication uses a private copy so an in-place
+                # target edit cannot also rewrite the authenticated stage.
+                restored_identity = _publish_detached_no_replace(staged, target)
             except OSError as exc:
                 if _entry_exists(target):
                     raise RuntimeError(
@@ -807,7 +828,6 @@ def restore_codex(report: CodexInstallReport) -> tuple[Path, ...]:
                         f"manual recovery is required from {captured}"
                     ) from exc
                 raise
-            restored_identity = _snapshot(staged).identity
             replacements.append(
                 RestoreReplacement(target, restored_identity, captured)
             )

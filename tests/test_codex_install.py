@@ -802,6 +802,90 @@ def test_restore_publish_never_overwrites_concurrent_entry(tmp_path, monkeypatch
         )
 
 
+def test_restore_rollback_preserves_same_size_edit_after_publication(
+    tmp_path, monkeypatch
+):
+    from agentic_rag.integrations.codex import install as install_module
+
+    paths = codex_paths(tmp_path)
+    seed_codex_files(paths)
+    report = install_codex(paths, run=SuccessfulCodex())
+    restore_order = tuple(reversed(report.changed_paths))
+    first_target, second_target = restore_order[:2]
+    backups = {record.target_path: record for record in report.backups}
+    installed_before = install_module._snapshot(first_target)
+    original = install_module._snapshot(backups[first_target].backup_path)
+    assert original.content == b"old prompt\n"
+    concurrent = b"user edit!\n"
+    assert len(concurrent) == len(original.content)
+
+    real_publish = install_module._publish_no_replace
+    managed_publishes = 0
+    concurrent_snapshot = None
+
+    def interpose(source, target):
+        nonlocal managed_publishes, concurrent_snapshot
+        if target not in paths.targets:
+            return real_publish(source, target)
+        managed_publishes += 1
+        if managed_publishes == 1:
+            assert target == first_target
+            result = real_publish(source, target)
+            published = install_module._snapshot(target)
+            with target.open("r+b", buffering=0) as stream:
+                stream.write(concurrent)
+            concurrent_snapshot = install_module._snapshot(target)
+            assert concurrent_snapshot.identity.inode == published.identity.inode
+            assert concurrent_snapshot.identity.size == published.identity.size
+            assert concurrent_snapshot.identity.mode == published.identity.mode
+            assert concurrent_snapshot.identity.digest != published.identity.digest
+            return result
+        if managed_publishes == 2:
+            assert target == second_target
+            raise OSError("simulated second restore publication failure")
+        return real_publish(source, target)
+
+    monkeypatch.setattr(install_module, "_publish_no_replace", interpose)
+
+    with pytest.raises(RuntimeError, match="manual recovery"):
+        restore_codex(report)
+
+    assert concurrent_snapshot is not None
+    assert managed_publishes >= 2
+    assert install_module._snapshot(first_target) == concurrent_snapshot
+
+    installed_recovery = tuple(
+        first_target.parent.glob(f".{first_target.name}.restore.*")
+    )
+    assert any(
+        install_module._snapshot(path) == installed_before
+        for path in installed_recovery
+    )
+
+    original_record = backups[first_target]
+    assert (
+        install_module._snapshot(original_record.backup_path).identity
+        == original_record.identity
+    )
+    authenticated_originals = tuple(
+        original_record.backup_path.parent.glob(
+            f".{original_record.backup_path.name}.restore-backup.*"
+        )
+    )
+    assert any(
+        install_module._snapshot(path).identity == original_record.identity
+        for path in authenticated_originals
+    )
+
+    staged_originals = tuple(
+        first_target.parent.glob(f".{first_target.name}.*.tmp")
+    )
+    assert any(
+        install_module._snapshot(path).content == original.content
+        for path in staged_originals
+    )
+
+
 def test_install_codex_rolls_back_a_partial_replace_failure(tmp_path, monkeypatch):
     from agentic_rag.integrations.codex import install as install_module
 
