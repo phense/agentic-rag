@@ -24,7 +24,8 @@ from . import common
 
 CURATION_MAX_AGE_H = 24
 _TRIM_ORDER = ("knowledge", "domains", "checkpoint")
-_TRUNCATED = "⚠️ context truncated to fit the {limit}-char Claude hook limit: {detail}"
+_TRUNCATED = ("⚠️ context truncated to fit the {limit}-char Claude hook limit: "
+              "{detail}; see rag status")
 
 
 def _join(parts: list[tuple[str, str]], warnings: list[str]) -> str:

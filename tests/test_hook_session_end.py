@@ -109,4 +109,4 @@ def test_session_end_wall_time_fits_claude_budget(
 
     print(f"\nsession_end wall time (startup+import+enqueue): {elapsed:.3f}s")
     assert _open_mine_jobs(conn, payload["session_id"]) == 1
-    assert elapsed < 1.5
+    assert elapsed < 1.0   # matches the installed SessionEnd timeout of 1 s
