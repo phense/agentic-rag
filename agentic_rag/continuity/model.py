@@ -27,6 +27,11 @@ MIN_HANDOFF_CHARS = 400
 HANDOFF_TRUNCATION_MARKER = "…[truncated]"
 _HORIZONTAL_SPACE = re.compile(r"[ \t]+")
 _BLANK_RUN = re.compile(r"\n{3,}")
+# Claude's PostCompact ``compact_summary`` carries the model's raw compaction
+# output: an ``<analysis>`` scratch block followed by the ``<summary>`` that
+# Claude Code itself keeps.  Only the summary is worth a bounded handoff.
+_ANALYSIS_BLOCK = re.compile(r"<analysis>.*?(?:</analysis>|$)", re.DOTALL)
+_SUMMARY_BLOCK = re.compile(r"<summary>(.*?)(?:</summary>|$)", re.DOTALL)
 _UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
 _UNIFIED_DIFF_HUNK = re.compile(
     r"(?m)^---[ \t]+[^\s\r\n][^\r\n]*\r?\n"
@@ -114,6 +119,15 @@ def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
     return normalized
 
 
+def _summary_only(text: str) -> str:
+    """Keep the ``<summary>`` body of a raw Claude compaction output and drop
+    the ``<analysis>`` scratch block; plain text passes through unchanged."""
+    if (match := _SUMMARY_BLOCK.search(text)) and match.group(1).strip():
+        return match.group(1)
+    stripped = _ANALYSIS_BLOCK.sub("", text)
+    return stripped if stripped.strip() else text
+
+
 def bound_handoff(text: object, *, max_chars: int) -> str:
     """Normalize, secret-strip, and truncate a client compact summary.
 
@@ -131,6 +145,7 @@ def bound_handoff(text: object, *, max_chars: int) -> str:
         raise ValueError(
             f"max_chars must be an integer of at least {MIN_HANDOFF_CHARS}"
         )
+    text = _summary_only(text)
     normalized = _HORIZONTAL_SPACE.sub(" ", text.replace("\r\n", "\n")).strip()
     normalized = _BLANK_RUN.sub("\n\n", normalized)
     stripped, _ = strip_secrets(normalized)

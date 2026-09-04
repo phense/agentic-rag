@@ -419,6 +419,74 @@ def test_compact_restores_handoff_within_budget(conn, hook_env, monkeypatch):
     assert "Next: docs" in ctx
 
 
+def test_startup_keeps_knowledge_beside_a_full_length_handoff(
+        conn, hook_env, monkeypatch):
+    """A real Claude compact summary fills the 8,000-char handoff bound; the
+    9,500-char total cap must shorten it instead of evicting pins, domains,
+    knowledge, or the checkpoint itself."""
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    _seed(conn)
+    for i in range(12):
+        pins.add_pin(conn, body=f"Rule {i}: " + "r" * 100)
+    checkpoint = _checkpoint(
+        conn, session_id="s1", project_root="/Users/example/proj",
+        cursor="c1", goal="ship handoff")
+    store.attach_handoff(
+        conn, checkpoint.id,
+        "Goal: ship handoff\n" + "\n".join(f"- fact {i} " + "f" * 60
+                                           for i in range(110)),
+        max_chars=8000)
+
+    ctx = _run(_payload(source="resume"))
+
+    assert len(ctx) <= 9500
+    assert "## Pinned rules" in ctx and "Rule 11:" in ctx
+    assert "## Knowledge domains" in ctx
+    assert "## Continuation checkpoint" in ctx
+    assert "Goal: ship handoff" in ctx
+    assert "Handoff (Claude compact summary, CURRENT" in ctx
+    assert "…[truncated]" in ctx
+    assert "checkpoint shortened" in ctx
+    assert "dropped" not in ctx
+
+
+def test_fit_context_shrinks_elastic_section_before_dropping_others():
+    def render(budget):
+        return ("Checkpoint c1\nHandoff: " + "h" * 20000)[:budget]
+
+    parts = [
+        ("header", "# agentic-rag memory"),
+        ("pins", "## Pinned rules\n" + "\n".join(
+            f"- pin {i} " + "p" * 80 for i in range(10))),
+        ("domains", "## Knowledge domains\n" + "d" * 500),
+        ("knowledge", "## Recent knowledge\n" + "k" * 500),
+        ("checkpoint", "## Continuation checkpoint\n" + render(8000)),
+    ]
+    elastic = {"checkpoint": (render, 400)}
+
+    fitted = session_start.fit_context(parts, [], 6000, elastic=elastic)
+
+    assert len(fitted) <= 6000
+    assert "## Recent knowledge" in fitted
+    assert "## Knowledge domains" in fitted
+    assert "## Continuation checkpoint" in fitted and "Checkpoint c1" in fitted
+    assert "checkpoint shortened" in fitted
+    assert "dropped" not in fitted
+
+    # Below the elastic minimum the usual whole-section trimming resumes, and
+    # the checkpoint is re-shrunk into whatever each drop frees up.
+    tight = session_start.fit_context(parts, [], 2300, elastic=elastic)
+
+    assert len(tight) <= 2300
+    assert "## Recent knowledge" not in tight
+    assert "## Continuation checkpoint" in tight
+    assert "checkpoint shortened; dropped knowledge" in tight
+
+    # Without an elastic renderer the behaviour is the historical one.
+    plain = session_start.fit_context(parts, [], 6000)
+    assert "## Recent knowledge" not in plain and "dropped knowledge" in plain
+
+
 def test_fit_context_trims_in_order_and_warns_visibly():
     parts = [
         ("header", "# agentic-rag memory"),

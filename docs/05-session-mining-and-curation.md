@@ -113,9 +113,15 @@ untouched:
    characters would survive, always before the mandatory
    goal/next-action/blocker sections. The whole injected context is
    capped at `[continuity] context_max_chars` (default 9,500; Claude discards
-   per-hook context above 10,000 characters) and trims recent knowledge, then
-   the domain map, then the checkpoint, then pins — each cut announced with a
-   visible `⚠️ context truncated …` warning that names how many pins were cut.
+   per-hook context above 10,000 characters). Over budget, the checkpoint is
+   first re-rendered into the remaining space (shortening the handoff), and
+   only then are recent knowledge, the domain map, the checkpoint, and pins
+   trimmed — each cut announced with a visible `⚠️ context truncated …`
+   warning that names the shortened section, the dropped ones, and how many
+   pins were cut. Note that Claude Code runs `SessionStart(source="compact")`
+   and `PostCompact` concurrently, so the injection right after a compaction
+   normally shows the checkpoint without the handoff (Claude's own summary is
+   still in context then); the handoff appears on the next startup/resume.
 4. `SessionEnd` enqueues the final transcript delta for every Claude reason
    (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`) through the
    same deduplicating path as `Stop`. Claude gives all SessionEnd hooks 1.5 s

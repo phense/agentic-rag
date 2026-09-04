@@ -47,9 +47,24 @@
   `autoCompactWindow=500000` (diff against the unique backup shows nothing
   else changed), printed the mode-0600 rollback record, and `rag status`
   stayed healthy.
+  Manual `/compact` smoke, 2026-09-04 09:02 local: PreCompact printed the
+  versioned instructions plus `agentic-rag checkpoint: 2eae3810-…`;
+  PostCompact marked the checkpoint compacted and stored a 7,999-char
+  handoff; `rag status` showed `checkpoint handoff: … (26s ago)`; no
+  `hooks.log` was written (no hook error). Two defects found and fixed the
+  same day: (1) the stored handoff was Claude's raw output, so the
+  `<analysis>` scratch block consumed the 8,000-char bound and the actual
+  `<summary>` was truncated — `bound_handoff` now keeps only the summary
+  block; (2) with a full-length handoff the 9,500-char total cap dropped
+  knowledge, domains, and the whole checkpoint on the next startup —
+  `fit_context` now shrinks the checkpoint into the remaining budget before
+  any section is dropped (609 tests). Observed ordering: Claude Code started
+  `SessionStart(compact)` and `PostCompact` concurrently and SessionStart
+  finished ~150 ms earlier, so the immediate post-compaction injection
+  carried the checkpoint without the handoff; documented as expected (the
+  handoff serves the next startup/resume).
   → *Why not done:* `/hooks` trust review, `/autocompact` = 500000
-  confirmation, a manual `/compact` (checkpoint + handoff + restored
-  context), an automatic compaction, and a `SessionEnd` tail capture are
+  confirmation, an automatic compaction, and a `SessionEnd` tail capture are
   still to be exercised in a live session. → *Trigger:* the next interactive
   Claude Code session; record each outcome here. *(M)*
 

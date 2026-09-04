@@ -370,6 +370,22 @@ def test_attach_handoff_identical_replay_is_noop_and_change_replaces(conn):
     ).fetchone()["n"] == 2
 
 
+def test_attach_handoff_keeps_only_claude_summary_block(conn):
+    checkpoint = _pre_compact(conn)
+    raw = ("<analysis>\nChronology: " + "a" * 3000 + "\n</analysis>\n\n"
+           "<summary>\n1. Goal: ship the handoff.\n2. Next: docs.\n</summary>")
+
+    store.attach_handoff(conn, checkpoint.id, raw, max_chars=1000)
+
+    saved = store.get(conn, checkpoint.id).handoff
+    assert saved == "1. Goal: ship the handoff.\n2. Next: docs."
+    assert "<analysis>" not in saved and "<summary>" not in saved
+
+    store.attach_handoff(
+        conn, checkpoint.id, "<analysis>scratch only</analysis>", max_chars=400)
+    assert store.get(conn, checkpoint.id).handoff == "<analysis>scratch only</analysis>"
+
+
 def test_attach_handoff_rejects_blank_and_small_budget(conn):
     import pytest
     checkpoint = _pre_compact(conn)

@@ -13,13 +13,18 @@ The default `rag install` now wires six lifecycle hooks into
   queues enrichment, and then prints the versioned compact instructions.
   Claude appends a PreCompact hook's stdout to its compaction prompt, so every
   compaction — automatic or manual — is guided without `/compact <text>`.
-- `PostCompact` (`manual|auto`, 3 s) marks the boundary and stores Claude's
-  own `compact_summary` as a bounded, secret-stripped **handoff** on the
-  checkpoint (default 8,000 characters). It never injects context.
-- `SessionStart(source="compact")` restores the checkpoint, including the
-  handoff with a CURRENT/HISTORICAL age label. The whole injected context is
-  capped at 9,500 characters by default (Claude drops anything over 10,000
-  per hook) and announces every cut.
+- `PostCompact` (`manual|auto`, 3 s) marks the boundary and stores the
+  `<summary>` block of Claude's own `compact_summary` (its `<analysis>`
+  scratch block is discarded) as a bounded, secret-stripped **handoff** on
+  the checkpoint (default 8,000 characters). It never injects context.
+- `SessionStart` restores the checkpoint; on the next `startup`/`resume` it
+  includes the handoff with a CURRENT/HISTORICAL age label. (Right after a
+  compaction Claude Code runs `SessionStart` and `PostCompact` concurrently,
+  so that first injection usually predates the handoff — Claude's own summary
+  is still in context then.) The whole injected context is capped at 9,500
+  characters by default (Claude drops anything over 10,000 per hook); the
+  checkpoint is shortened into the remaining budget before any section is
+  dropped, and every cut is announced.
 - `SessionEnd` (1 s) queues the final transcript delta for every Claude
   reason (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`). Claude
   allows 1.5 s for all SessionEnd hooks together; `Stop` remains the

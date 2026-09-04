@@ -12,8 +12,11 @@ milestones rather than every commit, and interfaces may still change between `0.
   Claude lifecycle hooks. `PreCompact` prints the versioned compact
   instructions (Claude appends hook stdout to its compaction prompt),
   `PostCompact` stores Claude's `compact_summary` as a bounded, secret-stripped
-  handoff on the checkpoint, `SessionStart` restores it with an age label and
-  caps its whole output at Claude's 10,000-character hook limit, and
+  handoff on the checkpoint (only the `<summary>` block of Claude's raw
+  output; the `<analysis>` scratch block is discarded), `SessionStart`
+  restores it with an age label and caps its whole output at Claude's
+  10,000-character hook limit — shortening the checkpoint into the remaining
+  budget before any section is dropped — and
   `SessionEnd` queues the final delta for every Claude reason within a 1 s
   timeout. Client detection is payload-driven; Codex behavior is unchanged.
 - **Managed 1M/500K Claude policy.** The installer sets

@@ -91,15 +91,19 @@ durable, searchable, auditable knowledge and explicit continuation state.
   compaction wins), marks the boundary, and stores Claude's
   `compact_summary` as a bounded (`handoff_max_chars`, default 8,000),
   secret-stripped, audited handoff (migration 008: `handoff`, `handoff_at`).
-  Replays are idempotent; a newer summary replaces the older one.
+  Only the `<summary>` block of Claude's raw output is kept; the `<analysis>`
+  scratch block is discarded. Replays are idempotent; a newer summary
+  replaces the older one.
 - ✅ **Context cap.** `SessionStart` renders the handoff with a
   `CURRENT`/`HISTORICAL` age label (truncated to the remaining render budget
   rather than dropped, so a full-length handoff still surfaces) and caps its
   whole output at
   `context_max_chars` (default 9,500; hard maximum 10,000, Claude's per-hook
-  limit), trimming knowledge, domains, checkpoint, then pins with a visible
-  warning that counts the pins cut. `SessionEnd` enqueues the final delta for
-  every Claude reason within a 1 s timeout (measured about 0.12 s).
+  limit). The checkpoint is elastic: it is shortened into the remaining budget
+  before knowledge, domains, checkpoint, or pins are trimmed, and the visible
+  warning names what was shortened, dropped, or cut. `SessionEnd` enqueues
+  the final delta for every Claude reason within a 1 s timeout (measured
+  about 0.12 s).
 - ✅ **Managed 1M/500K policy.** The installer sets `autoCompactWindow =
   500000` only; it reports a `model` without the `[1m]` suffix,
   `autoCompactEnabled=false`, and overriding `CLAUDE_CODE_AUTO_COMPACT_WINDOW`
@@ -111,10 +115,13 @@ durable, searchable, auditable knowledge and explicit continuation state.
   rollback record, and prints the exact `rag install --restore <record>`
   command, which is target-aware for Claude and Codex records. `rag status`
   shows `checkpoint handoff:` freshness.
-- 🔵 **Live rollout.** Code, tests, and docs are shipped; the maintainer
-  machine has not yet run `rag install`, reviewed `/hooks`, confirmed
-  `/autocompact` = 500000, or exercised manual/automatic compaction and a
-  SessionEnd tail capture. See backlog 0.3.
+- 🔵 **Live rollout.** `rag install` ran on the maintainer machine on
+  2026-09-04 and a manual `/compact` proved the PreCompact → PostCompact →
+  SessionStart chain (checkpoint, 7,999-char handoff, `rag status` freshness
+  line, no hook errors). That smoke exposed and fixed two defects (raw
+  `<analysis>` block stored as handoff; whole-section trimming evicting the
+  checkpoint). Still open: `/hooks` review, `/autocompact` confirmation, an
+  automatic compaction, a SessionEnd tail capture. See backlog 0.3.
 
 Claude auto-memory is the Claude analogue of native Codex memories: a
 complementary local layer that this feature neither installs nor changes.

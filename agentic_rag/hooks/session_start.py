@@ -10,6 +10,7 @@ worker; and any due jobs → spawn the worker (mining tail pickup)."""
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable, Mapping
 from datetime import datetime, timedelta, timezone
 
 from .. import db, jobs, provider_health
@@ -26,6 +27,12 @@ CURATION_MAX_AGE_H = 24
 _TRIM_ORDER = ("knowledge", "domains", "checkpoint")
 _TRUNCATED = ("⚠️ context truncated to fit the {limit}-char Claude hook limit: "
               "{detail}; see rag status")
+# An elastic section re-renders itself into a smaller budget: a callable
+# taking the character budget for its body, plus the smallest budget it
+# accepts.  The checkpoint is elastic because its handoff is prose that the
+# renderer can truncate; pins, domains, and knowledge are lists that are
+# dropped or cut whole.
+Elastic = Mapping[str, tuple[Callable[[int], str], int]]
 
 
 def _join(parts: list[tuple[str, str]], warnings: list[str]) -> str:
@@ -35,17 +42,56 @@ def _join(parts: list[tuple[str, str]], warnings: list[str]) -> str:
     return "\n\n".join(body)
 
 
+def _shrink_elastic(
+    kept: list[tuple[str, str]], notes: list[str], max_chars: int,
+    elastic: Elastic, dropped: list[str],
+) -> str | None:
+    """Re-render an elastic section into whatever budget remains so that it
+    is shortened before any further whole section is dropped.  Returns the
+    fitted text, or ``None`` when no elastic section is present, it already
+    fits (the overflow lies elsewhere), or less than its minimum budget
+    remains."""
+    for name, (render, min_chars) in elastic.items():
+        index = next(
+            (i for i, (part_name, _) in enumerate(kept) if part_name == name),
+            None)
+        if index is None:
+            continue
+        heading, _, body = kept[index][1].partition("\n")
+        detail = f"{name} shortened" + (
+            f"; dropped {', '.join(dropped)}" if dropped else "")
+        warning = _TRUNCATED.format(limit=max_chars, detail=detail)
+        skeleton = kept[:index] + [(name, heading + "\n")] + kept[index + 1:]
+        budget = max_chars - len(_join(skeleton, notes + [warning]))
+        if budget < min_chars or len(body) <= budget:
+            continue
+        trial = kept[:index] + [
+            (name, heading + "\n" + render(budget))
+        ] + kept[index + 1:]
+        text = _join(trial, notes + [warning])
+        if len(text) <= max_chars:
+            return text
+    return None
+
+
 def fit_context(
-    parts: list[tuple[str, str]], warnings: list[str], max_chars: int
+    parts: list[tuple[str, str]], warnings: list[str], max_chars: int,
+    elastic: Elastic | None = None,
 ) -> str:
-    """Trim named sections (knowledge, domains, checkpoint, then pins) until
-    the joined context fits ``max_chars``; every cut is announced up front."""
+    """Shrink elastic sections (the checkpoint, handoff first) into the
+    remaining budget, then trim whole sections (knowledge, domains,
+    checkpoint, then pins) until the joined context fits ``max_chars``;
+    every cut is announced up front."""
     kept = list(parts)
     notes = list(warnings)
+    elastic = dict(elastic or {})
     text = _join(kept, notes)
     if len(text) <= max_chars:
         return text
     dropped: list[str] = []
+    shrunk = _shrink_elastic(kept, notes, max_chars, elastic, dropped)
+    if shrunk is not None:
+        return shrunk
     for name in _TRIM_ORDER:
         if not any(part_name == name for part_name, _ in kept):
             continue
@@ -55,6 +101,9 @@ def fit_context(
             limit=max_chars, detail="dropped " + ", ".join(dropped))])
         if len(text) <= max_chars:
             return text
+        shrunk = _shrink_elastic(kept, notes, max_chars, elastic, dropped)
+        if shrunk is not None:
+            return shrunk
     # Pins are law: cut whole trailing pin lines, say how many, keep the rest.
     pin_index = next(
         (i for i, (name, _) in enumerate(kept) if name == "pins"), None)
@@ -111,6 +160,7 @@ def build_context(
         source: str | None = None) -> str:
     parts: list[tuple[str, str]] = [("header", "# agentic-rag memory")]
     warnings: list[str] = []
+    elastic: dict[str, tuple[Callable[[int], str], int]] = {}
 
     if WARNING_STATE.exists():
         warnings.append(
@@ -191,14 +241,22 @@ def build_context(
                     "source": source or "startup",
                     "cwd": cwd,
                 }).project_root
-            rendered = render_checkpoint(
-                checkpoint,
-                max_chars=max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars),
-                current_cwd=cwd,
-                current_project_root=current_project_root,
-                stale_days=cfg.stale_days,
-            )
-            parts.append(("checkpoint", "## Continuation checkpoint\n" + rendered))
+            render_budget = max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars)
+
+            def render(budget: int, *, checkpoint=checkpoint,
+                       project_root=current_project_root) -> str:
+                return render_checkpoint(
+                    checkpoint,
+                    max_chars=min(budget, render_budget),
+                    current_cwd=cwd,
+                    current_project_root=project_root,
+                    stale_days=cfg.stale_days,
+                )
+
+            parts.append((
+                "checkpoint",
+                "## Continuation checkpoint\n" + render(render_budget)))
+            elastic["checkpoint"] = (render, MIN_RENDER_CHARS)
     except Exception as exc:  # noqa: BLE001 — continuity is optional context
         common.log_hook_error("session_start.continuity", repr(exc))
         try:
@@ -211,7 +269,8 @@ def build_context(
         )
 
     return fit_context(
-        parts, warnings, min(cfg.context_max_chars, MAX_CONTEXT_CHARS))
+        parts, warnings, min(cfg.context_max_chars, MAX_CONTEXT_CHARS),
+        elastic=elastic)
 
 
 def _trigger_maintenance(conn) -> None:
