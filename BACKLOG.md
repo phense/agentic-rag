@@ -41,11 +41,17 @@
   Measured `SessionEnd` wall time in the suite: 0.121 s (interpreter start +
   import + enqueue against a local database; Claude budget 1.5 s, hook
   timeout 1 s).
-  → *Why not done:* the maintainer machine has not yet run `rag install`,
-  reviewed `/hooks`, confirmed `/autocompact` = 500000, exercised a manual
-  `/compact` (checkpoint + handoff + restored context), an automatic
-  compaction, and a `SessionEnd` tail capture. → *Trigger:* Task 11 smoke
-  run; record each outcome here. *(M)*
+  Rollout on the maintainer machine, 2026-09-04: migration 008 applied;
+  `rag install --check` reported one change and no policy warning (model
+  already `[1m]`); `rag install` wrote the six hooks and
+  `autoCompactWindow=500000` (diff against the unique backup shows nothing
+  else changed), printed the mode-0600 rollback record, and `rag status`
+  stayed healthy.
+  → *Why not done:* `/hooks` trust review, `/autocompact` = 500000
+  confirmation, a manual `/compact` (checkpoint + handoff + restored
+  context), an automatic compaction, and a `SessionEnd` tail capture are
+  still to be exercised in a live session. → *Trigger:* the next interactive
+  Claude Code session; record each outcome here. *(M)*
 
 ## §1 — Mining & curation pipeline
 
