@@ -42,7 +42,8 @@ def test_v040_release_metadata_and_whats_new_are_linked():
     handbook = Path("docs/README.md").read_text()
     whats_new = Path("docs/00-whats-new-in-0.4.md")
 
-    assert 'version = "0.4.0"' in pyproject
+    assert 'version = "0.4.1"' in pyproject
+    assert "## [0.4.1] - 2026-09-04" in changelog
     assert "## [0.4.0] - 2026-09-04" in changelog
     assert whats_new.is_file()
     assert whats_new.read_text().startswith("# What’s New in 0.4.0\n")

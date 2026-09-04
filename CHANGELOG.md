@@ -7,6 +7,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-04
+
 ### Fixed
 - **Handoff extraction ignores tags quoted in the prose.** The `<summary>`
   block of Claude's `compact_summary` is now bounded by tags on lines of their
