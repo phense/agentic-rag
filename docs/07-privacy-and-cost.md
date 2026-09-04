@@ -106,9 +106,12 @@ The deterministic checkpoint intentionally captures references and bounded
 state, not arbitrary bodies: canonical CWD/Git paths, branch/HEAD, a capped
 `git status --short`, transcript cursor/fingerprint metadata, and approved
 artifact paths. It does not store a transcript, diff, or artifact body.
-Optional semantic enrichment receives a bounded redacted transcript delta and
-rejects secret-bearing, transcript-like, diff-like, or unrecognized output
-instead of persisting it.
+Optional semantic enrichment receives a bounded redacted transcript delta.
+Secret-bearing or unrecognized output fails the job; a transcript-like,
+diff-like, or dialogue-like value is dropped on its own and named in the
+checkpoint's warnings (field, count, reason — never the value), so the rest of
+the object is still persisted. The store's own gate stays strict: nothing
+unstorable is ever written.
 
 ### Handoff retention (Claude)
 

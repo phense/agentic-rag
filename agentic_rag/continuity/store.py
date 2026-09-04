@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from .model import (
     Checkpoint, CheckpointSnapshot, bound_handoff, validate_enrichment,
@@ -181,14 +181,47 @@ def upsert_snapshot(
         raise
 
 
-def apply_enrichment(conn, checkpoint_id: str, enrichment: Mapping[str, object]) -> Checkpoint:
-    """Attach validated semantic state without changing its lifecycle state."""
+MAX_WARNING_CHARS = 200
+MAX_WARNINGS = 64
+
+
+def _check_warnings(warnings: Sequence[str]) -> list[str]:
+    if isinstance(warnings, str) or not isinstance(warnings, Sequence):
+        raise ValueError("warnings must be a sequence of strings")
+    if len(warnings) > MAX_WARNINGS:
+        raise ValueError("too many warnings")
+    for warning in warnings:
+        if not isinstance(warning, str) or not warning.strip():
+            raise ValueError("warnings must be non-blank strings")
+        if len(warning) > MAX_WARNING_CHARS:
+            raise ValueError("warning exceeds the character limit")
+    return list(warnings)
+
+
+def apply_enrichment(
+        conn, checkpoint_id: str, enrichment: Mapping[str, object], *,
+        warnings: Sequence[str] = ()) -> Checkpoint:
+    """Attach validated semantic state without changing its lifecycle state.
+
+    ``warnings`` name what enrichment screened out (field, count, reason);
+    they are appended to the checkpoint's existing warnings without
+    duplicates, so the renderer's ``Warnings:`` line reports the gaps.
+    """
     encoded = _json(validate_enrichment(enrichment), "enrichment")
+    new_warnings = _check_warnings(warnings)
     try:
+        current = conn.execute(
+            "SELECT warnings FROM continuation_checkpoints WHERE id = %s FOR UPDATE",
+            (checkpoint_id,),
+        ).fetchone()
+        if current is None:
+            raise ValueError(f"no such checkpoint: {checkpoint_id}")
+        merged = list(current["warnings"])
+        merged.extend(w for w in new_warnings if w not in merged)
         row = conn.execute(
             "UPDATE continuation_checkpoints SET enrichment = %s, quality = 'enriched', "
-            "updated_at = now() WHERE id = %s RETURNING *",
-            (encoded, checkpoint_id),
+            "warnings = %s, updated_at = now() WHERE id = %s RETURNING *",
+            (encoded, _json(merged, "warnings"), checkpoint_id),
         ).fetchone()
         if row is None:
             raise ValueError(f"no such checkpoint: {checkpoint_id}")

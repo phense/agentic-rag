@@ -47,6 +47,10 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 - ✅ **Provider-neutral checkpoints.** Audited, non-deleting checkpoint
   persistence; deterministic Git/transcript-cursor capture; bounded rendering;
   and asynchronous schema-constrained enrichment are shipped in code.
+  Enrichment output is screened value by value (issue #2): an unstorable or
+  ungrounded value is dropped and named in the checkpoint's `Warnings:`
+  line instead of voiding the other fields; a credential still fails the
+  job, and the word guard exempts paths and identifiers.
 - ✅ **Six lifecycle handlers.** `SessionStart`, `UserPromptSubmit`, `Stop`,
   `PreCompact`, `PostCompact`, and `SessionEnd` handlers are shipped. Only
   `SessionStart(source="compact")` can restore checkpoint context after

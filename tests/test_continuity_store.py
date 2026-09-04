@@ -235,6 +235,84 @@ def test_enrichment_rejects_structural_diff_and_dialogue_payloads(conn, enrichme
     assert store.get(conn, checkpoint.id).enrichment == {}
 
 
+@pytest.mark.parametrize(("text", "prohibited"), [
+    ("conflicts in transcript.py, config.py, llm.py", False),
+    ("see hooks/transcript and transcript_delta", False),
+    ("the transcript.", True),
+    ("copied body of the file", True),
+    ("word filter (transcript|diff|body) blocks output", True),
+    ("Transcript follows:", True),
+])
+def test_enrichment_word_guard_exempts_paths_and_identifiers(conn, text, prohibited):
+    # Issue #2: a path is a fact a checkpoint has to be able to state.
+    checkpoint = store.upsert_snapshot(conn, snapshot())
+
+    if prohibited:
+        with pytest.raises(ValueError, match="prohibited content"):
+            store.apply_enrichment(conn, checkpoint.id, {"goal": text})
+    else:
+        assert store.apply_enrichment(
+            conn, checkpoint.id, {"goal": text}).enrichment == {"goal": text}
+
+
+def test_screen_enrichment_drops_offending_values_and_names_them():
+    from agentic_rag.continuity.model import screen_enrichment
+    screened, warnings = screen_enrichment({
+        "goal": "the transcript says so",
+        "next_action": "Run the focused checks",
+        "files": ["transcript.py", "hooks/transcript"],
+        "blockers": ["copied body", "a diff of it", "real blocker"],
+    })
+
+    assert screened == {
+        "goal": "",
+        "next_action": "Run the focused checks",
+        "files": ["transcript.py", "hooks/transcript"],
+        "blockers": ["real blocker"],
+    }
+    assert warnings == [
+        "enrichment goal: 1 item dropped (prohibited content)",
+        "enrichment blockers: 2 items dropped (prohibited content)",
+    ]
+
+
+@pytest.mark.parametrize("enrichment", [
+    {"goal": "password=super-secret-value"},
+    {"tests": ["ok", "api_key=sk-abcdefghijklmnopqrstuv"]},
+    {"goal": ["not a string"]},
+    {"unknown": "field"},
+])
+def test_screen_enrichment_still_raises_on_secrets_and_shape_faults(enrichment):
+    from agentic_rag.continuity.model import screen_enrichment
+    with pytest.raises(ValueError):
+        screen_enrichment(enrichment)
+
+
+def test_apply_enrichment_appends_deduplicated_warnings(conn):
+    checkpoint = store.upsert_snapshot(
+        conn, snapshot(warnings=("git status truncated",)))
+
+    first = store.apply_enrichment(
+        conn, checkpoint.id, {"goal": "g"},
+        warnings=["enrichment tests: 1 item dropped (lacks digest evidence)"])
+    again = store.apply_enrichment(
+        conn, checkpoint.id, {"goal": "g"},
+        warnings=["enrichment tests: 1 item dropped (lacks digest evidence)",
+                  "enrichment goal: 1 item dropped (prohibited content)"])
+
+    assert first.warnings == (
+        "git status truncated",
+        "enrichment tests: 1 item dropped (lacks digest evidence)",
+    )
+    assert again.warnings == (
+        "git status truncated",
+        "enrichment tests: 1 item dropped (lacks digest evidence)",
+        "enrichment goal: 1 item dropped (prohibited content)",
+    )
+    with pytest.raises(ValueError, match="warning"):
+        store.apply_enrichment(conn, checkpoint.id, {"goal": "g"}, warnings=[""])
+
+
 def test_enrichment_allows_a_single_user_label_in_ordinary_short_prose(conn):
     checkpoint = store.upsert_snapshot(conn, snapshot())
 

@@ -53,7 +53,16 @@ task immediately after context compaction:
    worker. Enrichment keeps the bounded recent tail (with an explicit omission
    marker), is schema-constrained, secret-rejecting, and may
    add evidence-grounded goal, criteria, decisions, tests, blockers, next
-   action, and RAG slugs. A snapshot remains usable while enrichment is pending.
+   action, and RAG slugs. Output is screened value by value: a
+   transcript-, diff-, or dialogue-shaped value, an evidence item whose
+   claim is not a verbatim part of a digest fragment, or a slug the digest
+   never references is dropped on its own, and the drop is recorded on the
+   checkpoint as `enrichment <field>: N items dropped (<reason>)` — the
+   renderer's `Warnings:` line shows it. A credential or a malformed shape
+   still fails the job (`last_error`). The word guard (`transcript`, `diff`,
+   `body`) exempts path and identifier forms such as `transcript.py`,
+   `hooks/transcript`, or `transcript_delta`. A snapshot remains usable while
+   enrichment is pending.
 3. `PostCompact` correlates the documented session, turn, and trigger fields
    back to the matching checkpoint, including a checkpoint superseded by a
    newer `PreCompact`, and marks that boundary. **`PostCompact`

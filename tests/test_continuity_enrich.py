@@ -169,10 +169,11 @@ def test_enrich_checkpoint_keeps_latest_action_when_digest_is_bounded(
 @pytest.mark.parametrize("unsafe", [
     _valid_enrichment(goal="transcript content copied verbatim"),
     _valid_enrichment(goal="--- a/x.py\n+++ b/x.py\n@@ -1 +1 @@\n-old\n+new"),
-    _valid_enrichment(goal="api_key=super-secret-value"),
 ])
-def test_enrich_checkpoint_rejects_unsafe_model_output_before_persistence(
+def test_enrich_checkpoint_drops_unstorable_values_and_keeps_the_rest(
         conn, cfg, tmp_path, unsafe):
+    # Issue #2: one transcript- or diff-shaped value must not void the other
+    # fifteen fields.  The value is dropped and named in the warnings.
     checkpoint = _checkpoint(conn)
     transcript = tmp_path / "session.jsonl"
     _transcript(transcript, _event("u2", "user", "safe concise context"))
@@ -181,15 +182,85 @@ def test_enrich_checkpoint_rejects_unsafe_model_output_before_persistence(
         return subprocess.CompletedProcess(
             cmd, 0, stdout=json.dumps(unsafe), stderr="")
 
-    with pytest.raises(ValueError):
-        enrich.enrich_checkpoint(
-            conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)),
-            runner,
-        )
+    enrich.enrich_checkpoint(
+        conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)), runner)
 
+    saved = store.get(conn, checkpoint.id)
+    assert saved.quality == "enriched"
+    assert saved.enrichment["goal"] == ""
+    assert saved.enrichment["next_action"] == "Run the focused checks"
+    assert saved.warnings == (
+        "enrichment goal: 1 item dropped (prohibited content)",)
+
+
+def test_enrich_checkpoint_fails_loudly_on_a_credential(
+        conn, cfg, tmp_path, monkeypatch):
+    # A secret in the output means the digest's own redaction seam failed:
+    # a pipeline defect that must reach last_error, never a warning line.
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event("u2", "user", "safe concise context"))
+    jobs.enqueue_checkpoint_enrichment(
+        conn, checkpoint_id=checkpoint.id, session_id="s",
+        transcript_path=str(transcript), after_cursor="u1",
+    )
+    monkeypatch.setattr(
+        enrich.llm, "run_structured",
+        lambda *args, **kwargs: _valid_enrichment(goal="api_key=super-secret-value"))
+
+    assert worker.drain(conn, cfg) == {
+        "done": 0, "failed": 1, "provider_unavailable": 0,
+    }
+    row = conn.execute("SELECT status, last_error FROM mining_queue").fetchone()
+    assert row["status"] == "pending"
+    assert row["last_error"] == "enrichment goal contains a secret"
+    assert "super-secret-value" not in row["last_error"]
     saved = store.get(conn, checkpoint.id)
     assert saved.quality == "snapshot"
     assert saved.enrichment == {}
+
+
+def test_enrich_checkpoint_keeps_filenames_that_name_a_filtered_word(
+        conn, cfg, tmp_path):
+    # Issue #2, measured on a real Haiku run: paths are facts, prose that
+    # names the payload is not.
+    checkpoint = _checkpoint(conn)
+    transcript = tmp_path / "session.jsonl"
+    _transcript(transcript, _event(
+        "u2", "assistant", "Resolved conflicts. uv run pytest: 622 tests passed."))
+    output = _valid_enrichment(
+        instructions=[
+            "Resolve conflicts manually (transcript.py, config.py, llm.py)",
+            "Do not paste the transcript into the checkpoint",
+        ],
+        risks=["deviations span transcript.py, config.py, and hooks/transcript"],
+        blockers=["word filter (transcript|diff|body) blocks legitimate output"],
+        tests=[
+            "uv run pytest: 622 tests passed | evidence: 622 grün",
+            "uv run pytest: 622 tests passed | evidence: uv run pytest: 622 tests passed",
+        ],
+    )
+
+    def runner(cmd, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 0, stdout=json.dumps(output), stderr="")
+
+    enrich.enrich_checkpoint(
+        conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)), runner)
+
+    saved = store.get(conn, checkpoint.id)
+    assert saved.quality == "enriched"
+    assert saved.enrichment["instructions"] == [
+        "Resolve conflicts manually (transcript.py, config.py, llm.py)"]
+    assert saved.enrichment["risks"] == output["risks"]
+    assert saved.enrichment["blockers"] == []
+    assert saved.enrichment["tests"] == [output["tests"][1]]
+    assert saved.enrichment["goal"] == "Ship checkpoint enrichment"
+    assert saved.warnings == (
+        "enrichment instructions: 1 item dropped (prohibited content)",
+        "enrichment blockers: 1 item dropped (prohibited content)",
+        "enrichment tests: 1 item dropped (lacks digest evidence)",
+    )
 
 
 @pytest.mark.parametrize(("field", "claim", "digest_text"), [
@@ -199,7 +270,7 @@ def test_enrich_checkpoint_rejects_unsafe_model_output_before_persistence(
     ("external_states", "Provider is healthy | evidence: provider",
      "provider setting documented"),
 ])
-def test_enrich_checkpoint_rejects_ungrounded_volatile_claims(
+def test_enrich_checkpoint_drops_ungrounded_volatile_claims(
         conn, cfg, tmp_path, monkeypatch, field, claim, digest_text):
     checkpoint = _checkpoint(conn)
     transcript = tmp_path / "session.jsonl"
@@ -213,14 +284,17 @@ def test_enrich_checkpoint_rejects_ungrounded_volatile_claims(
         enrich.llm, "run_structured", lambda *args, **kwargs: output)
 
     assert worker.drain(conn, cfg) == {
-        "done": 0, "failed": 1, "provider_unavailable": 0,
+        "done": 1, "failed": 0, "provider_unavailable": 0,
     }
-    row = conn.execute("SELECT status, attempts FROM mining_queue").fetchone()
-    assert (row["status"], row["attempts"]) == ("pending", 1)
-    assert store.get(conn, checkpoint.id).quality == "snapshot"
+    saved = store.get(conn, checkpoint.id)
+    assert saved.quality == "enriched"
+    assert saved.enrichment[field] == []
+    assert saved.enrichment["goal"] == "Ship checkpoint enrichment"
+    assert saved.warnings == (
+        f"enrichment {field}: 1 item dropped (lacks digest evidence)",)
 
 
-def test_enrich_checkpoint_rejects_slug_without_accepted_digest_reference(
+def test_enrich_checkpoint_drops_slug_without_accepted_digest_reference(
         conn, cfg, tmp_path, monkeypatch):
     checkpoint = _checkpoint(conn)
     transcript = tmp_path / "session.jsonl"
@@ -235,11 +309,13 @@ def test_enrich_checkpoint_rejects_slug_without_accepted_digest_reference(
         enrich.llm, "run_structured", lambda *args, **kwargs: output)
 
     assert worker.drain(conn, cfg) == {
-        "done": 0, "failed": 1, "provider_unavailable": 0,
+        "done": 1, "failed": 0, "provider_unavailable": 0,
     }
-    row = conn.execute("SELECT status, attempts FROM mining_queue").fetchone()
-    assert (row["status"], row["attempts"]) == ("pending", 1)
-    assert store.get(conn, checkpoint.id).quality == "snapshot"
+    saved = store.get(conn, checkpoint.id)
+    assert saved.quality == "enriched"
+    assert saved.enrichment["rag_slugs"] == []
+    assert saved.warnings == (
+        "enrichment rag_slugs: 1 item dropped (no accepted digest reference)",)
 
 
 @pytest.mark.parametrize(("reference", "accepted"), [
@@ -260,19 +336,18 @@ def test_enrich_checkpoint_requires_exact_slug_reference_label(
         return subprocess.CompletedProcess(
             cmd, 0, stdout=json.dumps(output), stderr="")
 
+    enrich.enrich_checkpoint(
+        conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)), runner)
+
+    saved = store.get(conn, checkpoint.id)
+    assert saved.quality == "enriched"
     if accepted:
-        enrich.enrich_checkpoint(
-            conn, cfg, _job(checkpoint.id, transcript_path=str(transcript)),
-            runner,
-        )
-        assert store.get(conn, checkpoint.id).quality == "enriched"
+        assert saved.enrichment["rag_slugs"] == ["checkpoint-continuity"]
+        assert saved.warnings == ()
     else:
-        with pytest.raises(ValueError, match="slug"):
-            enrich.enrich_checkpoint(
-                conn, cfg,
-                _job(checkpoint.id, transcript_path=str(transcript)), runner,
-            )
-        assert store.get(conn, checkpoint.id).quality == "snapshot"
+        assert saved.enrichment["rag_slugs"] == []
+        assert saved.warnings == (
+            "enrichment rag_slugs: 1 item dropped (no accepted digest reference)",)
 
 
 def test_malformed_enrichment_uses_ordinary_retry_policy(

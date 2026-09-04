@@ -15,6 +15,8 @@ from .model import (
     ENRICHMENT_FIELDS,
     MAX_ENRICHMENT_LIST_ITEMS,
     MAX_ENRICHMENT_STRING_CHARS,
+    dropped_warning,
+    screen_enrichment,
     validate_enrichment,
 )
 
@@ -128,23 +130,44 @@ def _slug_is_referenced(slug: str, digest: str) -> bool:
     return memory_hint.search(digest) is not None
 
 
-def _validate_grounding(enrichment: dict[str, object], digest: str) -> None:
-    normalized_digest = _normalize_evidence(digest)
-    for field in _EVIDENCE_FIELDS:
-        for item in cast(list[str], enrichment[field]):
-            claim, marker, evidence = item.partition(_EVIDENCE_MARKER)
-            normalized_claim = _normalize_evidence(claim)
-            normalized_fragment = _normalize_evidence(evidence)
-            if (not marker or not normalized_claim or not normalized_fragment
-                    or normalized_claim not in normalized_fragment
-                    or normalized_fragment not in normalized_digest):
-                raise ValueError(
-                    f"checkpoint enrichment {field} item lacks digest evidence")
+def _is_grounded(item: str, normalized_digest: str) -> bool:
+    claim, marker, evidence = item.partition(_EVIDENCE_MARKER)
+    normalized_claim = _normalize_evidence(claim)
+    normalized_fragment = _normalize_evidence(evidence)
+    return bool(
+        marker and normalized_claim and normalized_fragment
+        and normalized_claim in normalized_fragment
+        and normalized_fragment in normalized_digest
+    )
 
-    for slug in cast(list[str], enrichment["rag_slugs"]):
-        if not _SLUG.fullmatch(slug) or not _slug_is_referenced(slug, digest):
-            raise ValueError(
-                "checkpoint enrichment rag_slug lacks an accepted digest reference")
+
+def _screen_grounding(enrichment: dict[str, object], digest: str) -> list[str]:
+    """Drop ungrounded evidence items and unreferenced slugs, naming each drop.
+
+    Only the offending items go; the rest of the object stays.  An
+    unverifiable claim about a test run or a live process is exactly the
+    kind of state worth losing, so this never fails the job (issue #2).
+    """
+    normalized_digest = _normalize_evidence(digest)
+    warnings: list[str] = []
+    for field in _EVIDENCE_FIELDS:
+        items = cast(list[str], enrichment[field])
+        kept = [item for item in items if _is_grounded(item, normalized_digest)]
+        if len(kept) < len(items):
+            warnings.append(dropped_warning(
+                field, len(items) - len(kept), "lacks digest evidence"))
+        enrichment[field] = kept
+
+    slugs = cast(list[str], enrichment["rag_slugs"])
+    kept = [
+        slug for slug in slugs
+        if _SLUG.fullmatch(slug) and _slug_is_referenced(slug, digest)
+    ]
+    if len(kept) < len(slugs):
+        warnings.append(dropped_warning(
+            "rag_slugs", len(slugs) - len(kept), "no accepted digest reference"))
+    enrichment["rag_slugs"] = kept
+    return warnings
 
 
 def enrich_checkpoint(
@@ -187,13 +210,17 @@ def enrich_checkpoint(
             "checkpoint enrichment output was unusable") from exc
     if not isinstance(data, dict) or set(data) != set(FIELD_ORDER):
         raise ValueError("checkpoint enrichment output does not match the schema")
-    normalized = validate_enrichment(data)
+    # Unstorable values are dropped, not fatal: a filename that happens to
+    # name a word, or one paraphrased evidence item, must not void fifteen
+    # clean fields.  A credential or a malformed shape still raises.
+    screened, warnings = screen_enrichment(data)
+    warnings.extend(_screen_grounding(screened, clean_digest))
+    normalized = validate_enrichment(screened)
     # Guard the production schema and persistence allowlist against drifting
     # independently: either mismatch is a content-job failure, never a write.
     if set(normalized) != set(ENRICHMENT_FIELDS):
         raise ValueError("checkpoint enrichment output is incomplete")
-    _validate_grounding(normalized, clean_digest)
-    store.apply_enrichment(conn, checkpoint_id, normalized)
+    store.apply_enrichment(conn, checkpoint_id, normalized, warnings=warnings)
     if on_provider_success is not None:
         on_provider_success()
     return digest.last_uuid

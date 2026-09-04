@@ -359,7 +359,10 @@ Implementation is test-driven. Required automated coverage includes:
 5. `PreCompact` returns promptly and successfully during database, Git, transcript,
    provider, and queue failures.
 6. Enrichment extracts only the specified fields, preserves observed test results,
-   emits slugs, and rejects malformed output.
+   emits slugs, and rejects malformed output. Amended 2026-09-04 (issue #2):
+   an unstorable or ungrounded *value* is dropped and named in the checkpoint
+   warnings; only a credential or a malformed shape fails the job, and the
+   store's `validate_enrichment` gate stays all-or-nothing.
 7. Provider outage leaves enrichment pending without consuming its content retry
    budget; later recovery enriches the same checkpoint.
 8. `PostCompact` records the compaction boundary without model-context output;

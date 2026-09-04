@@ -7,6 +7,19 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Fixed
+- **Checkpoint enrichment no longer fails on its own subject matter**
+  (issue #2). The enrichment job now screens model output value by value: a
+  transcript-, diff-, or dialogue-shaped value, an evidence item whose claim
+  is not a verbatim part of a digest fragment, or a slug the digest never
+  references is dropped on its own and recorded on the checkpoint as
+  `enrichment <field>: N items dropped (<reason>)`, which the renderer's
+  `Warnings:` line shows. A credential in the output or a malformed shape
+  still fails the job into `last_error`, and the store's own gate
+  (`validate_enrichment`) stays all-or-nothing. The word guard for
+  `transcript`, `diff`, and `body` exempts path and identifier forms such as
+  `transcript.py`, `hooks/transcript`, or `transcript_delta`.
+
 ## [0.4.1] - 2026-09-04
 
 ### Fixed

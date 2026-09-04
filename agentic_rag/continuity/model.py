@@ -41,7 +41,14 @@ _SUMMARY_CLOSE_INLINE = re.compile(r"</summary>")
 _ANALYSIS_BLOCK = re.compile(r"<analysis>.*?(?:</analysis>|$)", re.DOTALL)
 # Share of a truncated handoff kept from its head; the rest is its tail.
 _HANDOFF_HEAD_SHARE = 0.6
-_UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
+# Labelled copies name their payload ("transcript", "diff", "body").  A path
+# or identifier that merely contains the word — ``transcript.py``,
+# ``hooks/transcript``, ``transcript_delta`` — is a fact a checkpoint must be
+# able to state, so only prose occurrences count (issue #2).
+_UNSAFE_ENRICHMENT_CONTENT = re.compile(
+    r"(?i)(?<![/\\.])\b(?:transcript|diff|body)\b(?![/\\]|\.[a-z0-9])"
+)
+PROHIBITED_CONTENT = "prohibited content"
 _UNIFIED_DIFF_HUNK = re.compile(
     r"(?m)^---[ \t]+[^\s\r\n][^\r\n]*\r?\n"
     r"^\+\+\+[ \t]+[^\s\r\n][^\r\n]*\r?\n"
@@ -74,18 +81,58 @@ def _require_nonblank(value: str, name: str) -> None:
         raise ValueError(f"{name} must be a non-blank string")
 
 
-def _validate_enrichment_string(value: object, field_name: str) -> str:
+def _check_enrichment_string(value: object, field_name: str) -> str | None:
+    """Return why ``value`` may not be stored as content, or ``None``.
+
+    Shape and size faults and credentials raise: they are pipeline defects
+    (malformed output, or the digest's own redaction seam failed) that must
+    fail loudly.  Transcript-, diff-, or dialogue-shaped content is merely
+    unstorable; the caller decides whether to reject or drop it.
+    """
     if not isinstance(value, str):
         raise ValueError(f"enrichment {field_name} must be a string")
     if len(value) > MAX_ENRICHMENT_STRING_CHARS:
         raise ValueError(f"enrichment {field_name} exceeds the character limit")
-    if (_UNSAFE_ENRICHMENT_CONTENT.search(value)
-            or any(pattern.search(value) for pattern in _UNSAFE_ENRICHMENT_STRUCTURES)):
-        raise ValueError(f"enrichment {field_name} contains prohibited content")
     _, redactions = strip_secrets(value)
     if redactions:
         raise ValueError(f"enrichment {field_name} contains a secret")
+    if (_UNSAFE_ENRICHMENT_CONTENT.search(value)
+            or any(pattern.search(value) for pattern in _UNSAFE_ENRICHMENT_STRUCTURES)):
+        return PROHIBITED_CONTENT
+    return None
+
+
+def _validate_enrichment_string(value: object, field_name: str) -> str:
+    if (reason := _check_enrichment_string(value, field_name)) is not None:
+        raise ValueError(f"enrichment {field_name} contains {reason}")
     return value
+
+
+def _check_enrichment_key(key: object) -> str:
+    if not isinstance(key, str):
+        raise ValueError("enrichment keys must be strings")
+    # Reuse the repository's key-level secret policy, but reject unsafe
+    # data instead of accepting its redacted replacement.
+    _, key_redactions = strip_secrets_json({key: "present"})
+    if key_redactions:
+        raise ValueError(f"enrichment key {key!r} is secret-shaped")
+    if key not in ENRICHMENT_FIELDS:
+        raise ValueError(f"enrichment key {key!r} is not allowed")
+    return key
+
+
+def _check_enrichment_list(value: object, key: str) -> list[object]:
+    if not isinstance(value, (list, tuple)):
+        raise ValueError(f"enrichment {key} must be a list of strings")
+    if len(value) > MAX_ENRICHMENT_LIST_ITEMS:
+        raise ValueError(f"enrichment {key} has too many items")
+    return list(value)
+
+
+def _check_enrichment_size(normalized: Mapping[str, object]) -> None:
+    encoded = json.dumps(normalized, ensure_ascii=False, separators=(",", ":"))
+    if len(encoded.encode("utf-8")) > MAX_ENRICHMENT_BYTES:
+        raise ValueError("enrichment exceeds the total byte limit")
 
 
 def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
@@ -93,7 +140,8 @@ def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
 
     The deterministic snapshot is the only capture path.  This later semantic
     stage may retain concise facts, but must reject rather than redact content
-    that could be a transcript, diff, document body, or credential.
+    that could be a transcript, diff, document body, or credential.  This is
+    the store's gate: any offending value voids the whole object.
     """
     if not isinstance(enrichment, Mapping):
         raise ValueError("enrichment must be a mapping")
@@ -102,30 +150,62 @@ def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
 
     normalized: dict[str, object] = {}
     for key, value in enrichment.items():
-        if not isinstance(key, str):
-            raise ValueError("enrichment keys must be strings")
-        # Reuse the repository's key-level secret policy, but reject unsafe
-        # data instead of accepting its redacted replacement.
-        _, key_redactions = strip_secrets_json({key: "present"})
-        if key_redactions:
-            raise ValueError(f"enrichment key {key!r} is secret-shaped")
-        if key not in ENRICHMENT_FIELDS:
-            raise ValueError(f"enrichment key {key!r} is not allowed")
+        key = _check_enrichment_key(key)
         if key in _ENRICHMENT_STRING_FIELDS:
             normalized[key] = _validate_enrichment_string(value, key)
             continue
-        if not isinstance(value, (list, tuple)):
-            raise ValueError(f"enrichment {key} must be a list of strings")
-        if len(value) > MAX_ENRICHMENT_LIST_ITEMS:
-            raise ValueError(f"enrichment {key} has too many items")
         normalized[key] = [
-            _validate_enrichment_string(item, key) for item in value
+            _validate_enrichment_string(item, key)
+            for item in _check_enrichment_list(value, key)
         ]
-
-    encoded = json.dumps(normalized, ensure_ascii=False, separators=(",", ":"))
-    if len(encoded.encode("utf-8")) > MAX_ENRICHMENT_BYTES:
-        raise ValueError("enrichment exceeds the total byte limit")
+    _check_enrichment_size(normalized)
     return normalized
+
+
+def dropped_warning(field: str, count: int, reason: str) -> str:
+    """The checkpoint warning recorded for values screened out of enrichment."""
+    noun = "item" if count == 1 else "items"
+    return f"enrichment {field}: {count} {noun} dropped ({reason})"
+
+
+def screen_enrichment(
+        enrichment: Mapping[str, object]) -> tuple[dict[str, object], list[str]]:
+    """Drop unstorable values from model output instead of voiding it.
+
+    A string field becomes empty and a list loses only its offending items;
+    each drop is named in the returned warnings (field, count, reason — never
+    the value).  Shape faults and credentials still raise, exactly as
+    ``validate_enrichment`` does, so the result always passes that gate.
+    """
+    if not isinstance(enrichment, Mapping):
+        raise ValueError("enrichment must be a mapping")
+    if len(enrichment) > len(ENRICHMENT_FIELDS):
+        raise ValueError("enrichment contains too many fields")
+
+    screened: dict[str, object] = {}
+    warnings: list[str] = []
+    for key, value in enrichment.items():
+        key = _check_enrichment_key(key)
+        if key in _ENRICHMENT_STRING_FIELDS:
+            if (reason := _check_enrichment_string(value, key)) is None:
+                screened[key] = value
+            else:
+                screened[key] = ""
+                warnings.append(dropped_warning(key, 1, reason))
+            continue
+        kept: list[str] = []
+        dropped: dict[str, int] = {}
+        for item in _check_enrichment_list(value, key):
+            if (reason := _check_enrichment_string(item, key)) is None:
+                kept.append(item)
+            else:
+                dropped[reason] = dropped.get(reason, 0) + 1
+        screened[key] = kept
+        warnings.extend(
+            dropped_warning(key, count, reason) for reason, count in dropped.items()
+        )
+    _check_enrichment_size(screened)
+    return screened, warnings
 
 
 def _summary_only(text: str) -> str:
