@@ -1,6 +1,6 @@
 [project]
 name = "agentic-rag"
-version = "0.4.1"
+version = "0.4.2"
 description = "Lean PostgreSQL-based agentic-RAG memory and session continuity"
 requires-python = ">=3.13"
 license = "MIT"

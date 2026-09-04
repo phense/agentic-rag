@@ -7,6 +7,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-09-04
+
 ### Fixed
 - **Checkpoint enrichment no longer fails on its own subject matter**
   (issue #2). The enrichment job now screens model output value by value: a
