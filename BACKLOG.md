@@ -31,11 +31,24 @@
   its MCP connections available. `rag status` and host-side `codex doctor`
   report healthy storage, provider connectivity, and configuration. Backups
   and the printed mode-0600 rollback record were retained.
+  Ordering check, 2026-09-04 (Codex sources, 0.153.0 line): the compaction
+  task awaits `PreCompact`, compacts, persists the `Compacted` rollout item
+  and queues `SessionStart(source="compact")`, then awaits `PostCompact`
+  before the task ends; the queued SessionStart runs at the next turn start
+  or right after a mid-turn automatic compaction. The Claude
+  PostCompact/SessionStart race recorded under 0.3 therefore cannot occur on
+  Codex, and Codex stores no handoff anyway. Also observed: Codex discovers
+  handlers once per session and does not reload `hooks.json`; the four
+  compactions after the 2026-09-03 16:30 install all happened in a session
+  opened at 08:49, which is why the store still holds no Codex checkpoint.
+  Sessions opened after the install do run `SessionStart` (context injected)
+  but have not compacted yet.
   → *Why not done:* manual/automatic compaction, provider outage/recovery, and
   SessionEnd tail capture have not yet been exercised end to end in sustained
   real sessions. → *Trigger:* run and record those remaining smoke scenarios
-  during normal long-session use. → *Dependency:* interactive Codex sessions
-  long enough to exercise lifecycle boundaries. *(L)*
+  during normal long-session use — in a Codex session started after the
+  install. → *Dependency:* interactive Codex sessions long enough to exercise
+  lifecycle boundaries. *(L)*
 - 🔵 **0.3** _(chore)_ **Prove Claude continuity end to end.** Code, tests, and
   docs landed on 2026-09-03 (branch `feat/claude-compaction-continuity`).
   Measured `SessionEnd` wall time in the suite: 0.121 s (interpreter start +

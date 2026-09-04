@@ -406,7 +406,7 @@ every foreign entry:
 | `UserPromptSubmit` | 5s, `additionalContextLimit=5000` | Same deterministic signal/pin recall as the Claude integration. |
 | `Stop` | 10s | Uses the shared transcript-delta path to enqueue debounced mining. |
 | `PreCompact` | `manual\|auto`, 3s | Commits deterministic snapshot state, then best-effort captures repository state and queues asynchronous enrichment. No inline provider call. |
-| `PostCompact` | `manual\|auto`, 3s | Correlates session/turn/trigger to the matching checkpoint (even if a later checkpoint superseded it) and marks that boundary compacted. It cannot emit `additionalContext`; success is silent and failure is only a `systemMessage`. |
+| `PostCompact` | `manual\|auto`, 3s | Correlates session/turn/trigger to the matching checkpoint (even if a later checkpoint superseded it) and marks that boundary compacted. It cannot emit `additionalContext`; success is silent and failure is only a `systemMessage`. Codex awaits PostCompact inside the compaction task and only then runs the queued `SessionStart(source="compact")` at the next turn start (or right after a mid-turn automatic compaction), so — unlike Claude Code — there is no PostCompact/SessionStart race (verified in the Codex sources, 2026-09-04). |
 | `SessionEnd` | 3s | For `reason="other"`, uses the shared delta enqueue path to capture a final tail once. |
 
 All handlers share one contract from `agentic_rag/hooks/common.py`: never block

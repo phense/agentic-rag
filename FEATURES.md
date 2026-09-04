@@ -70,7 +70,10 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   session passed. Live verification remains pending under backlog 0.2 for
   manual/automatic compaction, provider outage/recovery, and SessionEnd tail
   capture. Continuity is therefore installed but not yet claimed operationally
-  proven across every end-to-end boundary.
+  proven across every end-to-end boundary. The Codex sources confirm that
+  `PostCompact` completes before `SessionStart(source="compact")` runs, and
+  that handlers are discovered once per session (a session opened before the
+  install never runs them).
 
 Native Codex memories are complementary: they may adapt Codex from prior work
 and remain inspectable with `/memories`. agentic-rag is the canonical store for

@@ -144,6 +144,11 @@ A successful changing install also writes a mode-`0600` record under
 `~/.agentic-rag/state/codex-rollback-<id>.json` and prints its exact restore
 command.
 
+Codex discovers hook handlers once when a session starts and does not reload
+`hooks.json` while a session is running, so sessions that were already open
+before `rag install --codex` never run the new handlers: start a fresh Codex
+session (or resume) after installing.
+
 Start Codex, run `/hooks`, inspect every new command/hash, and trust only the
 six `python -m agentic_rag.hooks.…` handlers you recognize. Installation cannot
 make that trust decision for you. A duplicated foreign
