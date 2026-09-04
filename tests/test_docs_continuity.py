@@ -28,12 +28,27 @@ def test_v030_release_metadata_and_whats_new_are_linked():
     handbook = Path("docs/README.md").read_text()
     whats_new = Path("docs/00-whats-new-in-0.3.md")
 
-    assert 'version = "0.3.0"' in pyproject
     assert "## [0.3.0] - 2026-09-03" in changelog
     assert whats_new.is_file()
     assert "What’s New in 0.3.0" in whats_new.read_text()
     assert "docs/00-whats-new-in-0.3.md" in readme
     assert "00-whats-new-in-0.3.md" in handbook
+
+
+def test_v040_release_metadata_and_whats_new_are_linked():
+    pyproject = Path("pyproject.toml").read_text()
+    changelog = Path("CHANGELOG.md").read_text()
+    readme = Path("README.md").read_text()
+    handbook = Path("docs/README.md").read_text()
+    whats_new = Path("docs/00-whats-new-in-0.4.md")
+
+    assert 'version = "0.4.0"' in pyproject
+    assert "## [0.4.0] - 2026-09-04" in changelog
+    assert whats_new.is_file()
+    assert whats_new.read_text().startswith("# What’s New in 0.4.0\n")
+    assert "docs/00-whats-new-in-0.4.md" in readme
+    assert "00-whats-new-in-0.4.md" in handbook
+    assert "unreleased" not in readme.lower().split("what’s new in 0.4.0")[0]
 
 
 def test_wheel_configuration_includes_runtime_migrations():

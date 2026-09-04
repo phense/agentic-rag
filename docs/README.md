@@ -8,7 +8,7 @@ learn. Shipped versus still-planned rollout state lives in
 [`../BACKLOG.md`](../BACKLOG.md).
 
 ## Start here
-- [What’s New in 0.4.0 (unreleased)](00-whats-new-in-0.4.md) — Claude compaction continuity, the managed 1M/500K policy, handoff capture, check/restore for the Claude install.
+- [What’s New in 0.4.0](00-whats-new-in-0.4.md) — Claude compaction continuity, the managed 1M/500K policy, handoff capture, check/restore for the Claude install.
 - [What’s New in 0.3.0](00-whats-new-in-0.3.md) — Codex continuity, native memories, safe installation, upgrade steps, and operational boundaries.
 
 ## Understand

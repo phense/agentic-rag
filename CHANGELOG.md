@@ -7,6 +7,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-04
+
 ### Added
 - **Claude compaction continuity.** The default `rag install` now wires six
   Claude lifecycle hooks. `PreCompact` prints the versioned compact
@@ -29,6 +31,20 @@ milestones rather than every commit, and interfaces may still change between `0.
   target-aware for Claude and Codex records.
 - **Migration 008** adds `handoff`/`handoff_at` to `continuation_checkpoints`;
   `rag status` shows `checkpoint handoff:` freshness.
+
+### Operational verification
+- Migration 008 and the Claude installer were exercised on a real macOS
+  deployment: `rag install --check` previewed one change, `rag install` wrote
+  the six hooks and `autoCompactWindow=500000` with a unique backup and a
+  rollback record, and a manual `/compact` proved the PreCompact →
+  PostCompact → SessionStart chain end to end (checkpoint, stored handoff,
+  `rag status` freshness, no hook errors). That smoke found and fixed the two
+  defects noted above before release. Each operator must still review and
+  trust the handlers through `/hooks` and confirm `/autocompact`; automatic
+  compaction and SessionEnd tail capture should be monitored in normal use.
+- Verified in the Codex sources that `PostCompact` completes before
+  `SessionStart(source="compact")` runs and that Codex discovers handlers once
+  per session — start a fresh Codex session after `rag install --codex`.
 
 ## [0.3.0] - 2026-09-03
 

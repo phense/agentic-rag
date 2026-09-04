@@ -9,16 +9,16 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.3.0-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.4.0-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
-> **Unreleased (0.4.0):** Claude compaction continuity — six Claude hooks,
+> **New in v0.4.0:** Claude compaction continuity — six Claude hooks,
 > the managed 1M/500K `autoCompactWindow` policy, the `compact_summary`
 > handoff, and `rag install --check`/`--restore`. Read
 > **[What’s New in 0.4.0](docs/00-whats-new-in-0.4.md)**.
 >
-> **New in v0.3.0:** Codex compaction continuity, native-memory policy,
+> **0.3.0:** Codex compaction continuity, native-memory policy,
 > recoverable global installation, and provider-neutral mining. Read
 > **[What’s New in 0.3.0](docs/00-whats-new-in-0.3.md)**.
 

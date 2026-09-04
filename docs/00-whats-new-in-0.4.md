@@ -1,4 +1,4 @@
-# What’s New in 0.4.0 (unreleased)
+# What’s New in 0.4.0
 
 agentic-rag 0.4.0 brings compaction continuity to Claude Code, bound to
 Claude's own hook contract. The provider-neutral checkpoint store from 0.3.0
