@@ -100,16 +100,19 @@ untouched:
    compacted or not — the newest compaction wins, so a summary still lands
    when the preceding `PreCompact` failed to persist), marks
    the boundary, and stores Claude's own `compact_summary` as the checkpoint
-   **handoff**: whitespace-normalized, secret-stripped, truncated to
-   `[continuity] handoff_max_chars` (default 8,000) with a `…[truncated]`
-   marker, audited as `checkpoint_handoff`. A replay with the same summary is
+   **handoff**: only the `<summary>` block of Claude's raw output (bounded by
+   tags on lines of their own, so tags quoted inline in the prose are
+   content), whitespace-normalized, secret-stripped, bounded to
+   `[continuity] handoff_max_chars` (default 8,000) by cutting out the
+   middle — head and tail survive around a `…[truncated]` marker line —
+   and audited as `checkpoint_handoff`. A replay with the same summary is
    a no-op; a different summary for the same cursor replaces it. PostCompact
    never emits `additionalContext`.
 3. `SessionStart(source="compact")` restores the same-session checkpoint
    exactly as for Codex and adds a `Handoff (Claude compact summary,
    CURRENT|HISTORICAL, age=…h)` section — labelled HISTORICAL beyond
-   `stale_days`, truncated to the remaining render budget (`…[truncated]`)
-   when the budget is exceeded, and dropped only when fewer than 200
+   `stale_days`, shortened into the remaining render budget (head and tail
+   around `…[truncated]`) when the budget is exceeded, and dropped only when fewer than 200
    characters would survive, always before the mandatory
    goal/next-action/blocker sections. The whole injected context is
    capped at `[continuity] context_max_chars` (default 9,500; Claude discards

@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from agentic_rag.secrets import strip_secrets
 
-from .model import HANDOFF_TRUNCATION_MARKER, Checkpoint
+from .model import Checkpoint, truncate_middle
 
 
 _SPACE = re.compile(r"\s+")
@@ -111,7 +111,8 @@ def _fit_required(required: list[_Section], max_chars: int) -> str:
 
 
 def _shrink_handoff(selected: list[_Section], max_chars: int) -> list[_Section] | None:
-    """Truncate an over-long handoff to the remaining budget with a marker.
+    """Shorten an over-long handoff into the remaining budget, keeping its
+    head and tail around the truncation marker.
 
     Returns the fitted section list, or ``None`` when there is no handoff,
     the handoff already fits (the overflow lies elsewhere), or fewer than
@@ -128,10 +129,9 @@ def _shrink_handoff(selected: list[_Section], max_chars: int) -> list[_Section] 
     budget = max_chars - len(_render([*others, label_only]))
     if budget < _MIN_HANDOFF_RENDER_CHARS or len(handoff.value) <= budget:
         return None
-    cut = budget - len(HANDOFF_TRUNCATION_MARKER)
     truncated = _Section(
         handoff.order, handoff.drop_order, handoff.label,
-        handoff.value[:cut].rstrip() + HANDOFF_TRUNCATION_MARKER,
+        truncate_middle(handoff.value, budget),
     )
     return [*others, truncated]
 

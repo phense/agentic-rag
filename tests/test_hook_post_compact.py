@@ -151,7 +151,9 @@ def test_post_compact_claude_bounds_and_strips_handoff(conn, hook_env):
 
     saved = store.get(conn, checkpoint.id)
     assert len(saved.handoff) <= 500
-    assert saved.handoff.endswith("…[truncated]")
+    assert saved.handoff.startswith("token ")
+    assert "\n…[truncated]\n" in saved.handoff
+    assert saved.handoff.endswith("z" * 100)
     assert secret not in saved.handoff
 
 

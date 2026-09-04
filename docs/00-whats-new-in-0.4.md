@@ -16,7 +16,9 @@ The default `rag install` now wires six lifecycle hooks into
 - `PostCompact` (`manual|auto`, 3 s) marks the boundary and stores the
   `<summary>` block of Claude's own `compact_summary` (its `<analysis>`
   scratch block is discarded) as a bounded, secret-stripped **handoff** on
-  the checkpoint (default 8,000 characters). It never injects context.
+  the checkpoint (default 8,000 characters; over the bound the middle is cut
+  out so the objective and the next step both survive). It never injects
+  context.
 - `SessionStart` restores the checkpoint; on the next `startup`/`resume` it
   includes the handoff with a CURRENT/HISTORICAL age label. (Right after a
   compaction Claude Code runs `SessionStart` and `PostCompact` concurrently,

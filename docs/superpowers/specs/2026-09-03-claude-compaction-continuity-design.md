@@ -158,10 +158,17 @@ Claude payloads carry no `turn_id`. For Claude the hook:
 2. Marks that checkpoint compacted (existing `mark_compacted`).
 3. Attaches the handoff: `compact_summary` reduced to its `<summary>` block
    (Claude's raw compaction output carries an `<analysis>` scratch block
-   first, which Claude Code itself discards; observed live 2026-09-04),
-   whitespace-normalized, secret-stripped through `strip_secrets`, truncated to
-   `checkpoint_handoff_max_chars` (default 8,000) with a trailing
-   `…[truncated]` marker, stored through a new `store.attach_handoff()` gateway
+   first, which Claude Code itself discards; observed live 2026-09-04). The
+   block boundaries are tags on lines of their own — the first `<summary>`
+   starting a line after the first `</analysis>` ending one, closed by the
+   last `</summary>` ending a line — because the prose may quote the same
+   tags inline (observed live 2026-09-04 in a session about this mechanism,
+   where a first-occurrence match stored analysis remainder plus a summary
+   fragment). The body is whitespace-normalized, secret-stripped through
+   `strip_secrets`, and bounded to `checkpoint_handoff_max_chars` (default
+   8,000) by cutting out its middle: the head (objective, constraints) and
+   the tail (pending work, current state, next step) survive around a
+   `…[truncated]` marker line. It is stored through a `store.attach_handoff()` gateway
    that writes `audit_log` (`checkpoint_handoff`) in the same transaction.
    A replay with an identical summary is a no-op; a different summary for the
    same cursor replaces the handoff (the newest compaction wins).
@@ -196,8 +203,8 @@ falls back. Two additions:
   renderer emits `Handoff (Claude compact summary, <age>, <applicability>)`
   followed by the bounded text, inside the existing
   `checkpoint_render_max_chars` budget. When the budget is exceeded the
-  handoff is first truncated to the remaining budget (with the
-  `…[truncated]` marker) so that a full-length handoff never evicts the
+  handoff is first shortened into the remaining budget (head and tail kept
+  around the `…[truncated]` marker) so that a full-length handoff never evicts the
   reference lists or volatile state; it is dropped whole only when fewer
   than 200 characters would survive, immediately after the reference lists
   and always before the mandatory goal, next action, and blocker sections.
@@ -208,7 +215,7 @@ falls back. Two additions:
   at `context_max_chars` (default 9,500; hard-limited to 10,000). The
   checkpoint is *elastic*: before any whole section is dropped it is
   re-rendered into whatever budget remains (down to the renderer's 400-char
-  minimum), which truncates the handoff with the `…[truncated]` marker while
+  minimum), which shortens the handoff around the `…[truncated]` marker while
   keeping pins, the domain map, recent knowledge, and the checkpoint's
   mandatory lines. Only when that is not enough are whole sections trimmed,
   in this order: recent project knowledge, domain map, checkpoint, pins —

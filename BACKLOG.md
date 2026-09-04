@@ -76,6 +76,22 @@
   finished ~150 ms earlier, so the immediate post-compaction injection
   carried the checkpoint without the handoff; documented as expected (the
   handoff serves the next startup/resume).
+  Second manual `/compact` smoke, 2026-09-04 11:51 local (after the 0.4.0
+  release): checkpoint `943f9550-…` compacted at 11:52:53, handoff stored
+  9 ms later, SessionStart injected 9,180 chars (pins, domains, checkpoint;
+  no drop or shorten warning) 121 ms *before* the handoff landed — same
+  ordering as before. Two more defects found and fixed the same day: (3) the
+  summary extraction matched the first `<summary>`/`</summary>` occurrence,
+  and this session's own summary quoted those tags inline, so the stored
+  handoff was 6,912 chars of analysis remainder plus a summary fragment
+  (Claude Code's own transcript rendering shows the same first-occurrence
+  slip) — boundaries are now tags on lines of their own, and the live row was
+  re-attached from the transcript's real summary; (4) the 12,599-char summary
+  head-truncated at 8,000 lost its pending-work, current-work, and next-step
+  sections — bounding now cuts out the middle (612 tests). Also observed:
+  enrichment job 4128 failed its first attempt on validation (`processes`
+  item lacked digest evidence) and was left pending for the scheduled retry,
+  as job 4121 had been before succeeding on its third attempt.
   → *Why not done:* `/hooks` trust review, `/autocompact` = 500000
   confirmation, an automatic compaction, and a `SessionEnd` tail capture are
   still to be exercised in a live session. → *Trigger:* the next interactive

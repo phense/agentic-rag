@@ -7,6 +7,21 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Fixed
+- **Handoff extraction ignores tags quoted in the prose.** The `<summary>`
+  block of Claude's `compact_summary` is now bounded by tags on lines of their
+  own (the first `<summary>` starting a line after the first `</analysis>`
+  ending one, up to the last `</summary>` ending a line). A second live
+  `/compact` on 2026-09-04, in a session that discussed this very mechanism,
+  showed the previous first-occurrence match storing analysis remainder plus
+  a summary fragment because the prose quoted `<summary>` and `</summary>`
+  inline.
+- **Truncated handoffs keep their tail.** Over `handoff_max_chars` (and over
+  the render budget at `SessionStart`) the middle of the handoff is cut out
+  instead of its end, so the summary's pending work, current state, and next
+  exact action survive alongside its objective. The `…[truncated]` marker now
+  stands on a line of its own between head and tail.
+
 ## [0.4.0] - 2026-09-04
 
 ### Added

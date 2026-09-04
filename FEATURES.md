@@ -95,11 +95,15 @@ durable, searchable, auditable knowledge and explicit continuation state.
   `compact_summary` as a bounded (`handoff_max_chars`, default 8,000),
   secret-stripped, audited handoff (migration 008: `handoff`, `handoff_at`).
   Only the `<summary>` block of Claude's raw output is kept; the `<analysis>`
-  scratch block is discarded. Replays are idempotent; a newer summary
-  replaces the older one.
+  scratch block is discarded, and block boundaries are tags on lines of
+  their own (tags quoted inline in the prose are content). Over the bound,
+  the middle is cut out so the head and the tail (pending work, current
+  state, next step) survive around a `…[truncated]` marker. Replays are
+  idempotent; a newer summary replaces the older one.
 - ✅ **Context cap.** `SessionStart` renders the handoff with a
-  `CURRENT`/`HISTORICAL` age label (truncated to the remaining render budget
-  rather than dropped, so a full-length handoff still surfaces) and caps its
+  `CURRENT`/`HISTORICAL` age label (shortened into the remaining render
+  budget, head and tail kept, rather than dropped, so a full-length handoff
+  still surfaces) and caps its
   whole output at
   `context_max_chars` (default 9,500; hard maximum 10,000, Claude's per-hook
   limit). The checkpoint is elastic: it is shortened into the remaining budget
@@ -123,7 +127,11 @@ durable, searchable, auditable knowledge and explicit continuation state.
   SessionStart chain (checkpoint, 7,999-char handoff, `rag status` freshness
   line, no hook errors). That smoke exposed and fixed two defects (raw
   `<analysis>` block stored as handoff; whole-section trimming evicting the
-  checkpoint). Still open: `/hooks` review, `/autocompact` confirmation, an
+  checkpoint). A second manual `/compact` the same day, after the 0.4.0
+  release, found the summary extraction cutting at tags quoted inline in
+  the prose and the head-only bound dropping the summary's pending-work and
+  next-step sections — both fixed (line-anchored tag boundaries; head-and-tail
+  truncation). Still open: `/hooks` review, `/autocompact` confirmation, an
   automatic compaction, a SessionEnd tail capture. See backlog 0.3.
 
 Claude auto-memory is the Claude analogue of native Codex memories: a

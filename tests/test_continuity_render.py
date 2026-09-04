@@ -215,7 +215,8 @@ def test_renderer_truncates_full_length_handoff_instead_of_dropping_it():
     assert len(text) <= 8000
     assert "Handoff (Claude compact summary, CURRENT" in text
     assert body[:2000] in text
-    assert HANDOFF_TRUNCATION_MARKER in text
+    assert body[-1000:] in text
+    assert f"\n{HANDOFF_TRUNCATION_MARKER}\n" in text
     assert "Artifacts/slugs: AGENTS.md" in text and "[[relevant-slug]]" in text
     assert "Volatile state (revalidate): processes=worker pid 42" in text
     assert "Warnings: git status truncated" in text

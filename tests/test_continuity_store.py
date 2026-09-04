@@ -348,7 +348,9 @@ def test_attach_handoff_bounds_strips_and_audits(conn):
 
     assert saved.handoff is not None
     assert len(saved.handoff) <= 800
-    assert saved.handoff.endswith("…[truncated]")
+    assert saved.handoff.startswith("Goal: ship\n")
+    assert "\n…[truncated]\n" in saved.handoff
+    assert saved.handoff.endswith("x" * 200)
     assert "sk-ant-api03-" not in saved.handoff
     assert saved.handoff_at is not None
     assert conn.execute(
@@ -384,6 +386,44 @@ def test_attach_handoff_keeps_only_claude_summary_block(conn):
     store.attach_handoff(
         conn, checkpoint.id, "<analysis>scratch only</analysis>", max_chars=400)
     assert store.get(conn, checkpoint.id).handoff == "<analysis>scratch only</analysis>"
+
+
+def test_attach_handoff_ignores_tags_quoted_inline_in_the_prose(conn):
+    # Observed live 2026-09-04: a session about this very mechanism quoted
+    # `<analysis>`, `</analysis>`, `<summary>`, and `</summary>` inline in both
+    # the scratch block and the summary; only tags on lines of their own
+    # bound the summary body.
+    checkpoint = _pre_compact(conn)
+    raw = (
+        "<analysis>\nThe stored handoff was `<analysis>…</analysis><summary>` "
+        "then `Summary:`; keep the `<summary>` body.\n</analysis>\n\n"
+        "<summary>\n1. Goal: the payload holds `<analysis>…</analysis>` before "
+        "`<summary>…</summary>`; regex `<summary>(.*?)(?:</summary>|$)`.\n"
+        "2. Next: docs.\n</summary>\n\nContinue from where it left off."
+    )
+
+    store.attach_handoff(conn, checkpoint.id, raw, max_chars=1000)
+
+    assert store.get(conn, checkpoint.id).handoff == (
+        "1. Goal: the payload holds `<analysis>…</analysis>` before "
+        "`<summary>…</summary>`; regex `<summary>(.*?)(?:</summary>|$)`.\n"
+        "2. Next: docs."
+    )
+
+
+def test_attach_handoff_keeps_head_and_tail_when_truncating(conn):
+    checkpoint = _pre_compact(conn)
+    sections = [f"{n}. Section {n}: " + f"s{n}" * 150 for n in range(1, 10)]
+    summary = "\n".join(sections)
+
+    store.attach_handoff(conn, checkpoint.id, summary, max_chars=2000)
+
+    saved = store.get(conn, checkpoint.id).handoff
+    assert len(saved) <= 2000
+    assert saved.startswith("1. Section 1: s1s1")
+    assert "\n…[truncated]\n" in saved
+    assert saved.endswith("9. Section 9: " + "s9" * 150)
+    assert "5. Section 5" not in saved
 
 
 def test_attach_handoff_rejects_blank_and_small_budget(conn):

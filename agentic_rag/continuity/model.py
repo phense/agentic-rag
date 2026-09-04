@@ -30,8 +30,17 @@ _BLANK_RUN = re.compile(r"\n{3,}")
 # Claude's PostCompact ``compact_summary`` carries the model's raw compaction
 # output: an ``<analysis>`` scratch block followed by the ``<summary>`` that
 # Claude Code itself keeps.  Only the summary is worth a bounded handoff.
+# The real tags start or end a line of their own; the prose may quote the
+# same tags inline (observed live 2026-09-04 in a session about this very
+# mechanism), so inline occurrences are content, never boundaries.
+_ANALYSIS_CLOSE_LINE = re.compile(r"</analysis>[ \t]*$", re.MULTILINE)
+_SUMMARY_OPEN_LINE = re.compile(r"^[ \t]*<summary>[ \t]*", re.MULTILINE)
+_SUMMARY_CLOSE_LINE = re.compile(r"</summary>[ \t]*$", re.MULTILINE)
+_SUMMARY_OPEN_INLINE = re.compile(r"<summary>")
+_SUMMARY_CLOSE_INLINE = re.compile(r"</summary>")
 _ANALYSIS_BLOCK = re.compile(r"<analysis>.*?(?:</analysis>|$)", re.DOTALL)
-_SUMMARY_BLOCK = re.compile(r"<summary>(.*?)(?:</summary>|$)", re.DOTALL)
+# Share of a truncated handoff kept from its head; the rest is its tail.
+_HANDOFF_HEAD_SHARE = 0.6
 _UNSAFE_ENRICHMENT_CONTENT = re.compile(r"(?i)\b(?:transcript|diff|body)\b")
 _UNIFIED_DIFF_HUNK = re.compile(
     r"(?m)^---[ \t]+[^\s\r\n][^\r\n]*\r?\n"
@@ -121,11 +130,51 @@ def validate_enrichment(enrichment: Mapping[str, object]) -> dict[str, object]:
 
 def _summary_only(text: str) -> str:
     """Keep the ``<summary>`` body of a raw Claude compaction output and drop
-    the ``<analysis>`` scratch block; plain text passes through unchanged."""
-    if (match := _SUMMARY_BLOCK.search(text)) and match.group(1).strip():
-        return match.group(1)
+    the ``<analysis>`` scratch block; plain text passes through unchanged.
+
+    Boundaries are tags on lines of their own: the first ``<summary>`` that
+    starts a line after the first ``</analysis>`` that ends one opens the
+    body, and the last ``</summary>`` ending a line after it closes the body
+    (else the text end).  Tags quoted inline in the prose are content.  Without
+    line tags the first inline ``<summary>`` opens the body up to the last
+    inline ``</summary>``; without any ``<summary>`` an ``<analysis>`` block is
+    stripped.
+    """
+    for opener, closer, start in (
+        (_SUMMARY_OPEN_LINE, _SUMMARY_CLOSE_LINE, _analysis_end(text)),
+        (_SUMMARY_OPEN_INLINE, _SUMMARY_CLOSE_INLINE, 0),
+    ):
+        if (opened := opener.search(text, start)) is None:
+            continue
+        closes = list(closer.finditer(text, opened.end()))
+        body = text[opened.end():closes[-1].start() if closes else len(text)]
+        if body.strip():
+            return body
     stripped = _ANALYSIS_BLOCK.sub("", text)
     return stripped if stripped.strip() else text
+
+
+def _analysis_end(text: str) -> int:
+    match = _ANALYSIS_CLOSE_LINE.search(text)
+    return match.end() if match else 0
+
+
+def truncate_middle(text: str, max_chars: int) -> str:
+    """Shorten ``text`` to at most ``max_chars`` by cutting out its middle.
+
+    A compact summary states the objective and constraints first and the
+    pending work, current state, and next step last, so both ends survive;
+    ``HANDOFF_TRUNCATION_MARKER`` stands on a line of its own between them.
+    """
+    if len(text) <= max_chars:
+        return text
+    marker = f"\n{HANDOFF_TRUNCATION_MARKER}\n"
+    budget = max_chars - len(marker)
+    if budget < 2:
+        return text[:max_chars]
+    head = int(budget * _HANDOFF_HEAD_SHARE)
+    tail = budget - head
+    return text[:head].rstrip() + marker + text[-tail:].lstrip()
 
 
 def bound_handoff(text: object, *, max_chars: int) -> str:
@@ -149,10 +198,7 @@ def bound_handoff(text: object, *, max_chars: int) -> str:
     normalized = _HORIZONTAL_SPACE.sub(" ", text.replace("\r\n", "\n")).strip()
     normalized = _BLANK_RUN.sub("\n\n", normalized)
     stripped, _ = strip_secrets(normalized)
-    if len(stripped) > max_chars:
-        cut = max_chars - len(HANDOFF_TRUNCATION_MARKER)
-        stripped = stripped[:cut].rstrip() + HANDOFF_TRUNCATION_MARKER
-    return stripped
+    return truncate_middle(stripped, max_chars)
 
 
 @dataclass(frozen=True)
