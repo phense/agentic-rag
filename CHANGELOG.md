@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Changed
+- **Price-aware Codex context policy.** The managed Codex window is now
+  350000 tokens with total-scope automatic compaction at 250000. This keeps the
+  existing 100K reserve while adding a nominal 22K buffer below GPT-5.6's
+  higher-pricing boundary at more than 272K input tokens. An unusually large
+  incoming prompt can still cross the boundary because Codex's pre-turn check
+  occurs before recording the new prompt, so the lower threshold reduces risk
+  rather than acting as a hard cap.
+
 ## [0.4.2] - 2026-09-04
 
 ### Fixed

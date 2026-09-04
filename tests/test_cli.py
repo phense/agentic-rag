@@ -303,8 +303,8 @@ def test_install_codex_check_reports_changed_paths_without_writing(
     assert ".codex/config.toml" in out
     assert "no files written" in out.lower()
     assert "/hooks" in out
-    assert "managed: model_context_window=600000" in out
-    assert "managed: model_auto_compact_token_limit=500000" in out
+    assert "managed: model_context_window=350000" in out
+    assert "managed: model_auto_compact_token_limit=250000" in out
     assert 'managed: model_auto_compact_token_limit_scope="total"' in out
     assert "managed: features.memories=true" in out
     assert "managed: memories.generate_memories=true" in out

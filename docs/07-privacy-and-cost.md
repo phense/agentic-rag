@@ -66,15 +66,20 @@ context, change that Codex setting after considering that the next
 
 ### Long-context pricing and latency
 
-The installer configures `model_context_window = 600000` and a total-scope
-`model_auto_compact_token_limit = 500000`, leaving a 100K reserve. This stays
-within the official 1.05M GPT-5.6 context window, but it is above the official
-272K input boundary where GPT-5.6 requests receive higher provider pricing for
-the full request. Large inputs can also take longer. This repository does not
-claim the 600K/500K policy is cost- or latency-neutral; backlog 0.2 retains the
-required observation across representative real sessions. Current values and pricing conditions are documented on
+The installer configures `model_context_window = 350000` and a total-scope
+`model_auto_compact_token_limit = 250000`, leaving a 100K reserve and a nominal
+22K buffer below the official 272K input boundary. Above that boundary GPT-5.6
+API requests receive higher provider pricing for the full request. Codex checks
+the existing active context before adding a new user message, so an unusually
+large incoming prompt can still cross the boundary; this is a cost-aware risk
+reduction, not a hard guarantee. With ChatGPT authentication, context size also
+affects plan usage, but the Codex pricing page does not separately document the
+API long-context multiplier for included plan allowance. Current values and
+pricing conditions are documented on
 the [official GPT-5.6 Sol page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
-and [GPT-5.6 Luna page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
+and [GPT-5.6 Luna page](https://developers.openai.com/api/docs/models/gpt-5.6-luna);
+Codex plan usage is documented on the
+[official Codex pricing page](https://learn.chatgpt.com/docs/pricing).
 
 ### Claude 1M context cost
 

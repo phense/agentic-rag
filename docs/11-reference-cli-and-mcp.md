@@ -113,8 +113,8 @@ rag install --codex --restore /absolute/path/to/codex-rollback-<id>.json
 ```
 
 Check/install output enumerates the managed policy settings, including
-`model_context_window=600000`,
-`model_auto_compact_token_limit=500000`, total-token scope, hooks/memories,
+`model_context_window=350000`,
+`model_auto_compact_token_limit=250000`, total-token scope, hooks/memories,
 and Luna memory models. Separately, its would-change/changed paths report the
 managed prompt artifact path along with config and hooks paths. It also reports
 unique sibling backups, foreign `herdr-agent-state.sh` duplicate counts, Codex

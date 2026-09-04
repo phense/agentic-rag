@@ -57,8 +57,8 @@ def test_merge_config_preserves_comments_unknown_keys_and_sets_values():
     assert "# mine" in merged
     assert 'custom = "keep"' in merged
     parsed = tomllib.loads(merged)
-    assert parsed["model_context_window"] == 600000
-    assert parsed["model_auto_compact_token_limit"] == 500000
+    assert parsed["model_context_window"] == 350000
+    assert parsed["model_auto_compact_token_limit"] == 250000
     assert parsed["model_auto_compact_token_limit_scope"] == "total"
     assert parsed["experimental_compact_prompt_file"] == (
         "/Users/tester/.codex/compact_prompt.md"
@@ -279,7 +279,10 @@ def test_install_codex_stages_validates_backs_up_and_can_restore(tmp_path):
     ] == [("herdr-agent-state.sh", 2)]
     assert report.codex_version == "codex-cli 0.152.1"
     assert report.runtime_validation == "managed configuration and hooks validated"
-    assert tomllib.loads(paths.config_path.read_text())["model_context_window"] == 600000
+    installed_config = tomllib.loads(paths.config_path.read_text())
+    assert installed_config["model_context_window"] == 350000
+    assert installed_config["model_auto_compact_token_limit"] == 250000
+    assert installed_config["model_auto_compact_token_limit_scope"] == "total"
     installed_hooks = json.loads(paths.hooks_path.read_text())
     assert installed_hooks["metadata"] == {"keep": True}
     assert installed_hooks["hooks"]["PreToolUse"] == original_hooks["hooks"]["PreToolUse"]
@@ -353,7 +356,9 @@ def test_runtime_probe_loads_generated_hooks_json(tmp_path):
     session_handler = seen["hooks"]["hooks"]["SessionStart"][0]["hooks"][0]
     assert session_handler["additionalContextLimit"] == 10000
     assert "additionalContextLimit" not in seen["hooks"]["hooks"]["SessionStart"][0]
-    assert "model_context_window = 600000" in seen["config"]
+    assert "model_context_window = 350000" in seen["config"]
+    assert "model_auto_compact_token_limit = 250000" in seen["config"]
+    assert 'model_auto_compact_token_limit_scope = "total"' in seen["config"]
 
 
 def test_probe_timeout_reports_local_only_validation(tmp_path):
@@ -579,7 +584,9 @@ def test_absent_target_publish_conflict_retains_unpublished_recovery(
     assert paths.config_path.read_text() == "concurrent creation"
     recovery = tuple(paths.config_path.parent.glob(".config.toml.unpublished.*"))
     assert len(recovery) == 1
-    assert b"model_context_window = 600000" in recovery[0].read_bytes()
+    assert b"model_context_window = 350000" in recovery[0].read_bytes()
+    assert b"model_auto_compact_token_limit = 250000" in recovery[0].read_bytes()
+    assert b'model_auto_compact_token_limit_scope = "total"' in recovery[0].read_bytes()
 
 
 def test_publish_conflict_cleanup_retains_stage_if_recovery_rename_fails(
@@ -613,7 +620,9 @@ def test_publish_conflict_cleanup_retains_stage_if_recovery_rename_fails(
     assert paths.config_path.read_text() == "concurrent creation"
     recovery = tuple(paths.config_path.parent.glob(".config.toml.*.tmp"))
     assert len(recovery) == 1
-    assert b"model_context_window = 600000" in recovery[0].read_bytes()
+    assert b"model_context_window = 350000" in recovery[0].read_bytes()
+    assert b"model_auto_compact_token_limit = 250000" in recovery[0].read_bytes()
+    assert b'model_auto_compact_token_limit_scope = "total"' in recovery[0].read_bytes()
 
 
 @pytest.mark.parametrize("kind", ["file", "symlink"])

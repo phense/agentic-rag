@@ -320,9 +320,11 @@ The Claude target separately manages `autoCompactWindow = 500000` in
 `~/.claude/settings.json` — a 1M context compacting at 500K with a `[1m]`
 model; `model` is reported, never rewritten, and long-context requests above
 200K input tokens cost more on API billing. The Codex target separately
-manages a 600000 context window and a 500000 total-token compaction threshold, leaving a 100K reserve, plus native memories
-and the compact prompt. Official GPT-5.6 capacity is 1.05M, but inputs above
-272K are subject to higher provider pricing and may add latency; see
+manages a 350000 context window and a 250000 total-token compaction threshold,
+leaving a 100K reserve and a nominal 22K buffer below the higher-pricing
+boundary, plus native memories and the compact prompt. Official GPT-5.6
+capacity is 1.05M, but inputs above 272K are subject to higher provider pricing
+and may add latency; see
 [Configuration](docs/06-configuration-reference.md) and
 [Privacy, cost & control](docs/07-privacy-and-cost.md).
 

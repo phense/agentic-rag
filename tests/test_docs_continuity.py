@@ -78,7 +78,7 @@ def docs_text() -> str:
 
 def test_docs_explain_memory_ownership_and_compaction_limit():
     corpus = docs_text()
-    assert "600000" in corpus and "500000" in corpus
+    assert "350000" in corpus and "250000" in corpus
     assert "100K reserve" in corpus
     assert re.search(r"(?:above|>) (?:the official )?272K", corpus)
     assert "higher provider pricing" in corpus
@@ -88,6 +88,22 @@ def test_docs_explain_memory_ownership_and_compaction_limit():
     assert 'SessionStart(source="compact")' in corpus
     assert "same-session checkpoint wins regardless of project metadata" in corpus
     assert "compact never falls back to another session or project" in corpus
+
+    current_config = Path("docs/06-configuration-reference.md").read_text()
+    current_cost = Path("docs/07-privacy-and-cost.md").read_text()
+    current_reference = Path("docs/11-reference-cli-and-mcp.md").read_text()
+    assert "model_context_window = 350000" in current_config
+    assert "model_auto_compact_token_limit = 250000" in current_config
+    assert "model_context_window = 350000" in current_cost
+    assert "model_auto_compact_token_limit = 250000" in current_cost
+    assert "model_context_window=350000" in current_reference
+    assert "model_auto_compact_token_limit=250000" in current_reference
+
+    historical_v030 = Path("docs/00-whats-new-in-0.3.md").read_text()
+    historical_v040 = Path("docs/00-whats-new-in-0.4.md").read_text()
+    assert "600,000-token context window" in historical_v030
+    assert "500,000 total tokens" in historical_v030
+    assert "Codex 600K/500K policy" in historical_v040
 
 
 def test_docs_disclose_external_provider_calls_and_rollout_boundary():

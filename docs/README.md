@@ -21,7 +21,7 @@ learn. Shipped versus still-planned rollout state lives in
 - [05 · Session mining & curation](05-session-mining-and-curation.md) — durable mining, the Claude and Codex checkpoint lifecycle/restoration (including the Claude handoff), provider recovery, and curation.
 
 ## Configure
-- [06 · Configuration reference](06-configuration-reference.md) — agentic-rag defaults, the `[continuity]` handoff/context caps, the managed Claude 1M/500K policy, and the managed 600K/500K Codex policy.
+- [06 · Configuration reference](06-configuration-reference.md) — agentic-rag defaults, the `[continuity]` handoff/context caps, the managed Claude 1M/500K policy, and the managed 350K/250K Codex policy.
 - [07 · Privacy, cost & control](07-privacy-and-cost.md) — provider calls, native/external memory, long-context pricing, hook trust, secrets, roles, and recovery.
 
 ## Extend

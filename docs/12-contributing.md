@@ -165,7 +165,7 @@ records and the handbook: agentic-rag is canonical while native Codex memories
 are complementary; `PreCompact` captures without inline provider work;
 `PostCompact` never injects context; `SessionStart(source="compact")` restores;
 and `rag install --codex --check` stays non-writing. Update the managed
-600000/500000 policy, restore instructions, privacy/cost warning, hook trust
+350000/250000 policy, restore instructions, privacy/cost warning, hook trust
 step, status fields, feature state, and blocker-first backlog together whenever
 one of those contracts changes.
 

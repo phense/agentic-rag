@@ -7,8 +7,8 @@ import tomlkit
 
 
 ROOT_VALUES = {
-    "model_context_window": 600000,
-    "model_auto_compact_token_limit": 500000,
+    "model_context_window": 350000,
+    "model_auto_compact_token_limit": 250000,
     "model_auto_compact_token_limit_scope": "total",
 }
 

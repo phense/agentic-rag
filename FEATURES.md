@@ -57,9 +57,9 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   compaction; `PostCompact` records the boundary and never injects context.
 - ✅ **Compact prompt and policy installer.** The versioned prompt and the
   lossless `rag install --codex` transaction are shipped. The managed policy is
-  a 600000-token context window, a 500000-token total-scope compaction limit
-  (100K reserve), enabled hooks/native Codex memories, and Luna extraction and
-  consolidation.
+  a 350000-token context window, a 250000-token total-scope compaction limit
+  (100K reserve; nominally 22K below the higher-pricing boundary), enabled
+  hooks/native Codex memories, and Luna extraction and consolidation.
 - ✅ **Safe preview, rollback, and health reporting.** Non-writing check mode,
   unique backups, a mode-0600 rollback record, conflict-safe restoration, hook
   trust instructions, and checkpoint/provider fields in `rag status` are
@@ -68,7 +68,7 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   tests, the full suite, isolated wheel installation, and an immutable
   temporary-home check-mode exercise are complete.
 - 🔵 **Global Codex rollout.** A reference macOS deployment has the database
-  migrations, native memories, 600000/500000 context policy, compact prompt,
+  migrations, native memories, the 350000/250000 context policy, compact prompt,
   and six merged lifecycle handlers installed. The idempotent installer probe,
   handler trust, `rag status`, host-side `codex doctor`, and a fresh connected
   session passed. Live verification remains pending under backlog 0.2 for

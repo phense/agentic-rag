@@ -43,6 +43,12 @@
   opened at 08:49, which is why the store still holds no Codex checkpoint.
   Sessions opened after the install do run `SessionStart` (context injected)
   but have not compacted yet.
+  Price-aware policy update, 2026-09-04: after the official GPT-5.6 pricing
+  boundary was rechecked, the managed and installed Codex policy moved to a
+  350000 context window with total-scope compaction at 250000. The installer
+  changed only those two config lines; the prior config backup and mode-0600
+  rollback record were retained, while hooks and the compact prompt stayed
+  byte-identical.
   → *Why not done:* manual/automatic compaction, provider outage/recovery, and
   SessionEnd tail capture have not yet been exercised end to end in sustained
   real sessions. → *Trigger:* run and record those remaining smoke scenarios

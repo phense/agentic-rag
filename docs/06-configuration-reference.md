@@ -210,8 +210,8 @@ besides its six owned hook entries; every foreign key and hook is preserved:
 
 `autoCompactWindow` is a token count, capped by the model's window. With a
 `[1m]` model (for example `claude-fable-5-1[1m]`) it yields a 1M context with
-automatic compaction at 500K — the same reserve logic as the Codex 600K/500K
-policy. `model` is reported, never rewritten: the installer warns when no
+automatic compaction at 500K — the same 100K-reserve pattern as the Codex
+350K/250K policy. `model` is reported, never rewritten: the installer warns when no
 model is configured or the suffix is missing (the window is then capped to the
 model's own limit), when `autoCompactEnabled` is `false` (compaction and
 continuity stay idle), and when `CLAUDE_CODE_AUTO_COMPACT_WINDOW`,
@@ -233,8 +233,8 @@ installer preserves comments and every foreign key while enforcing this
 continuity policy:
 
 ```toml
-model_context_window = 600000
-model_auto_compact_token_limit = 500000
+model_context_window = 350000
+model_auto_compact_token_limit = 250000
 model_auto_compact_token_limit_scope = "total"
 experimental_compact_prompt_file = "/absolute/home/.codex/compact_prompt.md"
 
@@ -256,12 +256,14 @@ extract_model = "gpt-5.6-luna"
 consolidation_model = "gpt-5.6-luna"
 ```
 
-The 500000 total-token compaction limit leaves a 100K reserve inside the
-configured 600000 window. This is a local operating policy, not the model's
-maximum: official GPT-5.6 Sol and Luna documentation lists a 1,050,000-token
-context window and says prompts above 272K input tokens receive higher
-provider pricing for the full request. Long-context latency/quota impact must
-therefore be measured during rollout rather than assumed neutral. See the
+The 250000 total-token compaction limit leaves a 100K reserve inside the
+configured 350000 window and a nominal 22K buffer below the higher-pricing
+boundary. This is a local operating policy, not the model's maximum: official
+GPT-5.6 Sol and Luna documentation lists a 1,050,000-token context window and
+says prompts above 272K input tokens receive higher provider pricing for the
+full request. Codex checks the existing active context before recording a new
+user message, so an unusually large incoming prompt can still cross that
+boundary; the buffer reduces the risk but is not an absolute cap. See the
 [official GPT-5.6 Sol model page](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
 and [GPT-5.6 Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
 
