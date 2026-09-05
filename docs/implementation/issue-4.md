@@ -41,8 +41,8 @@ accepted-but-unapplied batches and source-window progress without raw content.
 - [x] Queue continuation/status, privilege/migration tests, full suite: 643 passed in 10.21 seconds.
 - [x] Recovery documentation and independent review; both Important findings fixed.
 - [x] Local integration and migration/status read-back.
-- [ ] Remote publication and issue closure.
-- [ ] Then issue #3: isolated bilingual quality benchmark, actual baseline report.
+- [x] Remote publication and issue closure; GitHub CI passed.
+- [x] Then issue #3: isolated bilingual quality benchmark, retrieval baseline and authorized real-model smoke.
 
 ## Operational boundary
 

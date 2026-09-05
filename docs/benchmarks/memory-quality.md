@@ -102,3 +102,11 @@ command. Setup errors use normal CLI error codes and do not represent a scored r
 The offline CI workflow runs the metrics, corpus, model-failure and cleanup-safety
 contracts without PostgreSQL, Ollama or credentials. Full integration tests additionally
 verify real database cleanup, the CLI, audited save/search and the mining boundary.
+
+## Recorded runs
+
+- [Full 60-question local retrieval baseline](2026-09-05-memory-baseline/README.md).
+- [Authorized eight-question real-model smoke and complete inspection](2026-09-05-memory-model-smoke/inspection.md).
+
+The second run checks the actual extraction/answer/judge pipeline and deliberately
+retains its small denominators; it does not replace the full retrieval baseline.

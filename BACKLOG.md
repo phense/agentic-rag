@@ -124,7 +124,7 @@
   Implemented by [issue #4](https://github.com/phense/agentic-rag/issues/4), commit
   `6958c4b`: accepted extraction batches, atomic effects, source-bound cursors and
   process-death regressions. Integrated locally; migration 009 applied after backup.
-  Remote publication/closure remains pending. See [recovery](docs/implementation/issue-4-recovery.md).
+  Published on main; issue closed. See [recovery](docs/implementation/issue-4-recovery.md).
 
 ## §2 — Housekeeping & test coverage
 
@@ -177,12 +177,10 @@ backlog remains the project work index. P1 = correctness/evaluation foundation;
 P2 = subsequent quality improvement. Existing §0–§3 work remains open. Source-loss work in 1.4/1.5 is locally active; scope and minimal source evidence precede
 automated fact replacement. Estimates are relative, not delivery commitments.
 
-- 🔵 **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
-  → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Why not done:* benchmark implementation and local retrieval baseline complete; real model extraction/answer/judge measurement and remote publication pending.
-  → *Trigger:* authorize one bounded synthetic model smoke; spot-check grading before claiming answer quality. See [benchmark guide](docs/benchmarks/memory-quality.md). *(M)*
-- 🔵 **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
-  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* local implementation, 643-test verification, independent review and deployment complete; remote publication/issue closure pending.
-  → *Trigger:* publish the verified local commits; historical backfill is separate. *(M–L)*
+- ✅ **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
+  → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Completed:* 60-query retrieval baseline, real eight-query extraction/answer/judge smoke, all eight results inspected, 665-test suite and GitHub offline CI verified. See [model inspection](docs/benchmarks/2026-09-05-memory-model-smoke/inspection.md). *(M)*
+- ✅ **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
+  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Completed:* implementation, independent review, deployment after backup and publication verified; issue closed. Historical backfill is separate. *(M–L)*
 - ⬜ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
   → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* define legacy scope mapping and project/global query semantics. *(M)*

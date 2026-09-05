@@ -14,7 +14,8 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   real gateway/mining and retrieval modes in an owned temporary database,
   source-recall/answer metrics, failure denominators, context budgets, latency,
   machine-readable reports and offline CI contracts are implemented. Local FTS/hybrid
-  baselines are measured; real model answer/judge quality requires an authorized run.
+  baselines and an authorized eight-query real-model smoke are measured; all eight
+  answers/judgements were inspected. This is not a general-quality claim.
   See [usage and limits](docs/benchmarks/memory-quality.md).
 
 - ✅ **Durable local store.** PostgreSQL + pgvector documents, structural

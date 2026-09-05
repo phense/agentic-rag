@@ -1,0 +1,290 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "description": "Authored synthetic coding-memory corpus; fictional projects and people; no private source data. Query families stay within one split.",
+  "documents": [
+    {
+      "id": "atlas-port",
+      "title": "Atlas service port",
+      "body": "Atlas production service listens on port 7712. This is the service port, not the metrics port.",
+      "project": "atlas"
+    },
+    {
+      "id": "atlas-metrics",
+      "title": "Atlas metrics endpoint",
+      "body": "Atlas exports Prometheus metrics on port 9913. Its main service port is configured separately.",
+      "project": "atlas"
+    },
+    {
+      "id": "boreal-port",
+      "title": "Boreal service port",
+      "body": "Boreal production service listens on port 7724. Boreal is a separate project from Atlas.",
+      "project": "boreal"
+    },
+    {
+      "id": "cache-expiry",
+      "title": "Juniper cache expiry",
+      "body": "Juniper keeps cached responses for 45 seconds. After that duration it fetches a fresh response.",
+      "project": "juniper"
+    },
+    {
+      "id": "retry-policy",
+      "title": "Cedar retry policy",
+      "body": "Cedar retries a failed download four times, then leaves the item in a visible error queue. It never silently drops the item.",
+      "project": "cedar"
+    },
+    {
+      "id": "command",
+      "title": "Quartz verification command",
+      "body": "To verify Quartz before release, run quartz-check --strict. The permissive mode does not validate source signatures.",
+      "project": "quartz"
+    },
+    {
+      "id": "signal",
+      "title": "Walnut lock failure",
+      "body": "In Walnut, LockLeaseExpired means the lease heartbeat was lost. Recovery is to renew the lease before retrying the transaction.",
+      "project": "walnut"
+    },
+    {
+      "id": "path",
+      "title": "Larch checkpoint path",
+      "body": "Larch stores portable checkpoints in state/handoff.json. Temporary build logs live elsewhere.",
+      "project": "larch"
+    },
+    {
+      "id": "owner",
+      "title": "Spruce queue ownership",
+      "body": "Mira owns the Spruce queue processor. Oren reviews Spruce documentation but does not own the processor.",
+      "project": "spruce"
+    },
+    {
+      "id": "language",
+      "title": "Birch communication preference",
+      "body": "The Birch project asks for release notes in German. Source-code identifiers remain English.",
+      "project": "birch"
+    },
+    {
+      "id": "backend",
+      "title": "Rowan persistence backend",
+      "body": "Rowan persists authoritative records in PostgreSQL. Redis is only a disposable cache.",
+      "project": "rowan"
+    },
+    {
+      "id": "batch-size",
+      "title": "Willow import batch size",
+      "body": "Willow processes 32 documents in each import batch to keep transactions short.",
+      "project": "willow"
+    },
+    {
+      "id": "timeout",
+      "title": "Elm connection timeout",
+      "body": "Elm abandons a connection attempt after 18 seconds. Read timeout and total job timeout are different settings.",
+      "project": "elm"
+    },
+    {
+      "id": "retention",
+      "title": "Pine backup retention",
+      "body": "Pine retains 14 daily backups locally. Monthly archives are stored separately.",
+      "project": "pine"
+    },
+    {
+      "id": "update",
+      "title": "Maple current compiler",
+      "body": "On 2026-08-20 Maple switched its compiler from Amber to Cobalt. Cobalt is the current compiler as of 2026-09-01.",
+      "project": "maple"
+    },
+    {
+      "id": "history",
+      "title": "Maple old compiler",
+      "body": "On 2026-07-01 Maple used compiler Amber. This historical record predates the switch on 2026-08-20.",
+      "project": "maple"
+    },
+    {
+      "id": "expiry",
+      "title": "Oak temporary maintenance",
+      "body": "Oak maintenance window ended on 2026-08-31. As of 2026-09-01 the maintenance window is closed.",
+      "project": "oak"
+    },
+    {
+      "id": "deutsch",
+      "title": "Erle Datenprüfung",
+      "body": "Das Projekt Erle prüft eingehende Datensätze mit BLAKE3. Fehlerhafte Prüfsummen werden in die Prüfwarteschlange gestellt.",
+      "project": "erle"
+    },
+    {
+      "id": "atomic",
+      "title": "Aspen acknowledgement rule",
+      "body": "Aspen acknowledges a source window only after every accepted fact and its audit record commit together.",
+      "project": "aspen"
+    },
+    {
+      "id": "tail",
+      "title": "Poplar late-message fact",
+      "body": "Poplar notes: Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. The Poplar recovery marker is POPLAR_TAIL_817.",
+      "project": "poplar"
+    },
+    {
+      "id": "alias",
+      "title": "Sequoia alias",
+      "body": "The deployment named Bluebird is the Sequoia staging environment. Its release approver is Lena.",
+      "project": "sequoia"
+    },
+    {
+      "id": "multi-hop",
+      "title": "Hawthorn adapter",
+      "body": "Hawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.",
+      "project": "hawthorn"
+    },
+    {
+      "id": "kestrel-owner",
+      "title": "Kestrel ownership",
+      "body": "Noor owns adapter Kestrel. Rowan owns adapter Falcon, which is unrelated.",
+      "project": "hawthorn"
+    },
+    {
+      "id": "multi-session",
+      "title": "Alder transfer target",
+      "body": "In session one, Alder chose the object store named Harbor for exports. Its encryption key name was settled in a later session.",
+      "project": "alder"
+    },
+    {
+      "id": "harbor-key",
+      "title": "Harbor export encryption",
+      "body": "In session two, Harbor exports were assigned the encryption key harbor-export-key.",
+      "project": "alder"
+    },
+    {
+      "id": "scope-retry",
+      "title": "Cedar sibling retry policy",
+      "body": "The separate Cedar-Lab project retries downloads seven times. This does not change the four-retry policy in Cedar production.",
+      "project": "cedar-lab"
+    }
+  ],
+  "queries": [
+    {
+      "id": "atlas-port-en",
+      "family": "atlas-port",
+      "query": "What port does Atlas production service listen on?",
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "answers": [
+        "7712"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "exact",
+      "language": "en"
+    },
+    {
+      "id": "update-de",
+      "family": "maple-lifecycle",
+      "query": "Welchen Compiler verwendet Maple mit Stand 2026-09-01?",
+      "expected_ids": [
+        "update"
+      ],
+      "answers": [
+        "Cobalt"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "Amber"
+      ],
+      "split": "test",
+      "category": "correction",
+      "language": "de"
+    },
+    {
+      "id": "expiry-en",
+      "family": "expiry",
+      "query": "As of 2026-09-01, is the Oak maintenance window open or closed?",
+      "expected_ids": [
+        "expiry"
+      ],
+      "answers": [
+        "closed",
+        "geschlossen"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "expiry",
+      "language": "en"
+    },
+    {
+      "id": "tail-de",
+      "family": "tail",
+      "query": "Welche Wiederherstellungsmarkierung steht am Ende der Poplar-Notizen?",
+      "expected_ids": [
+        "tail"
+      ],
+      "answers": [
+        "POPLAR_TAIL_817"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "long-input",
+      "language": "de"
+    },
+    {
+      "id": "multi-hop-de",
+      "family": "multi-hop",
+      "query": "Wem gehört der Adapter, über den Hawthorn Audit-Ereignisse verschickt?",
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "answers": [
+        "Noor"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "multi-hop",
+      "language": "de"
+    },
+    {
+      "id": "multi-session-en",
+      "family": "multi-session",
+      "query": "What key name encrypts exports to the object store chosen by Alder?",
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "answers": [
+        "harbor-export-key"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "multi-session",
+      "language": "en"
+    },
+    {
+      "id": "negative-0-en",
+      "family": "negative-0",
+      "query": "What is the Atlas travel budget?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-5-de",
+      "family": "negative-5",
+      "query": "Wer wartet das Projekt Zephyr?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "de"
+    }
+  ]
+}

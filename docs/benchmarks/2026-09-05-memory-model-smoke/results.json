@@ -1,0 +1,1151 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T20:52:46.243092+00:00",
+    "revision": "d121ab86c57cc24429aab5c774700aad4b40f248",
+    "source_sha256": "5e0dd25a5383d17030b8ed3410c1aa8f69bbaa23b5863f9755dc4f3cab2458fe",
+    "corpus_sha256": "588d7db06b4b161f88c76d5b0f8d359d268573b47490efda423dda9285c1cd45",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "end-to-end",
+    "smoke": true,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": "codex",
+    "llm_model": "gpt-5.6-luna",
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "search_mode": "hybrid",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": true,
+    "judge": true,
+    "query_ids": [
+      "atlas-port-en",
+      "update-de",
+      "expiry-en",
+      "tail-de",
+      "multi-hop-de",
+      "multi-session-en",
+      "negative-0-en",
+      "negative-5-de"
+    ],
+    "source_ids": [
+      "atlas-port",
+      "atlas-metrics",
+      "boreal-port",
+      "update",
+      "expiry",
+      "tail",
+      "multi-hop",
+      "kestrel-owner",
+      "multi-session",
+      "harbor-key"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "atlas-port-en",
+      "category": "exact",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "atlas-port",
+        "boreal-port",
+        "atlas-metrics",
+        "multi-session",
+        "harbor-key",
+        "multi-hop",
+        "kestrel-owner",
+        "tail",
+        "update",
+        "tail"
+      ],
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "hits": [
+        {
+          "source_id": "atlas-port",
+          "score": 0.03278688524590164,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.03225806451612903,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.015873015873015872,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015625,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.015384615384615385,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.015151515151515152,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.014925373134328358,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014705882352941176,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "update",
+          "score": 0.014492753623188406,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014285714285714285,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        }
+      ],
+      "context": "[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n",
+      "context_chars": 1657,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 178.77712473273277,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer matches the expected port 7712."
+      },
+      "answer_text": "7712",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "update-de",
+      "category": "correction",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "update",
+        "atlas-metrics",
+        "tail",
+        "tail",
+        "expiry",
+        "atlas-port",
+        "multi-session",
+        "multi-hop",
+        "boreal-port",
+        "kestrel-owner"
+      ],
+      "expected_ids": [
+        "update"
+      ],
+      "hits": [
+        {
+          "source_id": "update",
+          "score": 0.01639344262295082,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.016129032258064516,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.015873015873015872,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.015625,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        },
+        {
+          "source_id": "expiry",
+          "score": 0.015384615384615385,
+          "title": "Oak temporary maintenance window closed",
+          "snippet": "# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015151515151515152,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.014925373134328358,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.014705882352941176,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.014492753623188406,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.014285714285714285,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        }
+      ],
+      "context": "[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n[expiry] Oak temporary maintenance window closed\n# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n",
+      "context_chars": 1708,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 171.75441700965166,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer matches the expected compiler Cobalt."
+      },
+      "answer_text": "Cobalt",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "expiry-en",
+      "category": "expiry",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "expiry",
+        "update",
+        "tail",
+        "multi-session",
+        "atlas-port",
+        "multi-hop",
+        "kestrel-owner",
+        "harbor-key",
+        "tail",
+        "boreal-port"
+      ],
+      "expected_ids": [
+        "expiry"
+      ],
+      "hits": [
+        {
+          "source_id": "expiry",
+          "score": 0.04918032786885246,
+          "title": "Oak temporary maintenance window closed",
+          "snippet": "# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed."
+        },
+        {
+          "source_id": "update",
+          "score": 0.016129032258064516,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.015873015873015872,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015625,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015384615384615385,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.015151515151515152,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.014925373134328358,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.014705882352941176,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014492753623188406,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.014285714285714285,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        }
+      ],
+      "context": "[expiry] Oak temporary maintenance window closed\n# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n",
+      "context_chars": 1683,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 166.09949991106987,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer correctly states that the maintenance window is closed."
+      },
+      "answer_text": "closed",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "tail-de",
+      "category": "long-input",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "tail",
+        "tail",
+        "update",
+        "multi-session",
+        "multi-hop",
+        "harbor-key",
+        "atlas-port",
+        "boreal-port",
+        "kestrel-owner",
+        "atlas-metrics"
+      ],
+      "expected_ids": [
+        "tail"
+      ],
+      "hits": [
+        {
+          "source_id": "tail",
+          "score": 0.01639344262295082,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.016129032258064516,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "update",
+          "score": 0.015873015873015872,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015625,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.015384615384615385,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.015151515151515152,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.014925373134328358,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.014705882352941176,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.014492753623188406,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.014285714285714285,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        }
+      ],
+      "context": "[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n",
+      "context_chars": 1657,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 167.28874947875738,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer matches the expected recovery marker POPLAR_TAIL_817."
+      },
+      "answer_text": "POPLAR_TAIL_817",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "multi-hop-de",
+      "category": "multi-hop",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "multi-hop",
+        "kestrel-owner",
+        "multi-session",
+        "atlas-port",
+        "boreal-port",
+        "harbor-key",
+        "atlas-metrics",
+        "update",
+        "tail",
+        "tail"
+      ],
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "hits": [
+        {
+          "source_id": "multi-hop",
+          "score": 0.01639344262295082,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.016129032258064516,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015873015873015872,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015625,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.015384615384615385,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.015151515151515152,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.014925373134328358,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "update",
+          "score": 0.014705882352941176,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014492753623188406,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014285714285714285,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        }
+      ],
+      "context": "[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n",
+      "context_chars": 1657,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 165.25466740131378,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer matches the expected owner Noor."
+      },
+      "answer_text": "Noor",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "multi-session-en",
+      "category": "multi-session",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "multi-session",
+        "harbor-key",
+        "boreal-port",
+        "atlas-metrics",
+        "atlas-port",
+        "kestrel-owner",
+        "update",
+        "multi-hop",
+        "tail",
+        "tail"
+      ],
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "hits": [
+        {
+          "source_id": "multi-session",
+          "score": 0.01639344262295082,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.016129032258064516,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.015873015873015872,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.015625,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015384615384615385,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.015151515151515152,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "update",
+          "score": 0.014925373134328358,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.014705882352941176,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014492753623188406,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014285714285714285,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        }
+      ],
+      "context": "[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n",
+      "context_chars": 1657,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 159.80416722595692,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "Answer matches the expected encryption key name harbor-export-key."
+      },
+      "answer_text": "harbor-export-key",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "negative-0-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "atlas-metrics",
+        "boreal-port",
+        "atlas-port",
+        "multi-session",
+        "multi-hop",
+        "update",
+        "kestrel-owner",
+        "harbor-key",
+        "tail",
+        "tail"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.01639344262295082,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.016129032258064516,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015873015873015872,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015625,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.015384615384615385,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "update",
+          "score": 0.015151515151515152,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.014925373134328358,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.014705882352941176,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014492753623188406,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.014285714285714285,
+          "title": "Poplar recovery marker",
+          "snippet": "# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817."
+        }
+      ],
+      "context": "[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[tail] Poplar recovery marker\n# Poplar recovery marker\n\nThe Poplar recovery marker is POPLAR_TAIL_817.\n",
+      "context_chars": 1657,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 163.57158310711384,
+      "answer": {
+        "correct": true,
+        "abstained": true,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "The question is unanswerable, and the response explicitly abstains with an empty answer."
+      },
+      "answer_text": "",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    },
+    {
+      "query_id": "negative-5-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "boreal-port",
+        "kestrel-owner",
+        "multi-session",
+        "tail",
+        "atlas-port",
+        "multi-hop",
+        "update",
+        "harbor-key",
+        "atlas-metrics",
+        "expiry"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "boreal-port",
+          "score": 0.01639344262295082,
+          "title": "Boreal production service port",
+          "snippet": "# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724."
+        },
+        {
+          "source_id": "kestrel-owner",
+          "score": 0.016129032258064516,
+          "title": "Kestrel adapter ownership",
+          "snippet": "# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter."
+        },
+        {
+          "source_id": "multi-session",
+          "score": 0.015873015873015872,
+          "title": "Alder exports use Harbor",
+          "snippet": "# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session."
+        },
+        {
+          "source_id": "tail",
+          "score": 0.015625,
+          "title": "Poplar notes cover reversible maintenance",
+          "snippet": "# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance."
+        },
+        {
+          "source_id": "atlas-port",
+          "score": 0.015384615384615385,
+          "title": "Atlas production service port",
+          "snippet": "# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port."
+        },
+        {
+          "source_id": "multi-hop",
+          "score": 0.015151515151515152,
+          "title": "Hawthorn routes audit events through Kestrel",
+          "snippet": "# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately."
+        },
+        {
+          "source_id": "update",
+          "score": 0.014925373134328358,
+          "title": "Maple current compiler",
+          "snippet": "# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01."
+        },
+        {
+          "source_id": "harbor-key",
+          "score": 0.014705882352941176,
+          "title": "Harbor export encryption",
+          "snippet": "# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key."
+        },
+        {
+          "source_id": "atlas-metrics",
+          "score": 0.014492753623188406,
+          "title": "Atlas Prometheus metrics port",
+          "snippet": "# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately."
+        },
+        {
+          "source_id": "expiry",
+          "score": 0.014285714285714285,
+          "title": "Oak temporary maintenance window closed",
+          "snippet": "# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed."
+        }
+      ],
+      "context": "[boreal-port] Boreal production service port\n# Boreal production service port\n\nBoreal is a separate project from Atlas, and its production service listens on port 7724.\n[kestrel-owner] Kestrel adapter ownership\n# Kestrel adapter ownership\n\nNoor owns the Kestrel adapter. Rowan owns the unrelated Falcon adapter.\n[multi-session] Alder exports use Harbor\n# Alder exports use Harbor\n\nAlder selected the Harbor object store as the transfer target for exports. The encryption key name was settled in a later session.\n[tail] Poplar notes cover reversible maintenance\n# Poplar notes cover reversible maintenance\n\nThe Poplar project includes background notes on reversible maintenance.\n[atlas-port] Atlas production service port\n# Atlas production service port\n\nThe Atlas production service listens on port 7712; port 7712 is the service port, not the metrics port.\n[multi-hop] Hawthorn routes audit events through Kestrel\n# Hawthorn routes audit events through Kestrel\n\nHawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.\n[update] Maple current compiler\n# Maple current compiler\n\nMaple switched its compiler from Amber to Cobalt on 2026-08-20. Cobalt is the current compiler as of 2026-09-01.\n[harbor-key] Harbor export encryption\n# Harbor export encryption\n\nIn session two, Harbor exports were assigned the encryption key harbor-export-key.\n[atlas-metrics] Atlas Prometheus metrics port\n# Atlas Prometheus metrics port\n\nAtlas exports Prometheus metrics on port 9913; its main service port is configured separately.\n[expiry] Oak temporary maintenance window closed\n# Oak temporary maintenance window closed\n\nOak's temporary maintenance window ended on 2026-08-31; as of 2026-09-01, the maintenance window is closed.\n",
+      "context_chars": 1754,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 160.28899978846312,
+      "answer": {
+        "correct": true,
+        "abstained": true,
+        "stale": false
+      },
+      "judge": {
+        "correct": true,
+        "reason": "The question is unanswerable, and the response explicitly abstains with an empty answer."
+      },
+      "answer_text": "",
+      "answer_batch_ms": 7801.758457906544,
+      "judge_batch_ms": 7986.137750558555
+    }
+  ],
+  "summary": {
+    "queries": 8,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 8,
+    "answer_accuracy": 1.0,
+    "unanswerable_accuracy": 1.0,
+    "false_abstention_rate": 0.0,
+    "stale_answer_rate": 0.0,
+    "latency_ms_p50": 165.25466740131378,
+    "latency_ms_p95": 178.77712473273277,
+    "context_chars_mean": 1678.75,
+    "context_tokens_estimate_mean": 420.25,
+    "recall_at_5": 1.0,
+    "recall_at_5_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "recall_at_10": 1.0,
+    "recall_at_10_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "mrr": 1.0,
+    "mrr_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "judge_scored_queries": 8,
+    "judge_accuracy": 1.0
+  },
+  "by_split": {
+    "dev": {
+      "queries": 3,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 3,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 165.25466740131378,
+      "latency_ms_p95": 178.77712473273277,
+      "context_chars_mean": 1657.0,
+      "context_tokens_estimate_mean": 415.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 3,
+      "judge_accuracy": 1.0
+    },
+    "test": {
+      "queries": 5,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 5,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 166.09949991106987,
+      "latency_ms_p95": 171.75441700965166,
+      "context_chars_mean": 1691.8,
+      "context_tokens_estimate_mean": 423.4,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 5,
+      "judge_accuracy": 1.0
+    }
+  },
+  "by_category": {
+    "correction": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 171.75441700965166,
+      "latency_ms_p95": 171.75441700965166,
+      "context_chars_mean": 1708.0,
+      "context_tokens_estimate_mean": 427.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "exact": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 178.77712473273277,
+      "latency_ms_p95": 178.77712473273277,
+      "context_chars_mean": 1657.0,
+      "context_tokens_estimate_mean": 415.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "expiry": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 166.09949991106987,
+      "latency_ms_p95": 166.09949991106987,
+      "context_chars_mean": 1683.0,
+      "context_tokens_estimate_mean": 421.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "long-input": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 167.28874947875738,
+      "latency_ms_p95": 167.28874947875738,
+      "context_chars_mean": 1657.0,
+      "context_tokens_estimate_mean": 415.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "multi-hop": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 165.25466740131378,
+      "latency_ms_p95": 165.25466740131378,
+      "context_chars_mean": 1657.0,
+      "context_tokens_estimate_mean": 415.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "multi-session": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 1,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 159.80416722595692,
+      "latency_ms_p95": 159.80416722595692,
+      "context_chars_mean": 1657.0,
+      "context_tokens_estimate_mean": 415.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 1,
+      "judge_accuracy": 1.0
+    },
+    "unanswerable": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 2,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": 1.0,
+      "false_abstention_rate": null,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 160.28899978846312,
+      "latency_ms_p95": 163.57158310711384,
+      "context_chars_mean": 1705.5,
+      "context_tokens_estimate_mean": 427.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 2,
+      "judge_accuracy": 1.0
+    }
+  },
+  "ingestion": {
+    "total_sources": 10,
+    "indexed_sources": 10,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 83506.11129123718
+  },
+  "provider": {
+    "model_calls_attempted": 13,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 100702.0464586094
+}

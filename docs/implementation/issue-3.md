@@ -60,3 +60,17 @@ Final verification: `python -m pytest -q -p no:cacheprovider` — **665 passed**
 PGHOST; the wheel was inspected for the 60-query corpus and migration 009. All
 Important review findings were resolved and covered by focused regressions; no
 additional paid review/evaluation loop was used.
+
+## Completion after explicit operator approval
+
+The user approved publication and the prepared eight-question real-model run.
+The five local commits were pushed and remotely verified; GitHub offline CI passed
+(run 33991395670). Actual Codex/Luna-high extraction, answers and separate judging
+completed in 100.70 seconds: 10/10 sources indexed, 13 model commands attempted,
+6/6 answerable questions correct and 2/2 negative cases correctly abstained.
+The coordinator inspected all eight answers/judge explanations against source
+evidence; no disagreement or stale answer was found. No extra model run was used.
+See [the complete inspection](../benchmarks/2026-09-05-memory-model-smoke/inspection.md).
+Hashes/aggregate metrics were replay-verified and the PostgreSQL catalog confirmed
+no remaining benchmark database. Earlier unmeasured/approval-pending notes above
+record the pre-approval phase; the requested pipeline validation is now complete.
