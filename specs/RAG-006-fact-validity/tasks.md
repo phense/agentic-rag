@@ -34,6 +34,6 @@ Base: f592dd6. Every slice uses meaningful failing tests before implementation.
   success/recovery tests; fix findings and run full suite/build/migration checks.
   Write verification and user docs, FEATURES/BACKLOG. Sources: all AC/IC/findings.
   Depends: T001–T005.
-- [ ] T007 Fresh backup, lock worker, deploy additive migration, verify legacy
+- [x] T007 Fresh backup, lock worker, deploy additive migration, verify legacy
   invariants and idempotence, integrate/publish, verify CI, synchronize/close issue.
   Sources: FR-006, compatibility boundaries. Depends: T006.

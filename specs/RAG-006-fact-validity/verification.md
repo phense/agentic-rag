@@ -30,5 +30,17 @@ Verified 2026-09-06 in the isolated feature worktree; base f592dd6.
   Small controlled fixture only; citation quality and date-language parsing unmeasured.
 
 Convergence: all application acceptance criteria and architecture findings are covered;
-no additional implementation tasks. Remaining operational gate: fresh backup, additive
-migration/code activation, invariant readback, publication and CI/issue synchronization.
+no additional implementation tasks.
+
+Operational verification, 2026-09-06: user explicitly approved this rollout. The
+existing backup pipeline produced a fresh archive; archive inventory and local/cloud
+checksums passed. Under the worker lock, migration011 applied and the main checkout
+advanced to the tested implementation. Legacy document and pin fingerprints remained
+identical. Re-running migrations applied nothing. Independent reader checks confirmed
+installed code, current/as-of queries and read-only table permissions. No legacy
+validity or assertion evidence was inferred. Publication/CI and issue readback are
+recorded in the completion comment.
+
+Publication verified: implementation `ed3bde0`, GitHub CI `33996193540` succeeded;
+issue #6 was closed and read back. Completion documentation is a subsequent docs-only
+commit; no application changes followed the 703-test verification.

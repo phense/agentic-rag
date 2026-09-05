@@ -183,10 +183,11 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Completed:* implementation, independent review, deployment after backup and publication verified; issue closed. Historical backfill is separate. *(M–L)*
 - ✅ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
   → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Completed:* explicit scope across retrieval/recall/curation, 685 tests, independent review and zero-violation scope benchmarks. Migration 010/backfill deployed after fresh verified backup; content/pin invariants and idempotence confirmed. Unknown legacy scope remains reviewable. See [policy](docs/project-scope.md). *(M)*
-- 🔵 **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
-  → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Why not done:* implementation, independent review, 703 tests and eight-question
-  model comparison complete; backup-gated rollout/publication pending.
-  → *Trigger:* deploy migration 011 after fresh verified backup. *(L)*
+- ✅ **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
+  → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Completed:* implementation, independent review, 703 tests and eight-question
+  model comparison verified; migration 011 activated after fresh checked backup,
+  legacy/pin invariants preserved, published CI green and issue closed.
+  See [verification](specs/RAG-006-fact-validity/verification.md). *(L)*
 - ⬜ **4.5** _(enh, P2)_ **Claim-level evidence and inference status.** Retain sanitized event references and speaker roles; distinguish stated facts, assistant suggestions and derived inferences.
   → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* coordinate source identity with 4.2; land the minimal update-evidence subset before 4.4. *(M–L)*
