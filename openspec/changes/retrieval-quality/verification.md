@@ -36,3 +36,7 @@
 Implementation, independent review, full tests, package and measurements complete.
 Fresh backup-gated migration013 activation, canonical content/pin verification,
 publication/CI and issue closure remain pending. OpenSpec archive follows those gates.
+
+Automatic approval review rejected the prepared canonical migration/main activation:
+explicit issue8 rollout authorization is required. The rollout command did not execute.
+Implementation remains on the reviewed feature branch; T005 and archival stay open.

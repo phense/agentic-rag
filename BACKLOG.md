@@ -194,7 +194,7 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   legacy/pin invariants unchanged, published CI green and issue closed. *(M–L)*
 - ⬜ **4.6** _(enh, P2)_ **Measured retrieval relevance improvements.** Add diverse results and useful evidence spans; evaluate local reranking, abstention and bounded graph expansion.
   → *Issue:* [#8](https://github.com/phense/agentic-rag/issues/8). → *Status:* implementation and independent review complete; 732 tests pass.
-  Eleven synthetic comparisons and wheel checks passed; backup-gated migration013 activation/publication pending.
+  Eleven synthetic comparisons and wheel checks passed; backup-gated migration013 activation/publication awaits explicit operator rollout approval.
   See [policy](docs/retrieval-quality.md).
   → *Trigger:* after 4.1 baseline and shared scope/validity policies. *(M)*
 - ⬜ **4.7** _(enh, P2)_ **Bounded project profiles and selective recall.** Build a source-backed advisory view over the existing store; preserve exact pins/checkpoints and measure ordinary-question recall.
