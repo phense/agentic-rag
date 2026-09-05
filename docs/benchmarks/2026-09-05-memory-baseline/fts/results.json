@@ -1,0 +1,2279 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T20:44:44.462217+00:00",
+    "revision": "0e6e364e17ba1a660514a1c2944fa51573ea6e1e",
+    "source_sha256": "5e0dd25a5383d17030b8ed3410c1aa8f69bbaa23b5863f9755dc4f3cab2458fe",
+    "corpus_sha256": "f5d819a54fe6e6d48d4eddf3d7e2f7827a43c003381a8a30d5e05e0ba6126642",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "search_mode": "fts",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "atlas-port-en",
+      "atlas-port-de",
+      "atlas-metrics-en",
+      "atlas-metrics-de",
+      "boreal-port-en",
+      "boreal-port-de",
+      "cache-expiry-en",
+      "cache-expiry-de",
+      "retry-policy-en",
+      "retry-policy-de",
+      "command-en",
+      "command-de",
+      "signal-en",
+      "signal-de",
+      "path-en",
+      "path-de",
+      "owner-en",
+      "owner-de",
+      "language-en",
+      "language-de",
+      "backend-en",
+      "backend-de",
+      "batch-size-en",
+      "batch-size-de",
+      "timeout-en",
+      "timeout-de",
+      "retention-en",
+      "retention-de",
+      "update-en",
+      "update-de",
+      "history-en",
+      "history-de",
+      "expiry-en",
+      "expiry-de",
+      "deutsch-en",
+      "deutsch-de",
+      "atomic-en",
+      "atomic-de",
+      "tail-en",
+      "tail-de",
+      "alias-en",
+      "alias-de",
+      "multi-hop-en",
+      "multi-hop-de",
+      "multi-session-en",
+      "multi-session-de",
+      "scope-retry-en",
+      "scope-retry-de",
+      "negative-0-en",
+      "negative-0-de",
+      "negative-1-en",
+      "negative-1-de",
+      "negative-2-en",
+      "negative-2-de",
+      "negative-3-en",
+      "negative-3-de",
+      "negative-4-en",
+      "negative-4-de",
+      "negative-5-en",
+      "negative-5-de"
+    ],
+    "source_ids": [
+      "atlas-port",
+      "atlas-metrics",
+      "boreal-port",
+      "cache-expiry",
+      "retry-policy",
+      "command",
+      "signal",
+      "path",
+      "owner",
+      "language",
+      "backend",
+      "batch-size",
+      "timeout",
+      "retention",
+      "update",
+      "history",
+      "expiry",
+      "deutsch",
+      "atomic",
+      "tail",
+      "alias",
+      "multi-hop",
+      "kestrel-owner",
+      "multi-session",
+      "harbor-key",
+      "scope-retry"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "atlas-port-en",
+      "category": "exact",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "atlas-port",
+        "boreal-port"
+      ],
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "hits": [
+        {
+          "source_id": "atlas-port",
+          "score": 0.01639344262295082,
+          "title": "Atlas service port",
+          "snippet": "# Atlas service port\n\nAtlas production service listens on port 7712. This is the service port, not the metrics port."
+        },
+        {
+          "source_id": "boreal-port",
+          "score": 0.016129032258064516,
+          "title": "Boreal service port",
+          "snippet": "# Boreal service port\n\nBoreal production service listens on port 7724. Boreal is a separate project from Atlas."
+        }
+      ],
+      "context": "[atlas-port] Atlas service port\n# Atlas service port\n\nAtlas production service listens on port 7712. This is the service port, not the metrics port.\n[boreal-port] Boreal service port\n# Boreal service port\n\nBoreal production service listens on port 7724. Boreal is a separate project from Atlas.\n",
+      "context_chars": 295,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 35.901958122849464,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "atlas-port-de",
+      "category": "exact",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 50.77524948865175,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "atlas-metrics-en",
+      "category": "distractor",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "atlas-metrics"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.6453758627176285,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "atlas-metrics-de",
+      "category": "distractor",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "atlas-metrics"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 8.195959031581879,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "boreal-port-en",
+      "category": "scope",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "boreal-port"
+      ],
+      "expected_ids": [
+        "boreal-port"
+      ],
+      "hits": [
+        {
+          "source_id": "boreal-port",
+          "score": 0.01639344262295082,
+          "title": "Boreal service port",
+          "snippet": "# Boreal service port\n\nBoreal production service listens on port 7724. Boreal is a separate project from Atlas."
+        }
+      ],
+      "context": "[boreal-port] Boreal service port\n# Boreal service port\n\nBoreal production service listens on port 7724. Boreal is a separate project from Atlas.\n",
+      "context_chars": 146,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.6343750804662704,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "boreal-port-de",
+      "category": "scope",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "boreal-port"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 8.173291571438313,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "cache-expiry-en",
+      "category": "paraphrase",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "cache-expiry"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.646040990948677,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "cache-expiry-de",
+      "category": "paraphrase",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "cache-expiry"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 8.897291496396065,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "retry-policy-en",
+      "category": "paraphrase",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "retry-policy"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.975415326654911,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "retry-policy-de",
+      "category": "paraphrase",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "retry-policy"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.619082927703857,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "command-en",
+      "category": "identifier",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "command"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 10.03841683268547,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "command-de",
+      "category": "identifier",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "command"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.161208428442478,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "signal-en",
+      "category": "error",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "signal"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.884250789880753,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "signal-de",
+      "category": "error",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "signal"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.472374476492405,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "path-en",
+      "category": "identifier",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "path"
+      ],
+      "expected_ids": [
+        "path"
+      ],
+      "hits": [
+        {
+          "source_id": "path",
+          "score": 0.01639344262295082,
+          "title": "Larch checkpoint path",
+          "snippet": "# Larch checkpoint path\n\nLarch stores portable checkpoints in state/handoff.json. Temporary build logs live elsewhere."
+        }
+      ],
+      "context": "[path] Larch checkpoint path\n# Larch checkpoint path\n\nLarch stores portable checkpoints in state/handoff.json. Temporary build logs live elsewhere.\n",
+      "context_chars": 148,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.85991533100605,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "path-de",
+      "category": "identifier",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "path"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.143333554267883,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "owner-en",
+      "category": "fact",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "owner"
+      ],
+      "expected_ids": [
+        "owner"
+      ],
+      "hits": [
+        {
+          "source_id": "owner",
+          "score": 0.01639344262295082,
+          "title": "Spruce queue ownership",
+          "snippet": "# Spruce queue ownership\n\nMira owns the Spruce queue processor. Oren reviews Spruce documentation but does not own the processor."
+        }
+      ],
+      "context": "[owner] Spruce queue ownership\n# Spruce queue ownership\n\nMira owns the Spruce queue processor. Oren reviews Spruce documentation but does not own the processor.\n",
+      "context_chars": 161,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.693416275084019,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "owner-de",
+      "category": "fact",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "owner"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.493041455745697,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "language-en",
+      "category": "preference",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "language"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 8.379749953746796,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "language-de",
+      "category": "preference",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "language"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 8.12475010752678,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "backend-en",
+      "category": "fact",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "backend"
+      ],
+      "expected_ids": [
+        "backend"
+      ],
+      "hits": [
+        {
+          "source_id": "backend",
+          "score": 0.01639344262295082,
+          "title": "Rowan persistence backend",
+          "snippet": "# Rowan persistence backend\n\nRowan persists authoritative records in PostgreSQL. Redis is only a disposable cache."
+        }
+      ],
+      "context": "[backend] Rowan persistence backend\n# Rowan persistence backend\n\nRowan persists authoritative records in PostgreSQL. Redis is only a disposable cache.\n",
+      "context_chars": 151,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.896332837641239,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "backend-de",
+      "category": "fact",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "backend"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.537041626870632,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "batch-size-en",
+      "category": "exact",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "batch-size"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.030417047441006,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "batch-size-de",
+      "category": "exact",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "batch-size"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.057665683329105,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "timeout-en",
+      "category": "paraphrase",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "timeout"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.991458892822266,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "timeout-de",
+      "category": "paraphrase",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "timeout"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.400750182569027,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "retention-en",
+      "category": "fact",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "retention"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.143499329686165,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "retention-de",
+      "category": "fact",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "retention"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.511291325092316,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "update-en",
+      "category": "correction",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "update"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.673165433108807,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "update-de",
+      "category": "correction",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "update"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.131792441010475,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "history-en",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "history"
+      ],
+      "expected_ids": [
+        "history"
+      ],
+      "hits": [
+        {
+          "source_id": "history",
+          "score": 0.01639344262295082,
+          "title": "Maple old compiler",
+          "snippet": "# Maple old compiler\n\nOn 2026-07-01 Maple used compiler Amber. This historical record predates the switch on 2026-08-20."
+        }
+      ],
+      "context": "[history] Maple old compiler\n# Maple old compiler\n\nOn 2026-07-01 Maple used compiler Amber. This historical record predates the switch on 2026-08-20.\n",
+      "context_chars": 150,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.5287079885602,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "history-de",
+      "category": "temporal",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "history"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.509457714855671,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "expiry-en",
+      "category": "expiry",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "expiry"
+      ],
+      "expected_ids": [
+        "expiry"
+      ],
+      "hits": [
+        {
+          "source_id": "expiry",
+          "score": 0.03278688524590164,
+          "title": "Oak temporary maintenance",
+          "snippet": "# Oak temporary maintenance\n\nOak maintenance window ended on 2026-08-31. As of 2026-09-01 the maintenance window is closed."
+        }
+      ],
+      "context": "[expiry] Oak temporary maintenance\n# Oak temporary maintenance\n\nOak maintenance window ended on 2026-08-31. As of 2026-09-01 the maintenance window is closed.\n",
+      "context_chars": 159,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.334291934967041,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "expiry-de",
+      "category": "expiry",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "expiry"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.292750291526318,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "deutsch-en",
+      "category": "german",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "deutsch"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.3152918592095375,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "deutsch-de",
+      "category": "german",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "deutsch"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.072749383747578,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "atomic-en",
+      "category": "architecture",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "atomic"
+      ],
+      "expected_ids": [
+        "atomic"
+      ],
+      "hits": [
+        {
+          "source_id": "atomic",
+          "score": 0.01639344262295082,
+          "title": "Aspen acknowledgement rule",
+          "snippet": "# Aspen acknowledgement rule\n\nAspen acknowledges a source window only after every accepted fact and its audit record commit together."
+        }
+      ],
+      "context": "[atomic] Aspen acknowledgement rule\n# Aspen acknowledgement rule\n\nAspen acknowledges a source window only after every accepted fact and its audit record commit together.\n",
+      "context_chars": 170,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.589375272393227,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "atomic-de",
+      "category": "architecture",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "atomic"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.097166962921619,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "tail-en",
+      "category": "long-input",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "tail"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.380500435829163,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "tail-de",
+      "category": "long-input",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "tail"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.907458417117596,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "alias-en",
+      "category": "reference",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "alias"
+      ],
+      "expected_ids": [
+        "alias"
+      ],
+      "hits": [
+        {
+          "source_id": "alias",
+          "score": 0.01639344262295082,
+          "title": "Sequoia alias",
+          "snippet": "# Sequoia alias\n\nThe deployment named Bluebird is the Sequoia staging environment. Its release approver is Lena."
+        }
+      ],
+      "context": "[alias] Sequoia alias\n# Sequoia alias\n\nThe deployment named Bluebird is the Sequoia staging environment. Its release approver is Lena.\n",
+      "context_chars": 135,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.3975416123867035,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "alias-de",
+      "category": "reference",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "alias"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.078374736011028,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multi-hop-en",
+      "category": "multi-hop",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.853042170405388,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multi-hop-de",
+      "category": "multi-hop",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.481541484594345,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multi-session-en",
+      "category": "multi-session",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.196792401373386,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multi-session-de",
+      "category": "multi-session",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.842250168323517,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "scope-retry-en",
+      "category": "scope",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "scope-retry"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.884332746267319,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "scope-retry-de",
+      "category": "scope",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "scope-retry"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 7.333041168749332,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-0-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 5.921416915953159,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-0-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.400625221431255,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-1-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.351458840072155,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-1-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.294624879956245,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-2-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.409582681953907,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-2-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.645374931395054,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-3-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.34929072111845,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-3-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.769542582333088,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-4-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.430916488170624,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-4-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.542458198964596,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-5-en",
+      "category": "unanswerable",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.177625618875027,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-5-de",
+      "category": "unanswerable",
+      "language": "de",
+      "split": "test",
+      "unanswerable": true,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 6.051542237401009,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 60,
+    "answerable_queries": 48,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 6.85991533100605,
+    "latency_ms_p95": 8.897291496396065,
+    "context_chars_mean": 25.25,
+    "context_tokens_estimate_mean": 6.366666666666666,
+    "recall_at_5": 0.1875,
+    "recall_at_5_bootstrap_95": [
+      0.08333333333333333,
+      0.3125
+    ],
+    "recall_at_10": 0.1875,
+    "recall_at_10_bootstrap_95": [
+      0.08333333333333333,
+      0.3125
+    ],
+    "mrr": 0.1875,
+    "mrr_bootstrap_95": [
+      0.08333333333333333,
+      0.3125
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 18,
+      "answerable_queries": 14,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 7.097166962921619,
+      "latency_ms_p95": 50.77524948865175,
+      "context_chars_mean": 25.833333333333332,
+      "context_tokens_estimate_mean": 6.5,
+      "recall_at_5": 0.14285714285714285,
+      "recall_at_5_bootstrap_95": [
+        0.0,
+        0.35714285714285715
+      ],
+      "recall_at_10": 0.14285714285714285,
+      "recall_at_10_bootstrap_95": [
+        0.0,
+        0.35714285714285715
+      ],
+      "mrr": 0.14285714285714285,
+      "mrr_bootstrap_95": [
+        0.0,
+        0.35714285714285715
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 42,
+      "answerable_queries": 34,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.6453758627176285,
+      "latency_ms_p95": 8.173291571438313,
+      "context_chars_mean": 25.0,
+      "context_tokens_estimate_mean": 6.309523809523809,
+      "recall_at_5": 0.20588235294117646,
+      "recall_at_5_bootstrap_95": [
+        0.08823529411764706,
+        0.35294117647058826
+      ],
+      "recall_at_10": 0.20588235294117646,
+      "recall_at_10_bootstrap_95": [
+        0.08823529411764706,
+        0.35294117647058826
+      ],
+      "mrr": 0.20588235294117646,
+      "mrr_bootstrap_95": [
+        0.08823529411764706,
+        0.35294117647058826
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "architecture": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 5.589375272393227,
+      "latency_ms_p95": 7.097166962921619,
+      "context_chars_mean": 85.0,
+      "context_tokens_estimate_mean": 21.5,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "correction": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 5.673165433108807,
+      "latency_ms_p95": 6.131792441010475,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "distractor": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.6453758627176285,
+      "latency_ms_p95": 8.195959031581879,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "error": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.884250789880753,
+      "latency_ms_p95": 7.472374476492405,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "exact": {
+      "queries": 4,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.057665683329105,
+      "latency_ms_p95": 50.77524948865175,
+      "context_chars_mean": 73.75,
+      "context_tokens_estimate_mean": 18.5,
+      "recall_at_5": 0.25,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.25,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.25,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "expiry": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 7.292750291526318,
+      "latency_ms_p95": 7.334291934967041,
+      "context_chars_mean": 79.5,
+      "context_tokens_estimate_mean": 20.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "fact": {
+      "queries": 6,
+      "answerable_queries": 6,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.693416275084019,
+      "latency_ms_p95": 7.493041455745697,
+      "context_chars_mean": 52.0,
+      "context_tokens_estimate_mean": 13.166666666666666,
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_5_bootstrap_95": [
+        0.0,
+        0.8333333333333334
+      ],
+      "recall_at_10": 0.3333333333333333,
+      "recall_at_10_bootstrap_95": [
+        0.0,
+        0.8333333333333334
+      ],
+      "mrr": 0.3333333333333333,
+      "mrr_bootstrap_95": [
+        0.0,
+        0.8333333333333334
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "german": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.072749383747578,
+      "latency_ms_p95": 6.3152918592095375,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "identifier": {
+      "queries": 4,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 7.143333554267883,
+      "latency_ms_p95": 10.03841683268547,
+      "context_chars_mean": 37.0,
+      "context_tokens_estimate_mean": 9.25,
+      "recall_at_5": 0.25,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.25,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.25,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "long-input": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.907458417117596,
+      "latency_ms_p95": 7.380500435829163,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multi-hop": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.853042170405388,
+      "latency_ms_p95": 7.481541484594345,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multi-session": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 7.196792401373386,
+      "latency_ms_p95": 7.842250168323517,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "paraphrase": {
+      "queries": 6,
+      "answerable_queries": 6,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 7.619082927703857,
+      "latency_ms_p95": 8.897291496396065,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "mrr": 0.0,
+      "mrr_bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "preference": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 8.12475010752678,
+      "latency_ms_p95": 8.379749953746796,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "reference": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.3975416123867035,
+      "latency_ms_p95": 7.078374736011028,
+      "context_chars_mean": 67.5,
+      "context_tokens_estimate_mean": 17.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "scope": {
+      "queries": 4,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.884332746267319,
+      "latency_ms_p95": 8.173291571438313,
+      "context_chars_mean": 36.5,
+      "context_tokens_estimate_mean": 9.25,
+      "recall_at_5": 0.25,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.25,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.25,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "temporal": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 5.5287079885602,
+      "latency_ms_p95": 6.509457714855671,
+      "context_chars_mean": 75.0,
+      "context_tokens_estimate_mean": 19.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "unanswerable": {
+      "queries": 12,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 6.351458840072155,
+      "latency_ms_p95": 6.769542582333088,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 26,
+    "indexed_sources": 26,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 352.71791741251945
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 1777.082584798336
+}

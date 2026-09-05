@@ -1,0 +1,1109 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "description": "Authored synthetic coding-memory corpus; fictional projects and people; no private source data. Query families stay within one split.",
+  "documents": [
+    {
+      "id": "atlas-port",
+      "title": "Atlas service port",
+      "body": "Atlas production service listens on port 7712. This is the service port, not the metrics port.",
+      "project": "atlas"
+    },
+    {
+      "id": "atlas-metrics",
+      "title": "Atlas metrics endpoint",
+      "body": "Atlas exports Prometheus metrics on port 9913. Its main service port is configured separately.",
+      "project": "atlas"
+    },
+    {
+      "id": "boreal-port",
+      "title": "Boreal service port",
+      "body": "Boreal production service listens on port 7724. Boreal is a separate project from Atlas.",
+      "project": "boreal"
+    },
+    {
+      "id": "cache-expiry",
+      "title": "Juniper cache expiry",
+      "body": "Juniper keeps cached responses for 45 seconds. After that duration it fetches a fresh response.",
+      "project": "juniper"
+    },
+    {
+      "id": "retry-policy",
+      "title": "Cedar retry policy",
+      "body": "Cedar retries a failed download four times, then leaves the item in a visible error queue. It never silently drops the item.",
+      "project": "cedar"
+    },
+    {
+      "id": "command",
+      "title": "Quartz verification command",
+      "body": "To verify Quartz before release, run quartz-check --strict. The permissive mode does not validate source signatures.",
+      "project": "quartz"
+    },
+    {
+      "id": "signal",
+      "title": "Walnut lock failure",
+      "body": "In Walnut, LockLeaseExpired means the lease heartbeat was lost. Recovery is to renew the lease before retrying the transaction.",
+      "project": "walnut"
+    },
+    {
+      "id": "path",
+      "title": "Larch checkpoint path",
+      "body": "Larch stores portable checkpoints in state/handoff.json. Temporary build logs live elsewhere.",
+      "project": "larch"
+    },
+    {
+      "id": "owner",
+      "title": "Spruce queue ownership",
+      "body": "Mira owns the Spruce queue processor. Oren reviews Spruce documentation but does not own the processor.",
+      "project": "spruce"
+    },
+    {
+      "id": "language",
+      "title": "Birch communication preference",
+      "body": "The Birch project asks for release notes in German. Source-code identifiers remain English.",
+      "project": "birch"
+    },
+    {
+      "id": "backend",
+      "title": "Rowan persistence backend",
+      "body": "Rowan persists authoritative records in PostgreSQL. Redis is only a disposable cache.",
+      "project": "rowan"
+    },
+    {
+      "id": "batch-size",
+      "title": "Willow import batch size",
+      "body": "Willow processes 32 documents in each import batch to keep transactions short.",
+      "project": "willow"
+    },
+    {
+      "id": "timeout",
+      "title": "Elm connection timeout",
+      "body": "Elm abandons a connection attempt after 18 seconds. Read timeout and total job timeout are different settings.",
+      "project": "elm"
+    },
+    {
+      "id": "retention",
+      "title": "Pine backup retention",
+      "body": "Pine retains 14 daily backups locally. Monthly archives are stored separately.",
+      "project": "pine"
+    },
+    {
+      "id": "update",
+      "title": "Maple current compiler",
+      "body": "On 2026-08-20 Maple switched its compiler from Amber to Cobalt. Cobalt is the current compiler as of 2026-09-01.",
+      "project": "maple"
+    },
+    {
+      "id": "history",
+      "title": "Maple old compiler",
+      "body": "On 2026-07-01 Maple used compiler Amber. This historical record predates the switch on 2026-08-20.",
+      "project": "maple"
+    },
+    {
+      "id": "expiry",
+      "title": "Oak temporary maintenance",
+      "body": "Oak maintenance window ended on 2026-08-31. As of 2026-09-01 the maintenance window is closed.",
+      "project": "oak"
+    },
+    {
+      "id": "deutsch",
+      "title": "Erle Datenprüfung",
+      "body": "Das Projekt Erle prüft eingehende Datensätze mit BLAKE3. Fehlerhafte Prüfsummen werden in die Prüfwarteschlange gestellt.",
+      "project": "erle"
+    },
+    {
+      "id": "atomic",
+      "title": "Aspen acknowledgement rule",
+      "body": "Aspen acknowledges a source window only after every accepted fact and its audit record commit together.",
+      "project": "aspen"
+    },
+    {
+      "id": "tail",
+      "title": "Poplar late-message fact",
+      "body": "Poplar notes: Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. Background on reversible maintenance. The Poplar recovery marker is POPLAR_TAIL_817.",
+      "project": "poplar"
+    },
+    {
+      "id": "alias",
+      "title": "Sequoia alias",
+      "body": "The deployment named Bluebird is the Sequoia staging environment. Its release approver is Lena.",
+      "project": "sequoia"
+    },
+    {
+      "id": "multi-hop",
+      "title": "Hawthorn adapter",
+      "body": "Hawthorn sends audit events through adapter Kestrel. Adapter ownership is documented separately.",
+      "project": "hawthorn"
+    },
+    {
+      "id": "kestrel-owner",
+      "title": "Kestrel ownership",
+      "body": "Noor owns adapter Kestrel. Rowan owns adapter Falcon, which is unrelated.",
+      "project": "hawthorn"
+    },
+    {
+      "id": "multi-session",
+      "title": "Alder transfer target",
+      "body": "In session one, Alder chose the object store named Harbor for exports. Its encryption key name was settled in a later session.",
+      "project": "alder"
+    },
+    {
+      "id": "harbor-key",
+      "title": "Harbor export encryption",
+      "body": "In session two, Harbor exports were assigned the encryption key harbor-export-key.",
+      "project": "alder"
+    },
+    {
+      "id": "scope-retry",
+      "title": "Cedar sibling retry policy",
+      "body": "The separate Cedar-Lab project retries downloads seven times. This does not change the four-retry policy in Cedar production.",
+      "project": "cedar-lab"
+    }
+  ],
+  "queries": [
+    {
+      "id": "atlas-port-en",
+      "family": "atlas-port",
+      "query": "What port does Atlas production service listen on?",
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "answers": [
+        "7712"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "exact",
+      "language": "en"
+    },
+    {
+      "id": "atlas-port-de",
+      "family": "atlas-port",
+      "query": "Auf welchem Port läuft der Atlas-Produktionsdienst?",
+      "expected_ids": [
+        "atlas-port"
+      ],
+      "answers": [
+        "7712"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "exact",
+      "language": "de"
+    },
+    {
+      "id": "atlas-metrics-en",
+      "family": "atlas-metrics",
+      "query": "Which port exposes Atlas Prometheus metrics?",
+      "expected_ids": [
+        "atlas-metrics"
+      ],
+      "answers": [
+        "9913"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "distractor",
+      "language": "en"
+    },
+    {
+      "id": "atlas-metrics-de",
+      "family": "atlas-metrics",
+      "query": "Welchen Port verwendet Atlas für Prometheus-Metriken?",
+      "expected_ids": [
+        "atlas-metrics"
+      ],
+      "answers": [
+        "9913"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "distractor",
+      "language": "de"
+    },
+    {
+      "id": "boreal-port-en",
+      "family": "boreal-port",
+      "query": "What is the Boreal production service port?",
+      "expected_ids": [
+        "boreal-port"
+      ],
+      "answers": [
+        "7724"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope",
+      "language": "en"
+    },
+    {
+      "id": "boreal-port-de",
+      "family": "boreal-port",
+      "query": "Welcher Port gehört zum Produktionsdienst im Projekt Boreal?",
+      "expected_ids": [
+        "boreal-port"
+      ],
+      "answers": [
+        "7724"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope",
+      "language": "de"
+    },
+    {
+      "id": "cache-expiry-en",
+      "family": "cache-expiry",
+      "query": "How long does Juniper reuse a response before refreshing it?",
+      "expected_ids": [
+        "cache-expiry"
+      ],
+      "answers": [
+        "45"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "paraphrase",
+      "language": "en"
+    },
+    {
+      "id": "cache-expiry-de",
+      "family": "cache-expiry",
+      "query": "Nach wie vielen Sekunden aktualisiert Juniper eine zwischengespeicherte Antwort?",
+      "expected_ids": [
+        "cache-expiry"
+      ],
+      "answers": [
+        "45"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "paraphrase",
+      "language": "de"
+    },
+    {
+      "id": "retry-policy-en",
+      "family": "retry-policy",
+      "query": "How many download retries does Cedar allow?",
+      "expected_ids": [
+        "retry-policy"
+      ],
+      "answers": [
+        "four",
+        "4",
+        "vier"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "paraphrase",
+      "language": "en"
+    },
+    {
+      "id": "retry-policy-de",
+      "family": "retry-policy",
+      "query": "Wie viele erneute Download-Versuche erlaubt Cedar?",
+      "expected_ids": [
+        "retry-policy"
+      ],
+      "answers": [
+        "four",
+        "4",
+        "vier"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "paraphrase",
+      "language": "de"
+    },
+    {
+      "id": "command-en",
+      "family": "command",
+      "query": "Which exact command verifies Quartz with source-signature checks?",
+      "expected_ids": [
+        "command"
+      ],
+      "answers": [
+        "quartz-check --strict"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "identifier",
+      "language": "en"
+    },
+    {
+      "id": "command-de",
+      "family": "command",
+      "query": "Welcher genaue Befehl prüft Quartz einschließlich Quellsignaturen?",
+      "expected_ids": [
+        "command"
+      ],
+      "answers": [
+        "quartz-check --strict"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "identifier",
+      "language": "de"
+    },
+    {
+      "id": "signal-en",
+      "family": "signal",
+      "query": "How should Walnut recover from LockLeaseExpired?",
+      "expected_ids": [
+        "signal"
+      ],
+      "answers": [
+        "renew the lease",
+        "Lease erneuern",
+        "Lease verlängern",
+        "renew its lease"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "error",
+      "language": "en"
+    },
+    {
+      "id": "signal-de",
+      "family": "signal",
+      "query": "Was muss Walnut nach LockLeaseExpired vor einem neuen Transaktionsversuch tun?",
+      "expected_ids": [
+        "signal"
+      ],
+      "answers": [
+        "renew the lease",
+        "Lease erneuern",
+        "Lease verlängern",
+        "renew its lease"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "error",
+      "language": "de"
+    },
+    {
+      "id": "path-en",
+      "family": "path",
+      "query": "Where does Larch store its portable checkpoint?",
+      "expected_ids": [
+        "path"
+      ],
+      "answers": [
+        "state/handoff.json"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "identifier",
+      "language": "en"
+    },
+    {
+      "id": "path-de",
+      "family": "path",
+      "query": "In welcher Datei speichert Larch seinen portablen Checkpoint?",
+      "expected_ids": [
+        "path"
+      ],
+      "answers": [
+        "state/handoff.json"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "identifier",
+      "language": "de"
+    },
+    {
+      "id": "owner-en",
+      "family": "owner",
+      "query": "Who owns the Spruce queue processor?",
+      "expected_ids": [
+        "owner"
+      ],
+      "answers": [
+        "Mira"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "en"
+    },
+    {
+      "id": "owner-de",
+      "family": "owner",
+      "query": "Wer ist für den Queue-Prozessor von Spruce verantwortlich?",
+      "expected_ids": [
+        "owner"
+      ],
+      "answers": [
+        "Mira"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "de"
+    },
+    {
+      "id": "language-en",
+      "family": "language",
+      "query": "In which language should Birch release notes be written?",
+      "expected_ids": [
+        "language"
+      ],
+      "answers": [
+        "German",
+        "Deutsch"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "preference",
+      "language": "en"
+    },
+    {
+      "id": "language-de",
+      "family": "language",
+      "query": "In welcher Sprache sollen Birch-Release-Notes verfasst werden?",
+      "expected_ids": [
+        "language"
+      ],
+      "answers": [
+        "German",
+        "Deutsch"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "preference",
+      "language": "de"
+    },
+    {
+      "id": "backend-en",
+      "family": "backend",
+      "query": "What is the authoritative persistence backend for Rowan?",
+      "expected_ids": [
+        "backend"
+      ],
+      "answers": [
+        "PostgreSQL"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "en"
+    },
+    {
+      "id": "backend-de",
+      "family": "backend",
+      "query": "Welche Datenbank hält die maßgeblichen Datensätze in Rowan?",
+      "expected_ids": [
+        "backend"
+      ],
+      "answers": [
+        "PostgreSQL"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "de"
+    },
+    {
+      "id": "batch-size-en",
+      "family": "batch-size",
+      "query": "How many documents belong to one Willow import batch?",
+      "expected_ids": [
+        "batch-size"
+      ],
+      "answers": [
+        "32"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "exact",
+      "language": "en"
+    },
+    {
+      "id": "batch-size-de",
+      "family": "batch-size",
+      "query": "Wie viele Dokumente verarbeitet Willow pro Import-Batch?",
+      "expected_ids": [
+        "batch-size"
+      ],
+      "answers": [
+        "32"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "exact",
+      "language": "de"
+    },
+    {
+      "id": "timeout-en",
+      "family": "timeout",
+      "query": "When does Elm give up trying to establish a connection?",
+      "expected_ids": [
+        "timeout"
+      ],
+      "answers": [
+        "18"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "paraphrase",
+      "language": "en"
+    },
+    {
+      "id": "timeout-de",
+      "family": "timeout",
+      "query": "Nach wie vielen Sekunden bricht Elm einen Verbindungsaufbau ab?",
+      "expected_ids": [
+        "timeout"
+      ],
+      "answers": [
+        "18"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "paraphrase",
+      "language": "de"
+    },
+    {
+      "id": "retention-en",
+      "family": "retention",
+      "query": "How many daily local backups does Pine retain?",
+      "expected_ids": [
+        "retention"
+      ],
+      "answers": [
+        "14"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "en"
+    },
+    {
+      "id": "retention-de",
+      "family": "retention",
+      "query": "Wie viele tägliche lokale Backups bewahrt Pine auf?",
+      "expected_ids": [
+        "retention"
+      ],
+      "answers": [
+        "14"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "fact",
+      "language": "de"
+    },
+    {
+      "id": "update-en",
+      "family": "maple-lifecycle",
+      "query": "As of 2026-09-01, which compiler does Maple use?",
+      "expected_ids": [
+        "update"
+      ],
+      "answers": [
+        "Cobalt"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "Amber"
+      ],
+      "split": "test",
+      "category": "correction",
+      "language": "en"
+    },
+    {
+      "id": "update-de",
+      "family": "maple-lifecycle",
+      "query": "Welchen Compiler verwendet Maple mit Stand 2026-09-01?",
+      "expected_ids": [
+        "update"
+      ],
+      "answers": [
+        "Cobalt"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "Amber"
+      ],
+      "split": "test",
+      "category": "correction",
+      "language": "de"
+    },
+    {
+      "id": "history-en",
+      "family": "maple-lifecycle",
+      "query": "Which compiler did Maple use on 2026-07-01?",
+      "expected_ids": [
+        "history"
+      ],
+      "answers": [
+        "Amber"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "temporal",
+      "language": "en"
+    },
+    {
+      "id": "history-de",
+      "family": "maple-lifecycle",
+      "query": "Welchen Compiler verwendete Maple am 2026-07-01?",
+      "expected_ids": [
+        "history"
+      ],
+      "answers": [
+        "Amber"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "temporal",
+      "language": "de"
+    },
+    {
+      "id": "expiry-en",
+      "family": "expiry",
+      "query": "As of 2026-09-01, is the Oak maintenance window open or closed?",
+      "expected_ids": [
+        "expiry"
+      ],
+      "answers": [
+        "closed",
+        "geschlossen"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "expiry",
+      "language": "en"
+    },
+    {
+      "id": "expiry-de",
+      "family": "expiry",
+      "query": "Ist das Oak-Wartungsfenster mit Stand 2026-09-01 offen oder geschlossen?",
+      "expected_ids": [
+        "expiry"
+      ],
+      "answers": [
+        "closed",
+        "geschlossen"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "expiry",
+      "language": "de"
+    },
+    {
+      "id": "deutsch-en",
+      "family": "deutsch",
+      "query": "Which checksum algorithm validates incoming records in Erle?",
+      "expected_ids": [
+        "deutsch"
+      ],
+      "answers": [
+        "BLAKE3"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "german",
+      "language": "en"
+    },
+    {
+      "id": "deutsch-de",
+      "family": "deutsch",
+      "query": "Mit welchem Algorithmus prüft Erle eingehende Datensätze?",
+      "expected_ids": [
+        "deutsch"
+      ],
+      "answers": [
+        "BLAKE3"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "german",
+      "language": "de"
+    },
+    {
+      "id": "atomic-en",
+      "family": "atomic",
+      "query": "When does Aspen acknowledge a source window?",
+      "expected_ids": [
+        "atomic"
+      ],
+      "answers": [
+        "commit together",
+        "atomic commit",
+        "atomar",
+        "gemeinsam committen"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "architecture",
+      "language": "en"
+    },
+    {
+      "id": "atomic-de",
+      "family": "atomic",
+      "query": "Wann bestätigt Aspen die Verarbeitung eines Quellfensters?",
+      "expected_ids": [
+        "atomic"
+      ],
+      "answers": [
+        "commit together",
+        "atomic commit",
+        "atomar",
+        "gemeinsam committen"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "architecture",
+      "language": "de"
+    },
+    {
+      "id": "tail-en",
+      "family": "tail",
+      "query": "What is the Poplar recovery marker recorded late in its notes?",
+      "expected_ids": [
+        "tail"
+      ],
+      "answers": [
+        "POPLAR_TAIL_817"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "long-input",
+      "language": "en"
+    },
+    {
+      "id": "tail-de",
+      "family": "tail",
+      "query": "Welche Wiederherstellungsmarkierung steht am Ende der Poplar-Notizen?",
+      "expected_ids": [
+        "tail"
+      ],
+      "answers": [
+        "POPLAR_TAIL_817"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "long-input",
+      "language": "de"
+    },
+    {
+      "id": "alias-en",
+      "family": "alias",
+      "query": "Who approves a Bluebird deployment?",
+      "expected_ids": [
+        "alias"
+      ],
+      "answers": [
+        "Lena"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "reference",
+      "language": "en"
+    },
+    {
+      "id": "alias-de",
+      "family": "alias",
+      "query": "Wer genehmigt ein Deployment der Sequoia-Umgebung Bluebird?",
+      "expected_ids": [
+        "alias"
+      ],
+      "answers": [
+        "Lena"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "reference",
+      "language": "de"
+    },
+    {
+      "id": "multi-hop-en",
+      "family": "multi-hop",
+      "query": "Who owns the adapter Hawthorn uses for audit events?",
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "answers": [
+        "Noor"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "multi-hop",
+      "language": "en"
+    },
+    {
+      "id": "multi-hop-de",
+      "family": "multi-hop",
+      "query": "Wem gehört der Adapter, über den Hawthorn Audit-Ereignisse verschickt?",
+      "expected_ids": [
+        "multi-hop",
+        "kestrel-owner"
+      ],
+      "answers": [
+        "Noor"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "multi-hop",
+      "language": "de"
+    },
+    {
+      "id": "multi-session-en",
+      "family": "multi-session",
+      "query": "What key name encrypts exports to the object store chosen by Alder?",
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "answers": [
+        "harbor-export-key"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "multi-session",
+      "language": "en"
+    },
+    {
+      "id": "multi-session-de",
+      "family": "multi-session",
+      "query": "Wie heißt der Schlüssel für Exporte in den von Alder gewählten Objektspeicher?",
+      "expected_ids": [
+        "multi-session",
+        "harbor-key"
+      ],
+      "answers": [
+        "harbor-export-key"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "multi-session",
+      "language": "de"
+    },
+    {
+      "id": "scope-retry-en",
+      "family": "scope-retry",
+      "query": "How many download retries does Cedar-Lab allow?",
+      "expected_ids": [
+        "scope-retry"
+      ],
+      "answers": [
+        "seven",
+        "7",
+        "sieben"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope",
+      "language": "en"
+    },
+    {
+      "id": "scope-retry-de",
+      "family": "scope-retry",
+      "query": "Wie viele Download-Wiederholungen erlaubt Cedar-Lab?",
+      "expected_ids": [
+        "scope-retry"
+      ],
+      "answers": [
+        "seven",
+        "7",
+        "sieben"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope",
+      "language": "de"
+    },
+    {
+      "id": "negative-0-en",
+      "family": "negative-0",
+      "query": "What is the Atlas travel budget?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-0-de",
+      "family": "negative-0",
+      "query": "Wie hoch ist das Reisebudget von Atlas?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "unanswerable",
+      "language": "de"
+    },
+    {
+      "id": "negative-1-en",
+      "family": "negative-1",
+      "query": "What is Mira's home address?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-1-de",
+      "family": "negative-1",
+      "query": "Wie lautet Miras Privatadresse?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "de"
+    },
+    {
+      "id": "negative-2-en",
+      "family": "negative-2",
+      "query": "What Kubernetes namespace does Birch use?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-2-de",
+      "family": "negative-2",
+      "query": "Welchen Kubernetes-Namespace verwendet Birch?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "de"
+    },
+    {
+      "id": "negative-3-en",
+      "family": "negative-3",
+      "query": "Which version of Walnut ships tomorrow?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-3-de",
+      "family": "negative-3",
+      "query": "Welche Walnut-Version erscheint morgen?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "unanswerable",
+      "language": "de"
+    },
+    {
+      "id": "negative-4-en",
+      "family": "negative-4",
+      "query": "What is Pine's monthly archive password?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-4-de",
+      "family": "negative-4",
+      "query": "Wie lautet das Passwort für Pines Monatsarchiv?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "de"
+    },
+    {
+      "id": "negative-5-en",
+      "family": "negative-5",
+      "query": "Who maintains the project Zephyr?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "en"
+    },
+    {
+      "id": "negative-5-de",
+      "family": "negative-5",
+      "query": "Wer wartet das Projekt Zephyr?",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "unanswerable",
+      "language": "de"
+    }
+  ]
+}
