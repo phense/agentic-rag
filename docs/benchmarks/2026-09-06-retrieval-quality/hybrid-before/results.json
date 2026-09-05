@@ -1,0 +1,1561 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T23:37:32.527191+00:00",
+    "revision": "126a2b3883bab1d186c73615a26847fa0e890109",
+    "source_sha256": "a92cfcdb1efd8fda74e917ade6e9f5d34eb05e81b7e3df82f6d56bc2cb03304d",
+    "corpus_sha256": "67b428341475ebc36d9969e417dfa98583b7f32b6c467d993ed9a7c51eacac97",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "retrieval_baseline": true,
+    "graph_depth": 0,
+    "local_rerank": false,
+    "query_expansion": false,
+    "validity_policy": "temporal",
+    "project": null,
+    "scope": null,
+    "search_mode": "hybrid",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "crowding-test",
+      "late-test",
+      "symbol-test",
+      "german-test",
+      "negative-test",
+      "multihop-test",
+      "symbol-dev",
+      "negative-dev",
+      "german-dev",
+      "late-dev"
+    ],
+    "source_ids": [
+      "crowd",
+      "second",
+      "late",
+      "german",
+      "leaf",
+      "middle",
+      "root",
+      "german-dev",
+      "late-dev"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "crowding-test",
+      "category": "crowding",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Zebra repair",
+      "expected_snippets": [
+        "cobalt switch"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.5,
+        "recall_at_10": 0.5,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "crowd",
+        "second"
+      ],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.04918032786885246,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.048131080389144903,
+          "title": "Repeated zebra",
+          "snippet": "## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.04424603174603175,
+          "title": "Repeated zebra",
+          "snippet": "## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.04125,
+          "title": "Repeated zebra",
+          "snippet": "## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.04067022086824067,
+          "title": "Repeated zebra",
+          "snippet": "## Part 4\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.039120502569960025,
+          "title": "Repeated zebra",
+          "snippet": "## Part 7\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.039025058195262224,
+          "title": "Repeated zebra",
+          "snippet": "## Part 6\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.03783068783068783,
+          "title": "Repeated zebra",
+          "snippet": "## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.03774856757667678,
+          "title": "Repeated zebra",
+          "snippet": "## Part 25\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.037679425837320576,
+          "title": "Repeated zebra",
+          "snippet": "## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[crowd] Repeated zebra\n## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 4\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 7\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 6\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 25\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repa",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 371.1389573290944,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-test",
+      "category": "late",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "UniqueError42",
+      "expected_snippets": [
+        "4391"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "late"
+      ],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.04918032786885246,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 40\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 41\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 52\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[crowd] Repeated zebra\n## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 40\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 41\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 52\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repa",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 249.89304225891829,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-test",
+      "category": "symbol",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "MissingError987654",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "late",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.01639344262295082,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 58\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 34\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 59\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[crowd] Repeated zebra\n## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 58\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 34\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 59\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repa",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 208.00479128956795,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-test",
+      "category": "german",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie behebe ich einen abgestürzten Dienst?",
+      "expected_snippets": [
+        "Neustart"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "german",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "german"
+      ],
+      "hits": [
+        {
+          "source_id": "german",
+          "score": 0.01639344262295082,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 33\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 57\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 40\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[crowd] Repeated zebra\n## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 33\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 57\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 40\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n",
+      "context_chars": 3963,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 202.75562535971403,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-test",
+      "category": "negative",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "What is the temperature on Venus?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.01639344262295082,
+          "title": "Repeated zebra",
+          "snippet": "## Part 49\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 51\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 29\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 44\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 52\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 41\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n## Part 49\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 51\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 43\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 29\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 44\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 52\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 41\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 48\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repa",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 204.40891571342945,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multihop-test",
+      "category": "multihop",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "TopologyZebra",
+      "expected_snippets": [
+        "graph-rack-7259"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.5,
+        "recall_at_10": 0.5,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "root",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "root",
+        "leaf"
+      ],
+      "hits": [
+        {
+          "source_id": "root",
+          "score": 0.04918032786885246,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 55\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 50\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 25\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[crowd] Repeated zebra\n## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 55\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 50\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 25\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n",
+      "context_chars": 3900,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 204.2158329859376,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-dev",
+      "category": "symbol",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "AbsentException5731",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "late",
+        "late-dev",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.01639344262295082,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.016129032258064516,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 57\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 31\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 51\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 58\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 56\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 59\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[crowd] Repeated zebra\n## Part 57\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 31\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 51\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 58\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 56\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 54\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 59\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 53\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair.",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 201.03450026363134,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-dev",
+      "category": "negative",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Which recipe makes a strawberry cake?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.01639344262295082,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 23\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 45\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 11\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 29\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 27\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 39\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 23\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 45\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 11\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 29\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 27\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 42\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repa",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 203.97275034338236,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-dev",
+      "category": "german",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie beseitige ich einen verstopften Drucker?",
+      "expected_snippets": [
+        "Papierweg"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "german-dev",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "german-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "german-dev",
+          "score": 0.01639344262295082,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n[crowd] Repeated zebra\n## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[crowd] Repeated zebra\n## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 32\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n",
+      "context_chars": 3965,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 214.66024965047836,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-dev",
+      "category": "late",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "ServiceException18",
+      "expected_snippets": [
+        "6623"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late-dev",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "late-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "late-dev",
+          "score": 0.04918032786885246,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 18\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015873015873015872,
+          "title": "Repeated zebra",
+          "snippet": "## Part 17\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "## Part 19\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015384615384615385,
+          "title": "Repeated zebra",
+          "snippet": "## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015151515151515152,
+          "title": "Repeated zebra",
+          "snippet": "## Part 24\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014925373134328358,
+          "title": "Repeated zebra",
+          "snippet": "## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014705882352941176,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014492753623188406,
+          "title": "Repeated zebra",
+          "snippet": "## Part 20\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.014285714285714285,
+          "title": "Repeated zebra",
+          "snippet": "## Part 14\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[crowd] Repeated zebra\n## Part 18\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 17\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 19\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 28\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 24\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 15\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 20\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[crowd] Repeated zebra\n## Part 14\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair.",
+      "context_chars": 4000,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 194.04729083180428,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 10,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 204.2158329859376,
+    "latency_ms_p95": 371.1389573290944,
+    "context_chars_mean": 3982.8,
+    "context_tokens_estimate_mean": 995.8,
+    "recall_at_5": 0.8333333333333334,
+    "recall_at_5_bootstrap_95": [
+      0.6666666666666666,
+      1.0
+    ],
+    "recall_at_10": 0.8333333333333334,
+    "recall_at_10_bootstrap_95": [
+      0.6666666666666666,
+      1.0
+    ],
+    "mrr": 1.0,
+    "mrr_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 4,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 201.03450026363134,
+      "latency_ms_p95": 214.66024965047836,
+      "context_chars_mean": 3991.25,
+      "context_tokens_estimate_mean": 998.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 6,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 204.40891571342945,
+      "latency_ms_p95": 371.1389573290944,
+      "context_chars_mean": 3977.1666666666665,
+      "context_tokens_estimate_mean": 994.3333333333334,
+      "recall_at_5": 0.75,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.75,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "crowding": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 371.1389573290944,
+      "latency_ms_p95": 371.1389573290944,
+      "context_chars_mean": 4000.0,
+      "context_tokens_estimate_mean": 1000.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "german": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 202.75562535971403,
+      "latency_ms_p95": 214.66024965047836,
+      "context_chars_mean": 3964.0,
+      "context_tokens_estimate_mean": 991.5,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "late": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 194.04729083180428,
+      "latency_ms_p95": 249.89304225891829,
+      "context_chars_mean": 4000.0,
+      "context_tokens_estimate_mean": 1000.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multihop": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 204.2158329859376,
+      "latency_ms_p95": 204.2158329859376,
+      "context_chars_mean": 3900.0,
+      "context_tokens_estimate_mean": 975.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "negative": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 203.97275034338236,
+      "latency_ms_p95": 204.40891571342945,
+      "context_chars_mean": 4000.0,
+      "context_tokens_estimate_mean": 1000.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "symbol": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 201.03450026363134,
+      "latency_ms_p95": 208.00479128956795,
+      "context_chars_mean": 4000.0,
+      "context_tokens_estimate_mean": 1000.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 9,
+    "indexed_sources": 9,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 7437.414375133812
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 9774.830625392497,
+  "retrieval_quality": {
+    "evidence_recall": 0.3333333333333333,
+    "false_positive_rate": 1.0
+  },
+  "retrieval_quality_by_split": {
+    "dev": {
+      "evidence_recall": 0.5,
+      "false_positive_rate": 1.0
+    },
+    "test": {
+      "evidence_recall": 0.25,
+      "false_positive_rate": 1.0
+    }
+  }
+}

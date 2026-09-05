@@ -189,3 +189,10 @@ Ordinary mined claims retain bounded source spans, event identity, speaker and k
 Distinct event counts exclude assistant corroboration; source withdrawal and explicit
 span-bound review compose with scope/time selection. Both automatic hooks and manual
 retrieval expose evidence status. [Policy](docs/claim-evidence.md).
+
+## Retrieval evidence quality (issue #8)
+
+Diverse bounded hybrid candidates, query-centered contiguous spans and chunk citations;
+exact-symbol preservation, optional two-hop evidence-bearing graph expansion and a
+validated local reranker seam. Bilingual FTS remains available during embedding outages.
+See [policy and limitations](docs/retrieval-quality.md). Migration013 activation pending.

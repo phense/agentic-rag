@@ -107,6 +107,7 @@ def _main(argv: list[str] | None = None) -> int:
 
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
+    p_search.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
     p_search.add_argument("--as-of")
     p_search.add_argument("--history", action="store_true")
     p_search.add_argument("--project")
@@ -123,6 +124,10 @@ def _main(argv: list[str] | None = None) -> int:
     b_run.add_argument("--output", type=Path, required=True)
     b_run.add_argument("--corpus", type=Path)
     b_run.add_argument("--project")
+    b_run.add_argument("--retrieval-baseline",action="store_true")
+    b_run.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
+    b_run.add_argument("--local-rerank",action="store_true")
+    b_run.add_argument("--query-expansion",action="store_true")
     b_run.add_argument("--validity-baseline", action="store_true", help="temporal fixture only: compare prior status-only eligibility")
     b_run.add_argument("--scope", choices=["project", "global", "all"])
     b_run.add_argument("--mode", choices=["retrieval", "end-to-end"], default="retrieval")
@@ -227,7 +232,7 @@ def _main(argv: list[str] | None = None) -> int:
         report = run(cfg, output=args.output, corpus_path=args.corpus, mode=args.mode,
                      search_mode=args.search_mode, context_chars=args.context_chars,
                      split=args.split, limit=args.limit, answers=args.answers,
-                     judge=args.judge, smoke=args.smoke, project=args.project, scope=args.scope, validity_baseline=args.validity_baseline,
+                     judge=args.judge, smoke=args.smoke, project=args.project, scope=args.scope, validity_baseline=args.validity_baseline,retrieval_baseline=args.retrieval_baseline,graph_depth=args.graph_depth,local_rerank=args.local_rerank,query_expansion=args.query_expansion,
                      progress=lambda message: print(message, file=sys.stderr))
         print(json.dumps(report['summary'], indent=2))
         print(f"Reports: {args.output / 'results.json'} and {args.output / 'report.md'}")
@@ -545,7 +550,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.cmd == "search":
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))

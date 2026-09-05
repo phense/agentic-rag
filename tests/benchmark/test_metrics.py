@@ -52,3 +52,25 @@ def test_cleanup_refuses_canonical_names_before_connecting():
         with pytest.raises(ValueError):
             validate_name(name)
     validate_name('rag_bench_'+'a'*24)
+
+
+def test_retrieval_fixture_has_disjoint_facts_and_no_answer_rewrite():
+    from pathlib import Path
+    from agentic_rag.benchmark import corpus
+    data,_=corpus.load(Path(corpus.__file__).with_name('corpus-retrieval-v1.json'))
+    dev={identity for q in data['queries'] if q['split']=='dev' for identity in q['expected_ids']}
+    held={identity for q in data['queries'] if q['split']=='test' for identity in q['expected_ids']}
+    assert dev.isdisjoint(held)
+    assert all('family' in q for q in data['queries'])
+    for q in data['queries']:
+        if 'expanded_query' in q:
+            assert not any(answer.casefold() in q['expanded_query'].casefold() for answer in q['answers'])
+
+
+def test_evidence_quality_distinguishes_clipped_and_negative_context():
+    from agentic_rag.benchmark.runner import quality_metrics
+    result=quality_metrics([{'evidence_recall':0,'unanswerable':False,'retrieved_source_ids':['a']},
+        {'evidence_recall':1,'unanswerable':False,'retrieved_source_ids':['b']},
+        {'evidence_recall':None,'unanswerable':True,'retrieved_source_ids':['wrong']},
+        {'evidence_recall':None,'unanswerable':True,'retrieved_source_ids':[]}])
+    assert result=={'evidence_recall':0.5,'false_positive_rate':0.5}

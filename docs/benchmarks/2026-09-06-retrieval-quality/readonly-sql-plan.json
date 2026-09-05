@@ -1,0 +1,263 @@
+{
+  "prior": {
+    "sql_ms": [
+      42.57,
+      15.93,
+      12.19
+    ],
+    "returned_count": 8
+  },
+  "candidate": {
+    "sql_ms": [
+      40.05,
+      26.5,
+      23.44
+    ],
+    "returned_count": 50
+  },
+  "plan_nodes": [
+    {
+      "Node Type": "Limit",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Nested Loop",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Nested Loop",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Aggregate",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Append",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Limit",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 50,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 212,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 212,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 218,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 218,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Limit",
+      "Actual Rows": 218,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Nested Loop",
+      "Actual Rows": 218,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "idx_chunks_embedding",
+      "Actual Rows": 251,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Memoize",
+      "Actual Rows": 1,
+      "Actual Loops": 251
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "documents_pkey",
+      "Actual Rows": 1,
+      "Actual Loops": 221
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Limit",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Nested Loop",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Bitmap Heap Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Bitmap Index Scan",
+      "Index Name": "idx_chunks_tsv_en",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "documents_pkey",
+      "Actual Rows": 0,
+      "Actual Loops": 0
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Limit",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Subquery Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "WindowAgg",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Sort",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Nested Loop",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Bitmap Heap Scan",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Bitmap Index Scan",
+      "Index Name": "idx_chunks_tsv_de",
+      "Actual Rows": 0,
+      "Actual Loops": 1
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "documents_pkey",
+      "Actual Rows": 0,
+      "Actual Loops": 0
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "chunks_pkey",
+      "Actual Rows": 1,
+      "Actual Loops": 50
+    },
+    {
+      "Node Type": "Index Scan",
+      "Index Name": "documents_pkey",
+      "Actual Rows": 1,
+      "Actual Loops": 50
+    }
+  ]
+}

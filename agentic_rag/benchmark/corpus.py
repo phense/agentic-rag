@@ -23,8 +23,8 @@ def validate(corpus: dict) -> None:
         if not isinstance(q, dict) or not all(isinstance(q.get(k), str) and q[k].strip()
                                               for k in ['id', 'query', 'category']):
             raise ValueError('invalid query metadata')
-        for key in ['expected_ids', 'answers', 'stale_answers']:
-            values = q.get(key, [] if key == 'stale_answers' else None)
+        for key in ['expected_ids', 'answers', 'stale_answers', 'expected_snippets']:
+            values = q.get(key, [] if key in ('stale_answers','expected_snippets') else None)
             if (not isinstance(values, list) or any(not isinstance(v, str) or not v.strip() for v in values)
                     or len(set(values)) != len(values)):
                 raise ValueError(f'invalid query label list: {key}')
@@ -40,8 +40,23 @@ def validate(corpus: dict) -> None:
     from ..validity import selection as time_selection
     for q in queries:
         time_selection(q.get('as_of'),q.get('history',False))
+        if 'expanded_query' in q and (not isinstance(q['expanded_query'],str) or not q['expanded_query'].strip()):
+            raise ValueError('invalid expanded query')
         if not set(q.get('stale_ids',[])) <= by_id.keys():
             raise ValueError('stale evidence identity missing')
+    for document in documents:
+        edges=document.get('edges',[])
+        if not isinstance(edges,list) or any(not isinstance(edge,dict) for edge in edges):
+            raise ValueError('invalid graph fixture edges')
+        if edges and document.get('assertion') is not None:
+            raise ValueError('graph fixture edges require an ordinary source document')
+        for edge in edges:
+            if not isinstance(edge.get('evidence'),str) or not edge['evidence'].strip():
+                raise ValueError('graph fixture edges require evidence')
+            if edge.get('target') not in by_id or by_id[edge['target']].get('assertion') is not None:
+                raise ValueError('graph fixture edge must target an ordinary fixture document')
+            if edge.get('predicate') not in ('references','depends_on','extends','derived_from'):
+                raise ValueError('invalid graph fixture predicate')
     families = {}
     for q in queries:
         if q.get('split') not in {'dev', 'test'}:

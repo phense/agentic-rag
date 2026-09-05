@@ -1,0 +1,1161 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T23:38:11.817711+00:00",
+    "revision": "126a2b3883bab1d186c73615a26847fa0e890109",
+    "source_sha256": "a92cfcdb1efd8fda74e917ade6e9f5d34eb05e81b7e3df82f6d56bc2cb03304d",
+    "corpus_sha256": "67b428341475ebc36d9969e417dfa98583b7f32b6c467d993ed9a7c51eacac97",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "retrieval_baseline": false,
+    "graph_depth": 0,
+    "local_rerank": false,
+    "query_expansion": true,
+    "validity_policy": "temporal",
+    "project": null,
+    "scope": null,
+    "search_mode": "hybrid",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "crowding-test",
+      "late-test",
+      "symbol-test",
+      "german-test",
+      "negative-test",
+      "multihop-test",
+      "symbol-dev",
+      "negative-dev",
+      "german-dev",
+      "late-dev"
+    ],
+    "source_ids": [
+      "crowd",
+      "second",
+      "late",
+      "german",
+      "leaf",
+      "middle",
+      "root",
+      "german-dev",
+      "late-dev"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "crowding-test",
+      "category": "crowding",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Zebra repair",
+      "expected_snippets": [
+        "cobalt switch"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "second",
+        "root",
+        "late",
+        "late-dev",
+        "german",
+        "middle",
+        "leaf",
+        "german-dev"
+      ],
+      "expected_ids": [
+        "crowd",
+        "second"
+      ],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.04918032786885246,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#92af228e-266f-4d31-a7c5-3e8fee3bf20c:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.047619047619047616,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "root",
+          "score": 0.015625,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.015384615384615385,
+          "title": "Late diagnostic",
+          "snippet": "padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:1099-1499",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.015151515151515152,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german",
+          "score": 0.014925373134328358,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.014705882352941176,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.014492753623188406,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german-dev",
+          "score": 0.014285714285714285,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[late] Late diagnostic\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 271.2938329204917,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-test",
+      "category": "late",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "UniqueError42",
+      "expected_snippets": [
+        "4391"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late"
+      ],
+      "expected_ids": [
+        "late"
+      ],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.04918032786885246,
+          "title": "Late diagnostic",
+          "snippet": "padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:1099-1499",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.\n",
+      "context_chars": 424,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 212.75087539106607,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-test",
+      "category": "symbol",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "MissingError987654",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 209.9512917920947,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-test",
+      "category": "german",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Dienst Absturz",
+      "expected_snippets": [
+        "Neustart"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "german",
+        "crowd",
+        "late",
+        "late-dev",
+        "german-dev",
+        "middle",
+        "second",
+        "leaf",
+        "root"
+      ],
+      "expected_ids": [
+        "german"
+      ],
+      "hits": [
+        {
+          "source_id": "german",
+          "score": 0.04918032786885246,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#0f0f9faa-bedc-409f-a0e7-1aed545e4b17:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.015625,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.015384615384615385,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german-dev",
+          "score": 0.015151515151515152,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.014925373134328358,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.014705882352941176,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.014492753623188406,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "root",
+          "score": 0.014285714285714285,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[crowd] Repeated zebra\n## Part 35\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 203.73670756816864,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-test",
+      "category": "negative",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "What is the temperature on Venus?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "late-dev",
+        "root",
+        "late",
+        "second",
+        "german",
+        "middle",
+        "leaf",
+        "german-dev"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.01639344262295082,
+          "title": "Repeated zebra",
+          "snippet": "## Part 49\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#084f443b-2428-4282-a102-2bcad603110c:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.015873015873015872,
+          "title": "Development diagnostic",
+          "snippet": "filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:1006-1406",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "root",
+          "score": 0.015625,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.015384615384615385,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.015151515151515152,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german",
+          "score": 0.014925373134328358,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.014705882352941176,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.014492753623188406,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german-dev",
+          "score": 0.014285714285714285,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n## Part 49\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[late-dev] Development diagnostic\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.\n[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 207.53841660916805,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multihop-test",
+      "category": "multihop",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "TopologyZebra",
+      "expected_snippets": [
+        "graph-rack-7259"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "root",
+        "crowd",
+        "second",
+        "middle",
+        "leaf",
+        "late",
+        "late-dev",
+        "german",
+        "german-dev"
+      ],
+      "expected_ids": [
+        "root",
+        "leaf"
+      ],
+      "hits": [
+        {
+          "source_id": "root",
+          "score": 0.04918032786885246,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.016129032258064516,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#92af228e-266f-4d31-a7c5-3e8fee3bf20c:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.015625,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.015384615384615385,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.015151515151515152,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.014925373134328358,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.014705882352941176,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german",
+          "score": 0.014492753623188406,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german-dev",
+          "score": 0.014285714285714285,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 208.7203748524189,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-dev",
+      "category": "symbol",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "AbsentException5731",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 200.25162491947412,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-dev",
+      "category": "negative",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Which recipe makes a strawberry cake?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "late",
+        "late-dev",
+        "root",
+        "middle",
+        "second",
+        "leaf",
+        "german",
+        "german-dev"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.01639344262295082,
+          "title": "Repeated zebra",
+          "snippet": "## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#274f2a0c-30cb-410f-a237-128af66f1be1:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.015873015873015872,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.015625,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "root",
+          "score": 0.015384615384615385,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.015151515151515152,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.014925373134328358,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.014705882352941176,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german",
+          "score": 0.014492753623188406,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german-dev",
+          "score": 0.014285714285714285,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n## Part 38\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai\n[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 207.85679202526808,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-dev",
+      "category": "german",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Drucker Papierstau",
+      "expected_snippets": [
+        "Papierweg"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "german-dev",
+        "late-dev",
+        "late",
+        "crowd",
+        "middle",
+        "leaf",
+        "root",
+        "german",
+        "second"
+      ],
+      "expected_ids": [
+        "german-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "german-dev",
+          "score": 0.04918032786885246,
+          "title": "Drucker entstören",
+          "snippet": "# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.",
+          "citation": "c8632a27-4612-4781-a62d-462dca5a8532#e8170c05-e4e0-4f0d-b29b-a83a9009c17e:0-117",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late-dev",
+          "score": 0.016129032258064516,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "late",
+          "score": 0.015873015873015872,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "dc310982-b335-4010-a79b-c99a68fe2ff2#c9dadfb9-4e50-4b55-bcf6-85edde60bb3e:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.015625,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "d639c170-8ccb-4624-a012-a58d6e112022#92af228e-266f-4d31-a7c5-3e8fee3bf20c:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.015151515151515152,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "1c552e92-109a-4b20-9dfc-97a94b97d569#2d6d65e1-c4f1-463f-861d-e978fcfb1a31:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.014925373134328358,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "ccf55348-c76b-4c02-8aaa-8a7d9e4fecb3#6a96f428-85eb-44cd-b054-3d3a2b950b4a:0-67",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "root",
+          "score": 0.014705882352941176,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "a7859795-c450-410b-9aff-9ddda0671f6b#cceed715-42a9-4cb0-9597-7418f13f4b7c:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "german",
+          "score": 0.014492753623188406,
+          "title": "Dienst wiederherstellen",
+          "snippet": "# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.",
+          "citation": "3972aa8e-6f22-4d46-8590-f8765a622d40#762df413-7598-4fe4-aa9b-b97d7d7d7ad2:0-113",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.014285714285714285,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "bea5aa45-26f4-4d50-833e-bb7e73ccfb56#3a791ebc-a028-45c6-ad07-c30e9b005db9:0-72",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[german-dev] Drucker entstören\n# Drucker entstören\n\nBei einem Papierstau den Drucker öffnen und das Blatt entfernen; das Hilfswort lautet Papierweg.\n[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[german] Dienst wiederherstellen\n# Dienst wiederherstellen\n\nNach einem Absturz den Dienst neu starten; das Wiederherstellungswort lautet Neustart.\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n",
+      "context_chars": 1950,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 201.94270834326744,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-dev",
+      "category": "late",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "ServiceException18",
+      "expected_snippets": [
+        "6623"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late-dev"
+      ],
+      "expected_ids": [
+        "late-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "late-dev",
+          "score": 0.04918032786885246,
+          "title": "Development diagnostic",
+          "snippet": "filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.",
+          "citation": "6346b753-5e0a-4359-a65b-cc01705e939c#66f7184f-ff68-4af0-9466-40e8b07da8d6:1006-1406",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late-dev] Development diagnostic\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.\n",
+      "context_chars": 435,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 199.36212431639433,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 10,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 207.53841660916805,
+    "latency_ms_p95": 271.2938329204917,
+    "context_chars_mean": 1255.9,
+    "context_tokens_estimate_mean": 314.3,
+    "recall_at_5": 1.0,
+    "recall_at_5_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "recall_at_10": 1.0,
+    "recall_at_10_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "mrr": 1.0,
+    "mrr_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 4,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 200.25162491947412,
+      "latency_ms_p95": 207.85679202526808,
+      "context_chars_mean": 1083.75,
+      "context_tokens_estimate_mean": 271.25,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 6,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 208.7203748524189,
+      "latency_ms_p95": 271.2938329204917,
+      "context_chars_mean": 1370.6666666666667,
+      "context_tokens_estimate_mean": 343.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "crowding": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 271.2938329204917,
+      "latency_ms_p95": 271.2938329204917,
+      "context_chars_mean": 1950.0,
+      "context_tokens_estimate_mean": 488.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "german": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 201.94270834326744,
+      "latency_ms_p95": 203.73670756816864,
+      "context_chars_mean": 1950.0,
+      "context_tokens_estimate_mean": 488.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "late": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 199.36212431639433,
+      "latency_ms_p95": 212.75087539106607,
+      "context_chars_mean": 429.5,
+      "context_tokens_estimate_mean": 107.5,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multihop": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 208.7203748524189,
+      "latency_ms_p95": 208.7203748524189,
+      "context_chars_mean": 1950.0,
+      "context_tokens_estimate_mean": 488.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "negative": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 207.53841660916805,
+      "latency_ms_p95": 207.85679202526808,
+      "context_chars_mean": 1950.0,
+      "context_tokens_estimate_mean": 488.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "symbol": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 200.25162491947412,
+      "latency_ms_p95": 209.9512917920947,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 9,
+    "indexed_sources": 9,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 7319.850833155215
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 9535.561583004892,
+  "retrieval_quality": {
+    "evidence_recall": 1.0,
+    "false_positive_rate": 0.5
+  },
+  "retrieval_quality_by_split": {
+    "dev": {
+      "evidence_recall": 1.0,
+      "false_positive_rate": 0.5
+    },
+    "test": {
+      "evidence_recall": 1.0,
+      "false_positive_rate": 0.5
+    }
+  }
+}

@@ -1,0 +1,786 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T23:37:31.124283+00:00",
+    "revision": "126a2b3883bab1d186c73615a26847fa0e890109",
+    "source_sha256": "a92cfcdb1efd8fda74e917ade6e9f5d34eb05e81b7e3df82f6d56bc2cb03304d",
+    "corpus_sha256": "67b428341475ebc36d9969e417dfa98583b7f32b6c467d993ed9a7c51eacac97",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "retrieval_baseline": true,
+    "graph_depth": 0,
+    "local_rerank": false,
+    "query_expansion": false,
+    "validity_policy": "temporal",
+    "project": null,
+    "scope": null,
+    "search_mode": "fts",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "crowding-test",
+      "late-test",
+      "symbol-test",
+      "german-test",
+      "negative-test",
+      "multihop-test",
+      "symbol-dev",
+      "negative-dev",
+      "german-dev",
+      "late-dev"
+    ],
+    "source_ids": [
+      "crowd",
+      "second",
+      "late",
+      "german",
+      "leaf",
+      "middle",
+      "root",
+      "german-dev",
+      "late-dev"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "crowding-test",
+      "category": "crowding",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Zebra repair",
+      "expected_snippets": [
+        "cobalt switch"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.5,
+        "recall_at_10": 0.5,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd",
+        "crowd"
+      ],
+      "expected_ids": [
+        "crowd",
+        "second"
+      ],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.03278688524590164,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.03225806451612903,
+          "title": "Repeated zebra",
+          "snippet": "## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.031746031746031744,
+          "title": "Repeated zebra",
+          "snippet": "## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.03125,
+          "title": "Repeated zebra",
+          "snippet": "## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.03076923076923077,
+          "title": "Repeated zebra",
+          "snippet": "## Part 4\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.030303030303030304,
+          "title": "Repeated zebra",
+          "snippet": "## Part 5\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.029850746268656716,
+          "title": "Repeated zebra",
+          "snippet": "## Part 6\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.029411764705882353,
+          "title": "Repeated zebra",
+          "snippet": "## Part 7\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.028985507246376812,
+          "title": "Repeated zebra",
+          "snippet": "## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "crowd",
+          "score": 0.02857142857142857,
+          "title": "Repeated zebra",
+          "snippet": "## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[crowd] Repeated zebra\n## Part 1\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 2\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 3\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 4\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 5\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 6\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 7\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 8\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair\n[crowd] Repeated zebra\n## Part 9\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repai",
+      "context_chars": 4000,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 21.457083523273468,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-test",
+      "category": "late",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "UniqueError42",
+      "expected_snippets": [
+        "4391"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late"
+      ],
+      "expected_ids": [
+        "late"
+      ],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.03278688524590164,
+          "title": "Late diagnostic",
+          "snippet": "# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\n# Late diagnostic\n\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddi\n",
+      "context_chars": 424,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 12.124584056437016,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-test",
+      "category": "symbol",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "MissingError987654",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 11.425125412642956,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-test",
+      "category": "german",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie behebe ich einen abgestürzten Dienst?",
+      "expected_snippets": [
+        "Neustart"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "german"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 11.423000134527683,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-test",
+      "category": "negative",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "What is the temperature on Venus?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 11.758209206163883,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multihop-test",
+      "category": "multihop",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "TopologyZebra",
+      "expected_snippets": [
+        "graph-rack-7259"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.5,
+        "recall_at_10": 0.5,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "root"
+      ],
+      "expected_ids": [
+        "root",
+        "leaf"
+      ],
+      "hits": [
+        {
+          "source_id": "root",
+          "score": 0.03278688524590164,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n",
+      "context_chars": 84,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 11.904374696314335,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-dev",
+      "category": "symbol",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "AbsentException5731",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 15.909832902252674,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-dev",
+      "category": "negative",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Which recipe makes a strawberry cake?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 16.355750150978565,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-dev",
+      "category": "german",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie beseitige ich einen verstopften Drucker?",
+      "expected_snippets": [
+        "Papierweg"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "german-dev"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 16.325917094945908,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-dev",
+      "category": "late",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "ServiceException18",
+      "expected_snippets": [
+        "6623"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late-dev"
+      ],
+      "expected_ids": [
+        "late-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "late-dev",
+          "score": 0.03278688524590164,
+          "title": "Development diagnostic",
+          "snippet": "# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil",
+          "citation": "",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late-dev] Development diagnostic\n# Development diagnostic\n\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler fil\n",
+      "context_chars": 435,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 14.907540753483772,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 10,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 12.124584056437016,
+    "latency_ms_p95": 21.457083523273468,
+    "context_chars_mean": 494.3,
+    "context_tokens_estimate_mean": 123.6,
+    "recall_at_5": 0.5,
+    "recall_at_5_bootstrap_95": [
+      0.16666666666666666,
+      0.8333333333333334
+    ],
+    "recall_at_10": 0.5,
+    "recall_at_10_bootstrap_95": [
+      0.16666666666666666,
+      0.8333333333333334
+    ],
+    "mrr": 0.6666666666666666,
+    "mrr_bootstrap_95": [
+      0.3333333333333333,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 4,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 15.909832902252674,
+      "latency_ms_p95": 16.355750150978565,
+      "context_chars_mean": 108.75,
+      "context_tokens_estimate_mean": 27.25,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 6,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 11.758209206163883,
+      "latency_ms_p95": 21.457083523273468,
+      "context_chars_mean": 751.3333333333334,
+      "context_tokens_estimate_mean": 187.83333333333334,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.75,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "crowding": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 21.457083523273468,
+      "latency_ms_p95": 21.457083523273468,
+      "context_chars_mean": 4000.0,
+      "context_tokens_estimate_mean": 1000.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "german": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 11.423000134527683,
+      "latency_ms_p95": 16.325917094945908,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "late": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 12.124584056437016,
+      "latency_ms_p95": 14.907540753483772,
+      "context_chars_mean": 429.5,
+      "context_tokens_estimate_mean": 107.5,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multihop": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 11.904374696314335,
+      "latency_ms_p95": 11.904374696314335,
+      "context_chars_mean": 84.0,
+      "context_tokens_estimate_mean": 21.0,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "negative": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 11.758209206163883,
+      "latency_ms_p95": 16.355750150978565,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "symbol": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 11.425125412642956,
+      "latency_ms_p95": 15.909832902252674,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 9,
+    "indexed_sources": 9,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 287.04358264803886
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 757.9604163765907,
+  "retrieval_quality": {
+    "evidence_recall": 0.0,
+    "false_positive_rate": 0.0
+  },
+  "retrieval_quality_by_split": {
+    "dev": {
+      "evidence_recall": 0.0,
+      "false_positive_rate": 0.0
+    },
+    "test": {
+      "evidence_recall": 0.0,
+      "false_positive_rate": 0.0
+    }
+  }
+}

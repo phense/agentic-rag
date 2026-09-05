@@ -402,6 +402,9 @@ Tests come first (TDD), and `docs/` is kept in step with the code. A **warn-only
 git config core.hooksPath .githooks
 ```
 
+Search now returns diverse sources and query-centered spans with chunk citations. See
+[retrieval quality, optional graph expansion and limits](docs/retrieval-quality.md).
+
 Measure retrieval and memory quality with the [synthetic EN/DE benchmark](docs/benchmarks/memory-quality.md): `rag benchmark run --output /tmp/rag-bench-baseline`.
 
 Run the suite with `uv run pytest`. See the handbook's [Contributing](docs/12-contributing.md) chapter for dev setup, the test database, and code layout.

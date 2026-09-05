@@ -1,0 +1,732 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T23:38:58.876456+00:00",
+    "revision": "126a2b3883bab1d186c73615a26847fa0e890109",
+    "source_sha256": "a92cfcdb1efd8fda74e917ade6e9f5d34eb05e81b7e3df82f6d56bc2cb03304d",
+    "corpus_sha256": "67b428341475ebc36d9969e417dfa98583b7f32b6c467d993ed9a7c51eacac97",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "retrieval_baseline": false,
+    "graph_depth": 2,
+    "local_rerank": false,
+    "query_expansion": false,
+    "validity_policy": "temporal",
+    "project": null,
+    "scope": null,
+    "search_mode": "fts",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "crowding-test",
+      "late-test",
+      "symbol-test",
+      "german-test",
+      "negative-test",
+      "multihop-test",
+      "symbol-dev",
+      "negative-dev",
+      "german-dev",
+      "late-dev"
+    ],
+    "source_ids": [
+      "crowd",
+      "second",
+      "late",
+      "german",
+      "leaf",
+      "middle",
+      "root",
+      "german-dev",
+      "late-dev"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "crowding-test",
+      "category": "crowding",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Zebra repair",
+      "expected_snippets": [
+        "cobalt switch"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "crowd",
+        "second"
+      ],
+      "expected_ids": [
+        "crowd",
+        "second"
+      ],
+      "hits": [
+        {
+          "source_id": "crowd",
+          "score": 0.03278688524590164,
+          "title": "Repeated zebra",
+          "snippet": "# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re",
+          "citation": "75fa1046-dcc7-43ab-adac-f37f15e25047#f98ab0a4-9881-4d06-b1fe-b95f1b0acd47:0-400",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "second",
+          "score": 0.031746031746031744,
+          "title": "Secondary zebra",
+          "snippet": "# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.",
+          "citation": "5ab852ce-1d73-40f1-bc16-3157d2bf496a#71cd73ba-7897-422f-b07b-2d58c56ae1f5:0-72",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[crowd] Repeated zebra\n# Repeated zebra\n\n## Part 0\nZebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra repair. Zebra re\n[second] Secondary zebra\n# Secondary zebra\n\nZebra repair additionally requires the cobalt switch.\n",
+      "context_chars": 522,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 35.04425007849932,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-test",
+      "category": "late",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "UniqueError42",
+      "expected_snippets": [
+        "4391"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late"
+      ],
+      "expected_ids": [
+        "late"
+      ],
+      "hits": [
+        {
+          "source_id": "late",
+          "score": 0.03278688524590164,
+          "title": "Late diagnostic",
+          "snippet": "padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.",
+          "citation": "8197c724-a0a8-4f69-a4a0-0c1909085af3#3acf0653-e9d0-4074-a035-0bfa6a2ae547:1099-1499",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late] Late diagnostic\npadding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding UniqueError42 repair requires code 4391.\n",
+      "context_chars": 424,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 21.795333363115788,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-test",
+      "category": "symbol",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "MissingError987654",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 22.770458832383156,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-test",
+      "category": "german",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie behebe ich einen abgestürzten Dienst?",
+      "expected_snippets": [
+        "Neustart"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "german"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 23.66625051945448,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-test",
+      "category": "negative",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "What is the temperature on Venus?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 24.454916827380657,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "multihop-test",
+      "category": "multihop",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "TopologyZebra",
+      "expected_snippets": [
+        "graph-rack-7259"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "root",
+        "middle",
+        "leaf"
+      ],
+      "expected_ids": [
+        "root",
+        "leaf"
+      ],
+      "hits": [
+        {
+          "source_id": "root",
+          "score": 0.03278688524590164,
+          "title": "Graph entry",
+          "snippet": "# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.",
+          "citation": "62234746-de1c-48c2-abac-d0b0b812757d#ec7e6177-67ab-4bd1-b0a4-ba7aeba1f3b9:0-64",
+          "graph_depth": 0
+        },
+        {
+          "source_id": "middle",
+          "score": 0.01639344262295082,
+          "title": "Graph intermediary",
+          "snippet": "# Graph intermediary\n\nThe wiring diagram points to the destination.",
+          "citation": "99ec14a4-8567-4698-a09f-6dc4043d6504#24a5fcc2-b418-455b-b501-35b9447400fb:0-67",
+          "graph_depth": 1
+        },
+        {
+          "source_id": "leaf",
+          "score": 0.01092896174863388,
+          "title": "Graph destination",
+          "snippet": "# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.",
+          "citation": "e1d7c9ec-6479-4e83-bd0b-5a997f9a8638#a14d1f47-9ac9-45ae-94b3-7b8bef6505c6:0-67",
+          "graph_depth": 2
+        }
+      ],
+      "context": "[root] Graph entry\n# Graph entry\n\nTopologyZebra is the entry to the wiring diagram.\n[middle] Graph intermediary\n# Graph intermediary\n\nThe wiring diagram points to the destination.\n[leaf] Graph destination\n# Graph destination\n\nThe hidden rack identifier is graph-rack-7259.\n",
+      "context_chars": 273,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 38.70033286511898,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "symbol-dev",
+      "category": "symbol",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "AbsentException5731",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 22.549791261553764,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "negative-dev",
+      "category": "negative",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Which recipe makes a strawberry cake?",
+      "expected_snippets": [],
+      "evidence_recall": null,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 24.69233237206936,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "german-dev",
+      "category": "german",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "Wie beseitige ich einen verstopften Drucker?",
+      "expected_snippets": [
+        "Papierweg"
+      ],
+      "evidence_recall": 0.0,
+      "ranking": {
+        "recall_at_5": 0.0,
+        "recall_at_10": 0.0,
+        "mrr": 0.0
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [
+        "german-dev"
+      ],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 23.511582985520363,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "late-dev",
+      "category": "late",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "effective_query": "ServiceException18",
+      "expected_snippets": [
+        "6623"
+      ],
+      "evidence_recall": 1.0,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "late-dev"
+      ],
+      "expected_ids": [
+        "late-dev"
+      ],
+      "hits": [
+        {
+          "source_id": "late-dev",
+          "score": 0.03278688524590164,
+          "title": "Development diagnostic",
+          "snippet": "filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.",
+          "citation": "5295ccfb-9989-4133-b85c-fcf8c13ba18c#df254d9f-dfe4-4bc7-9706-3deb3115befa:1006-1406",
+          "graph_depth": 0
+        }
+      ],
+      "context": "[late-dev] Development diagnostic\nfiller filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler filler ServiceException18 requires maintenance code 6623.\n",
+      "context_chars": 435,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 29.715375043451786,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 10,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 23.66625051945448,
+    "latency_ms_p95": 38.70033286511898,
+    "context_chars_mean": 165.4,
+    "context_tokens_estimate_mean": 41.5,
+    "recall_at_5": 0.6666666666666666,
+    "recall_at_5_bootstrap_95": [
+      0.3333333333333333,
+      1.0
+    ],
+    "recall_at_10": 0.6666666666666666,
+    "recall_at_10_bootstrap_95": [
+      0.3333333333333333,
+      1.0
+    ],
+    "mrr": 0.6666666666666666,
+    "mrr_bootstrap_95": [
+      0.3333333333333333,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 4,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 23.511582985520363,
+      "latency_ms_p95": 29.715375043451786,
+      "context_chars_mean": 108.75,
+      "context_tokens_estimate_mean": 27.25,
+      "recall_at_5": 0.5,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.5,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.5,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 6,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 23.66625051945448,
+      "latency_ms_p95": 38.70033286511898,
+      "context_chars_mean": 203.16666666666666,
+      "context_tokens_estimate_mean": 51.0,
+      "recall_at_5": 0.75,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.75,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.75,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "crowding": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 35.04425007849932,
+      "latency_ms_p95": 35.04425007849932,
+      "context_chars_mean": 522.0,
+      "context_tokens_estimate_mean": 131.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "german": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 23.511582985520363,
+      "latency_ms_p95": 23.66625051945448,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 0.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 0.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "late": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 21.795333363115788,
+      "latency_ms_p95": 29.715375043451786,
+      "context_chars_mean": 429.5,
+      "context_tokens_estimate_mean": 107.5,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "multihop": {
+      "queries": 1,
+      "answerable_queries": 1,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 38.70033286511898,
+      "latency_ms_p95": 38.70033286511898,
+      "context_chars_mean": 273.0,
+      "context_tokens_estimate_mean": 69.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "negative": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 24.454916827380657,
+      "latency_ms_p95": 24.69233237206936,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "symbol": {
+      "queries": 2,
+      "answerable_queries": 0,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 22.549791261553764,
+      "latency_ms_p95": 22.770458832383156,
+      "context_chars_mean": 0.0,
+      "context_tokens_estimate_mean": 0.0,
+      "recall_at_5": null,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": null,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": null,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 9,
+    "indexed_sources": 9,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 332.2732076048851
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 648.5200002789497,
+  "retrieval_quality": {
+    "evidence_recall": 0.6666666666666666,
+    "false_positive_rate": 0.0
+  },
+  "retrieval_quality_by_split": {
+    "dev": {
+      "evidence_recall": 0.5,
+      "false_positive_rate": 0.0
+    },
+    "test": {
+      "evidence_recall": 0.75,
+      "false_positive_rate": 0.0
+    }
+  }
+}

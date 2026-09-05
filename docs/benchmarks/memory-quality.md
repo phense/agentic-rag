@@ -110,3 +110,10 @@ verify real database cleanup, the CLI, audited save/search and the mining bounda
 
 The second run checks the actual extraction/answer/judge pipeline and deliberately
 retains its small denominators; it does not replace the full retrieval baseline.
+
+## Retrieval quality experiment
+
+Issue8 adds separate prior-retrieval, graph, local ordering and authored query-expansion
+variants, with bounded-context evidence coverage and negative-query false positives.
+See [commands and limitations](../retrieval-quality.md) and the
+[recorded comparison](2026-09-06-retrieval-quality/README.md).
