@@ -129,6 +129,8 @@ def _save_txn(
         raise ValueError(f"unknown domain: {domain} — create it first with"
                          f" 'rag domain add {domain}'")
 
+    if doc_id is not None and conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s", (doc_id,)).fetchone():
+        raise ValueError("atomic assertions are immutable; create a corrective assertion")
     created = doc_id is None
     if created:
         the_slug = slug or _unique_slug(conn, slugify(title))
@@ -273,6 +275,11 @@ def get_document(conn, id_or_slug: str) -> dict | None:
             (doc["id"],)).fetchall()
     ]
     d = dict(doc)
+    assertion = conn.execute("SELECT * FROM fact_assertions WHERE document_id=%s", (doc["id"],)).fetchone()
+    if assertion:
+        d["assertion"] = dict(assertion)
+        d["assertion"]["sources"] = [dict(r) for r in conn.execute(
+            "SELECT evidence,recorded_at FROM assertion_sources WHERE document_id=%s ORDER BY recorded_at,source_hash",(doc['id'],)).fetchall()]
     d["edges_out"], d["edges_in"] = out, incoming
     return d
 
@@ -308,6 +315,8 @@ def set_project_scope(conn, doc_id: str, *, project: str | None = None,
                       actor: str = 'cli', commit: bool = True) -> bool:
     """Audited applicability repair without re-embedding or changing provenance."""
     from .scope import write_scope
+    if conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s", (doc_id,)).fetchone():
+        raise ValueError("atomic assertions are immutable; create a corrective assertion")
     value = write_scope(project=strip_secrets(project)[0] if project else None, scope=scope)
     if value is None:
         raise ValueError('scope repair requires explicit project or scope')
@@ -326,3 +335,9 @@ def set_project_scope(conn, doc_id: str, *, project: str | None = None,
     except Exception:
         if commit:conn.rollback()
         raise
+
+
+def save_assertion(conn, cfg, **kwargs):
+    """Audited immutable assertion write; participates in accepted mining batches."""
+    from .validity import save
+    return save(conn, cfg, **kwargs)

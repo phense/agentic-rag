@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T21:59:23.480217+00:00",
+    "revision": "f592dd6667d56a05387281e207d63b7062d378b1",
+    "source_sha256": "12ddb7f095873e86f534b386fe96f9ff13d13cf832933f781a85e345c2f60abe",
+    "corpus_sha256": "a74d5eda177181eabe1cfb0a9178252e7010e6e60d64f6f850a4c6a3c4a6b805",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": "codex",
+    "llm_model": "gpt-5.6-luna",
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "validity_policy": "temporal",
+    "project": null,
+    "scope": null,
+    "search_mode": "fts",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": true,
+    "judge": false,
+    "query_ids": [
+      "current",
+      "history",
+      "newhistory",
+      "foreign",
+      "extension",
+      "expired",
+      "validtemporary",
+      "dehistory"
+    ],
+    "source_ids": [
+      "new",
+      "old",
+      "b",
+      "tls",
+      "expiry",
+      "ambiguous"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "current",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [
+        "old",
+        "ambiguous"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "new"
+      ],
+      "expected_ids": [
+        "new"
+      ],
+      "hits": [
+        {
+          "source_id": "new",
+          "score": 0.03278688524590164,
+          "title": "server: port",
+          "snippet": "# server: port\n\n8000"
+        }
+      ],
+      "context": "[] server: port\n# server: port\n\n8000\n",
+      "context_chars": 37,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 13.339333236217499,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "8000",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "history",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": "2026-01-15T00:00:00Z",
+      "history": false,
+      "stale_source_ids": [
+        "new",
+        "ambiguous"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "old"
+      ],
+      "expected_ids": [
+        "old"
+      ],
+      "hits": [
+        {
+          "source_id": "old",
+          "score": 0.03278688524590164,
+          "title": "server: port",
+          "snippet": "# server: port\n\n7000"
+        }
+      ],
+      "context": "[] server: port\n# server: port\n\n7000\n",
+      "context_chars": 37,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 10.624375194311142,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "7000",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "newhistory",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": "2026-02-15T00:00:00Z",
+      "history": false,
+      "stale_source_ids": [
+        "old",
+        "ambiguous"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "new"
+      ],
+      "expected_ids": [
+        "new"
+      ],
+      "hits": [
+        {
+          "source_id": "new",
+          "score": 0.03278688524590164,
+          "title": "server: port",
+          "snippet": "# server: port\n\n8000"
+        }
+      ],
+      "context": "[] server: port\n# server: port\n\n8000\n",
+      "context_chars": 37,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 12.49658316373825,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "8000",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "foreign",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/b",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [
+        "old",
+        "new",
+        "ambiguous"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "b"
+      ],
+      "expected_ids": [
+        "b"
+      ],
+      "hits": [
+        {
+          "source_id": "b",
+          "score": 0.03278688524590164,
+          "title": "server: port",
+          "snippet": "# server: port\n\n9000"
+        }
+      ],
+      "context": "[] server: port\n# server: port\n\n9000\n",
+      "context_chars": 37,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 11.607333086431026,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "9000",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "extension",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "tls"
+      ],
+      "expected_ids": [
+        "tls"
+      ],
+      "hits": [
+        {
+          "source_id": "tls",
+          "score": 0.03278688524590164,
+          "title": "server: tls",
+          "snippet": "# server: tls\n\nenabled"
+        }
+      ],
+      "context": "[] server: tls\n# server: tls\n\nenabled\n",
+      "context_chars": 38,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 12.469791807234287,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "enabled",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "expired",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": null,
+      "history": false,
+      "stale_source_ids": [
+        "expiry"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [],
+      "expected_ids": [],
+      "hits": [],
+      "context": "",
+      "context_chars": 0,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 13.177832588553429,
+      "answer": {
+        "correct": true,
+        "abstained": true,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "validtemporary",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": "2026-02-15T00:00:00Z",
+      "history": false,
+      "stale_source_ids": [],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "expiry"
+      ],
+      "expected_ids": [
+        "expiry"
+      ],
+      "hits": [
+        {
+          "source_id": "expiry",
+          "score": 0.03278688524590164,
+          "title": "server: temporary",
+          "snippet": "# server: temporary\n\ntemporary-test"
+        }
+      ],
+      "context": "[] server: temporary\n# server: temporary\n\ntemporary-test\n",
+      "context_chars": 57,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 13.90308327972889,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "temporary-test",
+      "answer_batch_ms": 10024.271000176668
+    },
+    {
+      "query_id": "dehistory",
+      "category": "temporal",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/a",
+      "scope": null,
+      "as_of": "2026-01-15T00:00:00Z",
+      "history": false,
+      "stale_source_ids": [
+        "new",
+        "ambiguous"
+      ],
+      "stale_result": false,
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "old"
+      ],
+      "expected_ids": [
+        "old"
+      ],
+      "hits": [
+        {
+          "source_id": "old",
+          "score": 0.03278688524590164,
+          "title": "server: port",
+          "snippet": "# server: port\n\n7000"
+        }
+      ],
+      "context": "[] server: port\n# server: port\n\n7000\n",
+      "context_chars": 37,
+      "warnings": [
+        "embedding unavailable — full-text search only"
+      ],
+      "error": null,
+      "latency_ms": 13.881375081837177,
+      "answer": {
+        "correct": true,
+        "abstained": false,
+        "stale": false
+      },
+      "judge": null,
+      "answer_text": "7000",
+      "answer_batch_ms": 10024.271000176668
+    }
+  ],
+  "summary": {
+    "queries": 8,
+    "answerable_queries": 7,
+    "failed_queries": 0,
+    "answer_scored_queries": 8,
+    "answer_accuracy": 1.0,
+    "unanswerable_accuracy": 1.0,
+    "false_abstention_rate": 0.0,
+    "stale_answer_rate": 0.0,
+    "latency_ms_p50": 12.49658316373825,
+    "latency_ms_p95": 13.90308327972889,
+    "context_chars_mean": 35.0,
+    "context_tokens_estimate_mean": 9.375,
+    "recall_at_5": 1.0,
+    "recall_at_5_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "recall_at_10": 1.0,
+    "recall_at_10_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "mrr": 1.0,
+    "mrr_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "test": {
+      "queries": 8,
+      "answerable_queries": 7,
+      "failed_queries": 0,
+      "answer_scored_queries": 8,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 12.49658316373825,
+      "latency_ms_p95": 13.90308327972889,
+      "context_chars_mean": 35.0,
+      "context_tokens_estimate_mean": 9.375,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "mrr": 1.0,
+      "mrr_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "temporal": {
+      "queries": 8,
+      "answerable_queries": 7,
+      "failed_queries": 0,
+      "answer_scored_queries": 8,
+      "answer_accuracy": 1.0,
+      "unanswerable_accuracy": 1.0,
+      "false_abstention_rate": 0.0,
+      "stale_answer_rate": 0.0,
+      "latency_ms_p50": 12.49658316373825,
+      "latency_ms_p95": 13.90308327972889,
+      "context_chars_mean": 35.0,
+      "context_tokens_estimate_mean": 9.375,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "mrr": 1.0,
+      "mrr_bootstrap_95": [
+        1.0,
+        1.0
+      ],
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 6,
+    "indexed_sources": 6,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 268.51058285683393
+  },
+  "provider": {
+    "model_calls_attempted": 1,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 10695.067083463073,
+  "temporal": {
+    "stale_result_rate": 0.0,
+    "current_recall_at_10": 1.0,
+    "historical_recall_at_10": 1.0,
+    "evidence_boundary": "retrieval only; no generated-answer quality claim; stale_answer_rate remains unmeasured without model answers"
+  }
+}

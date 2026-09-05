@@ -74,6 +74,7 @@ def _merge_exact_duplicates(conn, budget: int) -> int:
         "   AND d1.id <> d2.id AND d1.created_at <= d2.created_at"
         "   AND (d1.created_at < d2.created_at OR d1.id < d2.id)"
         " WHERE d1.status = 'active' AND d2.status = 'active'"
+        " AND NOT EXISTS (SELECT 1 FROM fact_assertions a WHERE a.document_id IN (d1.id,d2.id))"
         " AND d1.body <> ''"
         " ORDER BY d2.created_at LIMIT %s", (budget,)).fetchall()
     applied = 0
@@ -110,13 +111,15 @@ def _refute_candidates(conn, limit: int) -> list[dict]:
     return [dict(r) for r in conn.execute(
         "SELECT DISTINCT ON (d.id) d.id, d.slug, d.title, d.body,"
         "       e.evidence, src.body AS contra_body, src.id AS source_id,"
-        "       d.project_scope AS expected_scope"
+        "       d.project_scope AS expected_scope, e.created_at AS evidence_at"
         " FROM documents d"
         " JOIN edges e ON e.dst_id = d.id AND e.predicate = 'contradicts'"
         "   AND e.created_by = 'mining'"
         " JOIN documents src ON src.id = e.src_id"
         " AND src.project_scope = d.project_scope AND d.project_scope <> 'unknown'"
-        " WHERE d.status = 'active'"
+        " WHERE d.status = 'active' AND src.status = 'active'"
+        " AND NOT EXISTS (SELECT 1 FROM fact_assertions a WHERE a.document_id IN (d.id,src.id))"
+        " AND (d.reactivated_at IS NULL OR e.created_at > d.reactivated_at)"
         " AND NOT EXISTS ("
         "   SELECT 1 FROM audit_log a WHERE a.document_id = d.id"
         "   AND a.op = 'refute_review' AND a.at >= e.created_at)"
@@ -135,6 +138,9 @@ def _review_refutes(conn, cfg: Config, budget: int, runner) -> tuple[int, int]:
         data = run_structured(prompt, REFUTE_SCHEMA, cfg,
                               system=REFUTE_SYSTEM, runner=runner)
         if not _lock_scope_pair(conn,c["id"],c["source_id"],c["expected_scope"]):
+            continue
+        epoch=conn.execute('SELECT reactivated_at FROM documents WHERE id=%s',(c['id'],)).fetchone()['reactivated_at']
+        if epoch is not None and c['evidence_at'] <= epoch:
             continue
         reviewed += 1
         if data.get("refute") and str(data.get("reason", "")).strip():
@@ -226,7 +232,10 @@ def review_report(conn, cfg: Config) -> dict:
     unknown_scopes = [dict(r) for r in conn.execute(
         "SELECT id, slug FROM documents WHERE project_scope = 'unknown' ORDER BY slug LIMIT 100").fetchall()]
     unknown_count = conn.execute("SELECT count(*) AS n FROM documents WHERE project_scope = 'unknown'").fetchone()["n"]
-    return {"unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
+    temporal_review = [dict(r) for r in conn.execute(
+        "SELECT d.slug,a.* FROM fact_assertions a JOIN documents d ON d.id=a.document_id"
+        " WHERE a.disposition='review' ORDER BY d.created_at DESC LIMIT 100").fetchall()]
+    return {"temporal_review": temporal_review, "unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
             "duplicate_candidates": duplicate_candidates,
             "dangling": dangling, "stale_pins": stale_pins,
             "suggestions": suggestions, "queue_errors": queue_errors}

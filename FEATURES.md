@@ -174,3 +174,11 @@ agentic-rag remains canonical.
 
 The details, dependencies, reasons, and resumption triggers for every planned
 item remain in [`BACKLOG.md`](BACKLOG.md).
+
+## Atomic fact validity (issue #6)
+
+Evidence-backed immutable assertions support explicit replacement, extension, expiry
+and as-of/history retrieval across one shared store. Mining retains source event
+identity, role, quote and completeness; uncertain assertions stay reviewable.
+Ordinary documents and pins are preserved. See [policy](docs/fact-validity.md) and
+[synthetic comparison](docs/benchmarks/2026-09-06-fact-validity/README.md).

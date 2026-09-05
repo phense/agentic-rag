@@ -41,3 +41,24 @@ As-built addendum: explicit scope decisions (including unknown) are protected fr
 legacy backfill by scope_explicit. Applicability-only changes retain updated_at.
 All fixes stay within the defined data/applicability boundary; no extra reviewer or
 paid model matrix was used.
+
+## RAG-006 fact validity (design-time, 2026-09-05)
+
+- **AF-006 — Resolved; authority boundary (AC-002/005).** Mining windows currently
+  flatten role/time/identity. `fact-validity.md` requires evidence matched against
+  the consumed source fragment before acceptance. Task T002 must preserve this
+  metadata and reject invented evidence; full #7 is not assumed implemented.
+- **AF-007 — Resolved; concurrency/order (AC-001/006).** Read-then-write replacement
+  races and arrival-time ordering can reverse truth. Task T001 must serialize a
+  canonical assertion key, use event time, and keep all effects in the batch txn.
+- **AF-008 — Resolved; shared eligibility (AC-004).** Search-only post-filtering leaves
+  hooks/graph bypasses and exhausted candidate budgets. Task T003 must enforce one
+  SQL predicate before limits and at every selected graph hop.
+- **AF-009 — Resolved; lifecycle ownership (AC-003/007).** Whole-document curation
+  could archive an assertion independently of valid time. Task T004 must exclude
+  atomic assertions, reject in-place edits and establish explicit reactivation epochs.
+
+Verification 2026-09-06: mapped changes implemented, as-built view reconciled,
+independent review clean after source-authority/completeness, evidence retention
+and reactivation fixes. Derived success/recovery tests pass in the full 703-test
+suite. Next action: backup-gated rollout.

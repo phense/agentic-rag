@@ -117,3 +117,17 @@ def test_scope_corpus_has_no_foreign_or_unknown_context(cfg,tmp_path):
     assert set(rows['all']['retrieved_source_ids'])=={'alpha','beta'}
     assert rows['unknown-hidden']['retrieved_source_ids']==[]
     assert rows['project-hidden-global']['retrieved_source_ids']==[]
+
+
+def test_temporal_fixture_measures_prior_eligibility_and_current_history(cfg,tmp_path):
+    from pathlib import Path
+    from agentic_rag.benchmark.runner import run
+    corpus=Path(__file__).parents[2]/'agentic_rag/benchmark/corpus-temporal-v1.json'
+    before=run(cfg,corpus_path=corpus,output=tmp_path/'before',search_mode='fts',validity_baseline=True)
+    after=run(cfg,corpus_path=corpus,output=tmp_path/'after',search_mode='fts')
+    assert before['temporal']['stale_result_rate']>0
+    assert after['temporal']['stale_result_rate']==0
+    assert after['temporal']['current_recall_at_10']==1
+    assert after['temporal']['historical_recall_at_10']==1
+    assert after['provider']['model_calls_attempted']==0
+    assert after['summary']['stale_answer_rate'] is None

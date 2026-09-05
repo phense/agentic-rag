@@ -53,6 +53,14 @@ SYSTEM = (
     "literal text, with the quote. "
     "pin_suggestions: only rules the USER stated as standing instructions. "
     "domain_proposals: only when content clearly fits no existing domain. "
+    "assertions: mutable atomic entity/attribute/value facts supported by a SOURCE EVENTS quote. "
+    "Use replacement only for an explicit changed value, extension for additive information, "
+    "and assertion otherwise. Never duplicate an assertion in memories/lessons. "
+    "Automatic acceptance recognizes explicit declarations such as entity attribute is now value "
+    "or entity attribute ist jetzt value; never rewrite a quote to fit this form. Other prose stays reviewable. "
+    "Use the exact source_id and quote. event_at is an explicit ISO timestamp or the "
+    "source timestamp for a current statement; uncertain time is null. expires_at requires "
+    "an explicit ISO time in the quote; otherwise null. Suggestions are not user facts. "
     "Empty lists are the correct answer for an unremarkable session."
 )
 
@@ -121,6 +129,12 @@ def build_schema(domain_names: list[str]) -> dict:
             "required": ["name", "description", "reason"],
             "additionalProperties": False}},
     }
+    fields = {k: {"type":"string"} for k in ('entity','attribute','value','source_id','quote')}
+    fields.update(domain={"type":"string","enum":list(domain_names)},
+                  relation={"type":"string","enum":["assertion","extension","replacement"]},
+                  event_at={"type":["string","null"]}, expires_at={"type":["string","null"]})
+    props['assertions'] = {"type":"array","items":{"type":"object","properties":fields,
+                            "required":list(fields),"additionalProperties":False}}
     return {"type": "object", "properties": props,
             "required": list(props.keys()), "additionalProperties": False}
 
@@ -162,6 +176,7 @@ class Extraction:
     contradictions: list[dict]
     contradictions_with_pins: list[dict]
     domain_proposals: list[dict]
+    assertions: list[dict] = field(default_factory=list)
 
 
 def _parse_edges(raw) -> list[EdgeSpec]:
@@ -218,6 +233,7 @@ def _parse_dicts(raw, keys: tuple[str, ...], cap: int = 5) -> list[dict]:
 
 def parse_extraction(data: dict, domain_names: set[str]) -> Extraction:
     return Extraction(
+        assertions=[a for a in data.get("assertions", [])[:MAX_ITEMS_PER_KIND] if isinstance(a,dict) and a.get("domain") in domain_names and isinstance(a.get("evidence"),dict)],
         memories=_parse_items(data.get("memories"), domain_names, False),
         lessons=_parse_items(data.get("lessons"), domain_names, False),
         signals=_parse_items(data.get("signals"), domain_names, True),
@@ -274,7 +290,7 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
         "SELECT d.slug, 1 - (c.embedding <=> %s::halfvec) AS sim"
         " FROM chunks c JOIN documents d ON d.id = c.document_id"
         " WHERE d.domain = %s AND d.status = 'active' AND d.project_scope = %s"
-        " AND c.embedding IS NOT NULL"
+        " AND c.embedding IS NOT NULL AND assertion_eligible(d.id)"
         " ORDER BY c.embedding <=> %s::halfvec LIMIT 1",
         (lit, domain, project_scope, lit)).fetchone()
     if row and float(row["sim"]) >= cfg.dedup_threshold:
@@ -316,12 +332,13 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
         if window.text.strip() and not synthetic:
             pin_bodies = [p.body for p in matching_pins(conn, project)]
             data = run_structured(
-                build_prompt(window.text, domain_names, pin_bodies),
+                build_prompt(window.text, domain_names, pin_bodies) + "\nSOURCE EVENTS (consumed fragments only):\n" + json.dumps(window.events, ensure_ascii=False),
                 build_schema(domain_names), cfg, system=SYSTEM, runner=runner)
         else:
             data = {}
         # Persist only the normalized accepted batch, not unbounded raw output.
         clean, _ = strip_secrets_json(data)
+        clean["assertions"] = ground_assertions(clean.get("assertions", []), window.events)
         ext = parse_extraction(clean, set(domain_names))
         row = conn.execute(
             "INSERT INTO mining_batches(session_id,input_cursor,output_cursor,"
@@ -390,6 +407,12 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
                 actor="mining", commit=False)
             saved += 1
 
+    from .store import save_assertion
+    for item in ext.assertions:
+        result = save_assertion(conn, cfg, **item, project=project, actor='mining', commit=False)
+        saved += not result.duplicate
+        duplicates += result.duplicate
+
     for index, c in enumerate(ext.contradictions):
         target = conn.execute(
             "SELECT slug FROM documents WHERE slug = %s",
@@ -430,3 +453,58 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
         pin_contradictions=len(ext.contradictions_with_pins),
         domain_proposals=len(ext.domain_proposals),
         new_last_uuid=output_cursor, batch_id=batch_id)
+
+
+def ground_assertions(items, events):
+    """Accept only quotes in the exact consumed event; derive role from source."""
+    from .validity import parse_time
+    by_id = {e['source_id']:e for e in events}
+    out=[]
+    for item in (items if isinstance(items,list) else [])[:MAX_ITEMS_PER_KIND]:
+        if not isinstance(item,dict): continue
+        source=by_id.get(item.get('source_id'))
+        quote=item.get('quote')
+        if not source or not isinstance(quote,str) or not quote.strip() or quote not in source['text']:
+            continue
+        if not all(isinstance(item.get(k),str) and item[k].strip() for k in ('entity','attribute','value','domain')):
+            continue
+        if item.get('relation') not in ('assertion','extension','replacement'): continue
+        when=item.get('event_at'); expiry=item.get('expires_at')
+        try:
+            parsed=parse_time(when)
+            source_time=parse_time(source.get('timestamp'))
+            if when and when not in quote and (source_time is None or parsed!=source_time): when=None
+            if expiry and expiry not in quote: when=expiry=None
+            end=parse_time(expiry)
+            if end and (when is None or end<=parse_time(when)): when=expiry=None
+        except (ValueError,TypeError): when=expiry=None
+        evidence={'source_id':source['source_id'],'role':source.get('role') or 'unknown',
+                  'quote':quote,'event_at':source.get('timestamp'),'offset':source['offset'],'complete':source.get('complete',False),
+                  'grounding': 'explicit_statement' if source.get('complete') is True and explicit_statement(item,quote,source['text']) else 'review'}
+        out.append({k:item[k] for k in ('entity','attribute','value','domain','relation')} |
+                   {'event_at':when,'expires_at':expiry,'evidence':evidence})
+    return out
+
+
+def explicit_statement(item, quote, fragment):
+    """Conservative, auditable EN/DE declaration forms; other prose stays reviewable.
+
+    Match the whole consumed prose, not a selectively quoted clause inside a
+    question, hypothetical or historical narrative. A recognized declaration must
+    include the explicit entity, attribute and value in that order.
+    """
+    import re
+    text=fragment.strip()
+    text=re.sub(r'^\[(?:user|assistant)\]\s*','',text)
+    if text.rstrip('.') != quote.strip().rstrip('.'):
+        return False
+    subject=re.escape(item['entity'].strip())+r'\s+'+re.escape(item['attribute'].strip())
+    operator=(r'(?:is now|now|ist jetzt|jetzt|changed to|geändert auf)' if item['relation']=='replacement'
+              else r'(?:is now|now|is|ist jetzt|jetzt|ist|=|:)')
+    suffix=''
+    if item.get('event_at') and item['event_at'] in quote:
+        suffix+=r'\s+(?:since|at|seit|ab)\s+'+re.escape(item['event_at'])
+    if item.get('expires_at'):
+        suffix+=r'\s+(?:until|bis)\s+'+re.escape(item['expires_at'])
+    pattern=subject+r'\s*'+operator+r'\s*'+re.escape(item['value'].strip())+suffix+r'\.?'
+    return re.fullmatch(pattern,text,re.IGNORECASE) is not None

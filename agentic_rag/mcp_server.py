@@ -68,7 +68,7 @@ def memory_domains() -> dict:
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
-                  project: str | None = None, scope: str | None = None) -> dict:
+                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False) -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
@@ -76,7 +76,7 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     Omitting both retains manual cross-project search."""
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history)
         return {"results": _plain(hits), "warnings": warnings}
 
 
@@ -97,7 +97,7 @@ def memory_get(id_or_slug: str) -> dict:
 
 def memory_neighbors(id_or_slug: str, depth: int = 1,
                      predicates: list[str] | None = None, project: str | None = None,
-                     scope: str | None = None) -> dict:
+                     scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> dict:
     """Graph traversal: every edge within `depth` hops of the document
     (undirected), optionally filtered to specific predicates."""
     cfg, conn = _connect()
@@ -107,12 +107,12 @@ def memory_neighbors(id_or_slug: str, depth: int = 1,
             return {"error": f"not found: {id_or_slug}"}
         return {"edges": _plain(graph.neighbors(conn, doc_id,
                                                 depth=min(depth, 3),
-                                                predicates=predicates, project=project, scope=scope))}
+                                                predicates=predicates, project=project, scope=scope, as_of=as_of, history=history))}
 
 
 def memory_path(from_id_or_slug: str, to_id_or_slug: str,
                 max_depth: int = 4, project: str | None = None,
-                scope: str | None = None) -> dict:
+                scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> dict:
     """How do X and Y relate? The shortest edge path between two documents
     (empty steps = no connection within max_depth)."""
     cfg, conn = _connect()
@@ -122,7 +122,7 @@ def memory_path(from_id_or_slug: str, to_id_or_slug: str,
         if a is None or b is None:
             missing = from_id_or_slug if a is None else to_id_or_slug
             return {"error": f"not found: {missing}"}
-        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope))}
+        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope, as_of=as_of, history=history))}
 
 
 def memory_timeline(id_or_slug: str) -> dict:
@@ -170,6 +170,22 @@ def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
         return _plain(res)
 
 
+def memory_assert(entity: str, attribute: str, value: str, domain: str,
+                  evidence: dict, event_at: str | None = None, expires_at: str | None = None,
+                  relation: str = 'assertion', project: str | None = None,
+                  scope: str | None = None) -> dict:
+    """Save one immutable fact with source_id/role/quote evidence and timezone-aware
+    event time. replacement explicitly supersedes older values of the same scoped
+    entity/attribute; extension coexists. Unsupported evidence is retained for review.
+    Manual evidence is an operator attestation; never invent user quotes."""
+    from .store import save_assertion
+    cfg, conn = _connect()
+    with conn:
+        return _plain(save_assertion(conn,cfg,entity=entity,attribute=attribute,value=value,
+            domain=domain,evidence=evidence,event_at=event_at,expires_at=expires_at,
+            relation=relation,project=project,scope=scope,actor='claude'))
+
+
 def memory_pin(body: str | None = None, document_id: str | None = None,
                scope: str = "global", priority: int = 100) -> dict:
     """Pin a standing rule (or a document) so it is injected into EVERY
@@ -193,7 +209,7 @@ def memory_unpin(pin_id: str) -> dict:
 
 READ_TOOLS = (memory_domains, memory_search, memory_get, memory_neighbors,
               memory_path, memory_timeline)
-WRITE_TOOLS = (memory_save, memory_pin, memory_unpin)
+WRITE_TOOLS = (memory_save, memory_assert, memory_pin, memory_unpin)
 
 
 def tool_names(readonly: bool) -> list[str]:

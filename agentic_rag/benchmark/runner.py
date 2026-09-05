@@ -133,7 +133,7 @@ def source_hash():
 def run(cfg, *, output: Path, corpus_path: Path | None=None,
         mode='retrieval', search_mode='hybrid', context_chars=4000,
         split='all', limit: int | None=None, answers=False, judge=False,
-        smoke=False, progress=None, project=None, scope=None) -> dict:
+        smoke=False, progress=None, project=None, scope=None, validity_baseline=False) -> dict:
     if mode not in {'retrieval','end-to-end'} or search_mode not in {'fts','hybrid'}:
         raise ValueError('invalid benchmark mode')
     if split not in {'all','dev','test'} or context_chars<32 or (limit is not None and limit<1):
@@ -147,6 +147,11 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
             or any(d.get("scope") is not None for d in corpus["documents"])
             or any(q.get("project") is not None or q.get("scope") is not None for q in corpus["queries"])):
         raise ValueError("scoped benchmark corpora require retrieval mode; mining scope overrides are unsupported")
+    temporal = any(d.get('assertion') is not None for d in corpus['documents'])
+    if temporal and mode != 'retrieval':
+        raise ValueError('temporal fixtures require retrieval mode; use separate synthetic mining integration tests')
+    if validity_baseline and not temporal:
+        raise ValueError('validity baseline requires a temporal assertion corpus')
     queries=[q for q in corpus['queries'] if split=='all' or q['split']==split]
     if limit is not None:queries=queries[:limit]
     if not queries:raise ValueError('no selected benchmark queries')
@@ -178,7 +183,7 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
             'answer_scoring':'word-boundary alias match; optional separate semantic model judge',
             'token_estimation':'ceil(context characters / 4), not measured model usage',
             'uncertainty':'fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases'},
-            'config':{'project':project,'scope':scope,'search_mode':search_mode,'context_chars':context_chars,'k':10,'split':split,
+            'config':{'validity_policy':'status-only-baseline' if validity_baseline else 'temporal','project':project,'scope':scope,'search_mode':search_mode,'context_chars':context_chars,'k':10,'split':split,
                       'answers':answers,'judge':judge,'query_ids':[q['id'] for q in queries],
                       'source_ids':[d['id'] for d in documents],
                       'mine_max_digest_chars':cfg.mine_max_digest_chars,
@@ -194,11 +199,15 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     if progress:progress(f'Ingest {number}/{len(documents)}: {document["id"]}')
                     try:
                         if mode=='retrieval':
-                            saved=store.save_document(writer,isolated,title=document['title'],body=document['body'],
-                                domain='general',dtype='memory',meta={'project':document['project']},
-                                provenance={'origin':'synthetic-benchmark','source_id':document['id']},
-                                project=document['project'] if document['project'].startswith('/') else None,
-                                scope=document.get('scope'))
+                            if document.get('assertion') is not None:
+                                saved=store.save_assertion(writer,isolated,**document['assertion'],
+                                    domain='general',project=document['project'],scope=document.get('scope'))
+                            else:
+                                saved=store.save_document(writer,isolated,title=document['title'],body=document['body'],
+                                    domain='general',dtype='memory',meta={'project':document['project']},
+                                    provenance={'origin':'synthetic-benchmark','source_id':document['id']},
+                                    project=document['project'] if document['project'].startswith('/') else None,
+                                    scope=document.get('scope'))
                             mapping[saved.doc_id]=document['id']
                         else:
                             if provider_failed:raise RuntimeError('not attempted after provider outage')
@@ -223,7 +232,7 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     'FROM documents d LEFT JOIN chunks c ON c.document_id=d.id GROUP BY d.id').fetchall()
                 readiness = {}
                 for row in coverage:
-                    identity=row['provenance'].get('source_id') or str(row['provenance'].get('session_id','')).removeprefix('bench-')
+                    identity=mapping.get(str(row['id'])) or row['provenance'].get('source_id') or str(row['provenance'].get('session_id','')).removeprefix('bench-')
                     mapping[str(row['id'])]=identity
                     ready = row['chunks']>0 and (search_mode=='fts' or row['embedded']==row['chunks'])
                     readiness[identity] = readiness.get(identity, True) and ready
@@ -242,7 +251,9 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     before=time.perf_counter();error=None;warnings=[];hits=[]
                     try:
                         hits,warnings=search.search(reader,isolated,query['query'],k=10,
-                            project=query.get('project',project),scope=query.get('scope',scope))
+                            project=query.get('project',project),scope=query.get('scope',scope),
+                            as_of=None if validity_baseline else query.get('as_of'),
+                            history=True if validity_baseline else query.get('history',False))
                         if any(identity not in indexed for identity in query['expected_ids']):
                             error='one or more expected sources failed ingestion/indexing'
                     except Exception as exc:
@@ -252,6 +263,9 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     rows.append({'query_id':query['id'],'category':query['category'],'language':query['language'],
                         'split':query['split'],'unanswerable':query['unanswerable'],
                         'project':query.get('project',project),'scope':query.get('scope',scope),
+                        'as_of':query.get('as_of'),'history':query.get('history',False),
+                        'stale_source_ids':query.get('stale_ids',[]),
+                        'stale_result':bool(set(ids)&set(query.get('stale_ids',[]))),
                         'ranking':rank_metrics(ids,query['expected_ids']),
                         'retrieved_source_ids':ids,'expected_ids':query['expected_ids'],
                         'hits':[{'source_id':mapping.get(hit.document_id,'unknown'),'score':hit.score,
@@ -275,6 +289,13 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                   provider={'model_calls_attempted':calls['model_calls'],'cost_usd':None,'usage_tokens':None,
                             'cost_status':'not exposed by the configured structured CLI interface'},
                   elapsed_ms=(time.perf_counter()-started)*1000)
+    if temporal:
+        measured=report['rows']
+        report['temporal']={
+            'stale_result_rate':sum(r['stale_result'] for r in measured)/len(measured),
+            'current_recall_at_10':_temporal_recall(measured,False),
+            'historical_recall_at_10':_temporal_recall(measured,True),
+            'evidence_boundary':'retrieval only; no generated-answer quality claim; stale_answer_rate remains unmeasured without model answers'}
     write_report(report,output)
     return report
 
@@ -313,3 +334,8 @@ def compare(before,after):
     keys=['recall_at_5','recall_at_10','mrr','answer_accuracy','judge_accuracy','stale_answer_rate','latency_ms_p95','context_chars_mean']
     return {key:(after['summary'][key]-before['summary'][key]
                  if before['summary'][key] is not None and after['summary'][key] is not None else None) for key in keys}
+
+
+def _temporal_recall(rows, historical):
+    selected=[r for r in rows if bool(r.get('as_of'))==historical and r['expected_ids']]
+    return sum(len(set(r['retrieved_source_ids'][:10]) & set(r['expected_ids']))/len(r['expected_ids']) for r in selected)/len(selected) if selected else None

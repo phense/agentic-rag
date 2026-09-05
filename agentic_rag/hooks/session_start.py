@@ -210,7 +210,7 @@ def build_context(
         pinned_ids = [p.document_id for p in pin_list if p.document_id]
         rows = conn.execute(
             "SELECT slug, title, dtype, COALESCE(verified_at, updated_at) AS ts"
-            " FROM documents WHERE status = 'active'"
+            " FROM documents WHERE status = 'active' AND assertion_eligible(id)"
             " AND (project_scope = ANY(%s) OR id = ANY(%s::uuid[]))"
             " ORDER BY COALESCE(verified_at, updated_at) DESC LIMIT %s",
             (scopes, pinned_ids, cfg.context_docs)).fetchall()

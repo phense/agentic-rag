@@ -91,12 +91,24 @@ def _main(argv: list[str] | None = None) -> int:
     p_save.add_argument("--edge", action="append", default=[],
                         metavar="PREDICATE:SLUG")
 
+    p_assert = sub.add_parser("assert", help="save one evidence-backed immutable fact")
+    for name in ('entity','attribute','value','domain','source-id','quote'):
+        p_assert.add_argument('--'+name,required=True)
+    p_assert.add_argument('--role',choices=['user','assistant'],default='user')
+    p_assert.add_argument('--event-at')
+    p_assert.add_argument('--expires-at')
+    p_assert.add_argument('--relation',choices=['assertion','extension','replacement'],default='assertion')
+    p_assert.add_argument('--project')
+    p_assert.add_argument('--scope',choices=['project','global','unknown'])
+
     p_get = sub.add_parser("get")
     p_get.add_argument("id_or_slug")
     p_get.add_argument("--json", action="store_true")
 
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
+    p_search.add_argument("--as-of")
+    p_search.add_argument("--history", action="store_true")
     p_search.add_argument("--project")
     p_search.add_argument("--scope", choices=["project", "global", "all"])
     p_search.add_argument("--domain")
@@ -111,6 +123,7 @@ def _main(argv: list[str] | None = None) -> int:
     b_run.add_argument("--output", type=Path, required=True)
     b_run.add_argument("--corpus", type=Path)
     b_run.add_argument("--project")
+    b_run.add_argument("--validity-baseline", action="store_true", help="temporal fixture only: compare prior status-only eligibility")
     b_run.add_argument("--scope", choices=["project", "global", "all"])
     b_run.add_argument("--mode", choices=["retrieval", "end-to-end"], default="retrieval")
     b_run.add_argument("--search-mode", choices=["fts", "hybrid"], default="hybrid")
@@ -207,11 +220,20 @@ def _main(argv: list[str] | None = None) -> int:
         report = run(cfg, output=args.output, corpus_path=args.corpus, mode=args.mode,
                      search_mode=args.search_mode, context_chars=args.context_chars,
                      split=args.split, limit=args.limit, answers=args.answers,
-                     judge=args.judge, smoke=args.smoke, project=args.project, scope=args.scope,
+                     judge=args.judge, smoke=args.smoke, project=args.project, scope=args.scope, validity_baseline=args.validity_baseline,
                      progress=lambda message: print(message, file=sys.stderr))
         print(json.dumps(report['summary'], indent=2))
         print(f"Reports: {args.output / 'results.json'} and {args.output / 'report.md'}")
         return 3 if report['summary']['failed_queries'] or report['ingestion']['failed_sources'] else 0
+
+    if args.cmd == "assert":
+        with db.connect(cfg,role='writer') as connection:
+            result=store.save_assertion(connection,cfg,entity=args.entity,attribute=args.attribute,
+                value=args.value,domain=args.domain,event_at=args.event_at,expires_at=args.expires_at,
+                relation=args.relation,project=args.project,scope=args.scope,
+                evidence={'source_id':args.source_id,'role':args.role,'quote':args.quote})
+            print(json.dumps(dataclasses.asdict(result),default=_json_default,indent=2))
+        return 0
 
     if args.cmd == "scope":
         from .scope import backfill
@@ -505,7 +527,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.cmd == "search":
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))

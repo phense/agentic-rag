@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "documents": [
+    {
+      "id": "new",
+      "title": "server: port",
+      "body": "8000",
+      "project": "/synthetic/a",
+      "assertion": {
+        "entity": "server",
+        "attribute": "port",
+        "value": "8000",
+        "event_at": "2026-02-01T00:00:00Z",
+        "expires_at": null,
+        "relation": "replacement",
+        "evidence": {
+          "source_id": "fixture-new",
+          "role": "user",
+          "quote": "server port 8000 since 2026-02-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "old",
+      "title": "server: port",
+      "body": "7000",
+      "project": "/synthetic/a",
+      "assertion": {
+        "entity": "server",
+        "attribute": "port",
+        "value": "7000",
+        "event_at": "2026-01-01T00:00:00Z",
+        "expires_at": null,
+        "relation": "assertion",
+        "evidence": {
+          "source_id": "fixture-old",
+          "role": "user",
+          "quote": "server port 7000 since 2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "b",
+      "title": "server: port",
+      "body": "9000",
+      "project": "/synthetic/b",
+      "assertion": {
+        "entity": "server",
+        "attribute": "port",
+        "value": "9000",
+        "event_at": "2026-01-01T00:00:00Z",
+        "expires_at": null,
+        "relation": "assertion",
+        "evidence": {
+          "source_id": "fixture-b",
+          "role": "user",
+          "quote": "server port 9000 since 2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "tls",
+      "title": "server: tls",
+      "body": "enabled",
+      "project": "/synthetic/a",
+      "assertion": {
+        "entity": "server",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-01-01T00:00:00Z",
+        "expires_at": null,
+        "relation": "extension",
+        "evidence": {
+          "source_id": "fixture-tls",
+          "role": "user",
+          "quote": "server tls enabled since 2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "expiry",
+      "title": "server: temporary",
+      "body": "temporary-test",
+      "project": "/synthetic/a",
+      "assertion": {
+        "entity": "server",
+        "attribute": "temporary",
+        "value": "temporary-test",
+        "event_at": "2026-01-01T00:00:00Z",
+        "expires_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion",
+        "evidence": {
+          "source_id": "fixture-expiry",
+          "role": "user",
+          "quote": "server temporary temporary-test since 2026-01-01T00:00:00Z until 2026-03-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "ambiguous",
+      "title": "server: port",
+      "body": "6000",
+      "project": "/synthetic/a",
+      "assertion": {
+        "entity": "server",
+        "attribute": "port",
+        "value": "6000",
+        "event_at": "2026-02-01T00:00:00Z",
+        "expires_at": null,
+        "relation": "replacement",
+        "evidence": {
+          "source_id": "fixture-ambiguous",
+          "role": "user",
+          "quote": "server port 6000 since 2026-02-01T00:00:00Z"
+        }
+      }
+    }
+  ],
+  "queries": [
+    {
+      "id": "current",
+      "query": "server port",
+      "expected_ids": [
+        "new"
+      ],
+      "stale_ids": [
+        "old",
+        "ambiguous"
+      ],
+      "answers": [
+        "8000"
+      ],
+      "stale_answers": [
+        "7000",
+        "6000"
+      ],
+      "as_of": null,
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "history",
+      "query": "server port",
+      "expected_ids": [
+        "old"
+      ],
+      "stale_ids": [
+        "new",
+        "ambiguous"
+      ],
+      "answers": [
+        "7000"
+      ],
+      "stale_answers": [
+        "8000",
+        "6000"
+      ],
+      "as_of": "2026-01-15T00:00:00Z",
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "newhistory",
+      "query": "server port",
+      "expected_ids": [
+        "new"
+      ],
+      "stale_ids": [
+        "old",
+        "ambiguous"
+      ],
+      "answers": [
+        "8000"
+      ],
+      "stale_answers": [
+        "7000",
+        "6000"
+      ],
+      "as_of": "2026-02-15T00:00:00Z",
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "foreign",
+      "query": "server port",
+      "expected_ids": [
+        "b"
+      ],
+      "stale_ids": [
+        "old",
+        "new",
+        "ambiguous"
+      ],
+      "answers": [
+        "9000"
+      ],
+      "stale_answers": [
+        "8000",
+        "7000",
+        "6000"
+      ],
+      "as_of": null,
+      "project": "/synthetic/b",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "extension",
+      "query": "tls",
+      "expected_ids": [
+        "tls"
+      ],
+      "stale_ids": [],
+      "answers": [
+        "enabled"
+      ],
+      "stale_answers": [],
+      "as_of": null,
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "expired",
+      "query": "temporary",
+      "expected_ids": [],
+      "stale_ids": [
+        "expiry"
+      ],
+      "answers": [],
+      "stale_answers": [
+        "temporary-test"
+      ],
+      "as_of": null,
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true
+    },
+    {
+      "id": "validtemporary",
+      "query": "temporary",
+      "expected_ids": [
+        "expiry"
+      ],
+      "stale_ids": [],
+      "answers": [
+        "temporary-test"
+      ],
+      "stale_answers": [],
+      "as_of": "2026-02-15T00:00:00Z",
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false
+    },
+    {
+      "id": "dehistory",
+      "query": "server port",
+      "expected_ids": [
+        "old"
+      ],
+      "stale_ids": [
+        "new",
+        "ambiguous"
+      ],
+      "answers": [
+        "7000"
+      ],
+      "stale_answers": [
+        "8000",
+        "6000"
+      ],
+      "as_of": "2026-01-15T00:00:00Z",
+      "project": "/synthetic/a",
+      "category": "temporal",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false
+    }
+  ]
+}

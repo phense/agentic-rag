@@ -132,10 +132,10 @@
   rotation is done (`rag maintenance` size-based rotation, one prior generation kept);
   `curation_pass` audit-row growth (see 1.2/1.3) is the remaining piece. → *Trigger:* close
   once 1.2/1.3 land. *(S)*
-- ⬜ **2.2** _(chore)_ **Refute-trigger checks existence, not recency.** The refute trigger
-  checks whether an edge/audit row exists rather than whether it's current — only matters once
-  a previously-refuted document is reactivated by later curation work. → *Trigger:* document
-  the intended semantics, then decide whether a recency check is worth adding. *(S)*
+- ✅ **2.2** _(chore)_ **Refute/reactivation evidence epoch.** Issue #6 adds an
+  explicit reactivation timestamp; old contradiction edges cannot trigger another
+  refutation, including across a concurrent model call. New evidence remains
+  reviewable. Covered by sequential and two-writer regressions. *(S)*
 - ⬜ **2.3** _(chore)_ **Test backlog.** Missing coverage: `memory_path`/`memory_timeline`
   happy-path tests; the SessionStart document-pin branch plus its result-count cap; the
   `duplicate_candidates`/`queue_errors` fields of the review report; worker-level embed-error
@@ -183,9 +183,10 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Completed:* implementation, independent review, deployment after backup and publication verified; issue closed. Historical backfill is separate. *(M–L)*
 - ✅ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
   → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Completed:* explicit scope across retrieval/recall/curation, 685 tests, independent review and zero-violation scope benchmarks. Migration 010/backfill deployed after fresh verified backup; content/pin invariants and idempotence confirmed. Unknown legacy scope remains reviewable. See [policy](docs/project-scope.md). *(M)*
-- ⬜ **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
-  → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Why not done:* analysis complete; implementation and rollout pending.
-  → *Trigger:* after scope and minimal source-evidence contracts are defined. *(L)*
+- 🔵 **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
+  → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Why not done:* implementation, independent review, 703 tests and eight-question
+  model comparison complete; backup-gated rollout/publication pending.
+  → *Trigger:* deploy migration 011 after fresh verified backup. *(L)*
 - ⬜ **4.5** _(enh, P2)_ **Claim-level evidence and inference status.** Retain sanitized event references and speaker roles; distinguish stated facts, assistant suggestions and derived inferences.
   → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* coordinate source identity with 4.2; land the minimal update-evidence subset before 4.4. *(M–L)*

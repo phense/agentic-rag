@@ -37,6 +37,11 @@ def validate(corpus: dict) -> None:
     for document in documents:
         if document.get("scope") is not None:
             write_scope(document["project"] if document["project"].startswith("/") else None, document["scope"])
+    from ..validity import selection as time_selection
+    for q in queries:
+        time_selection(q.get('as_of'),q.get('history',False))
+        if not set(q.get('stale_ids',[])) <= by_id.keys():
+            raise ValueError('stale evidence identity missing')
     families = {}
     for q in queries:
         if q.get('split') not in {'dev', 'test'}:

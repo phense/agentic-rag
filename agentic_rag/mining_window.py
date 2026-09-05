@@ -18,6 +18,7 @@ class MiningWindow:
     has_more: bool = False
     warnings: tuple[str, ...] = ()
     synthetic: bool = False
+    events: tuple[dict, ...] = ()
 
 
 def _content(event: dict) -> tuple[str | None, str]:
@@ -64,6 +65,7 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
     if type(max_chars) is not int or max_chars < 32 or type(per_block) is not int or per_block < 1:
         raise ValueError('mining windows require max_chars >= 32 and per_block >= 1')
     records = []
+    metadata = []
     chain = hashlib.sha256()
     seen = {}
     warnings = []
@@ -88,6 +90,10 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
                     text = ''
                 seen[identity] = digest
             records.append((number, identity, text, chain.hexdigest()))
+            message = ev.get('message', ev.get('payload', {})) if isinstance(ev, dict) else {}
+            metadata.append({'source_id': f'{number}:{chain.hexdigest()}',
+                             'role': message.get('role') if isinstance(message,dict) else None,
+                             'timestamp': ev.get('timestamp') if isinstance(ev,dict) else None})
     start = offset = 0
     if after_uuid and after_uuid.startswith(PREFIX):
         try:
@@ -105,6 +111,7 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
             raise ValueError('legacy mining cursor missing or ambiguous; explicit recovery required')
         start = matches[-1] + 1
     parts = []
+    events = []
     used = 0
     next_cursor = after_uuid
     more = False
@@ -114,13 +121,14 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
         remaining = text[begin:]
         separator = '\n' if parts and remaining else ''
         budget = max_chars - used - len(separator)
-        if remaining and budget <= 0:
+        if remaining and (budget <= 0 or len(events) >= 64):
             more = True
             break
         # per_block is a per-window event budget, never an omission policy.
         take = min(len(remaining), budget, per_block)
         if take:
             parts.append(separator + remaining[:take])
+            events.append({**metadata[index], "text": remaining[:take], "offset": begin, "complete": begin == 0 and begin + take == len(text)})
             used += len(separator) + take
         end = begin + take
         next_cursor = PREFIX + json.dumps({'line': number, 'offset': end,
@@ -130,4 +138,4 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
             break
     first = next((r[2] for r in records if r[2]), '')
     synthetic = first.startswith('[user] SESSION DIGEST (user/assistant prose + tool names; tool outputs omitted):')
-    return MiningWindow(''.join(parts), next_cursor, more, tuple(warnings), synthetic)
+    return MiningWindow(''.join(parts), next_cursor, more, tuple(warnings), synthetic, tuple(events))
