@@ -1,0 +1,10 @@
+{
+  "recall_at_5": 0.0,
+  "recall_at_10": 0.0,
+  "mrr": 0.0,
+  "answer_accuracy": null,
+  "judge_accuracy": null,
+  "stale_answer_rate": null,
+  "latency_ms_p95": 333.33087619394064,
+  "context_chars_mean": 72.5
+}

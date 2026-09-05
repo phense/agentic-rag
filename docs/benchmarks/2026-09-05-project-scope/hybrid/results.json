@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "created_at": "2026-09-05T21:24:25.120164+00:00",
+    "revision": "7c105457ff64f8570afc7c9324949e8d2923893d",
+    "source_sha256": "2db151d051412ed1a54c98bca187bedb5b7324f80b99e98ec64e5020722bc0e3",
+    "corpus_sha256": "b55c9f7665b724e6a95d8aca255cf41ddc8c087fccd0f1ace3a887a0b7792bbe",
+    "corpus_version": 1,
+    "synthetic": true,
+    "mode": "retrieval",
+    "smoke": false,
+    "prompt_version": "memory-benchmark-v1",
+    "python": "3.13.12",
+    "platform": "Darwin",
+    "embedding_model": "bge-m3",
+    "llm_provider": null,
+    "llm_model": null,
+    "llm_reasoning": "high",
+    "answer_scoring": "word-boundary alias match; optional separate semantic model judge",
+    "token_estimation": "ceil(context characters / 4), not measured model usage",
+    "uncertainty": "fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases"
+  },
+  "config": {
+    "project": null,
+    "scope": null,
+    "search_mode": "hybrid",
+    "context_chars": 4000,
+    "k": 10,
+    "split": "all",
+    "answers": false,
+    "judge": false,
+    "query_ids": [
+      "alpha-en",
+      "beta-en",
+      "alpha-de",
+      "beta-de",
+      "global",
+      "all",
+      "unknown-hidden",
+      "project-hidden-global"
+    ],
+    "source_ids": [
+      "alpha",
+      "beta",
+      "global",
+      "unknown"
+    ],
+    "mine_max_digest_chars": 12000,
+    "mine_per_block_chars": 800
+  },
+  "cleanup": "verified",
+  "rows": [
+    {
+      "query_id": "alpha-en",
+      "category": "project-scope",
+      "language": "en",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "alpha",
+        "global"
+      ],
+      "expected_ids": [
+        "alpha"
+      ],
+      "hits": [
+        {
+          "source_id": "alpha",
+          "score": 0.04918032786885246,
+          "title": "alpha ScopeFaultError",
+          "snippet": "# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712."
+        },
+        {
+          "source_id": "global",
+          "score": 0.016129032258064516,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[alpha] alpha ScopeFaultError\n# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712.\n[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 160,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 189.72450029104948,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "beta-en",
+      "category": "project-scope",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/scope-beta",
+      "scope": "project",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "beta",
+        "global"
+      ],
+      "expected_ids": [
+        "beta"
+      ],
+      "hits": [
+        {
+          "source_id": "beta",
+          "score": 0.04918032786885246,
+          "title": "beta ScopeFaultError",
+          "snippet": "# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813."
+        },
+        {
+          "source_id": "global",
+          "score": 0.016129032258064516,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[beta] beta ScopeFaultError\n# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813.\n[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 157,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 178.50812524557114,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "alpha-de",
+      "category": "project-scope",
+      "language": "de",
+      "split": "dev",
+      "unanswerable": false,
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "alpha",
+        "global"
+      ],
+      "expected_ids": [
+        "alpha"
+      ],
+      "hits": [
+        {
+          "source_id": "alpha",
+          "score": 0.04918032786885246,
+          "title": "alpha ScopeFaultError",
+          "snippet": "# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712."
+        },
+        {
+          "source_id": "global",
+          "score": 0.016129032258064516,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[alpha] alpha ScopeFaultError\n# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712.\n[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 160,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 176.25516559928656,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "beta-de",
+      "category": "project-scope",
+      "language": "de",
+      "split": "test",
+      "unanswerable": false,
+      "project": "/synthetic/scope-beta",
+      "scope": "project",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "beta",
+        "global"
+      ],
+      "expected_ids": [
+        "beta"
+      ],
+      "hits": [
+        {
+          "source_id": "beta",
+          "score": 0.04918032786885246,
+          "title": "beta ScopeFaultError",
+          "snippet": "# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813."
+        },
+        {
+          "source_id": "global",
+          "score": 0.016129032258064516,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[beta] beta ScopeFaultError\n# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813.\n[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 157,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 175.50162505358458,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "global",
+      "category": "scope-boundary",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": null,
+      "scope": "global",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "global"
+      ],
+      "expected_ids": [
+        "global"
+      ],
+      "hits": [
+        {
+          "source_id": "global",
+          "score": 0.04918032786885246,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 55,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 162.59329114109278,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "all",
+      "category": "scope-boundary",
+      "language": "en",
+      "split": "test",
+      "unanswerable": false,
+      "project": null,
+      "scope": "all",
+      "ranking": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "retrieved_source_ids": [
+        "alpha",
+        "beta",
+        "unknown",
+        "global"
+      ],
+      "expected_ids": [
+        "alpha",
+        "beta"
+      ],
+      "hits": [
+        {
+          "source_id": "alpha",
+          "score": 0.04891591750396616,
+          "title": "alpha ScopeFaultError",
+          "snippet": "# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712."
+        },
+        {
+          "source_id": "beta",
+          "score": 0.048651507139079855,
+          "title": "beta ScopeFaultError",
+          "snippet": "# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813."
+        },
+        {
+          "source_id": "unknown",
+          "score": 0.015873015873015872,
+          "title": "Unknown internal note",
+          "snippet": "# Unknown internal note\n\nPrivateMarker is UNASSIGNED_982."
+        },
+        {
+          "source_id": "global",
+          "score": 0.015625,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[alpha] alpha ScopeFaultError\n# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712.\n[beta] beta ScopeFaultError\n# beta ScopeFaultError\n\nScopeFaultError remediation service port is 8813.\n[unknown] Unknown internal note\n# Unknown internal note\n\nPrivateMarker is UNASSIGNED_982.\n[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 352,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 160.84770765155554,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "unknown-hidden",
+      "category": "scope-boundary",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "global",
+        "alpha"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "global",
+          "score": 0.01639344262295082,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        },
+        {
+          "source_id": "alpha",
+          "score": 0.016129032258064516,
+          "title": "alpha ScopeFaultError",
+          "snippet": "# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712."
+        }
+      ],
+      "context": "[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n[alpha] alpha ScopeFaultError\n# alpha ScopeFaultError\n\nScopeFaultError remediation service port is 7712.\n",
+      "context_chars": 160,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 347.6898754015565,
+      "answer": null,
+      "judge": null
+    },
+    {
+      "query_id": "project-hidden-global",
+      "category": "scope-boundary",
+      "language": "en",
+      "split": "test",
+      "unanswerable": true,
+      "project": null,
+      "scope": "global",
+      "ranking": {
+        "recall_at_5": null,
+        "recall_at_10": null,
+        "mrr": null
+      },
+      "retrieved_source_ids": [
+        "global"
+      ],
+      "expected_ids": [],
+      "hits": [
+        {
+          "source_id": "global",
+          "score": 0.01639344262295082,
+          "title": "Global retry",
+          "snippet": "# Global retry\n\nRetryLimit is 4."
+        }
+      ],
+      "context": "[global] Global retry\n# Global retry\n\nRetryLimit is 4.\n",
+      "context_chars": 55,
+      "warnings": [],
+      "error": null,
+      "latency_ms": 160.52995901554823,
+      "answer": null,
+      "judge": null
+    }
+  ],
+  "summary": {
+    "queries": 8,
+    "answerable_queries": 6,
+    "failed_queries": 0,
+    "answer_scored_queries": 0,
+    "answer_accuracy": null,
+    "unanswerable_accuracy": null,
+    "false_abstention_rate": null,
+    "stale_answer_rate": null,
+    "latency_ms_p50": 175.50162505358458,
+    "latency_ms_p95": 347.6898754015565,
+    "context_chars_mean": 157.0,
+    "context_tokens_estimate_mean": 39.5,
+    "recall_at_5": 1.0,
+    "recall_at_5_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "recall_at_10": 1.0,
+    "recall_at_10_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "mrr": 1.0,
+    "mrr_bootstrap_95": [
+      1.0,
+      1.0
+    ],
+    "judge_scored_queries": 0,
+    "judge_accuracy": null
+  },
+  "by_split": {
+    "dev": {
+      "queries": 2,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 176.25516559928656,
+      "latency_ms_p95": 189.72450029104948,
+      "context_chars_mean": 160.0,
+      "context_tokens_estimate_mean": 40.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "test": {
+      "queries": 6,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 162.59329114109278,
+      "latency_ms_p95": 347.6898754015565,
+      "context_chars_mean": 156.0,
+      "context_tokens_estimate_mean": 39.333333333333336,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "by_category": {
+    "project-scope": {
+      "queries": 4,
+      "answerable_queries": 4,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 176.25516559928656,
+      "latency_ms_p95": 189.72450029104948,
+      "context_chars_mean": 158.5,
+      "context_tokens_estimate_mean": 40.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    },
+    "scope-boundary": {
+      "queries": 4,
+      "answerable_queries": 2,
+      "failed_queries": 0,
+      "answer_scored_queries": 0,
+      "answer_accuracy": null,
+      "unanswerable_accuracy": null,
+      "false_abstention_rate": null,
+      "stale_answer_rate": null,
+      "latency_ms_p50": 160.84770765155554,
+      "latency_ms_p95": 347.6898754015565,
+      "context_chars_mean": 155.5,
+      "context_tokens_estimate_mean": 39.0,
+      "recall_at_5": 1.0,
+      "recall_at_5_bootstrap_95": null,
+      "recall_at_10": 1.0,
+      "recall_at_10_bootstrap_95": null,
+      "mrr": 1.0,
+      "mrr_bootstrap_95": null,
+      "judge_scored_queries": 0,
+      "judge_accuracy": null
+    }
+  },
+  "ingestion": {
+    "total_sources": 4,
+    "indexed_sources": 4,
+    "failed_sources": [],
+    "failures": {},
+    "elapsed_ms": 2298.0809584259987
+  },
+  "provider": {
+    "model_calls_attempted": 0,
+    "cost_usd": null,
+    "usage_tokens": null,
+    "cost_status": "not exposed by the configured structured CLI interface"
+  },
+  "elapsed_ms": 3924.7872922569513
+}

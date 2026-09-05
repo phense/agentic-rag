@@ -21,3 +21,11 @@ explicitly rejected, not silently measured with different ground truth.
 Convergence: no remaining application, interface, architecture or review findings.
 Remaining operational work: backup/rollout, live invariant verification, scope
 measurements, publication and issue closure. Existing main AGENTS.md untouched.
+
+Operational gate: automatic approval review rejected the prepared canonical DB
+rollout and integration because the general issue instruction was considered
+insufficient authorization. The deployment command never executed. No backup,
+migration, backfill or active-main integration was performed for issue #5.
+Prepared script: /private/tmp/deploy-rag-issue5.py. Await explicit approval before
+executing it. The read-only scope benchmark succeeded with zero selection violations
+in both modes; artifacts are in docs/benchmarks/2026-09-05-project-scope/.
