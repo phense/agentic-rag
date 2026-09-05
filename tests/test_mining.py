@@ -263,8 +263,8 @@ def test_mine_session_dedup_records_duplicate_of_edge(conn, tmp_path,
                                                       monkeypatch):
     _seed_domains(conn)
     existing = conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, body) VALUES"
-        " ('known-fact', 'programming', 'memory', 'Known fact', 'the body')"
+        "INSERT INTO documents(slug, domain, dtype, title, body, project_scope) VALUES"
+        " ('known-fact', 'programming', 'memory', 'Known fact', 'the body', '/scope/dedup')"
         " RETURNING id").fetchone()
     conn.execute(
         "INSERT INTO chunks(document_id, idx, content, embedding)"
@@ -281,7 +281,7 @@ def test_mine_session_dedup_records_duplicate_of_edge(conn, tmp_path,
     res = mining.mine_session(
         conn, _no_embed_cfg(), session_id="s4",
         transcript_path=_transcript(tmp_path),
-        last_uuid=None, project=None, runner=_runner_returning(payload))
+        last_uuid=None, project="/scope/dedup", runner=_runner_returning(payload))
     assert res.saved == 1
     assert res.duplicates == 1
     doc = get_document(conn, "known-fact-restated")

@@ -90,18 +90,23 @@ def run(payload: dict, stdout) -> None:
         q = tokens_to_tsquery(sig)
         if not q:
             return
+        from ..scope import selection
+        from ..pins import matching_pins
+        project = payload.get("cwd")
+        scopes = selection(project, "project" if project else "global")
         cfg = load_config()
         conn = db.connect(cfg, role="reader")
         try:
             rows = conn.execute(
-                "SELECT * FROM recall_signals(%s, %s)",
-                (q, _MAX_HITS)).fetchall()
+                "SELECT * FROM recall_signals_scoped(%s, %s, %s)",
+                (q, _MAX_HITS, scopes)).fetchall()
+            pin_ids = [p.id for p in matching_pins(conn, project)]
             pin_rows = conn.execute(
-                "SELECT body FROM pins WHERE active"
+                "SELECT body FROM pins WHERE active AND id = ANY(%s::uuid[])"
                 " AND to_tsvector('english', body)"
                 "     @@ to_tsquery('english', %s)"
                 " ORDER BY priority, created_at LIMIT %s",
-                (q, _MAX_HITS)).fetchall()
+                (pin_ids, q, _MAX_HITS)).fetchall()
         finally:
             conn.close()
         if not rows and not pin_rows:

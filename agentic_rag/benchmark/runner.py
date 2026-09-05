@@ -133,14 +133,20 @@ def source_hash():
 def run(cfg, *, output: Path, corpus_path: Path | None=None,
         mode='retrieval', search_mode='hybrid', context_chars=4000,
         split='all', limit: int | None=None, answers=False, judge=False,
-        smoke=False, progress=None) -> dict:
+        smoke=False, progress=None, project=None, scope=None) -> dict:
     if mode not in {'retrieval','end-to-end'} or search_mode not in {'fts','hybrid'}:
         raise ValueError('invalid benchmark mode')
     if split not in {'all','dev','test'} or context_chars<32 or (limit is not None and limit<1):
         raise ValueError('invalid split, context budget or limit')
     if judge and not answers:
         raise ValueError('judging requires the answer stage')
+    from ..scope import selection
+    selection(project, scope)
     corpus,corpus_hash=load(corpus_path)
+    if mode == "end-to-end" and (project is not None or scope is not None
+            or any(d.get("scope") is not None for d in corpus["documents"])
+            or any(q.get("project") is not None or q.get("scope") is not None for q in corpus["queries"])):
+        raise ValueError("scoped benchmark corpora require retrieval mode; mining scope overrides are unsupported")
     queries=[q for q in corpus['queries'] if split=='all' or q['split']==split]
     if limit is not None:queries=queries[:limit]
     if not queries:raise ValueError('no selected benchmark queries')
@@ -172,7 +178,7 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
             'answer_scoring':'word-boundary alias match; optional separate semantic model judge',
             'token_estimation':'ceil(context characters / 4), not measured model usage',
             'uncertainty':'fixed-seed query bootstrap; synthetic corpus only; no interval below 5 cases'},
-            'config':{'search_mode':search_mode,'context_chars':context_chars,'k':10,'split':split,
+            'config':{'project':project,'scope':scope,'search_mode':search_mode,'context_chars':context_chars,'k':10,'split':split,
                       'answers':answers,'judge':judge,'query_ids':[q['id'] for q in queries],
                       'source_ids':[d['id'] for d in documents],
                       'mine_max_digest_chars':cfg.mine_max_digest_chars,
@@ -190,7 +196,9 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                         if mode=='retrieval':
                             saved=store.save_document(writer,isolated,title=document['title'],body=document['body'],
                                 domain='general',dtype='memory',meta={'project':document['project']},
-                                provenance={'origin':'synthetic-benchmark','source_id':document['id']})
+                                provenance={'origin':'synthetic-benchmark','source_id':document['id']},
+                                project=document['project'] if document['project'].startswith('/') else None,
+                                scope=document.get('scope'))
                             mapping[saved.doc_id]=document['id']
                         else:
                             if provider_failed:raise RuntimeError('not attempted after provider outage')
@@ -200,7 +208,8 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                             cursor=None
                             for _ in range(200):
                                 result=mining.mine_session(writer,isolated,session_id='bench-'+document['id'],
-                                    transcript_path=str(path),last_uuid=cursor,project='/synthetic/'+document['project'],
+                                    transcript_path=str(path),last_uuid=cursor,
+                                    project=document['project'] if document['project'].startswith('/') else '/synthetic/'+document['project'],
                                     runner=tracked_runner)
                                 cursor=result.new_last_uuid
                                 if not result.has_more:break
@@ -232,7 +241,8 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     if progress:progress(f'Search {number}/{len(queries)}: {query["id"]}')
                     before=time.perf_counter();error=None;warnings=[];hits=[]
                     try:
-                        hits,warnings=search.search(reader,isolated,query['query'],k=10)
+                        hits,warnings=search.search(reader,isolated,query['query'],k=10,
+                            project=query.get('project',project),scope=query.get('scope',scope))
                         if any(identity not in indexed for identity in query['expected_ids']):
                             error='one or more expected sources failed ingestion/indexing'
                     except Exception as exc:
@@ -241,6 +251,7 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                     ids=[mapping.get(hit.document_id,'unknown') for hit in hits]
                     rows.append({'query_id':query['id'],'category':query['category'],'language':query['language'],
                         'split':query['split'],'unanswerable':query['unanswerable'],
+                        'project':query.get('project',project),'scope':query.get('scope',scope),
                         'ranking':rank_metrics(ids,query['expected_ids']),
                         'retrieved_source_ids':ids,'expected_ids':query['expected_ids'],
                         'hits':[{'source_id':mapping.get(hit.document_id,'unknown'),'score':hit.score,
@@ -296,6 +307,7 @@ def compare(before,after):
     if (before['metadata']['corpus_sha256']!=after['metadata']['corpus_sha256']
         or before['metadata']['mode']!=after['metadata']['mode']
         or any(before['config'][key]!=after['config'][key] for key in ['context_chars','k','query_ids','source_ids','answers','judge'])
+        or any(before['config'].get(key)!=after['config'].get(key) for key in ['project','scope'])
         or any(before['metadata'][key]!=after['metadata'][key] for key in ['prompt_version','llm_provider','llm_model','llm_reasoning'])):
         raise ValueError('comparison requires identical corpus, mode, query/source selection and context budget')
     keys=['recall_at_5','recall_at_10','mrr','answer_accuracy','judge_accuracy','stale_answer_rate','latency_ms_p95','context_chars_mean']

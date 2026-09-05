@@ -67,13 +67,16 @@ def memory_domains() -> dict:
         return {"domains": _plain(list_domains(conn))}
 
 
-def memory_search(query: str, domain: str | None = None, k: int = 8) -> dict:
+def memory_search(query: str, domain: str | None = None, k: int = 8,
+                  project: str | None = None, scope: str | None = None) -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
-    use memory_get(slug) for the full document."""
+    use memory_get(slug) for the full document. project selects that project plus
+    global context; scope=global is global-only, scope=all explicitly searches all.
+    Omitting both retains manual cross-project search."""
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope)
         return {"results": _plain(hits), "warnings": warnings}
 
 
@@ -93,7 +96,8 @@ def memory_get(id_or_slug: str) -> dict:
 
 
 def memory_neighbors(id_or_slug: str, depth: int = 1,
-                     predicates: list[str] | None = None) -> dict:
+                     predicates: list[str] | None = None, project: str | None = None,
+                     scope: str | None = None) -> dict:
     """Graph traversal: every edge within `depth` hops of the document
     (undirected), optionally filtered to specific predicates."""
     cfg, conn = _connect()
@@ -103,11 +107,12 @@ def memory_neighbors(id_or_slug: str, depth: int = 1,
             return {"error": f"not found: {id_or_slug}"}
         return {"edges": _plain(graph.neighbors(conn, doc_id,
                                                 depth=min(depth, 3),
-                                                predicates=predicates))}
+                                                predicates=predicates, project=project, scope=scope))}
 
 
 def memory_path(from_id_or_slug: str, to_id_or_slug: str,
-                max_depth: int = 4) -> dict:
+                max_depth: int = 4, project: str | None = None,
+                scope: str | None = None) -> dict:
     """How do X and Y relate? The shortest edge path between two documents
     (empty steps = no connection within max_depth)."""
     cfg, conn = _connect()
@@ -117,7 +122,7 @@ def memory_path(from_id_or_slug: str, to_id_or_slug: str,
         if a is None or b is None:
             missing = from_id_or_slug if a is None else to_id_or_slug
             return {"error": f"not found: {missing}"}
-        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth))}
+        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope))}
 
 
 def memory_timeline(id_or_slug: str) -> dict:
@@ -136,7 +141,8 @@ def memory_timeline(id_or_slug: str) -> dict:
 def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
                 slug: str | None = None, doc_id: str | None = None,
                 edges: list[dict] | None = None,
-                mark_verified: bool = False) -> dict:
+                mark_verified: bool = False, project: str | None = None,
+                scope: str | None = None) -> dict:
     """Save knowledge through the write gateway (secret-strip, chunk, embed,
     edge resolution, audit). Pass doc_id to UPDATE an existing document.
     IMPORTANT: when the user corrects or confirms stored knowledge, update
@@ -160,7 +166,7 @@ def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
             conn, cfg, title=title, body=body, domain=domain, dtype=dtype,
             slug=slug, doc_id=doc_id, edges=specs,
             provenance={"origin": "manual", "via": "mcp"},
-            actor="claude", mark_verified=mark_verified)
+            actor="claude", mark_verified=mark_verified, project=project, scope=scope)
         return _plain(res)
 
 

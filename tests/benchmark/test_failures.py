@@ -95,3 +95,14 @@ def test_invalid_labels_cannot_inflate_scores(key,value):
     corpus['queries'][0][key] = value
     with pytest.raises(ValueError, match='label list'):
         validate(corpus)
+
+
+def test_scoped_model_corpus_rejected_before_database_or_provider(tmp_path,monkeypatch):
+    from pathlib import Path
+    from agentic_rag.config import Config
+    from agentic_rag.benchmark import corpus,runner
+    monkeypatch.setattr(runner,'isolated_database',lambda *a:pytest.fail('must reject before DB work'))
+    with pytest.raises(ValueError,match='require retrieval mode'):
+        runner.run(Config(),corpus_path=Path(corpus.__file__).with_name('corpus-scope-v1.json'),
+                   mode='end-to-end',output=tmp_path/'must-not-create')
+    assert not (tmp_path/'must-not-create').exists()

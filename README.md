@@ -391,6 +391,9 @@ agentic-rag builds on other people's ideas and tools:
 
 ---
 
+Project and global applicability now share [one explicit scope policy](docs/project-scope.md):
+`rag search "your question" --project /absolute/repository`.
+
 ## Contributing
 
 Tests come first (TDD), and `docs/` is kept in step with the code. A **warn-only doc-reminder hook** ships under `.githooks/`: if a commit touches `agentic_rag/` or `sql/` without touching `docs/`, it prints a reminder — it never blocks. Enable it once per clone:

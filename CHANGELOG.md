@@ -8,6 +8,11 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
+- **Consistent project applicability (issue #5).** CLI/MCP scope selectors,
+  Git-worktree/symlink normalization, before-limit retrieval and every-hop graph
+  filtering, scoped hooks/pins, equal-known-scope curation and audited legacy
+  repair. Migration 010 keeps unknown distinct from explicit global scope;
+  scope-only repairs preserve content timestamps.
 - **Reproducible memory benchmark (issue #3).** `rag benchmark run/compare` uses a
   versioned synthetic EN/DE corpus and isolated local database. It separates
   curated retrieval from session extraction and optional answers/judging, records

@@ -33,6 +33,10 @@ def validate(corpus: dict) -> None:
     by_id = {d['id']: d for d in documents}
     if len(by_id) != len(documents) or len({q['id'] for q in queries}) != len(queries):
         raise ValueError('duplicate corpus identity')
+    from ..scope import selection, write_scope
+    for document in documents:
+        if document.get("scope") is not None:
+            write_scope(document["project"] if document["project"].startswith("/") else None, document["scope"])
     families = {}
     for q in queries:
         if q.get('split') not in {'dev', 'test'}:
@@ -48,6 +52,13 @@ def validate(corpus: dict) -> None:
                 raise ValueError('unanswerable queries cannot have expected evidence/answers')
         elif not q['expected_ids'] or not q['answers']:
             raise ValueError('answerable queries require evidence and answers')
+        selected = selection(q.get("project"), q.get("scope"))
+        if selected is not None:
+            for identity in q["expected_ids"]:
+                doc = by_id[identity]
+                target = write_scope(doc["project"] if doc["project"].startswith("/") else None, doc.get("scope")) or "unknown"
+                if target not in selected:
+                    raise ValueError("expected evidence outside query scope")
         family = q.get('family', q['id'])
         if family in families and families[family] != q['split']:
             raise ValueError('query family leaks across split')

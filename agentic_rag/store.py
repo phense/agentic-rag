@@ -76,6 +76,8 @@ def save_document(
     mark_verified: bool = False,
     status: str | None = None,
     commit: bool = True,
+    project: str | None = None,
+    scope: str | None = None,
 ) -> SaveResult:
     # commit=False lets a bounded mining batch own the outer transaction;
     # the caller must commit or roll back all its effects together.
@@ -90,6 +92,17 @@ def save_document(
     # once mining exists — they must pass the secret gateway like title/body
     meta, r3 = strip_secrets_json(meta or {})
     provenance, r4 = strip_secrets_json(provenance or {})
+    from .scope import write_scope
+    if project is not None:
+        project = strip_secrets(project)[0]
+    project_scope = write_scope(project, scope, provenance if doc_id is None else None)
+    if project is None and scope is None and project_scope and meta.get("project") is not None:
+        try:
+            from .scope import project_id
+            if project_id(meta["project"]) != project_scope:
+                project_scope = None
+        except ValueError:
+            project_scope = None
     redactions = r1 + r2 + r3 + r4
     try:
         return _save_txn(conn, cfg, title=title, body=body, domain=domain,
@@ -97,7 +110,8 @@ def save_document(
                          provenance=provenance, edges=edges, doc_id=doc_id,
                          actor=actor, redactions=redactions,
                          warnings=warnings, mark_verified=mark_verified,
-                         status=status, commit=commit)
+                         status=status, commit=commit, project_scope=project_scope,
+                         scope_explicit=project is not None or scope is not None)
     except Exception:
         # never leave a long-lived connection (MCP session) in an aborted txn
         if commit:
@@ -107,7 +121,7 @@ def save_document(
 
 def _save_txn(
     conn, cfg, *, title, body, domain, dtype, slug, meta, provenance,
-    edges, doc_id, actor, redactions, warnings, mark_verified, status, commit=True,
+    edges, doc_id, actor, redactions, warnings, mark_verified, status, commit=True, project_scope=None, scope_explicit=False,
 ) -> SaveResult:
     if not conn.execute(
         "SELECT 1 FROM domains WHERE name = %s", (domain,)
@@ -119,20 +133,22 @@ def _save_txn(
     if created:
         the_slug = slug or _unique_slug(conn, slugify(title))
         row = conn.execute(
-            "INSERT INTO documents(slug, domain, dtype, title, body, meta, provenance, status)"
-            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id",
+            "INSERT INTO documents(slug, domain, dtype, title, body, meta, provenance, status, project_scope, scope_explicit)"
+            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id",
             (the_slug, domain, dtype, title, body,
              json.dumps(meta or {}), json.dumps(provenance or {}),
-             status or "active"),
+             status or "active", project_scope or "unknown", scope_explicit),
         ).fetchone()
         doc_id = str(row["id"])
     else:
         row = conn.execute(
             "UPDATE documents SET title=%s, body=%s, domain=%s, dtype=%s,"
             " status = COALESCE(%s::text, status),"
+            " project_scope = COALESCE(%s::text, project_scope),"
+            " scope_explicit = scope_explicit OR %s,"
             " meta = meta || %s::jsonb, provenance = provenance || %s::jsonb"
             " WHERE id = %s RETURNING slug",
-            (title, body, domain, dtype, status, json.dumps(meta or {}),
+            (title, body, domain, dtype, status, project_scope, scope_explicit, json.dumps(meta or {}),
              json.dumps(provenance or {}), doc_id),
         ).fetchone()
         if row is None:
@@ -285,3 +301,28 @@ def reembed_document(conn, cfg: Config, doc_id: str) -> int:
         (doc_id, f"re-embedded {len(chunks)} chunks"))
     conn.commit()
     return len(chunks)
+
+
+def set_project_scope(conn, doc_id: str, *, project: str | None = None,
+                      scope: str | None = None, expected_scope: str | None = None,
+                      actor: str = 'cli', commit: bool = True) -> bool:
+    """Audited applicability repair without re-embedding or changing provenance."""
+    from .scope import write_scope
+    value = write_scope(project=strip_secrets(project)[0] if project else None, scope=scope)
+    if value is None:
+        raise ValueError('scope repair requires explicit project or scope')
+    try:
+        row = conn.execute(
+            'UPDATE documents SET project_scope=%s, scope_explicit=%s WHERE id=%s'
+            ' AND (project_scope IS DISTINCT FROM %s OR scope_explicit IS DISTINCT FROM %s)'
+            ' AND (%s::text IS NULL OR project_scope=%s)'
+            ' AND (%s::boolean OR NOT scope_explicit) RETURNING id',
+            (value,actor != 'migration',doc_id,value,actor != 'migration',expected_scope,expected_scope,actor != 'migration')).fetchone()
+        if row:
+            conn.execute('INSERT INTO audit_log(actor,op,document_id,summary) VALUES (%s,%s,%s,%s)',
+                         (actor,'set_project_scope',doc_id,f'applicability set to {value}'))
+        if commit:conn.commit()
+        return row is not None
+    except Exception:
+        if commit:conn.rollback()
+        raise

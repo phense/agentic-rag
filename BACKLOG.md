@@ -181,9 +181,9 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Completed:* 60-query retrieval baseline, real eight-query extraction/answer/judge smoke, all eight results inspected, 665-test suite and GitHub offline CI verified. See [model inspection](docs/benchmarks/2026-09-05-memory-model-smoke/inspection.md). *(M)*
 - ✅ **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
   → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Completed:* implementation, independent review, deployment after backup and publication verified; issue closed. Historical backfill is separate. *(M–L)*
-- ⬜ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
-  → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* analysis complete; implementation and rollout pending.
-  → *Trigger:* define legacy scope mapping and project/global query semantics. *(M)*
+- 🔵 **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
+  → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* implementation and independent review complete; 685 tests pass; backup, deployment and publication pending.
+  → *Trigger:* apply migration 010 and audited backfill under worker lock; verify scope benchmark and live invariants. *(M)*
 - ⬜ **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
   → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* after scope and minimal source-evidence contracts are defined. *(L)*

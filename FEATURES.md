@@ -10,6 +10,11 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 
 ## Memory platform
 
+- ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown
+  applicability across search, recall, startup assembly and optional graph traversal;
+  same-known-scope curation, audited legacy repair and synthetic scope fixtures.
+  See [scope policy and rollout](docs/project-scope.md).
+
 - ✅ **Synthetic memory benchmark (issue #3).** Versioned 60-query EN/DE corpus,
   real gateway/mining and retrieval modes in an owned temporary database,
   source-recall/answer metrics, failure denominators, context budgets, latency,

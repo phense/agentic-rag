@@ -39,7 +39,9 @@ def _validate_scope(conn, scope: str) -> None:
 def add_pin(conn, *, body: str | None = None, document_id: str | None = None,
             scope: str = "global", priority: int = 100,
             actor: str = "cli") -> str:
+    from .scope import path_anchor
     _validate_scope(conn, scope)
+    canonical_path = path_anchor(scope) if scope.startswith("/") else None
     if body is None and document_id is None:
         raise ValueError("a pin needs body text or a document_id")
     if body is None:
@@ -50,9 +52,9 @@ def add_pin(conn, *, body: str | None = None, document_id: str | None = None,
             raise ValueError(f"no such document: {document_id}")
         body = f"[[{row['slug']}]] — {row['title']}"
     row = conn.execute(
-        "INSERT INTO pins(document_id, body, scope, priority)"
-        " VALUES (%s, %s, %s, %s) RETURNING id",
-        (document_id, body, scope, priority)).fetchone()
+        "INSERT INTO pins(document_id, body, scope, priority, scope_path)"
+        " VALUES (%s, %s, %s, %s, %s) RETURNING id",
+        (document_id, body, scope, priority, canonical_path)).fetchone()
     pin_id = str(row["id"])
     conn.execute(
         "INSERT INTO audit_log(actor, op, summary) VALUES (%s, %s, %s)",
@@ -87,13 +89,11 @@ def matching_pins(conn, project_dir: str | None) -> list[PinInfo]:
     Domain-scoped pins are deliberately NOT matched here — no domain is
     knowable from a cwd; they surface via rag pin list / rag review.
     """
+    from .scope import pin_paths
     rows = conn.execute(
         "SELECT * FROM pins WHERE active"
-        " AND (scope = 'global'"
-        "      OR (%s::text IS NOT NULL AND scope LIKE '/%%'"
-        "          AND (%s::text = scope OR %s::text LIKE scope || '/%%')))"
-        " ORDER BY priority, created_at",
-        (project_dir, project_dir, project_dir)).fetchall()
+        " AND (scope = 'global' OR COALESCE(scope_path, scope) = ANY(%s))"
+        " ORDER BY priority, created_at", (pin_paths(project_dir),)).fetchall()
     return [
         PinInfo(str(r["id"]), _s(r["document_id"]), r["body"], r["scope"],
                 r["priority"], r["active"], r["created_at"],
@@ -140,3 +140,20 @@ def render_pins(pin_list: list[PinInfo], *, stale_days: int,
 
 def _s(v) -> str | None:
     return str(v) if v is not None else None
+
+
+def refresh_scope_paths(conn) -> int:
+    """Repair derived path anchors only; caller owns transaction, raw pins unchanged."""
+    from .scope import path_anchor
+    count = 0
+    for row in conn.execute("SELECT id,scope,scope_path FROM pins WHERE left(scope,1)='/'").fetchall():
+        value = path_anchor(row['scope'])
+        changed = conn.execute(
+            'UPDATE pins SET scope_path=%s WHERE id=%s AND scope=%s'
+            ' AND scope_path IS DISTINCT FROM %s',
+            (value,row['id'],row['scope'],value)).rowcount
+        if changed:
+            conn.execute('INSERT INTO audit_log(actor,op,summary) VALUES (%s,%s,%s)',
+                         ('migration','pin_scope_path',f"normalized derived path for pin {row['id']}"))
+        count += changed
+    return count

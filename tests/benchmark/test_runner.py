@@ -102,3 +102,18 @@ def test_database_is_gone_after_cli_success(cfg,tmp_path,monkeypatch,capsys):
         assert connection.execute('SELECT datname FROM pg_database WHERE datname = ANY(%s)',
                                   (list(set(seen)),)).fetchall() == []
     assert 'Reports:' in capsys.readouterr().out
+
+
+def test_scope_corpus_has_no_foreign_or_unknown_context(cfg,tmp_path):
+    from pathlib import Path
+    from agentic_rag.benchmark import corpus
+    from agentic_rag.benchmark.runner import run
+    report=run(cfg,corpus_path=Path(corpus.__file__).with_name('corpus-scope-v1.json'),
+               output=tmp_path/'scope',search_mode='fts')
+    assert report['summary']['recall_at_5']==1
+    rows={r['query_id']:r for r in report['rows']}
+    assert rows['alpha-en']['retrieved_source_ids']==['alpha']
+    assert rows['beta-de']['retrieved_source_ids']==['beta']
+    assert set(rows['all']['retrieved_source_ids'])=={'alpha','beta'}
+    assert rows['unknown-hidden']['retrieved_source_ids']==[]
+    assert rows['project-hidden-global']['retrieved_source_ids']==[]

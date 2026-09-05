@@ -9,8 +9,8 @@ from agentic_rag.config import Config
 def _doc(conn, slug, *, domain="d", dtype="memory", title=None, body="b",
          status="active"):
     return str(conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, body, status)"
-        " VALUES (%s,%s,%s,%s,%s,%s) RETURNING id",
+        "INSERT INTO documents(slug, domain, dtype, title, body, status, project_scope)"
+        " VALUES (%s,%s,%s,%s,%s,%s,'global') RETURNING id",
         (slug, domain, dtype, title or slug, body, status)).fetchone()["id"])
 
 

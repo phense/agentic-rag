@@ -46,8 +46,8 @@ def _seed_signal(conn, slug, signal_text):
     conn.execute("INSERT INTO domains(name) VALUES ('d')"
                  " ON CONFLICT DO NOTHING")
     doc = conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, body)"
-        " VALUES (%s, 'd', 'signal', %s, %s) RETURNING id",
+        "INSERT INTO documents(slug, domain, dtype, title, body, project_scope)"
+        " VALUES (%s, 'd', 'signal', %s, %s, 'global') RETURNING id",
         (slug, slug, f"lesson body\n\n## Signal\n\n{signal_text}")
     ).fetchone()
     conn.execute(

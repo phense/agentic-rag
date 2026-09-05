@@ -36,10 +36,13 @@ class TimelineEdge:
 
 
 def neighbors(conn, doc_id: str, depth: int = 1,
-              predicates: list[str] | None = None) -> list[EdgeHop]:
+              predicates: list[str] | None = None, *,
+              project: str | None = None, scope: str | None = None) -> list[EdgeHop]:
+    from .scope import selection
+    scopes = selection(project, scope)
     rows = conn.execute(
-        "SELECT * FROM graph_neighbors(%s, %s, %s)",
-        (doc_id, depth, predicates),
+        "SELECT * FROM graph_neighbors_scoped(%s, %s, %s, %s)",
+        (doc_id, depth, predicates, scopes),
     ).fetchall()
     return [
         EdgeHop(str(r["edge_id"]), str(r["src_id"]), str(r["dst_id"]),
@@ -48,12 +51,15 @@ def neighbors(conn, doc_id: str, depth: int = 1,
     ]
 
 
-def path(conn, from_id: str, to_id: str, max_depth: int = 4) -> list[PathStep]:
+def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
+         project: str | None = None, scope: str | None = None) -> list[PathStep]:
+    from .scope import selection
+    scopes = selection(project, scope)
     rows = conn.execute(
         "SELECT p.step, p.doc_id, p.via_predicate, d.slug, d.title"
-        " FROM graph_path(%s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
+        " FROM graph_path_scoped(%s, %s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
         " ORDER BY p.step",
-        (from_id, to_id, max_depth),
+        (from_id, to_id, max_depth, scopes),
     ).fetchall()
     return [
         PathStep(r["step"], str(r["doc_id"]), r["slug"], r["title"],

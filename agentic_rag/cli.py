@@ -79,6 +79,8 @@ def _main(argv: list[str] | None = None) -> int:
     dom_sub.add_parser("list")
 
     p_save = sub.add_parser("save")
+    p_save.add_argument("--project")
+    p_save.add_argument("--scope", choices=["project", "global", "unknown"])
     p_save.add_argument("--title", required=True)
     p_save.add_argument("--domain", required=True)
     p_save.add_argument("--dtype", required=True)
@@ -95,6 +97,8 @@ def _main(argv: list[str] | None = None) -> int:
 
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
+    p_search.add_argument("--project")
+    p_search.add_argument("--scope", choices=["project", "global", "all"])
     p_search.add_argument("--domain")
     p_search.add_argument("-k", type=int, default=8)
     p_search.add_argument("--json", action="store_true")
@@ -106,6 +110,8 @@ def _main(argv: list[str] | None = None) -> int:
     b_run = bench_sub.add_parser("run")
     b_run.add_argument("--output", type=Path, required=True)
     b_run.add_argument("--corpus", type=Path)
+    b_run.add_argument("--project")
+    b_run.add_argument("--scope", choices=["project", "global", "all"])
     b_run.add_argument("--mode", choices=["retrieval", "end-to-end"], default="retrieval")
     b_run.add_argument("--search-mode", choices=["fts", "hybrid"], default="hybrid")
     b_run.add_argument("--context-chars", type=int, default=4000)
@@ -150,6 +156,14 @@ def _main(argv: list[str] | None = None) -> int:
     p_rs.add_argument("--yes", action="store_true")
 
     sub.add_parser("review")
+    p_scope = sub.add_parser("scope", help="inspect or repair document applicability")
+    ss = p_scope.add_subparsers(dest="scope_cmd", required=True)
+    ss.add_parser("backfill", help="audit-map unambiguous legacy paths, retain unknowns")
+    ss.add_parser("report", help="show unknown legacy applicability")
+    sp = ss.add_parser("set")
+    sp.add_argument("id_or_slug")
+    sp.add_argument("--project")
+    sp.add_argument("--scope", choices=["project", "global", "unknown"])
 
     p_purge = sub.add_parser("purge")
     p_purge.add_argument("--older-days", type=int, default=30)
@@ -193,11 +207,27 @@ def _main(argv: list[str] | None = None) -> int:
         report = run(cfg, output=args.output, corpus_path=args.corpus, mode=args.mode,
                      search_mode=args.search_mode, context_chars=args.context_chars,
                      split=args.split, limit=args.limit, answers=args.answers,
-                     judge=args.judge, smoke=args.smoke,
+                     judge=args.judge, smoke=args.smoke, project=args.project, scope=args.scope,
                      progress=lambda message: print(message, file=sys.stderr))
         print(json.dumps(report['summary'], indent=2))
         print(f"Reports: {args.output / 'results.json'} and {args.output / 'report.md'}")
         return 3 if report['summary']['failed_queries'] or report['ingestion']['failed_sources'] else 0
+
+    if args.cmd == "scope":
+        from .scope import backfill
+        with db.connect(cfg, role="reader" if args.scope_cmd == "report" else "writer") as connection:
+            if args.scope_cmd == "backfill":
+                print(json.dumps(backfill(connection), indent=2))
+            elif args.scope_cmd == "report":
+                report = curation_mod.review_report(connection, cfg)
+                print(json.dumps({"unknown_count": report["unknown_scope_count"], "unknown": report["unknown_scopes"]}, default=_json_default, indent=2))
+            else:
+                doc = store.get_document(connection, args.id_or_slug)
+                if doc is None:
+                    raise ValueError("document not found")
+                store.set_project_scope(connection, str(doc["id"]), project=args.project, scope=args.scope)
+                print("scope saved")
+        return 0
 
     if args.cmd == "init-db":
         applied = db.init_db(cfg)
@@ -447,7 +477,7 @@ def _main(argv: list[str] | None = None) -> int:
             res = store.save_document(
                 conn, cfg, title=args.title, body=body, domain=args.domain,
                 dtype=args.dtype, edges=edges, actor="cli",
-                slug=args.slug, doc_id=doc_id,
+                slug=args.slug, doc_id=doc_id, project=args.project, scope=args.scope,
             )
             print(f"{'created' if res.created else 'updated'} {res.slug}"
                   f" ({res.n_chunks} chunks, {res.n_edges} edges)")
@@ -474,7 +504,8 @@ def _main(argv: list[str] | None = None) -> int:
 
         if args.cmd == "search":
             hits, warnings = search_mod.search(
-                conn, cfg, args.query, domain=args.domain, k=args.k)
+                conn, cfg, args.query, domain=args.domain, k=args.k,
+                project=args.project, scope=args.scope)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))
@@ -570,6 +601,7 @@ def _main(argv: list[str] | None = None) -> int:
 
         if args.cmd == "review":
             rep = curation_mod.review_report(conn, cfg)
+            print(f"unknown project scopes: {rep['unknown_scope_count']} (rag scope report)")
             print("duplicate candidates:")
             for d in rep["duplicate_candidates"]:
                 print(f"  {d['src_slug']} duplicate_of {d['dst_slug']}")

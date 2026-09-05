@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "name": "project-scope-v1",
+  "documents": [
+    {
+      "id": "alpha",
+      "title": "alpha ScopeFaultError",
+      "body": "ScopeFaultError remediation service port is 7712.",
+      "project": "/synthetic/scope-alpha"
+    },
+    {
+      "id": "beta",
+      "title": "beta ScopeFaultError",
+      "body": "ScopeFaultError remediation service port is 8813.",
+      "project": "/synthetic/scope-beta"
+    },
+    {
+      "id": "global",
+      "title": "Global retry",
+      "body": "RetryLimit is 4.",
+      "project": "global",
+      "scope": "global"
+    },
+    {
+      "id": "unknown",
+      "title": "Unknown internal note",
+      "body": "PrivateMarker is UNASSIGNED_982.",
+      "project": "unassigned"
+    }
+  ],
+  "queries": [
+    {
+      "id": "alpha-en",
+      "family": "alpha",
+      "query": "ScopeFaultError",
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "expected_ids": [
+        "alpha"
+      ],
+      "answers": [
+        "7712"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "project-scope",
+      "language": "en"
+    },
+    {
+      "id": "beta-en",
+      "family": "beta",
+      "query": "ScopeFaultError",
+      "project": "/synthetic/scope-beta",
+      "scope": "project",
+      "expected_ids": [
+        "beta"
+      ],
+      "answers": [
+        "8813"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "project-scope",
+      "language": "en"
+    },
+    {
+      "id": "alpha-de",
+      "family": "alpha",
+      "query": "ScopeFaultError",
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "expected_ids": [
+        "alpha"
+      ],
+      "answers": [
+        "7712"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "dev",
+      "category": "project-scope",
+      "language": "de"
+    },
+    {
+      "id": "beta-de",
+      "family": "beta",
+      "query": "ScopeFaultError",
+      "project": "/synthetic/scope-beta",
+      "scope": "project",
+      "expected_ids": [
+        "beta"
+      ],
+      "answers": [
+        "8813"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "project-scope",
+      "language": "de"
+    },
+    {
+      "id": "global",
+      "family": "global",
+      "query": "RetryLimit",
+      "project": null,
+      "scope": "global",
+      "expected_ids": [
+        "global"
+      ],
+      "answers": [
+        "4"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope-boundary",
+      "language": "en"
+    },
+    {
+      "id": "all",
+      "family": "all",
+      "query": "ScopeFaultError",
+      "project": null,
+      "scope": "all",
+      "expected_ids": [
+        "alpha",
+        "beta"
+      ],
+      "answers": [
+        "7712",
+        "8813"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope-boundary",
+      "language": "en"
+    },
+    {
+      "id": "unknown-hidden",
+      "family": "unknown-hidden",
+      "query": "PrivateMarker",
+      "project": "/synthetic/scope-alpha",
+      "scope": "project",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope-boundary",
+      "language": "en"
+    },
+    {
+      "id": "project-hidden-global",
+      "family": "project-hidden-global",
+      "query": "ScopeFaultError",
+      "project": null,
+      "scope": "global",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "split": "test",
+      "category": "scope-boundary",
+      "language": "en"
+    }
+  ]
+}

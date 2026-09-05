@@ -205,22 +205,15 @@ def build_context(
         ))
 
     if cwd:
-        # same path-prefix semantics as pins.matching_pins — a session in a
-        # SUBDIRECTORY of the mined project must still see its knowledge
+        from ..scope import selection
+        scopes = selection(cwd)
+        pinned_ids = [p.document_id for p in pin_list if p.document_id]
         rows = conn.execute(
-            "SELECT slug, title, dtype,"
-            "       COALESCE(verified_at, updated_at) AS ts"
+            "SELECT slug, title, dtype, COALESCE(verified_at, updated_at) AS ts"
             " FROM documents WHERE status = 'active'"
-            " AND ((provenance->>'project' IS NOT NULL"
-            "       AND (%(cwd)s = provenance->>'project'"
-            "            OR %(cwd)s LIKE provenance->>'project' || '/%%'))"
-            "      OR id IN (SELECT document_id FROM pins"
-            "                WHERE active AND document_id IS NOT NULL"
-            "                AND scope LIKE '/%%'"
-            "                AND (%(cwd)s = scope"
-            "                     OR %(cwd)s LIKE scope || '/%%')))"
-            " ORDER BY COALESCE(verified_at, updated_at) DESC"
-            " LIMIT %(k)s", {"cwd": cwd, "k": cfg.context_docs}).fetchall()
+            " AND (project_scope = ANY(%s) OR id = ANY(%s::uuid[]))"
+            " ORDER BY COALESCE(verified_at, updated_at) DESC LIMIT %s",
+            (scopes, pinned_ids, cfg.context_docs)).fetchall()
         if rows:
             parts.append((
                 "knowledge",

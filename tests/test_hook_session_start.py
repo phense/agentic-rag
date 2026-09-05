@@ -62,13 +62,13 @@ def test_injects_pins_domains_and_project_docs(conn, hook_env, monkeypatch):
     _seed(conn)
     pins.add_pin(conn, body="Never skip the calibration step.")
     conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, provenance)"
+        "INSERT INTO documents(slug, domain, dtype, title, provenance, project_scope)"
         " VALUES ('proj-note', 'nature', 'memory', 'Project note',"
-        " '{\"project\": \"/Users/example/proj\"}')")
+        " '{\"project\": \"/Users/example/proj\"}', '/Users/example/proj')")
     conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, provenance)"
+        "INSERT INTO documents(slug, domain, dtype, title, provenance, project_scope)"
         " VALUES ('other-note', 'nature', 'memory', 'Other note',"
-        " '{\"project\": \"/elsewhere\"}')")
+        " '{\"project\": \"/elsewhere\"}', '/elsewhere')")
     conn.commit()
     ctx = _run(_payload())
     assert "Never skip the calibration step." in ctx
@@ -83,9 +83,9 @@ def test_project_docs_match_by_path_prefix(conn, hook_env, monkeypatch):
     monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
     _seed(conn)
     conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, provenance)"
+        "INSERT INTO documents(slug, domain, dtype, title, provenance, project_scope)"
         " VALUES ('proj-note', 'nature', 'memory', 'Project note',"
-        " '{\"project\": \"/Users/example/proj\"}')")
+        " '{\"project\": \"/Users/example/proj\"}', '/Users/example/proj')")
     conn.commit()
     ctx = _run(_payload(cwd="/Users/example/proj/deeply/nested"))
     assert "proj-note" in ctx
@@ -348,9 +348,9 @@ def test_continuity_failure_keeps_existing_context_and_runs_maintenance(
     pins.add_pin(conn, body="Keep this pinned rule visible.")
     _seed(conn)
     conn.execute(
-        "INSERT INTO documents(slug, domain, dtype, title, provenance)"
+        "INSERT INTO documents(slug, domain, dtype, title, provenance, project_scope)"
         " VALUES ('kept-note', 'nature', 'memory', 'Kept note',"
-        " '{\"project\": \"/Users/example/proj\"}')")
+        " '{\"project\": \"/Users/example/proj\"}', '/Users/example/proj')")
     conn.commit()
     _checkpoint(
         conn,

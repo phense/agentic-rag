@@ -258,10 +258,14 @@ class MineResult:
 
 
 def _near_duplicate(conn, cfg: Config, title: str, body: str,
-                    domain: str) -> str | None:
+                    domain: str, project: str | None = None) -> str | None:
     """Slug of the most similar active doc in the domain, if similarity
     reaches cfg.dedup_threshold. None when Ollama is down (dedup is
     best-effort; the save itself is never blocked)."""
+    from .scope import write_scope
+    project_scope = write_scope(project=project)
+    if not project_scope or project_scope == "unknown":
+        return None
     vecs = try_embed_texts([f"{title}\n{body}"], cfg)
     if vecs is None:
         return None
@@ -269,10 +273,10 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
     row = conn.execute(
         "SELECT d.slug, 1 - (c.embedding <=> %s::halfvec) AS sim"
         " FROM chunks c JOIN documents d ON d.id = c.document_id"
-        " WHERE d.domain = %s AND d.status = 'active'"
+        " WHERE d.domain = %s AND d.status = 'active' AND d.project_scope = %s"
         " AND c.embedding IS NOT NULL"
         " ORDER BY c.embedding <=> %s::halfvec LIMIT 1",
-        (lit, domain, lit)).fetchone()
+        (lit, domain, project_scope, lit)).fetchone()
     if row and float(row["sim"]) >= cfg.dedup_threshold:
         return row["slug"]
     return None
@@ -366,7 +370,7 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
         for item in items:
             edges = list(item.edges)
             dup_slug = _near_duplicate(conn, cfg, item.title, item.body,
-                                       item.domain)
+                                       item.domain, project)
             if dup_slug:
                 edges.append(EdgeSpec(
                     "duplicate_of", dup_slug,

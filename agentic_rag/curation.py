@@ -52,20 +52,34 @@ def _resolve_dangling(conn) -> int:
     ).rowcount
 
 
+def _lock_scope_pair(conn, first, second, expected_scope):
+    """Revalidate under ordered row locks before applying a planned mutation."""
+    rows = conn.execute(
+        "SELECT id,project_scope,status FROM documents WHERE id=ANY(%s::uuid[])"
+        " ORDER BY id FOR UPDATE", ([str(first),str(second)],)).fetchall()
+    return (len(rows)==2 and expected_scope != 'unknown'
+            and all(r['status']=='active' and r['project_scope']==expected_scope for r in rows))
+
+
 def _merge_exact_duplicates(conn, budget: int) -> int:
     """Archive newer exact-body copies within a domain (budgeted)."""
     if budget <= 0:
         return 0
     rows = conn.execute(
-        "SELECT d2.id AS dup_id, d2.slug AS dup_slug, d1.slug AS keep_slug"
+        "SELECT d2.id AS dup_id, d2.slug AS dup_slug, d1.slug AS keep_slug,"
+        " d1.id AS keep_id, d1.project_scope AS expected_scope"
         " FROM documents d1 JOIN documents d2"
         "   ON d1.domain = d2.domain AND d1.body = d2.body"
+        "   AND d1.project_scope = d2.project_scope AND d1.project_scope <> 'unknown'"
         "   AND d1.id <> d2.id AND d1.created_at <= d2.created_at"
         "   AND (d1.created_at < d2.created_at OR d1.id < d2.id)"
         " WHERE d1.status = 'active' AND d2.status = 'active'"
         " AND d1.body <> ''"
         " ORDER BY d2.created_at LIMIT %s", (budget,)).fetchall()
+    applied = 0
     for r in rows:
+        if not _lock_scope_pair(conn,r["dup_id"],r["keep_id"],r["expected_scope"]):
+            continue
         conn.execute(
             "UPDATE documents SET status = 'archived' WHERE id = %s",
             (r["dup_id"],))
@@ -83,7 +97,8 @@ def _merge_exact_duplicates(conn, budget: int) -> int:
             (r["dup_id"],
              f"archived exact duplicate '{r['dup_slug']}'"
              f" of '{r['keep_slug']}'"))
-    return len(rows)
+        applied += 1
+    return applied
 
 
 def _refute_candidates(conn, limit: int) -> list[dict]:
@@ -94,11 +109,13 @@ def _refute_candidates(conn, limit: int) -> list[dict]:
         return []
     return [dict(r) for r in conn.execute(
         "SELECT DISTINCT ON (d.id) d.id, d.slug, d.title, d.body,"
-        "       e.evidence, src.body AS contra_body"
+        "       e.evidence, src.body AS contra_body, src.id AS source_id,"
+        "       d.project_scope AS expected_scope"
         " FROM documents d"
         " JOIN edges e ON e.dst_id = d.id AND e.predicate = 'contradicts'"
         "   AND e.created_by = 'mining'"
         " JOIN documents src ON src.id = e.src_id"
+        " AND src.project_scope = d.project_scope AND d.project_scope <> 'unknown'"
         " WHERE d.status = 'active'"
         " AND NOT EXISTS ("
         "   SELECT 1 FROM audit_log a WHERE a.document_id = d.id"
@@ -117,6 +134,8 @@ def _review_refutes(conn, cfg: Config, budget: int, runner) -> tuple[int, int]:
             "Should the stored document be refuted?")
         data = run_structured(prompt, REFUTE_SCHEMA, cfg,
                               system=REFUTE_SYSTEM, runner=runner)
+        if not _lock_scope_pair(conn,c["id"],c["source_id"],c["expected_scope"]):
+            continue
         reviewed += 1
         if data.get("refute") and str(data.get("reason", "")).strip():
             reason = str(data["reason"]).strip()
@@ -181,6 +200,7 @@ def review_report(conn, cfg: Config) -> dict:
         " JOIN documents t ON t.id = e.dst_id"
         " WHERE e.predicate = 'duplicate_of'"
         " AND s.status = 'active' AND t.status = 'active'"
+        " AND s.project_scope = t.project_scope AND s.project_scope <> 'unknown'"
         " ORDER BY e.created_at DESC LIMIT 50").fetchall()]
     dangling = [dict(r) for r in conn.execute(
         "SELECT s.slug AS src_slug, e.dst_slug, e.predicate"
@@ -203,6 +223,10 @@ def review_report(conn, cfg: Config) -> dict:
         "SELECT id, kind, session_id, attempts, last_error"
         " FROM mining_queue WHERE status = 'error' ORDER BY id"
     ).fetchall()]
-    return {"duplicate_candidates": duplicate_candidates,
+    unknown_scopes = [dict(r) for r in conn.execute(
+        "SELECT id, slug FROM documents WHERE project_scope = 'unknown' ORDER BY slug LIMIT 100").fetchall()]
+    unknown_count = conn.execute("SELECT count(*) AS n FROM documents WHERE project_scope = 'unknown'").fetchone()["n"]
+    return {"unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
+            "duplicate_candidates": duplicate_candidates,
             "dangling": dangling, "stale_pins": stale_pins,
             "suggestions": suggestions, "queue_errors": queue_errors}
