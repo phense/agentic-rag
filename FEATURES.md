@@ -183,7 +183,7 @@ identity, role, quote and completeness; uncertain assertions stay reviewable.
 Ordinary documents and pins are preserved. See [policy](docs/fact-validity.md) and
 [synthetic comparison](docs/benchmarks/2026-09-06-fact-validity/README.md).
 
-## Claim evidence and inference status (issue #7; rollout pending)
+## Claim evidence and inference status (issue #7)
 
 Ordinary mined claims retain bounded source spans, event identity, speaker and kind.
 Distinct event counts exclude assistant corroboration; source withdrawal and explicit

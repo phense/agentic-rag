@@ -31,5 +31,8 @@ Verified 2026-09-06; implementation base c81aec2.
   BACKLOG2.2 was corrected; the mining benchmark mock now supplies actual source refs.
 
 As-built architecture reconciled. Convergence finds no remaining implementation gaps.
-Remaining operational gate: fresh verified backup, worker-lock migration012/code
-activation, unchanged legacy/pin readback, publication/CI and issue closure.
+Operational gate passed after explicit user approval: fresh backup archive/cloud
+checks, worker-lock migration012/code activation, unchanged legacy/pin fingerprints,
+reader search and privileges, migration idempotence. Published implementation4bb0194
+CI33998003777 passed; issue7 closed and read back. No application changes followed
+the 718-test verification.

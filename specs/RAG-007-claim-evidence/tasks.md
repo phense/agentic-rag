@@ -23,6 +23,6 @@ Base c81aec2; serialized ownership, no concurrent database tests.
   source->reader plus failure/replay integration tests; synthetic semantic evaluation,
   full suite/build/migration verification, docs/FEATURES/BACKLOG.
   All AC/IC/AF. Depends T001–T003.
-- [ ] T005 Fresh backup, worker-lock migration/code activation, unchanged legacy/pin
+- [x] T005 Fresh backup, worker-lock migration/code activation, unchanged legacy/pin
   readback, publish/CI and issue completion with explicit rollout approval as required.
   Compatibility/operational gate. Depends T004.
