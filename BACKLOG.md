@@ -120,13 +120,13 @@
   age gate is in place, confirm the row-growth rate is back to the intended cadence and add a
   regression test so a future regression is caught automatically. → *Trigger:* after 1.2 ships.
   *(S)*
-- ⬜ **1.4** _(enh)_ **Cap-aware `last_uuid` for over-cap deltas.** When a mined transcript
+- ⬜ **1.4** _(enh)_ **Cap-aware `last_uuid` for over-cap deltas.** Tracked with 1.5 in [issue #4](https://github.com/phense/agentic-rag/issues/4) (see 4.2). When a mined transcript
   delta exceeds the per-run size cap, the text is truncated to `max_chars` but `last_uuid`
   still advances to end-of-file — so the untruncated remainder of that delta is silently
   skipped rather than picked up on the next run. → *Trigger:* rework the cursor so an
   over-cap delta is only consumed as far as it was actually mined, and the remainder is
   retried on the next pass. *(M)*
-- ⬜ **1.5** _(chore)_ **Job-completion idempotency under worker death.** `save_document`
+- ⬜ **1.5** _(chore)_ **Job-completion idempotency under worker death.** Tracked with 1.4 in [issue #4](https://github.com/phense/agentic-rag/issues/4) (see 4.2). `save_document`
   commits per-document, but `last_uuid` only advances at job completion — if a worker dies
   mid-job, a requeue re-mines the same delta (bounded by retry count, dedup depends on the
   embedding backend being deterministic enough to catch it). → *Trigger:* either wrap the job
@@ -175,6 +175,37 @@
   pins an absolute interpreter path at install time; if the virtualenv moves, the installed
   unit silently points at a dead path. → *Trigger:* have the install command re-resolve and
   reinstall the unit rather than requiring a manual fix. *(S)*
+
+## §4 — Supermemory-inspired improvement requests (2026-09-05)
+
+Analysis: [`docs/research/supermemory-comparison-2026-09-05.md`](docs/research/supermemory-comparison-2026-09-05.md).
+GitHub Issues hold the detailed proposals and acceptance criteria; this local numbered
+backlog remains the project work index. P1 = correctness/evaluation foundation;
+P2 = subsequent quality improvement. Existing §0–§3 work remains open. Resume the
+known source-loss work in 1.4/1.5 first; scope and minimal source evidence precede
+automated fact replacement. Estimates are relative, not delivery commitments.
+
+- ⬜ **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
+  → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* start the isolated baseline before ranking/profile quality claims. *(M)*
+- ⬜ **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
+  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* resume 1.4/1.5 with the synthetic tail-loss reproduction. *(M–L)*
+- ⬜ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
+  → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* define legacy scope mapping and project/global query semantics. *(M)*
+- ⬜ **4.4** _(enh, P1)_ **Temporal fact validity and supersession.** Reuse the graph for current/as-of retrieval, explicit expiry and grounded updates while retaining history; resolve 2.2 semantics.
+  → *Issue:* [#6](https://github.com/phense/agentic-rag/issues/6). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* after scope and minimal source-evidence contracts are defined. *(L)*
+- ⬜ **4.5** _(enh, P2)_ **Claim-level evidence and inference status.** Retain sanitized event references and speaker roles; distinguish stated facts, assistant suggestions and derived inferences.
+  → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* coordinate source identity with 4.2; land the minimal update-evidence subset before 4.4. *(M–L)*
+- ⬜ **4.6** _(enh, P2)_ **Measured retrieval relevance improvements.** Add diverse results and useful evidence spans; evaluate local reranking, abstention and bounded graph expansion.
+  → *Issue:* [#8](https://github.com/phense/agentic-rag/issues/8). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* after 4.1 baseline and shared scope/validity policies. *(M)*
+- ⬜ **4.7** _(enh, P2)_ **Bounded project profiles and selective recall.** Build a source-backed advisory view over the existing store; preserve exact pins/checkpoints and measure ordinary-question recall.
+  → *Issue:* [#9](https://github.com/phense/agentic-rag/issues/9). → *Why not done:* analysis complete; implementation and rollout pending.
+  → *Trigger:* after scope/evidence semantics; extend 1.1 firing-rate measurement. *(M–L)*
 
 ---
 
