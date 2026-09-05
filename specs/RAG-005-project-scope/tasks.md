@@ -17,7 +17,7 @@ Source: spec.md, plan.md, docs/uml/findings.md. Executor: coordinator; serial wr
   guards; deterministic local run (depends T003/T004; benchmark/, tests/benchmark).
 - [x] T006 Reconcile architecture, independent review and success/recovery checks,
   full suite; record fixes and verification (depends T001..005).
-- [ ] T007 Document migration/recovery and user interfaces; backup, deploy, verify
+- [x] T007 Document migration/recovery and user interfaces; backup, deploy, verify
   live invariants; commit/publish and close #5 (depends T006).
 
 All ACs map above. No slice writes run in parallel. No additional paid model matrix.

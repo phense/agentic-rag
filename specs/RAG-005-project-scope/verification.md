@@ -29,3 +29,23 @@ migration, backfill or active-main integration was performed for issue #5.
 Prepared script: /private/tmp/deploy-rag-issue5.py. Await explicit approval before
 executing it. The read-only scope benchmark succeeded with zero selection violations
 in both modes; artifacts are in docs/benchmarks/2026-09-05-project-scope/.
+
+## Authorized rollout completed
+
+After the initial approval-review rejection, the user explicitly authorized rollout
+conditional on a current backup and requested verification of the backup agent.
+Existing com.agentic-rag.backup was loaded (daily03:30), last run exit0; the latest
+local/cloud archive was 68 minutes old. The existing backup function then created
+a fresh `agentic_rag-20260905-232752.dump`; pg_restore list proved it readable and
+local/cloud SHA-256 matched before any database migration.
+
+Under the actual worker singleton lock: migration010 applied; 4,195 documents and
+2 derived pin paths mapped. 3,896 documents retained unknown applicability. All
+8,091 document contents, original provenance/meta, statuses and timestamps and
+all 22 raw pins were fingerprint-verified unchanged. Backfill replay changed zero
+rows; migration replay applied nothing. Main was fast-forwarded with AGENTS.md
+unchanged. Installed code/reader scope query/worktree identity/status and actual
+benchmark database cleanup were independently verified.
+
+Wheel inspection confirms scope.py, migration010 and the eight-query fixture.
+The earlier rejection and pending notes above are historical; rollout is complete.
