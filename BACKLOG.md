@@ -120,18 +120,11 @@
   age gate is in place, confirm the row-growth rate is back to the intended cadence and add a
   regression test so a future regression is caught automatically. → *Trigger:* after 1.2 ships.
   *(S)*
-- ⬜ **1.4** _(enh)_ **Cap-aware `last_uuid` for over-cap deltas.** Tracked with 1.5 in [issue #4](https://github.com/phense/agentic-rag/issues/4) (see 4.2). When a mined transcript
-  delta exceeds the per-run size cap, the text is truncated to `max_chars` but `last_uuid`
-  still advances to end-of-file — so the untruncated remainder of that delta is silently
-  skipped rather than picked up on the next run. → *Trigger:* rework the cursor so an
-  over-cap delta is only consumed as far as it was actually mined, and the remainder is
-  retried on the next pass. *(M)*
-- ⬜ **1.5** _(chore)_ **Job-completion idempotency under worker death.** Tracked with 1.4 in [issue #4](https://github.com/phense/agentic-rag/issues/4) (see 4.2). `save_document`
-  commits per-document, but `last_uuid` only advances at job completion — if a worker dies
-  mid-job, a requeue re-mines the same delta (bounded by retry count, dedup depends on the
-  embedding backend being deterministic enough to catch it). → *Trigger:* either wrap the job
-  in one transaction, or persist progress in the job payload so a requeue resumes rather than
-  restarts. *(M)*
+- ✅ **1.4 / 1.5** **Lossless mining windows and crash-idempotent application.**
+  Implemented by [issue #4](https://github.com/phense/agentic-rag/issues/4), commit
+  `6958c4b`: accepted extraction batches, atomic effects, source-bound cursors and
+  process-death regressions. Integrated locally; migration 009 applied after backup.
+  Remote publication/closure remains pending. See [recovery](docs/implementation/issue-4-recovery.md).
 
 ## §2 — Housekeeping & test coverage
 
@@ -181,16 +174,15 @@
 Analysis: [`docs/research/supermemory-comparison-2026-09-05.md`](docs/research/supermemory-comparison-2026-09-05.md).
 GitHub Issues hold the detailed proposals and acceptance criteria; this local numbered
 backlog remains the project work index. P1 = correctness/evaluation foundation;
-P2 = subsequent quality improvement. Existing §0–§3 work remains open. Resume the
-known source-loss work in 1.4/1.5 first; scope and minimal source evidence precede
+P2 = subsequent quality improvement. Existing §0–§3 work remains open. Source-loss work in 1.4/1.5 is locally active; scope and minimal source evidence precede
 automated fact replacement. Estimates are relative, not delivery commitments.
 
-- ⬜ **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
-  → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Why not done:* analysis complete; implementation and rollout pending.
-  → *Trigger:* start the isolated baseline before ranking/profile quality claims. *(M)*
+- 🔵 **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
+  → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Why not done:* benchmark implementation and local retrieval baseline complete; real model extraction/answer/judge measurement and remote publication pending.
+  → *Trigger:* authorize one bounded synthetic model smoke; spot-check grading before claiming answer quality. See [benchmark guide](docs/benchmarks/memory-quality.md). *(M)*
 - 🔵 **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
-  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* implementation and independent review complete; final verification and integration pending.
-  → *Trigger:* resume 1.4/1.5 with the synthetic tail-loss reproduction. *(M–L)*
+  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* local implementation, 643-test verification, independent review and deployment complete; remote publication/issue closure pending.
+  → *Trigger:* publish the verified local commits; historical backfill is separate. *(M–L)*
 - ⬜ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
   → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* define legacy scope mapping and project/global query semantics. *(M)*

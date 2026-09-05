@@ -101,6 +101,23 @@ def _main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("status")
 
+    p_bench = sub.add_parser("benchmark", help="synthetic memory evaluation in an owned temporary database")
+    bench_sub = p_bench.add_subparsers(dest="benchmark_cmd", required=True)
+    b_run = bench_sub.add_parser("run")
+    b_run.add_argument("--output", type=Path, required=True)
+    b_run.add_argument("--corpus", type=Path)
+    b_run.add_argument("--mode", choices=["retrieval", "end-to-end"], default="retrieval")
+    b_run.add_argument("--search-mode", choices=["fts", "hybrid"], default="hybrid")
+    b_run.add_argument("--context-chars", type=int, default=4000)
+    b_run.add_argument("--split", choices=["all", "dev", "test"], default="all")
+    b_run.add_argument("--limit", type=int)
+    b_run.add_argument("--smoke", action="store_true", help="reduce source corpus; not a full baseline")
+    b_run.add_argument("--answers", action="store_true", help="call configured LLM for answers")
+    b_run.add_argument("--judge", action="store_true", help="separately call configured LLM for grading (requires --answers)")
+    b_compare = bench_sub.add_parser("compare")
+    b_compare.add_argument("before", type=Path)
+    b_compare.add_argument("after", type=Path)
+
     p_queue = sub.add_parser("queue")
     queue_sub = p_queue.add_subparsers(dest="queue_cmd", required=True)
     q_requeue = queue_sub.add_parser("requeue-legacy-provider-failures")
@@ -166,6 +183,21 @@ def _main(argv: list[str] | None = None) -> int:
             and args.codex_home is not None):
         p.error("--restore reads its target home from the rollback record")
     cfg = load_config()
+
+    if args.cmd == "benchmark":
+        from .benchmark.runner import compare, run
+        if args.benchmark_cmd == "compare":
+            print(json.dumps(compare(json.loads(args.before.read_text()),
+                                     json.loads(args.after.read_text())), indent=2))
+            return 0
+        report = run(cfg, output=args.output, corpus_path=args.corpus, mode=args.mode,
+                     search_mode=args.search_mode, context_chars=args.context_chars,
+                     split=args.split, limit=args.limit, answers=args.answers,
+                     judge=args.judge, smoke=args.smoke,
+                     progress=lambda message: print(message, file=sys.stderr))
+        print(json.dumps(report['summary'], indent=2))
+        print(f"Reports: {args.output / 'results.json'} and {args.output / 'report.md'}")
+        return 3 if report['summary']['failed_queries'] or report['ingestion']['failed_sources'] else 0
 
     if args.cmd == "init-db":
         applied = db.init_db(cfg)

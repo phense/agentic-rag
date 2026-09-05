@@ -7,6 +7,14 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Added
+- **Reproducible memory benchmark (issue #3).** `rag benchmark run/compare` uses a
+  versioned synthetic EN/DE corpus and isolated local database. It separates
+  curated retrieval from session extraction and optional answers/judging, records
+  source recall/MRR, failure denominators, context/latency/indexing and explicit
+  unknown provider costs, and guards equal-budget comparisons. Offline CI contracts
+  require no services or provider credentials.
+
 ### Fixed
 - **Lossless, replay-safe session ingestion (issue #4).** Mining now resumes
   bounded source windows without skipping clipped prose and persists accepted

@@ -1,6 +1,6 @@
 # Issue #4 — resumable, atomic session ingestion
 
-Status: verified; integration pending. User authorized issue #4 followed by #3 on 2026-09-05.
+Status: verified and integrated locally; migration 009 active after backup. User authorized issue #4 followed by #3 on 2026-09-05.
 Base: fe91b49. Worktree: /private/tmp/agentic-rag-issues-4-3.
 Baseline: 625 tests passed in 9.35 seconds against agentic_rag_test.
 
@@ -40,7 +40,8 @@ accepted-but-unapplied batches and source-window progress without raw content.
 - [x] Additive batch migration and atomic write integration; crash/replay regressions.
 - [x] Queue continuation/status, privilege/migration tests, full suite: 643 passed in 10.21 seconds.
 - [x] Recovery documentation and independent review; both Important findings fixed.
-- [ ] Local integration and issue update.
+- [x] Local integration and migration/status read-back.
+- [ ] Remote publication and issue closure.
 - [ ] Then issue #3: isolated bilingual quality benchmark, actual baseline report.
 
 ## Operational boundary

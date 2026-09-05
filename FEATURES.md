@@ -10,6 +10,13 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
 
 ## Memory platform
 
+- ✅ **Synthetic memory benchmark (issue #3).** Versioned 60-query EN/DE corpus,
+  real gateway/mining and retrieval modes in an owned temporary database,
+  source-recall/answer metrics, failure denominators, context budgets, latency,
+  machine-readable reports and offline CI contracts are implemented. Local FTS/hybrid
+  baselines are measured; real model answer/judge quality requires an authorized run.
+  See [usage and limits](docs/benchmarks/memory-quality.md).
+
 - ✅ **Durable local store.** PostgreSQL + pgvector documents, structural
   chunks, fixed document/predicate vocabularies, dangling-safe typed graph
   edges, and archive/refute history are shipped.
