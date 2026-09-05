@@ -466,6 +466,12 @@ def _main(argv: list[str] | None = None) -> int:
                 diagnostic = _safe_excerpt(e.last_error or "-", 500)
                 print(f"  ERROR #{e.id} {e.kind} ({session}, "
                       f"{e.attempts} attempts): {diagnostic}")
+            print(f"mining accepted batches awaiting application: {rep.pending_mining_batches}")
+            for window in rep.mining_windows:
+                state = "applied" if window["applied_at"] else "accepted"
+                print(f"mining window {window['id']}: {state}; remainder={window['has_more']}")
+            for source in rep.mining_source_warnings:
+                print(f"mining source warning (job {source['id']}): " + "; ".join(source["warnings"]))
             if rep.oldest_open_mine_at:
                 print("oldest open mine: "
                       f"{rep.oldest_open_mine_at:%Y-%m-%d %H:%M}")

@@ -397,3 +397,19 @@ row naming which slugs were removed.
 `config.toml` setting behind the numbers in this chapter (debounce, dedup
 threshold, curation budget, worker retries, and more), with defaults and
 environment overrides.
+
+
+## Resumable mining windows (issue #4)
+
+New mining uses lossless bounded windows and persists accepted extraction batches.
+The per-block bound limits one window's contribution; remaining prose is consumed in
+a later window. Documents, suggestions and batch completion commit atomically.
+The next window is requeued without spending the job failure budget. Versioned
+cursors verify the source prefix; ambiguous old UUIDs and changed sources produce
+a visible recovery error instead of an implicit full replay. Native Codex
+response-item messages and Claude messages share this path; continuity's lossy
+head/tail rendering stays separate.
+
+`rag status --json` reports recent source bounds, unapplied batches and source
+warnings. Read the [deployment and recovery procedure](implementation/issue-4-recovery.md)
+before upgrading or considering historical reprocessing.

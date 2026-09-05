@@ -140,7 +140,7 @@ def claim_next(conn) -> dict | None:
 
 
 def process_job(conn, cfg: Config, job: dict, *,
-                runner=subprocess.run, on_provider_success=None) -> str | None:
+                runner=subprocess.run, on_provider_success=None) -> str | mining.MineResult | None:
     payload = job.get("payload") or {}
     if isinstance(payload, str):
         payload = json.loads(payload)
@@ -154,7 +154,7 @@ def process_job(conn, cfg: Config, job: dict, *,
              f" dup={res.duplicates} contra={res.contradictions}"
              f" pin_contra={res.pin_contradictions}"
              f" skipped={res.skipped or '-'}")
-        return res.new_last_uuid
+        return res
     if job["kind"] == "checkpoint_enrich":
         cursor = enrich.enrich_checkpoint(
             conn, cfg, job, runner=runner,
@@ -177,11 +177,28 @@ def process_job(conn, cfg: Config, job: dict, *,
     raise ValueError(f"unknown job kind: {job['kind']}")
 
 
-def _complete(conn, job_id: int, last_uuid: str | None) -> None:
+def _complete(conn, job_id: int, result: str | mining.MineResult | None) -> None:
+    mine = result if isinstance(result, mining.MineResult) else None
+    if mine is None:
+        conn.execute(
+            "UPDATE mining_queue SET status='done',finished_at=now(),"
+            "last_uuid=COALESCE(%s,last_uuid) WHERE id=%s", (result, job_id))
+        conn.commit()
+        return
+    cursor = mine.new_last_uuid
+    progress = ({"batch_id": mine.batch_id, "has_more": mine.has_more,
+                 "warnings": list(mine.warnings)} if mine else {})
     conn.execute(
-        "UPDATE mining_queue SET status = 'done', finished_at = now(),"
-        " last_uuid = COALESCE(%s, last_uuid) WHERE id = %s",
-        (last_uuid, job_id))
+        "UPDATE mining_queue SET"
+        " status = CASE WHEN %s OR COALESCE((payload->>'rerun_requested')::boolean,false)"
+        " THEN 'pending' ELSE 'done' END,"
+        " finished_at = CASE WHEN %s OR COALESCE((payload->>'rerun_requested')::boolean,false)"
+        " THEN NULL ELSE now() END,"
+        " last_uuid = COALESCE(%s,last_uuid), attempts=0, last_error=NULL,"
+        " next_attempt_at=now(),"
+        " payload=(payload - 'rerun_requested') || %s::jsonb WHERE id=%s",
+        (bool(mine and mine.has_more), bool(mine and mine.has_more), cursor,
+         json.dumps({"mining_progress": progress}) if mine else "{}", job_id))
     conn.commit()
 
 

@@ -39,6 +39,14 @@ def _serialize_enqueue(conn) -> None:
 def enqueue_mine(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  project: str | None) -> bool:
     _serialize_enqueue(conn)
+    open_job = conn.execute(
+        "SELECT id FROM mining_queue WHERE session_id=%s AND kind='mine'"
+        " AND status IN ('pending','processing') FOR UPDATE", (session_id,)).fetchone()
+    if open_job:
+        conn.execute("UPDATE mining_queue SET payload=payload ||"
+                     " '{\"rerun_requested\":true}'::jsonb WHERE id=%s", (open_job["id"],))
+        conn.commit()
+        return False
     n = conn.execute(
         "INSERT INTO mining_queue"
         " (kind, session_id, transcript_path, payload, last_uuid,"

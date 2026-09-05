@@ -75,7 +75,10 @@ def save_document(
     actor: str = "cli",
     mark_verified: bool = False,
     status: str | None = None,
+    commit: bool = True,
 ) -> SaveResult:
+    # commit=False lets a bounded mining batch own the outer transaction;
+    # the caller must commit or roll back all its effects together.
     # status=None means: 'active' on create, keep current status on update
     if status not in (None, "active", "archived"):
         raise ValueError(f"status must be 'active' or 'archived', not {status!r}"
@@ -94,16 +97,17 @@ def save_document(
                          provenance=provenance, edges=edges, doc_id=doc_id,
                          actor=actor, redactions=redactions,
                          warnings=warnings, mark_verified=mark_verified,
-                         status=status)
+                         status=status, commit=commit)
     except Exception:
         # never leave a long-lived connection (MCP session) in an aborted txn
-        conn.rollback()
+        if commit:
+            conn.rollback()
         raise
 
 
 def _save_txn(
     conn, cfg, *, title, body, domain, dtype, slug, meta, provenance,
-    edges, doc_id, actor, redactions, warnings, mark_verified, status,
+    edges, doc_id, actor, redactions, warnings, mark_verified, status, commit=True,
 ) -> SaveResult:
     if not conn.execute(
         "SELECT 1 FROM domains WHERE name = %s", (domain,)
@@ -196,7 +200,8 @@ def _save_txn(
          f"{'created' if created else 'updated'} '{the_slug}' ({domain}/{dtype}), "
          f"{len(chunks)} chunks, {n_edges} edges, {redactions} redactions"),
     )
-    conn.commit()
+    if commit:
+        conn.commit()
     return SaveResult(doc_id, the_slug, created, len(chunks), n_edges,
                       resolved, redactions, warnings)
 

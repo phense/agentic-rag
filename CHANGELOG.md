@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+### Fixed
+- **Lossless, replay-safe session ingestion (issue #4).** Mining now resumes
+  bounded source windows without skipping clipped prose and persists accepted
+  extraction batches before atomic gateway application. Crash recovery reuses
+  the accepted output; continued windows do not spend failure attempts. Native
+  Codex messages are supported, appends during processing request another pass,
+  and `rag status` exposes batch/source progress. Apply migration 009 first;
+  historical source recovery is explicit and continuity digests remain unchanged.
+
 ### Changed
 - **Price-aware Codex context policy.** The managed Codex window is now
   350000 tokens with total-scope automatic compaction at 250000. This keeps the

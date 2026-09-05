@@ -188,8 +188,8 @@ automated fact replacement. Estimates are relative, not delivery commitments.
 - ⬜ **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
   → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* start the isolated baseline before ranking/profile quality claims. *(M)*
-- ⬜ **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
-  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* analysis complete; implementation and rollout pending.
+- 🔵 **4.2** _(enh, P1)_ **Lossless, idempotent source-window ingestion.** Consolidates existing 1.4/1.5: advance only consumed input and replay persisted batches without duplicate logical facts.
+  → *Issue:* [#4](https://github.com/phense/agentic-rag/issues/4). → *Why not done:* implementation and independent review complete; final verification and integration pending.
   → *Trigger:* resume 1.4/1.5 with the synthetic tail-loss reproduction. *(M–L)*
 - ⬜ **4.3** _(enh, P1)_ **Consistent project scope for retrieval and curation.** Separate project/global applicability from topic domains; align search, recall pins, graph expansion and duplicate candidates.
   → *Issue:* [#5](https://github.com/phense/agentic-rag/issues/5). → *Why not done:* analysis complete; implementation and rollout pending.

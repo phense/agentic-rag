@@ -185,7 +185,8 @@ def test_mine_session_saves_items_with_provenance(conn, tmp_path):
         transcript_path=_transcript(tmp_path),
         last_uuid=None, project="/proj", runner=_runner_returning(payload))
     assert res.saved == 2
-    assert res.new_last_uuid == "u1"
+    from agentic_rag.mining_window import read_window
+    assert read_window(_transcript(tmp_path), after_uuid=res.new_last_uuid).text == ""
     doc = get_document(conn, "fact-one")
     assert doc["dtype"] == "memory"
     assert doc["provenance"]["origin"] == "session-mining"

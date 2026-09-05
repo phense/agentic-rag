@@ -28,6 +28,12 @@ precondition · ⏸ paused. The numbered source of truth for unfinished work is
   jobs, secret-stripped provider-bound matching pin bodies without mutating
   stored pin text, near-duplicate detection, and lossless outage recovery are
   shipped. Claude remains the configuration-only provider rollback.
+- ✅ **Resumable source-window ingestion (issue #4).** Versioned source-bound
+  cursors, durable normalized extraction batches, atomic application through the
+  gateway, stable item provenance, automatic pending remainder and status reporting
+  are implemented. Dedicated migration/privilege and real process-death tests cover
+  new input; historical backfill is separate. See the
+  [deployment and recovery procedure](docs/implementation/issue-4-recovery.md).
 - ✅ **Curation and human review.** Bounded dangling-edge resolution,
   exact-duplicate merging, contradiction review, inert suggestions,
   refute-as-archive, confirmed admin-only purge, and `rag review` are shipped.

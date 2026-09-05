@@ -8,16 +8,16 @@ from __future__ import annotations
 
 import json
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 
 from .config import Config
 from .domains import list_domains
 from .embed import try_embed_texts, vec_literal
 from .llm import run_structured
 from .pins import matching_pins
-from .secrets import strip_secrets
+from .secrets import strip_secrets, strip_secrets_json
 from .store import EdgeSpec, save_document
-from .transcript import build_digest
+from .mining_window import read_window
 
 MAX_ITEMS_PER_KIND = 8
 MAX_EDGES_PER_ITEM = 5
@@ -193,7 +193,7 @@ def _parse_items(raw, domain_names: set[str],
         title = str(it.get("title", "")).strip()
         body = str(it.get("body", "")).strip()
         domain = str(it.get("domain", "")).strip()
-        signal = str(it.get("signal", "")).strip() or None
+        signal = str(it.get("signal") or "").strip() or None
         if not title or not body or domain not in domain_names:
             continue
         if need_signal and not signal:
@@ -251,6 +251,9 @@ class MineResult:
     pin_contradictions: int = 0
     domain_proposals: int = 0
     new_last_uuid: str | None = None
+    has_more: bool = False
+    batch_id: str | None = None
+    warnings: tuple[str, ...] = ()
     skipped: str | None = None
 
 
@@ -278,40 +281,85 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
 def _audit(conn, op: str, summary: str) -> None:
     conn.execute(
         "INSERT INTO audit_log(actor, op, summary) VALUES ('mining', %s, %s)",
-        (op, summary))
-    conn.commit()
+        (op, strip_secrets(summary)[0]))
 
 
 def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  last_uuid: str | None, project: str | None,
                  runner=subprocess.run) -> MineResult:
-    digest = build_digest(transcript_path, after_uuid=last_uuid,
-                          max_chars=cfg.mine_max_digest_chars,
-                          per_block=cfg.mine_per_block_chars)
-    if not digest.text.strip():
-        return MineResult(new_last_uuid=digest.last_uuid or last_uuid,
-                          skipped="empty digest")
-    # Defense-in-depth for the mining cascade (root cause fixed in llm.py):
-    # skip a transcript that is itself one of our `claude -p` mining calls.
-    # build_digest prefixes the first user turn as "[user] " + its content, so
-    # a synthetic transcript's digest opens with the mining header. Matching
-    # the FIRST line only keeps real sessions that merely discuss mining.
-    first_line = digest.text.lstrip().split("\n", 1)[0]
-    if first_line.removeprefix("[user] ").startswith(DIGEST_HEADER):
-        return MineResult(new_last_uuid=digest.last_uuid or last_uuid,
-                          skipped="synthetic mining transcript")
-    domain_names = [d.name for d in list_domains(conn)]
-    if not domain_names:
-        return MineResult(new_last_uuid=last_uuid,
-                          skipped="no domains defined (run 'rag domain add')")
-    pin_bodies = [p.body for p in matching_pins(conn, project)]
-    data = run_structured(
-        build_prompt(digest.text, domain_names, pin_bodies),
-        build_schema(domain_names), cfg, system=SYSTEM, runner=runner)
-    ext = parse_extraction(data, set(domain_names))
+    """Accept a bounded extraction durably, then apply all its effects atomically.
 
+    A previously accepted input cursor wins over new model output/source appends.
+    Caller transactions must not contain unrelated uncommitted writes.
+    """
+    row = conn.execute(
+        "SELECT * FROM mining_batches WHERE session_id=%s AND input_cursor=%s",
+        (session_id, last_uuid or "")).fetchone()
+    conn.commit()
+    if row is None:
+        window = read_window(transcript_path, after_uuid=last_uuid,
+                             max_chars=cfg.mine_max_digest_chars,
+                             per_block=cfg.mine_per_block_chars)
+        if window.last_uuid == last_uuid:
+            return MineResult(new_last_uuid=last_uuid, skipped="empty digest",
+                              warnings=window.warnings)
+        domain_names = [d.name for d in list_domains(conn)]
+        if not domain_names:
+            conn.commit()
+            return MineResult(new_last_uuid=last_uuid,
+                              skipped="no domains defined (run 'rag domain add')")
+        synthetic = window.synthetic
+        if window.text.strip() and not synthetic:
+            pin_bodies = [p.body for p in matching_pins(conn, project)]
+            data = run_structured(
+                build_prompt(window.text, domain_names, pin_bodies),
+                build_schema(domain_names), cfg, system=SYSTEM, runner=runner)
+        else:
+            data = {}
+        # Persist only the normalized accepted batch, not unbounded raw output.
+        clean, _ = strip_secrets_json(data)
+        ext = parse_extraction(clean, set(domain_names))
+        row = conn.execute(
+            "INSERT INTO mining_batches(session_id,input_cursor,output_cursor,"
+            " extraction,domains,project,has_more,warnings)"
+            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+            " ON CONFLICT (session_id,input_cursor) DO NOTHING RETURNING *",
+            (session_id, last_uuid or "", window.last_uuid,
+             json.dumps({**asdict(ext), "_skip_reason": "synthetic mining transcript" if synthetic else ("empty digest" if not window.text.strip() else None)}), json.dumps(domain_names),
+             strip_secrets(project)[0] if project else None,
+             window.has_more, json.dumps(window.warnings))).fetchone()
+        if row is not None:
+            _audit(conn, "mining_accept", f"accepted batch {row['id']}")
+        conn.commit()
+    # Lock the accepted row so even accidental concurrent callers cannot apply it twice.
+    try:
+        row = conn.execute(
+            "SELECT * FROM mining_batches WHERE session_id=%s AND input_cursor=%s FOR UPDATE",
+            (session_id, last_uuid or "")).fetchone()
+        if row["result"] is not None:
+            result = MineResult(**row["result"])
+            conn.commit()
+            return result
+        ext = parse_extraction(row["extraction"], set(row["domains"]))
+        result = _apply_extraction(conn, cfg, ext, session_id=session_id,
+                                   project=row["project"], batch_id=str(row["id"]),
+                                   output_cursor=row["output_cursor"])
+        result = replace(result, has_more=row["has_more"], warnings=tuple(row["warnings"]),
+                         skipped=row["extraction"].get("_skip_reason"))
+        conn.execute("UPDATE mining_batches SET result=%s, applied_at=now() WHERE id=%s",
+                     (json.dumps(asdict(result)), row["id"]))
+        _audit(conn, "mining_apply", f"applied batch {row['id']}: {result.saved} documents")
+        conn.commit()
+        return result
+    except BaseException:
+        conn.rollback()
+        raise
+
+
+def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
+                      output_cursor):
     provenance = {"origin": "session-mining", "session_id": session_id,
-                  "project": project}
+                  "project": project, "mining_batch": batch_id}
     saved = duplicates = 0
     for dtype, items in (("memory", ext.memories), ("lesson", ext.lessons),
                          ("signal", ext.signals)):
@@ -334,11 +382,11 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                     body = f"{body}\n\n## Signal\n\n{item.signal}"
             save_document(
                 conn, cfg, title=item.title, body=body, domain=item.domain,
-                dtype=dtype, meta=meta, provenance=provenance, edges=edges,
-                actor="mining")
+                dtype=dtype, meta=meta, provenance={**provenance, "mining_item": f"{dtype}:{saved}"}, edges=edges,
+                actor="mining", commit=False)
             saved += 1
 
-    for c in ext.contradictions:
+    for index, c in enumerate(ext.contradictions):
         target = conn.execute(
             "SELECT slug FROM documents WHERE slug = %s",
             (c["slug"],)).fetchone()
@@ -348,23 +396,26 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
             body=(f"{c['statement']}\n\n> {c['quote']}\n\n"
                   f"Contradicts [[{c['slug']}]]"
                   + ("" if target else " (slug not found at mining time)")),
-            domain=c["domain"], dtype="lesson", provenance=provenance,
+            domain=c["domain"], dtype="lesson", provenance={**provenance, "mining_item": f"contradiction:{index}"},
             edges=[EdgeSpec("contradicts", c["slug"], evidence=c["quote"],
                             confidence="medium")],
-            actor="mining")
+            actor="mining", commit=False)
 
-    for s in ext.pin_suggestions:
+    for index, s in enumerate(ext.pin_suggestions):
         _audit(conn, "pin_suggestion",
+               f"batch {batch_id} item pin_suggestion:{index} — "
                f"[{s['scope']}] {s['body']} — {s['reason']}"
                f" (session {session_id})")
-    for c in ext.contradictions_with_pins:
+    for index, c in enumerate(ext.contradictions_with_pins):
         # pins are automation-exempt: no document, no edge, no pin change —
         # the audit row IS the deliverable, surfaced by rag review
         _audit(conn, "pin_contradiction",
+               f"batch {batch_id} item pin_contradiction:{index} — "
                f"pin: {c['pin']} — {c['statement']} > {c['quote']}"
                f" (session {session_id})")
-    for d in ext.domain_proposals:
+    for index, d in enumerate(ext.domain_proposals):
         _audit(conn, "domain_proposal",
+               f"batch {batch_id} item domain_proposal:{index} — "
                f"{d['name']}: {d['description']} — {d['reason']}"
                f" (session {session_id})")
 
@@ -374,4 +425,4 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
         pin_suggestions=len(ext.pin_suggestions),
         pin_contradictions=len(ext.contradictions_with_pins),
         domain_proposals=len(ext.domain_proposals),
-        new_last_uuid=digest.last_uuid or last_uuid)
+        new_last_uuid=output_cursor, batch_id=batch_id)

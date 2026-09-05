@@ -39,6 +39,9 @@ class StatusReport:
     oldest_pending_checkpoint_enrichment_at: datetime | None = None
     oldest_pending_checkpoint_enrichment_age: timedelta | None = None
     checkpoint_warnings: tuple[str, ...] = ()
+    pending_mining_batches: int = 0
+    mining_windows: list[dict] = field(default_factory=list)
+    mining_source_warnings: list[dict] = field(default_factory=list)
 
 
 def _checkpoint_health(conn, cfg: Config) -> dict:
@@ -128,4 +131,15 @@ def gather_status(conn, cfg: Config) -> StatusReport:
         documents, queue, queue_errors, last_backup, backup_warning,
         last_curation_at, provider_health.read_health(), oldest_open_mine_at,
         **checkpoint_health,
+        pending_mining_batches=conn.execute(
+            "SELECT count(*) AS n FROM mining_batches WHERE applied_at IS NULL"
+        ).fetchone()["n"],
+        mining_windows=[dict(row) for row in conn.execute(
+            "SELECT id,session_id,input_cursor,output_cursor,has_more,warnings,"
+            "created_at,applied_at FROM mining_batches ORDER BY created_at DESC,id LIMIT 8")],
+        mining_source_warnings=[dict(row) for row in conn.execute(
+            "SELECT id,session_id,payload->'mining_progress'->'warnings' AS warnings"
+            " FROM mining_queue WHERE kind='mine'"
+            " AND jsonb_array_length(COALESCE(payload->'mining_progress'->'warnings','[]'::jsonb)) > 0"
+            " ORDER BY id DESC LIMIT 8")],
     )
