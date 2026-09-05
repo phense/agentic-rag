@@ -35,8 +35,11 @@ def test_mining_mode_uses_real_gateway_and_grounded_model_boundary(cfg,tmp_path,
     calls=[]
     def model(prompt,*a,**k):
         calls.append(prompt)
-        return {'memories':[{'title':'Zebra remembered','body':'Zebra checksum is 8172.',
-                            'domain':'general','edges':[]}],
+        event=json.loads(prompt.split('SOURCE EVENTS (consumed fragments only):\n')[1])[0]
+        body=event['text'].removeprefix('[user] ')
+        return {'memories':[{'title':'Zebra remembered','body':body,
+                            'domain':'general','edges':[],'claim_kind':'stated',
+                            'evidence':[{'source_id':event['source_id'],'quote':body}]}],
                 'lessons':[],'signals':[],'contradictions':[],'pin_suggestions':[],
                 'contradictions_with_pins':[],'domain_proposals':[]}
     monkeypatch.setattr(mining,'run_structured',model)

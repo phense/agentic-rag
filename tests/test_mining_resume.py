@@ -3,7 +3,7 @@ from dataclasses import replace
 
 import pytest
 
-from agentic_rag import mining
+from agentic_rag import mining, store
 from agentic_rag.config import Config
 
 
@@ -65,7 +65,7 @@ def test_accepted_extraction_survives_interrupted_application(conn, tmp_path, mo
         return response("accepted first", "accepted second") if len(calls) == 1 else response("changed retry")
 
     monkeypatch.setattr(mining, "run_structured", extract)
-    real_save = mining.save_document
+    real_save = store.save_claim
     saves = []
 
     def interrupted(*args, **kwargs):
@@ -75,13 +75,13 @@ def test_accepted_extraction_survives_interrupted_application(conn, tmp_path, mo
             raise RuntimeError("simulated worker death after first write")
         return saved
 
-    monkeypatch.setattr(mining, "save_document", interrupted)
+    monkeypatch.setattr(store, "save_claim", interrupted)
     with pytest.raises(RuntimeError, match="simulated worker death"):
         mining.mine_session(conn, cfg, session_id="crash", transcript_path=path,
                             last_uuid=None, project=None)
     conn.rollback()
     assert conn.execute("SELECT count(*) AS n FROM documents").fetchone()["n"] == 0
-    monkeypatch.setattr(mining, "save_document", real_save)
+    monkeypatch.setattr(store, "save_claim", real_save)
     mining.mine_session(conn, cfg, session_id="crash", transcript_path=path,
                         last_uuid=None, project=None)
     bodies = [r["body"] for r in conn.execute("SELECT body FROM documents ORDER BY body")]
@@ -149,12 +149,12 @@ def test_actual_process_death_rolls_back_all_batch_effects(conn, tmp_path, death
     # The model boundary is synthetic. PostgreSQL transactions and process death are real.
     program = '''
 import json, os, sys
-from agentic_rag import db, mining
+from agentic_rag import db, mining, store
 from agentic_rag.config import Config
 cfg=Config(db_name="agentic_rag_test",ollama_url="http://localhost:1")
 c=db.connect(cfg,role="writer")
 mining.run_structured=lambda *a,**k: json.loads(sys.argv[2])
-real=mining.save_document
+real=store.save_claim
 count=0
 def save(*a,**k):
     global count
@@ -162,7 +162,7 @@ def save(*a,**k):
     count += 1
     if count == int(sys.argv[3]): os._exit(23)
     return result
-mining.save_document=save
+store.save_claim=save
 mining.mine_session(c,cfg,session_id="killed",transcript_path=sys.argv[1],last_uuid=None,project=None)
 '''
     process = subprocess.run([sys.executable, '-c', program, path,
@@ -186,7 +186,7 @@ def test_status_exposes_unapplied_batch_and_source_bounds(conn, tmp_path, monkey
     monkeypatch.setattr(mining, 'run_structured', lambda *a, **k: response('fact'))
     def fail(*a, **k):
         raise RuntimeError('unapplied')
-    monkeypatch.setattr(mining, 'save_document', fail)
+    monkeypatch.setattr(store, 'save_claim', fail)
     with pytest.raises(RuntimeError, match='unapplied'):
         mining.mine_session(conn, cfg, session_id='status', transcript_path=path, last_uuid=None, project=None)
     status = gather_status(conn, cfg)

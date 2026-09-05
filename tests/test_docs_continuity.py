@@ -210,7 +210,7 @@ def test_rollout_backlog_records_are_actionable_and_ordered_first():
     assert "interactive Codex sessions" in " ".join(rollout.split())
     assert re.search(r"\*\([SMLX]+\)\*", rollout)
     assert re.search(
-        r"^- ⬜ \*\*2\.2\*\*.*Refute-trigger checks existence, not recency",
+        r"^- ✅ \*\*2\.2\*\*.*Refute/reactivation evidence epoch",
         backlog,
         re.M,
     )

@@ -62,3 +62,23 @@ Verification 2026-09-06: mapped changes implemented, as-built view reconciled,
 independent review clean after source-authority/completeness, evidence retention
 and reactivation fixes. Derived success/recovery tests pass in the full 703-test
 suite. Next action: backup-gated rollout.
+
+## RAG-007 evidence lifecycle (design-time, 2026-09-06)
+
+- **AF-010 — Resolved; source authority (AC001/002/003).** Existing event IDs lack
+  explicit session namespace at the attachment boundary. Task T001 namespaces
+  identity and derives role/time from source; T002 grounds before batch acceptance.
+- **AF-011 — Resolved; concurrency (AC003/004/007).** Attach and source withdrawal
+  must not overwrite each other. Task T001 uses deterministic source locks and
+  immutable append semantics; T004 proves replay and concurrent trust changes.
+- **AF-012 — Resolved; eligibility (AC004/005).** Source trust must compose with
+  temporal validity at every pre-limit/hop predicate, without reviving superseded
+  values. Task T003 replaces the common predicate and proves composition.
+- **AF-013 — Resolved; content ownership (AC006/007).** Ordinary updates/curation can
+  invalidate attached evidence. Task T002 protects managed claims from in-place
+  mutation and curation; legacy documents remain labeled incomplete.
+
+RAG-007 reconciliation: AF010–013 implemented and covered by source lifecycle and
+mining integration tests. Independent review findings on signal authority, confirmation
+inheritance, malformed timestamps, completeness and prompt labels corrected with
+regressions. Final independent fix review is clean; full verification passed (718 tests).

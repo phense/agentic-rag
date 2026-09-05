@@ -1,0 +1,137 @@
+{
+  "synthetic": true,
+  "provider": "codex",
+  "model": "gpt-5.6-luna",
+  "calls": 1,
+  "elapsed_seconds": 13.792445667088032,
+  "results": [
+    {
+      "id": "user",
+      "source_role": "user",
+      "source": "Server port is 8000.",
+      "claim": "Server port is 8000.",
+      "expected_kind": "stated",
+      "expected_entails": true,
+      "actual": {
+        "id": "user",
+        "kind": "stated",
+        "entails": true,
+        "reason": "The source directly affirms that the server port is 8000."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "proposal",
+      "source_role": "assistant",
+      "source": "We could move the server to port 9000.",
+      "claim": "Server port is 9000.",
+      "expected_kind": "proposal",
+      "expected_entails": false,
+      "actual": {
+        "id": "proposal",
+        "kind": "proposal",
+        "entails": false,
+        "reason": "Moving to port 9000 is presented as a possibility, not a current fact."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "hypothetical",
+      "source_role": "user",
+      "source": "If server port were 9000, we would change the firewall.",
+      "claim": "Server port is 9000.",
+      "expected_kind": "hypothetical",
+      "expected_entails": false,
+      "actual": {
+        "id": "hypothetical",
+        "kind": "hypothetical",
+        "entails": false,
+        "reason": "Port 9000 appears only in a conditional scenario."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "correction",
+      "source_role": "user",
+      "source": "Correction: server port is 8100, not 8000.",
+      "claim": "Server port is 8100.",
+      "expected_kind": "stated",
+      "expected_entails": true,
+      "actual": {
+        "id": "correction",
+        "kind": "stated",
+        "entails": true,
+        "reason": "The correction directly affirms that the server port is 8100."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "inference",
+      "source_role": "user",
+      "source": "TLS is enabled on the public listener.",
+      "claim": "All internal service traffic is encrypted.",
+      "expected_kind": "inference",
+      "expected_entails": false,
+      "actual": {
+        "id": "inference",
+        "kind": "inference",
+        "entails": false,
+        "reason": "TLS on the public listener does not establish encryption of all internal service traffic."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "german",
+      "source_role": "user",
+      "source": "Der Server verwendet Port 8000.",
+      "claim": "The server uses port 8000.",
+      "expected_kind": "stated",
+      "expected_entails": true,
+      "actual": {
+        "id": "german",
+        "kind": "stated",
+        "entails": true,
+        "reason": "The German sentence states that the server uses port 8000."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    },
+    {
+      "id": "quoted",
+      "source_role": "user",
+      "source": "The assistant suggested 'disable TLS'; I rejected that suggestion.",
+      "claim": "Disable TLS.",
+      "expected_kind": "proposal",
+      "expected_entails": false,
+      "actual": {
+        "id": "quoted",
+        "kind": "inference",
+        "entails": false,
+        "reason": "The source reports a rejected suggestion to disable TLS; it does not affirm disabling TLS."
+      },
+      "entailment_correct": true,
+      "kind_correct": false
+    },
+    {
+      "id": "question",
+      "source_role": "user",
+      "source": "Should the server use port 9000?",
+      "claim": "The server uses port 9000.",
+      "expected_kind": "hypothetical",
+      "expected_entails": false,
+      "actual": {
+        "id": "question",
+        "kind": "hypothetical",
+        "entails": false,
+        "reason": "The unanswered question presents port 9000 as a possibility, not a current fact."
+      },
+      "entailment_correct": true,
+      "kind_correct": true
+    }
+  ]
+}

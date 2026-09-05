@@ -75,6 +75,7 @@ def _merge_exact_duplicates(conn, budget: int) -> int:
         "   AND (d1.created_at < d2.created_at OR d1.id < d2.id)"
         " WHERE d1.status = 'active' AND d2.status = 'active'"
         " AND NOT EXISTS (SELECT 1 FROM fact_assertions a WHERE a.document_id IN (d1.id,d2.id))"
+        " AND NOT EXISTS (SELECT 1 FROM claim_records c WHERE c.document_id IN (d1.id,d2.id))"
         " AND d1.body <> ''"
         " ORDER BY d2.created_at LIMIT %s", (budget,)).fetchall()
     applied = 0
@@ -119,6 +120,7 @@ def _refute_candidates(conn, limit: int) -> list[dict]:
         " AND src.project_scope = d.project_scope AND d.project_scope <> 'unknown'"
         " WHERE d.status = 'active' AND src.status = 'active'"
         " AND NOT EXISTS (SELECT 1 FROM fact_assertions a WHERE a.document_id IN (d.id,src.id))"
+        " AND NOT EXISTS (SELECT 1 FROM claim_records c WHERE c.document_id IN (d.id,src.id))"
         " AND (d.reactivated_at IS NULL OR e.created_at > d.reactivated_at)"
         " AND NOT EXISTS ("
         "   SELECT 1 FROM audit_log a WHERE a.document_id = d.id"
@@ -235,7 +237,11 @@ def review_report(conn, cfg: Config) -> dict:
     temporal_review = [dict(r) for r in conn.execute(
         "SELECT d.slug,a.* FROM fact_assertions a JOIN documents d ON d.id=a.document_id"
         " WHERE a.disposition='review' ORDER BY d.created_at DESC LIMIT 100").fetchall()]
-    return {"temporal_review": temporal_review, "unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
+    from .evidence import summary
+    claim_review=[{'slug':r['slug'],**summary(conn,str(r['id']))} for r in conn.execute(
+        "SELECT d.id,d.slug FROM documents d JOIN claim_records c ON c.document_id=d.id"
+        " WHERE c.review_state<>'confirmed' OR NOT claim_eligible(d.id) ORDER BY d.created_at DESC LIMIT 100").fetchall()]
+    return {"claim_review":claim_review,"temporal_review": temporal_review, "unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
             "duplicate_candidates": duplicate_candidates,
             "dangling": dangling, "stale_pins": stale_pins,
             "suggestions": suggestions, "queue_errors": queue_errors}

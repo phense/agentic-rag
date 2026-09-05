@@ -172,7 +172,7 @@ def test_additive_legacy_migration_and_reader_privileges(cfg,tmp_path,monkeypatc
             row=connection.execute("INSERT INTO documents(slug,domain,dtype,title,body,provenance) VALUES ('old','general','memory','Old','fact','{\"project\":\"/scope/a\"}') RETURNING id,updated_at").fetchone()
             connection.execute("INSERT INTO pins(body,scope) VALUES ('old pin','/scope/a')")
             connection.commit()
-            assert db.apply_migrations(connection,db.SQL_DIR)==['010_project_scope.sql', '011_fact_validity.sql']
+            assert db.apply_migrations(connection,db.SQL_DIR)==['010_project_scope.sql', '011_fact_validity.sql', '012_claim_evidence.sql']
             assert db.apply_migrations(connection,db.SQL_DIR)==[]
             assert scope.backfill(connection)['documents_mapped']==1
             actual=connection.execute('SELECT updated_at,provenance,project_scope FROM documents WHERE id=%s',(row['id'],)).fetchone()

@@ -39,7 +39,10 @@ SYSTEM = (
     "You mine ONE Claude Code session digest for DURABLE knowledge. "
     "Only facts, lessons, and error signals worth remembering across "
     "sessions — never transient task narration or one-off chatter. "
-    "Each item is third-person and self-contained. "
+    "Each item contains ONE independently assessable claim. Preserve literal wording for stated claims; "
+    "paraphrases and conclusions are inferences. Distinguish stated, proposal, hypothetical and inference. "
+    "Every ordinary item requires SOURCE EVENTS evidence references with exact source_id and quote. "
+    "Speaker role comes from source, never guess it. Quote membership is not proof of truth or entailment. "
     "signals are recognizable error signatures: `signal` holds the LITERAL "
     "observable text a future occurrence would contain. "
     "edges link items to EXISTING knowledge by slug when the digest names "
@@ -83,7 +86,9 @@ def _item_schema(domains: list[str], with_signal: bool) -> dict:
             "additionalProperties": False,
         }},
     }
-    required = ["title", "body", "domain", "edges"]
+    props['claim_kind']={'type':'string','enum':['stated','proposal','hypothetical','inference']}
+    props['evidence']={'type':'array','items':{'type':'object','properties':{'source_id':{'type':'string'},'quote':{'type':'string'}},'required':['source_id','quote'],'additionalProperties':False}}
+    required = ["title", "body", "domain", "edges", "claim_kind", "evidence"]
     if with_signal:
         props["signal"] = {"type": "string"}
         required.append("signal")
@@ -108,11 +113,12 @@ def build_schema(domain_names: list[str]) -> dict:
         "contradictions": {"type": "array", "items": {
             "type": "object",
             "properties": {"slug": {"type": "string"},
+                           "source_id": {"type":"string"},
                            "statement": {"type": "string"},
                            "quote": {"type": "string"},
                            "domain": {"type": "string",
                                       "enum": list(domain_names)}},
-            "required": ["slug", "statement", "quote", "domain"],
+            "required": ["slug", "statement", "quote", "domain", "source_id"],
             "additionalProperties": False}},
         "contradictions_with_pins": {"type": "array", "items": {
             "type": "object",
@@ -165,6 +171,8 @@ class MinedItem:
     domain: str
     signal: str | None = None
     edges: list[EdgeSpec] = field(default_factory=list)
+    claim_kind: str = "inference"
+    evidence: list[dict] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -214,7 +222,9 @@ def _parse_items(raw, domain_names: set[str],
         if need_signal and not signal:
             continue
         out.append(MinedItem(title, body, domain, signal,
-                             _parse_edges(it.get("edges"))))
+                             _parse_edges(it.get("edges")),
+                             it.get("claim_kind") if it.get("claim_kind") in {"stated","proposal","hypothetical","inference"} else "inference",
+                             it.get("evidence",[]) if isinstance(it.get("evidence",[]),list) else []))
         if len(out) >= MAX_ITEMS_PER_KIND:
             break
     return out
@@ -244,7 +254,7 @@ def parse_extraction(data: dict, domain_names: set[str]) -> Extraction:
         # unvalidated domain would abort the whole mining job at save time
         # (unknown-domain ValueError) after earlier saves already committed
         contradictions=[
-            c for c in _parse_dicts(
+            {**c, 'evidence': next((raw.get('evidence',[]) for raw in data.get('contradictions',[]) if isinstance(raw,dict) and raw.get('slug')==c['slug'] and raw.get('quote')==c['quote']),[])} for c in _parse_dicts(
                 data.get("contradictions"),
                 ("slug", "statement", "quote", "domain"), cap=5)
             if c["domain"] in domain_names
@@ -338,6 +348,13 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
             data = {}
         # Persist only the normalized accepted batch, not unbounded raw output.
         clean, _ = strip_secrets_json(data)
+        clean = ground_claim_items(clean, window.events, session_id)
+        for contradiction in clean.get('contradictions',[]):
+            if not isinstance(contradiction,dict):continue
+            grounded=ground_claim_items({'memories':[{'title':'contradiction','body':contradiction.get('statement',''),
+                'domain':contradiction.get('domain'),'claim_kind':'inference',
+                'evidence':[{'source_id':contradiction.get('source_id'),'quote':contradiction.get('quote')}]}]},window.events,session_id)
+            contradiction['evidence']=grounded['memories'][0]['evidence']
         clean["assertions"] = ground_assertions(clean.get("assertions", []), window.events)
         ext = parse_extraction(clean, set(domain_names))
         row = conn.execute(
@@ -401,14 +418,16 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
                 meta["signal"] = item.signal
                 if item.signal not in body:
                     body = f"{body}\n\n## Signal\n\n{item.signal}"
-            save_document(
-                conn, cfg, title=item.title, body=body, domain=item.domain,
+            from .store import save_claim
+            save_claim(
+                conn, cfg, claim_kind=item.claim_kind,evidence=item.evidence,title=item.title, body=body, domain=item.domain,
                 dtype=dtype, meta=meta, provenance={**provenance, "mining_item": f"{dtype}:{saved}"}, edges=edges,
                 actor="mining", commit=False)
             saved += 1
 
     from .store import save_assertion
     for item in ext.assertions:
+        item = {**item, 'evidence': {**item['evidence'], 'namespace': 'session:'+session_id}}
         result = save_assertion(conn, cfg, **item, project=project, actor='mining', commit=False)
         saved += not result.duplicate
         duplicates += result.duplicate
@@ -417,8 +436,9 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
         target = conn.execute(
             "SELECT slug FROM documents WHERE slug = %s",
             (c["slug"],)).fetchone()
-        save_document(
-            conn, cfg,
+        from .store import save_claim
+        save_claim(
+            conn, cfg, claim_kind="inference", evidence=c.get("evidence",[]),
             title=f"Contradiction: {c['slug']}",
             body=(f"{c['statement']}\n\n> {c['quote']}\n\n"
                   f"Contradicts [[{c['slug']}]]"
@@ -478,8 +498,10 @@ def ground_assertions(items, events):
             end=parse_time(expiry)
             if end and (when is None or end<=parse_time(when)): when=expiry=None
         except (ValueError,TypeError): when=expiry=None
+        try: clean_source_time=parse_time(source.get('timestamp'))
+        except (ValueError,TypeError): clean_source_time=None
         evidence={'source_id':source['source_id'],'role':source.get('role') or 'unknown',
-                  'quote':quote,'event_at':source.get('timestamp'),'offset':source['offset'],'complete':source.get('complete',False),
+                  'quote':quote,'event_at':clean_source_time.isoformat() if clean_source_time else None,'offset':source['offset'],'complete':source.get('complete',False),
                   'grounding': 'explicit_statement' if source.get('complete') is True and explicit_statement(item,quote,source['text']) else 'review'}
         out.append({k:item[k] for k in ('entity','attribute','value','domain','relation')} |
                    {'event_at':when,'expires_at':expiry,'evidence':evidence})
@@ -508,3 +530,42 @@ def explicit_statement(item, quote, fragment):
         suffix+=r'\s+(?:until|bis)\s+'+re.escape(item['expires_at'])
     pattern=subject+r'\s*'+operator+r'\s*'+re.escape(item['value'].strip())+suffix+r'\.?'
     return re.fullmatch(pattern,text,re.IGNORECASE) is not None
+
+
+def ground_claim_items(data, events, session_id):
+    """Structural evidence validation, not semantic entailment or truth verification."""
+    import re
+    by_id={e['source_id']:e for e in events}
+    from .evidence import KINDS
+    from .validity import parse_time
+    for key in ('memories','lessons','signals'):
+        normalized=[]
+        for item in (data.get(key,[]) if isinstance(data.get(key,[]),list) else [])[:MAX_ITEMS_PER_KIND]:
+            if not isinstance(item,dict):continue
+            links=[];source_texts=[]
+            refs=item.get('evidence',[])
+            for ref in (refs if isinstance(refs,list) else [])[:8]:
+                if not isinstance(ref,dict):continue
+                source=by_id.get(ref.get('source_id'));quote=ref.get('quote')
+                if not source or not isinstance(quote,str) or not quote.strip() or len(quote)>4000 or quote not in source['text']:continue
+                try:timestamp=parse_time(source.get('timestamp'))
+                except (ValueError,TypeError):timestamp=None
+                links.append({'namespace':'session:'+session_id,'source_id':source['source_id'],
+                              'role':source.get('role') or 'unknown','timestamp':timestamp.isoformat() if timestamp else None,
+                              'quote':quote,'complete':source.get('complete') is True})
+                source_texts.append(re.sub(r'^\[(?:user|assistant)\]\s*','',source['text'].strip()))
+            kind=item.get('claim_kind') if item.get('claim_kind') in KINDS else 'inference'
+            text=' '.join(source_texts)
+            hypothetical=re.search(r'\b(if|suppose|hypothetical|imagine|wenn|angenommen|falls|würde|könnte)\b|[?]|[“”"<>]',text,re.I)
+            if hypothetical:kind='hypothetical'
+            elif links and all(link['role']=='assistant' for link in links):
+                kind='proposal' if kind in ('stated','proposal') else kind
+            elif kind=='stated' and not (links and all(link['role']=='user' and link['complete'] for link in links)
+                   and item.get('body','').strip() in source_texts and all(link['quote'].strip()==item.get('body','').strip() for link in links)):
+                kind='inference'
+            if key=='signals' and not any(str(item.get('signal','')) in link['quote'] for link in links):
+                kind='inference'
+            if not links:kind='inference'
+            normalized.append({**item,'claim_kind':kind,'evidence':links})
+        data[key]=normalized
+    return data

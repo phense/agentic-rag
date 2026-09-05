@@ -1,7 +1,7 @@
 """Hybrid search wrapper: embed the query (fail-open), call hybrid_search()."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from .config import Config
@@ -20,6 +20,7 @@ class SearchHit:
     score: float
     verified_at: datetime | None
     provenance: dict
+    evidence: dict = field(default_factory=dict)
 
 
 def search(
@@ -41,10 +42,11 @@ def search(
         "SELECT * FROM hybrid_search_temporal(%s, %s::halfvec, %s, %s, %s, %s, %s)",
         (query, qvec, domain, k, scopes, at, history),
     ).fetchall()
+    from .evidence import summary
     hits = [
         SearchHit(str(r["document_id"]), str(r["chunk_id"]), r["title"],
                   r["slug"], r["domain"], r["dtype"], r["snippet"],
-                  float(r["score"]), r["verified_at"], r["provenance"])
+                  float(r["score"]), r["verified_at"], r["provenance"],summary(conn,str(r["document_id"])))
         for r in rows
     ]
     return hits, warnings

@@ -6,7 +6,7 @@ from agentic_rag.config import Config
 
 TEST_DB = "agentic_rag_test"
 # order matters only for readability; TRUNCATE ... CASCADE handles FKs
-TABLES = "documents, domains, edges, pins, mining_queue, audit_log, continuation_checkpoints, mining_batches"
+TABLES = "documents, domains, edges, pins, mining_queue, audit_log, continuation_checkpoints, mining_batches, knowledge_sources"
 
 
 @pytest.fixture(scope="session")

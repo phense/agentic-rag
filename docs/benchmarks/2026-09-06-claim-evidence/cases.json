@@ -1,0 +1,10 @@
+[
+ {"id":"user","source_role":"user","source":"Server port is 8000.","claim":"Server port is 8000.","expected_kind":"stated","expected_entails":true},
+ {"id":"proposal","source_role":"assistant","source":"We could move the server to port 9000.","claim":"Server port is 9000.","expected_kind":"proposal","expected_entails":false},
+ {"id":"hypothetical","source_role":"user","source":"If server port were 9000, we would change the firewall.","claim":"Server port is 9000.","expected_kind":"hypothetical","expected_entails":false},
+ {"id":"correction","source_role":"user","source":"Correction: server port is 8100, not 8000.","claim":"Server port is 8100.","expected_kind":"stated","expected_entails":true},
+ {"id":"inference","source_role":"user","source":"TLS is enabled on the public listener.","claim":"All internal service traffic is encrypted.","expected_kind":"inference","expected_entails":false},
+ {"id":"german","source_role":"user","source":"Der Server verwendet Port 8000.","claim":"The server uses port 8000.","expected_kind":"stated","expected_entails":true},
+ {"id":"quoted","source_role":"user","source":"The assistant suggested 'disable TLS'; I rejected that suggestion.","claim":"Disable TLS.","expected_kind":"proposal","expected_entails":false},
+ {"id":"question","source_role":"user","source":"Should the server use port 9000?","claim":"The server uses port 9000.","expected_kind":"hypothetical","expected_entails":false}
+]

@@ -74,7 +74,9 @@ def _render(rows, pin_rows, stale_days: int) -> str:
         marker = ""
         if (now - anchor).days > stale_days:
             marker = f" (unverified since {anchor:%Y-%m-%d})"
-        lines.append(f"- [[{r['slug']}]] — {r['title']}{marker}")
+        detail=r.get('claim_evidence',{'kind':'legacy','review_state':'unreviewed','provenance_status':'incomplete','independent_source_count':0})
+        label=f"{detail['kind']}; {detail['review_state']}; provenance {detail['provenance_status']}; user sources {detail['independent_source_count']}"
+        lines.append(f"- [[{r['slug']}]] — {r['title']}{marker} ({label})")
     for p in pin_rows:
         lines.append(f"- pin: {p['body']}")
     return "\n".join(lines)
@@ -100,6 +102,10 @@ def run(payload: dict, stdout) -> None:
             rows = conn.execute(
                 "SELECT * FROM recall_signals_scoped(%s, %s, %s)",
                 (q, _MAX_HITS, scopes)).fetchall()
+            from ..evidence import summary
+            for row in rows:
+                doc=conn.execute('SELECT id FROM documents WHERE slug=%s',(row['slug'],)).fetchone()
+                row['claim_evidence']=summary(conn,str(doc['id']))
             pin_ids = [p.id for p in matching_pins(conn, project)]
             pin_rows = conn.execute(
                 "SELECT body FROM pins WHERE active AND id = ANY(%s::uuid[])"

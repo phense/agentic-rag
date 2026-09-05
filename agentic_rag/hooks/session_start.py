@@ -209,17 +209,21 @@ def build_context(
         scopes = selection(cwd)
         pinned_ids = [p.document_id for p in pin_list if p.document_id]
         rows = conn.execute(
-            "SELECT slug, title, dtype, COALESCE(verified_at, updated_at) AS ts"
+            "SELECT id, slug, title, dtype, COALESCE(verified_at, updated_at) AS ts"
             " FROM documents WHERE status = 'active' AND assertion_eligible(id)"
             " AND (project_scope = ANY(%s) OR id = ANY(%s::uuid[]))"
             " ORDER BY COALESCE(verified_at, updated_at) DESC LIMIT %s",
             (scopes, pinned_ids, cfg.context_docs)).fetchall()
         if rows:
+            from ..evidence import summary
+            for row in rows:
+                detail=summary(conn,str(row["id"]))
+                row["evidence_label"]=f"{detail['kind']}; {detail['review_state']}; provenance {detail['provenance_status']}; user sources {detail['independent_source_count']}"
             parts.append((
                 "knowledge",
                 "## Recent knowledge for this project (memory_get <slug>)\n"
                 + "\n".join(f"- [[{r['slug']}]] {r['title']} ({r['dtype']},"
-                            f" {r['ts']:%Y-%m-%d})" for r in rows),
+                            f" {r['ts']:%Y-%m-%d}; {r['evidence_label']})" for r in rows),
             ))
 
     try:

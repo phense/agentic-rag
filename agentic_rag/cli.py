@@ -169,6 +169,13 @@ def _main(argv: list[str] | None = None) -> int:
     p_rs.add_argument("--yes", action="store_true")
 
     sub.add_parser("review")
+    p_evidence=sub.add_parser('evidence',help='audited source trust and claim review')
+    es=p_evidence.add_subparsers(dest='evidence_cmd',required=True)
+    ps=es.add_parser('source-state');ps.add_argument('source_key')
+    ps.add_argument('--state',required=True,choices=['active','refuted','removed']);ps.add_argument('--reason',required=True)
+    pr=es.add_parser('review');pr.add_argument('id_or_slug')
+    pr.add_argument('--state',required=True,choices=['confirmed','unreviewed','refuted']);pr.add_argument('--reason',required=True)
+
     p_scope = sub.add_parser("scope", help="inspect or repair document applicability")
     ss = p_scope.add_subparsers(dest="scope_cmd", required=True)
     ss.add_parser("backfill", help="audit-map unambiguous legacy paths, retain unknowns")
@@ -233,6 +240,17 @@ def _main(argv: list[str] | None = None) -> int:
                 relation=args.relation,project=args.project,scope=args.scope,
                 evidence={'source_id':args.source_id,'role':args.role,'quote':args.quote})
             print(json.dumps(dataclasses.asdict(result),default=_json_default,indent=2))
+        return 0
+
+    if args.cmd == 'evidence':
+        with db.connect(cfg,role='writer') as connection:
+            if args.evidence_cmd=='source-state':
+                store.set_source_state(connection,args.source_key,state=args.state,reason=args.reason)
+            else:
+                doc=store.get_document(connection,args.id_or_slug)
+                if not doc:raise ValueError('document not found')
+                store.review_claim(connection,str(doc['id']),state=args.state,reason=args.reason)
+        print('evidence state saved')
         return 0
 
     if args.cmd == "scope":

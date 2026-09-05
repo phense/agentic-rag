@@ -188,9 +188,10 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   model comparison verified; migration 011 activated after fresh checked backup,
   legacy/pin invariants preserved, published CI green and issue closed.
   See [verification](specs/RAG-006-fact-validity/verification.md). *(L)*
-- ⬜ **4.5** _(enh, P2)_ **Claim-level evidence and inference status.** Retain sanitized event references and speaker roles; distinguish stated facts, assistant suggestions and derived inferences.
-  → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Why not done:* analysis complete; implementation and rollout pending.
-  → *Trigger:* coordinate source identity with 4.2; land the minimal update-evidence subset before 4.4. *(M–L)*
+- 🔵 **4.5** _(enh, P2)_ **Claim-level evidence and inference status.** Retain sanitized event references and speaker roles; distinguish stated facts, assistant suggestions and derived inferences.
+  → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Why not done:* implementation, independent review, 718 tests and synthetic semantic
+  evaluation complete; production rollout/publication pending.
+  → *Trigger:* backup-gated migration 012 and activation after rollout approval. *(M–L)*
 - ⬜ **4.6** _(enh, P2)_ **Measured retrieval relevance improvements.** Add diverse results and useful evidence spans; evaluate local reranking, abstention and bounded graph expansion.
   → *Issue:* [#8](https://github.com/phense/agentic-rag/issues/8). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* after 4.1 baseline and shared scope/validity policies. *(M)*

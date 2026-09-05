@@ -129,8 +129,8 @@ def _save_txn(
         raise ValueError(f"unknown domain: {domain} — create it first with"
                          f" 'rag domain add {domain}'")
 
-    if doc_id is not None and conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s", (doc_id,)).fetchone():
-        raise ValueError("atomic assertions are immutable; create a corrective assertion")
+    if doc_id is not None and conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s UNION ALL SELECT 1 FROM claim_records WHERE document_id=%s", (doc_id,doc_id)).fetchone():
+        raise ValueError("evidence-managed claims are immutable; create a corrective assertion")
     created = doc_id is None
     if created:
         the_slug = slug or _unique_slug(conn, slugify(title))
@@ -275,6 +275,9 @@ def get_document(conn, id_or_slug: str) -> dict | None:
             (doc["id"],)).fetchall()
     ]
     d = dict(doc)
+    from .evidence import summary, sources
+    d["claim_evidence"] = summary(conn,str(doc["id"]))
+    d["claim_sources"] = sources(conn,str(doc["id"]))
     assertion = conn.execute("SELECT * FROM fact_assertions WHERE document_id=%s", (doc["id"],)).fetchone()
     if assertion:
         d["assertion"] = dict(assertion)
@@ -315,8 +318,8 @@ def set_project_scope(conn, doc_id: str, *, project: str | None = None,
                       actor: str = 'cli', commit: bool = True) -> bool:
     """Audited applicability repair without re-embedding or changing provenance."""
     from .scope import write_scope
-    if conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s", (doc_id,)).fetchone():
-        raise ValueError("atomic assertions are immutable; create a corrective assertion")
+    if conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s UNION ALL SELECT 1 FROM claim_records WHERE document_id=%s", (doc_id,doc_id)).fetchone():
+        raise ValueError("evidence-managed claims are immutable; create a corrective assertion")
     value = write_scope(project=strip_secrets(project)[0] if project else None, scope=scope)
     if value is None:
         raise ValueError('scope repair requires explicit project or scope')
@@ -341,3 +344,18 @@ def save_assertion(conn, cfg, **kwargs):
     """Audited immutable assertion write; participates in accepted mining batches."""
     from .validity import save
     return save(conn, cfg, **kwargs)
+
+
+def save_claim(conn,cfg,**kwargs):
+    from .evidence import save
+    return save(conn,cfg,**kwargs)
+
+
+def set_source_state(conn,key,**kwargs):
+    from .evidence import source_state
+    return source_state(conn,key,**kwargs)
+
+
+def review_claim(conn,doc_id,**kwargs):
+    from .evidence import review
+    return review(conn,doc_id,**kwargs)

@@ -186,6 +186,27 @@ def memory_assert(entity: str, attribute: str, value: str, domain: str,
             relation=relation,project=project,scope=scope,actor='claude'))
 
 
+def memory_source_state(source_key: str, state: str, reason: str) -> dict:
+    """Explicit operator source trust change: active/refuted/removed, with reason.
+    Retains all evidence; dependent current claims use surviving active support."""
+    from .store import set_source_state
+    cfg,conn=_connect()
+    with conn:set_source_state(conn,source_key,state=state,reason=reason,actor='claude')
+    return {'source_key':source_key,'state':state}
+
+
+def memory_review_claim(id_or_slug: str, state: str, reason: str) -> dict:
+    """Explicit operator review: confirmed/unreviewed/refuted, with reason.
+    Confirm only after checking meaning and source support; this preserves inference kind."""
+    from .store import review_claim
+    cfg,conn=_connect()
+    with conn:
+        doc_id=_resolve_id(conn,id_or_slug)
+        if doc_id is None:return {'error':'document not found'}
+        review_claim(conn,doc_id,state=state,reason=reason,actor='claude')
+    return {'document_id':doc_id,'review_state':state}
+
+
 def memory_pin(body: str | None = None, document_id: str | None = None,
                scope: str = "global", priority: int = 100) -> dict:
     """Pin a standing rule (or a document) so it is injected into EVERY
@@ -209,7 +230,7 @@ def memory_unpin(pin_id: str) -> dict:
 
 READ_TOOLS = (memory_domains, memory_search, memory_get, memory_neighbors,
               memory_path, memory_timeline)
-WRITE_TOOLS = (memory_save, memory_assert, memory_pin, memory_unpin)
+WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 
 
 def tool_names(readonly: bool) -> list[str]:

@@ -120,6 +120,13 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
 
 
 def retain_source(conn, doc_id, evidence, actor):
+    from .evidence import attach
+    conn.execute("INSERT INTO claim_records(document_id,kind,content_hash) SELECT document_id,'stated',md5(value) FROM fact_assertions WHERE document_id=%s ON CONFLICT DO NOTHING",(doc_id,))
+    try: source_time=parse_time(evidence.get('event_at'))
+    except (ValueError,TypeError): source_time=None
+    attach(conn,doc_id,[{'namespace':evidence.get('namespace','operator'),
+        'source_id':evidence['source_id'],'role':evidence['role'],'quote':evidence['quote'],
+        'timestamp':source_time.isoformat() if source_time else None,'complete':evidence.get('complete',actor!='mining')}],actor)
     encoded=json.dumps(evidence,sort_keys=True,ensure_ascii=False)
     digest=hashlib.sha256(encoded.encode()).hexdigest()
     row=conn.execute('INSERT INTO assertion_sources(document_id,source_hash,evidence) VALUES (%s,%s,%s) ON CONFLICT DO NOTHING RETURNING source_hash',
