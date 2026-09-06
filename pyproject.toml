@@ -1,6 +1,6 @@
 [project]
 name = "agentic-rag"
-version = "0.4.2"
+version = "0.5.0"
 description = "Lean PostgreSQL-based agentic-RAG memory and session continuity"
 requires-python = ">=3.13"
 license = "MIT"
@@ -30,11 +30,13 @@ packages = ["agentic_rag"]
 [tool.hatch.build.targets.wheel.force-include]
 "assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
 "assets/claude/compact_prompt.md" = "assets/claude/compact_prompt.md"
+"assets/agy/compact_prompt.md" = "assets/agy/compact_prompt.md"
 "sql" = "sql"
 
 [tool.hatch.build.targets.sdist.force-include]
 "assets/codex/compact_prompt.md" = "assets/codex/compact_prompt.md"
 "assets/claude/compact_prompt.md" = "assets/claude/compact_prompt.md"
+"assets/agy/compact_prompt.md" = "assets/agy/compact_prompt.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

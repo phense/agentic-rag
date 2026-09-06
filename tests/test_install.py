@@ -284,3 +284,43 @@ def test_install_launchd_failure_names_the_rollback_command(
     assert "launchctl bootstrap failed" in message
     assert f"rag install --restore {records[0]}" in message
     assert excinfo.value.__cause__ is not None
+
+
+def test_agy_install_records_rollback_and_restores_by_target(tmp_path):
+    home = tmp_path / "home"
+    hooks = home / ".gemini" / "config" / "hooks.json"
+    hooks.parent.mkdir(parents=True)
+    hooks.write_text('{"lint": {"Stop": [{"command": "x"}]}}')
+
+    rep = install.install(Config(), agy=True, agy_home=home,
+                          state_dir=tmp_path / "state")
+
+    assert rep.agy_report is not None and rep.agy_report.changed
+    assert rep.codex is None and rep.claude_report is None
+    assert rep.plist_path is None and rep.mcp_registered is False
+    record = json.loads(rep.rollback_path.read_text())
+    assert record["target"] == "agy" and record["hooks_path"] == str(hooks)
+    assert (rep.rollback_path.stat().st_mode & 0o777) == 0o600
+    assert "agentic-rag" in json.loads(hooks.read_text())
+
+    with pytest.raises(ValueError, match="targets Antigravity"):
+        install.install(Config(), restore_path=rep.rollback_path)
+    with pytest.raises(ValueError, match="targets Antigravity"):
+        install.install(Config(), codex=True, restore_path=rep.rollback_path)
+
+    restored = install.install(Config(), agy=True, restore_path=rep.rollback_path)
+
+    assert restored.restored_paths == (hooks,)
+    assert hooks.read_text() == '{"lint": {"Stop": [{"command": "x"}]}}'
+
+
+def test_agy_check_writes_nothing_and_flags_are_exclusive(tmp_path):
+    home = tmp_path / "home"
+
+    rep = install.install(Config(), agy=True, agy_home=home, check=True)
+
+    assert rep.agy_report is not None and rep.agy_report.check
+    assert rep.rollback_path is None
+    assert not (home / ".gemini").exists()
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        install.install(Config(), agy=True, codex=True)

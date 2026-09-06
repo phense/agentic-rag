@@ -7,7 +7,24 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.5.0] - 2026-09-06
+
 ### Added
+- **Antigravity CLI (`agy`) compaction continuity.** `rag install --agy`
+  merges one named hook (`SessionStart`, `PreInvocation`, `Stop`) into
+  `~/.gemini/config/hooks.json` with check mode, unique backup, and a
+  target-aware rollback record. `SessionStart` injects pins, domains, project
+  knowledge, and the checkpoint as an ephemeral message; `PreInvocation`
+  treats a `/compact` turn as PreCompact (checkpoint, enrichment, versioned
+  `assets/agy/compact_prompt.md`), detects an automatic-compaction marker
+  after the fact (boundary, handoff, checkpoint re-injection), and recalls
+  error signatures; `Stop` stores the `/compact` summary as the handoff and
+  queues mining. Mining, enrichment, and checkpoint cursors understand the
+  Antigravity transcript step format (`agy-step-<n>`). Facts about Gemini
+  3.8 Flash / 3.1 Pro (1,048,576 tokens) and Antigravity's hook/compaction
+  behaviour are recorded in `docs/00-whats-new-in-0.5.md`.
 - **Consistent project applicability (issue #5).** CLI/MCP scope selectors,
   Git-worktree/symlink normalization, before-limit retrieval and every-hop graph
   filtering, scoped hooks/pins, equal-known-scope curation and audited legacy

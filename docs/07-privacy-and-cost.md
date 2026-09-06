@@ -142,6 +142,15 @@ written, and the printed `rag install --restore <record>` command undoes it. The
 installer reports duplicated foreign `herdr-agent-state.sh` commands but
 neither trusts nor removes them.
 
+### Antigravity hooks
+
+`rag install --agy` writes shell commands into `~/.gemini/config/hooks.json`,
+which the Antigravity CLI, IDE, and desktop app all read. Review the
+`agentic-rag` hook with `/hooks` after installing. The hooks send nothing to
+Google themselves: injected context becomes part of the prompt Antigravity
+sends to Gemini, exactly like pins in a Claude session, and the stored handoff
+is the model's own `/compact` summary, secret-stripped and bounded.
+
 ## The secret-stripping gateway
 
 Every write goes through one gateway function, `save_document` in

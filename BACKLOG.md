@@ -12,7 +12,7 @@
 
 ---
 
-## §0 — Continuity rollout blockers (Codex and Claude)
+## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
 - ✅ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
   now strips secret-shaped values from copied global, matching-path, and
@@ -102,6 +102,31 @@
   confirmation, an automatic compaction, and a `SessionEnd` tail capture are
   still to be exercised in a live session. → *Trigger:* the next interactive
   Claude Code session; record each outcome here. *(M)*
+
+- ⬜ **0.4** _(chore)_ **Prove Antigravity (agy) continuity end to end.**
+  Code, tests, and docs landed on 2026-09-06 (branch `feat/agy-continuity`,
+  0.5.0). Research the same day: `agy` 1.1.27 has `/compact` (verified
+  headless), server-side automatic summarization without a threshold, hooks
+  `PreToolUse`/`PostToolUse`/`PreInvocation`/`PostInvocation`/`Stop` plus an
+  undocumented `SessionStart` (fires for new conversations only), camelCase
+  payloads, and `injectSteps`/`ephemeralMessage` injection (verified: the
+  model repeated two injected facts). Gemini 3.8 Flash and 3.1 Pro:
+  1,048,576-token window.
+  → *Why not done:* `rag install --agy` has not run on the maintainer
+  machine; no `/hooks` review, manual `/compact`, or automatic compaction has
+  been observed with the installed hooks. The automatic-compaction marker
+  (`CHECKPOINT` step / `<CONTEXT_SUMMARY>`) is inferred from binary strings —
+  when the detector fires it logs `agy.auto_compaction` in `hooks.log`; if a
+  real compaction leaves a different trace, adjust
+  `transcript_agy.latest_auto_compaction`. → *Trigger:* the next interactive
+  `agy` session in a trusted workspace; record each outcome here.
+  → *Dependency:* an `agy` conversation long enough to auto-compact. *(M)*
+- ⬜ **0.5** _(enh)_ **Gemini as a mining/enrichment provider.** `agy -p
+  --output-format json --json-schema` can return schema-constrained JSON, so
+  `[llm] provider = "agy"` is feasible next to Codex and Claude.
+  → *Why not done:* not requested; provider health/backoff semantics for the
+  Antigravity quota are unknown. → *Trigger:* a wish to mine with the Gemini
+  subscription instead of Codex/Claude. *(M)*
 
 ## §1 — Mining & curation pipeline
 

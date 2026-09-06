@@ -579,3 +579,48 @@ def test_status_prints_handoff_line(cli_env, capsys):
 
     out = capsys.readouterr().out
     assert "checkpoint handoff:" in out
+
+
+def test_install_agy_check_and_install_print_hooks_and_rollback(
+        tmp_path, monkeypatch, capsys):
+    cfg_toml = tmp_path / "config.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    monkeypatch.setattr(cli.install_mod.Path, "home", classmethod(lambda cls: tmp_path))
+    home = tmp_path / "home"
+
+    assert cli._main(["install", "--agy", "--check", "--agy-home", str(home)]) == 0
+    out = capsys.readouterr().out
+    assert "would change:" in out and ".gemini/config/hooks.json" in out
+    assert "hook: " in out and "agentic_rag.hooks.agy session-start" in out
+    assert "check complete: no files written" in out
+    assert not (home / ".gemini").exists()
+
+    assert cli._main(["install", "--agy", "--agy-home", str(home)]) == 0
+    out = capsys.readouterr().out
+    assert "changed:" in out
+    assert "rollback: rag install --agy --restore " in out
+    assert (home / ".gemini" / "config" / "hooks.json").exists()
+
+    assert cli._main(["install", "--agy", "--agy-home", str(home)]) == 0
+    assert "already up to date" in capsys.readouterr().out
+
+
+def test_cli_install_agy_flag_rules(tmp_path, monkeypatch, capsys):
+    cfg_toml = tmp_path / "config.toml"
+    cfg_toml.write_text("")
+    monkeypatch.setenv("AGENTIC_RAG_CONFIG", str(cfg_toml))
+    calls = []
+
+    def fake_install(cfg, **kwargs):
+        calls.append(kwargs)
+        return cli.install_mod.InstallReport(None, None, False)
+    monkeypatch.setattr(cli.install_mod, "install", fake_install)
+
+    assert cli._main(["install", "--agy", "--check"]) == 0
+    assert calls[-1]["agy"] is True and calls[-1]["check"] is True
+    assert calls[-1]["with_launchd"] is False
+    assert cli._main(["install", "--agy", "--codex"]) == 2
+    assert "mutually exclusive" in capsys.readouterr().err
+    with pytest.raises(SystemExit):
+        cli._main(["install", "--agy-home", "/h"])

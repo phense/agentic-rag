@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .secrets import strip_secrets
+from .transcript_agy import is_step, step_identity, step_prose
 
 PREFIX = 'mw1:'
 
@@ -22,6 +23,9 @@ class MiningWindow:
 
 
 def _content(event: dict) -> tuple[str | None, str]:
+    if is_step(event):
+        # Antigravity CLI trajectory step (no uuid; identity = step index)
+        return step_identity(event), '\n'.join(step_prose(event))
     message = event.get('message')
     if event.get('type') == 'response_item':
         payload = event.get('payload')
@@ -91,9 +95,13 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
                 seen[identity] = digest
             records.append((number, identity, text, chain.hexdigest()))
             message = ev.get('message', ev.get('payload', {})) if isinstance(ev, dict) else {}
+            role = message.get('role') if isinstance(message, dict) else None
+            timestamp = ev.get('timestamp') if isinstance(ev, dict) else None
+            if isinstance(ev, dict) and is_step(ev):
+                role = {'USER_INPUT': 'user', 'PLANNER_RESPONSE': 'assistant'}.get(ev['type'])
+                timestamp = ev.get('created_at')
             metadata.append({'source_id': f'{number}:{chain.hexdigest()}',
-                             'role': message.get('role') if isinstance(message,dict) else None,
-                             'timestamp': ev.get('timestamp') if isinstance(ev,dict) else None})
+                             'role': role, 'timestamp': timestamp})
     start = offset = 0
     if after_uuid and after_uuid.startswith(PREFIX):
         try:

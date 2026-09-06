@@ -1,13 +1,14 @@
 # agentic-rag Handbook
 
 A single, progressively-ordered read — from provider-neutral durable memory and
-Claude/Codex compaction continuity through everyday use, configuration, extension,
+Claude/Codex/Antigravity compaction continuity through everyday use, configuration, extension,
 architecture, and design rationale. Each chapter says up front what you'll
 learn. Shipped versus still-planned rollout state lives in
 [`../FEATURES.md`](../FEATURES.md) and the blocker-first
 [`../BACKLOG.md`](../BACKLOG.md).
 
 ## Start here
+- [What’s New in 0.5.0](00-whats-new-in-0.5.md) — Antigravity CLI (`agy`) continuity: what Gemini/Antigravity offer, the three-hook install, `/compact` handoff, automatic-compaction detection.
 - [What’s New in 0.4.0](00-whats-new-in-0.4.md) — Claude compaction continuity, the managed 1M/500K policy, handoff capture, check/restore for the Claude install.
 - [What’s New in 0.3.0](00-whats-new-in-0.3.md) — Codex continuity, native memories, safe installation, upgrade steps, and operational boundaries.
 

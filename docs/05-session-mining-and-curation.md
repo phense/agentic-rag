@@ -147,6 +147,30 @@ Claude auto-memory is complementary; agentic-rag stays canonical. Nothing about
 Claude's auto-memory (`~/.claude/projects/<slug>/memory/`) is installed or
 changed by this feature.
 
+## Antigravity continuity around compaction
+
+Antigravity has no compaction events, so the adapter (`agentic_rag/hooks/agy.py`)
+derives them from the transcript:
+
+1. **SessionStart** injects pins, domains, project knowledge, and the
+   same-session checkpoint as one ephemeral message (new conversations only).
+2. **PreInvocation** on the first model call of a turn reads the transcript
+   tail. A trailing `/compact` request is PreCompact: the checkpoint is
+   persisted at cursor `agy-step-<idx>`, enrichment is queued, and the
+   versioned compact prompt plus `agentic-rag checkpoint: <id>` is injected so
+   the summary follows the shared handoff contract. A new
+   automatic-compaction marker (`CHECKPOINT` step / `<CONTEXT_SUMMARY>`) is
+   PreCompact and PostCompact in one step — boundary, handoff, and an
+   immediate re-injection of the checkpoint, because no SessionStart follows
+   an automatic compaction. Otherwise the new prompt goes through the same
+   error-signature recall as `UserPromptSubmit`.
+3. **Stop** stores the model's `/compact` summary as the bounded handoff and
+   queues the transcript delta for mining.
+
+Mining and enrichment read Antigravity steps (`USER_INPUT` words unwrapped
+from `<USER_REQUEST>`, `PLANNER_RESPONSE` prose, tool **names** only) through
+the same redacting digest as Claude and Codex transcripts.
+
 ## The original mining hooks
 
 ### Stop — enqueue for mining

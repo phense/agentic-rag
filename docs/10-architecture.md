@@ -440,6 +440,18 @@ again and preserves concurrent destinations/recovery evidence rather than
 overwriting. The user must inspect and trust changed handlers with `/hooks`;
 the installer cannot grant trust.
 
+### Antigravity CLI hooks
+
+`rag install --agy` merges one named hook into `~/.gemini/config/hooks.json`;
+all three handlers run `python -m agentic_rag.hooks.agy <event>` and print a
+JSON object.
+
+| Event | Timeout | Role | What it does | Failure mode |
+|---|---|---|---|---|
+| `SessionStart` | 10s | `writer` | Builds the same context as the Claude hook from `workspacePaths[0]` / `conversationId` and returns it as one `ephemeralMessage`; triggers maintenance. | **Fail closed, visibly** — injects `⚠️ agentic-rag unavailable`. |
+| `PreInvocation` | 5s | `writer`/`reader` | First invocation of a turn only. `/compact` request → PreCompact (`agy-step-<idx>`, manual) + compact prompt injection; new auto marker → PreCompact+PostCompact (auto) + checkpoint re-injection; else error-signature recall. | **Fail open** — logged, `{}`. |
+| `Stop` | 10s | `writer` | PostCompact for a finished `/compact` turn (handoff from the following model step), then the transcript-delta enqueue. | **Fail open** — always `{}`. |
+
 ## The two MCP servers
 
 `agentic_rag/mcp_server.py` is a single `FastMCP` (stdio) app; which server

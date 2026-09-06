@@ -67,8 +67,12 @@ def _main(argv: list[str] | None = None) -> int:
                         help="show the changes without writing files")
     p_inst.add_argument("--restore", type=Path, default=None,
                         metavar="ROLLBACK_RECORD",
-                        help="restore a recorded Claude or Codex installation")
+                        help="restore a recorded Claude, Codex or Antigravity installation")
     p_inst.add_argument("--codex-home", type=Path, default=None,
+                        help=argparse.SUPPRESS)
+    p_inst.add_argument("--agy", action="store_true",
+                        help="target the Antigravity CLI (agy) hooks.json")
+    p_inst.add_argument("--agy-home", type=Path, default=None,
                         help=argparse.SUPPRESS)
 
     p_dom = sub.add_parser("domain")
@@ -227,8 +231,11 @@ def _main(argv: list[str] | None = None) -> int:
     if (args.cmd == "install" and args.codex_home is not None
             and not args.codex):
         p.error("--codex-home requires --codex")
+    if (args.cmd == "install" and args.agy_home is not None
+            and not args.agy):
+        p.error("--agy-home requires --agy")
     if (args.cmd == "install" and args.restore is not None
-            and args.codex_home is not None):
+            and (args.codex_home is not None or args.agy_home is not None)):
         p.error("--restore reads its target home from the rollback record")
     cfg = load_config()
 
@@ -354,6 +361,9 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "install":
+        if args.codex and args.agy:
+            print("--codex and --agy are mutually exclusive", file=sys.stderr)
+            return 2
         if args.codex:
             rep = install_mod.install(
                 cfg,
@@ -362,6 +372,11 @@ def _main(argv: list[str] | None = None) -> int:
                 check=args.check,
                 codex_home=args.codex_home,
                 restore_path=args.restore,
+            )
+        elif args.agy:
+            rep = install_mod.install(
+                cfg, with_launchd=False, codex=False, check=args.check,
+                restore_path=args.restore, agy=True, agy_home=args.agy_home,
             )
         else:
             rep = install_mod.install(
@@ -372,6 +387,30 @@ def _main(argv: list[str] | None = None) -> int:
             for path in rep.restored_paths:
                 print(f"restored: {_safe(path)}")
             print("rollback complete")
+            return 0
+        agy_rep = rep.agy_report
+        if agy_rep is not None:
+            action = "would change" if agy_rep.check else "changed"
+            if agy_rep.changed:
+                print(f"{action}: {_safe(agy_rep.hooks_path)}")
+            else:
+                print("Antigravity hooks: already up to date")
+            if agy_rep.backup is not None:
+                print(f"backup: {_safe(agy_rep.backup.target_path)} <- "
+                      f"{_safe(agy_rep.backup.backup_path)}")
+            for command in agy_rep.commands:
+                print(f"hook: {_safe(command)}")
+            for warning in agy_rep.warnings:
+                print(f"warning: {_safe(warning)}")
+            print("hooks: review the `agentic-rag` hook with `/hooks` in agy;"
+                  " SessionStart, PreInvocation and Stop are owned")
+            print("compaction: `/compact` is guided by the injected prompt;"
+                  " automatic compaction has no configurable threshold in agy")
+            if agy_rep.check:
+                print("check complete: no files written")
+            elif rep.rollback_path is not None:
+                record = shlex.quote(_safe(rep.rollback_path))
+                print(f"rollback: rag install --agy --restore {record}")
             return 0
         if rep.codex is not None:
             codex_rep = rep.codex

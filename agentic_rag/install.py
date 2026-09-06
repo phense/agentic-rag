@@ -20,6 +20,7 @@ from pathlib import Path
 
 from . import backup
 from .config import Config
+from .integrations.agy import install as agy_install
 from .integrations.claude import install as claude_install
 from .integrations.claude import settings as claude_settings
 from .integrations.codex import config as codex_config
@@ -31,6 +32,10 @@ MCP_NAME = "agentic-rag"
 MCP_NAME_RO = "agentic-rag-ro"   # spec §5: the subagent server, rag_reader
 CODEX_ROLLBACK_VERSION = 1
 CLAUDE_ROLLBACK_VERSION = 1
+AGY_ROLLBACK_VERSION = 1
+# single-file targets share one rollback record shape: (label, file key)
+_FILE_TARGETS = {"claude": ("Claude settings", "settings_path"),
+                 "agy": ("Antigravity hooks", "hooks_path")}
 
 
 def managed_codex_settings() -> tuple[tuple[str, object], ...]:
@@ -89,6 +94,7 @@ class InstallReport:
     rollback_path: Path | None = None
     restored_paths: tuple[Path, ...] = ()
     claude_report: claude_install.ClaudeInstallReport | None = None
+    agy_report: agy_install.AgyInstallReport | None = None
 
     @property
     def codex(self) -> codex_install.CodexInstallReport | None:
@@ -196,32 +202,53 @@ def record_codex_rollback(report: codex_install.CodexInstallReport) -> Path:
         state_dir, f"codex-rollback-{uuid.uuid4().hex}.json", data)
 
 
-def record_claude_rollback(
-    report: claude_install.ClaudeInstallReport, *, state_dir: Path | None = None
+def _record_file_rollback(
+    target: str, file_path: Path, backup_record, installed,
+    *, state_dir: Path | None,
 ) -> Path:
-    if report.check or not report.changed or report.installed is None:
-        raise RuntimeError("Claude install did not produce a restorable report")
+    label, key = _FILE_TARGETS[target]
+    if installed is None:
+        raise RuntimeError(f"{label} install did not produce a restorable report")
     backup = None
-    if report.backup is not None:
-        current = codex_install._snapshot(
-            report.backup.backup_path, label="Claude settings")
-        if report.backup.identity is None or current.identity != report.backup.identity:
+    if backup_record is not None:
+        current = codex_install._snapshot(backup_record.backup_path, label=label)
+        if backup_record.identity is None or current.identity != backup_record.identity:
             raise RuntimeError(
-                f"valid rollback backup is unavailable: {report.backup.backup_path}")
+                f"valid rollback backup is unavailable: {backup_record.backup_path}")
         backup = {
-            "backup_path": str(report.backup.backup_path),
-            "identity": _identity_data(report.backup.identity),
+            "backup_path": str(backup_record.backup_path),
+            "identity": _identity_data(backup_record.identity),
         }
     data = {
-        "version": CLAUDE_ROLLBACK_VERSION,
-        "target": "claude",
-        "settings_path": str(report.settings_path),
+        "version": CLAUDE_ROLLBACK_VERSION if target == "claude" else AGY_ROLLBACK_VERSION,
+        "target": target,
+        key: str(file_path),
         "backup": backup,
-        "installed": {"identity": _identity_data(report.installed.identity)},
+        "installed": {"identity": _identity_data(installed.identity)},
     }
     directory = state_dir or (Path.home() / ".agentic-rag" / "state")
     return _write_rollback_record(
-        directory, f"claude-rollback-{uuid.uuid4().hex}.json", data)
+        directory, f"{target}-rollback-{uuid.uuid4().hex}.json", data)
+
+
+def record_claude_rollback(
+    report: claude_install.ClaudeInstallReport, *, state_dir: Path | None = None
+) -> Path:
+    if report.check or not report.changed:
+        raise RuntimeError("Claude install did not produce a restorable report")
+    return _record_file_rollback(
+        "claude", report.settings_path, report.backup, report.installed,
+        state_dir=state_dir)
+
+
+def record_agy_rollback(
+    report: agy_install.AgyInstallReport, *, state_dir: Path | None = None
+) -> Path:
+    if report.check or not report.changed:
+        raise RuntimeError("Antigravity hooks install did not produce a restorable report")
+    return _record_file_rollback(
+        "agy", report.hooks_path, report.backup, report.installed,
+        state_dir=state_dir)
 
 
 def _record_path(value: object, *, label: str) -> Path:
@@ -332,53 +359,67 @@ def restore_codex_rollback(record_path: Path) -> tuple[Path, ...]:
     return codex_install.restore_codex(report)
 
 
-def _load_claude_rollback(record_path: Path) -> tuple[
+def _load_file_rollback(record_path: Path, target: str) -> tuple[
     Path, codex_install.BackupRecord | None, codex_install.InstalledFile
 ]:
+    label, key = _FILE_TARGETS[target]
+    invalid = f"invalid {label} rollback record: {record_path}"
     record_path = _absolute(record_path)
     snapshot = codex_install._snapshot(record_path, label="rollback record")
     if not snapshot.identity.exists:
-        raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+        raise RuntimeError(invalid)
     try:
         data = json.loads(snapshot.content.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise RuntimeError(f"invalid Claude rollback record: {record_path}") from exc
-    expected = {"version", "target", "settings_path", "backup", "installed"}
+        raise RuntimeError(invalid) from exc
+    expected = {"version", "target", key, "backup", "installed"}
+    version = CLAUDE_ROLLBACK_VERSION if target == "claude" else AGY_ROLLBACK_VERSION
     if (
         not isinstance(data, dict)
         or set(data) != expected
-        or data["version"] != CLAUDE_ROLLBACK_VERSION
-        or data["target"] != "claude"
+        or data["version"] != version
+        or data["target"] != target
     ):
-        raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+        raise RuntimeError(invalid)
     try:
-        settings_path = _record_path(data["settings_path"], label="settings path")
+        file_path = _record_path(data[key], label=key.replace("_", " "))
         backup = None
         if data["backup"] is not None:
             backup_path = _record_path(
                 data["backup"]["backup_path"], label="backup path")
             if (
-                backup_path.parent != settings_path.parent
+                backup_path.parent != file_path.parent
                 or re.fullmatch(
                     r"[0-9a-f]{32}",
-                    backup_path.name.removeprefix(settings_path.name + ".bak."),
+                    backup_path.name.removeprefix(file_path.name + ".bak."),
                 ) is None
             ):
-                raise RuntimeError(f"invalid Claude rollback record: {record_path}")
+                raise RuntimeError(invalid)
             backup = codex_install.BackupRecord(
-                settings_path, backup_path,
+                file_path, backup_path,
                 _identity_from_data(data["backup"]["identity"], label="backup"))
         installed = codex_install.InstalledFile(
-            settings_path,
+            file_path,
             _identity_from_data(data["installed"]["identity"], label="installed"))
     except (KeyError, TypeError) as exc:
-        raise RuntimeError(f"invalid Claude rollback record: {record_path}") from exc
-    return settings_path, backup, installed
+        raise RuntimeError(invalid) from exc
+    return file_path, backup, installed
+
+
+def _load_claude_rollback(record_path: Path) -> tuple[
+    Path, codex_install.BackupRecord | None, codex_install.InstalledFile
+]:
+    return _load_file_rollback(record_path, "claude")
 
 
 def restore_claude_rollback(record_path: Path) -> tuple[Path, ...]:
-    settings_path, backup, installed = _load_claude_rollback(record_path)
+    settings_path, backup, installed = _load_file_rollback(record_path, "claude")
     return claude_install.restore_claude(settings_path, backup, installed)
+
+
+def restore_agy_rollback(record_path: Path) -> tuple[Path, ...]:
+    hooks_path, backup, installed = _load_file_rollback(record_path, "agy")
+    return agy_install.restore_agy(hooks_path, backup, installed)
 
 
 def _record_target(record_path: Path) -> str:
@@ -388,18 +429,25 @@ def _record_target(record_path: Path) -> str:
         raise RuntimeError(f"invalid rollback record: {record_path}") from exc
     if not isinstance(data, dict):
         raise RuntimeError(f"invalid rollback record: {record_path}")
-    return "claude" if data.get("target") == "claude" else "codex"
+    target = data.get("target")
+    return target if target in _FILE_TARGETS else "codex"
 
 
-def restore_rollback(record_path: Path, *, codex_flag: bool) -> tuple[Path, ...]:
+def restore_rollback(record_path: Path, *, codex_flag: bool,
+                     agy_flag: bool = False) -> tuple[Path, ...]:
     """Dispatch on the record's target; Codex records carry no target key."""
     target = _record_target(record_path)
-    if target == "claude" and codex_flag:
+    flags = {"codex": codex_flag, "agy": agy_flag, "claude": not (codex_flag or agy_flag)}
+    if not flags[target]:
+        hint = {"claude": "without --codex/--agy",
+                "codex": "with --codex", "agy": "with --agy"}[target]
         raise ValueError(
-            "rollback record targets Claude settings; run rag install "
-            "--restore without --codex")
+            f"rollback record targets {_FILE_TARGETS.get(target, ('Codex',))[0]}; "
+            f"run rag install --restore {hint}")
     if target == "claude":
         return restore_claude_rollback(record_path)
+    if target == "agy":
+        return restore_agy_rollback(record_path)
     return restore_codex_rollback(record_path)
 
 
@@ -408,12 +456,32 @@ def install(cfg: Config, *, settings_path: Path | None = None,
             codex: bool = False, check: bool = False,
             codex_home: Path | None = None,
             restore_path: Path | None = None,
-            state_dir: Path | None = None) -> InstallReport:
+            state_dir: Path | None = None,
+            agy: bool = False, agy_home: Path | None = None) -> InstallReport:
     if restore_path is not None and check:
         raise ValueError("restore and check are mutually exclusive")
+    if codex and agy:
+        raise ValueError("--codex and --agy are mutually exclusive")
     if restore_path is not None:
-        restored = restore_rollback(restore_path, codex_flag=codex)
+        restored = restore_rollback(restore_path, codex_flag=codex, agy_flag=agy)
         return InstallReport(None, None, False, restored_paths=restored)
+    if agy:
+        hooks_path = agy_install.hooks_path_for_home(
+            None if agy_home is None else _absolute(agy_home))
+        report = agy_install.install_agy(
+            hooks_path, python=sys.executable, check=check)
+        rollback_path = None
+        if report.changed and not report.check:
+            try:
+                rollback_path = record_agy_rollback(report, state_dir=state_dir)
+            except BaseException as record_failure:
+                agy_install.restore_agy(hooks_path, report.backup, report.installed)
+                raise RuntimeError(
+                    "Antigravity installation was restored because its rollback "
+                    "record could not be written"
+                ) from record_failure
+        return InstallReport(
+            None, None, False, rollback_path=rollback_path, agy_report=report)
     if codex:
         paths = codex_install.CodexPaths.for_home(
             _absolute(Path.home() if codex_home is None else codex_home)

@@ -183,6 +183,21 @@ The installer and tests are shipped; the real global install, `/hooks` trust,
 and manual/automatic smoke tests remain explicitly open in backlog 0.2 (Codex)
 and 0.3 (Claude) until the operational rollout is performed.
 
+### Install the Antigravity continuity target
+
+```bash
+uv run rag install --agy --check   # preview the hooks.json merge; writes nothing
+uv run rag install --agy           # unique backup + printed rollback command
+```
+
+The Antigravity CLI (`agy`) reads `~/.gemini/config/hooks.json` when a
+conversation starts. After installing, open a **new** `agy` conversation in a
+trusted workspace (`workspacePaths` is empty in untrusted ones, so project
+knowledge and repository state are skipped), run `/hooks` to review the
+`agentic-rag` hook, then one manual `/compact` and `uv run rag status` to see
+`checkpoint handoff:`. Undo with the printed
+`rag install --agy --restore <record>` command.
+
 ## Platform support
 
 **macOS and Linux are the supported, tested platforms.** The test suite runs

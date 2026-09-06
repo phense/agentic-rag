@@ -111,6 +111,24 @@ def error_context(conn,cfg,project,sig,*,max_chars=None):
     return _render(rows,pin_rows,cfg.stale_days,max_chars) if rows or pin_rows else ""
 
 
+def recall_context(prompt: str, project: str | None) -> str | None:
+    """Prompt-mode context for one prompt, or None when nothing fires.
+
+    Shared by the Antigravity ``PreInvocation`` dispatcher, which has no
+    ``UserPromptSubmit`` event: the same error-signature and project/history
+    gates as ``run`` decide, and the bounded local context service renders.
+    Raises on database failure; callers decide how visible that is.
+    """
+    from .. import context, context_gate
+    prompt = prompt or ""
+    if not detect_signature(prompt) and not context_gate.detect(prompt, project):
+        return None
+    cfg = load_config()
+    with db.connect(cfg, role="reader") as conn:
+        result = context.build(conn, cfg, project=project, mode="prompt", prompt=prompt)
+    return result["text"] or None
+
+
 def run(payload: dict, stdout) -> None:
     try:
         if not common.is_interactive(payload):

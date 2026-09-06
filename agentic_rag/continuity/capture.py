@@ -14,6 +14,7 @@ from typing import Any
 
 from agentic_rag.config import load_config
 from agentic_rag.secrets import strip_secrets
+from agentic_rag.transcript_agy import step_identity
 
 from .model import CheckpointSnapshot
 
@@ -248,6 +249,8 @@ def _transcript_state(path_value: str | None) -> tuple[str | None, str | None]:
             except (json.JSONDecodeError, UnicodeDecodeError):
                 continue
             value = event.get("uuid") if isinstance(event, dict) else None
+            if not isinstance(value, str) and isinstance(event, dict):
+                value = step_identity(event)   # Antigravity CLI step
             if isinstance(value, str) and value.strip():
                 cursor = value
                 break

@@ -161,6 +161,28 @@ Claude auto-memory is the Claude analogue of native Codex memories: a
 complementary local layer that this feature neither installs nor changes.
 agentic-rag remains canonical.
 
+## Antigravity continuity
+
+- ✅ **Antigravity CLI adapter.** `rag install --agy` merges one named hook
+  (`SessionStart` 10 s, `PreInvocation` 5 s, `Stop` 10 s) into
+  `~/.gemini/config/hooks.json` losslessly, with check mode, unique
+  `hooks.json.bak.<id>` backup, atomic publish, mode-0600 rollback record, and
+  a target-aware `rag install --agy --restore <record>`.
+- ✅ **Derived compaction events.** `PreInvocation` reads the transcript tail:
+  a `/compact` request is PreCompact (cursor `agy-step-<idx>`, enrichment,
+  versioned `assets/agy/compact_prompt.md` injected with the checkpoint id);
+  `Stop` is PostCompact (the model's summary becomes the bounded handoff);
+  an automatic-compaction marker is both at once plus an immediate checkpoint
+  re-injection. Error-signature recall runs on every new prompt.
+- ✅ **Transcript support.** Antigravity steps flow through the shared
+  digest (`build_digest`), mining window (`read_window`), and checkpoint
+  cursor capture (`agy-step-<n>`), with the same redaction and
+  tool-names-only rules.
+- ⬜ **Live rollout.** Not yet installed on the maintainer machine; a manual
+  `/compact`, `/hooks` review, and one observed automatic compaction are
+  pending (BACKLOG 0.4). The automatic-compaction marker shape is inferred
+  from the binary, not observed.
+
 ## Planned hardening
 
 - ⬜ Broaden prompt-recall evaluation beyond the measured synthetic project corpus.

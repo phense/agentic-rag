@@ -7,6 +7,7 @@ DOC_PATHS = (
     Path("README.md"),
     Path("docs/00-whats-new-in-0.3.md"),
     Path("docs/00-whats-new-in-0.4.md"),
+    Path("docs/00-whats-new-in-0.5.md"),
     Path("docs/01-what-is-agentic-rag.md"),
     Path("docs/02-mental-model.md"),
     Path("docs/03-quick-start.md"),
@@ -42,7 +43,6 @@ def test_v040_release_metadata_and_whats_new_are_linked():
     handbook = Path("docs/README.md").read_text()
     whats_new = Path("docs/00-whats-new-in-0.4.md")
 
-    assert 'version = "0.4.2"' in pyproject
     assert "## [0.4.2] - 2026-09-04" in changelog
     assert "## [0.4.1] - 2026-09-04" in changelog
     assert "## [0.4.0] - 2026-09-04" in changelog
@@ -51,6 +51,23 @@ def test_v040_release_metadata_and_whats_new_are_linked():
     assert "docs/00-whats-new-in-0.4.md" in readme
     assert "00-whats-new-in-0.4.md" in handbook
     assert "unreleased" not in readme.lower().split("what’s new in 0.4.0")[0]
+
+
+def test_v050_release_metadata_and_whats_new_are_linked():
+    pyproject = Path("pyproject.toml").read_text()
+    changelog = Path("CHANGELOG.md").read_text()
+    readme = Path("README.md").read_text()
+    handbook = Path("docs/README.md").read_text()
+    whats_new = Path("docs/00-whats-new-in-0.5.md")
+
+    assert 'version = "0.5.0"' in pyproject
+    assert "## [0.5.0] - 2026-09-06" in changelog
+    assert whats_new.is_file()
+    assert whats_new.read_text().startswith("# What’s New in 0.5.0\n")
+    assert "docs/00-whats-new-in-0.5.md" in readme
+    assert "00-whats-new-in-0.5.md" in handbook
+    assert "unreleased" not in readme.lower().split("what’s new in 0.5.0")[0]
+    assert "assets/agy/compact_prompt.md" in pyproject
 
 
 def test_wheel_configuration_includes_runtime_migrations():

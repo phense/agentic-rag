@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .secrets import strip_secrets
+from .transcript_agy import is_step, step_identity, step_prose
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,7 @@ def build_digest(path, *, after_uuid: str | None = None,
     start = 0
     if after_uuid is not None:
         for i, ev in enumerate(events):
-            if ev.get("uuid") == after_uuid:
+            if ev.get("uuid") == after_uuid or step_identity(ev) == after_uuid:
                 start = i + 1
                 break
         # unknown uuid (rotated file, format change) → mine the full
@@ -62,6 +63,12 @@ def build_digest(path, *, after_uuid: str | None = None,
         n += 1
         if isinstance(ev.get("uuid"), str):
             last_uuid = ev["uuid"]
+        elif is_step(ev):
+            # Antigravity CLI step: identity is the step index; prose and
+            # tool names come from the step-specific digest helper.
+            last_uuid = step_identity(ev)
+            lines.extend(step_prose(ev, per_block=per_block))
+            continue
         msg = ev.get("message")
         if not isinstance(msg, dict):
             continue

@@ -4,16 +4,21 @@
 
 **Coding sessions end and long contexts compact. agentic-rag preserves both:
 a canonical, searchable knowledge base in local PostgreSQL + pgvector, plus
-bounded checkpoints that let Claude Code and Codex resume after compaction. Hybrid vector +
+bounded checkpoints that let Claude Code, Codex, and Antigravity resume after compaction. Hybrid vector +
 full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.4.2-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.5.0-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
-> **New in v0.4.0:** Claude compaction continuity — six Claude hooks,
+> **New in v0.5.0:** Antigravity CLI (`agy`, Gemini) compaction continuity —
+> `rag install --agy`, SessionStart/PreInvocation/Stop hooks, `/compact`
+> handoff, automatic-compaction detection, Antigravity transcript mining. Read
+> **[What’s New in 0.5.0](docs/00-whats-new-in-0.5.md)**.
+>
+> **0.4.0:** Claude compaction continuity — six Claude hooks,
 > the managed 1M/500K `autoCompactWindow` policy, the `compact_summary`
 > handoff, and `rag install --check`/`--restore`. Read
 > **[What’s New in 0.4.0](docs/00-whats-new-in-0.4.md)**.
@@ -27,8 +32,8 @@ you push, you query, you pay per call. agentic-rag flips both halves. It stores
 knowledge in **local Postgres + pgvector** — real HNSW
 approximate-nearest-neighbour search blended with bilingual full-text — and it
 **populates itself from supported coding sessions**. It also stores compact,
-audited continuation checkpoints at Claude Code and Codex compaction
-boundaries — on Claude including Claude's own compact summary as a bounded
+audited continuation checkpoints at Claude Code, Codex, and Antigravity
+compaction boundaries — on Claude including Claude's own compact summary as a bounded
 handoff.
 
 Every content write funnels through **one gateway**: it strips secret-shaped
@@ -91,8 +96,8 @@ retrieval do not call either provider.
 
 agentic-rag is a `rag` command-line tool with provider integrations. The
 no-option install wires two MCP servers, six lifecycle hooks, and the managed
-compaction window into Claude Code; the explicit Codex target installs
-continuity configuration and hooks.
+compaction window into Claude Code; the explicit Codex and Antigravity
+(`--agy`) targets install continuity configuration and hooks.
 
 **Prerequisites:**
 
@@ -109,6 +114,7 @@ uv run rag init-db          # creates the DB + schema + roles, seeds the 'genera
 uv run rag domain add programming --description "Software engineering notes"
 uv run rag install --check  # preview the Claude settings merge; writes nothing
 uv run rag install          # Claude MCP/hooks + macOS backup schedule; omit for Codex-only
+uv run rag install --agy    # Antigravity CLI (agy) hooks.json target; --check previews
 ```
 
 - `rag init-db` creates the database if needed, applies the migrations in `sql/`, creates the three least-privilege roles, and seeds the built-in `general` domain. **Run it first** — `rag install` does *not* create the database.

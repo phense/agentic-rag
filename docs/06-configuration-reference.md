@@ -278,6 +278,17 @@ The associated `~/.codex/hooks.json` entries set
 budgets because they do not inject it. Run `/hooks` after installation and
 trust only the commands you have inspected.
 
+## Managed Antigravity configuration
+
+`rag install --agy` manages only `~/.gemini/config/hooks.json` — one named
+hook, `agentic-rag`, with `SessionStart`, `PreInvocation`, and `Stop`
+handlers (timeouts 10/5/10 s). There is no compaction policy to manage:
+Antigravity's automatic context summarization runs provider-side without a
+user-settable threshold, and `/compact` is guided by the injected prompt
+instead. Gemini 3.8 Flash and Gemini 3.1 Pro both offer a 1,048,576-token
+window. The `[continuity]` caps (`handoff_max_chars`, `context_max_chars`)
+apply to the Antigravity handoff and injection exactly as they do for Claude.
+
 ## Next →
 
 [07 · Privacy, cost & control](07-privacy-and-cost.md) — provider-configurable
