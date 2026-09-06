@@ -112,9 +112,17 @@
   payloads, and `injectSteps`/`ephemeralMessage` injection (verified: the
   model repeated two injected facts). Gemini 3.8 Flash and 3.1 Pro:
   1,048,576-token window.
-  → *Why not done:* `rag install --agy` has not run on the maintainer
-  machine; no `/hooks` review, manual `/compact`, or automatic compaction has
-  been observed with the installed hooks. The automatic-compaction marker
+  Rollout on the maintainer machine, 2026-09-06 11:28 local (0.5.0, after the
+  release): `rag install --agy --check` then `rag install --agy` wrote the
+  hook (rollback record printed); `agy` lists the `agentic-rag` hook with its
+  three actions; a headless three-turn smoke in the agentic-rag workspace
+  (`--add-dir`) produced a `PreCompact`/`manual` checkpoint at `agy-step-3`
+  with `project_root` set, the summary followed the injected prompt structure
+  (numbered objective/criteria), Stop stored a 1,475-char handoff and queued
+  mining, enrichment completed (`quality=enriched`), the codeword survived
+  compaction, and `hooks.log` recorded no error.
+  → *Why not done:* no automatic compaction has been observed with the
+  installed hooks. The automatic-compaction marker
   (`CHECKPOINT` step / `<CONTEXT_SUMMARY>`) is inferred from binary strings —
   when the detector fires it logs `agy.auto_compaction` in `hooks.log`; if a
   real compaction leaves a different trace, adjust

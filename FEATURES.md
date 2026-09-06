@@ -178,10 +178,11 @@ agentic-rag remains canonical.
   digest (`build_digest`), mining window (`read_window`), and checkpoint
   cursor capture (`agy-step-<n>`), with the same redaction and
   tool-names-only rules.
-- ⬜ **Live rollout.** Not yet installed on the maintainer machine; a manual
-  `/compact`, `/hooks` review, and one observed automatic compaction are
-  pending (BACKLOG 0.4). The automatic-compaction marker shape is inferred
-  from the binary, not observed.
+- 🔵 **Live rollout.** Installed on the maintainer machine on 2026-09-06;
+  `/hooks` lists the hook and a headless `/compact` smoke produced the
+  checkpoint, prompt-shaped summary, handoff, enrichment, and mining job with
+  no hook error. One observed automatic compaction is still pending
+  (BACKLOG 0.4); that marker shape is inferred from the binary, not observed.
 
 ## Planned hardening
 
