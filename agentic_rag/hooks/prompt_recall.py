@@ -2,8 +2,8 @@
 signature in the prompt → deterministic SQL recall (<50 ms, no LLM, no
 embedding) → inject pointers to stored signal docs and matching pins.
 
-Conservative by design (the ultra-memory recall-reflex, which demonstrably
-worked): fires only on strong error signals, never on plain questions.
+Strong error signals retain the existing pointer path. Explicit project/history
+questions use the bounded local context service and deterministic lexical recall.
 Errors are silent (logged) — SessionStart is the outage-visibility surface;
 warning on every prompt would spam the session."""
 from __future__ import annotations
@@ -61,7 +61,7 @@ def tokens_to_tsquery(sig: str) -> str | None:
     return " | ".join(seen) if seen else None
 
 
-def _render(rows, pin_rows, stale_days: int) -> str:
+def _render(rows, pin_rows, stale_days: int, max_chars: int | None = None) -> str:
     from datetime import datetime, timezone
     lines = [
         "## agentic-rag recall — stored knowledge matches this error",
@@ -79,48 +79,61 @@ def _render(rows, pin_rows, stale_days: int) -> str:
         lines.append(f"- [[{r['slug']}]] — {r['title']}{marker} ({label})")
     for p in pin_rows:
         lines.append(f"- pin: {p['body']}")
+    if max_chars is not None:
+        warning="⚠️ Recall entries omitted by the context budget."
+        if len("\n".join(lines))>max_chars:
+            while len(lines)>2 and len("\n".join(lines+[warning]))>max_chars:
+                lines.pop()
+            lines.append(warning)
     return "\n".join(lines)
+
+
+def error_context(conn,cfg,project,sig,*,max_chars=None):
+    q=tokens_to_tsquery(sig)
+    if not q:return ""
+    from ..scope import selection
+    from ..pins import matching_pins
+    scopes = selection(project, "project" if project else "global")
+    rows = conn.execute(
+        "SELECT * FROM recall_signals_scoped(%s, %s, %s)",
+        (q, _MAX_HITS, scopes)).fetchall()
+    from ..evidence import summary
+    for row in rows:
+        doc=conn.execute('SELECT id FROM documents WHERE slug=%s',(row['slug'],)).fetchone()
+        row['claim_evidence']=summary(conn,str(doc['id']))
+    pin_ids = [p.id for p in matching_pins(conn, project)]
+    pin_rows = conn.execute(
+        "SELECT body FROM pins WHERE active AND id = ANY(%s::uuid[])"
+        " AND to_tsvector('english', body)"
+        "     @@ to_tsquery('english', %s)"
+        " ORDER BY priority, created_at LIMIT %s",
+        (pin_ids, q, _MAX_HITS)).fetchall()
+    return _render(rows,pin_rows,cfg.stale_days,max_chars) if rows or pin_rows else ""
 
 
 def run(payload: dict, stdout) -> None:
     try:
         if not common.is_interactive(payload):
             return
-        sig = detect_signature(payload.get("prompt") or "")
-        if not sig:
+        from .. import context, context_gate
+        prompt=payload.get('prompt') or ''
+        if not detect_signature(prompt) and not context_gate.detect(prompt,payload.get('cwd')):
             return
-        q = tokens_to_tsquery(sig)
-        if not q:
+        cfg=load_config()
+        with db.connect(cfg,role='reader') as conn:
+            result=context.build(conn,cfg,project=payload.get('cwd'),mode='prompt',prompt=prompt)
+        text=result['text']
+        if not text:
             return
-        from ..scope import selection
-        from ..pins import matching_pins
-        project = payload.get("cwd")
-        scopes = selection(project, "project" if project else "global")
-        cfg = load_config()
-        conn = db.connect(cfg, role="reader")
-        try:
-            rows = conn.execute(
-                "SELECT * FROM recall_signals_scoped(%s, %s, %s)",
-                (q, _MAX_HITS, scopes)).fetchall()
-            from ..evidence import summary
-            for row in rows:
-                doc=conn.execute('SELECT id FROM documents WHERE slug=%s',(row['slug'],)).fetchone()
-                row['claim_evidence']=summary(conn,str(doc['id']))
-            pin_ids = [p.id for p in matching_pins(conn, project)]
-            pin_rows = conn.execute(
-                "SELECT body FROM pins WHERE active AND id = ANY(%s::uuid[])"
-                " AND to_tsvector('english', body)"
-                "     @@ to_tsquery('english', %s)"
-                " ORDER BY priority, created_at LIMIT %s",
-                (pin_ids, q, _MAX_HITS)).fetchall()
-        finally:
-            conn.close()
-        if not rows and not pin_rows:
+        from ..scope import project_id
+        key=context_gate.receipt_key(payload,project=project_id(payload['cwd']) if payload.get('cwd') else 'global',
+            revision=result['revision'],config=result['config_key'],text=text,host=common.client_kind(payload)) if result['revision'] else None
+        if context_gate.delivered(key):
             return
-        common.emit_context(stdout, "UserPromptSubmit",
-                            _render(rows, pin_rows, cfg.stale_days))
-    except Exception as e:  # noqa: BLE001 — silent by design (see docstring)
-        common.log_hook_error("prompt_recall", repr(e))
+        common.emit_context(stdout,'UserPromptSubmit',text)
+        context_gate.record(key)
+    except Exception as e:
+        common.log_hook_error('prompt_recall',repr(e))
 
 
 def main() -> int:

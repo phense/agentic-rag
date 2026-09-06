@@ -163,7 +163,7 @@ agentic-rag remains canonical.
 
 ## Planned hardening
 
-- ⬜ Measure and tune prompt-recall firing behavior.
+- ⬜ Broaden prompt-recall evaluation beyond the measured synthetic project corpus.
 - ⬜ Correct curation cadence/audit growth and cap-aware mining cursors.
 - ⬜ Define the intended refute-trigger recency semantics, then decide whether
   a recency check is warranted ([BACKLOG 2.2](BACKLOG.md#2--housekeeping--test-coverage)).
@@ -196,3 +196,11 @@ Diverse bounded hybrid candidates, query-centered contiguous spans and chunk cit
 exact-symbol preservation, optional two-hop evidence-bearing graph expansion and a
 validated local reranker seam. Bilingual FTS remains available during embedding outages.
 See [policy and limitations](docs/retrieval-quality.md). Migration013 activated; installed reader and citation checks passed.
+
+## Bounded project context (issue #9)
+
+Source-backed stable/recent profile references, asynchronous audited refresh, scoped
+EN/DE selective recall and real-turn post-output receipts. Shared reader CLI/MCP and
+hook context preserve exact pins, checkpoint priority and explicit cap omissions.
+[Policy](docs/project-context.md); [measurements](docs/benchmarks/2026-09-06-project-context/README.md).
+Implementation verified; canonical migration014 and publication pending.

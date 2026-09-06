@@ -359,3 +359,9 @@ def set_source_state(conn,key,**kwargs):
 def review_claim(conn,doc_id,**kwargs):
     from .evidence import review
     return review(conn,doc_id,**kwargs)
+
+
+def refresh_profile(conn, cfg, project=None, *, actor='worker'):
+    """Audited atomic refresh of disposable project reference selections."""
+    from .profiles import _refresh
+    return _refresh(conn,cfg,project,actor=actor)

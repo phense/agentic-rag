@@ -412,3 +412,9 @@ Run the suite with `uv run pytest`. See the handbook's [Contributing](docs/12-co
 ## License
 
 [MIT](LICENSE). The repository is **code-only and content-free** — your documents, embeddings, and config stay in your own PostgreSQL database, on your own machine.
+
+### Bounded project context
+
+Source-backed advisory profiles and selective EN/DE project recall share one local
+context service across hooks, CLI and MCP. Exact pins and checkpoint restoration
+retain priority. See [usage and limits](docs/project-context.md).

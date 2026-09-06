@@ -47,7 +47,8 @@ def _isolate_home_paths(tmp_path, monkeypatch):
     """No test may touch the real ~/.agentic-rag — worker and hook modules
     hold module-level Path.home() constants, so patch them all, always.
     Individual tests may still re-patch with their own tmp paths."""
-    from agentic_rag import migration, provider_health, worker
+    from agentic_rag import context_gate, migration, provider_health, worker
+    monkeypatch.setattr(context_gate, "RECEIPT_DIR", tmp_path / "context-receipts")
     from agentic_rag.hooks import common
     monkeypatch.setattr(worker, "LOCK_PATH", tmp_path / "worker.lock")
     monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "worker.log")

@@ -162,6 +162,10 @@ def process_job(conn, cfg: Config, job: dict, *,
         )
         _log(f"checkpoint_enrich {payload.get('checkpoint_id')}: done")
         return cursor
+    if job["kind"] == "profile_refresh":
+        store.refresh_profile(conn, cfg, payload.get("project"))
+        _log("profile_refresh: done")
+        return None
     if job["kind"] == "embed":
         n = store.reembed_document(conn, cfg, payload["document_id"])
         _log(f"embed {payload['document_id']}: {n} chunks")

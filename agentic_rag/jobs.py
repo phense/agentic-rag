@@ -141,3 +141,18 @@ def requeue_legacy_provider_failures(conn, *, expected_count: int) -> bool:
     )
     conn.commit()
     return True
+
+
+def enqueue_profile(conn, cfg: Config, project: str | None = None) -> bool:
+    """Schedule one open local profile rebuild per canonical project."""
+    from .scope import project_id
+    selected = project_id(project) if project else None
+    _serialize_enqueue(conn)
+    n = conn.execute(
+        "INSERT INTO mining_queue(kind,payload) SELECT 'profile_refresh',%s"
+        " WHERE NOT EXISTS(SELECT 1 FROM mining_queue WHERE kind='profile_refresh'"
+        " AND status IN ('pending','processing')"
+        " AND payload->>'project' IS NOT DISTINCT FROM %s)",
+        (json.dumps({'project':selected}), selected)).rowcount
+    conn.commit()
+    return bool(n)

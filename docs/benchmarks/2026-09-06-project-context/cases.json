@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "documents": [
+    {"id":"tests","project":"/synthetic/context-a","title":"Testing convention","body":"We always run python -m pytest for tests in this project.","stated":true},
+    {"id":"deploy","project":"/synthetic/context-a","title":"Deployment procedure","body":"Deployment uses the cobalt script deploy-local.sh.","stated":false},
+    {"id":"start","project":"/synthetic/context-a","title":"Dienst starten","body":"Zum Starten dieses Dienstes verwenden wir start-service.sh.","stated":true},
+    {"id":"decision","project":"/synthetic/context-a","title":"Database decision","body":"We decided to keep PostgreSQL for the database.","stated":true},
+    {"id":"backup","project":"/synthetic/context-a","title":"Backup Entscheidung","body":"Für das Backup hatten wir pg_dump entschieden.","stated":true},
+    {"id":"error","project":"/synthetic/context-a","title":"ImportError fixture repair","body":"ImportError needs repair in fixture-loader.","stated":false,"dtype":"signal"},
+    {"id":"foreign","project":"/synthetic/context-b","title":"Foreign deployment","body":"Deployment requires foreign-secret-marker.","stated":true}
+  ],
+  "prompts": [
+    {"id":"testing","prompt":"How do we run tests in this project?","expected":"python -m pytest","split":"dev"},
+    {"id":"weather","prompt":"What is the weather in Berlin?","expected":null,"split":"dev"},
+    {"id":"thanks","prompt":"Thanks for this project","expected":null,"split":"dev"},
+    {"id":"deploy","prompt":"How do we deploy this project?","expected":"deploy-local.sh","split":"test"},
+    {"id":"start","prompt":"Wie starten wir dieses Projekt?","expected":"start-service.sh","split":"test"},
+    {"id":"history","prompt":"What did we decide about the database earlier?","expected":"PostgreSQL","split":"test"},
+    {"id":"geschichte","prompt":"Was hatten wir zuletzt zum Backup entschieden?","expected":"pg_dump","split":"test"},
+    {"id":"error","prompt":"ImportError: fixture repair","expected":"ImportError fixture repair","split":"test"},
+    {"id":"poem","prompt":"Write a poem about memory","expected":null,"split":"test"},
+    {"id":"shopping","prompt":"Remember to buy milk","expected":null,"split":"test"},
+    {"id":"math","prompt":"What is seven times nine?","expected":null,"split":"test"},
+    {"id":"scoped-negative","prompt":"How is the weather in this project?","expected":null,"split":"test"}
+  ]
+}

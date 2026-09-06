@@ -82,3 +82,15 @@ RAG-007 reconciliation: AF010–013 implemented and covered by source lifecycle 
 mining integration tests. Independent review findings on signal authority, confirmation
 inheritance, malformed timestamps, completeness and prompt labels corrected with
 regressions. Final independent fix review is clean; full verification passed (718 tests).
+
+## RAG-009 design findings (2026-09-06)
+
+- AF-009A(resolved;AC-004/005/006): visible revision + per-read eligibility and real-turn
+  identity prevent stale corrections/replays. See rag009-context.md; tasksT001/T003.
+- AF-009B(resolved;AC-003/004): budget/dedup ordering and whole multiline pins must remain
+  faithful. See rag009-context.md; taskT005.
+- AF-009C(resolved;AC-006/007): writer-only atomic refresh, dated fallback and source-backed
+  stable classification. See rag009-context.md; tasksT001/T006.
+
+RAG-009: independent final review Ready; real queue/worker/reader success and failed
+refresh recovery pass. Full isolated suite:757 passed29.14s. See rag009-context.md.

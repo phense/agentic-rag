@@ -197,8 +197,9 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   eleven synthetic comparisons and wheel checks passed; migration013 activated with unchanged document/pin fingerprints.
   Installed reader search and citations verified; published CI green, issue closed.
   See [policy](docs/retrieval-quality.md) and [measurements](docs/benchmarks/2026-09-06-retrieval-quality/README.md). *(M)*
-- ⬜ **4.7** _(enh, P2)_ **Bounded project profiles and selective recall.** Build a source-backed advisory view over the existing store; preserve exact pins/checkpoints and measure ordinary-question recall.
-  → *Issue:* [#9](https://github.com/phense/agentic-rag/issues/9). → *Why not done:* analysis complete; implementation and rollout pending.
+- 🔵 **4.7** _(enh, P2)_ **Bounded project profiles and selective recall.** Build a source-backed advisory view over the existing store; preserve exact pins/checkpoints and measure ordinary-question recall.
+  → *Issue:* [#9](https://github.com/phense/agentic-rag/issues/9). → *Why not done:* implementation and independent review complete; 757 tests pass; migration014 activation/publication pending.
+  → *Resume:* activate the reviewed commit with a recent verified backup, verify installed reader and unchanged documents/pins, then publish and close #9.
   → *Trigger:* after scope/evidence semantics; extend 1.1 firing-rate measurement. *(M–L)*
 
 ---

@@ -228,7 +228,17 @@ def memory_unpin(pin_id: str) -> dict:
         return {"unpinned": unpin(conn, pin_id, actor="claude")}
 
 
-READ_TOOLS = (memory_domains, memory_search, memory_get, memory_neighbors,
+def memory_context(project: str | None = None, prompt: str | None = None,
+                   session_id: str | None = None) -> dict:
+    """Bounded advisory context; no refresh/write. Omit prompt for startup context."""
+    from .context import build
+    cfg=load_config()
+    with db.connect(cfg,role="reader") as conn:
+        return _plain(build(conn,cfg,project=project,mode="prompt" if prompt is not None else "startup",
+                            prompt=prompt,session_id=session_id,source="startup"))
+
+
+READ_TOOLS = (memory_context, memory_domains, memory_search, memory_get, memory_neighbors,
               memory_path, memory_timeline)
 WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 

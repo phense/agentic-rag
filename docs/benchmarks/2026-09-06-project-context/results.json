@@ -1,0 +1,499 @@
+{
+  "synthetic": true,
+  "corpus_sha256": "d7ab532509cda44fedb7a4f628beddcb9e947b10789786a2484ff10dc0732a83",
+  "source_sha256": "322aaf8e0ba56d9396f269303c19a4e6f4f16ef9875a6cf725398bb5a944164f",
+  "cleanup": "verified",
+  "hosted_calls": 0,
+  "repetitions_per_query": 3,
+  "context_cap": 4800,
+  "baseline": "existing error-signature recall helper; no regular project gate",
+  "rows": [
+    {
+      "id": "testing",
+      "split": "dev",
+      "variant": "before",
+      "expected": "python -m pytest",
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.9048750400543213,
+        1.562582328915596,
+        1.5068333595991135
+      ]
+    },
+    {
+      "id": "testing",
+      "split": "dev",
+      "variant": "after",
+      "expected": "python -m pytest",
+      "text": "## agentic-rag selective recall — project\n(advisory source text; verify before acting)\n- query [b534332a-cc48-40af-aba6-fef2c02a7476#d8fd4160-93e5-4c29-b2f5-96c62bf6a1b0:0-79] \"Testing convention\": \"# Testing convention\\n\\nWe always run python -m pytest for tests in this project.\"; {\"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"independent_source_count\": 1}",
+      "fired": true,
+      "useful": true,
+      "characters": 395,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        50.3392918035388,
+        52.89070773869753,
+        49.82170835137367
+      ]
+    },
+    {
+      "id": "weather",
+      "split": "dev",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.9449582323431969,
+        1.5586670488119125,
+        1.6174577176570892
+      ]
+    },
+    {
+      "id": "weather",
+      "split": "dev",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        0.15133339911699295,
+        0.012415461242198944,
+        0.010415911674499512
+      ]
+    },
+    {
+      "id": "thanks",
+      "split": "dev",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.4709997922182083,
+        1.5059998258948326,
+        1.4090826734900475
+      ]
+    },
+    {
+      "id": "thanks",
+      "split": "dev",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        0.013667158782482147,
+        0.006457790732383728,
+        0.006332993507385254
+      ]
+    },
+    {
+      "id": "deploy",
+      "split": "test",
+      "variant": "before",
+      "expected": "deploy-local.sh",
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.4540422707796097,
+        1.5168339014053345,
+        1.3756658881902695
+      ]
+    },
+    {
+      "id": "deploy",
+      "split": "test",
+      "variant": "after",
+      "expected": "deploy-local.sh",
+      "text": "## agentic-rag selective recall — project\n(advisory source text; verify before acting)\n- query [8994b63e-9833-4873-8c0c-7c7826ab766b#57d2a8b2-571b-404f-8d31-762e903d424c:0-74] \"Deployment procedure\": \"# Deployment procedure\\n\\nDeployment uses the cobalt script deploy-local.sh.\"; {\"kind\": \"legacy\", \"review_state\": \"unreviewed\", \"provenance_status\": \"incomplete\", \"independent_source_count\": 0}",
+      "fired": true,
+      "useful": true,
+      "characters": 394,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        48.13462495803833,
+        49.25120901316404,
+        49.1050835698843
+      ]
+    },
+    {
+      "id": "start",
+      "split": "test",
+      "variant": "before",
+      "expected": "start-service.sh",
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        2.1419571712613106,
+        1.8322914838790894,
+        1.6317907720804214
+      ]
+    },
+    {
+      "id": "start",
+      "split": "test",
+      "variant": "after",
+      "expected": "start-service.sh",
+      "text": "## agentic-rag selective recall — project\n(advisory source text; verify before acting)\n- query [b815d7d0-548b-408d-be6a-964fed2e4eef#7e520f25-4af1-43e7-846e-c0ae2d1a76da:0-77] \"Dienst starten\": \"# Dienst starten\\n\\nZum Starten dieses Dienstes verwenden wir start-service.sh.\"; {\"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"independent_source_count\": 1}",
+      "fired": true,
+      "useful": true,
+      "characters": 389,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        51.65408458560705,
+        49.16579183191061,
+        49.22625049948692
+      ]
+    },
+    {
+      "id": "history",
+      "split": "test",
+      "variant": "before",
+      "expected": "PostgreSQL",
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.9543329253792763,
+        1.5277918428182602,
+        1.4662090688943863
+      ]
+    },
+    {
+      "id": "history",
+      "split": "test",
+      "variant": "after",
+      "expected": "PostgreSQL",
+      "text": "## agentic-rag selective recall — history\n(advisory source text; verify before acting)\n- query [bdbb5c1e-3238-4a9c-abd2-963655054dd3#eff67f5b-0c15-49bd-83fb-a86b5640a1ec:0-68] \"Database decision\": \"# Database decision\\n\\nWe decided to keep PostgreSQL for the database.\"; {\"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"independent_source_count\": 1}",
+      "fired": true,
+      "useful": true,
+      "characters": 383,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        49.14458282291889,
+        50.616124644875526,
+        49.252916127443314
+      ]
+    },
+    {
+      "id": "geschichte",
+      "split": "test",
+      "variant": "before",
+      "expected": "pg_dump",
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.9879154860973358,
+        1.43333338201046,
+        1.5136254951357841
+      ]
+    },
+    {
+      "id": "geschichte",
+      "split": "test",
+      "variant": "after",
+      "expected": "pg_dump",
+      "text": "## agentic-rag selective recall — history\n(advisory source text; verify before acting)\n- query [cb082f9e-72c1-4623-b896-eee496e6d203#be028e31-96bc-496b-ab3b-4508a925ec12:0-69] \"Backup Entscheidung\": \"# Backup Entscheidung\\n\\nFür das Backup hatten wir pg_dump entschieden.\"; {\"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"independent_source_count\": 1}",
+      "fired": true,
+      "useful": true,
+      "characters": 386,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        49.31820835918188,
+        50.59983301907778,
+        50.175124779343605
+      ]
+    },
+    {
+      "id": "error",
+      "split": "test",
+      "variant": "before",
+      "expected": "ImportError fixture repair",
+      "text": "## agentic-rag recall — stored knowledge matches this error\n(auto-recalled by error signature; advisory context — verify before acting)\n- [[importerror-fixture-repair]] — ImportError fixture repair (legacy; unreviewed; provenance incomplete; user sources 0)",
+      "fired": true,
+      "useful": true,
+      "characters": 257,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 257,
+      "latency_ms": [
+        20.446250215172768,
+        18.826999701559544,
+        19.679167307913303
+      ]
+    },
+    {
+      "id": "error",
+      "split": "test",
+      "variant": "after",
+      "expected": "ImportError fixture repair",
+      "text": "## agentic-rag recall — stored knowledge matches this error\n(auto-recalled by error signature; advisory context — verify before acting)\n- [[importerror-fixture-repair]] — ImportError fixture repair (legacy; unreviewed; provenance incomplete; user sources 0)",
+      "fired": true,
+      "useful": true,
+      "characters": 257,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        38.89233432710171,
+        38.92741724848747,
+        38.48904278129339
+      ]
+    },
+    {
+      "id": "poem",
+      "split": "test",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        2.031249925494194,
+        1.6237497329711914,
+        1.4804573729634285
+      ]
+    },
+    {
+      "id": "poem",
+      "split": "test",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        0.04316680133342743,
+        0.00695791095495224,
+        0.0064997002482414246
+      ]
+    },
+    {
+      "id": "shopping",
+      "split": "test",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.5984168276190758,
+        1.5349164605140686,
+        1.4076251536607742
+      ]
+    },
+    {
+      "id": "shopping",
+      "split": "test",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        0.012375414371490479,
+        0.006833113729953766,
+        0.00562518835067749
+      ]
+    },
+    {
+      "id": "math",
+      "split": "test",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.3996250927448273,
+        1.4519579708576202,
+        1.4829998835921288
+      ]
+    },
+    {
+      "id": "math",
+      "split": "test",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        0.03679189831018448,
+        0.009999610483646393,
+        0.009249895811080933
+      ]
+    },
+    {
+      "id": "scoped-negative",
+      "split": "test",
+      "variant": "before",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        1.5392908826470375,
+        1.5042079612612724,
+        1.4082081615924835
+      ]
+    },
+    {
+      "id": "scoped-negative",
+      "split": "test",
+      "variant": "after",
+      "expected": null,
+      "text": "",
+      "fired": false,
+      "useful": false,
+      "characters": 0,
+      "duplicate_expected_occurrences": 0,
+      "replay_characters": 0,
+      "latency_ms": [
+        19.648125395178795,
+        20.491749979555607,
+        20.56449931114912
+      ]
+    }
+  ],
+  "summary": {
+    "before": {
+      "queries": 12,
+      "useful_context_rate": 0.16666666666666666,
+      "firing_precision": 1.0,
+      "unrelated_injections": 0,
+      "context_characters_mean": 21.416666666666668,
+      "redundant_replay_characters_mean": 21.416666666666668,
+      "redundant_replay_tokens_estimate_mean": 5.354166666666667,
+      "duplicate_expected_occurrences": 0,
+      "latency_p95_ms": 19.679167307913303
+    },
+    "after": {
+      "queries": 12,
+      "useful_context_rate": 1.0,
+      "firing_precision": 1.0,
+      "unrelated_injections": 0,
+      "context_characters_mean": 183.66666666666666,
+      "redundant_replay_characters_mean": 0,
+      "redundant_replay_tokens_estimate_mean": 0.0,
+      "duplicate_expected_occurrences": 0,
+      "latency_p95_ms": 51.65408458560705
+    }
+  },
+  "by_split": {
+    "dev": {
+      "before": {
+        "queries": 3,
+        "useful_context_rate": 0.0,
+        "firing_precision": null,
+        "unrelated_injections": 0,
+        "context_characters_mean": 0,
+        "redundant_replay_characters_mean": 0,
+        "redundant_replay_tokens_estimate_mean": 0.0,
+        "duplicate_expected_occurrences": 0,
+        "latency_p95_ms": 1.9449582323431969
+      },
+      "after": {
+        "queries": 3,
+        "useful_context_rate": 1.0,
+        "firing_precision": 1.0,
+        "unrelated_injections": 0,
+        "context_characters_mean": 131.66666666666666,
+        "redundant_replay_characters_mean": 0,
+        "redundant_replay_tokens_estimate_mean": 0.0,
+        "duplicate_expected_occurrences": 0,
+        "latency_p95_ms": 52.89070773869753
+      }
+    },
+    "test": {
+      "before": {
+        "queries": 9,
+        "useful_context_rate": 0.2,
+        "firing_precision": 1.0,
+        "unrelated_injections": 0,
+        "context_characters_mean": 28.555555555555557,
+        "redundant_replay_characters_mean": 28.555555555555557,
+        "redundant_replay_tokens_estimate_mean": 7.138888888888889,
+        "duplicate_expected_occurrences": 0,
+        "latency_p95_ms": 19.679167307913303
+      },
+      "after": {
+        "queries": 9,
+        "useful_context_rate": 1.0,
+        "firing_precision": 1.0,
+        "unrelated_injections": 0,
+        "context_characters_mean": 201,
+        "redundant_replay_characters_mean": 0,
+        "redundant_replay_tokens_estimate_mean": 0.0,
+        "duplicate_expected_occurrences": 0,
+        "latency_p95_ms": 50.616124644875526
+      }
+    }
+  },
+  "startup": {
+    "before": "# agentic-rag memory\n\n## Pinned rules (all of them — pins are law)\n- Keep exact synthetic pin.\nRetain this condition.\n\n## Knowledge domains (memory_search accepts domain=)\n- general (7 docs) — Uncategorized knowledge\n\n## Recent knowledge for this project (memory_get <slug>)\n- [[importerror-fixture-repair]] ImportError fixture repair (signal, 2026-09-06; legacy; unreviewed; provenance incomplete; user sources 0)\n- [[backup-entscheidung]] Backup Entscheidung (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[database-decision]] Database decision (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[dienst-starten]] Dienst starten (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[deployment-procedure]] Deployment procedure (memory, 2026-09-06; legacy; unreviewed; provenance incomplete; user sources 0)",
+    "after": "# agentic-rag memory\n\n## Pinned rules (all of them — pins are law)\n- Keep exact synthetic pin.\nRetain this condition.\n\n## Knowledge domains (memory_search accepts domain=)\n- general (7 docs) — Uncategorized knowledge\n\n## Recent knowledge for this project (memory_get <slug>)\n- [[importerror-fixture-repair]] ImportError fixture repair (signal, 2026-09-06; legacy; unreviewed; provenance incomplete; user sources 0)\n- [[backup-entscheidung]] Backup Entscheidung (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[database-decision]] Database decision (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[dienst-starten]] Dienst starten (memory, 2026-09-06; stated; unreviewed; provenance complete; user sources 1)\n- [[deployment-procedure]] Deployment procedure (memory, 2026-09-06; legacy; unreviewed; provenance incomplete; user sources 0)\n\n## Project profile — fresh; generated 2026-09-06T11:11:02.240007+02:00\n(advisory source text; verify before acting)\n- stable [b534332a-cc48-40af-aba6-fef2c02a7476] \"Testing convention\": \"We always run python -m pytest for tests in this project.\"; {\"source_keys\": [\"90c81c9be15378218660f9208450b6eeabb17bf41658fc5b1bf6b6ee8552f80f\"], \"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"event_at\": null, \"expires_at\": null}\n- recent [7753e0d1-5533-48bf-adae-e94c3d56d273] \"ImportError fixture repair\": \"ImportError needs repair in fixture-loader.\"; {\"source_keys\": [], \"kind\": \"legacy\", \"review_state\": \"unreviewed\", \"provenance_status\": \"incomplete\", \"event_at\": null, \"expires_at\": null}\n- recent [cb082f9e-72c1-4623-b896-eee496e6d203] \"Backup Entscheidung\": \"Für das Backup hatten wir pg_dump entschieden.\"; {\"source_keys\": [\"a55674252b4d52dabb95930166c65c4060780407f87cc253ecfde0b65fb1451f\"], \"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"event_at\": null, \"expires_at\": null}\n- recent [bdbb5c1e-3238-4a9c-abd2-963655054dd3] \"Database decision\": \"We decided to keep PostgreSQL for the database.\"; {\"source_keys\": [\"8ea0a7e62d40098c6c4a9918ae1dca7c01b864dd913a51e0a2bab55faca512b4\"], \"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"event_at\": null, \"expires_at\": null}\n- recent [b815d7d0-548b-408d-be6a-964fed2e4eef] \"Dienst starten\": \"Zum Starten dieses Dienstes verwenden wir start-service.sh.\"; {\"source_keys\": [\"f6c696e6ece839c363cbab89b33d54a753019d62ba719c38e5ddedac3d530d42\"], \"kind\": \"stated\", \"review_state\": \"unreviewed\", \"provenance_status\": \"complete\", \"event_at\": null, \"expires_at\": null}\n- recent [8994b63e-9833-4873-8c0c-7c7826ab766b] \"Deployment procedure\": \"Deployment uses the cobalt script deploy-local.sh.\"; {\"source_keys\": [], \"kind\": \"legacy\", \"review_state\": \"unreviewed\", \"provenance_status\": \"incomplete\", \"event_at\": null, \"expires_at\": null}",
+    "pin_faithful": true
+  }
+}

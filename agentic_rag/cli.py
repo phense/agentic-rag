@@ -105,6 +105,15 @@ def _main(argv: list[str] | None = None) -> int:
     p_get.add_argument("id_or_slug")
     p_get.add_argument("--json", action="store_true")
 
+    p_context = sub.add_parser("context", help="bounded advisory project context")
+    p_context.add_argument("--project")
+    p_context.add_argument("--prompt", help="selective prompt recall; omit for startup context")
+    p_context.add_argument("--session-id")
+    p_context.add_argument("--json", action="store_true")
+    p_profile = sub.add_parser("profile", help="rebuild a derived project profile")
+    p_profile.add_argument("--project")
+    p_profile.add_argument("--refresh", action="store_true", required=True)
+
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
     p_search.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
@@ -222,6 +231,19 @@ def _main(argv: list[str] | None = None) -> int:
             and args.codex_home is not None):
         p.error("--restore reads its target home from the rollback record")
     cfg = load_config()
+
+    if args.cmd == "context":
+        from .context import build
+        with db.connect(cfg,role="reader") as context_conn:
+            result=build(context_conn,cfg,project=args.project,mode="prompt" if args.prompt is not None else "startup",
+                         prompt=args.prompt,session_id=args.session_id,source="startup")
+        print(json.dumps(result,default=_json_default,ensure_ascii=False) if args.json else result["text"])
+        return 0
+    if args.cmd == "profile":
+        with db.connect(cfg,role="writer") as profile_conn:
+            result=store.refresh_profile(profile_conn,cfg,args.project,actor="cli")
+        print(json.dumps(result,default=_json_default,ensure_ascii=False))
+        return 0
 
     if args.cmd == "benchmark":
         from .benchmark.runner import compare, run

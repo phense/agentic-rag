@@ -76,7 +76,7 @@ def _shrink_elastic(
 
 def fit_context(
     parts: list[tuple[str, str]], warnings: list[str], max_chars: int,
-    elastic: Elastic | None = None,
+    elastic: Elastic | None = None, pin_units: list[str] | None = None,
 ) -> str:
     """Shrink elastic sections (the checkpoint, handoff first) into the
     remaining budget, then trim whole sections (knowledge, domains,
@@ -109,7 +109,7 @@ def fit_context(
         (i for i, (name, _) in enumerate(kept) if name == "pins"), None)
     if pin_index is not None:
         heading, _, body = kept[pin_index][1].partition("\n")
-        lines = body.split("\n")
+        lines = list(pin_units) if pin_units is not None else body.split("\n")
         total = len(lines)
         while lines:
             lines.pop()
@@ -157,7 +157,7 @@ def _checkpoint_for_context(
 
 def build_context(
         conn, cfg: Config, cwd: str | None, session_id: str | None = None,
-        source: str | None = None) -> str:
+        source: str | None = None, *, max_chars: int | None = None) -> str:
     parts: list[tuple[str, str]] = [("header", "# agentic-rag memory")]
     warnings: list[str] = []
     elastic: dict[str, tuple[Callable[[int], str], int]] = {}
@@ -186,11 +186,13 @@ def build_context(
             f"⚠️ session mining provider {safe_provider} unavailable"
             f"{since}{remediation}")
 
+    pin_units = []
     pin_list = matching_pins(conn, cwd)
     if pin_list:
         text, pin_warnings = render_pins(
             pin_list, stale_days=cfg.stale_days,
             budget_chars=cfg.pin_budget_chars)
+        pin_units = [render_pins([pin],stale_days=cfg.stale_days,budget_chars=cfg.pin_budget_chars)[0] for pin in pin_list]
         warnings.extend(f"⚠️ {w}" for w in pin_warnings)
         parts.append(
             ("pins", "## Pinned rules (all of them — pins are law)\n" + text))
@@ -266,8 +268,8 @@ def build_context(
         )
 
     return fit_context(
-        parts, warnings, min(cfg.context_max_chars, MAX_CONTEXT_CHARS),
-        elastic=elastic)
+        parts, warnings, min(cfg.context_max_chars, MAX_CONTEXT_CHARS, max_chars if max_chars is not None else MAX_CONTEXT_CHARS),
+        elastic=elastic, pin_units=pin_units)
 
 
 def _trigger_maintenance(conn) -> None:
@@ -292,14 +294,31 @@ def run(payload: dict, stdout) -> None:
         cfg = load_config()
         conn = db.connect(cfg, role="writer")
         try:
-            text = build_context(
-                conn,
-                cfg,
-                payload.get("cwd"),
-                session_id=payload.get("session_id"),
-                source=payload.get("source"),
-            )
-            _trigger_maintenance(conn)
+            from .. import context, profiles
+            render_failed = False
+            profile_status = None
+            try:
+                result = context.build(conn,cfg,project=payload.get("cwd"),
+                                       session_id=payload.get("session_id"),source=payload.get("source"))
+                text = result['text']
+                profile_status = result['profile_status']
+            except Exception as exc:
+                conn.rollback()
+                render_failed = True
+                common.log_hook_error("session_start", repr(exc))
+                safe_error = common.sanitize_error(f"{type(exc).__name__}: {exc}")
+                text = f"⚠️ agentic-rag unavailable: {safe_error}"
+            try:
+                if profile_status is None:
+                    profile_status = profiles.read(conn, cfg, payload.get("cwd"))['status']
+                if profile_status != 'fresh':
+                    if jobs.enqueue_profile(conn,cfg,payload.get("cwd")):
+                        common.spawn_worker()
+            except Exception as exc:
+                conn.rollback()
+                common.log_hook_error('session_start.profile',repr(exc))
+            if not render_failed:
+                _trigger_maintenance(conn)
         finally:
             conn.close()
         common.emit_context(stdout, "SessionStart", text)
