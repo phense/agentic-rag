@@ -192,11 +192,11 @@ automated fact replacement. Estimates are relative, not delivery commitments.
   → *Issue:* [#7](https://github.com/phense/agentic-rag/issues/7). → *Completed:* 718 tests, independent review and synthetic semantic evaluation
   verified; migration012 activated after explicit approval and fresh checked backup;
   legacy/pin invariants unchanged, published CI green and issue closed. *(M–L)*
-- ⬜ **4.6** _(enh, P2)_ **Measured retrieval relevance improvements.** Add diverse results and useful evidence spans; evaluate local reranking, abstention and bounded graph expansion.
-  → *Issue:* [#8](https://github.com/phense/agentic-rag/issues/8). → *Status:* implementation and independent review complete; 732 tests pass.
-  Eleven synthetic comparisons and wheel checks passed; backup-gated migration013 activation/publication awaits explicit operator rollout approval.
-  See [policy](docs/retrieval-quality.md).
-  → *Trigger:* after 4.1 baseline and shared scope/validity policies. *(M)*
+- ✅ **4.6** _(enh, P2)_ **Measured retrieval relevance improvements.** Add diverse results and useful evidence spans; evaluate local reranking, abstention and bounded graph expansion.
+  → *Issue:* [#8](https://github.com/phense/agentic-rag/issues/8). → *Completed:* 732 regression tests, independent review,
+  eleven synthetic comparisons and wheel checks passed; migration013 activated with unchanged document/pin fingerprints.
+  Installed reader search and citations verified; published CI green, issue closed.
+  See [policy](docs/retrieval-quality.md) and [measurements](docs/benchmarks/2026-09-06-retrieval-quality/README.md). *(M)*
 - ⬜ **4.7** _(enh, P2)_ **Bounded project profiles and selective recall.** Build a source-backed advisory view over the existing store; preserve exact pins/checkpoints and measure ordinary-question recall.
   → *Issue:* [#9](https://github.com/phense/agentic-rag/issues/9). → *Why not done:* analysis complete; implementation and rollout pending.
   → *Trigger:* after scope/evidence semantics; extend 1.1 firing-rate measurement. *(M–L)*

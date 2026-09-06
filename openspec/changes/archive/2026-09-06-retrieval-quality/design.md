@@ -43,6 +43,7 @@ Tests: document crowding, distinct extra evidence chunk, >400-char match, exact 
 German text, no-answer queries, stable ties, invalid reranker fallback, embedding
 fallback, bounded two-hop scope/validity filtering and contiguous citation offsets.
 Full regression, package, independent migration/interface review, held-out measurements.
-Migration adds a read function only, no legacy data rewrite. Fresh backup and worker
-lock precede matching code activation; old search remains an explicit fallback, never
+Migration adds a read function only, no legacy data rewrite. A recent verified backup and worker
+lock precede matching code activation. Closely spaced rollouts (about30 minutes)
+reuse that backup; refresh after a materially longer gap or increased data risk; old search remains an explicit fallback, never
 an alternative curation version. Rollback via forward fix or verified backup.

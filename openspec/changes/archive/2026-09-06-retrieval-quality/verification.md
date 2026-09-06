@@ -12,7 +12,7 @@
   and function-local ANN-setting restoration are tested.
 - Eleven synthetic benchmark runs completed without indexing/query failure; every owned
   database cleanup verified; zero hosted model calls. Equal context/k and source hashes
-  checked. [Measurements](../../../docs/benchmarks/2026-09-06-retrieval-quality/README.md).
+  checked. [Measurements](../../../../docs/benchmarks/2026-09-06-retrieval-quality/README.md).
 - Independent reviewer `/root/review_issue8` inspected the complete tracked/untracked
   change from126a2b3, requirements, regressions and plan evidence. Final verdict: Ready;
   no unresolved Critical/Important findings. Reviewer did not implement or run DB tests.
@@ -33,10 +33,16 @@
 
 ## Release state
 
-Implementation, independent review, full tests, package and measurements complete.
-Fresh backup-gated migration013 activation, canonical content/pin verification,
-publication/CI and issue closure remain pending. OpenSpec archive follows those gates.
+Completed2026-09-06 after explicit operator approval. Migration013 activated and replayed
+idempotently; fingerprints for all8210 documents and22 pins unchanged. Installed main
+search returned three hits with exact original-chunk offsets/citations, working local
+embeddings and reader UPDATE denied. The newest automatic backup was over seven hours
+old, so the existing backup agent refreshed it at10:33 local time; archive readability
+and local/cloud SHA equality passed. Closely spaced rollouts may reuse a recent verified
+backup per the user's instruction; no per-issue fresh backup rule is imposed.
 
-Automatic approval review rejected the prepared canonical migration/main activation:
-explicit issue8 rollout authorization is required. The rollout command did not execute.
-Implementation remains on the reviewed feature branch; T005 and archival stay open.
+Published implementation/head8591c63: [CI passed](https://github.com/phense/agentic-rag/actions/runs/34022212748).
+[Issue8 closed](https://github.com/phense/agentic-rag/issues/8#issuecomment-5558065758).
+Fresh pre-archive verification:
+`PYTHONPATH=. /Users/peter/Agents/agentic-rag/.venv/bin/python -m pytest tests/test_retrieval_quality.py tests/benchmark -q`
+→39 passed in4.60s. Final documentation synchronization/archival contains no code change.

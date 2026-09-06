@@ -10,5 +10,7 @@
 - [x] T004 Publish equal-budget before/after and separate graph/rerank/query experiments,
   inspect held-out evidence and latency, independent review/fixes, full suite/wheel,
   user docs/backlog/features (all RQ). Depends T001–003.
-- [ ] T005 Backup-gated migration/activation, unchanged legacy/pin verification,
-  publication/CI/issue closure and OpenSpec archive (compatibility). Depends T004.
+- [x] T005 Backup-gated migration/activation, unchanged legacy/pin verification,
+  publication/CI/issue closure (compatibility). Depends T004.
+
+OpenSpec synchronization and archival are the terminal lifecycle phase after these tasks.

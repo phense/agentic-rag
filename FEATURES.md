@@ -195,4 +195,4 @@ retrieval expose evidence status. [Policy](docs/claim-evidence.md).
 Diverse bounded hybrid candidates, query-centered contiguous spans and chunk citations;
 exact-symbol preservation, optional two-hop evidence-bearing graph expansion and a
 validated local reranker seam. Bilingual FTS remains available during embedding outages.
-See [policy and limitations](docs/retrieval-quality.md). Migration013 activation pending.
+See [policy and limitations](docs/retrieval-quality.md). Migration013 activated; installed reader and citation checks passed.
