@@ -28,5 +28,5 @@ Specification:spec.md; plan:plan.md; base87077ce. Tests use issue9 DB overlay on
   collaborating success and failed-refresh recovery fixtures. DependsT005.
 - [x] T007 Synthetic baseline/after firing/usefulness/redundancy/latency measurements,
   full regression/package, independent review/fixes and SpecKit convergence. DependsT006.
-- [ ] T008 Docs/BACKLOG/FEATURES, commit and prepared backup-aware rollout/publication.
+- [x] T008 Docs/BACKLOG/FEATURES, commit and prepared backup-aware rollout/publication.
   Preserve exact pins/documents, reader privileges; verify CI/issue close when authorized.

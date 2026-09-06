@@ -39,10 +39,23 @@ integration fixtures and the corrected startup/prompt sequence; database executi
 coordinator-owned. AF009A/B/C are resolved in the as-built diagram/findings.
 
 SpecKit convergence: every accepted requirement and plan boundary has current evidence;
-no implementation gap or additional convergence task. Existing T008 release work remains
-separate: canonical migration, installed checks, publication and issue close are pending.
+no implementation gap or additional convergence task. T008 release evidence is recorded below.
 The synthetic benchmark is not evidence of broad production semantic accuracy.
 
 Continuity recovery tool cannot derive a project key from this repository's legacy
 numeric backlog. Git, task artifacts, issue identity and host agent status were reconciled
 manually; existing run preserved, no unrelated backlog migration or agent redispatch.
+
+## Activated and published
+
+Implementation commit2c46e022a9731c3b4263c586798b878e33e9a900 fast-forwarded into the
+canonical checkout and published to origin/main. CI34024173116 (Offline benchmark
+contracts) succeeded; full PostgreSQL regression evidence remains the local757-test run.
+Migration014 applied once; second init returned no migrations. Reused the verified
+20260906-103314 backup at42minutes age, checked archive contents and cloud checksum.
+No unnecessary fresh backup. Before/after hashes preserve8263documents and22pins.
+
+Installed canonical module path and `.venv/bin/rag context --project ... --json` verified:
+fresh profile,6846characters,reader UPDATE denied. Explicit audited profile refresh took
+80.87ms on this local project and preserved document/pin hashes. This single refresh
+measurement is not a production hook-latency benchmark. No provider calls were added.

@@ -203,4 +203,5 @@ Source-backed stable/recent profile references, asynchronous audited refresh, sc
 EN/DE selective recall and real-turn post-output receipts. Shared reader CLI/MCP and
 hook context preserve exact pins, checkpoint priority and explicit cap omissions.
 [Policy](docs/project-context.md); [measurements](docs/benchmarks/2026-09-06-project-context/README.md).
-Implementation verified; canonical migration014 and publication pending.
+Migration014 activated; installed reader and audited profile refresh verified with unchanged
+documents/pins. Published implementation2c46e02; CI34024173116 passed.
