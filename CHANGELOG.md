@@ -25,6 +25,20 @@ _Nothing yet._
   Antigravity transcript step format (`agy-step-<n>`). Facts about Gemini
   3.8 Flash / 3.1 Pro (1,048,576 tokens) and Antigravity's hook/compaction
   behaviour are recorded in `docs/00-whats-new-in-0.5.md`.
+- **Bounded project context (issue #9).** Source-backed stable/recent profile
+  references with audited asynchronous refresh, scoped EN/DE selective recall
+  on explicit project/history prompts, and post-output receipts; shared by the
+  reader CLI/MCP and the hooks (migration 014).
+- **Retrieval evidence quality (issue #8).** Diverse bounded hybrid candidates,
+  query-centered contiguous spans with chunk citations, exact-symbol
+  preservation, optional two-hop evidence-bearing graph expansion, and a
+  validated local reranker seam (migration 013).
+- **Claim evidence and inference status (issue #7).** Mined claims retain
+  bounded source spans, event identity, speaker and kind; distinct event counts
+  exclude assistant corroboration; hooks and retrieval expose evidence status.
+- **Atomic fact validity (issue #6).** Evidence-backed immutable assertions with
+  explicit replacement, extension, expiry, and as-of/history retrieval;
+  `rag assert`, `rag search --as-of/--history`.
 - **Consistent project applicability (issue #5).** CLI/MCP scope selectors,
   Git-worktree/symlink normalization, before-limit retrieval and every-hop graph
   filtering, scoped hooks/pins, equal-known-scope curation and audited legacy
