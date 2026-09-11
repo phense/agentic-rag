@@ -14,7 +14,7 @@
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
-- ✅ **0.6** _(enh)_ **OpenCode hooks and DeepSeek rollout.** Implemented, independently reviewed, locally merged and installed from the retained checkout. 800 Python and 7 Node tests pass; real DeepSeek startup/manual-compaction/handoff/restore passed against a synthetic test DB. Canonical startup context and read-only MCP healthy; all 17 Engineering Method skills preserved. Sustained auto-compaction and abrupt-termination limits remain documented in docs/opencode.md. *(M, completed 2026-09-11)*
+- ✅ **0.6** _(enh)_ **OpenCode hooks and DeepSeek rollout.** Implemented, independently reviewed, locally merged and installed from the retained checkout. 800 Python and 7 Node tests pass; real DeepSeek startup/manual-compaction/handoff/restore passed against a synthetic test DB. Canonical startup context and read-only MCP healthy; a real T3 thread on the Mac verified context delivery and a completed DeepSeek Flash RAG search. All 17 Engineering Method skills preserved. Sustained auto-compaction and abrupt-termination limits remain documented in docs/opencode.md. *(M, completed 2026-09-11)*
 
 - ✅ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
   now strips secret-shaped values from copied global, matching-path, and

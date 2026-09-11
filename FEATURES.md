@@ -232,4 +232,4 @@ documents/pins. Published implementation2c46e02; CI34024173116 passed.
 ## OpenCode (RAG-OC-001)
 
 - ✅ Native adapter code: transient context/recall, matched checkpoint and handoff, sanitized stable transcript projection, debounced idle queue, child exclusion and guarded loader installation.
-- ✅ Local rollout: installed from retained checkout; canonical startup context and read-only MCP healthy. Real DeepSeek startup/manual-compaction/restore passed with synthetic test-database data. Sustained automatic compaction is not claimed. See [evidence](docs/verification/opencode.md).
+- ✅ Local rollout: installed from retained checkout; canonical startup context and read-only MCP healthy. Real DeepSeek startup/manual-compaction/restore passed with synthetic test-database data. A production T3 thread on the Mac also verified canonical context delivery and a completed read-only RAG search with DeepSeek Flash. Sustained automatic compaction is not claimed. See [evidence](docs/verification/opencode.md).

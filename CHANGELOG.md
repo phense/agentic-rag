@@ -7,9 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
-- Native OpenCode RAG hooks; see [scope and limits](docs/opencode.md).
-
-_Nothing yet._
+### Added
+- Native OpenCode RAG adapter with startup context, selective recall, matched
+  checkpoint/handoff, bounded transcript projection and debounced idle mining.
+  Install on the execution host with `rag install --opencode`; existing MCP
+  configuration and other plugins are preserved. See [scope and limits](docs/opencode.md).
+- Verification of DeepSeek Flash native manual compaction/restoration using a
+  synthetic test database, plus canonical context delivery and an actual
+  read-only RAG search through T3 on the Mac. See [evidence](docs/verification/opencode.md).
+  Sustained automatic compaction and automatic Flash/Pro routing are not claimed.
 
 ## [0.5.0] - 2026-09-06
 

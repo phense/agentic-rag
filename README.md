@@ -94,7 +94,7 @@ retrieval do not call either provider.
 
 ## Quick start
 
-**OpenCode / DeepSeek (unreleased source addition):** [install the native RAG adapter](docs/opencode.md) on the execution host with `uv run rag install --opencode`. It supports startup context, selective recall, checkpoint/handoff and idle mining; see the documented limits.
+**OpenCode / DeepSeek (unreleased source addition):** [install the native RAG adapter](docs/opencode.md) on the execution host with `uv run rag install --opencode`. It supports startup context, selective recall, checkpoint/handoff and idle mining. For T3 on Windows, install on the Mac execution host; canonical context and a real read-only RAG tool call were [verified through T3](docs/verification/opencode.md#production-t3-read-path-check). See the documented limits.
 
 agentic-rag is a `rag` command-line tool with provider integrations. The
 no-option install wires two MCP servers, six lifecycle hooks, and the managed

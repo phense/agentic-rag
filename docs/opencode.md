@@ -98,6 +98,14 @@ AGENTIC_RAG_HOOKS_DISABLE environment switch stops its lifecycle actions.
 
 ## Verification
 
+A later production check used T3 0.0.40 with OpenCode 1.18.30 on the Mac and
+DeepSeek Flash. After provider refresh and a new T3 thread, the model recognized
+injected canonical context and completed an actual agentic-rag-ro_memory_search
+call with a one-time read approval. Native T3 tool events confirmed completion
+and a result payload. The user authorized cloud processing for this check.
+This verifies the T3 context/read path; compaction evidence below comes from the
+separate native OpenCode test, not a T3 compaction run.
+
 See [OpenCode evidence](verification/opencode.md). Run Python tests plus
 node --test tests/test_opencode_plugin.mjs; Node is required for the JS adapter
 checks. Native testing used the real local OpenCode server and DeepSeek API,

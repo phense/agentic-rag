@@ -41,8 +41,30 @@ worktree. Its check mode reports Already installed. The installed hook loaded
 contents were not logged in evidence. Native agentic-rag-ro reports connected,
 and all 17 Engineering Method skills remain visible (21 total). Runtime code
 is committed as 2a16ae6; final documentation/state archival changes no runtime
-files. No RAG remote publication was performed. Raw synthetic API transcripts remain temporary local
-evidence and are not distributed.
+files. Raw API transcripts remain temporary local evidence and are not distributed.
+
+## Production T3 read-path check
+
+On 2026-09-11 at 15:50 UTC, T3 0.0.40 used OpenCode 1.18.30 on the Mac execution
+host with deepseek/deepseek-flash. This was a real T3 orchestration thread using
+the canonical RAG store, separate from the synthetic compaction test above.
+The user explicitly authorized sending loaded context and search results to the
+DeepSeek cloud API for this check.
+
+- T3's native provider refresh reported OpenCode ready and authenticated, with
+  four DeepSeek models available.
+- The model recognized the injected pinned-rules and knowledge-domain headings.
+- A real agentic-rag-ro_memory_search call was approved once. Its native started
+  and completed events shared the same tool-call ID; completion status was
+  completed and the result preview contained a results payload.
+- The T3 turn completed and its session returned to ready. Temporary API access
+  used for the check was revoked afterward.
+
+The native event evidence confirms context delivery and a completed read-only
+RAG tool call. The truncated result preview does not independently establish the
+model-reported total hit count, so no count is claimed here. Private knowledge,
+returned identifiers and credentials are omitted. This check did not exercise
+compaction through T3 or change the mining provider.
 
 ## Limits
 
