@@ -36,3 +36,7 @@ learn. Shipped versus still-planned rollout state lives in
 
 ## Appendix
 - [99 · Design notes & rationale](99-design-notes.md) — why Postgres over files, why a single writer, why derived domains, and the data-safety choices.
+
+## OpenCode integration
+
+[OpenCode and DeepSeek](opencode.md) — native context/recall, compaction continuity, idle mining, installation and scope.

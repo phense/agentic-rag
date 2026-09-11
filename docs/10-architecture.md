@@ -591,3 +591,7 @@ clears provider health.
 
 [11 · Reference — CLI & MCP](11-reference-cli-and-mcp.md) — every CLI command
 and flag, both MCP servers' tools, the key SQL functions, and exit codes.
+
+## OpenCode integration
+
+The OpenCode JS bridge adapts native SDK callbacks to the shared context, checkpoint/store and jobs services via bounded Python subprocesses. No schema change. Post-compaction reconciliation also runs on the awaited model path. See [hook map](opencode.md).

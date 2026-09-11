@@ -299,3 +299,7 @@ all talking to each other correctly.
 [04 · Working with your memory](04-working-with-memory.md) — save, get,
 search, and pin from the command line and from inside a Claude Code
 session, plus a closer look at domains and `rag status`.
+
+## OpenCode integration
+
+For OpenCode on the execution host, use `uv run rag install --opencode --check`, then `uv run rag install --opencode`. Start a fresh helper/thread. See [OpenCode setup](opencode.md).

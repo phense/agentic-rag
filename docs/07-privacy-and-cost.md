@@ -312,3 +312,7 @@ nothing.
 [08 · Knowledge domains and import](08-knowledge-domains-and-import.md) —
 domains as data, adding and classifying them, and importing an existing
 llm-wiki store with `migrate`.
+
+## OpenCode integration
+
+OpenCode context reaches the model selected for coding, including DeepSeek. Main-session projection excludes reasoning, tool input/output and synthetic context, then secret-strips prose. Existing Codex/Claude mining provider settings remain authoritative. See [OpenCode data boundaries](opencode.md).

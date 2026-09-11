@@ -193,3 +193,7 @@ clone (yours and every contributor's) opts in for itself.
 [99 · Design notes & rationale](99-design-notes.md) — why Postgres over
 files, why a single writer, why domains are derived rather than declared,
 and the data-safety choices behind all of it.
+
+## OpenCode integration
+
+The OpenCode adapter lives in `agentic_rag/integrations/opencode/`. In addition to `uv run pytest`, run `node --test tests/test_opencode_plugin.mjs`; check packaged JS and isolated wheel installation. See [native evidence](verification/opencode.md).

@@ -74,6 +74,9 @@ def _main(argv: list[str] | None = None) -> int:
                         help="target the Antigravity CLI (agy) hooks.json")
     p_inst.add_argument("--agy-home", type=Path, default=None,
                         help=argparse.SUPPRESS)
+    p_inst.add_argument("--opencode", action="store_true", help="install native OpenCode RAG hooks")
+    p_inst.add_argument("--opencode-config-dir", type=Path, default=None)
+    p_inst.add_argument("--uninstall", action="store_true", help="remove the exact owned OpenCode loader")
 
     p_dom = sub.add_parser("domain")
     dom_sub = p_dom.add_subparsers(dest="domain_cmd", required=True)
@@ -237,6 +240,20 @@ def _main(argv: list[str] | None = None) -> int:
     if (args.cmd == "install" and args.restore is not None
             and (args.codex_home is not None or args.agy_home is not None)):
         p.error("--restore reads its target home from the rollback record")
+    if args.cmd == "install":
+        if args.opencode:
+            if args.codex or args.agy or args.restore or args.codex_home or args.agy_home:
+                p.error("--opencode cannot be combined with other targets or --restore")
+            from .integrations.opencode.install import install as install_opencode
+            try:
+                print(install_opencode(config_dir=args.opencode_config_dir,
+                      check=args.check, uninstall=args.uninstall))
+            except (OSError, ValueError) as exc:
+                print(str(exc), file=sys.stderr)
+                return 1
+            return 0
+        if args.opencode_config_dir is not None or args.uninstall:
+            p.error("--opencode-config-dir and --uninstall require --opencode")
     cfg = load_config()
 
     if args.cmd == "context":

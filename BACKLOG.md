@@ -14,6 +14,8 @@
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
+- 🔵 **0.6** _(enh)_ **OpenCode hooks and DeepSeek rollout.** Authorized after Engineering Method 0.1.1. Why not done: adapter and native continuity verification pending. Trigger: implement RAG-OC-001 under docs/openspec/changes/opencode-hooks. *(M)*
+
 - ✅ **0.0** _(security)_ **Secret-strip provider-bound pin bodies.** Mining
   now strips secret-shaped values from copied global, matching-path, and
   document-reference pin bodies at the provider boundary without mutating

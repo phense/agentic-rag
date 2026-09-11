@@ -295,3 +295,7 @@ apply to the Antigravity handoff and injection exactly as they do for Claude.
 LLM calls (Codex with ChatGPT login or Claude with supported OAuth/API-key
 authentication), the secret-stripping gateway, the role matrix, and how
 backups get restore-tested rather than trusted blindly.
+
+## OpenCode integration
+
+The OpenCode target owns only its loader, adds read-only MCP when absent and preserves provider/model/permission settings. No compaction threshold is overridden. See [configuration and limits](opencode.md).

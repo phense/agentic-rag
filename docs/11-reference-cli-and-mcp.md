@@ -232,3 +232,7 @@ See [10 · Architecture](10-architecture.md) for how these fit into the schema a
 ## Next →
 
 [12 · Contributing](12-contributing.md) — dev setup, running the test suite, the doc-reminder git hook, and code layout.
+
+## OpenCode integration
+
+`rag install --opencode [--check] [--opencode-config-dir PATH] [--uninstall]` manages only the native loader. Other host flags and --restore cannot be combined with this target. See [OpenCode reference](opencode.md).

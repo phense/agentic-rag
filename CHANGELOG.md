@@ -7,6 +7,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+- Native OpenCode RAG hooks; see [scope and limits](docs/opencode.md).
+
 _Nothing yet._
 
 ## [0.5.0] - 2026-09-06
