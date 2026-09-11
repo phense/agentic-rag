@@ -35,7 +35,13 @@ Full regression suite: 800 passed in 33.11 seconds. Final Node suite: 7 passed,
 including real child-process failure and existing read-only MCP preservation.
 The built wheel contains all four adapter resources; an isolated virtualenv
 installed that wheel and its OpenCode check mode succeeded without creating
-the target directory. Production loader installation is recorded at handoff. Raw synthetic API transcripts remain temporary local
+the target directory. Production loader is installed from the retained canonical checkout, not a
+worktree. Its check mode reports Already installed. The installed hook loaded
+7,154 characters of canonical startup context without an unavailable warning;
+contents were not logged in evidence. Native agentic-rag-ro reports connected,
+and all 17 Engineering Method skills remain visible (21 total). Runtime code
+is committed as 2a16ae6; final documentation/state archival changes no runtime
+files. No RAG remote publication was performed. Raw synthetic API transcripts remain temporary local
 evidence and are not distributed.
 
 ## Limits
