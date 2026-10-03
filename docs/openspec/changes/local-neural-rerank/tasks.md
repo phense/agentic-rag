@@ -17,3 +17,7 @@ All five candidate runtime hashes match the measured files; baseline source hash
 matches git342bccf. Actual old/new populated coexistence/outage/retry/rollback
 preserves every row in17 public tables. Two process-cold synthetic model starts
 and40 warm smoke calls discriminate positive/negative evidence. Final independent review: Ready, zero unresolved findings.
+
+PR #39 submitted and linked to the T3 thread. Specific merge approval remains
+pending; it will cover the merge only. Continue feature5.4 / Issue #29 afterward.
+Production adoption remains separately authorized and tracked in Issue #28.

@@ -256,7 +256,7 @@ documents/pins. Published implementation2c46e02; CI34024173116 passed.
 
 ## Selective local neural reranking (issue #28)
 
-Implemented on`feature/local-rerank`; reviewed with930 Python/7 Node tests; PR merge and production rollout pending.
+Implemented and reviewed in PR #39 with930 Python/7 Node tests; merge and production rollout pending.
 A verified local Qwen3-Reranker-0.6B Q8_0 runtime can reorder up to12 ambiguous
 auto candidates within1500ms. Original payloads, SQL eligibility and citations remain
 authoritative. Exact identifiers/symbols and explicit hybrid/lexical/baseline routes

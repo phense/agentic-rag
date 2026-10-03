@@ -48,3 +48,9 @@ See docs/benchmarks/2026-10-03-neural-rerank/ and docs/local-reranker.md for
 raw arrays, model/runtime pins, resource observations, limits and reproduction.
 No production rollout, data/config migration, service interruption or client
 configuration modification was performed. Existing dependency alerts remain #37.
+
+## Handoff
+
+PR #39; reviewed application implementation commit
+fe16726cd5ea42c6226f75c1d99f4311d957c664. Subsequent handoff changes only link
+PR/status metadata. Specific merge approval and production adoption are pending.
