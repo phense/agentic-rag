@@ -108,6 +108,7 @@ research-rollout report and [canonical adoption comment](https://github.com/phen
 
 ## Acceptance and next action
 
-Code, isolated execution and independent final reviews are complete. Publish/link
-the bounded PR and request approval of that specific PR. Do not merge or deploy on silence. Issue32 remains open until applicable
+Code, isolated execution and independent final reviews are complete. [PR45](https://github.com/phense/agentic-rag/pull/45)
+is published and registered with this T3 thread. Request approval of that specific
+PR. Do not merge or deploy on silence. Issue32 remains open until applicable
 merge and separately authorized production rollout evidence are recorded.
