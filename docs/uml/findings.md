@@ -119,7 +119,7 @@ Evidence: [transaction sequence](filter-aware-search.md), [plan](../specs/RAG-5.
 
 Named question: How can an operator reverse identity links without rewriting facts
 or permitting scope/trust bridges? [Model](entity-identities.md),
-[plan](../specs/RAG-5.8-entity-identities/plan.md), AC-001–007.
+[plan](../specs/RAG-5.8-entity-identities/plan.md), AC-001–008.
 
 - AF-5.8-001: Preserve exact assertion keys and original validity functions; cross-name
   validity belongs only to the new explicit read. Required T002/T004; design addressed.
@@ -132,4 +132,13 @@ or permitting scope/trust bridges? [Model](entity-identities.md),
   confirmations require ordered scope locks. Required T003/T004/T006; design addressed.
 - AF-5.8-005: Code rollback retains018, source rows and old-client behavior. Backfill
   is bounded/replay-safe; strict backup restore precedes migration. Required T006;
-  executed evidence pending.
+  executed populated017→018/strict restore/code recovery evidence passes.
+
+
+As-built RAG-5.8 reconciliation: [EI-S01–04 and EI-R01–03](entity-identities.md)
+pass against current schema/CLI/MCP/source transaction contracts. Stable unindexed
+IDs, complete original-span support, exact project/domain selection, bounded output
+and retained018 rollback are evidenced. Initial automatic indexing design was
+revised to explicit audited backfill after real source/batch deadlock regressions;
+existing assertion/mining code is byte-identical to source. No open architecture
+finding; production rollout remains separately authorized.

@@ -19,8 +19,9 @@ active complete user support and both names in the quote, and rechecks competing
 anchors/cycles under a scope/domain advisory lock. No identity union or transitive
 traversal. Explicit backfill persists exact attachments; reads derive the same UUID
 for unindexed old/new assertions without writing. No per-call lock is added to
-existing multi-assertion transactions. Backfills serialize only with other backfills;
-alias confirmation takes one scope/domain lock before identity/source locks. An anchor may have several direct aliases; aliases cannot also be anchors.
+existing multi-assertion transactions. Backfill runs take a dedicated batch lock and use scope/domain locks for
+attachments; existing assertion/mining transactions acquire no new locks. Alias
+confirmation takes one scope/domain lock before identity/source locks. An anchor may have several direct aliases; aliases cannot also be anchors.
 
 ## Project gates
 
@@ -28,8 +29,8 @@ alias confirmation takes one scope/domain lock before identity/source locks. An 
 | --- | --- | --- |
 | One store and audited writes | store.py gateways; existing role matrix | preserve |
 | Supported existing source | clean2a29c50 and live001–017 inventoried read-only | confirmed |
-| Client/config/jobs compatibility | additive tools/tables only, unchanged source contracts | verify with old/new processes |
-| Review and evidence | complete independent reviewers and isolated driver | required before PR |
+| Client/config/jobs compatibility | additive tools/tables only, unchanged source contracts | passed with old/new processes |
+| Review and evidence | complete independent reviewers and isolated driver | passed; final artifact review before PR |
 | Merge and rollout | specific PR approval; separate operational authorization | pending, no live mutation |
 
 ## Compatibility boundaries and interfaces
@@ -73,5 +74,6 @@ review warnings rather than an invented canonical answer.
 
 Architecture and tasks are local artifacts. PB-5.8 is required before handoff;
 read-only independent playbook review plus executed isolated upgrade/recovery driver.
+Executed evidence is recorded in [verification](../../verification/entity-identities.md).
 No separate development playbook is needed: owned database helpers already constrain
 fault injection/cleanup, and no production operational task is authorized.

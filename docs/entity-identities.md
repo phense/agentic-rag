@@ -4,11 +4,11 @@ title: Entity identities and scoped aliases
 type: reference
 doc_id: standalone
 readers: [operators, client-developers]
-status: drafted
+status: reviewed
 version: source017 to candidate018
 depends_on: []
 assets: []
-last_reviewed: unreviewed
+last_reviewed: 2026-10-04
 summary: Exact scoped entity evidence, confirmed aliases and reversible relation review.
 ---
 

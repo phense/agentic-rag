@@ -1,0 +1,29 @@
+{
+  "playbook_sha256": "8d70378c049be440c4eb212c811a7a2bb3b3ab48342bdcb01d0444d61360737e",
+  "source_revision": "2a29c50a2fa435d2caeb3354da9dbce92e85e6bb",
+  "candidate_revision": "ac2532f2189c82bdf132765b0c52fd6696bbd323",
+  "busy_lock_stops_upgrade_and_recovery_without_changes": true,
+  "exact_activation_and_recovery_snippets_passed": true,
+  "preflight_rejection_checks": [
+    "Unsupported source",
+    "exact approved commit",
+    "not the approved target",
+    "Candidate checkout drift",
+    "Imported modules",
+    "Migration path",
+    "Source checkout drift",
+    "Unsupported recovery source",
+    "exact approved commit",
+    "Recovery checkout drift",
+    "checkout drift",
+    "checkout drift"
+  ],
+  "post_migration_activation_retry_passed": true,
+  "old_new_rollback_citation_parity": true,
+  "original_rows_and_grants_preserved": true,
+  "schema018_retained": true,
+  "prior_branch_tip_preserved": true,
+  "lock_released": true,
+  "owned_resources_cleaned": true,
+  "limits": "Owned local clone/database/worker lock and temporary owned candidate dirty marker only. No production deployment or service operation. Backup/full restore/MCP evidence is separate."
+}
