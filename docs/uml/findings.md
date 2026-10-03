@@ -105,3 +105,12 @@ RAG-5.4 design/as-built reconciliation,2026-10-03. Evidence: [consistency sequen
 | AF-5.4-001 | source edit/model switch during inference | AC-004 | fingerprint/lock, query and index digest races, scope/time/source eligibility tests | resolved; regression tests and old-writer recovery |
 | AF-5.4-002 | index-only rebuild loses baseline/citations | AC-002/003 | side table + all15 canonical table fingerprints, historical audit subset, original spans | resolved; migration/index/recovery snapshots |
 | AF-5.4-003 | old worker cannot process new jobs | AC-004/006 | unchanged queue vocabulary/scheduler; actual old save/read after015; queued reembed lexical context | resolved; coexistence and retry tests |
+
+## RAG-5.5 design findings (2026-10-03)
+
+Evidence: [transaction sequence](filter-aware-search.md), [plan](../specs/RAG-5.5-filter-aware-search/plan.md),013/015 candidate functions and psycopg transaction ownership.
+
+| ID | Question/risk | Requirement | Required response | State |
+| --- | --- | --- | --- | --- |
+| AF-5.5-01 | budget/scan settings leak into caller or neighboring client | AC-001/003/005 | savepoint-local settings outside candidate statement; successful explicit restoration and real timeout/cancel recovery tests | resolved; actual success/timeout/cancel/discovery ownership tests and full987 suite pass |
+| AF-5.5-02 | long-document chunks crowd out other eligible sources | AC-002/004 | exact eligibility materialization and per-document diversity before final limit; bounded ANN pool and separate oracle recall measurements | resolved; complete small-set oracle/ties4096/4097 and measured pool/source diversity; Trading exact-oracle/citation parity |

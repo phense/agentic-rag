@@ -267,7 +267,9 @@ answer-accuracy gain is claimed. [Evidence and limits](docs/benchmarks/2026-10-0
 
 ## Contextual chunk indexing (issue #29)
 
-Feature 4 candidate adds bounded source excerpts and document/section/project metadata
+Merged in PR42 at99514fe and adopted locally on2026-10-03. The full audited backfill indexed10432 documents/11822 chunks with0 retries or warnings; protected knowledge/history and strict015 backup restoration were verified. [Production adoption](docs/verification/contextual-indexing.md#production-adoption).
+
+Feature 4 adds bounded source excerpts and document/section/project metadata
 to a versioned side index; original chunks, vectors and citations remain intact.
 Normal audited saves create lexical context; bounded `rag save --index-context`
 adds local contextual vectors. Current-source/model checks and original eligibility
@@ -277,6 +279,12 @@ baseline behavior. Additive015 and populated014 upgrade/recovery are rehearsed.
 Three synthetic practical examples improve original-fact coverage from0/20 to20/20
 within the same three-hit/1200-character source budget, with extra retrieval and
 indexing cost. This is limited development evidence, not a production-scale gain.
-Trading was tested read-only on014; code/PR readiness and production adoption remain
-separate. [Measurements](docs/benchmarks/2026-10-03-contextual-indexing/README.md),
+The initial Trading014 controls preceded adoption. Post-adoption controls showed36.9% overhead for one question (449.353→615.142ms), with original citations retained; no production quality or speed gain is claimed. [Measurements](docs/benchmarks/2026-10-03-contextual-indexing/README.md),
 [upgrade procedure](docs/contextual-indexing.md).
+
+
+## Filter-aware vector retrieval (issue #30)
+
+Feature5 candidate adds read-only016 functions for default semantic context-auto searches. A single eligible probe chooses complete exact ordering for at most4096 matching nonzero chunks; larger sets use a bounded4096 ANN pool with installed iterative capabilities, original eligibility/citations and per-document diversity. Savepoints preserve caller settings/writes and propagate cancellation. Exact selectors, explicit context-off/hybrid/baseline and code before016 retain existing behavior.
+
+Controlled crowded-source tests recover missing documents with additional SQL cost. Three20-pair Trading snapshot-copy controls retain100% raw/context vector recall and20/20 original citation-list parity, with roughly8–16ms median extra end-to-end cost. No general speedup or production answer-quality improvement is claimed. Actual015→016 upgrade/retry/code rollback, strict restore and all row/grant fingerprints pass.987 Python/7 Node checks pass; merge and production adoption remain separate gates. [Measurements](docs/benchmarks/2026-10-03-filter-aware-search/README.md), [operator procedure](docs/filter-aware-search.md).
