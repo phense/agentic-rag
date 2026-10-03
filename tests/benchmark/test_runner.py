@@ -29,6 +29,23 @@ def test_real_gateway_search_reports_and_cleans_owned_database(cfg,tmp_path):
     assert report['metadata']['corpus_sha256'] == load(tmp_path/'report/corpus.json')[1]
 
 
+def test_offline_benchmark_never_implicitly_uses_installed_neural_model(cfg,tmp_path,monkeypatch):
+    from agentic_rag import neural_rerank
+    from agentic_rag.benchmark.runner import run
+    calls=[]
+    monkeypatch.setattr(neural_rerank,'order',lambda q,hits,c: calls.append(q) or hits)
+    path=tiny_corpus(tmp_path)
+    data=json.loads(path.read_text())
+    data['documents']=[{'id':str(i),'title':f'Zebra checksum validation {i}',
+        'body':f'Zebra checksum validation fixture {i}.','project':'zebra'} for i in range(3)]
+    data['queries']=data['queries'][:1]
+    data['queries'][0].update(query='Zebra checksum validation',expected_ids=['0','1','2'])
+    path.write_text(json.dumps(data))
+    report=run(cfg,corpus_path=path,output=tmp_path/'stable',search_mode='fts')
+    assert report['summary']['recall_at_5']==1
+    assert calls==[]
+
+
 def test_mining_mode_uses_real_gateway_and_grounded_model_boundary(cfg,tmp_path,monkeypatch):
     from agentic_rag import mining
     from agentic_rag.benchmark.runner import run

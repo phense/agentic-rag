@@ -8,6 +8,9 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
+- Selective local multilingual neural ordering for ambiguous auto searches, with
+  bounded inference, original-source preservation and a no-migration fallback.
+  See [paired quality/latency and rollback evidence](docs/benchmarks/2026-10-03-neural-rerank/README.md).
 - Native OpenCode RAG adapter with startup context, selective recall, matched
   checkpoint/handoff, bounded transcript projection and debounced idle mining.
   Install on the execution host with `rag install --opencode`; existing MCP

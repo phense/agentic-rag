@@ -124,6 +124,7 @@ def _main(argv: list[str] | None = None) -> int:
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
     p_search.add_argument("--strategy", choices=["auto", "hybrid", "lexical"], default="auto")
+    p_search.add_argument("--rerank", choices=["auto", "off"], default="auto")
     p_search.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
     p_search.add_argument("--as-of")
     p_search.add_argument("--history", action="store_true")
@@ -629,7 +630,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.cmd == "search":
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))

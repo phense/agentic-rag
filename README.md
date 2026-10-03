@@ -50,8 +50,10 @@ ChatGPT login or Claude with its supported OAuth or API-key authentication.
 Mining prompts can also include all matching pin bodies; mining secret-strips
 the provider-bound copies without mutating stored pin text.
 Embeddings are **always local** (Ollama), so retrieval does not call either
-provider. It's RAM-lean by design: no always-on daemon beyond Postgres and
-Ollama, and an idle footprint near zero between sessions. And it's built
+provider. An optional [local multilingual reranker](docs/local-reranker.md)
+can improve ambiguous-source ordering when its measured gains justify extra latency. The default installation adds no always-on daemon beyond Postgres and
+Ollama. Optional neural reranking uses a separate local model process with its
+[measured RAM budget](docs/benchmarks/2026-10-03-neural-rerank/README.md). And it's built
 data-safety-first — it archives rather than deletes, writes through a
 least-privilege role matrix, audits every change, and periodically
 restore-tests its own backups.
@@ -88,7 +90,7 @@ live in your Postgres. LLM-assisted work runs through the local Codex or Claude
 CLI you configured. Embeddings are always local (Ollama), so search and
 retrieval do not call either provider.
 
-⚡ **RAM-lean.** A single-writer worker (flock singleton), no long-lived daemon of its own. Between sessions the footprint is essentially Postgres + Ollama idling — nothing else.
+⚡ **RAM-lean.** A single-writer worker (flock singleton), no long-lived daemon of its own. Without the optional reranker runtime, the between-session footprint is essentially Postgres + Ollama idling.
 
 ---
 
