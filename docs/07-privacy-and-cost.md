@@ -31,7 +31,18 @@ your own Ollama (`bge-m3`). The provider inputs are:
   path scopes without mutating stored pin text;
 - **curation:** selected stored document bodies and contradiction evidence that
   previously passed through the document write gateway's secret stripping;
-- **checkpoint enrichment:** a bounded, secret-stripped transcript delta.
+- **checkpoint enrichment:** a bounded, secret-stripped transcript delta;
+- **explicit research provider mode:** a secret-stripped question and selected
+  source excerpts within the request's serialized evidence cap. `rag research`
+  defaults to local mode; `--provider` or MCP `provider=true` enables this
+  transfer to the configured account. No research answer is saved.
+
+Research provider subprocesses disable inherited tools, MCP servers, hooks,
+skills, web search and persistence. Unsupported CLI controls fail closed.
+Native authentication is preserved. The parent deadline kills and reaps its
+owned process group and removes its private temporary directory; remote work
+already sent to a provider may continue after cancellation. See the
+[research procedure](bounded-research.md) for evidence qualification and limits.
 
 Matching pin bodies receive defense-in-depth stripping on the copy assembled
 for the mining prompt. The stored pin remains unchanged, so local rendering

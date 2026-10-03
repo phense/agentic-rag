@@ -8,6 +8,12 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
+- Bounded read-only `rag research` and `memory_research`: compound-question
+  retrieval, relevant graph passages, original citations, source-qualified
+  quoted support, disagreement and missing evidence, with call/context/time
+  caps and process cleanup. Local processing is the default; configured
+  provider assessment requires explicit opt-in. Schema016 is unchanged.
+  See [measurements and compatibility](docs/benchmarks/2026-10-03-bounded-research/README.md).
 - Selective local multilingual neural ordering for ambiguous auto searches, with
   bounded inference, original-source preservation and a no-migration fallback.
   See [paired quality/latency and rollback evidence](docs/benchmarks/2026-10-03-neural-rerank/README.md).
