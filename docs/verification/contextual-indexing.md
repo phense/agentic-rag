@@ -25,7 +25,7 @@ Unmeasured: derived-index search at full Trading scale, sustained model replacem
 
 ## Acceptance and freshness
 
-Playbook drafted, independently reviewed Ready and rehearsed successfully. Full fresh960 Python/7 Node verification passes. Feature implementation readiness is satisfied; specific PR merge and production rollout approval remain pending. Root production remains499c656/schema014. CLI continuity tooling cannot parse this repository's legacy numbered BACKLOG; current Git, artifact paths, live reviewer identity and canonical Issue #29 OPEN were manually revalidated. No CLI recovery success is claimed.
+Playbook drafted, independently reviewed Ready and rehearsed successfully. Full fresh960 Python/7 Node verification passes. Feature implementation readiness is satisfied; [PR42](https://github.com/phense/agentic-rag/pull/42) is submitted; its specific merge and production rollout approval remain pending. Root production remains499c656/schema014. CLI continuity tooling cannot parse this repository's legacy numbered BACKLOG; current Git, artifact paths, live reviewer identity and canonical Issue #29 OPEN were manually revalidated. No CLI recovery success is claimed.
 
 ## Final review dispositions and convergence
 
