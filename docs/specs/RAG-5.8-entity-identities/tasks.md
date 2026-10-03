@@ -32,8 +32,8 @@ Independent reviewers are read-only and cannot perform test/database mutations.
 - [x] T009: Independent complete diff review, fix findings and repeat review; derive
   cross-component success/recovery checks from as-built model, run full Python/Node
   verification (AC-001–008). Depends T007/T008.
-- [ ] T010: Update Issue33, backlog/features/verification; push feature branch and
+- [x] T010: Update Issue33, backlog/features/verification; push feature branch and
   create linked PR. Keep Issue33 open for applicable rollout; request specific merge
   approval only after all gates pass. Depends T009.
 
-Executed evidence: [verification](../../verification/entity-identities.md), [measurements](../../benchmarks/2026-10-04-entity-identities/README.md). T010 remains until exact PR publication/linking; merge and production adoption are separate authority gates, not implementation tasks.
+Executed evidence: [verification](../../verification/entity-identities.md), [measurements](../../benchmarks/2026-10-04-entity-identities/README.md). T010 completed with [PR46](https://github.com/phense/agentic-rag/pull/46), registered with the T3 thread and Issue33 implementation evidence updated. Merge and production adoption are separate authority gates, not implementation tasks.

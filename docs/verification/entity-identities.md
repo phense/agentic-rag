@@ -174,8 +174,8 @@ reviewers audited the complete bounded diff and final artifacts, recomputed the 
 metrics/checked hashes and links, and returned Ready with no C/H/M/L. The final Low
 lock-model/requirement-label corrections were rechecked. Read-only convergence
 against AC-001–008, the plan, as-built model and EI-S01–04/EI-R01–03 found no missing
-implementation or evidence task; no convergence work was appended. PR publication
-is the remaining T010 handoff step.
+implementation or evidence task; no convergence work was appended. [PR46](https://github.com/phense/agentic-rag/pull/46) is published and registered
+with the T3 thread; Issue33 records implementation evidence. T010 is complete.
 Issue33 remains open for applicable merge and separately authorized adoption.
 Request approval of the specific Feature8 PR only after verified publication;
 merge approval alone does not authorize deployment, migration or interruption.
