@@ -61,6 +61,12 @@ data-safety-first — it archives rather than deletes, writes through a
 least-privilege role matrix, audits every change, and periodically
 restore-tests its own backups.
 
+Unreleased source also extends bounded profiles with [incremental thematic
+summaries](docs/thematic-summaries.md): local original excerpts with source/version
+drill-down, trust/temporal invalidation and audited reuse. The additive017 cache
+preserves baseline reads on016. [Paired measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md)
+record compression, coverage and additional original-corpus query cost.
+
 > **Your data stays under your control, with explicit provider calls.** This
 > repository is **code only** — it ships no content. The canonical store lives
 > in *your* PostgreSQL database, but the configured CLI intentionally sends

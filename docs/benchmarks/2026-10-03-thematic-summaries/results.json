@@ -1,0 +1,3571 @@
+{
+  "baseline_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+  "candidate_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+  "candidate_files_sha256": {
+    "agentic_rag/thematic.py": "01ef9158dc070d88866c5c868c357890c9ae239e47f2f492883d02fbb3a820b4",
+    "agentic_rag/profiles.py": "1af091213d01cabf863f24db8732e50f462abd5919a431b408a317b5ee18986f",
+    "agentic_rag/context.py": "e5fdc94ac45f70a99ad8ec5a2766db8a673bcbe0a14e6d4babe090a8433f470a",
+    "agentic_rag/store.py": "6617f30327cdc5bdceb80cf1da833e9ec4edca1920116da3f8b7305837b1fd72",
+    "agentic_rag/cli.py": "8601c4c1e42219b669d04b600710f82ac3824a371acf443049a3dbd62e4350d1",
+    "agentic_rag/mcp_server.py": "cd1473b9c4e24967d19ca44a802c0315f61aada4e2667bdc7cff880ffb386e60",
+    "sql/017_thematic_summaries.sql": "67e4cab605c0b1c5039db0c579ab93d26972a321b1898a8ae52426001dac42de",
+    "scripts/verify_thematic_summaries.py": "cf8093a6ed8db59c48292ec484f052d2485ec0ea5ccd63a0d7a875f67ed2ad12"
+  },
+  "baseline_search_dependencies_unchanged": [
+    "search",
+    "retrieval",
+    "scope",
+    "evidence",
+    "validity",
+    "vector_plan",
+    "query_cache",
+    "embed",
+    "config",
+    "db"
+  ],
+  "synthetic": true,
+  "provider_calls": 0,
+  "generated_at": "2026-10-03T21:57:18.244017+00:00",
+  "compatibility": {
+    "source_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+    "supported_schema_from": 16,
+    "supported_schema_to": 17,
+    "source016_strict_backup_restore": {
+      "strict_restore_exit_zero": true,
+      "all_public_table_rows_match": true,
+      "application_table_privileges_match": true,
+      "owned_database_cleanup": "verified",
+      "consistent_exported_snapshot": true,
+      "dump_sha256": "079365735c03d5453ba0ed72d6b8003dd17ec1f231d42c9b997bd3ca2ecd45af",
+      "tables": {
+        "assertion_sources": {
+          "rows": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "audit_log": {
+          "rows": 89,
+          "sha256": "cafaad018248eaae4a2d56cf41333de7536a33e8077c6b3d115dd80cf3f7e503"
+        },
+        "chunk_contexts": {
+          "rows": 27,
+          "sha256": "4f9e8bdadf066ab79d09450f3ecaeeb82297f5c5fd51d925343f717208e3c9e5"
+        },
+        "chunks": {
+          "rows": 27,
+          "sha256": "c0d1a00cbfb3067ea19e2c5192172f15202faab8468af5187bea613d180dc29a"
+        },
+        "claim_evidence": {
+          "rows": 26,
+          "sha256": "82cc90dfd304b4699b6d2a933ec1e11434b33cf5ff83bc27c287134659118d92"
+        },
+        "claim_records": {
+          "rows": 26,
+          "sha256": "8266e7692cf6fdfcc119153e003d6cd5f3f4458dd71e3923fb7661d45969dd58"
+        },
+        "continuation_checkpoints": {
+          "rows": 1,
+          "sha256": "08005cf1a997f00f05a50d206afae918d5153bb22e1bada4a1295b54ccc5b7ee"
+        },
+        "documents": {
+          "rows": 27,
+          "sha256": "69b5a41ac37b18246368cbea3bb57307910e6b2961e4060f67dba239a38b99c5"
+        },
+        "domains": {
+          "rows": 7,
+          "sha256": "5aaa4c24fc54074c256221c3feca7a6f3664cc112ed0895a11c6977f3f78f45e"
+        },
+        "edges": {
+          "rows": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "fact_assertions": {
+          "rows": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "knowledge_sources": {
+          "rows": 26,
+          "sha256": "95141c073ee53152b48a4b295d44433965fdeb5d4ed37fc1408c96a34809815b"
+        },
+        "mining_batches": {
+          "rows": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "mining_queue": {
+          "rows": 28,
+          "sha256": "26497c00b007558e7f6ce9bbdfe245ab7169a1c7ce5b8c6b9bd02b3a89761fdf"
+        },
+        "pins": {
+          "rows": 1,
+          "sha256": "1518ce7f95bd428d177701b1bab8967260ab517efef572fc5387637b64ec02d3"
+        },
+        "project_profiles": {
+          "rows": 1,
+          "sha256": "6882cc416dab7fd19b40d8fcf263ee163ca4062bb7edab6d294c7991da74b9ed"
+        },
+        "schema_migrations": {
+          "rows": 16,
+          "sha256": "1fc2dfd013a4c78b7021f58140ea7c56c84a9955044954d8191d1a080efcac08"
+        }
+      }
+    },
+    "migration_applied": [
+      "017_thematic_summaries.sql"
+    ],
+    "interrupted_ddl_rolled_back": true,
+    "retry_idempotent": true,
+    "protected_tables": 16,
+    "all_original_rows_preserved": true,
+    "old_grants_preserved": true,
+    "source_candidate_rollback_search_parity": true,
+    "mcp": [
+      {
+        "route": "source/rollback",
+        "readonly": true,
+        "tool_count": 8,
+        "write_tools_present": false,
+        "search_citations": 8
+      },
+      {
+        "route": "source/rollback",
+        "readonly": false,
+        "tool_count": 14,
+        "write_tools_present": true,
+        "search_citations": 8
+      },
+      {
+        "route": "candidate",
+        "readonly": true,
+        "tool_count": 9,
+        "write_tools_present": false,
+        "search_citations": 8
+      },
+      {
+        "route": "candidate",
+        "readonly": false,
+        "tool_count": 15,
+        "write_tools_present": true,
+        "search_citations": 8
+      },
+      {
+        "route": "source/rollback",
+        "readonly": true,
+        "tool_count": 8,
+        "write_tools_present": false,
+        "search_citations": 8
+      },
+      {
+        "route": "source/rollback",
+        "readonly": false,
+        "tool_count": 14,
+        "write_tools_present": true,
+        "search_citations": 8
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "topic": "provider outage",
+      "context_budget": 4800,
+      "repetitions": 20,
+      "first_observation": "First API call; database/OS caches not flushed. Warm paired calls alternate route order.",
+      "routes": {
+        "before": {
+          "p50_ms": 20.764,
+          "p95_ms": 23.601,
+          "raw_ms": [
+            23.601,
+            24.891,
+            23.098,
+            22.985,
+            22.701,
+            22.089,
+            22.254,
+            22.045,
+            21.052,
+            20.694,
+            20.37,
+            20.253,
+            20.833,
+            19.582,
+            19.401,
+            19.511,
+            18.894,
+            18.783,
+            18.447,
+            19.213
+          ],
+          "first_call_ms": 36.827,
+          "raw_quality": [
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 12.202,
+          "p95_ms": 12.925,
+          "raw_ms": [
+            12.447,
+            12.925,
+            12.436,
+            12.831,
+            12.25,
+            12.699,
+            12.314,
+            13.429,
+            12.816,
+            12.823,
+            12.046,
+            12.154,
+            11.602,
+            11.817,
+            11.77,
+            11.725,
+            11.534,
+            11.453,
+            11.31,
+            11.546
+          ],
+          "first_call_ms": 13.439,
+          "raw_quality": [
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1708,
+              "citation_errors": 0
+            }
+          ]
+        }
+      },
+      "creation": {
+        "candidates": 8,
+        "rebuilt": 8,
+        "reused": 0,
+        "provider_calls": 0,
+        "elapsed_ms": 38.531
+      },
+      "unchanged_refresh": {
+        "p50_ms": 23.334,
+        "p95_ms": 30.738,
+        "raw_ms": [
+          26.843,
+          23.204,
+          23.463,
+          22.123,
+          22.733,
+          22.502,
+          20.18,
+          18.699,
+          19.514,
+          19.552,
+          18.744,
+          19.018,
+          25.533,
+          28.655,
+          30.886,
+          27.627,
+          26.225,
+          25.631,
+          27.8,
+          30.738
+        ],
+        "raw_usage": [
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 26.843
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.204
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.463
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.123
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.733
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.502
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 20.18
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 18.699
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.514
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.552
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 18.744
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.018
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 25.533
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 28.655
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 30.886
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.627
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 26.225
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 25.631
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.8
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 30.738
+          }
+        ]
+      },
+      "changed_refresh": {
+        "candidates": 8,
+        "rebuilt": 1,
+        "reused": 7,
+        "provider_calls": 0,
+        "elapsed_ms": 34.166
+      }
+    },
+    {
+      "topic": "deployment architecture",
+      "context_budget": 4800,
+      "repetitions": 20,
+      "first_observation": "First API call; database/OS caches not flushed. Warm paired calls alternate route order.",
+      "routes": {
+        "before": {
+          "p50_ms": 20.127,
+          "p95_ms": 25.836,
+          "raw_ms": [
+            26.616,
+            25.836,
+            24.403,
+            23.253,
+            22.185,
+            22.212,
+            22.737,
+            20.365,
+            19.658,
+            20.997,
+            20.03,
+            20.031,
+            19.981,
+            20.155,
+            20.099,
+            20.071,
+            19.997,
+            20.046,
+            19.804,
+            19.349
+          ],
+          "first_call_ms": 37.733,
+          "raw_quality": [
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 11.771,
+          "p95_ms": 13.872,
+          "raw_ms": [
+            14.172,
+            13.872,
+            13.61,
+            13.231,
+            12.411,
+            12.566,
+            12.387,
+            11.886,
+            11.479,
+            11.672,
+            11.506,
+            11.754,
+            11.464,
+            11.789,
+            11.546,
+            11.952,
+            11.381,
+            11.71,
+            11.421,
+            11.365
+          ],
+          "first_call_ms": 16.366,
+          "raw_quality": [
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1836,
+              "citation_errors": 0
+            }
+          ]
+        }
+      },
+      "creation": {
+        "candidates": 8,
+        "rebuilt": 8,
+        "reused": 0,
+        "provider_calls": 0,
+        "elapsed_ms": 47.901
+      },
+      "unchanged_refresh": {
+        "p50_ms": 22.736,
+        "p95_ms": 28.657,
+        "raw_ms": [
+          27.538,
+          23.61,
+          23.832,
+          23.023,
+          22.449,
+          20.29,
+          19.055,
+          19.079,
+          19.115,
+          19.489,
+          19.341,
+          18.95,
+          18.746,
+          19.28,
+          25.935,
+          27.019,
+          30.18,
+          28.657,
+          27.88,
+          27.828
+        ],
+        "raw_usage": [
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.538
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.61
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.832
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.023
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.449
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 20.29
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.055
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.079
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.115
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.489
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.341
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 18.95
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 18.746
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.28
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 25.935
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.019
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 30.18
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 28.657
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.88
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.828
+          }
+        ]
+      },
+      "changed_refresh": {
+        "candidates": 8,
+        "rebuilt": 1,
+        "reused": 7,
+        "provider_calls": 0,
+        "elapsed_ms": 30.429
+      }
+    },
+    {
+      "topic": "operational recovery lesson",
+      "context_budget": 4800,
+      "repetitions": 20,
+      "first_observation": "First API call; database/OS caches not flushed. Warm paired calls alternate route order.",
+      "routes": {
+        "before": {
+          "p50_ms": 23.505,
+          "p95_ms": 27.77,
+          "raw_ms": [
+            28.95,
+            27.77,
+            27.265,
+            27.016,
+            25.729,
+            23.766,
+            23.5,
+            24.769,
+            24.273,
+            23.17,
+            23.511,
+            23.258,
+            23.863,
+            22.815,
+            21.967,
+            22.019,
+            22.193,
+            22.488,
+            23.148,
+            22.399
+          ],
+          "first_call_ms": 44.69,
+          "raw_quality": [
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 7,
+              "source_denominator": 8,
+              "exact_facts": 7,
+              "fact_denominator": 8,
+              "context_chars": 4234,
+              "citation_errors": 0
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 12.776,
+          "p95_ms": 14.697,
+          "raw_ms": [
+            14.693,
+            14.979,
+            14.035,
+            14.697,
+            13.876,
+            13.546,
+            12.73,
+            13.334,
+            12.676,
+            13.181,
+            12.43,
+            13.005,
+            12.552,
+            12.72,
+            12.47,
+            12.532,
+            12.182,
+            12.507,
+            12.823,
+            12.107
+          ],
+          "first_call_ms": 15.281,
+          "raw_quality": [
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            },
+            {
+              "source_coverage": 8,
+              "source_denominator": 8,
+              "exact_facts": 8,
+              "fact_denominator": 8,
+              "context_chars": 1856,
+              "citation_errors": 0
+            }
+          ]
+        }
+      },
+      "creation": {
+        "candidates": 8,
+        "rebuilt": 8,
+        "reused": 0,
+        "provider_calls": 0,
+        "elapsed_ms": 46.048
+      },
+      "unchanged_refresh": {
+        "p50_ms": 24.357,
+        "p95_ms": 28.657,
+        "raw_ms": [
+          29.279,
+          24.474,
+          24.239,
+          22.756,
+          22.736,
+          20.649,
+          19.684,
+          19.455,
+          19.488,
+          19.179,
+          19.168,
+          23.009,
+          25.22,
+          27.453,
+          28.657,
+          26.85,
+          28.0,
+          27.73,
+          27.102,
+          27.569
+        ],
+        "raw_usage": [
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 29.279
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 24.474
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 24.239
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.756
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 22.736
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 20.649
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.684
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.455
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.488
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.179
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 19.168
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 23.009
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 25.22
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.453
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 28.657
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 26.85
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 28.0
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.73
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.102
+          },
+          {
+            "candidates": 8,
+            "rebuilt": 0,
+            "reused": 8,
+            "provider_calls": 0,
+            "elapsed_ms": 27.569
+          }
+        ]
+      },
+      "changed_refresh": {
+        "candidates": 8,
+        "rebuilt": 1,
+        "reused": 7,
+        "provider_calls": 0,
+        "elapsed_ms": 29.864
+      }
+    }
+  ],
+  "candidate017_strict_backup_restore": {
+    "strict_restore_exit_zero": true,
+    "all_public_table_rows_match": true,
+    "application_table_privileges_match": true,
+    "owned_database_cleanup": "verified",
+    "consistent_exported_snapshot": true,
+    "dump_sha256": "8b83a9706020c3078dcf29cca2fbc715a7f6f188ca77a1a1af390c28775c54b7",
+    "tables": {
+      "assertion_sources": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "audit_log": {
+        "rows": 107,
+        "sha256": "8b1a7912e5120610717bebb4c043c3e6d468e2cbbd57ea39491a5e8e6815382b"
+      },
+      "chunk_contexts": {
+        "rows": 30,
+        "sha256": "fc9236b24d62aae0751ad89cec26689f6dc61ac8ba7dab2b22a37603eeffd7d3"
+      },
+      "chunks": {
+        "rows": 30,
+        "sha256": "475c20559cbbd7eb35cc29a82a63fbc41dfbdd36f1eede5006846541cb21ca2c"
+      },
+      "claim_evidence": {
+        "rows": 29,
+        "sha256": "29dc2c5b183e163a9f0be0013ee0182e056ad3002045b2a6f551ecc7eb77a989"
+      },
+      "claim_records": {
+        "rows": 29,
+        "sha256": "dba01483ac0d35250b040702f74c5255704353bdf56b82130088cad853fb4d77"
+      },
+      "continuation_checkpoints": {
+        "rows": 1,
+        "sha256": "08005cf1a997f00f05a50d206afae918d5153bb22e1bada4a1295b54ccc5b7ee"
+      },
+      "documents": {
+        "rows": 30,
+        "sha256": "ec0c5b0c2fa259461df72f3afa70c3bb53c9e8573aee3eb9d90f63f3b8e11431"
+      },
+      "domains": {
+        "rows": 7,
+        "sha256": "5aaa4c24fc54074c256221c3feca7a6f3664cc112ed0895a11c6977f3f78f45e"
+      },
+      "edges": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "fact_assertions": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "knowledge_sources": {
+        "rows": 29,
+        "sha256": "569d3b8117b8af79e791a9276b5a4bb2a2cf483d284ff00ffed9a23a7b6beca3"
+      },
+      "mining_batches": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "mining_queue": {
+        "rows": 31,
+        "sha256": "764032ef4e71998351912caa423134e7f4c4d39ec765901fda051dbff726e983"
+      },
+      "pins": {
+        "rows": 1,
+        "sha256": "1518ce7f95bd428d177701b1bab8967260ab517efef572fc5387637b64ec02d3"
+      },
+      "project_profiles": {
+        "rows": 1,
+        "sha256": "6882cc416dab7fd19b40d8fcf263ee163ca4062bb7edab6d294c7991da74b9ed"
+      },
+      "schema_migrations": {
+        "rows": 17,
+        "sha256": "7f087411be50bd47a4b3b32bdedec7377a672b053d0352a208e14e28a5543673"
+      },
+      "thematic_summaries": {
+        "rows": 3,
+        "sha256": "ed52b4ec7a6c61db1d55342f75f5ed26b9b824a945347bba0f9c9c8431006e6a"
+      }
+    }
+  },
+  "private_snapshot_recovery": {
+    "source_schema": 16,
+    "target_schema": 17,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "recovered_public_tables": 17,
+    "nonempty_protected_tables": {
+      "assertion_sources": 571,
+      "chunk_contexts": 11856,
+      "chunks": 11856,
+      "claim_evidence": 2366,
+      "claim_records": 2272,
+      "continuation_checkpoints": 25,
+      "documents": 10466,
+      "domains": 7,
+      "edges": 12666,
+      "fact_assertions": 571,
+      "knowledge_sources": 364,
+      "mining_batches": 995,
+      "mining_queue": 1400,
+      "pins": 22,
+      "project_profiles": 5
+    },
+    "strict_restore_inventory_match": true,
+    "all_original_protected_rows_preserved": true,
+    "historical_audits_retained": 37147,
+    "scenarios": [
+      {
+        "topic": "provider-outages",
+        "context_budget": 4800,
+        "repetitions": 20,
+        "creation": {
+          "candidates": 12,
+          "rebuilt": 12,
+          "reused": 0,
+          "provider_calls": 0,
+          "elapsed_ms": 196.38
+        },
+        "routes": {
+          "before": {
+            "p50_ms": 53.531,
+            "p95_ms": 54.391,
+            "raw_ms": [
+              53.467,
+              53.3,
+              53.581,
+              53.146,
+              53.617,
+              53.664,
+              53.195,
+              55.502,
+              54.187,
+              53.01,
+              53.48,
+              54.124,
+              53.916,
+              52.853,
+              52.617,
+              53.196,
+              54.391,
+              53.798,
+              52.177,
+              53.716
+            ],
+            "first_call_ms": 74.17,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 12,
+                "context_chars": 4748,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          },
+          "after": {
+            "p50_ms": 69.609,
+            "p95_ms": 70.991,
+            "raw_ms": [
+              70.535,
+              69.989,
+              70.018,
+              69.354,
+              68.438,
+              68.638,
+              69.447,
+              72.336,
+              69.947,
+              69.317,
+              69.772,
+              69.419,
+              70.991,
+              69.08,
+              68.417,
+              69.986,
+              70.372,
+              69.139,
+              69.022,
+              70.147
+            ],
+            "first_call_ms": 77.46,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 12,
+                "eligible_document_denominator": 12,
+                "context_chars": 3526,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          }
+        },
+        "unchanged_refresh": {
+          "p50_ms": 62.067,
+          "p95_ms": 140.413,
+          "raw_ms": [
+            147.453,
+            138.848,
+            138.371,
+            137.943,
+            140.413,
+            67.11,
+            61.143,
+            61.796,
+            61.282,
+            61.742,
+            61.304,
+            62.337,
+            61.238,
+            61.098,
+            61.062,
+            61.258,
+            69.712,
+            64.642,
+            69.432,
+            61.606
+          ],
+          "raw_usage": [
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 147.453
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 138.848
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 138.371
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 137.943
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 140.413
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 67.11
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.143
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.796
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.282
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.742
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.304
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 62.337
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.238
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.098
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.062
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.258
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 69.712
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 64.642
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 69.432
+            },
+            {
+              "candidates": 12,
+              "rebuilt": 0,
+              "reused": 12,
+              "provider_calls": 0,
+              "elapsed_ms": 61.606
+            }
+          ]
+        }
+      },
+      {
+        "topic": "deployment-architecture",
+        "context_budget": 4800,
+        "repetitions": 20,
+        "creation": {
+          "candidates": 8,
+          "rebuilt": 8,
+          "reused": 0,
+          "provider_calls": 0,
+          "elapsed_ms": 127.319
+        },
+        "routes": {
+          "before": {
+            "p50_ms": 44.436,
+            "p95_ms": 45.219,
+            "raw_ms": [
+              44.44,
+              44.046,
+              45.2,
+              44.431,
+              44.214,
+              44.554,
+              44.582,
+              44.405,
+              44.659,
+              45.416,
+              45.219,
+              44.795,
+              44.261,
+              45.043,
+              44.443,
+              44.174,
+              44.325,
+              44.304,
+              44.257,
+              44.193
+            ],
+            "first_call_ms": 51.854,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 7,
+                "eligible_document_denominator": 8,
+                "context_chars": 4236,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          },
+          "after": {
+            "p50_ms": 57.139,
+            "p95_ms": 57.687,
+            "raw_ms": [
+              57.307,
+              56.961,
+              56.846,
+              57.405,
+              57.48,
+              56.958,
+              56.943,
+              56.971,
+              57.142,
+              57.773,
+              57.145,
+              57.138,
+              56.916,
+              57.687,
+              57.362,
+              56.975,
+              57.471,
+              56.86,
+              56.809,
+              57.14
+            ],
+            "first_call_ms": 58.637,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 8,
+                "context_chars": 2297,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          }
+        },
+        "unchanged_refresh": {
+          "p50_ms": 114.907,
+          "p95_ms": 123.616,
+          "raw_ms": [
+            123.616,
+            117.686,
+            115.215,
+            114.981,
+            114.357,
+            124.074,
+            116.767,
+            114.18,
+            114.834,
+            114.535,
+            113.781,
+            113.013,
+            121.176,
+            114.038,
+            113.286,
+            113.463,
+            113.038,
+            119.836,
+            118.303,
+            118.986
+          ],
+          "raw_usage": [
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 123.616
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 117.686
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 115.215
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.981
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.357
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 124.074
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 116.767
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.18
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.834
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.535
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 113.781
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 113.013
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 121.176
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 114.038
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 113.286
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 113.463
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 113.038
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 119.836
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 118.303
+            },
+            {
+              "candidates": 8,
+              "rebuilt": 0,
+              "reused": 8,
+              "provider_calls": 0,
+              "elapsed_ms": 118.986
+            }
+          ]
+        }
+      },
+      {
+        "topic": "operational-lessons",
+        "context_budget": 4800,
+        "repetitions": 20,
+        "creation": {
+          "candidates": 15,
+          "rebuilt": 15,
+          "reused": 0,
+          "provider_calls": 0,
+          "elapsed_ms": 446.82
+        },
+        "routes": {
+          "before": {
+            "p50_ms": 61.701,
+            "p95_ms": 76.398,
+            "raw_ms": [
+              74.44,
+              59.976,
+              57.442,
+              52.912,
+              76.398,
+              60.713,
+              75.885,
+              61.369,
+              76.184,
+              61.067,
+              77.652,
+              62.032,
+              72.227,
+              60.946,
+              71.168,
+              59.782,
+              76.058,
+              59.647,
+              71.551,
+              59.243
+            ],
+            "first_call_ms": 82.457,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 8,
+                "eligible_document_denominator": 15,
+                "context_chars": 4783,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          },
+          "after": {
+            "p50_ms": 216.397,
+            "p95_ms": 229.286,
+            "raw_ms": [
+              222.291,
+              210.974,
+              225.947,
+              208.271,
+              221.054,
+              210.388,
+              221.833,
+              211.739,
+              233.71,
+              210.899,
+              222.615,
+              210.814,
+              229.286,
+              210.354,
+              228.206,
+              210.84,
+              228.215,
+              210.564,
+              227.404,
+              210.196
+            ],
+            "first_call_ms": 212.959,
+            "raw_quality": [
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              },
+              {
+                "eligible_document_coverage": 15,
+                "eligible_document_denominator": 15,
+                "context_chars": 4310,
+                "citation_errors": 0,
+                "filter_errors": 0
+              }
+            ]
+          }
+        },
+        "unchanged_refresh": {
+          "p50_ms": 65.987,
+          "p95_ms": 464.319,
+          "raw_ms": [
+            464.319,
+            464.32,
+            449.053,
+            456.654,
+            458.274,
+            91.22,
+            66.401,
+            65.693,
+            64.901,
+            65.323,
+            65.095,
+            64.575,
+            64.908,
+            64.757,
+            65.888,
+            64.94,
+            65.991,
+            76.914,
+            66.054,
+            65.983
+          ],
+          "raw_usage": [
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 464.319
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 464.32
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 449.053
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 456.654
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 458.274
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 91.22
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 66.401
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.693
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 64.901
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.323
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.095
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 64.575
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 64.908
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 64.757
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.888
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 64.94
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.991
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 76.914
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 66.054
+            },
+            {
+              "candidates": 15,
+              "rebuilt": 0,
+              "reused": 15,
+              "provider_calls": 0,
+              "elapsed_ms": 65.983
+            }
+          ]
+        }
+      }
+    ],
+    "limits": "Private verified snapshot, not the live corpus. Lexical eligible-document coverage is structural, not a human semantic relevance or answer-quality score. First calls did not flush OS/DB caches. The24-source pool and4800-character context intentionally expose partial coverage.",
+    "owned_copy_cleanup": "verified"
+  },
+  "trading_reader": {
+    "document_count": 4356,
+    "application_writes": 0,
+    "provider_calls": 0,
+    "observations": [
+      {
+        "topic": "provider-outages",
+        "status": "unavailable",
+        "entries": 0,
+        "milliseconds": 52.487
+      },
+      {
+        "topic": "deployment-architecture",
+        "status": "unavailable",
+        "entries": 0,
+        "milliseconds": 30.015
+      },
+      {
+        "topic": "operational-lessons",
+        "status": "unavailable",
+        "entries": 0,
+        "milliseconds": 27.874
+      }
+    ],
+    "limits": "Canonical016 has no summary cache. These are reader fallback controls, not production quality/speedup measurements."
+  },
+  "hashes_match_after_measurement": true
+}

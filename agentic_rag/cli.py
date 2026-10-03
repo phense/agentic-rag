@@ -123,6 +123,14 @@ def _main(argv: list[str] | None = None) -> int:
     p_profile.add_argument("--project")
     p_profile.add_argument("--refresh", action="store_true", required=True)
 
+    p_summary = sub.add_parser('summary', help='read or incrementally refresh an extractive thematic view')
+    p_summary.add_argument('topic')
+    p_summary.add_argument('--project')
+    p_summary.add_argument('--domain')
+    p_summary.add_argument('--history', action='store_true', help='include trusted superseded assertions; expiry still enforced')
+    p_summary.add_argument('--context-chars', type=int, default=4800)
+    p_summary.add_argument('--refresh', action='store_true')
+
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
     p_search.add_argument("--strategy", choices=["auto", "hybrid", "lexical"], default="auto")
@@ -280,6 +288,18 @@ def _main(argv: list[str] | None = None) -> int:
         if args.opencode_config_dir is not None or args.uninstall:
             p.error("--opencode-config-dir and --uninstall require --opencode")
     cfg = load_config()
+
+    if args.cmd == 'summary':
+        from . import thematic
+        with db.connect(cfg,role='writer' if args.refresh else 'reader') as summary_conn:
+            if args.refresh:
+                result=store.refresh_summaries(summary_conn,cfg,args.topic,project=args.project,
+                    domain=args.domain,history=args.history,context_chars=args.context_chars,actor='cli')
+            else:
+                result=thematic.read(summary_conn,cfg,args.topic,project=args.project,domain=args.domain,
+                    history=args.history,context_chars=args.context_chars)
+        print(json.dumps(result,default=_json_default,ensure_ascii=False))
+        return 0
 
     if args.cmd == "context":
         from .context import build

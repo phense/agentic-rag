@@ -271,7 +271,23 @@ def memory_context(project: str | None = None, prompt: str | None = None,
                             prompt=prompt,session_id=session_id,source="startup"))
 
 
-READ_TOOLS = (memory_context, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
+def memory_summary(topic: str, project: str | None = None, domain: str | None = None,
+                   history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+    """Read a local extractive thematic profile with versioned original citations.
+    No refresh/write/provider call. Missing/stale summaries retain baseline search.
+    history=true includes currently trusted superseded assertions with historical
+    labels, but still excludes expired/future/withdrawn evidence. Project selects
+    that project plus global; omission selects global only. Domains are topics,
+    not user ACLs. Source/version drift withholds changed excerpts until refresh.
+    """
+    from .thematic import read
+    cfg=load_config()
+    with db.connect(cfg,role='reader') as conn:
+        return _plain(read(conn,cfg,topic,project=project,domain=domain,
+                           history=history,context_chars=context_chars))
+
+
+READ_TOOLS = (memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline)
 WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 

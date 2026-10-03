@@ -394,3 +394,11 @@ def refresh_profile(conn, cfg, project=None, *, actor='worker'):
     """Audited atomic refresh of disposable project reference selections."""
     from .profiles import _refresh
     return _refresh(conn,cfg,project,actor=actor)
+
+
+def refresh_summaries(conn, cfg, topic, *, project=None, domain=None, history=False,
+                      context_chars=4800, actor='worker', commit=True):
+    """Audited incremental derived-view gateway; never edits canonical evidence."""
+    from .thematic import _refresh
+    return _refresh(conn,cfg,topic,project=project,domain=domain,history=history,
+                    context_chars=context_chars,actor=actor,commit=commit)
