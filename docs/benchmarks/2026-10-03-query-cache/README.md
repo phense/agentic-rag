@@ -20,7 +20,7 @@ Feature 5.2 / [Issue #27](https://github.com/phense/agentic-rag/issues/27) reuse
 query inference and HTTP connections. Database authority remains fresh on every search.
 The MCP process owns a vector-only cache; ordinary one-shot Python/CLI retrieval remains
 uncached. No retrieved document, source text, evidence summary or permission decision is
-cached. Implementation is on the feature branch; merge and production adoption are pending.
+cached. Merged in PR #38 as`342bccf`; production adoption remains pending.
 
 ## Practical examples
 

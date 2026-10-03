@@ -232,7 +232,7 @@ the ordinary-question control retained identical citations and about 1,050 ms la
 
 ## Query inference reuse (issue #27)
 
-Implemented on the feature branch; merge and production rollout pending. Long-lived MCP
+Merged in PR #38 as`342bccf`; production rollout pending. Long-lived MCP
 sessions reuse bounded context/model-scoped query vectors with fresh SQL authority and
 local model-digest checks. HTTP transport reuse preserves one-shot process cleanup and
 fork isolation. Paired Trading warm medians fell 1,045→811 ms and 422→185 ms for repeated
@@ -253,3 +253,14 @@ documents/pins. Published implementation2c46e02; CI34024173116 passed.
 
 - ✅ Native adapter code: transient context/recall, matched checkpoint and handoff, sanitized stable transcript projection, debounced idle queue, child exclusion and guarded loader installation.
 - ✅ Local rollout: installed from retained checkout; canonical startup context and read-only MCP healthy. Real DeepSeek startup/manual-compaction/restore passed with synthetic test-database data. A production T3 thread on the Mac also verified canonical context delivery and a completed read-only RAG search with DeepSeek Flash. Sustained automatic compaction is not claimed. See [evidence](docs/verification/opencode.md).
+
+## Selective local neural reranking (issue #28)
+
+Implemented and reviewed in PR #39 with930 Python/7 Node tests; merge and production rollout pending.
+A verified local Qwen3-Reranker-0.6B Q8_0 runtime can reorder up to12 ambiguous
+auto candidates within1500ms. Original payloads, SQL eligibility and citations remain
+authoritative. Exact identifiers/symbols and explicit hybrid/lexical/baseline routes
+retain previous behavior; an absent runtime needs no config or data migration.
+The three Trading development examples improve expected-source coverage in a
+three-hit context, at roughly one extra second per query. No general speedup or
+answer-accuracy gain is claimed. [Evidence and limits](docs/benchmarks/2026-10-03-neural-rerank/README.md).

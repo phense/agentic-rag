@@ -34,8 +34,10 @@ def search(
     *, project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, reranker=None, baseline: bool = False,
     strategy: str = "auto",
     query_cache=None,
+    rerank_mode: str = "auto",
 ) -> tuple[list[SearchHit], list[str]]:
     validate_strategy(strategy)
+    validate_rerank_mode(rerank_mode)
     if type(k) is not int or not 1<=k<=100:raise ValueError("k must be between 1 and 100")
     if type(graph_depth) is not int or not 0<=graph_depth<=2:raise ValueError("graph_depth must be 0, 1 or 2")
     if baseline and (graph_depth or reranker is not None):
@@ -56,6 +58,7 @@ def search(
         ).fetchall()
 
     rows = None
+    shortcut = False
     if strategy == "auto" and not baseline:
         rows = _identity_candidates(conn, query, domain, scopes, at, history)
         symbols = strong_symbols(query)
@@ -64,6 +67,7 @@ def search(
             # Empty or rejected lexical evidence is not a shortcut success.
             if any(exact_symbol_match(row["snippet"], symbols) for row in lexical):
                 rows = lexical
+    shortcut = rows is not None
     if rows is None:
         qvec = None
         if strategy != "lexical":
@@ -94,6 +98,10 @@ def search(
     from .retrieval import diverse,present,rerank,strong_symbols,exact_symbol_match
     symbols=strong_symbols(query)
     hits=[h for h in hits if exact_symbol_match(h.snippet,symbols)]
+    if (reranker is None and rerank_mode == "auto" and strategy == "auto"
+            and not shortcut and not symbols):
+        from .neural_rerank import order
+        reranker = lambda candidates: order(query, candidates, cfg)
     hits=rerank(hits,reranker,warnings)
     hits=diverse(hits,query,k)
     if graph_depth:
@@ -104,6 +112,11 @@ def search(
 def validate_strategy(strategy):
     if strategy not in ("auto", "hybrid", "lexical"):
         raise ValueError("strategy must be auto, hybrid, or lexical")
+
+
+def validate_rerank_mode(mode):
+    if mode not in ("auto", "off"):
+        raise ValueError("rerank must be auto or off")
 
 
 def _identity_candidates(conn, query, domain, scopes, at, history):

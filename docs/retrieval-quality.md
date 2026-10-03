@@ -69,8 +69,14 @@ and citation contract. Graph relevance is advisory and can introduce unrelated c
 
 The Python search seam accepts a local `reranker` callback. Only a complete permutation
 of candidate identities is accepted; original payloads are restored. Failure or invalid
-output produces a visible warning and the deterministic hybrid ordering. No reranker
-model, dependency or hosted query service is enabled. Embedding outages retain bilingual
+output produces a visible warning and the deterministic hybrid ordering. A verified available local multilingual model can supply this ordering for ambiguous
+auto questions. The adapter uses at most12 candidates,1200 characters per passage,
+512 query characters and a total1500ms inference deadline, with two concurrent
+requests per client process and no local queue. Exact selectors/symbols, explicit
+hybrid/lexical strategies, baseline and rerank=off bypass it. An absent model leaves
+previous ordering intact; no model download or hosted query service is enabled.
+See [local operation and recovery](local-reranker.md) and
+[quality versus latency](benchmarks/2026-10-03-neural-rerank/README.md). Embedding outages retain bilingual
 FTS with the existing warning. Graph expansion defaults off pending broader workload gains.
 
 Hybrid/full-text scores are RRF ranks; exact-document scores are `1/(61 + chunk_index)`.
@@ -90,7 +96,8 @@ rag benchmark compare /tmp/retrieval-before/results.json /tmp/retrieval-after/re
 ```
 
 For separate experiments add `--graph-depth 2`, `--local-rerank`, or `--query-expansion`
-to the after command, each with a fresh output path. The benchmark reranker is a cheap
+to the after command, each with a fresh output path. Legacy benchmark runs disable automatic neural ordering to retain comparable
+experiments. The benchmark reranker is a cheap
 lexical-overlap ordering, not a learned model. Expansion uses explicitly authored
 `expanded_query` fixture text; exact symbols are never rewritten. It neither invokes
 a model nor implements a production rewrite policy. Expansion text excludes answer
