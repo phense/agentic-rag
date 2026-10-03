@@ -40,7 +40,8 @@ T001→T002→T003→T004→T005→T006→T007→T008. No parallel-write tasks.
 AC-001–007 and PB-5.6 require fresh command/output evidence and complete-range review.
 Recorded completion: [verification](../../verification/bounded-research.md),
 1039 Python/7 Node passed; implementation and content reviews Ready, measured
-source hashes match. T008 is the external PR/approval handoff; live rollout
+source hashes match. [PR44](https://github.com/phense/agentic-rag/pull/44)
+is published. T008 is the external PR/approval handoff; live rollout
 remains a separate authorized operation and Issue31 remains open until met.
 
 ## Playbook obligations

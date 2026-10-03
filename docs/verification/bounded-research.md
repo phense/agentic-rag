@@ -4,7 +4,7 @@
 
 - Requirement: [Issue31](https://github.com/phense/agentic-rag/issues/31), [RAG-5.6 spec](../specs/RAG-5.6-bounded-research/spec.md), AC-001–007 and PB-5.6.
 - Source: `19ed09c1b3c46d907254f63a1370586ea3213966`, schema001–016.
-- Candidate: branch `feature/bounded-research`; measured implementation/driver hashes in [results](../benchmarks/2026-10-03-bounded-research/results.json), checked unchanged at end of measurement.
+- Candidate implementation: `22873ccb8bdfdb1a0050bd4fd2f998772be77b16` on `feature/bounded-research`, [PR44](https://github.com/phense/agentic-rag/pull/44); measured implementation/driver hashes in [results](../benchmarks/2026-10-03-bounded-research/results.json), checked unchanged at end of measurement and against committed bytes.
 - Procedure: [PB-5.6](../bounded-research.md), system operation and code-only upgrade/recovery.
 - Owner: maintainer; delivery readiness before PR merge, rollout readiness before separately authorized adoption.
 - Validation level: complete suites, real CLI/stdin MCP/worker processes, populated isolated old/new/rollback and strict restore; canonical Trading reader aggregates only.
@@ -108,7 +108,7 @@ claimed and no competing ledger was introduced.
 ## Acceptance and next action
 
 Code, independent content review and isolated practical verification are
-complete. Publish the bounded PR linked to Issue31, then request
+complete. PR44 is published and linked to Issue31; request
 approval for that exact PR. Merge remains pending; production adoption
 requires separate authorization and fresh rollout evidence. Issue31 stays
 open until its required rollout acceptance is recorded.
