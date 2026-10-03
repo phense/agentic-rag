@@ -52,10 +52,10 @@ def candidates(conn, cfg, monkeypatch):
 def test_auto_model_ordering_preserves_original_payload(conn, cfg, candidates, local_model):
     """Ignoring model order loses the relevant source; replacing payload loses citations."""
     query = 'newsletter authentication failure'
-    before, _ = search.search(conn, cfg, query, strategy='hybrid', k=5)
+    before, _ = search.search(conn, cfg, query, strategy='hybrid', k=5, context_mode='off')
     assert candidates.doc_id in {h.document_id for h in before}
     assert before[0].document_id != candidates.doc_id
-    after, _ = search.search(conn, cfg, query, k=5)
+    after, _ = search.search(conn, cfg, query, k=5, context_mode='off')
     assert after[0].document_id == candidates.doc_id
     assert sorted(after, key=lambda h: h.chunk_id) == sorted(before, key=lambda h: h.chunk_id)
     assert len(local_model) == 2

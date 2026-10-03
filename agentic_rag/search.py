@@ -35,9 +35,12 @@ def search(
     strategy: str = "auto",
     query_cache=None,
     rerank_mode: str = "auto",
+    context_mode: str = "auto",
 ) -> tuple[list[SearchHit], list[str]]:
     validate_strategy(strategy)
     validate_rerank_mode(rerank_mode)
+    if context_mode not in ("auto", "off"):
+        raise ValueError("context must be auto or off")
     if type(k) is not int or not 1<=k<=100:raise ValueError("k must be between 1 and 100")
     if type(graph_depth) is not int or not 0<=graph_depth<=2:raise ValueError("graph_depth must be 0, 1 or 2")
     if baseline and (graph_depth or reranker is not None):
@@ -51,7 +54,12 @@ def search(
     warnings: list[str] = []
     from .retrieval import strong_symbols, exact_symbol_match
     function="hybrid_search_temporal" if baseline else "hybrid_search_candidates"
+    query_model = None
     def candidates(qvec):
+        from . import contextual
+        if context_mode == 'auto' and not baseline and strategy != 'hybrid' and not strong_symbols(query) and contextual.available(conn):
+            return conn.execute('SELECT * FROM hybrid_search_contextual(%s,%s::halfvec,%s,%s,%s,%s,%s,%s)',
+                (query,qvec,domain,150,scopes,at,history,query_model)).fetchall()
         return conn.execute(
             f"SELECT * FROM {function}(%s, %s::halfvec, %s, %s, %s, %s, %s)",
             (query, qvec, domain, k if baseline else 150, scopes, at, history),
@@ -71,6 +79,12 @@ def search(
     if rows is None:
         qvec = None
         if strategy != "lexical":
+            from . import contextual
+            from .query_cache import model_digest
+            contextual_vectors = (context_mode == 'auto' and not baseline
+                and strategy != 'hybrid' and not strong_symbols(query)
+                and contextual.available(conn) and contextual.has_vectors(conn))
+            before_model = model_digest(cfg) if contextual_vectors else None
             if query_cache is None or baseline:
                 vecs = try_embed_texts([query], cfg)
             else:
@@ -83,6 +97,8 @@ def search(
                 warnings.append("embedding unavailable — full-text search only")
             else:
                 qvec = vec_literal(vecs[0])
+                if before_model is not None and model_digest(cfg) == before_model:
+                    query_model = before_model
         rows = candidates(qvec)
     from .evidence import summary
     hits = [

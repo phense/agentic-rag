@@ -71,7 +71,7 @@ def memory_domains() -> dict:
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
-                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto") -> dict:
+                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto") -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
@@ -79,13 +79,17 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     Omitting both retains manual cross-project search. strategy=auto avoids
     embeddings for eligible exact selectors; hybrid retains the previous path;
     lexical explicitly uses bilingual full-text only. A verified available local
-    model may reorder ambiguous auto searches; rerank=off keeps hybrid ordering."""
+    model may reorder ambiguous auto searches; rerank=off keeps deterministic
+    candidate ordering. context=off retains original representations; auto also
+    uses current source-grounded contextual indices when migration015 is present."""
     from .search import validate_strategy, validate_rerank_mode
     validate_strategy(strategy)
     validate_rerank_mode(rerank)
+    if context not in ("auto", "off"):
+        raise ValueError("context must be auto or off")
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context)
         return {"results": _plain(hits), "warnings": warnings}
 
 

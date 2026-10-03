@@ -264,3 +264,19 @@ retain previous behavior; an absent runtime needs no config or data migration.
 The three Trading development examples improve expected-source coverage in a
 three-hit context, at roughly one extra second per query. No general speedup or
 answer-accuracy gain is claimed. [Evidence and limits](docs/benchmarks/2026-10-03-neural-rerank/README.md).
+
+## Contextual chunk indexing (issue #29)
+
+Feature 4 candidate adds bounded source excerpts and document/section/project metadata
+to a versioned side index; original chunks, vectors and citations remain intact.
+Normal audited saves create lexical context; bounded `rag save --index-context`
+adds local contextual vectors. Current-source/model checks and original eligibility
+apply before contextual selection. Explicit context-off and old clients retain
+baseline behavior. Additive015 and populated014 upgrade/recovery are rehearsed.
+
+Three synthetic practical examples improve original-fact coverage from0/20 to20/20
+within the same three-hit/1200-character source budget, with extra retrieval and
+indexing cost. This is limited development evidence, not a production-scale gain.
+Trading was tested read-only on014; code/PR readiness and production adoption remain
+separate. [Measurements](docs/benchmarks/2026-10-03-contextual-indexing/README.md),
+[upgrade procedure](docs/contextual-indexing.md).
