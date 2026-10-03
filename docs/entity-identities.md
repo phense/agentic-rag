@@ -47,16 +47,21 @@ with `PYTHONPATH` selecting that checkout, from its directory, using the canonic
 | `rag entity review DOCUMENT_UUID` | `--state accepted\|revoked`, `--reason` | Audited, reversible review; rechecks support, boundary and competing anchors |
 | `rag entity backfill` | None | `--limit 1–500`, default100; one atomic batch, repeat until `remaining=0` |
 
-For an existing assertion source, use its actual namespace, source ID and original
-quote. Manual input is an operator attestation. The system checks membership fields
-and current source trust; it cannot prove that an attested quote is true.
+Manual CLI input is an operator attestation without a source timestamp. It can
+register a new attested source or reuse an existing source whose `source_at` is
+null. To reuse a dated registered source, inspect `rag get DOCUMENT_UUID --json`
+and pass its `claim_sources` namespace, source_id, role, quote, complete and
+`source_at` through `memory_entity_alias`, copying `source_at` into
+`evidence.timestamp`. Preserve the exact original values; do not change the source
+ID or namespace to bypass a metadata conflict. The system checks source identity
+and current trust; it cannot prove that an attested quote is true.
 
 ## MCP contracts
 
 | Tool | Privilege | Contract |
 | --- | --- | --- |
 | `memory_entity` | Main and read-only | Same selector/output as resolve; strict boolean history and integer budget |
-| `memory_entity_alias` | Authorized main only | Required evidence dict: namespace, source_id, role, quote, complete; explicit `confirm=true` |
+| `memory_entity_alias` | Authorized main only | Required evidence dict: namespace, source_id, role, quote, complete; optional timestamp must match registered source_at; explicit `confirm=true` |
 | `memory_entity_alias_review` | Authorized main only | Relation evidence document UUID, accepted/revoked, reason |
 
 Fresh candidate servers expose10 read tools and18 total tools. The eight main-only

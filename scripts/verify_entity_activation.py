@@ -122,7 +122,7 @@ def main():
         exact_activation_and_recovery_snippets_passed=True,preflight_rejection_checks=rejects,post_migration_activation_retry_passed=True,
         old_new_rollback_citation_parity=True,original_rows_and_grants_preserved=True,schema018_retained=True,
         prior_branch_tip_preserved=True,lock_released=True,owned_resources_cleaned=True,
-        limits='Owned local clone/database/worker lock only. No production deployment or service operation. Backup/full restore/MCP evidence is separate.')
+        limits='Owned local clone/database/worker lock and temporary owned candidate dirty marker only. No production deployment or service operation. Backup/full restore/MCP evidence is separate.')
     destination=Path(sys.argv[1]);destination.parent.mkdir(parents=True,exist_ok=True)
     destination.write_text(json.dumps(output,indent=2)+'\n')
     print(json.dumps(output))

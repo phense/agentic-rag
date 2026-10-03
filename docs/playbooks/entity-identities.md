@@ -23,7 +23,7 @@ A PR merge approval does not authorize production migration, activation or inter
 
 For reads choose the exact name, domain and project or explicit global scope. For
 review identify both names, the relation evidence UUID and its original namespace,
-source ID and quote through `rag get UUID --json`. Unknown applicability needs an
+source ID, source_at and quote in `claim_sources` through `rag get UUID --json`. Unknown applicability needs an
 explicit separate source correction, never a guessed alias. The shared reader roles
 have no new per-user ACL; project/domain controls entity selection.
 
@@ -45,7 +45,7 @@ client settings. Ordinary source queries and old/new writes remain compatible.
 | --- | --- | --- | --- | --- |
 | A1 | Reader, selected entity | `rag entity resolve NAME --domain DOMAIN --project PROJECT` | Original citations, current facts, relation/suggestion warnings;0 provider calls | Missing018: ordinary exact search/get; U1 only with rollout approval |
 | A2 | Operator, original source | Inspect actual namespace/source ID/quote and both entity meanings | Complete active user span and known same scope/domain | Uncertain: retain review suggestion; never confirm from embedding similarity |
-| A3 | Writer, relation | Save `rag entity alias` with the fields below; confirm only after A2 | Immutable original evidence document; review or accepted state and reason | Competing anchor/chain: A4; unsupported span remains review-only |
+| A3 | Writer, relation | Save an untimed/manual CLI attestation or reuse the exact timed source with `memory_entity_alias` below; confirm only after A2 | Immutable original evidence document; review or accepted state and reason | Competing anchor/chain: A4; unsupported span remains review-only |
 | A4 | Writer, mistaken relation | `rag entity review UUID --state revoked --reason 'Mistaken link'` | Audited revocation; original history retained; names separate | Inspect failure and UUID, preserve evidence; do not delete facts |
 | A5 | Reader, original facts | Repeat A1; use `--history` or an explicit `--as-of` for temporal checks | Trust-qualified originals, explicit expired/superseded/conflict labels | Ambiguity/limits: narrow attribute; inspect originals and repair source/link |
 | U1 | Maintainer, source and target | Verify supported source, clean checkout and separate exact rollout authorization | Recorded source/target/schema/config and authorized scope | Stop on drift or absent authority |
@@ -65,6 +65,28 @@ rag entity alias --alias orion-old --target orion --domain infrastructure \
   --effective-at 2026-02-01T00:00:00Z --complete
 rag entity review RELATION_UUID --state accepted --reason 'Checked original meaning and source'
 ```
+
+The CLI does not accept a source timestamp. Use it for a new manual attestation
+or a registered source whose `source_at` is null. For a dated registered source,
+copy its exact original `claim_sources` metadata into the main-session
+`memory_entity_alias` evidence dict, with `source_at` mapped to `timestamp`:
+
+```json
+{
+  "alias": "orion-old", "target": "orion", "domain": "infrastructure",
+  "project": "/absolute/repository", "effective_at": "2026-02-01T00:00:00Z",
+  "confirm": false,
+  "evidence": {
+    "namespace": "actual-session", "source_id": "actual-event", "role": "user",
+    "timestamp": "2026-02-01T00:00:00Z",
+    "quote": "orion-old is another name for orion.", "complete": true
+  }
+}
+```
+
+These controlled values illustrate the contract; substitute only the inspected
+original fields. A different timestamp/role for a registered source is rejected.
+Never invent a new namespace/source ID to evade the mismatch.
 
 The first command keeps a review suggestion. `--confirm` is an explicit alternative
 to the second command after A2. A complete quote or a user role alone never implies
