@@ -1,5 +1,5 @@
-"""The per-session MCP server (spec §5): FastMCP over stdio, SQL + one
-Ollama HTTP call (search) only — never a model in-process. Each tool call
+"""The per-session MCP server (spec §5): FastMCP over stdio, SQL and local
+Ollama query inference with bounded transport/vector reuse. Each tool call
 opens a short-lived role-scoped connection (writer; rag_reader when
 RAG_READONLY=1, which also unregisters every write tool — the subagent
 configuration). Run: python -m agentic_rag.mcp_server"""
@@ -18,6 +18,9 @@ from .domains import list_domains
 from .pins import add_pin, unpin
 from .search import search as run_search
 from .store import EdgeSpec, get_document, save_document
+from .query_cache import QueryCache
+
+_QUERY_CACHE = QueryCache()
 
 
 def _readonly() -> bool:
@@ -80,7 +83,7 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     validate_strategy(strategy)
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE)
         return {"results": _plain(hits), "warnings": warnings}
 
 

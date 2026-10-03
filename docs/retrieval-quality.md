@@ -47,6 +47,13 @@ not production p95 or a service-level guarantee. No private content was exported
 
 ## Optional stages
 
+Long-lived MCP sessions reuse successful query vectors for up to 300 seconds in a
+256-entry process-local cache. Keys include caller/retrieval context and current local
+model identity. Candidate eligibility and source evidence are queried on every search;
+withdrawal and expiry apply immediately. CLI/Python searches retain uncached inference
+by default. HTTP transport connections are bounded and reused within each process.
+See [measured gains and cache limits](benchmarks/2026-10-03-query-cache/README.md).
+
 ```bash
 rag search 'topology entry' --project /path/to/repo --graph-depth 2 --json
 ```
