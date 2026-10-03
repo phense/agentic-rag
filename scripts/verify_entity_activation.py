@@ -15,7 +15,7 @@ from unittest.mock import patch
 from agentic_rag import db, worker, store
 from agentic_rag.benchmark.database import isolated_database
 from agentic_rag.config import Config
-from scripts.verify_entity_identities import BASE, ROOT, PROJECT, seed, cli_call, config_file, inventories, assert_originals
+from scripts.verify_entity_identities import BASE, ROOT, PROJECT, NEW_TABLES, seed, cli_call, config_file, inventories, assert_originals
 from scripts.verify_filter_aware_search import table_names, privileges
 
 
@@ -114,7 +114,7 @@ def main():
             with db.connect(cfg,role='owner') as c:
                 assert_originals(c,originals)
                 assert len(c.execute('SELECT * FROM schema_migrations').fetchall())==18
-                assert [r for r in privileges(c) if r['table_name'] in tables]==grants
+                assert [r for r in privileges(c) if r['table_name'] not in NEW_TABLES]==grants
             with db.connect(cfg,role='writer') as c:
                 assert store.backfill_entity_identities(c)['mapped']==0
     output=dict(playbook_sha256=sha256(playbook.read_bytes()).hexdigest(),source_revision=BASE,
