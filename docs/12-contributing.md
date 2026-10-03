@@ -86,6 +86,32 @@ each with its own `tests/test_*.py` file.
 There's no CI wired up yet for this repo; running the suite locally before
 you send a change is the check that stands in for it.
 
+## Production compatibility and PR workflow
+
+This is an actively used multi-user, multi-domain production system. Every change
+must work with the running installation or ship a verified upgrade path from it.
+Read the shared rules in [AGENTS.md](../AGENTS.md) and [CLAUDE.md](../CLAUDE.md)
+before changing behavior.
+
+For each implementation PR, state the source version and affected contracts,
+verify existing-installation workflows, and preserve users, domains, access
+boundaries, stored knowledge, pins, checkpoints, audit history, and queued work.
+If compatibility cannot be preserved, provide exact preflight, backup, migration,
+deployment, post-upgrade, and rollback/recovery steps. Rehearse migration and
+interruption recovery on an isolated representative installation; a successful
+fresh install or an untested upgrade plan is insufficient. Document any required
+restart or maintenance window and any downgrade or data-loss limits.
+
+[GitHub Issues](https://github.com/phense/agentic-rag/issues) are canonical for
+open work; `BACKLOG.md` keeps a numbered local index and historical rollout
+notes. Check open and closed Issues before creating new work, retain stable
+backlog IDs, and link PRs to their Issues. Agents may create Issues and PRs and
+push the branches needed for PRs autonomously, while informing the maintainer
+about scope, links, verification, and risks. Before each merge, obtain explicit
+approval for that specific PR after its compatibility and verification checks
+are ready. Keep unresolved rollout criteria open. Merge approval alone does not
+authorize production deployment, migration, or interruption.
+
 ## The TDD expectation
 
 This codebase was built test-first, module by module, and that's the
@@ -150,9 +176,10 @@ each module backs are in
 This handbook is expected to track the code, not lag behind it. Two things
 help with that:
 
-- **`BACKLOG.md`** at the repo root is the single, numbered backlog for
-  open work — worked top-down, kept current, every open item carrying a
-  reason it isn't done yet and a trigger for resuming it.
+- **GitHub Issues** are canonical for open work. **`BACKLOG.md`** at the repo
+  root keeps the stable numbered index, Issue links, and historical rollout notes.
+  Maintain priorities, dependencies, blockers, remaining acceptance criteria, and
+  resumption triggers in the linked Issues; update the local index when status changes.
 - **`FEATURES.md`** is the shipped/planned registry. Keep “implemented in the
   repository” distinct from “installed and proven live”; an operational
   rollout stays planned until its smoke-test evidence exists.
