@@ -4,8 +4,9 @@ Measurements started2026-10-03 and completed across the2026-10-04 local session.
 Source `bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b`, schema016; candidate017.
 [Raw results](results.json) record exact implementation/driver SHA-256 hashes,
 revision, all20 paired repetitions, first observations, quality counts and refresh
-usage. The recorded candidate revision is the source HEAD before the implementation
-commit; the frozen file hashes identify the measured candidate bytes.
+usage. The measured candidate bytes match committed implementation `d4d286c`;
+all eight frozen file hashes were compared with that commit. The source HEAD at
+measurement start is recorded separately; raw values remain unchanged.
 
 ## Original-corpus examples on the recovered private snapshot
 

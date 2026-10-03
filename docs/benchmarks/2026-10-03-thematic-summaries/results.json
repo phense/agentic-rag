@@ -1,6 +1,6 @@
 {
   "baseline_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
-  "candidate_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+  "candidate_revision": "d4d286c108abcd91a118338b0bf674a4d5ffd6d7",
   "candidate_files_sha256": {
     "agentic_rag/thematic.py": "01ef9158dc070d88866c5c868c357890c9ae239e47f2f492883d02fbb3a820b4",
     "agentic_rag/profiles.py": "1af091213d01cabf863f24db8732e50f462abd5919a431b408a317b5ee18986f",
@@ -3567,5 +3567,8 @@
     ],
     "limits": "Canonical016 has no summary cache. These are reader fallback controls, not production quality/speedup measurements."
   },
-  "hashes_match_after_measurement": true
+  "hashes_match_after_measurement": true,
+  "candidate_revision_at_measurement_start": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+  "candidate_revision_resolution": "Measured working-tree implementation/driver hashes match this committed revision exactly; raw measurements unchanged.",
+  "candidate_commit_hashes_match": true
 }

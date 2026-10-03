@@ -4,7 +4,7 @@
 
 - Requirement: [Issue32](https://github.com/phense/agentic-rag/issues/32), [RAG-5.7 AC-001–007](../specs/RAG-5.7-thematic-summaries/spec.md).
 - Supported source: `bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b`, package0.5.0, schema001–016.
-- Candidate: `feature/thematic-summaries`, ignored isolated worktree; exact measured bytes in [results.json](../benchmarks/2026-10-03-thematic-summaries/results.json).
+- Candidate implementation: `d4d286c`, branch `feature/thematic-summaries`, ignored isolated worktree; all eight measured implementation/driver hashes match committed bytes, recorded in [results.json](../benchmarks/2026-10-03-thematic-summaries/results.json).
 - Procedure: [PB-5.7](../playbooks/thematic-summaries.md), operator/maintainer, source016→017 and local refresh/recovery.
 - Validation: full Python/Node suites, actual old/new/rollback CLI/MCP, public synthetic fault/quality fixtures and strict private production-snapshot recovery.
 - State tooling: no repository `.engineering-method` tree or local `scripts/project-state`. Git, canonical Issue32 and spec/plan/tasks maintain continuity; no competing ledger, installed-wrapper mutation or successful event-ledger recovery is claimed.
