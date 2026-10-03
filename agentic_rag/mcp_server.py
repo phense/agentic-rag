@@ -11,6 +11,7 @@ import os
 import uuid as uuidlib
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import StrictBool, StrictFloat, StrictInt
 
 from . import db, graph
 from .config import load_config
@@ -91,6 +92,25 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     with conn:
         hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context)
         return {"results": _plain(hits), "warnings": warnings}
+
+
+async def memory_research(question: str, domain: str | None = None,
+                          project: str | None = None, scope: str | None = None,
+                          as_of: str | None = None, history: StrictBool = False,
+                          provider: StrictBool = False, strategy: str = "auto",
+                          steps: StrictInt = 4, calls: StrictInt = 16, seconds: StrictFloat = 30,
+                          context_chars: StrictInt = 12000, min_sources: StrictInt = 2) -> dict:
+    """Bounded read-only multi-step evidence research. Defaults stay local and
+    abstain from semantic answers. provider=true explicitly sends the redacted
+    question and selected evidence to the configured Codex/Claude CLI. Returns
+    exact source-backed statements, disagreements, missing evidence and resource
+    usage. A dedicated rag_reader worker enforces time/cancellation boundaries
+    even in authorized main sessions. Existing search remains independent.
+    """
+    from .research import ResearchBudget, research_async
+    return await research_async(load_config(),question,domain=domain,project=project,scope=scope,
+        as_of=as_of,history=history,provider=provider,strategy=strategy,min_sources=min_sources,
+        budget=ResearchBudget(steps,calls,seconds,context_chars))
 
 
 def memory_get(id_or_slug: str) -> dict:
@@ -251,7 +271,7 @@ def memory_context(project: str | None = None, prompt: str | None = None,
                             prompt=prompt,session_id=session_id,source="startup"))
 
 
-READ_TOOLS = (memory_context, memory_domains, memory_search, memory_get, memory_neighbors,
+READ_TOOLS = (memory_context, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline)
 WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 

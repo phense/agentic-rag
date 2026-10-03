@@ -19,6 +19,7 @@ explains production compatibility, upgrade evidence, and merge approval.
 - [02 · The mental model](02-mental-model.md) — documents, graph/search, the write gateway, mining, and continuation checkpoints.
 
 ## Use
+- [Bounded research](bounded-research.md) — compound questions, exact source quotations, disagreement, abstention, budgets and code-only rollback.
 - [03 · Quick start](03-quick-start.md) — prerequisites, the Claude six-hook install and the Codex target, check/trust/verify/rollback for both, and your first save/search.
 - [04 · Working with your memory](04-working-with-memory.md) — save / get / search / pin, domains, and the MCP tools inside a Claude session.
 - [05 · Session mining & curation](05-session-mining-and-curation.md) — durable mining, the Claude and Codex checkpoint lifecycle/restoration (including the Claude handoff), provider recovery, and curation.

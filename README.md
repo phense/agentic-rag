@@ -49,8 +49,11 @@ LLM-assisted mining, curation, and bounded checkpoint enrichment: Codex with
 ChatGPT login or Claude with its supported OAuth or API-key authentication.
 Mining prompts can also include all matching pin bodies; mining secret-strips
 the provider-bound copies without mutating stored pin text.
-Embeddings are **always local** (Ollama), so retrieval does not call either
-provider. An optional [local multilingual reranker](docs/local-reranker.md)
+Embeddings are **always local** (Ollama). Ordinary search and default research
+do not call either provider. [Bounded research](docs/bounded-research.md)
+collects evidence for compound questions and reports disagreement or missing
+support; `--provider` explicitly enables configured-provider assessment.
+An optional [local multilingual reranker](docs/local-reranker.md)
 can improve ambiguous-source ordering when its measured gains justify extra latency. The default installation adds no always-on daemon beyond Postgres and
 Ollama. Optional neural reranking uses a separate local model process with its
 [measured RAM budget](docs/benchmarks/2026-10-03-neural-rerank/README.md). And it's built
@@ -66,7 +69,9 @@ restore-tests its own backups.
 > bodies without mutating stored pin text; curation sends selected stored
 > documents and contradiction evidence; checkpoint enrichment sends a
 > secret-stripped transcript delta and validates the returned checkpoint
-> content before persistence. Optional synced backups copy data only to a
+> content before persistence. Explicit research provider mode sends a redacted
+> question and selected bounded source excerpts; default research stays local.
+> Optional synced backups copy data only to a
 > directory you configure. agentic-rag has no separate hosted RAG backend.
 
 **[Why](#why-agentic-rag)** · **[Quick start](#quick-start)** · **[What's different](#what-makes-it-different)** · **[How it works](#how-it-works)** · **[Comparison](#comparison)** · **[Configuration](#configuration)** · **[📖 Handbook](#-documentation--handbook)** · **[Status](#status)** · **[Acknowledgments](#acknowledgments)** · **[License](#license)**
@@ -87,8 +92,8 @@ references; on Claude the checkpoint also carries Claude's compact summary.
 
 🔒 **Local-first, on your own account.** Canonical knowledge and checkpoints
 live in your Postgres. LLM-assisted work runs through the local Codex or Claude
-CLI you configured. Embeddings are always local (Ollama), so search and
-retrieval do not call either provider.
+CLI you configured. Embeddings are always local (Ollama); ordinary search and
+default research do not call either provider.
 
 ⚡ **RAM-lean.** A single-writer worker (flock singleton), no long-lived daemon of its own. Without the optional reranker runtime, the between-session footprint is essentially Postgres + Ollama idling.
 
@@ -248,7 +253,7 @@ installed policy they remain enabled and can be inspected with `/memories`;
 agentic-rag is canonical for durable searchable knowledge, audit history, and
 explicit continuation checkpoints.
 
-- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Transcript digests and checkpoint deltas are character-bounded; each curation call covers one selected document/evidence set. Mining also sends secret-stripped copies of all matching pin bodies without changing the stored pins. Embeddings never leave the box (local Ollama), so retrieval is independent of provider authentication.
+- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Transcript digests and checkpoint deltas are character-bounded; each curation call covers one selected document/evidence set. Mining also sends secret-stripped copies of all matching pin bodies without changing the stored pins. Explicit research provider mode sends a bounded evidence packet. Embeddings never leave the box (local Ollama); ordinary search and default research are independent of provider authentication.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
 - **Least privilege, by role.** Three login roles enforce a destruction-protection matrix: `rag_reader` (SELECT only, used by search and the read-only MCP), `rag_writer` (INSERT/UPDATE but **no DELETE/TRUNCATE/DROP**), and `rag_admin` (migrate, purge, restore).
 - **It steps aside, not in front.** If Ollama is down, search degrades to full-text-only and returns a warning rather than failing; the maintenance job always exits 0.
@@ -301,7 +306,8 @@ ChatGPT login, or Claude with its supported OAuth or
 belong to that chosen provider. Mining can include secret-stripped copies of
 all matching pin bodies without mutating stored pin text. <strong>Embeddings are
 always local</strong>
-(Ollama), so retrieval does not call a model provider, and there is no
+(Ollama), so ordinary search and default research do not call a model provider;
+explicit research provider mode sends bounded evidence for assessment. There is no
 third-party RAG service between you and your data. Most hosted RAG stacks route
 your documents through a paid service.<br>
 ² agentic-rag is <strong>newly public</strong> and self-hosted — the field's clearest edge over us is turnkey managed hosting and a large plugin/integration ecosystem.

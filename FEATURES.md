@@ -285,6 +285,24 @@ The initial Trading014 controls preceded adoption. Post-adoption controls showed
 
 ## Filter-aware vector retrieval (issue #30)
 
-Feature5 candidate adds read-only016 functions for default semantic context-auto searches. A single eligible probe chooses complete exact ordering for at most4096 matching nonzero chunks; larger sets use a bounded4096 ANN pool with installed iterative capabilities, original eligibility/citations and per-document diversity. Savepoints preserve caller settings/writes and propagate cancellation. Exact selectors, explicit context-off/hybrid/baseline and code before016 retain existing behavior.
+Feature5, adopted locally at `19ed09c` with schema016, adds read-only016 functions for default semantic context-auto searches. A single eligible probe chooses complete exact ordering for at most4096 matching nonzero chunks; larger sets use a bounded4096 ANN pool with installed iterative capabilities, original eligibility/citations and per-document diversity. Savepoints preserve caller settings/writes and propagate cancellation. Exact selectors, explicit context-off/hybrid/baseline and code before016 retain existing behavior.
 
-Controlled crowded-source tests recover missing documents with additional SQL cost. Three20-pair Trading snapshot-copy controls retain100% raw/context vector recall and20/20 original citation-list parity, with roughly8–16ms median extra end-to-end cost. No general speedup or production answer-quality improvement is claimed. Actual015→016 upgrade/retry/code rollback, strict restore and all row/grant fingerprints pass.987 Python/7 Node checks pass; merge and production adoption remain separate gates. [Measurements](docs/benchmarks/2026-10-03-filter-aware-search/README.md), [operator procedure](docs/filter-aware-search.md).
+Controlled crowded-source tests recover missing documents with additional SQL cost. Three20-pair Trading snapshot-copy controls retain100% raw/context vector recall and20/20 original citation-list parity, with roughly8–16ms median extra end-to-end cost. No general speedup or production answer-quality improvement is claimed. Actual015→016 upgrade/retry/code rollback, strict restore and all row/grant fingerprints pass.987 Python/7 Node checks pass. Approved merge and local adoption are recorded on [Issue30](https://github.com/phense/agentic-rag/issues/30#issuecomment-5973029391). [Measurements](docs/benchmarks/2026-10-03-filter-aware-search/README.md), [operator procedure](docs/filter-aware-search.md).
+
+## Bounded research retrieval (issue #31)
+
+Feature6 candidate adds `rag research` and read-only `memory_research` on both
+MCP privilege levels. Compound questions share step/call/time/context budgets;
+related graph documents contribute relevant original passages. Exact quoted
+support requires distinct qualified upstream sources. Disagreement, missing
+evidence and abstention remain explicit. Default processing stays local;
+configured-provider assessment requires an explicit request.
+
+Three paired synthetic examples measure source coverage and literal fact
+coverage, with additional worker/retrieval latency. They do not establish
+production answer accuracy. Local mode always abstains semantic completion.
+Schema016, ordinary search, client settings, hooks and jobs remain unchanged;
+actual populated old/new/rollback clients and a strict restore are exercised.
+See [measurements](docs/benchmarks/2026-10-03-bounded-research/README.md),
+[operation](docs/bounded-research.md) and [verification](docs/verification/bounded-research.md).
+Candidate readiness is separate from merge approval and live adoption.

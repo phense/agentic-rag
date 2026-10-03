@@ -137,6 +137,22 @@ def _main(argv: list[str] | None = None) -> int:
     p_search.add_argument("-k", type=int, default=8)
     p_search.add_argument("--json", action="store_true")
 
+    p_research = sub.add_parser("research", help="bounded read-only evidence research; provider calls require --provider")
+    p_research.add_argument("question")
+    p_research.add_argument("--domain")
+    p_research.add_argument("--project")
+    p_research.add_argument("--scope", choices=["project", "global", "all"])
+    p_research.add_argument("--as-of")
+    p_research.add_argument("--history", action="store_true")
+    p_research.add_argument("--provider", action="store_true", help="send redacted question/evidence to the configured CLI provider")
+    p_research.add_argument("--strategy", choices=["auto", "lexical"], default="auto")
+    p_research.add_argument("--steps", type=int, default=4)
+    p_research.add_argument("--calls", type=int, default=16)
+    p_research.add_argument("--seconds", type=float, default=30)
+    p_research.add_argument("--context-chars", type=int, default=12000)
+    p_research.add_argument("--min-sources", type=int, default=2)
+    p_research.add_argument("--json", action="store_true")
+
     sub.add_parser("status")
 
     p_bench = sub.add_parser("benchmark", help="synthetic memory evaluation in an owned temporary database")
@@ -571,6 +587,25 @@ def _main(argv: list[str] | None = None) -> int:
         finally:
             conn.close()
         print(f"report: {out}")
+        return 0
+
+    if args.cmd == "research":
+        from .research import ResearchBudget, research
+        result = research(cfg,args.question,domain=args.domain,project=args.project,scope=args.scope,
+            as_of=args.as_of,history=args.history,provider=args.provider,strategy=args.strategy,
+            min_sources=args.min_sources,budget=ResearchBudget(args.steps,args.calls,args.seconds,args.context_chars))
+        if args.json:
+            print(json.dumps(result,ensure_ascii=False,indent=1))
+        else:
+            print(f"research: {result['termination']}; abstained={result['abstained']}")
+            for claim in result['supported']:
+                print(f"supported excerpt: {claim['statement']}")
+                for citation in claim['citations']:
+                    print(f"  {citation}")
+            for disagreement in result['disagreement']:
+                print(f"disagreement: {disagreement['reason']}")
+            for missing in result['missing_evidence']:
+                print(f"missing: facet {missing['question_index']}: {missing['reason']}")
         return 0
 
     conn = db.connect(cfg, role="writer")
