@@ -13,6 +13,13 @@ Stable work ID5.2; Issue #27; base f27acd9. No new schema or production operatio
 Full suite864 passed in33.56 s; Node7 passed. Populated multi-user/multi-domain
 coexistence/rollback retains all public table rows. Independent final review has
 zero unresolved Critical/High/Medium/Low findings; see review.md and numerical evidence.
-PR #38 submitted and linked to the T3 thread. Merged with explicit approval as`342bccf`; production adoption remains pending.
+PR #38 submitted and linked to the T3 thread. Merged with explicit approval as`342bccf`; local production adoption completed on 2026-10-03.
 After approval/merge, continue feature5.3 / Issue #28 (local multilingual reranking).
-The retained production checkout remains0c8addd; no adoption/restart/migration was performed.
+The production checkout now runs`ae4a102`; no schema/dependency migration occurred.
+
+## Local adoption — 2026-10-03
+
+Separately authorized production rollout: consistent backup restored into an owned
+scratch database, all16 production table fingerprints unchanged,930 Python/7 Node
+tests and fresh read-only/authorized MCP clients verified. Existing MCP processes
+can coexist until reconnect. See [rollout evidence](../../../verification/three-feature-production-adoption.md).

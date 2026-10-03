@@ -28,16 +28,24 @@ Tasks are sequential; read-only review may inspect evidence while the coordinato
 825 Python tests passed in 31.40 s; 7 Node tests passed. See
 docs/benchmarks/2026-10-03-adaptive-search/README.md and trading-reader.json for
 source hashes, reader-only paired timings, quality denominators and populated rollback checks.
-No production code, schema, configuration or knowledge mutation has been performed.
+Before the separately authorized adoption recorded below, no production code,
+schema, configuration or knowledge mutation had been performed.
 Independent final review: Critical 0, High 0, Medium 0, Low 0; see review.md.
 PR #36 created and linked to the T3 thread. Both GitHub offline benchmark CI runs pass.
 Existing AnyIO/PyJWT dependency alerts are tracked in Issue #37, outside this change review.
 Explicit maintainer approval received; PR #36 merged as`f27acd9`. Production checkout
-verified unchanged at`0c8addd`; issue remains open for applicable adoption evidence.
+adopted the three approved feature PRs at`ae4a102` on 2026-10-03.
 
-- [ ] All implementation and acceptance behavior is complete with current evidence.
-- [ ] Accepted requirements are ready to synchronize before archival.
+- [x] All implementation and acceptance behavior is complete with current evidence.
+- [x] Accepted requirements are ready to synchronize before archival.
 
 ## Playbook obligations
 
 No new operational playbook or migration is required by this read-only code delta.
+
+## Local adoption — 2026-10-03
+
+Separately authorized production rollout: consistent backup restored into an owned
+scratch database, all16 production table fingerprints unchanged,930 Python/7 Node
+tests and fresh read-only/authorized MCP clients verified. Existing MCP processes
+can coexist until reconnect. See [rollout evidence](../../../verification/three-feature-production-adoption.md).
