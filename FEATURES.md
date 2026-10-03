@@ -222,13 +222,23 @@ See [policy and limitations](docs/retrieval-quality.md). Migration013 activated;
 
 ## Adaptive retrieval (issue #26)
 
-Implemented on the feature branch; merge and production rollout pending. Eligible exact
+Merged in PR #36 as `f27acd9`; production rollout pending. Eligible exact
 UUID/slug and standalone error-symbol queries skip local query inference; ordinary questions
 and misses keep hybrid retrieval. Optional CLI/MCP strategies preserve forced hybrid and
 explicit lexical behavior. No schema/configuration/data migration. In 20 paired Trading
 measurements per case, median exact lookup fell from about 1,040–1,064 ms to 16.5–17.0 ms;
 the ordinary-question control retained identical citations and about 1,050 ms latency.
 [Evidence and limits](docs/benchmarks/2026-10-03-adaptive-search/README.md).
+
+## Query inference reuse (issue #27)
+
+Implemented on the feature branch; merge and production rollout pending. Long-lived MCP
+sessions reuse bounded context/model-scoped query vectors with fresh SQL authority and
+local model-digest checks. HTTP transport reuse preserves one-shot process cleanup and
+fork isolation. Paired Trading warm medians fell 1,045→811 ms and 422→185 ms for repeated
+question/context examples; citations remain identical 20/20. Twenty synthetic correction
+pairs preserve immediate source withdrawal with half the inference calls.
+[Evidence and limits](docs/benchmarks/2026-10-03-query-cache/README.md).
 
 ## Bounded project context (issue #9)
 

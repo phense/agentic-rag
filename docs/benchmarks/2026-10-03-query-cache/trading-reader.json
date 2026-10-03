@@ -1,0 +1,83 @@
+{
+  "source_revision": "f27acd98e04c7c67d66ca374eded071ac47c0416",
+  "before_sha256": {
+    "embed": "7e57271f9209ea9d36a8052d2ae4e21fddbde6f088276b99427bfc86ecfbca23",
+    "search": "c96863798924649cb3c899e5b4af053a6de181eeb3ff7e7ec7fe61a1edecd8ee",
+    "mcp_server": "75b31e6eb8dcd682e4e1a6a271241901e0703bb1670fa277f93c440404fc4b2d"
+  },
+  "after_sha256": {
+    "embed": "0184b6f3c1cd3a87349c83f3336bb979ca1b447540d4601dcd6414249b3ef86b",
+    "search": "41a373960bc52bcfd579e8b7e89d0b7f376674dad52369dc027e7c9385ced9b4",
+    "mcp_server": "0621e004be22d5dd74e3b432bc60624d2292e41bfe8cc5edcb61e56333e239cf",
+    "query_cache": "886c3312dbea84f3e2cae41ff5cafc9c9e20d56cfc803613119cad734c636807"
+  },
+  "store_counts": {
+    "documents": 10203,
+    "chunks": 11593
+  },
+  "model": "bge-m3",
+  "method": "reader-only repeatable-read snapshot; fixed as_of; alternating pairs; connection/stdio excluded",
+  "repetitions_per_route": 20,
+  "cases": {
+    "repeated_mcp_question": {
+      "routes": {
+        "before": {
+          "first_call_ms": 1069.23,
+          "p50_ms": 1044.851,
+          "p95_ms": 1077.306,
+          "embedding_calls_including_first": 21,
+          "validated_citations": 160
+        },
+        "after": {
+          "first_call_ms": 986.563,
+          "p50_ms": 811.278,
+          "p95_ms": 839.942,
+          "embedding_calls_including_first": 1,
+          "validated_citations": 160
+        }
+      },
+      "equal_citation_lists": 20,
+      "p50_speedup": 1.288
+    },
+    "same_query_programming_domain": {
+      "routes": {
+        "before": {
+          "first_call_ms": 428.549,
+          "p50_ms": 421.827,
+          "p95_ms": 435.401,
+          "embedding_calls_including_first": 21,
+          "validated_citations": 160
+        },
+        "after": {
+          "first_call_ms": 420.298,
+          "p50_ms": 184.553,
+          "p95_ms": 189.357,
+          "embedding_calls_including_first": 1,
+          "validated_citations": 160
+        }
+      },
+      "equal_citation_lists": 20,
+      "p50_speedup": 2.286
+    },
+    "same_query_global_trading_domain": {
+      "routes": {
+        "before": {
+          "first_call_ms": 224.897,
+          "p50_ms": 175.995,
+          "p95_ms": 184.256,
+          "embedding_calls_including_first": 21,
+          "validated_citations": 0
+        },
+        "after": {
+          "first_call_ms": 169.018,
+          "p50_ms": 11.931,
+          "p95_ms": 18.43,
+          "embedding_calls_including_first": 1,
+          "validated_citations": 0
+        }
+      },
+      "equal_citation_lists": 20,
+      "p50_speedup": 14.751
+    }
+  }
+}

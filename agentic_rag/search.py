@@ -1,4 +1,4 @@
-"""Hybrid search wrapper: embed the query (fail-open), call hybrid_search()."""
+"""Adaptive candidates, optional query inference reuse and original-source spans."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -33,6 +33,7 @@ def search(
     conn, cfg: Config, query: str, domain: str | None = None, k: int = 8,
     *, project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, reranker=None, baseline: bool = False,
     strategy: str = "auto",
+    query_cache=None,
 ) -> tuple[list[SearchHit], list[str]]:
     validate_strategy(strategy)
     if type(k) is not int or not 1<=k<=100:raise ValueError("k must be between 1 and 100")
@@ -66,7 +67,14 @@ def search(
     if rows is None:
         qvec = None
         if strategy != "lexical":
-            vecs = try_embed_texts([query], cfg)
+            if query_cache is None or baseline:
+                vecs = try_embed_texts([query], cfg)
+            else:
+                vecs = query_cache.vectors(query, cfg, {
+                    'database': cfg.db_name, 'host': cfg.db_host,
+                    'role': conn.info.user, 'domain': domain, 'scopes': scopes,
+                    'as_of': as_of, 'history': history,
+                }, try_embed_texts)
             if vecs is None:
                 warnings.append("embedding unavailable — full-text search only")
             else:
