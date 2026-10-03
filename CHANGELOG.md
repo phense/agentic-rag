@@ -8,6 +8,11 @@ milestones rather than every commit, and interfaces may still change between `0.
 ## [Unreleased]
 
 ### Added
+- Local incremental `rag summary` and reader-only `memory_summary`, extending
+  bounded project profiles with original excerpts, source/version drill-down,
+  explicit inference/review labels and correction/expiry/access invalidation.
+  Audited refresh reuses unchanged entries; additive017 cache preserves baseline
+  access on016 and code rollback. See [original/synthetic paired measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md).
 - Bounded read-only `rag research` and `memory_research`: compound-question
   retrieval, relevant graph passages, original citations, source-qualified
   quoted support, disagreement and missing evidence, with call/context/time

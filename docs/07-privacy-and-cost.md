@@ -327,3 +327,15 @@ llm-wiki store with `migrate`.
 ## OpenCode integration
 
 OpenCode context reaches the model selected for coding, including DeepSeek. Main-session projection excludes reasoning, tool input/output and synthetic context, then secret-strips prose. Existing Codex/Claude mining provider settings remain authoritative. See [OpenCode data boundaries](opencode.md).
+
+## Thematic profile cache
+
+[Thematic summaries](thematic-summaries.md) copy bounded exact original excerpts
+and source/version references into a rebuildable local017 cache. Refresh is an
+audited gateway transaction; reads revalidate original trust, validity and scope.
+No summary provider, embedding call, new scheduler or client settings change is
+introduced. Theme excerpts selected for coding context reach the session's
+already-selected model through the same context path as existing profiles.
+The cache preserves the current shared-role visibility; topic domains do not
+provide per-user ACLs. [Measurements](benchmarks/2026-10-03-thematic-summaries/README.md)
+include creation/refresh cost and corpus-dependent SQL overhead.

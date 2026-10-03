@@ -40,3 +40,10 @@ between concurrent processes. Startup does not use prompt receipts.
 The gate is heuristic and the revision aggregates scoped metadata; large projects
 may cost more than the small [synthetic measurement](benchmarks/2026-09-06-project-context/README.md).
 Profiles are advisory retrieval aids, not newly inferred user instructions.
+
+Source Feature7 also adds [thematic excerpt views](thematic-summaries.md) to
+profile maintenance and bounded context. Stable references retain precedence;
+themes use the existing2400-character contribution and disclose their two-entry
+selection cap. Missing/stale themes schedule the existing profile_refresh job;
+missing017 or failed cache reads retain baseline context with explicit warnings.
+For full bounded drill-down use `rag summary TOPIC` or reader `memory_summary`.

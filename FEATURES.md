@@ -291,7 +291,7 @@ Controlled crowded-source tests recover missing documents with additional SQL co
 
 ## Bounded research retrieval (issue #31)
 
-Feature6 candidate adds `rag research` and read-only `memory_research` on both
+Feature6 adds `rag research` and read-only `memory_research` on both
 MCP privilege levels. Compound questions share step/call/time/context budgets;
 related graph documents contribute relevant original passages. Exact quoted
 support requires distinct qualified upstream sources. Disagreement, missing
@@ -305,4 +305,28 @@ Schema016, ordinary search, client settings, hooks and jobs remain unchanged;
 actual populated old/new/rollback clients and a strict restore are exercised.
 See [measurements](docs/benchmarks/2026-10-03-bounded-research/README.md),
 [operation](docs/bounded-research.md) and [verification](docs/verification/bounded-research.md).
-Candidate readiness is separate from merge approval and live adoption.
+PR44 was merged with specific approval and adopted locally at `bd01d97`,
+schema016, with1039 Python/7 Node checks and fresh8/14-tool MCP clients.
+All12 protected production tables,37147 historical audits and existing checkpoint/
+queue/batch IDs were retained; strict restore compared17 public tables and grants.
+No migration, reinstall, configuration edit or service interruption was required.
+[Adoption record](https://github.com/phense/agentic-rag/issues/31#issuecomment-5973683496).
+
+## Incremental thematic profiles (issue #32)
+
+Feature7 candidate adds local extractive summaries to bounded profiles, with
+`rag summary` and reader-only `memory_summary`. Audited refresh reuses unchanged
+excerpts; each entry preserves original citations and source/version references.
+Correction, expiry, source trust and scope changes withhold stale excerpts.
+Historical architecture entries remain explicitly superseded, never new canonical
+truth. Existing pins, checkpoints, knowledge and client settings remain intact.
+
+The additive017 cache is compatible with016 fallback and old/new clients.
+Three paired original-snapshot examples fit more eligible documents using9.89–45.77%
+less context, with higher query latency; synthetic controls separately test exact
+fact coverage and one-entry rebuild/seven-entry reuse. These are structural
+retrieval measurements, not production semantic accuracy. See
+[measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md),
+[reference](docs/thematic-summaries.md), [PB-5.7](docs/playbooks/thematic-summaries.md)
+and [verification](docs/verification/thematic-summaries.md). Merge approval and
+production017 rollout are pending separate authority.
