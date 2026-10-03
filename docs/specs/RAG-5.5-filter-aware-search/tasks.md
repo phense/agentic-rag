@@ -18,7 +18,7 @@ RAG-5.5; [spec](spec.md), [plan](plan.md), [findings](../../uml/findings.md). Se
 
 - [x] T007 Reconcile as-built transaction sequence and derive/exercise cross-component success and cancellation/rollback integration flows; depends T004/T005.
 - [x] T008 [AC-008] Full Python/Node checks and independent complete-bounded-diff review; fix and re-review all Critical/High/Medium findings; depends T006/T007.
-- [ ] T009 Converge evidence, sync completed Feature4 index state and current Feature5 readiness, publish linked PR with source/limits/upgrade evidence; keep Issue30 open pending specific merge and rollout gates; depends T008.
+- [x] T009 Converge evidence, sync completed Feature4 index state and current Feature5 readiness, publish linked PR with source/limits/upgrade evidence; keep Issue30 open pending specific merge and rollout gates; depends T008.
 
 ## Dependencies and verification
 
@@ -27,3 +27,5 @@ T001→T002→T003→T004→T005→T006; T004/T005→T007; T006/T007→T008→T0
 ## Playbook obligations
 
 PB-5.5 content review and actual populated isolated upgrade/recovery proof belong to T005 and block PR readiness. No production migration/deployment is authorized for Feature5 by the current request.
+
+Publication: [PR43](https://github.com/phense/agentic-rag/pull/43), branch feature/filter-aware-search, implementation41f4a31; canonical Issue30 retains live merge/adoption acceptance. Final complete diff and PB-5.5 acceptance Ready;987 Python/7Node and44 current-format checks passed.
