@@ -5,7 +5,9 @@ Claude/Codex/Antigravity compaction continuity through everyday use, configurati
 architecture, and design rationale. Each chapter says up front what you'll
 learn. Shipped versus still-planned rollout state lives in
 [`../FEATURES.md`](../FEATURES.md) and the blocker-first
-[`../BACKLOG.md`](../BACKLOG.md).
+[`../BACKLOG.md`](../BACKLOG.md) index. [GitHub Issues](https://github.com/phense/agentic-rag/issues)
+are canonical for open work; [contributing](12-contributing.md#production-compatibility-and-pr-workflow)
+explains production compatibility, upgrade evidence, and merge approval.
 
 ## Start here
 - [What’s New in 0.5.0](00-whats-new-in-0.5.md) — Antigravity CLI (`agy`) continuity: what Gemini/Antigravity offer, the three-hook install, `/compact` handoff, automatic-compaction detection.

@@ -1,16 +1,31 @@
 # agentic-rag — BACKLOG
 
 > **Convention (standing rule for coding-relevant work on this project).**
-> A single, complete, numbered backlog at the repo root. Work it **top-down**. Keep it
-> current: add findings at the right number, re-rank as priorities shift, update the status
-> marker. "Open" = anything not *built-tested-merged-and-running*. Every open item carries a
-> **why-not-done** and a **resumption trigger** (plus dependencies, where they exist).
+> [GitHub Issues](https://github.com/phense/agentic-rag/issues) are canonical for open work.
+> This file is the complete, numbered local index with stable IDs, Issue links, and historical
+> rollout notes. Work **blocker-first**, then by Issue priority; do not renumber IDs. Maintain
+> scope, priorities, dependencies, blockers, remaining acceptance criteria, **why-not-done**,
+> and **resumption triggers** in the linked Issues; reflect status changes in this index.
+> "Open" = anything not *built-tested-merged-and-running*. Revalidate historical versions,
+> settings, and observations before acting. PR merges require the maintainer's explicit approval.
 >
 > **Status legend:** ✅ done · 🔵 in progress · ⬜ open · 🔒 blocked (external/precondition) · ⏸ paused
 >
 > _(`(kind)` after the marker = decision / design / build / bug / enh / chore. Effort S/M/L/XL.)_
 
 ---
+
+## GitHub migration — 2026-10-03
+
+All 13 open or in-progress entries below are tracked in Issues #12–#24. Existing
+Issues #3–#9 are closed and remain linked to their completed work. Migration
+preserves the original scope and rollout notes; it does not complete implementation
+or prove a new live rollout. New Issues distinguish current source inspection from
+historical observations and retain dependencies and resumption conditions.
+
+Production compatibility and verified upgrade requirements apply to every change;
+see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
+[contributing](docs/12-contributing.md#production-compatibility-and-pr-workflow).
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
@@ -57,6 +72,8 @@
   during normal long-session use — in a Codex session started after the
   install. → *Dependency:* interactive Codex sessions long enough to exercise
   lifecycle boundaries. *(L)*
+  → *Issue:* [#12](https://github.com/phense/agentic-rag/issues/12).
+
 - 🔵 **0.3** _(chore)_ **Prove Claude continuity end to end.** Code, tests, and
   docs landed on 2026-09-03 (branch `feat/claude-compaction-continuity`).
   Measured `SessionEnd` wall time in the suite: 0.121 s (interpreter start +
@@ -104,6 +121,7 @@
   confirmation, an automatic compaction, and a `SessionEnd` tail capture are
   still to be exercised in a live session. → *Trigger:* the next interactive
   Claude Code session; record each outcome here. *(M)*
+  → *Issue:* [#13](https://github.com/phense/agentic-rag/issues/13).
 
 - ⬜ **0.4** _(chore)_ **Prove Antigravity (agy) continuity end to end.**
   Code, tests, and docs landed on 2026-09-06 (branch `feat/agy-continuity`,
@@ -131,12 +149,15 @@
   `transcript_agy.latest_auto_compaction`. → *Trigger:* the next interactive
   `agy` session in a trusted workspace; record each outcome here.
   → *Dependency:* an `agy` conversation long enough to auto-compact. *(M)*
+  → *Issue:* [#14](https://github.com/phense/agentic-rag/issues/14).
+
 - ⬜ **0.5** _(enh)_ **Gemini as a mining/enrichment provider.** `agy -p
   --output-format json --json-schema` can return schema-constrained JSON, so
   `[llm] provider = "agy"` is feasible next to Codex and Claude.
   → *Why not done:* not requested; provider health/backoff semantics for the
   Antigravity quota are unknown. → *Trigger:* a wish to mine with the Gemini
   subscription instead of Codex/Claude. *(M)*
+  → *Issue:* [#15](https://github.com/phense/agentic-rag/issues/15).
 
 ## §1 — Mining & curation pipeline
 
@@ -146,15 +167,21 @@
   a real full-text-search hit). It hasn't been measured against real usage yet. → *Trigger:*
   collect firing-rate stats from `hooks.log` over a representative usage window; tighten the
   signature only if the false-positive rate warrants it. *(S)*
+  → *Issue:* [#16](https://github.com/phense/agentic-rag/issues/16).
+
 - ⬜ **1.2** _(bug)_ **Age-gate the post-drain curation pass.** The curation pass currently
   runs on every hook spawn instead of respecting its intended 24h trigger, so the
   `audit_log` table grows one `curation_pass` row per turn instead of per day. → *Trigger:*
   add an age check before running the pass; verify audit-row growth rate drops accordingly.
   *(S)*
+  → *Issue:* [#17](https://github.com/phense/agentic-rag/issues/17).
+
 - ⬜ **1.3** _(enh)_ **`curation_pass` audit-row growth.** Depends on 1.2 landing — once the
   age gate is in place, confirm the row-growth rate is back to the intended cadence and add a
   regression test so a future regression is caught automatically. → *Trigger:* after 1.2 ships.
   *(S)*
+  → *Issue:* [#18](https://github.com/phense/agentic-rag/issues/18).
+
 - ✅ **1.4 / 1.5** **Lossless mining windows and crash-idempotent application.**
   Implemented by [issue #4](https://github.com/phense/agentic-rag/issues/4), commit
   `6958c4b`: accepted extraction batches, atomic effects, source-bound cursors and
@@ -167,6 +194,8 @@
   rotation is done (`rag maintenance` size-based rotation, one prior generation kept);
   `curation_pass` audit-row growth (see 1.2/1.3) is the remaining piece. → *Trigger:* close
   once 1.2/1.3 land. *(S)*
+  → *Issue:* [#19](https://github.com/phense/agentic-rag/issues/19).
+
 - ✅ **2.2** _(chore)_ **Refute/reactivation evidence epoch.** Issue #6 adds an
   explicit reactivation timestamp; old contradiction edges cannot trigger another
   refutation, including across a concurrent model call. New evidence remains
@@ -176,6 +205,7 @@
   `duplicate_candidates`/`queue_errors` fields of the review report; worker-level embed-error
   retry behavior. → *Trigger:* pick up alongside the related feature work, or as a dedicated
   coverage pass. *(M)*
+  → *Issue:* [#20](https://github.com/phense/agentic-rag/issues/20).
 
 ## §3 — Operational hardening
 
@@ -189,28 +219,36 @@
   for duplicate candidates has only been exercised in controlled runs, not under sustained
   real-world load. → *Trigger:* observe behavior over a longer live window; adjust
   thresholds/retry policy if duplicates or retries misbehave. *(S)*
+  → *Issue:* [#21](https://github.com/phense/agentic-rag/issues/21).
+
 - ⬜ **3.2** _(enh)_ **`memory_save` confidence normalization.** The mining path normalizes
   off-vocabulary confidence values before they reach the database; the interactive
   `memory_save` path does not, so an out-of-vocabulary value currently surfaces as a raw
   database check-constraint violation instead of a clean error. → *Trigger:* reuse the mining
   path's normalization helper in `memory_save`. *(S)*
+  → *Issue:* [#22](https://github.com/phense/agentic-rag/issues/22).
+
 - ⬜ **3.3** _(enh)_ **`session_start` context-before-maintenance ordering.** Context is built
   and then maintenance is triggered; if the maintenance enqueue fails, the already-built
   context is discarded in favor of an "unavailable" banner. → *Trigger:* emit the built context
   first, and treat an enqueue failure as a secondary warning rather than a full replacement.
   *(S)*
+  → *Issue:* [#23](https://github.com/phense/agentic-rag/issues/23).
+
 - ⬜ **3.4** _(chore)_ **Install path re-resolution.** The generated launchd/cron/systemd unit
   pins an absolute interpreter path at install time; if the virtualenv moves, the installed
   unit silently points at a dead path. → *Trigger:* have the install command re-resolve and
   reinstall the unit rather than requiring a manual fix. *(S)*
+  → *Issue:* [#24](https://github.com/phense/agentic-rag/issues/24).
 
 ## §4 — Supermemory-inspired improvement requests (2026-09-05)
 
 Analysis: [`docs/research/supermemory-comparison-2026-09-05.md`](docs/research/supermemory-comparison-2026-09-05.md).
 GitHub Issues hold the detailed proposals and acceptance criteria; this local numbered
 backlog remains the project work index. P1 = correctness/evaluation foundation;
-P2 = subsequent quality improvement. Existing §0–§3 work remains open. Source-loss work in 1.4/1.5 is locally active; scope and minimal source evidence precede
-automated fact replacement. Estimates are relative, not delivery commitments.
+P2 = subsequent quality improvement. Open §0–§3 work is linked above. Source-loss
+work in 1.4/1.5 is completed under Issue #4; historical backfill remains a separate
+operation. Estimates are relative, not delivery commitments.
 
 - ✅ **4.1** _(enh, P1)_ **Reproducible end-to-end memory evaluation.** Establish an EN/DE held-out corpus and report retrieval/answer quality, stale facts, context cost and latency.
   → *Issue:* [#3](https://github.com/phense/agentic-rag/issues/3). → *Completed:* 60-query retrieval baseline, real eight-query extraction/answer/judge smoke, all eight results inspected, 665-test suite and GitHub offline CI verified. See [model inspection](docs/benchmarks/2026-09-05-memory-model-smoke/inspection.md). *(M)*
@@ -238,5 +276,5 @@ automated fact replacement. Estimates are relative, not delivery commitments.
 
 ---
 
-_Closed items (fixed bugs, shipped features, resolved design questions) are not tracked here —
-see `CHANGELOG.md` for what has already shipped._
+_Completed entries above retain historical rollout evidence and Issue links.
+See `CHANGELOG.md` for release history; GitHub Issues track remaining open work._
