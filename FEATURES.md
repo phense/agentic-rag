@@ -220,6 +220,16 @@ exact-symbol preservation, optional two-hop evidence-bearing graph expansion and
 validated local reranker seam. Bilingual FTS remains available during embedding outages.
 See [policy and limitations](docs/retrieval-quality.md). Migration013 activated; installed reader and citation checks passed.
 
+## Adaptive retrieval (issue #26)
+
+Implemented on the feature branch; merge and production rollout pending. Eligible exact
+UUID/slug and standalone error-symbol queries skip local query inference; ordinary questions
+and misses keep hybrid retrieval. Optional CLI/MCP strategies preserve forced hybrid and
+explicit lexical behavior. No schema/configuration/data migration. In 20 paired Trading
+measurements per case, median exact lookup fell from about 1,040–1,064 ms to 16.5–17.0 ms;
+the ordinary-question control retained identical citations and about 1,050 ms latency.
+[Evidence and limits](docs/benchmarks/2026-10-03-adaptive-search/README.md).
+
 ## Bounded project context (issue #9)
 
 Source-backed stable/recent profile references, asynchronous audited refresh, scoped

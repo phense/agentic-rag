@@ -51,3 +51,15 @@ upgrade path from that installation. A fresh-install test alone is insufficient.
 - Satisfy compatibility, upgrade, review, and verification requirements before requesting merge
   approval. Keep unresolved work open until its acceptance criteria and required rollout evidence
   are met; do not bypass the PR workflow with direct pushes to the default branch.
+
+## Code review and feature evidence
+
+- Every code change requires an independent review of its complete bounded diff.
+  Verify and fix findings, then repeat review until no Critical, High, or Medium bug
+  remains. Bundle non-blocking Low bugs into a separate linked Issue; do not hide them.
+- Implement numbered feature requests sequentially. After each feature, report two
+  or three practical before/after examples with measured numerical evidence, source
+  revisions, test commands, sample sizes, and remaining limits. Never invent gains.
+- Trading is an authorized read-only measurement workload. Keep destructive tests,
+  migrations, interruption and restore rehearsals on isolated representative copies.
+  Keep private content and credentials out of public evidence and new provider calls.

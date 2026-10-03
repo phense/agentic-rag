@@ -68,15 +68,19 @@ def memory_domains() -> dict:
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
-                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0) -> dict:
+                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto") -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
     global context; scope=global is global-only, scope=all explicitly searches all.
-    Omitting both retains manual cross-project search."""
+    Omitting both retains manual cross-project search. strategy=auto avoids
+    embeddings for eligible exact selectors; hybrid retains the previous path;
+    lexical explicitly uses bilingual full-text only."""
+    from .search import validate_strategy
+    validate_strategy(strategy)
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy)
         return {"results": _plain(hits), "warnings": warnings}
 
 
