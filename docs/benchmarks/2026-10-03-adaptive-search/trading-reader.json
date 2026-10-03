@@ -1,0 +1,105 @@
+{
+  "store_counts": {
+    "documents": 10188,
+    "chunks": 11578,
+    "pins": 22,
+    "audit": 25368
+  },
+  "project": "/Users/peter/Agents/Trading",
+  "read_only": true,
+  "model": "bge-m3",
+  "repetitions_per_route": 20,
+  "before_file_sha256": "a9f931c988b63e49b5917310628d76cf0e5f9ab3efac50478b2324be9eb64c89",
+  "after_file_sha256": "c96863798924649cb3c899e5b4af053a6de181eeb3ff7e7ec7fe61a1edecd8ee",
+  "method": "same snapshot/connection; alternating paired order; first-call separate; no server cold-cache claim",
+  "cases": {
+    "document_uuid": {
+      "routes": {
+        "before": {
+          "first_call_ms": 1214.678,
+          "p50_ms": 1064.228,
+          "p95_ms": 1133.503,
+          "embedding_calls_including_first": 21,
+          "expected_document_hits": 0,
+          "validated_citations": 160
+        },
+        "after": {
+          "first_call_ms": 23.01,
+          "p50_ms": 16.927,
+          "p95_ms": 25.212,
+          "embedding_calls_including_first": 0,
+          "expected_document_hits": 20,
+          "validated_citations": 20
+        }
+      },
+      "equal_citation_lists": 0,
+      "p50_speedup": 62.872
+    },
+    "document_slug": {
+      "routes": {
+        "before": {
+          "first_call_ms": 1034.037,
+          "p50_ms": 1038.627,
+          "p95_ms": 1054.622,
+          "embedding_calls_including_first": 21,
+          "expected_document_hits": 20,
+          "validated_citations": 160
+        },
+        "after": {
+          "first_call_ms": 21.634,
+          "p50_ms": 16.533,
+          "p95_ms": 23.036,
+          "embedding_calls_including_first": 0,
+          "expected_document_hits": 20,
+          "validated_citations": 20
+        }
+      },
+      "equal_citation_lists": 0,
+      "p50_speedup": 62.821
+    },
+    "standalone_error": {
+      "routes": {
+        "before": {
+          "first_call_ms": 1040.874,
+          "p50_ms": 1045.56,
+          "p95_ms": 1057.928,
+          "embedding_calls_including_first": 21,
+          "expected_document_hits": 20,
+          "validated_citations": 20
+        },
+        "after": {
+          "first_call_ms": 25.752,
+          "p50_ms": 17.019,
+          "p95_ms": 25.719,
+          "embedding_calls_including_first": 0,
+          "expected_document_hits": 20,
+          "validated_citations": 20
+        }
+      },
+      "equal_citation_lists": 20,
+      "p50_speedup": 61.435
+    },
+    "ordinary_question_control": {
+      "routes": {
+        "before": {
+          "first_call_ms": 1047.118,
+          "p50_ms": 1050.416,
+          "p95_ms": 1066.234,
+          "embedding_calls_including_first": 21,
+          "expected_document_hits": null,
+          "validated_citations": 160
+        },
+        "after": {
+          "first_call_ms": 1046.585,
+          "p50_ms": 1048.14,
+          "p95_ms": 1068.418,
+          "embedding_calls_including_first": 21,
+          "expected_document_hits": null,
+          "validated_citations": 160
+        }
+      },
+      "equal_citation_lists": 20,
+      "p50_speedup": 1.002
+    }
+  }
+}

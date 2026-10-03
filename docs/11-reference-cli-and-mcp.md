@@ -26,7 +26,7 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 |---|---|---|
 | `rag save` | `--title` (required) · `--domain` (required) · `--dtype` (required) · `--body` · `--file <path>` · `--slug` · `--edge PREDICATE:SLUG` (repeatable) | Saves through `save_document()` — the one audited write gateway. Body comes from `--body` or from reading `--file`; if neither is given, the body is empty. `--slug` upserts: if a document with that slug already exists, this save updates it in place; otherwise the new document is created carrying that slug. `--edge` can be repeated to attach one or more typed edges (predicate:target-slug) in the same write. Prints `created`/`updated <slug> (N chunks, N edges)`; any secret-stripping or embedding-retry warning goes to stderr. |
 | `rag get <id_or_slug>` | `--json` | Fetches one document by UUID or slug, plus its incoming and outgoing edges. Human-readable by default; `--json` for the raw structure. Exits 1 if not found. |
-| `rag search <query>` | `--domain` · `-k <int>` (default `8`) · `--json` | Runs the same hybrid search the MCP tools use. Prints `score  slug  [domain/dtype]` per hit by default; `--json` for the full result plus any degrade warnings. |
+| `rag search <query>` | `--domain` · `-k <int>` (default `8`) · `--project` / `--scope` · `--as-of` · `--history` · `--graph-depth` · `--strategy auto\|hybrid\|lexical` (default `auto`) · `--json` | Adaptive exact-document/error lookup with hybrid fallback. `hybrid` forces the previous path; `lexical` skips query inference. Prints `score  slug  [domain/dtype]` per hit by default; JSON retains results/warnings and original chunk citations. |
 | `rag status` | — | One-screen health check: document counts; queue counts/errors and oldest open mine; provider health/remediation; open checkpoint count; newest checkpoint time/quality/project; pending checkpoint-enrichment count/age/warnings; backup freshness; and last curation run. |
 | `rag queue requeue-legacy-provider-failures` | `--expect <int>` (default `60`) · `--yes` | One-time recovery for the exact legacy Claude missing-binary/exit-1 cohort. Always prints the candidate count; refuses without `--yes` or on count mismatch. Preserves job identity, payload, transcript cursor/path, resets attempts, and makes only that cohort pending. |
 
@@ -202,7 +202,7 @@ Every event prints one JSON object and exits 0; failures are logged under
 | Tool | Signature | What it does |
 |---|---|---|
 | `memory_domains` | `()` | Every domain with its description and document count. |
-| `memory_search` | `(query, domain=None, k=8)` | Hybrid search (vector + full-text EN/DE, RRF fusion). Returns snippets with slug/score/verified_at. |
+| `memory_search` | `(query, domain=None, k=8, project=None, scope=None, as_of=None, history=False, graph_depth=0, strategy="auto")` | Same adaptive routes and hybrid fallback as CLI. Existing call shapes remain accepted. Returns original-source snippets, citations, evidence metadata and warnings. `hybrid` retains vector + EN/DE full-text RRF; `lexical` requests full-text without query embedding. |
 | `memory_get` | `(id_or_slug)` | Full document (title, body, meta, provenance, status) plus incoming and outgoing edges. |
 | `memory_neighbors` | `(id_or_slug, depth=1, predicates=None)` | Every edge within `depth` hops (undirected, capped at 3), optionally filtered by predicate. |
 | `memory_path` | `(from_id_or_slug, to_id_or_slug, max_depth=4)` | Shortest edge path between two documents; empty steps means no connection within `max_depth`. |

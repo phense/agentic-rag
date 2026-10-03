@@ -274,6 +274,21 @@ operation. Estimates are relative, not delivery commitments.
   → *Issue:* [#9](https://github.com/phense/agentic-rag/issues/9). → *Verified:* 757 tests pass; independent review Ready; migration014 activated with a reused verified backup; installed reader/profile checks pass and documents/pins unchanged. Published2c46e02; CI34024173116 success (2026-09-06).
   → *Trigger:* after scope/evidence semantics; extend 1.1 firing-rate measurement. *(M–L)*
 
+## §5 — Sequential quality and speed feature requests (2026-10-03)
+
+Implement in stable ID order 5.1–5.10. Every feature needs full tests, independent review with no open Critical/High/Medium bug, 2–3 measured practical examples, and populated-installation compatibility or a rehearsed upgrade/recovery path. Trading is authorized for read-only measurement; writes and fault injection use isolated test installations. PR merges still require explicit approval.
+
+- 🔵 **5.1** _(enh)_ **Adaptive retrieval with exact, lexical and semantic search paths.** → *Issue:* [#26](https://github.com/phense/agentic-rag/issues/26). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Current implementation: adaptive retrieval.
+- ⬜ **5.2** _(enh)_ **Permission-safe retrieval caches and reusable inference connections.** → *Issue:* [#27](https://github.com/phense/agentic-rag/issues/27). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.3** _(enh)_ **Selective local multilingual neural reranking.** → *Issue:* [#28](https://github.com/phense/agentic-rag/issues/28). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.4** _(enh)_ **Contextual chunk indexing with source-faithful evidence.** → *Issue:* [#29](https://github.com/phense/agentic-rag/issues/29). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.5** _(enh)_ **Filter-aware pgvector retrieval with bounded exact fallback.** → *Issue:* [#30](https://github.com/phense/agentic-rag/issues/30). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.6** _(enh)_ **Bounded evidence-checking multi-step research retrieval.** → *Issue:* [#31](https://github.com/phense/agentic-rag/issues/31). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.7** _(enh)_ **Incremental thematic memory summaries linked to original evidence.** → *Issue:* [#32](https://github.com/phense/agentic-rag/issues/32). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.8** _(enh)_ **Evidence-backed entity identities and scoped aliases.** → *Issue:* [#33](https://github.com/phense/agentic-rag/issues/33). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.9** _(enh)_ **Incremental embedding reuse and bounded ingestion preprocessing.** → *Issue:* [#34](https://github.com/phense/agentic-rag/issues/34). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+- ⬜ **5.10** _(enh)_ **Evaluation-driven retrieval and mining optimization from confirmed failures.** → *Issue:* [#35](https://github.com/phense/agentic-rag/issues/35). → *Why not done:* implementation and measured acceptance remain open. → *Trigger:* Resume after the preceding feature has been implemented, tested, reviewed, and reported.
+
 ---
 
 _Completed entries above retain historical rollout evidence and Issue links.

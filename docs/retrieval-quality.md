@@ -1,7 +1,8 @@
 # Retrieval diversity and evidence spans
 
-Ordinary CLI, MCP and hook searches now prefer distinct documents from the hybrid
-candidate pool. An additional chunk can remain when it covers different query terms;
+CLI and MCP searches use adaptive routing. Hook recall retains its existing lexical
+path. Both prefer distinct documents and share the bounded evidence presentation.
+An additional chunk can remain when it covers different query terms;
 this is a deterministic heuristic, not a semantic proof that evidence is redundant.
 Each result contains a contiguous snippet of at most400 characters, `snippet_start`
 and `snippet_end` offsets in the original chunk, and a citation
@@ -10,6 +11,22 @@ when selecting the window. Offsets and chunk identity refer to that saved chunk 
 re-saving a mutable legacy document replaces its chunks.
 
 ## Candidate selection and limitations
+
+The default `strategy=auto` resolves canonical document UUIDs and lowercase hyphenated
+slugs directly when the target has eligible chunks. Standalone error/exception symbols
+use bilingual full-text when exact original-source evidence survives. These routes
+skip query embedding and use the same domain, project, status, source and temporal
+filters as hybrid search. Missing/ineligible targets and ordinary questions retain
+the existing hybrid path. Exact lookup is a bounded snippet search; use `rag get` for
+the full document. A single-word slug follows the ordinary hybrid path.
+
+`rag search QUERY --strategy hybrid` and `memory_search(..., strategy="hybrid")`
+force the previous behavior. `strategy=lexical` explicitly requests bilingual full-text
+without query inference; it does not select the exact-document route. Existing callers
+may omit the new option. Legacy benchmark baseline mode remains unchanged.
+
+The [paired Trading measurements](benchmarks/2026-10-03-adaptive-search/README.md)
+cover exact identity, slug and error lookup plus an ordinary-question control.
 
 Migration013 adds `hybrid_search_candidates`; the previous temporal function remains
 available for benchmark/compatibility baselines. Vector retrieval uses HNSW with a
@@ -49,7 +66,8 @@ output produces a visible warning and the deterministic hybrid ordering. No rera
 model, dependency or hosted query service is enabled. Embedding outages retain bilingual
 FTS with the existing warning. Graph expansion defaults off pending broader workload gains.
 
-Scores are RRF ranks, **not probabilities**. Exact error/symbol mismatches can abstain;
+Hybrid/full-text scores are RRF ranks; exact-document scores are `1/(61 + chunk_index)`.
+Scores indicate ordering within a route and are **not probabilities**. Exact error/symbol mismatches can abstain;
 ordinary semantic negatives still return candidates. No generic cosine cutoff or
 confidence threshold was justified by the small development set. Consumers must not
 treat a nonempty result as proof that a question is answerable.
