@@ -16,7 +16,7 @@
 - [x] C003 Verify all current suites and old-call/source contracts; depends on C002.
 - [x] C004 Measure three practical paired Trading scenarios and synthetic fault boundaries; depends on C002.
 - [x] C005 Independently review complete diff, fix all Critical/High/Medium bugs and re-review.
-- [ ] C006 Publish numerical evidence, compatibility and rollback guide, update capability state and submit PR.
+- [x] C006 Publish numerical evidence, compatibility and rollback guide, update capability state and submit PR.
 - [ ] C007 Obtain explicit merge approval, then verify merged source and separately report deployment state.
 
 ## Dependencies
@@ -30,6 +30,8 @@ docs/benchmarks/2026-10-03-adaptive-search/README.md and trading-reader.json for
 source hashes, reader-only paired timings, quality denominators and populated rollback checks.
 No production code, schema, configuration or knowledge mutation has been performed.
 Independent final review: Critical 0, High 0, Medium 0, Low 0; see review.md.
+PR #36 created and linked to the T3 thread. Both GitHub offline benchmark CI runs pass.
+Existing AnyIO/PyJWT dependency alerts are tracked in Issue #37, outside this change review.
 
 - [ ] All implementation and acceptance behavior is complete with current evidence.
 - [ ] Accepted requirements are ready to synchronize before archival.
