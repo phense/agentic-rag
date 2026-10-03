@@ -1,0 +1,78 @@
+{
+  "commit": "ae4a10283a8cd17525fc0550c9c5b4398679ea39",
+  "model": "bge-m3",
+  "mcp": {
+    "readonly": {
+      "tool_count": 7,
+      "write_tools_available": false,
+      "exact_search": true,
+      "new_schema": true
+    },
+    "authorized": {
+      "tool_count": 13,
+      "write_tools_available": true,
+      "exact_search": true,
+      "new_schema": true
+    }
+  },
+  "practical_cases": [
+    {
+      "label": "related_trading_concepts",
+      "expected": 2,
+      "source_coverage": {
+        "off": 1,
+        "auto": 2
+      },
+      "ms": {
+        "off": 1369.154,
+        "auto": 2153.478
+      }
+    },
+    {
+      "label": "german_question_english_sources",
+      "expected": 3,
+      "source_coverage": {
+        "off": 1,
+        "auto": 3
+      },
+      "ms": {
+        "off": 1078.975,
+        "auto": 2058.699
+      }
+    },
+    {
+      "label": "ambiguous_newsletter_failure",
+      "expected": 3,
+      "source_coverage": {
+        "off": 2,
+        "auto": 3
+      },
+      "ms": {
+        "off": 1064.15,
+        "auto": 1798.901
+      }
+    }
+  ],
+  "store_counts": {
+    "documents": 10395,
+    "chunks": 11785,
+    "pins": 22,
+    "audit": 26332,
+    "checkpoints": 20
+  },
+  "exact_selectors_ms": [
+    50.865,
+    45.565
+  ],
+  "cache": {
+    "three_calls_ms": [
+      1061.988,
+      812.897,
+      810.852
+    ],
+    "embedding_calls": 1,
+    "identical_citations": true
+  },
+  "absolute_cli": true,
+  "method": "Single live smoke samples, not paired latency benchmarks. Neural off precedes auto and warms the vector cache. Cache timing is one three-call series. No private queries, source identities or payloads are exported."
+}

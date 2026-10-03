@@ -222,7 +222,7 @@ See [policy and limitations](docs/retrieval-quality.md). Migration013 activated;
 
 ## Adaptive retrieval (issue #26)
 
-Merged in PR #36 as `f27acd9`; production rollout pending. Eligible exact
+Merged in PR #36 as `f27acd9`; adopted locally on 2026-10-03. Eligible exact
 UUID/slug and standalone error-symbol queries skip local query inference; ordinary questions
 and misses keep hybrid retrieval. Optional CLI/MCP strategies preserve forced hybrid and
 explicit lexical behavior. No schema/configuration/data migration. In 20 paired Trading
@@ -232,7 +232,7 @@ the ordinary-question control retained identical citations and about 1,050 ms la
 
 ## Query inference reuse (issue #27)
 
-Merged in PR #38 as`342bccf`; production rollout pending. Long-lived MCP
+Merged in PR #38 as`342bccf`; adopted locally on 2026-10-03. Long-lived MCP
 sessions reuse bounded context/model-scoped query vectors with fresh SQL authority and
 local model-digest checks. HTTP transport reuse preserves one-shot process cleanup and
 fork isolation. Paired Trading warm medians fell 1,045→811 ms and 422→185 ms for repeated
@@ -256,7 +256,7 @@ documents/pins. Published implementation2c46e02; CI34024173116 passed.
 
 ## Selective local neural reranking (issue #28)
 
-Implemented and reviewed in PR #39 with930 Python/7 Node tests; merge and production rollout pending.
+Merged in PR #39 as`ae4a102` and adopted locally on 2026-10-03 with930 Python/7 Node tests. The pinned native model is supervised on loopback; old MCP sessions adopt the code on reconnect. See [rollout evidence](docs/verification/three-feature-production-adoption.md).
 A verified local Qwen3-Reranker-0.6B Q8_0 runtime can reorder up to12 ambiguous
 auto candidates within1500ms. Original payloads, SQL eligibility and citations remain
 authoritative. Exact identifiers/symbols and explicit hybrid/lexical/baseline routes
