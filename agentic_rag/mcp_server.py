@@ -287,9 +287,53 @@ def memory_summary(topic: str, project: str | None = None, domain: str | None = 
                            history=history,context_chars=context_chars))
 
 
-READ_TOOLS = (memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
+def memory_entity(name: str, domain: str, project: str | None = None, scope: str | None = None,
+                  attribute: str | None = None, as_of: str | None = None,
+                  history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+    """Read exact scoped/domain entity facts and operator-confirmed direct aliases.
+    Requires a project or explicit scope=global. No global/project mixing, provider
+    call or write. Preserves original citations and stable IDs; ambiguous current
+    values are withheld from context. history=true includes currently trusted
+    accepted expired/superseded facts with labels; future facts stay out.
+    Domains are topics, not user ACLs. Use memory_get to inspect original sources.
+    """
+    from .entities import read
+    cfg=load_config()
+    with db.connect(cfg,role='reader') as conn:
+        return _plain(read(conn,name,domain=domain,project=project,scope=scope,
+                           attribute=attribute,as_of=as_of,history=history,context_chars=context_chars))
+
+
+def memory_entity_alias(alias: str, target: str, domain: str, evidence: dict,
+                        effective_at: str, project: str | None = None, scope: str | None = None,
+                        confirm: StrictBool = False) -> dict:
+    """Save an evidence-backed directed alias suggestion. evidence requires
+    namespace/source_id/role/quote/complete. confirm=true is explicit operator
+    confirmation that both names identify the same entity; inspect original
+    evidence first and never invent a user quote. Uncertain/competing links remain
+    review-only. No embeddings or destructive identity union. Same known scope/domain.
+    """
+    from .store import save_entity_alias
+    cfg,conn=_connect()
+    with conn:
+        return _plain(save_entity_alias(conn,cfg,alias=alias,target=target,domain=domain,evidence=evidence,
+            effective_at=effective_at,project=project,scope=scope,confirm=confirm,actor='claude'))
+
+
+def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dict:
+    """Explicit reversible alias review: accepted or revoked with reason. Acceptance
+    rechecks original confirmed span, current scope/domain and competing anchors.
+    Revocation retains original facts, relation/source records and audit history.
+    """
+    from .store import review_entity_alias
+    cfg,conn=_connect()
+    with conn:
+        return _plain(review_entity_alias(conn,document_id,state=state,reason=reason,actor='claude'))
+
+
+READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline)
-WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
+WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 
 
 def tool_names(readonly: bool) -> list[str]:

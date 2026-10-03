@@ -89,7 +89,10 @@ checks while authoring and verified local links. Content review is static;
 execution is the separate two-driver rehearsal above. No review or fixture
 timestamp authorizes production activity.
 
-## Production boundary
+## Historical pre-adoption production boundary
+
+This section records the Feature7 candidate session before its separately approved adoption. Current adoption evidence follows below.
+
 
 Canonical checkout remains at `bd01d97`, schema016, source MCP8 reader/14 total
 tools. Preflight verified7 domains,22 pins,25 checkpoints and the configured
@@ -106,9 +109,8 @@ tables,37147 historical audits and checkpoint/queue/batch IDs preserved,
 strict17-table restore and fresh8/14-tool clients. Evidence is the private
 research-rollout report and [canonical adoption comment](https://github.com/phense/agentic-rag/issues/31#issuecomment-5973683496).
 
-## Acceptance and next action
+## Acceptance and adoption
 
-Code, isolated execution and independent final reviews are complete. [PR45](https://github.com/phense/agentic-rag/pull/45)
-is published and registered with this T3 thread. Request approval of that specific
-PR. Do not merge or deploy on silence. Issue32 remains open until applicable
-merge and separately authorized production rollout evidence are recorded.
+[PR45](https://github.com/phense/agentic-rag/pull/45) was merged with specific approval and separately adopted on2026-10-04 at `2a29c50a2fa435d2caeb3354da9dbce92e85e6bb`, schema001–017. Issue32 is closed; the [canonical adoption record](https://github.com/phense/agentic-rag/issues/32#issuecomment-5974266962) supersedes the earlier pending status. Post-adoption1076 Python tests passed in143.30s and7 Node tests in80.69025ms. Strict restore, protected original rows/audits/queue/checkpoint/batch IDs, grants, unchanged client/config/model settings and fresh9/15-tool clients were verified. Worker lock released; no services stopped or dependencies reinstalled.
+
+This reconciliation uses the canonical adoption comment and private rollout/acceptance/activation/test reports read at the Feature8 preflight. Private dumps and source bodies are not published. The historical candidate measurements and source016 limits above remain unchanged. Feature8 begins from this adopted017 source and requires its own specific merge and separate rollout approval.

@@ -114,3 +114,22 @@ Evidence: [transaction sequence](filter-aware-search.md), [plan](../specs/RAG-5.
 | --- | --- | --- | --- | --- |
 | AF-5.5-01 | budget/scan settings leak into caller or neighboring client | AC-001/003/005 | savepoint-local settings outside candidate statement; successful explicit restoration and real timeout/cancel recovery tests | resolved; actual success/timeout/cancel/discovery ownership tests and full987 suite pass |
 | AF-5.5-02 | long-document chunks crowd out other eligible sources | AC-002/004 | exact eligibility materialization and per-document diversity before final limit; bounded ANN pool and separate oracle recall measurements | resolved; complete small-set oracle/ties4096/4097 and measured pool/source diversity; Trading exact-oracle/citation parity |
+
+## RAG-5.8 entity identities (2026-10-04)
+
+Named question: How can an operator reverse identity links without rewriting facts
+or permitting scope/trust bridges? [Model](entity-identities.md),
+[plan](../specs/RAG-5.8-entity-identities/plan.md), AC-001–007.
+
+- AF-5.8-001: Preserve exact assertion keys and original validity functions; cross-name
+  validity belongs only to the new explicit read. Required T002/T004; design addressed.
+- AF-5.8-002: Relations bind one known scope/domain, complete active user evidence and
+  explicit confirmation. A star has one anchor and no transitive chains. Required
+  T003/T004; design addressed.
+- AF-5.8-003: Old writes lack mapping; resolve exact rows directly and report missing
+  indexing, backfill through gateway. Required T002/T006; design addressed.
+- AF-5.8-004: Support and relation state must share the read snapshot; competing
+  confirmations require ordered scope locks. Required T003/T004/T006; design addressed.
+- AF-5.8-005: Code rollback retains018, source rows and old-client behavior. Backfill
+  is bounded/replay-safe; strict backup restore precedes migration. Required T006;
+  executed evidence pending.

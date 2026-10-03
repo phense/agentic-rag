@@ -314,7 +314,7 @@ No migration, reinstall, configuration edit or service interruption was required
 
 ## Incremental thematic profiles (issue #32)
 
-Feature7 candidate adds local extractive summaries to bounded profiles, with
+Feature7 adds local extractive summaries to bounded profiles, with
 `rag summary` and reader-only `memory_summary`. Audited refresh reuses unchanged
 excerpts; each entry preserves original citations and source/version references.
 Correction, expiry, source trust and scope changes withhold stale excerpts.
@@ -328,5 +328,4 @@ fact coverage and one-entry rebuild/seven-entry reuse. These are structural
 retrieval measurements, not production semantic accuracy. See
 [measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md),
 [reference](docs/thematic-summaries.md), [PB-5.7](docs/playbooks/thematic-summaries.md)
-and [verification](docs/verification/thematic-summaries.md). Merge approval and
-production017 rollout are pending separate authority.
+and [verification](docs/verification/thematic-summaries.md). PR45 was merged with specific approval and separately adopted at `2a29c50`, schema017; Issue32 is closed. [Canonical adoption record](https://github.com/phense/agentic-rag/issues/32#issuecomment-5974266962).
