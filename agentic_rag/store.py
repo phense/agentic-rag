@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 
 from .chunker import chunk_markdown, slugify
 from .config import Config
+from .contextual import ContextIndexResult
 from .embed import embed_texts, try_embed_texts, vec_literal
 from .secrets import strip_secrets, strip_secrets_json
 
@@ -78,7 +79,21 @@ def save_document(
     commit: bool = True,
     project: str | None = None,
     scope: str | None = None,
-) -> SaveResult:
+    index_context: bool = False,
+    index_limit: int = 8,
+) -> SaveResult | ContextIndexResult:
+    if type(index_context) is not bool:
+        raise ValueError('index_context must be boolean')
+    if index_context:
+        if any((slug,meta,provenance,edges,mark_verified,status,project,scope)):
+            raise ValueError('index-only save cannot combine with canonical write options')
+        from .contextual import refresh
+        try:
+            return refresh(conn,cfg,doc_id=doc_id,title=title,body=body,domain=domain,
+                           dtype=dtype,limit=index_limit,actor=actor,commit=commit)
+        except Exception:
+            if commit:conn.rollback()
+            raise
     # commit=False lets a bounded mining batch own the outer transaction;
     # the caller must commit or roll back all its effects together.
     # status=None means: 'active' on create, keep current status on update
@@ -179,6 +194,9 @@ def _save_txn(
     conn.execute(
         "SELECT replace_chunks(%s, %s, %s)", (doc_id, chunks, literals)
     )
+
+    from .contextual import lexical_save
+    lexical_save(conn, doc_id)
 
     # edges out of this document (upsert on src+dst_slug+predicate).
     # COALESCE: a re-save without evidence must never clobber stored evidence —
@@ -303,13 +321,24 @@ def reembed_document(conn, cfg: Config, doc_id: str) -> int:
     chunks = chunk_markdown(f"# {doc['title']}\n\n{doc['body']}")
     vecs = embed_texts(chunks, cfg) if chunks else []
     literals = [vec_literal(v) for v in vecs]
-    conn.execute("SELECT replace_chunks(%s, %s, %s)",
-                 (doc_id, chunks, literals))
-    conn.execute(
-        "INSERT INTO audit_log(actor, op, document_id, summary)"
-        " VALUES ('mining', 'reembed', %s, %s)",
-        (doc_id, f"re-embedded {len(chunks)} chunks"))
-    conn.commit()
+    try:
+        # Do not hold a document lock during inference. A newer save must win.
+        current = conn.execute('SELECT title,body FROM documents WHERE id=%s FOR UPDATE NOWAIT',
+                               (doc_id,)).fetchone()
+        if current != doc:
+            raise ValueError('reembed source changed; retry')
+        conn.execute("SELECT replace_chunks(%s, %s, %s)",
+                     (doc_id, chunks, literals))
+        from .contextual import lexical_save
+        lexical_save(conn, doc_id)
+        conn.execute(
+            "INSERT INTO audit_log(actor, op, document_id, summary)"
+            " VALUES ('mining', 'reembed', %s, %s)",
+            (doc_id, f"re-embedded {len(chunks)} chunks"))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     return len(chunks)
 
 

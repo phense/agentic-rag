@@ -88,9 +88,11 @@ def _main(argv: list[str] | None = None) -> int:
     p_save = sub.add_parser("save")
     p_save.add_argument("--project")
     p_save.add_argument("--scope", choices=["project", "global", "unknown"])
-    p_save.add_argument("--title", required=True)
-    p_save.add_argument("--domain", required=True)
-    p_save.add_argument("--dtype", required=True)
+    p_save.add_argument("--title")
+    p_save.add_argument("--domain")
+    p_save.add_argument("--dtype")
+    p_save.add_argument("--index-context", metavar="ID_OR_SLUG_OR_PENDING", help="bounded index-only save; preserves canonical content")
+    p_save.add_argument("--index-limit", type=int, default=8)
     p_save.add_argument("--body")
     p_save.add_argument("--file", type=Path)
     p_save.add_argument("--slug", help="upsert: update the doc with this slug"
@@ -124,6 +126,7 @@ def _main(argv: list[str] | None = None) -> int:
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
     p_search.add_argument("--strategy", choices=["auto", "hybrid", "lexical"], default="auto")
+    p_search.add_argument("--context", choices=["auto", "off"], default="auto")
     p_search.add_argument("--rerank", choices=["auto", "off"], default="auto")
     p_search.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
     p_search.add_argument("--as-of")
@@ -231,6 +234,10 @@ def _main(argv: list[str] | None = None) -> int:
     m_rep.add_argument("--golden", type=Path, default=None)
 
     args = p.parse_args(argv)
+    if args.cmd == 'save' and not args.index_context:
+        missing = [f'--{name}' for name in ('title','domain','dtype') if getattr(args,name) is None]
+        if missing:
+            p.error('the following arguments are required: '+', '.join(missing))
     if args.cmd == "install" and args.restore is not None and args.check:
         p.error("--restore and --check are mutually exclusive")
     if (args.cmd == "install" and args.codex_home is not None
@@ -579,6 +586,30 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "save":
+            if args.index_context:
+                if any((args.title,args.body,args.file,args.domain,args.dtype,args.slug,args.edge,args.project,args.scope)):
+                    raise ValueError('index-only save cannot combine with canonical write options')
+                from . import contextual, query_cache
+                if not contextual.available(conn):
+                    raise ValueError('context indexing requires migration015')
+                if args.index_context == 'pending':
+                    digest=query_cache.model_digest(cfg)
+                    target=conn.execute(f"""SELECT d.* FROM documents d WHERE EXISTS(
+                        SELECT 1 FROM chunks c LEFT JOIN chunk_contexts x ON x.chunk_id=c.id AND x.version=1
+                        WHERE c.document_id=d.id AND (x.source_hash IS DISTINCT FROM {contextual.SOURCE_HASH}
+                        OR x.embedding IS NULL OR x.model_digest IS DISTINCT FROM %s))
+                        ORDER BY d.id LIMIT 1""",(digest,)).fetchone()
+                else:
+                    target=store.get_document(conn,args.index_context)
+                if target is None:
+                    if args.index_context!='pending':raise ValueError('index document not found')
+                    print(json.dumps({'indexed_chunks':0,'remaining_chunks':0,'warnings':[]}));return 0
+                result=store.save_document(conn,cfg,title=target['title'],body=target['body'],
+                    domain=target['domain'],dtype=target['dtype'],doc_id=str(target['id']),
+                    index_context=True,index_limit=args.index_limit)
+                print(json.dumps(dataclasses.asdict(result)));return 0
+            if any(getattr(args,n) is None for n in ('title','domain','dtype')):
+                raise ValueError('normal save requires --title, --domain and --dtype')
             body = args.body if args.body is not None else (
                 args.file.read_text() if args.file else "")
             edges = []
@@ -630,7 +661,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.cmd == "search":
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))

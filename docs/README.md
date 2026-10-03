@@ -39,6 +39,12 @@ explains production compatibility, upgrade evidence, and merge approval.
 ## Appendix
 - [99 · Design notes & rationale](99-design-notes.md) — why Postgres over files, why a single writer, why derived domains, and the data-safety choices.
 
+## Contextual indexing
+
+[Contextual chunk indexing](contextual-indexing.md) — Feature4 retrieval behavior,
+bounded audited backfill, source014→015 upgrade, interruption and recovery limits;
+[measured evidence](benchmarks/2026-10-03-contextual-indexing/README.md).
+
 ## OpenCode integration
 
 [OpenCode and DeepSeek](opencode.md) — native context/recall, compaction continuity, idle mining, installation and scope.

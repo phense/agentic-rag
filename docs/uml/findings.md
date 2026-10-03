@@ -94,3 +94,14 @@ regressions. Final independent fix review is clean; full verification passed (71
 
 RAG-009: independent final review Ready; real queue/worker/reader success and failed
 refresh recovery pass. Full isolated suite:757 passed29.14s. See rag009-context.md.
+
+
+## RAG-5.4 architecture findings
+
+RAG-5.4 design/as-built reconciliation,2026-10-03. Evidence: [consistency sequence](contextual-indexing.md), [plan](../specs/RAG-5.4-contextual-indexing/plan.md), tests/test_contextual_indexing.py and the populated [rehearsal](../benchmarks/2026-10-03-contextual-indexing/results.json).
+
+| ID | Question/risk | Requirement | Required task | State |
+| --- | --- | --- | --- | --- |
+| AF-5.4-001 | source edit/model switch during inference | AC-004 | fingerprint/lock, query and index digest races, scope/time/source eligibility tests | resolved; regression tests and old-writer recovery |
+| AF-5.4-002 | index-only rebuild loses baseline/citations | AC-002/003 | side table + all15 canonical table fingerprints, historical audit subset, original spans | resolved; migration/index/recovery snapshots |
+| AF-5.4-003 | old worker cannot process new jobs | AC-004/006 | unchanged queue vocabulary/scheduler; actual old save/read after015; queued reembed lexical context | resolved; coexistence and retry tests |
