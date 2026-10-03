@@ -1,0 +1,320 @@
+{
+  "timestamp": "2026-10-03T19:14:31.542083+00:00",
+  "source_revision": "99514fe012666e67dff02ae2419e05a6c876d1f9",
+  "baseline_search_sha256": "f602d45808faa56e64f77aeab6d82ed20831af0e4cbcd0b8fb17336cd18d3985",
+  "source_schema": 15,
+  "target_schema": 16,
+  "production_writes": 0,
+  "copied_rows_preserved": true,
+  "existing_table_privileges_unchanged": true,
+  "store_counts": {
+    "documents": 10448,
+    "chunks": 11838
+  },
+  "method": "Strict read-only exported production snapshot restored into owned disposable copy and ANALYZE before both routes; paired alternating complete searches, default auto/context-auto, k3,1200 original chars,no reranker/querycache; same unchanged local bge-m3; private queries/content not exported.",
+  "embedding_model": "bge-m3",
+  "model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+  "repetitions": 20,
+  "cases": {
+    "trading-project": {
+      "eligible_chunks": 2926,
+      "raw_oracle_chunks": 50,
+      "context_oracle_chunks": 50,
+      "equal_top3_citation_lists": 20,
+      "routes": {
+        "before": {
+          "p50_ms": 1887.673,
+          "p95_ms": 1905.247,
+          "first_call_ms": 1927.261,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            1892.491,
+            1902.517,
+            1860.444,
+            1879.248,
+            1883.364,
+            1881.483,
+            1902.065,
+            1874.538,
+            1886.372,
+            1892.597,
+            1980.508,
+            1905.247,
+            1901.411,
+            1884.142,
+            1888.973,
+            1883.411,
+            1898.787,
+            1885.966,
+            1898.12,
+            1883.653
+          ]
+        },
+        "after": {
+          "p50_ms": 1904.027,
+          "p95_ms": 1924.292,
+          "first_call_ms": 1895.219,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            1916.343,
+            1924.292,
+            1897.409,
+            1901.923,
+            1905.124,
+            1912.06,
+            1914.447,
+            1902.93,
+            1939.384,
+            1916.723,
+            1891.162,
+            1891.537,
+            1910.275,
+            1907.869,
+            1900.69,
+            1889.879,
+            1910.238,
+            1898.754,
+            1891.722,
+            1884.392
+          ]
+        }
+      }
+    },
+    "trading-domain": {
+      "eligible_chunks": 1155,
+      "raw_oracle_chunks": 50,
+      "context_oracle_chunks": 50,
+      "equal_top3_citation_lists": 20,
+      "routes": {
+        "before": {
+          "p50_ms": 1048.018,
+          "p95_ms": 1056.35,
+          "first_call_ms": 1051.341,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            1048.824,
+            1058.917,
+            1049.713,
+            1056.35,
+            1043.922,
+            1046.011,
+            1030.077,
+            1054.075,
+            1044.39,
+            1048.808,
+            1049.909,
+            1034.195,
+            1031.678,
+            1047.229,
+            1041.708,
+            1050.145,
+            1051.897,
+            1029.632,
+            1034.646,
+            1055.247
+          ]
+        },
+        "after": {
+          "p50_ms": 1055.713,
+          "p95_ms": 1065.746,
+          "first_call_ms": 1059.52,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            1052.701,
+            1057.726,
+            1041.453,
+            1039.499,
+            1049.381,
+            1061.256,
+            1059.262,
+            1065.746,
+            1041.705,
+            1041.37,
+            1055.338,
+            1062.58,
+            1063.549,
+            1056.088,
+            1039.8,
+            1048.936,
+            1056.504,
+            1061.171,
+            1047.747,
+            1066.285
+          ]
+        }
+      }
+    },
+    "rare-domain-in-project": {
+      "eligible_chunks": 627,
+      "raw_oracle_chunks": 50,
+      "context_oracle_chunks": 50,
+      "equal_top3_citation_lists": 20,
+      "routes": {
+        "before": {
+          "p50_ms": 609.576,
+          "p95_ms": 617.774,
+          "first_call_ms": 632.923,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            605.187,
+            607.627,
+            600.916,
+            605.912,
+            616.816,
+            608.514,
+            611.425,
+            617.774,
+            598.449,
+            622.676,
+            608.344,
+            614.481,
+            609.221,
+            616.763,
+            611.506,
+            609.92,
+            615.844,
+            616.158,
+            609.232,
+            603.955
+          ]
+        },
+        "after": {
+          "p50_ms": 617.352,
+          "p95_ms": 624.763,
+          "first_call_ms": 626.363,
+          "validated_citations": 60,
+          "raw_vector_oracle_recall": 1.0,
+          "context_vector_oracle_recall": 1.0,
+          "raw_ms": [
+            616.179,
+            621.447,
+            618.285,
+            618.252,
+            610.181,
+            624.231,
+            615.119,
+            629.111,
+            619.967,
+            619.181,
+            584.807,
+            615.71,
+            623.131,
+            621.937,
+            594.536,
+            624.763,
+            610.919,
+            616.453,
+            614.111,
+            612.738
+          ]
+        }
+      }
+    }
+  },
+  "strict_source_backup": {
+    "strict_restore_exit_zero": true,
+    "all_public_table_rows_match": true,
+    "application_table_privileges_match": true,
+    "owned_database_cleanup": "verified",
+    "consistent_exported_snapshot": true,
+    "dump_sha256": "fa200d818830e022c9417ef539a8c02ac32105182bd44d18e6e7b6c353bae023",
+    "tables": {
+      "assertion_sources": {
+        "rows": 563,
+        "sha256": "b563279a993862caa815e6914c119ccf490311bc420058c07cdfd0af31a6bd31"
+      },
+      "audit_log": {
+        "rows": 37062,
+        "sha256": "44afe6a04bde74fb4b3a2d6edb67a813eafbc71eb8155619f10078d21de787f3"
+      },
+      "chunk_contexts": {
+        "rows": 11838,
+        "sha256": "35b86ebbe610d019a95e8209609a24099babf47e139bc1d16ef17249d2efb771"
+      },
+      "chunks": {
+        "rows": 11838,
+        "sha256": "cf8735c16f50b66c756f435861f4b7f22e413869af6d694cad9da8967382e236"
+      },
+      "claim_evidence": {
+        "rows": 2347,
+        "sha256": "b7d36e04f16dc2b3127197a1da58bd8cde2391d3ba4393778fc357c28f84f7c3"
+      },
+      "claim_records": {
+        "rows": 2254,
+        "sha256": "77da7f1f647409b8755200f04d21a6b6537b485ef9e30ffb280024ecd3a9481e"
+      },
+      "continuation_checkpoints": {
+        "rows": 23,
+        "sha256": "2ad26ad83895f3f2e9c8d129a96b5a8f0456121da294b74f1c8bb3cb6eb9e25a"
+      },
+      "documents": {
+        "rows": 10448,
+        "sha256": "2090ffebeeaa1ef85ee46529938efe23b1251926dd0c7deffc922038dba76627"
+      },
+      "domains": {
+        "rows": 7,
+        "sha256": "1df77c14ff339fadcd0b0333575e2963ac91143076a10916e2d9cb0238598eda"
+      },
+      "edges": {
+        "rows": 12666,
+        "sha256": "35642222ff70c115e9f87a00d450c001d97fb43b3a88fdde849978378562b7b9"
+      },
+      "fact_assertions": {
+        "rows": 563,
+        "sha256": "4a6965d4b8c4c436f41e548f490c37ccb39b02e1d7ad1859ee1429fca3436f2a"
+      },
+      "knowledge_sources": {
+        "rows": 354,
+        "sha256": "a33d78267cca53f612cadc311b79fab1a09bb3128df4326e94f5768777f97c2b"
+      },
+      "mining_batches": {
+        "rows": 991,
+        "sha256": "793947a2b15b851fcd875efc5afb79132494777a7502a0bc670742b6cd2f0f0d"
+      },
+      "mining_queue": {
+        "rows": 1394,
+        "sha256": "36954748c3cdd575311d9f5ade01731e7142f5184af45a9dc23d1446c083ef56"
+      },
+      "pins": {
+        "rows": 22,
+        "sha256": "528162f68c560fe9bab643457180730cb74ef8b944b9d56e724cb6093aed1fc9"
+      },
+      "project_profiles": {
+        "rows": 5,
+        "sha256": "7f7265189222aefbf9df4b3873dd1ca9a3259afdc759d2f95e0b3e8aae7cf046"
+      },
+      "schema_migrations": {
+        "rows": 15,
+        "sha256": "6d612fc89cdd9e2e667b7a05bf142895911a49aa41bc28d59655f2e99f6493d6"
+      }
+    }
+  },
+  "owned_database_cleanup": "verified",
+  "candidate_head": "99514fe012666e67dff02ae2419e05a6c876d1f9",
+  "candidate_files_sha256": {
+    "agentic_rag/search.py": "24535f3d0716c9ad21dfdcfa891a4060e90ec95e33610e8ac4caa434b7ab065b",
+    "agentic_rag/vector_plan.py": "82ffb6a0d748d3112f799d76995d512ddec85da897bf6f0e9621e9a69ee65c53",
+    "sql/016_filter_aware_search.sql": "fbfea80be41ac6744f536138f070b67967d7e33589f004d043ac36fb812b5ae5",
+    "scripts/verify_filter_aware_search.py": "833c19546bc5609adfd135e2f1e2c69d231661e4e2cd85aa12fa796963d2abd3"
+  },
+  "script_metadata_only_diff": {
+    "tested_sha256": "833c19546bc5609adfd135e2f1e2c69d231661e4e2cd85aa12fa796963d2abd3",
+    "current_sha256": "6195cc330c23540010e5bac14d1686c2336a96e47a87a2e0a5be412fa4dd7f7b",
+    "change": "Corrected the unused synthetic dataset description from three domains to two populated domains. The Trading measurement path is byte-identical; reconstructed tested script hash verified. No numerical samples changed."
+  },
+  "sql_formatting_only_diff": {
+    "tested_sha256": "fbfea80be41ac6744f536138f070b67967d7e33589f004d043ac36fb812b5ae5",
+    "current_sha256": "0baa58591d91036c1f4bd90d79fa1e051429198cfd65e5454f35e437ccd651f5",
+    "change": "Removed one trailing space on lines42,43,51,52; all SQL tokens/statements and measured samples unchanged. Re-add those four spaces to reconstruct the tested file hash."
+  }
+}
