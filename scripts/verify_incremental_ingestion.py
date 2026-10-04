@@ -51,10 +51,11 @@ def config_file(cfg, path):
     return path
 
 
-def child(source, cfg, temp, args, expected=0):
+def child(source, cfg, temp, args, *, expected_digest, expected=0):
     from agentic_rag.query_cache import model_digest
     digest = model_digest(cfg)
-    assert digest is not None
+    if digest is None or digest!=expected_digest:
+        raise ValueError('Model differs from the frozen run identity; discard results')
     validate_name(cfg.db_name)
     with db.connect(cfg, role='reader') as c:
         token = c.execute('SELECT owner_id FROM benchmark_ownership').fetchone()['owner_id']
@@ -171,6 +172,9 @@ def child_main(args):
             transcript = temp / 'session.jsonl'
             ext = extraction(f'{mode}-{rep}')
             transcript.write_text(json.dumps({'uuid':'end', 'message':{'role':'user','content':'Public fixture'}})+'\n')
+            expected_window=mining.read_window(str(transcript),after_uuid=None,
+                max_chars=cfg.mine_max_digest_chars,per_block=cfg.mine_per_block_chars)
+            assert not expected_window.has_more and all(e['complete'] for e in expected_window.events)
             session = f'public-{mode}-{rep}'
             if mode in ('backlog', 'crash', 'crash_apply'):
                 jobs.enqueue_mine(connection, replace(cfg, mine_debounce_seconds=0), session_id=session,
@@ -237,7 +241,7 @@ def child_main(args):
                 original_mode = 'crash_apply' if mode=='retry_apply' else 'crash'
                 quality = assert_documents(connection,f'public-{original_mode}-{rep}',extraction(f'{original_mode}-{rep}'))
                 queue=connection.execute('SELECT status,last_uuid FROM mining_queue WHERE session_id=%s',(f'public-{original_mode}-{rep}',)).fetchone()
-                assert queue['status']=='done' and queue['last_uuid']=='end'
+                assert queue['status']=='done' and queue['last_uuid']==expected_window.last_uuid
                 return dict(ms=round(elapsed*1000,3),**identity,**measured,**quality,documents=8,batches=1,
                     no_reextraction=True,no_duplicate_application=True,queue_done=True,
                     peak_mib=peak_mib(),throughput_documents_s=round(8/elapsed,3),queue_delay_ms=None)
@@ -355,7 +359,10 @@ with db.connect(cfg,role='writer') as c:
         if not sys.stdin.readline():break
         result=store.save_document(c,cfg,title='Concurrent '+route+str(step),
             body='Public concurrent '+route+str(step),domain='general',dtype='memory',
-            project='/synthetic/ingestion/'+route,actor='public-'+route)
+            project='/synthetic/ingestion/'+route,actor='public-'+route,commit=False)
+        print(json.dumps(dict(route=route,step=step,phase='uncommitted')),flush=True)
+        assert sys.stdin.readline()  # Both writers stay uncommitted until parent releases them.
+        c.commit()
         actual=store.get_document(c,result.doc_id)
         original=store.get_document(c,'public-legacy')
         assert actual['body']=='Public concurrent '+route+str(step) and original['body']=='Preserved original user-a knowledge'
@@ -371,10 +378,19 @@ with db.connect(cfg,role='writer') as c:
         def advance(schema):
             assert all(p.poll() is None for p in processes)
             for p in processes:p.stdin.write('next\n');p.stdin.flush()
+            prepared=[]
+            for p in processes:
+                line=p.stdout.readline()
+                if not line:raise RuntimeError('Owned overlapping writer failed: '+p.stderr.read()[-2000:])
+                packet=json.loads(line);assert packet['phase']=='uncommitted'
+                prepared.append(packet)
+            assert len(prepared)==2  # Two live transactions coexist before either commits.
+            for p in processes:p.stdin.write('commit\n');p.stdin.flush()
             for p in processes:
                 line=p.stdout.readline()
                 if not line:raise RuntimeError('Owned overlapping client failed: '+p.stderr.read()[-2000:])
                 packet=json.loads(line);assert packet['schema']==schema
+                packet['two_uncommitted_writers_observed']=True
                 observations.append(packet)
         yield advance,observations
     finally:
@@ -504,24 +520,24 @@ def main():
             with db.connect(after) as c:db.apply_migrations(c,db.SQL_DIR)
             with isolated_database(cfg) as fault_cfg:
                 with db.connect(fault_cfg) as c:db.apply_migrations(c,db.SQL_DIR)
-                interrupted=child(ROOT,fault_cfg,temp,['crash_apply','999'],expected=78)
+                interrupted=child(ROOT,fault_cfg,temp,['crash_apply','999'],expected=78,expected_digest=result['model_digest'])
                 with db.connect(fault_cfg,role='reader') as c:
                     assert c.execute("SELECT count(*) n FROM documents WHERE provenance->>'session_id'='public-crash_apply-999'").fetchone()['n']==0
                     assert c.execute("SELECT result FROM mining_batches WHERE session_id='public-crash_apply-999'").fetchone()['result'] is None
                 result['interrupted_application']=dict(interrupted,retained_extraction=True,
-                    resumed=child(ROOT,fault_cfg,temp,['retry_apply','999']))
+                    resumed=child(ROOT,fault_cfg,temp,['retry_apply','999'],expected_digest=result['model_digest']))
             with db.connect(after,role='reader') as c:
                 assert c.execute('SELECT count(*) n FROM documents').fetchone()['n']==0
             scenarios={name:{r:[] for r in ('before','after')} for name in ('small-edit','interrupted-retry','independent-backlog')}
             for rep in range(args.repeats):
                 for route in (('before','after') if rep%2==0 else ('after','before')):
                     directory,owned=(source,before) if route=='before' else (ROOT,after)
-                    scenarios['small-edit'][route].append(child(directory,owned,temp,['edit',str(rep)]))
-                    crash=child(directory,owned,temp,['crash',str(rep)],expected=77)
-                    retry=child(directory,owned,temp,['retry',str(rep)])
+                    scenarios['small-edit'][route].append(child(directory,owned,temp,['edit',str(rep)],expected_digest=result['model_digest']))
+                    crash=child(directory,owned,temp,['crash',str(rep)],expected=77,expected_digest=result['model_digest'])
+                    retry=child(directory,owned,temp,['retry',str(rep)],expected_digest=result['model_digest'])
                     retry['committed_before_crash']=crash
                     scenarios['interrupted-retry'][route].append(retry)
-                    scenarios['independent-backlog'][route].append(child(directory,owned,temp,['backlog',str(rep)]))
+                    scenarios['independent-backlog'][route].append(child(directory,owned,temp,['backlog',str(rep)],expected_digest=result['model_digest']))
                 print(json.dumps({'finished_pair':rep+1}),flush=True)
             result['scenarios']={name:{r:stat(rows) for r,rows in routes.items()} for name,routes in scenarios.items()}
         if args.production_copy:result['populated_private_recovery']=private_recovery(args.private_dir)
@@ -529,6 +545,7 @@ def main():
             result['trading_reader']=trading(args.repeats)
             result['trading_reader']['limits']='Live source018 lexical read-only controls; no production ingestion/cache writes or semantic gain measured.'
             result['trading_reader']['source_revision']=BASE
+    assert model_digest(cfg)==result['model_digest'], 'Run model changed; discard results'
     assert {str(p.relative_to(ROOT)):sha256(p.read_bytes()).hexdigest() for p in paths}==frozen
     result['measured_files_sha256']=frozen;result['measured_hashes_unchanged']=True
     args.output.parent.mkdir(parents=True,exist_ok=True)

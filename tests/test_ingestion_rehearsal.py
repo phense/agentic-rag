@@ -18,3 +18,11 @@ def test_child_config_preserves_model_and_relevant_options(tmp_path):
     path=verify.config_file(cfg,tmp_path/'config.toml')
     assert load_config(path)==cfg
     assert path.stat().st_mode & 0o077 == 0
+
+
+def test_changed_model_between_observations_refuses_before_any_database(monkeypatch, tmp_path):
+    from agentic_rag import query_cache
+    monkeypatch.setattr(query_cache,'model_digest',lambda _: 'b'*64)
+    monkeypatch.setattr(verify.db,'connect',lambda *a,**k:pytest.fail('changed-model DB accessed'))
+    with pytest.raises(ValueError,match='frozen run identity'):
+        verify.child(tmp_path,Config(),tmp_path,['edit','0'],expected_digest='a'*64)
