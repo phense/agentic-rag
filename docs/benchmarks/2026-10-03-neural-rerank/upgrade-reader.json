@@ -1,0 +1,15 @@
+{
+  "source_revision": "342bccf6fce51213b7bac1560e41e7554b2e989c",
+  "baseline_search_sha256": "41a373960bc52bcfd579e8b7e89d0b7f376674dad52369dc027e7c9385ced9b4",
+  "public_tables_checked": 17,
+  "unchanged_full_row_snapshots": true,
+  "concurrent_actual_previous_and_candidate_readers": true,
+  "endpoint_outage_retry_and_actual_previous_code_rollback": true,
+  "users": 2,
+  "projects": 2,
+  "domains": 2,
+  "knowledge_documents": 5,
+  "pin_checkpoint_and_queued_work_retained": true,
+  "all_knowledge_writes_through_gateway": true,
+  "owned_database_cleanup": "verified"
+}

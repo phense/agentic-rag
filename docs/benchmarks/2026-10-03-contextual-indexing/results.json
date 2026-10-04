@@ -1,0 +1,2346 @@
+{
+  "timestamp": "2026-10-03T16:23:08.700489+00:00",
+  "source_revision": "499c656d7fcb1cf1d1938f7d2404b4043d9fb0b0",
+  "baseline_files_sha256": {
+    "store": "07a52792357832ab0e00148f3085b81265907fa0c4a3e154ffe3ecb235674df9",
+    "search": "8753e103e3a6ed899910384a65c6b08a4c6307530c785bcaa0d0385ee141b10a"
+  },
+  "candidate_head": "499c656d7fcb1cf1d1938f7d2404b4043d9fb0b0",
+  "candidate_files_sha256": {
+    "agentic_rag/contextual.py": "c985a94833ee6ecf81faabc9659ca4875820de8e81f44c681a168948c97fffeb",
+    "agentic_rag/store.py": "2679ec36ed8c32410cb2b2070fcef690f02fc3f288cc77921c36ef05e0a2e150",
+    "agentic_rag/search.py": "f602d45808faa56e64f77aeab6d82ed20831af0e4cbcd0b8fb17336cd18d3985",
+    "agentic_rag/cli.py": "92cc18c53115847b03e152a6830db03c8fe5bad419571a70f6ab7d8e41e0aaca",
+    "agentic_rag/mcp_server.py": "130b74a6430f6b94561ed81292e57d9ba1c084c7ea0905771b4653cfdf282637",
+    "sql/015_contextual_chunks.sql": "93779caa4fd49e2f70379a78d13f3ce3941d5db942bfca5fbad857a65ef12ef3",
+    "scripts/verify_contextual_indexing.py": "7101c8ce4b7d502635bf37eed516929dfa73b5c5316fd608af9c984b8937ffc8"
+  },
+  "dataset": "11 synthetic representative documents, including replaced/expired assertions and a sourced claim;2 writer actors,2 projects,2 domains; no production data",
+  "embedding_model": "bge-m3",
+  "model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+  "embed_dim": 1024,
+  "backend": "local Ollama loopback11434",
+  "method": "alternating paired calls, no reranker/query cache, real local bge-m3; first calls separate; k3/source1200 chars",
+  "repetitions": 20,
+  "canonical_before": {
+    "assertion_sources": {
+      "rows": 2,
+      "sha256": "ee63731e877460edcad90918bbefe74a94d29f3468cb5fa6c429a8c8571da504"
+    },
+    "audit_log": {
+      "rows": 24,
+      "sha256": "3dfb2614a846a842f3dbc9e64d501ddc563e5ec1921fef197a79b1e6f969aaee"
+    },
+    "chunks": {
+      "rows": 21,
+      "sha256": "70a7ee5467649272531f67cbf01dad69dafa76e22ee1e732b5bb77ba40108648"
+    },
+    "claim_evidence": {
+      "rows": 3,
+      "sha256": "e956890796893a507112bb3eff7bd87ace44f635c57a301a2c101312e9ce0fb5"
+    },
+    "claim_records": {
+      "rows": 3,
+      "sha256": "a8489b9c27a816de74deebc51a6bc247a21ce14b11e1763c30df44295d35f2d8"
+    },
+    "continuation_checkpoints": {
+      "rows": 1,
+      "sha256": "fc1942665b226e634ad01800f992f4a8157de80f1a6d14557833bf678ec40bff"
+    },
+    "documents": {
+      "rows": 11,
+      "sha256": "1e9b1489474136b73342de87d90c862c5e99f51e2f8fca7faa1fbfd5d3018fd2"
+    },
+    "domains": {
+      "rows": 2,
+      "sha256": "2f3acdba4c6561a4a5bc6851da50efda628dbe5c860e12444988d0e5b92dac92"
+    },
+    "edges": {
+      "rows": 2,
+      "sha256": "970f70d85afc4af5db722d4accfc411571d82425376a9071133195b767c4b6a0"
+    },
+    "fact_assertions": {
+      "rows": 2,
+      "sha256": "38ab4444456b2e83a8b8fa3330689977fc963c342378df79989fa4bb1627c040"
+    },
+    "knowledge_sources": {
+      "rows": 3,
+      "sha256": "86a0995b97d43f950fa2ecde3a5fcb48c881ff093c131bd98f42f1a04ef0f2ca"
+    },
+    "mining_batches": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "mining_queue": {
+      "rows": 1,
+      "sha256": "0bc2eee9fc881210a71ce7a92df9a769b60ca96f70a13e559e70bf4577289966"
+    },
+    "pins": {
+      "rows": 1,
+      "sha256": "86239b3422f2fe537481a7bf3f0a0f9d7873a5158a59b2a207a4c92d1f6e40fc"
+    },
+    "project_profiles": {
+      "rows": 1,
+      "sha256": "cb5a225a82b6254b8f2a9e1132d31db876012550f7f49d94636570bf19976804"
+    }
+  },
+  "canonical_after_indexing": {
+    "assertion_sources": {
+      "rows": 2,
+      "sha256": "ee63731e877460edcad90918bbefe74a94d29f3468cb5fa6c429a8c8571da504"
+    },
+    "audit_log": {
+      "rows": 35,
+      "sha256": "12b65db9684b18b64b263061e7b1d1ed53f17f8367df26dbcfec4b056a842ade"
+    },
+    "chunks": {
+      "rows": 21,
+      "sha256": "70a7ee5467649272531f67cbf01dad69dafa76e22ee1e732b5bb77ba40108648"
+    },
+    "claim_evidence": {
+      "rows": 3,
+      "sha256": "e956890796893a507112bb3eff7bd87ace44f635c57a301a2c101312e9ce0fb5"
+    },
+    "claim_records": {
+      "rows": 3,
+      "sha256": "a8489b9c27a816de74deebc51a6bc247a21ce14b11e1763c30df44295d35f2d8"
+    },
+    "continuation_checkpoints": {
+      "rows": 1,
+      "sha256": "fc1942665b226e634ad01800f992f4a8157de80f1a6d14557833bf678ec40bff"
+    },
+    "documents": {
+      "rows": 11,
+      "sha256": "1e9b1489474136b73342de87d90c862c5e99f51e2f8fca7faa1fbfd5d3018fd2"
+    },
+    "domains": {
+      "rows": 2,
+      "sha256": "2f3acdba4c6561a4a5bc6851da50efda628dbe5c860e12444988d0e5b92dac92"
+    },
+    "edges": {
+      "rows": 2,
+      "sha256": "970f70d85afc4af5db722d4accfc411571d82425376a9071133195b767c4b6a0"
+    },
+    "fact_assertions": {
+      "rows": 2,
+      "sha256": "38ab4444456b2e83a8b8fa3330689977fc963c342378df79989fa4bb1627c040"
+    },
+    "knowledge_sources": {
+      "rows": 3,
+      "sha256": "86a0995b97d43f950fa2ecde3a5fcb48c881ff093c131bd98f42f1a04ef0f2ca"
+    },
+    "mining_batches": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "mining_queue": {
+      "rows": 1,
+      "sha256": "0bc2eee9fc881210a71ce7a92df9a769b60ca96f70a13e559e70bf4577289966"
+    },
+    "pins": {
+      "rows": 1,
+      "sha256": "86239b3422f2fe537481a7bf3f0a0f9d7873a5158a59b2a207a4c92d1f6e40fc"
+    },
+    "project_profiles": {
+      "rows": 1,
+      "sha256": "cb5a225a82b6254b8f2a9e1132d31db876012550f7f49d94636570bf19976804"
+    }
+  },
+  "source_rows_preserved": true,
+  "migration_interrupt_retry_idempotent": true,
+  "roles_unchanged": true,
+  "concurrent_actual_old_and_new_readers": true,
+  "reader_mcp_original_citation": true,
+  "actual_old_writer_correction_resume": true,
+  "actual_old_reader_code_rollback": true,
+  "verified014_backup_restore_and_reupgrade": true,
+  "index_cost": [
+    {
+      "case": "service-port",
+      "chunks": 3,
+      "batch_limit": 1,
+      "calls": 3,
+      "elapsed_ms": 656.974,
+      "baseline_save_ms": 1247.611
+    },
+    {
+      "case": "dated-unit",
+      "chunks": 3,
+      "batch_limit": 1,
+      "calls": 3,
+      "elapsed_ms": 766.618,
+      "baseline_save_ms": 470.52
+    },
+    {
+      "case": "late-section",
+      "chunks": 5,
+      "batch_limit": 1,
+      "calls": 5,
+      "elapsed_ms": 1095.784,
+      "baseline_save_ms": 419.655
+    }
+  ],
+  "cases": {
+    "service-port": {
+      "lexical": {
+        "before": {
+          "p50_ms": 9.272,
+          "p95_ms": 10.121,
+          "first_call_ms": 12.723,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 108,
+          "raw_ms": [
+            10.366,
+            10.121,
+            9.292,
+            9.278,
+            9.637,
+            9.442,
+            8.922,
+            9.152,
+            9.137,
+            9.06,
+            9.733,
+            9.076,
+            9.692,
+            9.226,
+            8.792,
+            9.248,
+            8.976,
+            9.461,
+            9.42,
+            9.267
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 108,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 12.114,
+          "p95_ms": 12.845,
+          "first_call_ms": 14.277,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 508,
+          "raw_ms": [
+            13.07,
+            12.829,
+            12.845,
+            12.586,
+            11.988,
+            12.681,
+            12.209,
+            12.438,
+            11.966,
+            11.857,
+            11.819,
+            12.389,
+            11.948,
+            11.847,
+            12.026,
+            11.904,
+            12.281,
+            12.155,
+            11.538,
+            12.073
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 508,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            }
+          ]
+        }
+      },
+      "auto": {
+        "before": {
+          "p50_ms": 168.498,
+          "p95_ms": 173.53,
+          "first_call_ms": 180.416,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 549,
+          "raw_ms": [
+            169.406,
+            169.515,
+            168.279,
+            169.352,
+            172.302,
+            168.828,
+            168.716,
+            162.118,
+            164.24,
+            173.629,
+            165.071,
+            169.695,
+            171.632,
+            164.451,
+            168.275,
+            160.134,
+            164.151,
+            162.566,
+            173.53,
+            168.189
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 549,
+              "warnings": [],
+              "top_citation": "65f6dd79-4567-4678-9c3e-738a02787496#b1060b2f-4185-404c-8ae2-ca6b292004e7:0-108"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 172.957,
+          "p95_ms": 189.562,
+          "first_call_ms": 169.697,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 908,
+          "raw_ms": [
+            170.755,
+            168.702,
+            176.95,
+            185.068,
+            173.659,
+            173.231,
+            178.738,
+            172.241,
+            168.607,
+            200.29,
+            172.682,
+            189.562,
+            176.5,
+            174.355,
+            178.572,
+            163.154,
+            164.66,
+            165.899,
+            169.224,
+            168.418
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 908,
+              "warnings": [],
+              "top_citation": "9a7aeb1f-b2e4-4fa0-9770-06f8a5a3adba#c4b309f1-3121-4c27-b97b-27b090f35f08:256-656"
+            }
+          ]
+        }
+      }
+    },
+    "dated-unit": {
+      "lexical": {
+        "before": {
+          "p50_ms": 9.588,
+          "p95_ms": 10.804,
+          "first_call_ms": 11.366,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 138,
+          "raw_ms": [
+            10.575,
+            14.267,
+            9.692,
+            10.804,
+            9.627,
+            9.936,
+            10.023,
+            10.706,
+            9.722,
+            9.474,
+            8.948,
+            9.421,
+            9.68,
+            9.02,
+            8.745,
+            9.476,
+            9.279,
+            9.344,
+            9.545,
+            9.549
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 138,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 12.467,
+          "p95_ms": 13.097,
+          "first_call_ms": 14.467,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 538,
+          "raw_ms": [
+            12.113,
+            11.706,
+            11.764,
+            12.686,
+            13.097,
+            12.351,
+            12.697,
+            12.622,
+            12.495,
+            12.069,
+            12.289,
+            12.44,
+            12.661,
+            12.382,
+            12.59,
+            12.586,
+            12.37,
+            12.558,
+            13.176,
+            11.887
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 538,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            }
+          ]
+        }
+      },
+      "auto": {
+        "before": {
+          "p50_ms": 162.749,
+          "p95_ms": 171.656,
+          "first_call_ms": 180.099,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 602,
+          "raw_ms": [
+            162.482,
+            160.081,
+            163.642,
+            162.121,
+            165.157,
+            161.903,
+            159.867,
+            163.016,
+            171.656,
+            160.849,
+            159.924,
+            161.655,
+            160.744,
+            166.869,
+            170.247,
+            169.015,
+            168.573,
+            173.423,
+            157.156,
+            167.538
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 602,
+              "warnings": [],
+              "top_citation": "9043e1c3-47a0-419e-83a0-bae030ecbaac#39ac49d2-5a94-4a6c-b2ef-f9d0792c09d0:0-138"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 169.285,
+          "p95_ms": 182.112,
+          "first_call_ms": 169.521,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 938,
+          "raw_ms": [
+            185.815,
+            170.028,
+            169.346,
+            163.23,
+            162.851,
+            166.73,
+            176.271,
+            176.768,
+            169.915,
+            167.962,
+            175.014,
+            174.328,
+            169.224,
+            166.937,
+            163.443,
+            178.952,
+            164.797,
+            166.921,
+            168.208,
+            182.112
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 938,
+              "warnings": [],
+              "top_citation": "c5640bcf-2d8c-4585-9dec-1e18069f9751#f02b2a69-41fc-4816-aafc-d9c4caffe365:474-874"
+            }
+          ]
+        }
+      }
+    },
+    "late-section": {
+      "lexical": {
+        "before": {
+          "p50_ms": 9.418,
+          "p95_ms": 11.994,
+          "first_call_ms": 13.812,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 112,
+          "raw_ms": [
+            9.759,
+            9.551,
+            9.581,
+            9.441,
+            9.396,
+            9.763,
+            9.197,
+            9.303,
+            8.931,
+            9.149,
+            9.242,
+            9.073,
+            8.93,
+            9.487,
+            9.702,
+            9.37,
+            9.456,
+            12.504,
+            11.994,
+            9.043
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 1,
+              "source_chars": 112,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 12.198,
+          "p95_ms": 18.76,
+          "first_call_ms": 18.462,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 475,
+          "raw_ms": [
+            16.509,
+            17.653,
+            12.124,
+            11.903,
+            12.293,
+            11.848,
+            11.597,
+            12.174,
+            11.844,
+            12.461,
+            11.602,
+            11.988,
+            12.33,
+            12.222,
+            12.116,
+            11.718,
+            17.433,
+            12.846,
+            18.92,
+            18.76
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": true,
+              "citations": 2,
+              "source_chars": 475,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            }
+          ]
+        }
+      },
+      "auto": {
+        "before": {
+          "p50_ms": 163.079,
+          "p95_ms": 179.424,
+          "first_call_ms": 203.815,
+          "relevant_original_fact": 0,
+          "denominator": 20,
+          "mean_source_chars": 200,
+          "raw_ms": [
+            185.622,
+            162.356,
+            164.797,
+            166.379,
+            163.165,
+            163.352,
+            162.932,
+            156.685,
+            166.155,
+            158.757,
+            162.993,
+            171.563,
+            179.424,
+            169.583,
+            165.905,
+            161.151,
+            159.309,
+            161.987,
+            158.763,
+            161.839
+          ],
+          "raw_outcomes": [
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            },
+            {
+              "quality": false,
+              "citations": 3,
+              "source_chars": 200,
+              "warnings": [],
+              "top_citation": "9485256d-7e93-4bd8-8a6d-92056bd14dbc#59508297-c1ea-46a5-8b1f-d772c7ce7cd7:0-112"
+            }
+          ]
+        },
+        "after": {
+          "p50_ms": 175.752,
+          "p95_ms": 184.633,
+          "first_call_ms": 201.256,
+          "relevant_original_fact": 20,
+          "denominator": 20,
+          "mean_source_chars": 875,
+          "raw_ms": [
+            186.624,
+            174.084,
+            183.321,
+            164.209,
+            161.97,
+            184.633,
+            174.436,
+            177.659,
+            178.533,
+            167.095,
+            180.453,
+            178.219,
+            173.728,
+            181.019,
+            172.172,
+            164.238,
+            163.317,
+            165.212,
+            177.068,
+            182.844
+          ],
+          "raw_outcomes": [
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            },
+            {
+              "quality": true,
+              "citations": 3,
+              "source_chars": 875,
+              "warnings": [],
+              "top_citation": "a0509cc1-4720-4234-a268-0fb1a959c820#19a5cb4e-b18f-431a-9c4b-7755534d855f:0-363"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "strict_operator_backup": {
+    "strict_restore_exit_zero": true,
+    "all_public_table_rows_match": true,
+    "application_table_privileges_match": true,
+    "owned_database_cleanup": "verified",
+    "consistent_exported_snapshot": true,
+    "dump_sha256": "44a90996672df4703b1fff1e4ffe4c959fe4084391249b8f7a45ffc97467c010",
+    "tables": {
+      "assertion_sources": {
+        "rows": 2,
+        "sha256": "ee63731e877460edcad90918bbefe74a94d29f3468cb5fa6c429a8c8571da504"
+      },
+      "audit_log": {
+        "rows": 24,
+        "sha256": "3dfb2614a846a842f3dbc9e64d501ddc563e5ec1921fef197a79b1e6f969aaee"
+      },
+      "chunks": {
+        "rows": 21,
+        "sha256": "70a7ee5467649272531f67cbf01dad69dafa76e22ee1e732b5bb77ba40108648"
+      },
+      "claim_evidence": {
+        "rows": 3,
+        "sha256": "e956890796893a507112bb3eff7bd87ace44f635c57a301a2c101312e9ce0fb5"
+      },
+      "claim_records": {
+        "rows": 3,
+        "sha256": "a8489b9c27a816de74deebc51a6bc247a21ce14b11e1763c30df44295d35f2d8"
+      },
+      "continuation_checkpoints": {
+        "rows": 1,
+        "sha256": "fc1942665b226e634ad01800f992f4a8157de80f1a6d14557833bf678ec40bff"
+      },
+      "documents": {
+        "rows": 11,
+        "sha256": "1e9b1489474136b73342de87d90c862c5e99f51e2f8fca7faa1fbfd5d3018fd2"
+      },
+      "domains": {
+        "rows": 2,
+        "sha256": "2f3acdba4c6561a4a5bc6851da50efda628dbe5c860e12444988d0e5b92dac92"
+      },
+      "edges": {
+        "rows": 2,
+        "sha256": "970f70d85afc4af5db722d4accfc411571d82425376a9071133195b767c4b6a0"
+      },
+      "fact_assertions": {
+        "rows": 2,
+        "sha256": "38ab4444456b2e83a8b8fa3330689977fc963c342378df79989fa4bb1627c040"
+      },
+      "knowledge_sources": {
+        "rows": 3,
+        "sha256": "86a0995b97d43f950fa2ecde3a5fcb48c881ff093c131bd98f42f1a04ef0f2ca"
+      },
+      "mining_batches": {
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "mining_queue": {
+        "rows": 1,
+        "sha256": "0bc2eee9fc881210a71ce7a92df9a769b60ca96f70a13e559e70bf4577289966"
+      },
+      "pins": {
+        "rows": 1,
+        "sha256": "86239b3422f2fe537481a7bf3f0a0f9d7873a5158a59b2a207a4c92d1f6e40fc"
+      },
+      "project_profiles": {
+        "rows": 1,
+        "sha256": "cb5a225a82b6254b8f2a9e1132d31db876012550f7f49d94636570bf19976804"
+      },
+      "schema_migrations": {
+        "rows": 14,
+        "sha256": "bbbee6fa5e813c0315c63fbd7622e8ce8e5f80ab12e92c2061e91ca97c8ba5b2"
+      }
+    }
+  },
+  "context_storage": {
+    "chunks": 13,
+    "prefix_chars": 4485
+  },
+  "owned_database_cleanup": "verified"
+}

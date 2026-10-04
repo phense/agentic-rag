@@ -7,7 +7,43 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-04
+
+### Fixed
+- Upgrade locked AnyIO from 4.14.1 to 4.14.2 for its process-group, IDNA TLS
+  and process-worker stderr security corrections ([PR10](https://github.com/phense/agentic-rag/pull/10),
+  [Issue37](https://github.com/phense/agentic-rag/issues/37)).
+- Document isolated dependency validation and retained-environment recovery in
+  [Contributing](docs/12-contributing.md#dependency-security-updates).
+
+## [0.6.0] - 2026-10-04
+
 ### Added
+- Evidence-backed entity identities and project/domain-scoped aliases with original
+  history and audited revocation (018; [Issue33](https://github.com/phense/agentic-rag/issues/33)).
+- Exact input/model embedding reuse and bounded preprocessing under ordered audited
+  writes (019; [Issue34](https://github.com/phense/agentic-rag/issues/34)).
+- Offline failure evaluation with sealed development/held-out profiles, private local
+  confirmed-correction evaluation and explicit public configured-provider mining
+  comparison ([Issue35](https://github.com/phense/agentic-rag/issues/35)).
+- Adaptive exact/lexical/semantic retrieval, permission-safe caches, contextual original-backed
+  chunk indexing (015) and filter-aware vector retrieval (016).
+- [0.6.0 feature map and measured limits](docs/00-whats-new-in-0.6.md), plus
+  [actual approved 018→019 production acceptance](docs/verification/features9-10-production-adoption.md).
+- Local incremental `rag summary` and reader-only `memory_summary`, extending
+  bounded project profiles with original excerpts, source/version drill-down,
+  explicit inference/review labels and correction/expiry/access invalidation.
+  Audited refresh reuses unchanged entries; additive017 cache preserves baseline
+  access on016 and code rollback. See [original/synthetic paired measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md).
+- Bounded read-only `rag research` and `memory_research`: compound-question
+  retrieval, relevant graph passages, original citations, source-qualified
+  quoted support, disagreement and missing evidence, with call/context/time
+  caps and process cleanup. Local processing is the default; configured
+  provider assessment requires explicit opt-in. Schema016 is unchanged.
+  See [measurements and compatibility](docs/benchmarks/2026-10-03-bounded-research/README.md).
+- Selective local multilingual neural ordering for ambiguous auto searches, with
+  bounded inference, original-source preservation and a no-migration fallback.
+  See [paired quality/latency and rollback evidence](docs/benchmarks/2026-10-03-neural-rerank/README.md).
 - Native OpenCode RAG adapter with startup context, selective recall, matched
   checkpoint/handoff, bounded transcript projection and debounced idle mining.
   Install on the execution host with `rag install --opencode`; existing MCP
@@ -16,6 +52,12 @@ milestones rather than every commit, and interfaces may still change between `0.
   synthetic test database, plus canonical context delivery and an actual
   read-only RAG search through T3 on the Mac. See [evidence](docs/verification/opencode.md).
   Sustained automatic compaction and automatic Flash/Pro routing are not claimed.
+
+### Changed
+- Require every future PR to include a `0.0.1` patch bump and matching documentation.
+  Minor and major bumps require an explicit manual maintainer instruction and replace
+  that PR's normal patch increment. Keep package/lock/README/changelog versions aligned;
+  stacked PRs use consecutive patch versions. See [the mandatory project rule](AGENTS.md#mandatory-version-bump-and-documentation-for-every-pr).
 
 ## [0.5.0] - 2026-09-06
 

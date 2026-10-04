@@ -220,6 +220,26 @@ exact-symbol preservation, optional two-hop evidence-bearing graph expansion and
 validated local reranker seam. Bilingual FTS remains available during embedding outages.
 See [policy and limitations](docs/retrieval-quality.md). Migration013 activated; installed reader and citation checks passed.
 
+## Adaptive retrieval (issue #26)
+
+Merged in PR #36 as `f27acd9`; adopted locally on 2026-10-03. Eligible exact
+UUID/slug and standalone error-symbol queries skip local query inference; ordinary questions
+and misses keep hybrid retrieval. Optional CLI/MCP strategies preserve forced hybrid and
+explicit lexical behavior. No schema/configuration/data migration. In 20 paired Trading
+measurements per case, median exact lookup fell from about 1,040–1,064 ms to 16.5–17.0 ms;
+the ordinary-question control retained identical citations and about 1,050 ms latency.
+[Evidence and limits](docs/benchmarks/2026-10-03-adaptive-search/README.md).
+
+## Query inference reuse (issue #27)
+
+Merged in PR #38 as`342bccf`; adopted locally on 2026-10-03. Long-lived MCP
+sessions reuse bounded context/model-scoped query vectors with fresh SQL authority and
+local model-digest checks. HTTP transport reuse preserves one-shot process cleanup and
+fork isolation. Paired Trading warm medians fell 1,045→811 ms and 422→185 ms for repeated
+question/context examples; citations remain identical 20/20. Twenty synthetic correction
+pairs preserve immediate source withdrawal with half the inference calls.
+[Evidence and limits](docs/benchmarks/2026-10-03-query-cache/README.md).
+
 ## Bounded project context (issue #9)
 
 Source-backed stable/recent profile references, asynchronous audited refresh, scoped
@@ -233,3 +253,130 @@ documents/pins. Published implementation2c46e02; CI34024173116 passed.
 
 - ✅ Native adapter code: transient context/recall, matched checkpoint and handoff, sanitized stable transcript projection, debounced idle queue, child exclusion and guarded loader installation.
 - ✅ Local rollout: installed from retained checkout; canonical startup context and read-only MCP healthy. Real DeepSeek startup/manual-compaction/restore passed with synthetic test-database data. A production T3 thread on the Mac also verified canonical context delivery and a completed read-only RAG search with DeepSeek Flash. Sustained automatic compaction is not claimed. See [evidence](docs/verification/opencode.md).
+
+## Selective local neural reranking (issue #28)
+
+Merged in PR #39 as`ae4a102` and adopted locally on 2026-10-03 with930 Python/7 Node tests. The pinned native model is supervised on loopback; old MCP sessions adopt the code on reconnect. See [rollout evidence](docs/verification/three-feature-production-adoption.md).
+A verified local Qwen3-Reranker-0.6B Q8_0 runtime can reorder up to12 ambiguous
+auto candidates within1500ms. Original payloads, SQL eligibility and citations remain
+authoritative. Exact identifiers/symbols and explicit hybrid/lexical/baseline routes
+retain previous behavior; an absent runtime needs no config or data migration.
+The three Trading development examples improve expected-source coverage in a
+three-hit context, at roughly one extra second per query. No general speedup or
+answer-accuracy gain is claimed. [Evidence and limits](docs/benchmarks/2026-10-03-neural-rerank/README.md).
+
+## Contextual chunk indexing (issue #29)
+
+Merged in PR42 at99514fe and adopted locally on2026-10-03. The full audited backfill indexed10432 documents/11822 chunks with0 retries or warnings; protected knowledge/history and strict015 backup restoration were verified. [Production adoption](docs/verification/contextual-indexing.md#production-adoption).
+
+Feature 4 adds bounded source excerpts and document/section/project metadata
+to a versioned side index; original chunks, vectors and citations remain intact.
+Normal audited saves create lexical context; bounded `rag save --index-context`
+adds local contextual vectors. Current-source/model checks and original eligibility
+apply before contextual selection. Explicit context-off and old clients retain
+baseline behavior. Additive015 and populated014 upgrade/recovery are rehearsed.
+
+Three synthetic practical examples improve original-fact coverage from0/20 to20/20
+within the same three-hit/1200-character source budget, with extra retrieval and
+indexing cost. This is limited development evidence, not a production-scale gain.
+The initial Trading014 controls preceded adoption. Post-adoption controls showed36.9% overhead for one question (449.353→615.142ms), with original citations retained; no production quality or speed gain is claimed. [Measurements](docs/benchmarks/2026-10-03-contextual-indexing/README.md),
+[upgrade procedure](docs/contextual-indexing.md).
+
+
+## Filter-aware vector retrieval (issue #30)
+
+Feature5, adopted locally at `19ed09c` with schema016, adds read-only016 functions for default semantic context-auto searches. A single eligible probe chooses complete exact ordering for at most4096 matching nonzero chunks; larger sets use a bounded4096 ANN pool with installed iterative capabilities, original eligibility/citations and per-document diversity. Savepoints preserve caller settings/writes and propagate cancellation. Exact selectors, explicit context-off/hybrid/baseline and code before016 retain existing behavior.
+
+Controlled crowded-source tests recover missing documents with additional SQL cost. Three20-pair Trading snapshot-copy controls retain100% raw/context vector recall and20/20 original citation-list parity, with roughly8–16ms median extra end-to-end cost. No general speedup or production answer-quality improvement is claimed. Actual015→016 upgrade/retry/code rollback, strict restore and all row/grant fingerprints pass.987 Python/7 Node checks pass. Approved merge and local adoption are recorded on [Issue30](https://github.com/phense/agentic-rag/issues/30#issuecomment-5973029391). [Measurements](docs/benchmarks/2026-10-03-filter-aware-search/README.md), [operator procedure](docs/filter-aware-search.md).
+
+## Bounded research retrieval (issue #31)
+
+Feature6 adds `rag research` and read-only `memory_research` on both
+MCP privilege levels. Compound questions share step/call/time/context budgets;
+related graph documents contribute relevant original passages. Exact quoted
+support requires distinct qualified upstream sources. Disagreement, missing
+evidence and abstention remain explicit. Default processing stays local;
+configured-provider assessment requires an explicit request.
+
+Three paired synthetic examples measure source coverage and literal fact
+coverage, with additional worker/retrieval latency. They do not establish
+production answer accuracy. Local mode always abstains semantic completion.
+Schema016, ordinary search, client settings, hooks and jobs remain unchanged;
+actual populated old/new/rollback clients and a strict restore are exercised.
+See [measurements](docs/benchmarks/2026-10-03-bounded-research/README.md),
+[operation](docs/bounded-research.md) and [verification](docs/verification/bounded-research.md).
+PR44 was merged with specific approval and adopted locally at `bd01d97`,
+schema016, with1039 Python/7 Node checks and fresh8/14-tool MCP clients.
+All12 protected production tables,37147 historical audits and existing checkpoint/
+queue/batch IDs were retained; strict restore compared17 public tables and grants.
+No migration, reinstall, configuration edit or service interruption was required.
+[Adoption record](https://github.com/phense/agentic-rag/issues/31#issuecomment-5973683496).
+
+## Incremental thematic profiles (issue #32)
+
+Feature7 adds local extractive summaries to bounded profiles, with
+`rag summary` and reader-only `memory_summary`. Audited refresh reuses unchanged
+excerpts; each entry preserves original citations and source/version references.
+Correction, expiry, source trust and scope changes withhold stale excerpts.
+Historical architecture entries remain explicitly superseded, never new canonical
+truth. Existing pins, checkpoints, knowledge and client settings remain intact.
+
+The additive017 cache is compatible with016 fallback and old/new clients.
+Three paired original-snapshot examples fit more eligible documents using9.89–45.77%
+less context, with higher query latency; synthetic controls separately test exact
+fact coverage and one-entry rebuild/seven-entry reuse. These are structural
+retrieval measurements, not production semantic accuracy. See
+[measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md),
+[reference](docs/thematic-summaries.md), [PB-5.7](docs/playbooks/thematic-summaries.md)
+and [verification](docs/verification/thematic-summaries.md). PR45 was merged with specific approval and separately adopted at `2a29c50`, schema017; Issue32 is closed. [Canonical adoption record](https://github.com/phense/agentic-rag/issues/32#issuecomment-5974266962).
+
+
+## Evidence-backed entity identities and scoped aliases (issue #33)
+
+Feature8 adds `rag entity resolve` and reader-only `memory_entity`.
+Explicit operator-confirmed source spans link direct aliases within one exact
+project/domain; revocation separates them while retaining originals and audit.
+No embedding union or transitive identity merge occurs. Current replacement under
+a new name suppresses obsolete status under the old name; qualified history keeps
+both. Uncertain links/conflicts remain inspectable and withheld from answer context.
+
+The additive018 identity/index/relation tables preserve source017 rows and old/new
+clients. Exact assertion/search/mining contracts stay unchanged; explicit gateway
+backfill persists stable IDs and unindexed new facts remain readable.1137 Python
+and7 Node tests, independent reviews, strict backup/restore, interrupted resume,
+actual concurrent clients and literal code activation/recovery pass. Three controlled
+20-pair cases recover1/2→2/2,0/1→1/1 and0/2→2/2 facts with zero foreign output; no
+general speedup or production alias-quality gain is claimed. See [measurements](docs/benchmarks/2026-10-04-entity-identities/README.md),
+[reference](docs/entity-identities.md), [PB-5.8](docs/playbooks/entity-identities.md)
+and [verification](docs/verification/entity-identities.md). PR46 was merged with specific approval and locally adopted at1294d6c/schema018.
+Post-adoption1137 Python/7 Node tests and fresh10/18-tool clients passed. All607
+legacy assertions were indexed with review dispositions retained; no production
+aliases or semantic quality gain are claimed. Issue33 is closed; the
+[canonical adoption record](https://github.com/phense/agentic-rag/issues/33#issuecomment-5975004882)
+preserves the distinction from the controlled measurements above.
+
+
+## Incremental embedding reuse and bounded preprocessing (issue #34)
+
+Merged in [PR47](https://github.com/phense/agentic-rag/pull/47) and adopted locally on 2026-10-04 at `b849d34`/schema019 with Feature10. Exact sanitized chunk/model hashes
+allow a disposable FIFO vector cache while original write gateways own all canonical,
+cache and audit transactions. Known-identity preprocessing is bounded and parallel;
+accepted mining applies final documents and deduplication in original order. Migration019
+is additive. The [production acceptance](docs/verification/features9-10-production-adoption.md) records the approved upgrade and retained source state. See [reference](docs/incremental-ingestion.md)
+and [verification](docs/verification/incremental-ingestion.md) for current gates and limits.
+
+Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populated018→019 restore/recovery and old/new client overlap. Small-edit HTTP inputs240→20, retry plus auxiliary reembedding160→0, backlog1920→1920 with bounded parallel inference. [Measurements and limits](docs/benchmarks/2026-10-04-incremental-ingestion/README.md).
+
+## Confirmed-failure evaluation and offline optimization (issue #35)
+
+Merged after [PR47](https://github.com/phense/agentic-rag/pull/47) in [PR49](https://github.com/phense/agentic-rag/pull/49), independently reviewed and adopted locally on 2026-10-04 at `b849d34`/schema019. [Production acceptance](docs/verification/features9-10-production-adoption.md) verifies the existing installation. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
+
+Feature10 validation:1274 Python/7 Node checks;48 held-out public queries across six
+source families with20 paired repeats. Supported exact answers30/48→48/48, evidence
+recall24/36→36/36, irrelevant unanswerable exposure12→0 and wrong-scope0. Native mining
+uses8 actual public calls, preserves reviewed dev misses and selects the existing prompt;
+held-out corrections2/2 on both routes, unsafe0. No general model/prompt quality gain or
+live optimization is claimed. Actual018→019 and019 code-only activation/retry/recovery,
+strict21-table production-copy restore, old/new clients and private-label controls pass.
+[Measured examples/limits](docs/benchmarks/2026-10-04-failure-evaluation/README.md).
+Pre-existing domain-free temporal validity remains separate [Issue48](https://github.com/phense/agentic-rag/issues/48).

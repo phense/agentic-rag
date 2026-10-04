@@ -31,7 +31,18 @@ your own Ollama (`bge-m3`). The provider inputs are:
   path scopes without mutating stored pin text;
 - **curation:** selected stored document bodies and contradiction evidence that
   previously passed through the document write gateway's secret stripping;
-- **checkpoint enrichment:** a bounded, secret-stripped transcript delta.
+- **checkpoint enrichment:** a bounded, secret-stripped transcript delta;
+- **explicit research provider mode:** a secret-stripped question and selected
+  source excerpts within the request's serialized evidence cap. `rag research`
+  defaults to local mode; `--provider` or MCP `provider=true` enables this
+  transfer to the configured account. No research answer is saved.
+
+Research provider subprocesses disable inherited tools, MCP servers, hooks,
+skills, web search and persistence. Unsupported CLI controls fail closed.
+Native authentication is preserved. The parent deadline kills and reaps its
+owned process group and removes its private temporary directory; remote work
+already sent to a provider may continue after cancellation. See the
+[research procedure](bounded-research.md) for evidence qualification and limits.
 
 Matching pin bodies receive defense-in-depth stripping on the copy assembled
 for the mining prompt. The stored pin remains unchanged, so local rendering
@@ -316,3 +327,15 @@ llm-wiki store with `migrate`.
 ## OpenCode integration
 
 OpenCode context reaches the model selected for coding, including DeepSeek. Main-session projection excludes reasoning, tool input/output and synthetic context, then secret-strips prose. Existing Codex/Claude mining provider settings remain authoritative. See [OpenCode data boundaries](opencode.md).
+
+## Thematic profile cache
+
+[Thematic summaries](thematic-summaries.md) copy bounded exact original excerpts
+and source/version references into a rebuildable local017 cache. Refresh is an
+audited gateway transaction; reads revalidate original trust, validity and scope.
+No summary provider, embedding call, new scheduler or client settings change is
+introduced. Theme excerpts selected for coding context reach the session's
+already-selected model through the same context path as existing profiles.
+The cache preserves the current shared-role visibility; topic domains do not
+provide per-user ACLs. [Measurements](benchmarks/2026-10-03-thematic-summaries/README.md)
+include creation/refresh cost and corpus-dependent SQL overhead.

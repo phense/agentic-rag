@@ -25,9 +25,12 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | Command | Flags | What it does |
 |---|---|---|
 | `rag save` | `--title` (required) · `--domain` (required) · `--dtype` (required) · `--body` · `--file <path>` · `--slug` · `--edge PREDICATE:SLUG` (repeatable) | Saves through `save_document()` — the one audited write gateway. Body comes from `--body` or from reading `--file`; if neither is given, the body is empty. `--slug` upserts: if a document with that slug already exists, this save updates it in place; otherwise the new document is created carrying that slug. `--edge` can be repeated to attach one or more typed edges (predicate:target-slug) in the same write. Prints `created`/`updated <slug> (N chunks, N edges)`; any secret-stripping or embedding-retry warning goes to stderr. |
+| `rag save --index-context <selector>` | `--index-limit 1..32` (default8) | Bounded audited contextual indexing of an existing ID/slug or one `pending` document; no canonical content update. Returns derived progress/warnings JSON. Requires015 and verified local model for contextual vectors; lexical/baseline remain usable. See [upgrade/operation](contextual-indexing.md). |
 | `rag get <id_or_slug>` | `--json` | Fetches one document by UUID or slug, plus its incoming and outgoing edges. Human-readable by default; `--json` for the raw structure. Exits 1 if not found. |
-| `rag search <query>` | `--domain` · `-k <int>` (default `8`) · `--json` | Runs the same hybrid search the MCP tools use. Prints `score  slug  [domain/dtype]` per hit by default; `--json` for the full result plus any degrade warnings. |
+| `rag search <query>` | `--domain` · `-k <int>` (default `8`) · `--project` / `--scope` · `--as-of` · `--history` · `--graph-depth` · `--strategy auto\|hybrid\|lexical` (default `auto`) · `--rerank auto\|off` · `--context auto\|off` (default `auto`) · `--json` | Adaptive exact-document/error lookup with hybrid fallback. `hybrid` forces the previous path; `lexical` skips query inference. Context auto adds eligible source-grounded contextual candidates when015 exists; context off preserves original representations. Prints `score  slug  [domain/dtype]` per hit by default; JSON retains results/warnings and original chunk citations. |
 | `rag status` | — | One-screen health check: document counts; queue counts/errors and oldest open mine; provider health/remediation; open checkpoint count; newest checkpoint time/quality/project; pending checkpoint-enrichment count/age/warnings; backup freshness; and last curation run. |
+| `rag research <question>` | `--domain` · `--project` / `--scope` · `--as-of` / `--history` · `--strategy auto\|lexical` · `--provider` · `--steps` (4;1–8) · `--calls` (16;1–40) · `--seconds` (30;0.1–180) · `--context-chars` (12000;512–32000) · `--min-sources` (2;2–8) · `--json` | Bounded read-only multi-step retrieval with relevant graph passages. Returns supported exact source excerpts, disagreement, missing evidence, abstention and usage. Local mode always abstains semantic completion; provider assessment requires explicit opt-in. [Operation and limits](bounded-research.md). |
+| `rag summary <topic>` | `--project` · `--domain` · `--history` · `--context-chars` (4800;1000–12000) · `--refresh` | Local extractive thematic profile JSON with exact original citations, source/version references and trust/temporal labels. Reads use reader authority; explicit refresh uses the audited writer gateway and reports rebuilt/reused work. History retains trusted superseded assertions but still excludes expiry/withdrawal. [Reference](thematic-summaries.md), [upgrade/recovery](playbooks/thematic-summaries.md). |
 | `rag queue requeue-legacy-provider-failures` | `--expect <int>` (default `60`) · `--yes` | One-time recovery for the exact legacy Claude missing-binary/exit-1 cohort. Always prints the candidate count; refuses without `--yes` or on count mismatch. Preserves job identity, payload, transcript cursor/path, resets attempts, and makes only that cohort pending. |
 
 ### Pins
@@ -62,6 +65,29 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `rag migrate classify` | — | Reads the current store and writes a domain-classification report (reader role; no writes). |
 | `rag migrate apply-domains <report_tsv>` | `--yes` | Applies a classification report's domain assignments. Refuses without `--yes`. Takes the same worker flock as `migrate run`, since it writes too. |
 | `rag migrate report` | `--golden <path>` | Produces the migration acceptance report, optionally scored against a golden set. Reader role; no writes. |
+
+### Offline failure evaluation
+
+These commands extend `benchmark run`/`compare`; existing modes and MCP tools are
+unchanged. Public indexing uses audited gateways in randomly owned databases.
+Private commands use reader snapshots and never invoke providers. Candidates are
+review artifacts with no live policy loader. See [contracts](failure-evaluation.md)
+and [PB-5.10](playbooks/failure-evaluation.md).
+
+| Command | Flags | Contract |
+| --- | --- | --- |
+| `rag benchmark optimize` | `--output` (required) · `--corpus` · `--context-chars` (4000;1000–12000) · `--repeats` (20;1–30) · `--mining-candidate` | Public synthetic corpus only, at most256 documents/queries and2MiB; four finite profiles select on development data before sealed held-out evaluation. Exact original source/value checks, raw misses, latency/context/index costs and uncertainty are reported. Project comparisons reject wider-visible global/ancestor sources; evaluate those at their own exact boundary. |
+| `rag benchmark export-corrections` | `--output` (required) · `--domain` (required) · `--project` / `--scope project\|global` · `--limit` (32;1–32) | Exports confirmed current replacements supported by original complete reviewed user evidence from one exact boundary. Empty exports are valid. New absolute0600 file under0700 parent outside Git, with no symlink ancestors. Private format cannot enter public optimization or mining. |
+| `rag benchmark evaluate-corrections` | `--input` (required) · `--output` (required) | Validates a bounded private export, rechecks original evidence locally and scores entity support. Independent dev/test families enable sealed FTS/entity selection; insufficient splits explicitly disable optimization. New private output and candidate files; only aggregates printed. |
+| `rag benchmark optimize-mining` | `--output` (required) · `--mine-model` (required authorization flag) | At most eight existing-provider calls on built-in public transcripts; two static prompts select using dev families before separate held-out calls. Role/quote/time grounding and accepted-batch replay remain authoritative. No private corpus argument or configuration change. |
+
+Choose a new output directory without symlink ancestors. On macOS, use a literal
+`/private/tmp/...` path rather than the `/tmp` symlink. Public comparisons require a
+verified local embedding model identity. Source/model/prompt/candidate drift invalidates
+the run; retain partial output and rerun on a new path. Query repeats measure timing,
+not additional independent quality samples. General model accuracy remains unmeasured.
+Index/query execution or native-provider errors produce exit3; measured quality misses
+remain in the report. Successful private scoring returns0 even when support is missing.
 
 ### Exit-code contract
 
@@ -192,17 +218,27 @@ Every event prints one JSON object and exits 0; failures are logged under
 
 ## MCP servers
 
-`rag install` registers two MCP servers, both defined in `agentic_rag/mcp_server.py`, both stdio-based, both doing SQL plus at most one Ollama HTTP call — never a model in-process:
+`rag install` registers two stdio MCP servers defined in
+`agentic_rag/mcp_server.py`. Ordinary search uses SQL and optional local
+inference. Research runs bounded retrieval in a separate reader process and
+may invoke the configured provider CLI only with explicit opt-in:
 
 - **`agentic-rag`** — read-write. Used by your main Claude Code sessions.
 - **`agentic-rag-ro`** — read-only. Runs with `RAG_READONLY=1`, connects as `rag_reader`, and the write tools aren't registered at all — not just permission-denied at call time. Meant for subagents you want on the read side of a privilege boundary: allowlist only `mcp__agentic-rag-ro__*` tools in a subagent's own definition to enforce it.
 
 ### Read tools (both servers)
 
+The source Feature7 interface has nine read tools on `agentic-rag-ro`, fifteen
+total on `agentic-rag`. Existing tools and the six write tools are unchanged.
+The adopted Feature6 installation retains eight/fourteen until Feature7 adoption
+and client reconnect.
+
 | Tool | Signature | What it does |
 |---|---|---|
 | `memory_domains` | `()` | Every domain with its description and document count. |
-| `memory_search` | `(query, domain=None, k=8)` | Hybrid search (vector + full-text EN/DE, RRF fusion). Returns snippets with slug/score/verified_at. |
+| `memory_research` | `(question, domain=None, project=None, scope=None, as_of=None, history=False, provider=False, strategy="auto", steps=4, calls=16, seconds=30.0, context_chars=12000, min_sources=2)` | Same bounded evidence operation as CLI, always using a reader transaction even on the write-capable server. Strict booleans/numbers reject coerced strings. Returns support/disagreement/missing evidence, original citations, abstention, termination and operation counts. |
+| `memory_summary` | `(topic, project=None, domain=None, history=False, context_chars=4800)` | Reader-only local thematic view on both MCP levels; no refresh/provider parameter. Version/eligibility changes withhold stale excerpts; returns explicit coverage/fallback warnings. No project selects global-only. Domain names provide topic selection, not per-user access boundaries. |
+| `memory_search` | `(query, domain=None, k=8, project=None, scope=None, as_of=None, history=False, graph_depth=0, strategy="auto", rerank="auto", context="auto")` | Same adaptive routes and hybrid fallback as CLI. Existing call shapes remain accepted. Returns original-source snippets, citations, evidence metadata and warnings. `hybrid` retains vector + EN/DE full-text RRF; `lexical` requests full-text without query embedding. `context="off"` retains original representations; `auto` adds only current source/model-eligible context. |
 | `memory_get` | `(id_or_slug)` | Full document (title, body, meta, provenance, status) plus incoming and outgoing edges. |
 | `memory_neighbors` | `(id_or_slug, depth=1, predicates=None)` | Every edge within `depth` hops (undirected, capped at 3), optionally filtered by predicate. |
 | `memory_path` | `(from_id_or_slug, to_id_or_slug, max_depth=4)` | Shortest edge path between two documents; empty steps means no connection within `max_depth`. |

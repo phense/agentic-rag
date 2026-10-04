@@ -1,5 +1,5 @@
-"""The per-session MCP server (spec §5): FastMCP over stdio, SQL + one
-Ollama HTTP call (search) only — never a model in-process. Each tool call
+"""The per-session MCP server (spec §5): FastMCP over stdio, SQL and local
+Ollama query inference with bounded transport/vector reuse. Each tool call
 opens a short-lived role-scoped connection (writer; rag_reader when
 RAG_READONLY=1, which also unregisters every write tool — the subagent
 configuration). Run: python -m agentic_rag.mcp_server"""
@@ -11,6 +11,7 @@ import os
 import uuid as uuidlib
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import StrictBool, StrictFloat, StrictInt
 
 from . import db, graph
 from .config import load_config
@@ -18,6 +19,9 @@ from .domains import list_domains
 from .pins import add_pin, unpin
 from .search import search as run_search
 from .store import EdgeSpec, get_document, save_document
+from .query_cache import QueryCache
+
+_QUERY_CACHE = QueryCache()
 
 
 def _readonly() -> bool:
@@ -68,16 +72,45 @@ def memory_domains() -> dict:
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
-                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0) -> dict:
+                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto") -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
     global context; scope=global is global-only, scope=all explicitly searches all.
-    Omitting both retains manual cross-project search."""
+    Omitting both retains manual cross-project search. strategy=auto avoids
+    embeddings for eligible exact selectors; hybrid retains the previous path;
+    lexical explicitly uses bilingual full-text only. A verified available local
+    model may reorder ambiguous auto searches; rerank=off keeps deterministic
+    candidate ordering. context=off retains original representations; auto also
+    uses current source-grounded contextual indices when migration015 is present."""
+    from .search import validate_strategy, validate_rerank_mode
+    validate_strategy(strategy)
+    validate_rerank_mode(rerank)
+    if context not in ("auto", "off"):
+        raise ValueError("context must be auto or off")
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth)
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context)
         return {"results": _plain(hits), "warnings": warnings}
+
+
+async def memory_research(question: str, domain: str | None = None,
+                          project: str | None = None, scope: str | None = None,
+                          as_of: str | None = None, history: StrictBool = False,
+                          provider: StrictBool = False, strategy: str = "auto",
+                          steps: StrictInt = 4, calls: StrictInt = 16, seconds: StrictFloat = 30,
+                          context_chars: StrictInt = 12000, min_sources: StrictInt = 2) -> dict:
+    """Bounded read-only multi-step evidence research. Defaults stay local and
+    abstain from semantic answers. provider=true explicitly sends the redacted
+    question and selected evidence to the configured Codex/Claude CLI. Returns
+    exact source-backed statements, disagreements, missing evidence and resource
+    usage. A dedicated rag_reader worker enforces time/cancellation boundaries
+    even in authorized main sessions. Existing search remains independent.
+    """
+    from .research import ResearchBudget, research_async
+    return await research_async(load_config(),question,domain=domain,project=project,scope=scope,
+        as_of=as_of,history=history,provider=provider,strategy=strategy,min_sources=min_sources,
+        budget=ResearchBudget(steps,calls,seconds,context_chars))
 
 
 def memory_get(id_or_slug: str) -> dict:
@@ -238,9 +271,69 @@ def memory_context(project: str | None = None, prompt: str | None = None,
                             prompt=prompt,session_id=session_id,source="startup"))
 
 
-READ_TOOLS = (memory_context, memory_domains, memory_search, memory_get, memory_neighbors,
+def memory_summary(topic: str, project: str | None = None, domain: str | None = None,
+                   history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+    """Read a local extractive thematic profile with versioned original citations.
+    No refresh/write/provider call. Missing/stale summaries retain baseline search.
+    history=true includes currently trusted superseded assertions with historical
+    labels, but still excludes expired/future/withdrawn evidence. Project selects
+    that project plus global; omission selects global only. Domains are topics,
+    not user ACLs. Source/version drift withholds changed excerpts until refresh.
+    """
+    from .thematic import read
+    cfg=load_config()
+    with db.connect(cfg,role='reader') as conn:
+        return _plain(read(conn,cfg,topic,project=project,domain=domain,
+                           history=history,context_chars=context_chars))
+
+
+def memory_entity(name: str, domain: str, project: str | None = None, scope: str | None = None,
+                  attribute: str | None = None, as_of: str | None = None,
+                  history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+    """Read exact scoped/domain entity facts and operator-confirmed direct aliases.
+    Requires a project or explicit scope=global. No global/project mixing, provider
+    call or write. Preserves original citations and stable IDs; ambiguous current
+    values are withheld from context. history=true includes currently trusted
+    accepted expired/superseded facts with labels; future facts stay out.
+    Domains are topics, not user ACLs. Use memory_get to inspect original sources.
+    """
+    from .entities import read
+    cfg=load_config()
+    with db.connect(cfg,role='reader') as conn:
+        return _plain(read(conn,name,domain=domain,project=project,scope=scope,
+                           attribute=attribute,as_of=as_of,history=history,context_chars=context_chars))
+
+
+def memory_entity_alias(alias: str, target: str, domain: str, evidence: dict,
+                        effective_at: str, project: str | None = None, scope: str | None = None,
+                        confirm: StrictBool = False) -> dict:
+    """Save an evidence-backed directed alias suggestion. evidence requires
+    namespace/source_id/role/quote/complete. confirm=true is explicit operator
+    confirmation that both names identify the same entity; inspect original
+    evidence first and never invent a user quote. Uncertain/competing links remain
+    review-only. No embeddings or destructive identity union. Same known scope/domain.
+    """
+    from .store import save_entity_alias
+    cfg,conn=_connect()
+    with conn:
+        return _plain(save_entity_alias(conn,cfg,alias=alias,target=target,domain=domain,evidence=evidence,
+            effective_at=effective_at,project=project,scope=scope,confirm=confirm,actor='claude'))
+
+
+def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dict:
+    """Explicit reversible alias review: accepted or revoked with reason. Acceptance
+    rechecks original confirmed span, current scope/domain and competing anchors.
+    Revocation retains original facts, relation/source records and audit history.
+    """
+    from .store import review_entity_alias
+    cfg,conn=_connect()
+    with conn:
+        return _plain(review_entity_alias(conn,document_id,state=state,reason=reason,actor='claude'))
+
+
+READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline)
-WRITE_TOOLS = (memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
+WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 
 
 def tool_names(readonly: bool) -> list[str]:

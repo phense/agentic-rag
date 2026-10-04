@@ -25,7 +25,19 @@ def _view(conn,cfg,project):
     try:
         # An absent migration or failed read must not poison the baseline transaction.
         with conn.transaction():
-            return profiles.read(conn,cfg,project)
+            view = profiles.read(conn,cfg,project)
+            from . import thematic
+            view['themes'] = [thematic.read(conn,cfg,topic,project=project,
+                history=topic=='deployment-architecture',context_chars=PROFILE_CHARS)
+                for topic in thematic.DEFAULT_THEMES]
+            for theme in view['themes']:
+                view['warnings'].extend(theme['topic']+': '+w for w in theme['warnings'])
+                if len(theme['entries'])>2:
+                    view['warnings'].append(theme['topic']+': context selects at most two excerpts; use memory_summary for the full bounded view.')
+            if view['status']=='fresh' and any(t['status'] in ('missing','stale') for t in view['themes']):
+                view['status']='stale'
+                view['warnings'].append('Thematic profile references need an incremental refresh.')
+            return view
     except Exception as exc:
         from .hooks.common import sanitize_error
         return {'project':project,'revision':None,'generated_at':None,'status':'unavailable',
@@ -35,7 +47,18 @@ def _view(conn,cfg,project):
 
 def _profile_entries(view,ids=None):
     entries=[]
-    for section in ('stable','recent'):
+    for section in ('stable','thematic','recent'):
+        if section=='thematic':
+            for theme in view.get('themes',[]):
+                for item in theme['entries'][:2]:
+                    if ids is not None and item['document_id'] not in ids:
+                        continue
+                    metadata={k:item[k] for k in ('source_kind','review_state','provenance_status','temporal_status','event_at','expires_at','source_version')}
+                    metadata['inference_status']=theme['inference_status']
+                    line=f"- theme {_quoted(theme['topic'])} [{item['citation']}] {_quoted(item['text'])}; "
+                    line+=json.dumps(metadata,ensure_ascii=False)
+                    entries.append((item['document_id'],item['text'],line))
+            continue
         for item in view['sections'][section]:
             if ids is not None and item['id'] not in ids:
                 continue

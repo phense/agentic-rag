@@ -1,0 +1,79 @@
+{
+  "model_revision": "a02f48bb4f057028298c21fa033da2b30d7742d5",
+  "model_sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+  "model_bytes": 639153184,
+  "runtime": "llama.cpp b9840",
+  "runtime_revision": "8c146a8366304c871efc26057cc90370ccf58dad",
+  "hardware": "Apple M2 Pro; 16 GiB unified memory; Metal GPU",
+  "method": "two isolated process starts; no filesystem/page-cache flush; synthetic two-passage pair only;20 warm requests per process; RSS includes resident CPU allocations and is not a GPU-memory limit",
+  "rounds": [
+    {
+      "process_ready_ms": 463.207,
+      "first_pair_ms": 84.149,
+      "warm_pair_raw_ms": [
+        72.838,
+        73.483,
+        71.967,
+        72.16,
+        71.499,
+        71.629,
+        71.107,
+        71.7,
+        71.594,
+        71.528,
+        70.912,
+        71.374,
+        71.729,
+        72.198,
+        71.324,
+        72.029,
+        71.592,
+        72.018,
+        72.314,
+        70.915
+      ],
+      "warm_p50_ms": 71.665,
+      "warm_p95_ms": 72.838,
+      "rss_kib_after_warm": 1230784,
+      "first_pair_scores": {
+        "0": 0.9961121678352356,
+        "1": 2.901396328525152e-05
+      }
+    },
+    {
+      "process_ready_ms": 478.617,
+      "first_pair_ms": 81.434,
+      "warm_pair_raw_ms": [
+        70.959,
+        71.32,
+        71.08,
+        70.94,
+        72.247,
+        71.181,
+        71.129,
+        70.939,
+        71.479,
+        72.181,
+        71.39,
+        71.469,
+        71.812,
+        72.104,
+        71.574,
+        71.249,
+        71.486,
+        72.436,
+        71.076,
+        71.226
+      ],
+      "warm_p50_ms": 71.355,
+      "warm_p95_ms": 72.247,
+      "rss_kib_after_warm": 1230848,
+      "first_pair_scores": {
+        "0": 0.9961121678352356,
+        "1": 2.901396328525152e-05
+      }
+    }
+  ],
+  "restart_preserves_positive_negative_ordering": true,
+  "isolated_processes_stopped": true
+}

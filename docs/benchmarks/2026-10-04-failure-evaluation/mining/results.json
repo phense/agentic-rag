@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "source_revision": "5b390692e32e07c8816e98091dfa66e15e0c2cb3",
+  "source_sha256": "0c28361ef7511e34e4bc55679a456f87a58e480a8b5957cc5e417af07ceba7ec",
+  "embedding_identity": {
+    "endpoint_sha256": "7866d63830422cd421667c95360eaf1d8819f6f603bd2d479450e06cf01cb023",
+    "model": "bge-m3",
+    "dimension": 1024,
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+  },
+  "prompt_sha256": {
+    "source": "60e1a97dad708dc9734a8ed6fa769fc6a1a2f69886adbf83d0b7b4c1c4db1276",
+    "correction-v1": "68339cef7b8e16ce23e603d7da6673fde370567008c4e38c857adcf6540aeee1"
+  },
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "candidate_sha256": "f0b2d063af6f5926c92f25931f8e30c3c053a007edc079b1a31648695bcfedd2",
+  "selected_prompt": "source",
+  "development": [
+    {
+      "family": "dev-0",
+      "prompt": "source",
+      "user_correct": true,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3608,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11285.89,
+      "source_input_sha256": "fddbc59db4d33da140747d34e6037c01a7a2344b86b87caf30a8e60b17f843c0",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-dev-0",
+          "attribute": "port",
+          "value": "9840",
+          "disposition": "accepted",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0
+    },
+    {
+      "family": "dev-0",
+      "prompt": "correction-v1",
+      "user_correct": false,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3867,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11294.312,
+      "source_input_sha256": "fddbc59db4d33da140747d34e6037c01a7a2344b86b87caf30a8e60b17f843c0",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-dev-0",
+          "attribute": "port",
+          "value": "9840",
+          "disposition": "review",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0
+    },
+    {
+      "family": "dev-1",
+      "prompt": "source",
+      "user_correct": false,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3608,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11450.95,
+      "source_input_sha256": "6f85ccd597be7b5ef1c6d632ebea1df32e9b6146909d9b5605f77c95ca34169b",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-dev-1",
+          "attribute": "port",
+          "value": "9841",
+          "disposition": "review",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0
+    },
+    {
+      "family": "dev-1",
+      "prompt": "correction-v1",
+      "user_correct": false,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3867,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11891.613,
+      "source_input_sha256": "6f85ccd597be7b5ef1c6d632ebea1df32e9b6146909d9b5605f77c95ca34169b",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-dev-1",
+          "attribute": "port",
+          "value": "9841",
+          "disposition": "review",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0
+    }
+  ],
+  "heldout": [
+    {
+      "family": "test-0",
+      "prompt": "source",
+      "user_correct": true,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3614,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 14311.337,
+      "source_input_sha256": "d0a4d8493dff583769fe702fd1a1870268f3550c5885f025ad5b86974911b7b8",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-test-0",
+          "attribute": "port",
+          "value": "9850",
+          "disposition": "accepted",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0,
+      "route": "baseline"
+    },
+    {
+      "family": "test-0",
+      "prompt": "source",
+      "user_correct": true,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3614,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11898.948,
+      "source_input_sha256": "d0a4d8493dff583769fe702fd1a1870268f3550c5885f025ad5b86974911b7b8",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-test-0",
+          "attribute": "port",
+          "value": "9850",
+          "disposition": "accepted",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0,
+      "route": "candidate"
+    },
+    {
+      "family": "test-1",
+      "prompt": "source",
+      "user_correct": true,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3614,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 12378.314,
+      "source_input_sha256": "8b6233bf7a465dcf12d1be8d41727e0b095c11c01506b04ebe4d6a7301474f12",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-test-1",
+          "attribute": "port",
+          "value": "9851",
+          "disposition": "accepted",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0,
+      "route": "baseline"
+    },
+    {
+      "family": "test-1",
+      "prompt": "source",
+      "user_correct": true,
+      "unsafe": 0,
+      "error": null,
+      "expected_user_facts": 1,
+      "prohibited_suggestion_facts": 2,
+      "provider_calls": 1,
+      "prompt_chars": 3614,
+      "provider_token_cost": null,
+      "indexed_chunks": 1,
+      "replay_identical": true,
+      "ms": 11272.009,
+      "source_input_sha256": "8b6233bf7a465dcf12d1be8d41727e0b095c11c01506b04ebe4d6a7301474f12",
+      "assertion_outputs": [
+        {
+          "entity": "nebula-test-1",
+          "attribute": "port",
+          "value": "9851",
+          "disposition": "accepted",
+          "relation": "replacement",
+          "source_role": "user"
+        }
+      ],
+      "missing_chunk_vectors": 0,
+      "route": "candidate"
+    }
+  ],
+  "provider_calls": 8,
+  "cleanup": "verified",
+  "production_application_writes": 0,
+  "limits": "Eight bounded actual configured-provider public calls maximum. Two independent families per split; no statistical gain/general model accuracy claim. Billing/token cost unavailable; prompt characters and resulting chunks recorded. Every provider failure remains a miss."
+}

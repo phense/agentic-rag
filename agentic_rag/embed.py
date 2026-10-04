@@ -2,6 +2,11 @@
 from __future__ import annotations
 
 import httpx
+import atexit
+from contextlib import contextmanager
+from http.cookiejar import CookieJar, DefaultCookiePolicy
+import os
+import threading
 
 from .config import Config
 
@@ -10,8 +15,47 @@ class EmbedError(RuntimeError):
     pass
 
 
-def _client() -> httpx.Client:  # separate fn so tests can inject a MockTransport
-    return httpx.Client(timeout=120)
+class _NoCookies(DefaultCookiePolicy):
+    def set_ok(self, cookie, request):
+        return False
+
+
+_transport = None
+_transport_lock = threading.Lock()
+
+
+def close_transport():
+    """Close process resources at exit; tests may call this between isolated runs."""
+    global _transport
+    with _transport_lock:
+        client, _transport = _transport, None
+    if client is not None:
+        client.close()
+
+
+def _after_fork():
+    # Never acquire locks or use sockets inherited from a multi-threaded parent.
+    global _transport, _transport_lock
+    _transport = None
+    _transport_lock = threading.Lock()
+
+
+atexit.register(close_transport)
+if hasattr(os, 'register_at_fork'):
+    os.register_at_fork(after_in_child=_after_fork)
+
+
+@contextmanager
+def _client():  # separate seam so tests can inject a MockTransport
+    global _transport
+    with _transport_lock:
+        if _transport is None:
+            _transport = httpx.Client(timeout=120,
+                limits=httpx.Limits(max_connections=8, max_keepalive_connections=8,
+                                   keepalive_expiry=30),
+                cookies=CookieJar(policy=_NoCookies()))
+        client = _transport
+    yield client
 
 
 def embed_texts(texts: list[str], cfg: Config) -> list[list[float]]:

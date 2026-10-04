@@ -1,8 +1,10 @@
-"""Hybrid search wrapper: embed the query (fail-open), call hybrid_search()."""
+"""Adaptive candidates, optional query inference reuse and original-source spans."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
 from datetime import datetime
+import re
+import uuid
 
 from .config import Config
 from .embed import try_embed_texts, vec_literal
@@ -29,28 +31,79 @@ class SearchHit:
 
 def search(
     conn, cfg: Config, query: str, domain: str | None = None, k: int = 8,
-    *, project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, reranker=None, baseline: bool = False
+    *, project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, reranker=None, baseline: bool = False,
+    strategy: str = "auto",
+    query_cache=None,
+    rerank_mode: str = "auto",
+    context_mode: str = "auto",
 ) -> tuple[list[SearchHit], list[str]]:
+    validate_strategy(strategy)
+    validate_rerank_mode(rerank_mode)
+    if context_mode not in ("auto", "off"):
+        raise ValueError("context must be auto or off")
     if type(k) is not int or not 1<=k<=100:raise ValueError("k must be between 1 and 100")
     if type(graph_depth) is not int or not 0<=graph_depth<=2:raise ValueError("graph_depth must be 0, 1 or 2")
     if baseline and (graph_depth or reranker is not None):
         raise ValueError("baseline cannot combine with optional retrieval stages")
+    if baseline and strategy == "lexical":
+        raise ValueError("baseline cannot combine with lexical strategy")
     from .scope import selection
     scopes = selection(project, scope)
     from .validity import selection as time_selection
     at, history = time_selection(as_of, history)
     warnings: list[str] = []
-    vecs = try_embed_texts([query], cfg)
-    if vecs is None:
-        warnings.append("embedding unavailable — full-text search only")
-        qvec = None
-    else:
-        qvec = vec_literal(vecs[0])
+    from .retrieval import strong_symbols, exact_symbol_match
     function="hybrid_search_temporal" if baseline else "hybrid_search_candidates"
-    rows = conn.execute(
-        f"SELECT * FROM {function}(%s, %s::halfvec, %s, %s, %s, %s, %s)",
-        (query, qvec, domain, k if baseline else 150, scopes, at, history),
-    ).fetchall()
+    query_model = None
+    def candidates(qvec):
+        from . import contextual
+        if context_mode == 'auto' and not baseline and strategy != 'hybrid' and not strong_symbols(query) and contextual.available(conn):
+            if qvec is not None:
+                from . import vector_plan
+                if vector_plan.available(conn):
+                    return vector_plan.candidates(conn,(query,qvec,domain,150,scopes,at,history,query_model))
+            return conn.execute('SELECT * FROM hybrid_search_contextual(%s,%s::halfvec,%s,%s,%s,%s,%s,%s)',
+                (query,qvec,domain,150,scopes,at,history,query_model)).fetchall()
+        return conn.execute(
+            f"SELECT * FROM {function}(%s, %s::halfvec, %s, %s, %s, %s, %s)",
+            (query, qvec, domain, k if baseline else 150, scopes, at, history),
+        ).fetchall()
+
+    rows = None
+    shortcut = False
+    if strategy == "auto" and not baseline:
+        rows = _identity_candidates(conn, query, domain, scopes, at, history)
+        symbols = strong_symbols(query)
+        if rows is None and len(symbols) == 1 and query.strip() == symbols[0]:
+            lexical = candidates(None)
+            # Empty or rejected lexical evidence is not a shortcut success.
+            if any(exact_symbol_match(row["snippet"], symbols) for row in lexical):
+                rows = lexical
+    shortcut = rows is not None
+    if rows is None:
+        qvec = None
+        if strategy != "lexical":
+            from . import contextual
+            from .query_cache import model_digest
+            contextual_vectors = (context_mode == 'auto' and not baseline
+                and strategy != 'hybrid' and not strong_symbols(query)
+                and contextual.available(conn) and contextual.has_vectors(conn))
+            before_model = model_digest(cfg) if contextual_vectors else None
+            if query_cache is None or baseline:
+                vecs = try_embed_texts([query], cfg)
+            else:
+                vecs = query_cache.vectors(query, cfg, {
+                    'database': cfg.db_name, 'host': cfg.db_host,
+                    'role': conn.info.user, 'domain': domain, 'scopes': scopes,
+                    'as_of': as_of, 'history': history,
+                }, try_embed_texts)
+            if vecs is None:
+                warnings.append("embedding unavailable — full-text search only")
+            else:
+                qvec = vec_literal(vecs[0])
+                if before_model is not None and model_digest(cfg) == before_model:
+                    query_model = before_model
+        rows = candidates(qvec)
     from .evidence import summary
     hits = [
         SearchHit(str(r["document_id"]), str(r["chunk_id"]), r["title"],
@@ -65,11 +118,50 @@ def search(
     from .retrieval import diverse,present,rerank,strong_symbols,exact_symbol_match
     symbols=strong_symbols(query)
     hits=[h for h in hits if exact_symbol_match(h.snippet,symbols)]
+    if (reranker is None and rerank_mode == "auto" and strategy == "auto"
+            and not shortcut and not symbols):
+        from .neural_rerank import order
+        reranker = lambda candidates: order(query, candidates, cfg)
     hits=rerank(hits,reranker,warnings)
     hits=diverse(hits,query,k)
     if graph_depth:
         hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain)
     return with_evidence([present(h,query) for h in hits]), warnings
+
+
+def validate_strategy(strategy):
+    if strategy not in ("auto", "hybrid", "lexical"):
+        raise ValueError("strategy must be auto, hybrid, or lexical")
+
+
+def validate_rerank_mode(mode):
+    if mode not in ("auto", "off"):
+        raise ValueError("rerank must be auto or off")
+
+
+def _identity_candidates(conn, query, domain, scopes, at, history):
+    """Strict selectors only; ineligible/missing targets fall back to hybrid."""
+    selector = query.strip()
+    try:
+        document_id = str(uuid.UUID(selector))
+        if selector.casefold() != document_id:
+            return None
+    except ValueError:
+        document_id = None
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)+", selector):
+            return None
+    rows = conn.execute("""
+        SELECT d.id AS document_id, c.id AS chunk_id, d.title, d.slug, d.domain,
+               d.dtype, left(c.content,4000) AS snippet,
+               (1.0/(61+c.idx))::double precision AS score, d.verified_at, d.provenance
+        FROM documents d JOIN chunks c ON c.document_id=d.id
+        WHERE (d.id=%s::uuid OR (%s::uuid IS NULL AND d.slug=%s))
+          AND d.status='active' AND assertion_eligible(d.id,%s,%s)
+          AND (%s::text IS NULL OR d.domain=%s)
+          AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
+        ORDER BY c.idx,c.id LIMIT 150
+        """, (document_id, document_id, selector, at, history, domain, domain, scopes, scopes)).fetchall()
+    return rows or None
 
 
 def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain):
