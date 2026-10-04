@@ -262,7 +262,7 @@ def run(cfg, *, output: Path, corpus_path: Path | None=None,
                         hits,warnings=search.search(reader,isolated,effective_query,k=10,
                             project=query.get('project',project),scope=query.get('scope',scope),
                             as_of=None if validity_baseline else query.get('as_of'),
-                            history=True if validity_baseline else query.get('history',False),baseline=retrieval_baseline,graph_depth=graph_depth,reranker=ranker)
+                            history=True if validity_baseline else query.get('history',False),baseline=retrieval_baseline,graph_depth=graph_depth,reranker=ranker,rerank_mode='off',context_mode='off')
                         if any(identity not in indexed for identity in query['expected_ids']):
                             error='one or more expected sources failed ingestion/indexing'
                     except Exception as exc:

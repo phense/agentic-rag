@@ -1,0 +1,14 @@
+{
+  "playbook_sha256": "c09c53762b5b68e5baefc4ee2bc094c78c11b9c70092a7a6ba3749348cdef49f",
+  "source_revision": "bd01d97b1188e6bb0cf71e838c7c35e3449d8f3b",
+  "approved_target_fixture_revision": "fb9111a1585b55f79f95c2d9fb56b7ebf2ab617d",
+  "busy_lock_stops_without_changes": true,
+  "exact_activation_and_rollback_snippets_passed": true,
+  "old_new_rollback_citation_parity": true,
+  "protected_rows_preserved": true,
+  "schema017_retained": true,
+  "prior_branch_tip_preserved": true,
+  "lock_released": true,
+  "owned_resources_cleaned": true,
+  "limits": "Owned local fixture only; no production Git/database/worker lock changes or service operations."
+}

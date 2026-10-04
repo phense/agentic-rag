@@ -169,6 +169,11 @@ def _refresh(conn, cfg, project=None, *, actor='worker'):
             stable_ids=excluded.stable_ids,recent_ids=excluded.recent_ids,
             generated_at=clock_timestamp()''', (key,config_key(cfg),current,stable,recent))
         _audit(conn,actor,key)
+        from .thematic import DEFAULT_THEMES
+        from .store import refresh_summaries
+        for topic in DEFAULT_THEMES:
+            refresh_summaries(conn,cfg,topic,project=project,
+                history=topic=='deployment-architecture',actor=actor,commit=False)
         conn.commit()
     except BaseException:
         conn.rollback()

@@ -88,9 +88,11 @@ def _main(argv: list[str] | None = None) -> int:
     p_save = sub.add_parser("save")
     p_save.add_argument("--project")
     p_save.add_argument("--scope", choices=["project", "global", "unknown"])
-    p_save.add_argument("--title", required=True)
-    p_save.add_argument("--domain", required=True)
-    p_save.add_argument("--dtype", required=True)
+    p_save.add_argument("--title")
+    p_save.add_argument("--domain")
+    p_save.add_argument("--dtype")
+    p_save.add_argument("--index-context", metavar="ID_OR_SLUG_OR_PENDING", help="bounded index-only save; preserves canonical content")
+    p_save.add_argument("--index-limit", type=int, default=8)
     p_save.add_argument("--body")
     p_save.add_argument("--file", type=Path)
     p_save.add_argument("--slug", help="upsert: update the doc with this slug"
@@ -108,6 +110,25 @@ def _main(argv: list[str] | None = None) -> int:
     p_assert.add_argument('--project')
     p_assert.add_argument('--scope',choices=['project','global','unknown'])
 
+    p_entity = sub.add_parser('entity', help='exact scoped identities and evidence-backed aliases')
+    en = p_entity.add_subparsers(dest='entity_cmd',required=True)
+    er = en.add_parser('resolve',help='read original facts, no provider or writes')
+    er.add_argument('name');er.add_argument('--domain',required=True)
+    er.add_argument('--project');er.add_argument('--scope',choices=['project','global'])
+    er.add_argument('--attribute');er.add_argument('--as-of');er.add_argument('--history',action='store_true')
+    er.add_argument('--context-chars',type=int,default=4800)
+    ea = en.add_parser('alias',help='save review suggestion; confirm only after checking original evidence')
+    for option in ('alias','target','domain','namespace','source-id','quote','effective-at'):
+        ea.add_argument('--'+option,required=True)
+    ea.add_argument('--role',choices=['user','assistant','unknown'],default='user')
+    ea.add_argument('--complete',action='store_true',help='attest that the source span is complete')
+    ea.add_argument('--confirm',action='store_true',help='explicitly confirm same identity after checking source')
+    ea.add_argument('--project');ea.add_argument('--scope',choices=['project','global'])
+    ev = en.add_parser('review');ev.add_argument('document_id')
+    ev.add_argument('--state',required=True,choices=['accepted','revoked']);ev.add_argument('--reason',required=True)
+    eb = en.add_parser('backfill',help='audit-index one bounded batch; repeat until remaining=0')
+    eb.add_argument('--limit',type=int,default=100)
+
     p_get = sub.add_parser("get")
     p_get.add_argument("id_or_slug")
     p_get.add_argument("--json", action="store_true")
@@ -121,8 +142,19 @@ def _main(argv: list[str] | None = None) -> int:
     p_profile.add_argument("--project")
     p_profile.add_argument("--refresh", action="store_true", required=True)
 
+    p_summary = sub.add_parser('summary', help='read or incrementally refresh an extractive thematic view')
+    p_summary.add_argument('topic')
+    p_summary.add_argument('--project')
+    p_summary.add_argument('--domain')
+    p_summary.add_argument('--history', action='store_true', help='include trusted superseded assertions; expiry still enforced')
+    p_summary.add_argument('--context-chars', type=int, default=4800)
+    p_summary.add_argument('--refresh', action='store_true')
+
     p_search = sub.add_parser("search")
     p_search.add_argument("query")
+    p_search.add_argument("--strategy", choices=["auto", "hybrid", "lexical"], default="auto")
+    p_search.add_argument("--context", choices=["auto", "off"], default="auto")
+    p_search.add_argument("--rerank", choices=["auto", "off"], default="auto")
     p_search.add_argument("--graph-depth",type=int,choices=[0,1,2],default=0)
     p_search.add_argument("--as-of")
     p_search.add_argument("--history", action="store_true")
@@ -131,6 +163,22 @@ def _main(argv: list[str] | None = None) -> int:
     p_search.add_argument("--domain")
     p_search.add_argument("-k", type=int, default=8)
     p_search.add_argument("--json", action="store_true")
+
+    p_research = sub.add_parser("research", help="bounded read-only evidence research; provider calls require --provider")
+    p_research.add_argument("question")
+    p_research.add_argument("--domain")
+    p_research.add_argument("--project")
+    p_research.add_argument("--scope", choices=["project", "global", "all"])
+    p_research.add_argument("--as-of")
+    p_research.add_argument("--history", action="store_true")
+    p_research.add_argument("--provider", action="store_true", help="send redacted question/evidence to the configured CLI provider")
+    p_research.add_argument("--strategy", choices=["auto", "lexical"], default="auto")
+    p_research.add_argument("--steps", type=int, default=4)
+    p_research.add_argument("--calls", type=int, default=16)
+    p_research.add_argument("--seconds", type=float, default=30)
+    p_research.add_argument("--context-chars", type=int, default=12000)
+    p_research.add_argument("--min-sources", type=int, default=2)
+    p_research.add_argument("--json", action="store_true")
 
     sub.add_parser("status")
 
@@ -154,6 +202,24 @@ def _main(argv: list[str] | None = None) -> int:
     b_run.add_argument("--smoke", action="store_true", help="reduce source corpus; not a full baseline")
     b_run.add_argument("--answers", action="store_true", help="call configured LLM for answers")
     b_run.add_argument("--judge", action="store_true", help="separately call configured LLM for grading (requires --answers)")
+    b_opt = bench_sub.add_parser('optimize', help='bounded public offline failure evaluation')
+    b_opt.add_argument('--output', type=Path, required=True)
+    b_opt.add_argument('--corpus', type=Path)
+    b_opt.add_argument('--context-chars', type=int, default=4000)
+    b_opt.add_argument('--repeats', type=int, default=20)
+    b_opt.add_argument('--mining-candidate', type=Path)
+    b_export = bench_sub.add_parser('export-corrections', help='private read-only confirmed correction labels')
+    b_export.add_argument('--output', type=Path, required=True)
+    b_export.add_argument('--domain', required=True)
+    b_export.add_argument('--project')
+    b_export.add_argument('--scope', choices=['project', 'global'])
+    b_export.add_argument('--limit', type=int, default=32)
+    b_private = bench_sub.add_parser('evaluate-corrections', help='network-free private correction evaluation')
+    b_private.add_argument('--input', type=Path, required=True)
+    b_private.add_argument('--output', type=Path, required=True)
+    b_mine = bench_sub.add_parser('optimize-mining', help='actual existing-provider public prompt comparison')
+    b_mine.add_argument('--output', type=Path, required=True)
+    b_mine.add_argument('--mine-model', action='store_true', help='explicitly invoke configured provider on public fixtures')
     b_compare = bench_sub.add_parser("compare")
     b_compare.add_argument("before", type=Path)
     b_compare.add_argument("after", type=Path)
@@ -229,6 +295,10 @@ def _main(argv: list[str] | None = None) -> int:
     m_rep.add_argument("--golden", type=Path, default=None)
 
     args = p.parse_args(argv)
+    if args.cmd == 'save' and not args.index_context:
+        missing = [f'--{name}' for name in ('title','domain','dtype') if getattr(args,name) is None]
+        if missing:
+            p.error('the following arguments are required: '+', '.join(missing))
     if args.cmd == "install" and args.restore is not None and args.check:
         p.error("--restore and --check are mutually exclusive")
     if (args.cmd == "install" and args.codex_home is not None
@@ -256,6 +326,35 @@ def _main(argv: list[str] | None = None) -> int:
             p.error("--opencode-config-dir and --uninstall require --opencode")
     cfg = load_config()
 
+    if args.cmd == 'entity':
+        from . import entities
+        with db.connect(cfg,role='reader' if args.entity_cmd=='resolve' else 'writer') as connection:
+            if args.entity_cmd=='resolve':
+                result=entities.read(connection,args.name,domain=args.domain,project=args.project,scope=args.scope,
+                    attribute=args.attribute,as_of=args.as_of,history=args.history,context_chars=args.context_chars)
+            elif args.entity_cmd=='alias':
+                result=store.save_entity_alias(connection,cfg,alias=args.alias,target=args.target,domain=args.domain,
+                    project=args.project,scope=args.scope,effective_at=args.effective_at,confirm=args.confirm,
+                    evidence=dict(namespace=args.namespace,source_id=args.source_id,role=args.role,quote=args.quote,complete=args.complete))
+            elif args.entity_cmd=='review':
+                result=store.review_entity_alias(connection,args.document_id,state=args.state,reason=args.reason)
+            else:
+                result=store.backfill_entity_identities(connection,limit=args.limit)
+        print(json.dumps(result,default=_json_default,ensure_ascii=False))
+        return 0
+
+    if args.cmd == 'summary':
+        from . import thematic
+        with db.connect(cfg,role='writer' if args.refresh else 'reader') as summary_conn:
+            if args.refresh:
+                result=store.refresh_summaries(summary_conn,cfg,args.topic,project=args.project,
+                    domain=args.domain,history=args.history,context_chars=args.context_chars,actor='cli')
+            else:
+                result=thematic.read(summary_conn,cfg,args.topic,project=args.project,domain=args.domain,
+                    history=args.history,context_chars=args.context_chars)
+        print(json.dumps(result,default=_json_default,ensure_ascii=False))
+        return 0
+
     if args.cmd == "context":
         from .context import build
         with db.connect(cfg,role="reader") as context_conn:
@@ -270,6 +369,31 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "benchmark":
+        if args.benchmark_cmd == 'optimize':
+            from .benchmark.optimization import run as optimize
+            candidate = json.loads(args.mining_candidate.read_text()) if args.mining_candidate else None
+            report = optimize(cfg, output=args.output, corpus_path=args.corpus,
+                context_chars=args.context_chars, repeats=args.repeats, mining_candidate=candidate,
+                progress=lambda message: print(message, file=sys.stderr))
+            print(json.dumps(report.get('summary', {}), indent=2))
+            return 3 if report.get('failed_queries', 0) else 0
+        if args.benchmark_cmd == 'export-corrections':
+            from .benchmark.corrections import export_confirmed_corrections
+            report = export_confirmed_corrections(cfg, domain=args.domain, project=args.project,
+                scope=args.scope, limit=args.limit, output_path=args.output)
+            print(json.dumps(report, indent=2))
+            return 0
+        if args.benchmark_cmd == 'evaluate-corrections':
+            from .benchmark.corrections import evaluate_export
+            report = evaluate_export(cfg, export_path=args.input, output_path=args.output)
+            print(json.dumps(report, indent=2))
+            return 0
+        if args.benchmark_cmd == 'optimize-mining':
+            from .benchmark.mining_optimization import run as optimize_mining
+            report = optimize_mining(cfg, output=args.output, model=args.mine_model,
+                progress=lambda message: print(message, file=sys.stderr))
+            print(json.dumps({k: report[k] for k in ('selected_prompt', 'provider_calls', 'cleanup')}, indent=2))
+            return 3 if any(row['error'] for row in report['development']+report['heldout']) else 0
         from .benchmark.runner import compare, run
         if args.benchmark_cmd == "compare":
             print(json.dumps(compare(json.loads(args.before.read_text()),
@@ -564,6 +688,25 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"report: {out}")
         return 0
 
+    if args.cmd == "research":
+        from .research import ResearchBudget, research
+        result = research(cfg,args.question,domain=args.domain,project=args.project,scope=args.scope,
+            as_of=args.as_of,history=args.history,provider=args.provider,strategy=args.strategy,
+            min_sources=args.min_sources,budget=ResearchBudget(args.steps,args.calls,args.seconds,args.context_chars))
+        if args.json:
+            print(json.dumps(result,ensure_ascii=False,indent=1))
+        else:
+            print(f"research: {result['termination']}; abstained={result['abstained']}")
+            for claim in result['supported']:
+                print(f"supported excerpt: {claim['statement']}")
+                for citation in claim['citations']:
+                    print(f"  {citation}")
+            for disagreement in result['disagreement']:
+                print(f"disagreement: {disagreement['reason']}")
+            for missing in result['missing_evidence']:
+                print(f"missing: facet {missing['question_index']}: {missing['reason']}")
+        return 0
+
     conn = db.connect(cfg, role="writer")
     try:
         if args.cmd == "domain" and args.domain_cmd == "add":
@@ -577,6 +720,30 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "save":
+            if args.index_context:
+                if any((args.title,args.body,args.file,args.domain,args.dtype,args.slug,args.edge,args.project,args.scope)):
+                    raise ValueError('index-only save cannot combine with canonical write options')
+                from . import contextual, query_cache
+                if not contextual.available(conn):
+                    raise ValueError('context indexing requires migration015')
+                if args.index_context == 'pending':
+                    digest=query_cache.model_digest(cfg)
+                    target=conn.execute(f"""SELECT d.* FROM documents d WHERE EXISTS(
+                        SELECT 1 FROM chunks c LEFT JOIN chunk_contexts x ON x.chunk_id=c.id AND x.version=1
+                        WHERE c.document_id=d.id AND (x.source_hash IS DISTINCT FROM {contextual.SOURCE_HASH}
+                        OR x.embedding IS NULL OR x.model_digest IS DISTINCT FROM %s))
+                        ORDER BY d.id LIMIT 1""",(digest,)).fetchone()
+                else:
+                    target=store.get_document(conn,args.index_context)
+                if target is None:
+                    if args.index_context!='pending':raise ValueError('index document not found')
+                    print(json.dumps({'indexed_chunks':0,'remaining_chunks':0,'warnings':[]}));return 0
+                result=store.save_document(conn,cfg,title=target['title'],body=target['body'],
+                    domain=target['domain'],dtype=target['dtype'],doc_id=str(target['id']),
+                    index_context=True,index_limit=args.index_limit)
+                print(json.dumps(dataclasses.asdict(result)));return 0
+            if any(getattr(args,n) is None for n in ('title','domain','dtype')):
+                raise ValueError('normal save requires --title, --domain and --dtype')
             body = args.body if args.body is not None else (
                 args.file.read_text() if args.file else "")
             edges = []
@@ -628,7 +795,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.cmd == "search":
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context)
             if args.json:
                 print(json.dumps({"results": hits, "warnings": warnings},
                                  default=_json_default, indent=1))

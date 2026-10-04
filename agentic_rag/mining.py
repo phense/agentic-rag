@@ -68,6 +68,13 @@ SYSTEM = (
 )
 
 
+BENCHMARK_PROMPTS = {
+    'correction-v1': (' Offline evaluation candidate: prioritize explicit user corrections as atomic assertions; '
+                      'retain the original exact quote and timestamp. An assistant suggestion or hypothetical '
+                      'must never be a stated fact or replacement. Do not invent missing values or times.')
+}
+
+
 def _item_schema(domains: list[str], with_signal: bool) -> dict:
     props = {
         "title": {"type": "string"},
@@ -316,12 +323,25 @@ def _audit(conn, op: str, summary: str) -> None:
 
 def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  last_uuid: str | None, project: str | None,
-                 runner=subprocess.run) -> MineResult:
+                 runner=subprocess.run, benchmark_prompt: str | None = None) -> MineResult:
     """Accept a bounded extraction durably, then apply all its effects atomically.
 
     A previously accepted input cursor wins over new model output/source appends.
     Caller transactions must not contain unrelated uncommitted writes.
     """
+    system = SYSTEM
+    if benchmark_prompt is not None:
+        from .benchmark.database import validate_name
+        if benchmark_prompt not in BENCHMARK_PROMPTS:
+            raise ValueError('unknown benchmark prompt candidate')
+        try:
+            validate_name(cfg.db_name)
+        except ValueError as exc:
+            raise ValueError('benchmark prompt requires an owned database') from exc
+        owners = conn.execute('SELECT owner_id,current_database() database FROM benchmark_ownership').fetchall()
+        if len(owners) != 1 or owners[0]['database'] != cfg.db_name:
+            raise ValueError('benchmark ownership marker mismatch')
+        system += BENCHMARK_PROMPTS[benchmark_prompt]
     row = conn.execute(
         "SELECT * FROM mining_batches WHERE session_id=%s AND input_cursor=%s",
         (session_id, last_uuid or "")).fetchone()
@@ -343,7 +363,7 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
             pin_bodies = [p.body for p in matching_pins(conn, project)]
             data = run_structured(
                 build_prompt(window.text, domain_names, pin_bodies) + "\nSOURCE EVENTS (consumed fragments only):\n" + json.dumps(window.events, ensure_ascii=False),
-                build_schema(domain_names), cfg, system=SYSTEM, runner=runner)
+                build_schema(domain_names), cfg, system=system, runner=runner)
         else:
             data = {}
         # Persist only the normalized accepted batch, not unbounded raw output.
@@ -396,6 +416,21 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
 
 def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
                       output_cursor):
+    from . import embedding_reuse, store
+    documents = []
+    for items in (ext.memories, ext.lessons, ext.signals):
+        for item in items:
+            body = item.body
+            if item.signal and item.signal not in body:
+                body = f"{body}\n\n## Signal\n\n{item.signal}"
+            documents.append((item.title, body))
+    with embedding_reuse.prepare_documents(conn, cfg, documents, loader=store.try_embed_texts):
+        return _apply_prepared_extraction(conn, cfg, ext, session_id=session_id,
+            project=project, batch_id=batch_id, output_cursor=output_cursor)
+
+
+def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
+                               output_cursor):
     provenance = {"origin": "session-mining", "session_id": session_id,
                   "project": project, "mining_batch": batch_id}
     saved = duplicates = 0

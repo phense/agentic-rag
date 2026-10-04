@@ -17,6 +17,7 @@ MAX_CONTEXT_CHARS = 10_000   # Claude Code's per-hook additionalContext limit
 _SECTION_PREFIX = {
     "db": "db",
     "embed": "embed",
+    "rerank": "rerank",
     "ollama": "ollama",
     "backup": "backup",
     "hooks": "hooks",
@@ -36,6 +37,7 @@ class Config:
     embed_model: str = "bge-m3"
     embed_dim: int = 1024
     ollama_url: str = "http://localhost:11434"
+    rerank_url: str = "http://127.0.0.1:8766"
     backup_cloud_dir: Path | None = None   # opt-in: no cloud copy unless set
     backup_local_dir: Path = field(
         default_factory=lambda: Path.home() / ".agentic-rag" / "backups"
