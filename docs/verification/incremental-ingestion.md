@@ -26,3 +26,5 @@ Populated synthetic018→019: strict source/target restores, DDL rollback/retry/
 Fresh populated production018 backup/strict owned restore, interrupted019 migration/retry/no-op and exact original row/grant retention succeeded without modifying production. Public aggregate inventories and read-only Trading source controls are in results.json. All private state stays outside Git. This is an executed recovery rehearsal, not production rollout evidence.
 
 PB-5.9 remains executable for the separately approved exact target. Application/cache writes stay within original audited gateways. Code recovery retains019 and later knowledge; restoring a backup would lose later writes and requires separate authority. Existing active MCP processes must reconnect after a separately authorized activation to load new code. No service interruption, configuration rewrite, provider change or editable reinstall occurred.
+
+[PR47](https://github.com/phense/agentic-rag/pull/47) is published and linked to this thread. Remote CI is pending; merge/adoption remain pending. Both complete reviews found no open Critical/High/Medium/Low bugs.

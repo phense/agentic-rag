@@ -9,4 +9,4 @@
 - [x] T005: Three paired measurements, local input counts, throughput/RSS/queue delay.
 - [x] T006: Reference and independently reviewed/rehearsed PB-5.9; reconcile Feature8 adoption.
 - [ ] T007: Independent complete diff reviews, findings disposition, full suites and CI.
-- [ ] T008: Publish linked Feature9 PR; keep merge pending until Feature10 is ready.
+- [x] T008: Publish linked Feature9 PR; keep merge pending until Feature10 is ready.
