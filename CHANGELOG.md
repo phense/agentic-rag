@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-10-04
+
+### Fixed
+- Upgrade locked PyJWT from 2.13.0 to 2.15.0 for the upstream JWT/JWK
+  security corrections ([PR11](https://github.com/phense/agentic-rag/pull/11),
+  [Issue37](https://github.com/phense/agentic-rag/issues/37)); retain AnyIO 4.14.2.
+- Document stdio deployment applicability and the advisory with incomplete
+  patched-version metadata in [Contributing](docs/12-contributing.md#dependency-security-updates).
+
 ## [0.6.1] - 2026-10-04
 
 ### Fixed

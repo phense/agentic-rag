@@ -273,3 +273,18 @@ Recovery selects the retained checkout and environment while keeping the
 current database and later writes. Verify fresh reader/main MCP tools and
 search after either switch. Recovery restores package compatibility but also
 restores the old dependency vulnerabilities; it is temporary containment.
+
+[PR11](https://github.com/phense/agentic-rag/pull/11) follows PR10 and updates
+PyJWT from 2.13.0 to 2.15.0 with release metadata at 0.6.2. Its upstream
+[2.15.0 changelog](https://github.com/jpadilla/pyjwt/blob/2.15.0/CHANGELOG.rst)
+includes the intervening 2.14.0 security fixes. RAG contains no JWT decoding,
+JWK lookup or token-authentication caller; both deployed MCP servers use
+stdio with HTTP authentication disabled. Future HTTP/OAuth integrations
+require a fresh applicability review.
+
+Advisory [GHSA-gvp8-978c-rx2q](https://github.com/advisories/GHSA-gvp8-978c-rx2q)
+lists affected releases through 2.13.0 but has no first-patched-version field.
+Validate its reused-options reproduction on the installed candidate and
+report the result separately from GitHub alert state. Read alerts back
+after merging; do not dismiss them manually or close Issue37 before
+applicable remediation and separately authorized production acceptance.
