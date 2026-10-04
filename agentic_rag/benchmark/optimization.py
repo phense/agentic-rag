@@ -57,6 +57,11 @@ def _evidence(document):
 def validate(corpus):
     """Reject leakage, secret labels and unsafe selectors before any service work."""
     original_shape = deepcopy(corpus)
+    if isinstance(original_shape, dict):
+        for key in ('documents', 'queries'):
+            items = original_shape.get(key)
+            if isinstance(items, list) and any(isinstance(item, dict) and item.get('scope') == 'all' for item in items):
+                raise ValueError('scope all is not permitted in exact public evaluation')
     if isinstance(original_shape, dict) and isinstance(original_shape.get('documents'), list):
         for document in original_shape['documents']:
             if isinstance(document, dict) and document.get('scope') == 'global' and document.get('project') is None:
@@ -67,13 +72,36 @@ def validate(corpus):
         raise ValueError('public failure corpus exceeds bounded workload')
     if strip_secrets_json(corpus)[1] or '[REDACTED' in _json(corpus).upper():
         raise ValueError('secret or redacted public fixture')
-    partitions, fingerprints, source_keys, semantic_keys = {}, {}, {}, {}
+    partitions, fingerprints, source_keys = {}, {}, {}
+    identity_parents, identity_declarations = {}, []
     documents = {d['id']: d for d in corpus['documents']}
 
     def bind(index, key, split, label):
         if key in index and index[key] != split:
             raise ValueError(f'{label} leaks across dev/held-out split')
         index[key] = split
+
+    def declare_identity(item, name):
+        # Gateways trim surrounding whitespace but preserve literal case/name.
+        key = (item['domain'], write_scope(item.get('project'), item.get('scope')), name.strip())
+        identity_parents.setdefault(key, key)
+        identity_declarations.append((key, item['split']))
+        return key
+
+    def root(key):
+        current = key
+        while identity_parents[current] != current:
+            current = identity_parents[current]
+        while identity_parents[key] != key:
+            parent = identity_parents[key]
+            identity_parents[key] = current
+            key = parent
+        return current
+
+    def join(left, right):
+        left, right = root(left), root(right)
+        if left != right:
+            identity_parents[left] = right
 
     for item in [*corpus['documents'], *corpus['queries']]:
         for key in ('id', 'family', 'domain'):
@@ -122,8 +150,7 @@ def validate(corpus):
                 raise ValueError('invalid assertion relation')
             if assertion['value'] not in evidence['quote']:
                 raise ValueError('assertion value missing from original user evidence')
-            bind(semantic_keys, (document['domain'], write_scope(document.get('project'), document.get('scope')),
-                 assertion['entity'], assertion['attribute']), document['split'], 'correction history')
+            declare_identity(document, assertion['entity'])
         if alias is not None:
             if not isinstance(alias, dict) or set(alias) != {'alias','target','effective_at'}:
                 raise ValueError('invalid alias fixture fields')
@@ -131,6 +158,7 @@ def validate(corpus):
                 _text(alias.get(key), key)
             if alias['alias'] == alias['target'] or parse_time(alias['effective_at']) is None:
                 raise ValueError('invalid alias identity/time')
+            join(declare_identity(document, alias['alias']), declare_identity(document, alias['target']))
     for query in corpus['queries']:
         if parse_time(query.get('as_of')) is None or query.get('history', False):
             raise ValueError('queries require explicit as_of, without history')
@@ -141,8 +169,7 @@ def validate(corpus):
             if query.get(key) is not None:
                 _text(query[key], key)
         if query.get('entity') is not None:
-            bind(semantic_keys, (query['domain'], write_scope(query.get('project'), query.get('scope')),
-                 query['entity'], query['attribute']), query['split'], 'translation/query history')
+            declare_identity(query, query['entity'])
         for identity in query['expected_ids']:
             source = documents[identity]
             if source['split'] != query['split']:
@@ -154,6 +181,9 @@ def validate(corpus):
             raise ValueError('authored answer absent from expected original source')
     if {q['split'] for q in corpus['queries']} != {'dev', 'test'}:
         raise ValueError('both dev and held-out queries required')
+    components = {}
+    for key, split in identity_declarations:
+        bind(components, root(key), split, 'identity/alias translation history component')
 
 
 def rank(question, hits, *, title_weight):

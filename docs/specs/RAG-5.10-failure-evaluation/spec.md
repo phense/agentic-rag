@@ -66,7 +66,7 @@ labels; diagnostic source hit, similarity, interaction and confidence are not tr
 
 ## Compatibility boundaries
 
-Source Feature9 reviewed branch476e42b/schema019; live1294d6c/schema018.
+Source Feature9 reviewed branchd5e2ce49a4a48554b5d9de58c3beb3b5a4d43d9d/schema019; live1294d6c/schema018.
 Feature10 is additive code-only and supports018/019. Combined adoption still requires019
 and separate authority using Feature9's tested migration/recovery contract. Private export
 must use reader privileges in a consistent read-only snapshot. Application/index writes

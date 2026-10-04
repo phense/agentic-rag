@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import replace
+from datetime import datetime,timezone
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -22,6 +23,7 @@ from agentic_rag.benchmark.database import isolated_database
 from agentic_rag.benchmark.identity import local_model,model_guard
 from agentic_rag.config import Config,load_config
 from scripts import verify_incremental_ingestion as ingestion
+from scripts import activate_failure_evaluation as code_activation
 from scripts.verify_contextual_indexing import verified_backup
 from scripts.verify_entity_identities import assert_originals,inventories
 from scripts.verify_filter_aware_search import privileges,table_names
@@ -45,14 +47,6 @@ def archive(revision,path):
     subprocess.run(['tar','-xf','-','-C',str(path)],input=data,check=True)
 
 
-def require019(cfg):
-    with db.connect(cfg,role='reader') as reader:
-        expected=[p.name for p in sorted(db.SQL_DIR.glob('*.sql'))]
-        actual=[r['filename'] for r in reader.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
-        if actual!=expected or len(expected)!=19:
-            raise ValueError('code-only upgrade requires exact019 ledger')
-
-
 def code_only(temp,private):
     """Actual source019→target019→source019 Git/CLI roundtrip with overlapping writers."""
     source=temp/'source9';archive(source9(),source)
@@ -68,7 +62,15 @@ def code_only(temp,private):
                 domain='general',dtype='memory',project='/synthetic/ingestion/a')
         with db.connect(owned,role='reader') as reader:
             tables=table_names(reader);originals=inventories(reader,tables);grants=privileges(reader)
-        backup=verified_backup(owned,private/'code-only-source019.dump');backup.pop('dump')
+        dump=private/'code-only-source019.dump'
+        backup=verified_backup(owned,dump);backup.pop('dump')
+        backup['source_db_name']=owned.db_name
+        with db.connect(owned,role='owner') as owner:backup['source_identity']=code_activation.source_identity(owner)
+        backup['verified_at']=datetime.now(timezone.utc).isoformat()
+        report_path=private/'code-only-source019-report.json'
+        import os
+        fd=os.open(report_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'w') as file:json.dump(backup,file,indent=2)
         config=ingestion.config_file(owned,temp/'code-only.toml')
         import os
         env=dict(os.environ,PYTHONPATH=str(clone),AGENTIC_RAG_CONFIG=str(config),AGENTIC_RAG_HOOKS_DISABLE='1')
@@ -76,27 +78,10 @@ def code_only(temp,private):
             result=subprocess.run([sys.executable,'-m','agentic_rag.cli','benchmark','optimize','--help'],
                 cwd=clone,env=env,capture_output=True,timeout=30)
             return result.returncode==0
-        def checkouts(expected):
-            if clone_git('rev-parse','HEAD') not in expected or clone_git('status','--porcelain'):
-                raise ValueError('owned code-only checkout drift')
-            if git('rev-parse','HEAD')!=target or git('status','--porcelain'):
-                raise ValueError('measured candidate checkout drift')
-        def guard(expected):
-            checkouts(expected)
-            require019(owned)
-            checkouts(expected)  # Schema-time drift must fail before the Git switch.
         def activate(recover=False):
-            guard((source9(),target))
             with patch.object(worker,'LOCK_PATH',temp/'code-only.lock'):
-                lock=worker.acquire_lock(worker.LOCK_PATH)
-                if lock is None:raise ValueError('owned worker lock busy')
-                try:
-                    guard((source9(),target))
-                    if recover:subprocess.run(['git','switch','--detach',source9()],cwd=clone,check=True,capture_output=True)
-                    else:subprocess.run(['git','merge','--ff-only',target],cwd=clone,check=True,capture_output=True)
-                    checkouts((source9() if recover else target,))
-                finally:lock.close()
-            return clone_git('rev-parse','HEAD')
+                return code_activation.activate(clone,ROOT,target,cfg=owned,dump=dump,
+                    report=report_path,recover=recover)
         assert not new_command_available()
         rejections=[]
         dirty=clone/'.drift';dirty.write_text('public owned fixture')
@@ -112,11 +97,14 @@ def code_only(temp,private):
                 except ValueError:rejections.append('busy-owned-worker-lock')
                 else:raise AssertionError('busy worker lock must reject')
             finally:held.close()
-        schema_check=require019
-        def drift_after_schema(config):
-            schema_check(config);dirty.write_text('public schema-time drift')
+        schema_check=code_activation.schema;schema_calls=0
+        def drift_after_schema(*args):
+            nonlocal schema_calls
+            result=schema_check(*args);schema_calls+=1
+            if schema_calls==2:dirty.write_text('public schema-time drift')
+            return result
         try:
-            with patch(__name__+'.require019',drift_after_schema):
+            with patch.object(code_activation,'schema',drift_after_schema):
                 try:activate()
                 except ValueError:rejections.append('post-schema-pre-switch-drift')
                 else:raise AssertionError('schema-time drift must reject before Git switch')
@@ -124,12 +112,12 @@ def code_only(temp,private):
         finally:dirty.unlink(missing_ok=True)
         with ingestion.overlapping_clients(source,owned,temp) as (advance,observations):
             advance(19)
-            adopted=activate();assert adopted==target and new_command_available()
-            retried=activate();assert retried==target
+            adopted=activate();assert adopted['revision']==target and new_command_available()
+            retried=activate();assert retried['revision']==target
             advance(19)
             contracts=ingestion.clients(source,owned,temp)
             refs=clone_git('for-each-ref','--format=%(refname) %(objectname)','refs/heads')
-            recovered=activate(recover=True);assert recovered==source9() and not new_command_available()
+            recovered=activate(recover=True);assert recovered['revision']==source9() and not new_command_available()
             assert clone_git('for-each-ref','--format=%(refname) %(objectname)','refs/heads')==refs
         with db.connect(owned,role='reader') as reader:
             assert_originals(reader,originals);assert privileges(reader)==grants

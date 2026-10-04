@@ -2,7 +2,7 @@
 
 ## Baseline and affected contracts
 
-Isolated feature/failure-evaluation starts at reviewed Feature9476e42b, schema019.
+Isolated feature/failure-evaluation starts at reviewed Feature9d5e2ce49a4a48554b5d9de58c3beb3b5a4d43d9d, schema019.
 Main1294d6c/schema018 remains live. Original benchmark runner/corpus contracts remain
 unchanged; new optimization module reuses owned databases, audited store/mining/search
 and original entities.read. No SQL change or live strategy loader is needed.

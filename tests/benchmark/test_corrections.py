@@ -92,6 +92,58 @@ def test_private_selection_uses_dev_only_and_seals_before_heldout(tmp_path,monke
     assert (tmp_path/'result.json.candidate.json').stat().st_mode & 0o777==0o600
 
 
+@pytest.mark.parametrize('phase',['after_seal','during_heldout','during_entity_baseline'])
+@pytest.mark.parametrize('tamper',['bytes','resealed','permissions'])
+def test_private_candidate_tampering_rejects_without_report(tmp_path,monkeypatch,phase,tamper):
+    from agentic_rag.benchmark import corrections
+    path=_mock_export(tmp_path,monkeypatch,_both_splits())
+    output=tmp_path/'result.json';candidate=tmp_path/'result.json.candidate.json'
+    heldout_calls=[]
+    def alter():
+        if tamper=='permissions':candidate.chmod(0o644)
+        elif tamper=='bytes':candidate.write_bytes(candidate.read_bytes()+b' ')
+        else:
+            data=json.loads(candidate.read_bytes());data['profile']='entity' if data['profile']=='fts' else 'fts'
+            data['artifact_sha256']=corrections._hash({k:v for k,v in data.items() if k!='artifact_sha256'})
+            candidate.write_bytes(corrections._encoded(data)+b'\n')
+    write=corrections._write_private
+    def write_and_alter(target,data):
+        write(target,data)
+        if target==candidate and phase=='after_seal':alter()
+    def score(conn,cfg,case,at,profile):
+        if case['split']=='test':
+            heldout_calls.append(profile)
+            if phase=='during_heldout' or (phase=='during_entity_baseline' and profile=='entity'):alter()
+        supported=profile==('fts' if phase=='during_entity_baseline' else 'entity')
+        return dict(id=case['id'],family=case['family'],split_family=case['split_family'],split=case['split'],
+            supported=supported,miss=not supported,stale=0,wrong_scope=0,error=None,context_chars=30)
+    monkeypatch.setattr(corrections,'_write_private',write_and_alter)
+    monkeypatch.setattr(corrections,'_score_case',score)
+    with pytest.raises(ValueError,match='^private candidate integrity verification failed$'):
+        corrections.evaluate_export(Config(),export_path=path,output_path=output)
+    assert not output.exists()
+    assert len(heldout_calls)=={'after_seal':0,'during_heldout':1,'during_entity_baseline':2}[phase]
+
+
+@pytest.mark.parametrize('fault',['wrong_scope','stale','error'])
+def test_private_selection_prioritizes_safety_before_support(tmp_path,monkeypatch,fault):
+    from agentic_rag.benchmark import corrections
+    path=_mock_export(tmp_path,monkeypatch,_both_splits())
+    def score(conn,cfg,case,at,profile):
+        supported=profile=='entity'
+        unsafe=case['split']=='dev' and profile=='entity'
+        return dict(id=case['id'],family=case['family'],split_family=case['split_family'],split=case['split'],
+            supported=supported,miss=not supported,stale=int(unsafe and fault=='stale'),
+            wrong_scope=int(unsafe and fault=='wrong_scope'),error='Unavailable' if unsafe and fault=='error' else None,
+            context_chars=30)
+    monkeypatch.setattr(corrections,'_score_case',score)
+    result=corrections.evaluate_export(Config(),export_path=path,output_path=tmp_path/'result.json')
+    assert result['optimization']['chosen']=='fts'
+    assert result['optimization']['heldout']['supported']==0
+    # Top-level metrics still describe the entity route, regardless of selection.
+    assert result['supported']==2 and result['misses']==0
+
+
 def test_fts_private_route_uses_literal_scope_and_no_inference_seams(monkeypatch):
     from agentic_rag import embed,llm,neural_rerank
     from agentic_rag.benchmark import corrections

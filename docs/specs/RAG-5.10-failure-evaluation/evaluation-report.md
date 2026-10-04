@@ -16,6 +16,14 @@ text and correction histories cannot cross splits. Queries require an explicit
 domain, exact synthetic project or global scope, and an explicit timestamp.
 Entity and attribute selectors must be supplied together.
 
+Scoped identities are grouped independently of attribute: declarations for the
+same domain, exact scope and name belong to one component. Explicit alias/target
+relations join their components, including connected histories and translations.
+Every component must remain wholly in one split, even if its declared family is
+renamed. Identical names in different domains/projects remain independent. Global
+fixtures use `scope=global` with no project; a temporary validation copy supplies
+the legacy display sentinel without changing the input. Broad `scope=all` is rejected.
+
 Four static profiles combine ordinary search or caller-selected entity resolution
 with title weight0 or1. The local ranker only permutes existing candidates. It
 cannot create citations, change selection boundaries or consume answer labels.

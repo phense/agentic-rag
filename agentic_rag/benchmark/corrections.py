@@ -458,6 +458,30 @@ def _summary(details):
         accuracy=sum(r['supported'] for r in details)/len(details) if details else None,uncertainty=None)
 
 
+def _verify_private_candidate(path, expected):
+    """Verify the original seal, including exact bytes and private file modes."""
+    try:
+        path=_private_path(path,existing=True)
+        fd=os.open(path,os.O_RDONLY|getattr(os,'O_NOFOLLOW',0))
+        with os.fdopen(fd,'rb') as file:
+            before=os.fstat(file.fileno())
+            if not stat.S_ISREG(before.st_mode) or stat.S_IMODE(before.st_mode)!=0o600 or before.st_size>MAX_BYTES:
+                raise ValueError
+            raw=file.read(MAX_BYTES+1)
+            after=os.fstat(file.fileno())
+        current=_private_path(path,existing=True).stat()
+        fingerprint=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+        if fingerprint(before)!=fingerprint(after) or fingerprint(after)!=fingerprint(current):
+            raise ValueError
+        if raw!=_encoded(expected)+b'\n':raise ValueError
+        actual=json.loads(raw)
+        if actual!=expected or actual['artifact_sha256']!=_hash({k:v for k,v in actual.items() if k!='artifact_sha256'}):
+            raise ValueError
+        return actual
+    except (OSError,ValueError,TypeError,KeyError):
+        raise ValueError('private candidate integrity verification failed') from None
+
+
 def evaluate_export(cfg, *, export_path, output_path):
     source_path = _private_path(export_path,existing=True)
     _private_path(output_path)
@@ -468,6 +492,7 @@ def evaluate_export(cfg, *, export_path, output_path):
     candidate_path=Path(output_path).with_name(Path(output_path).name+'.candidate.json')
     if {c['split'] for c in payload['cases']}=={'dev','test'}:
         _private_path(candidate_path)
+    candidate=None
     details=[];optimization=dict(status='unavailable',reason='independent dev and test source/alias families are required',
         profiles=2,chosen=None,dev=None,heldout=None,candidate_sha256=None)
     with _reader_snapshot(cfg) as (conn,at,schema):
@@ -476,14 +501,15 @@ def evaluate_export(cfg, *, export_path, output_path):
             dev_rows={profile:[_score_case(conn,cfg,case,at,profile) for case in dev] for profile in ('fts','entity')}
             summaries={profile:_summary(rows) for profile,rows in dev_rows.items()}
             # Fixed tie order; labels from held-out cases never enter this choice.
-            chosen=max(('fts','entity'),key=lambda p:(summaries[p]['supported'],-summaries[p]['wrong_scope'],
-                -summaries[p]['stale'],-summaries[p]['failed_cases']))
+            chosen=min(('fts','entity'),key=lambda p:(summaries[p]['wrong_scope'],summaries[p]['stale'],
+                summaries[p]['failed_cases'],-summaries[p]['supported']))
             candidate=dict(kind='private-correction-candidate',version=1,synthetic=False,profile=chosen,
                 context_chars=12000,profiles=['fts','entity'],dev=summaries,
                 dev_evidence_sha256=_hash([c['original_sha256'] for c in dev]),
                 source_revision=_revision(),source_sha256=sha256(Path(__file__).read_bytes()).hexdigest())
             candidate['artifact_sha256']=_hash(candidate)
             _write_private(candidate_path,candidate)  # Seal before any held-out scoring.
+            chosen=_verify_private_candidate(candidate_path,candidate)['profile']
             heldout=[_score_case(conn,cfg,case,at,chosen) for case in test]
             details=dev_rows['entity']+([_score_case(conn,cfg,case,at,'entity') for case in test] if chosen!='entity' else heldout)
             optimization=dict(status='sealed',reason=None,profiles=2,chosen=chosen,dev=summaries,heldout=_summary(heldout),
@@ -497,5 +523,6 @@ def evaluate_export(cfg, *, export_path, output_path):
         source_revision=_revision(),source_sha256=sha256(Path(__file__).read_bytes()).hexdigest(),source_schema=schema,
         as_of=at,summary=summary,cases=details)
     report['artifact_sha256'] = _hash(report)
+    if candidate is not None:_verify_private_candidate(candidate_path,candidate)
     _write_private(output_path,report)
     return summary

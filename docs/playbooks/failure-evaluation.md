@@ -81,6 +81,61 @@ PYTHONPATH=. /Users/peter/Agents/agentic-rag/.venv/bin/python -m agentic_rag.cli
 Use `--scope global` without a project only when that boundary is intended. Never copy
 private labels into the public synthetic corpus or supply them to native provider commands.
 
+## Execute separately authorized source019 code-only adoption
+
+The current source019 tree must match the reviewed Feature9 tree (a merge commit with
+that identical tree is supported), and the exact approved target must be available in
+both clean separate checkouts. Preserve the existing interpreter/config environment.
+Set `RAG_CANONICAL_PATH`, `RAG_CANDIDATE_PATH`, `RAG_APPROVED_TARGET_REVISION`,
+`RAG_ORIGINAL_PYTHON`, `RAG_BACKUP_DUMP` and `RAG_BACKUP_REPORT` to approved inputs.
+Keep backup paths new and private. Create the strict verified019 backup/report first:
+
+```python
+from pathlib import Path
+import json, os
+from datetime import datetime, timezone
+from agentic_rag.config import load_config
+from agentic_rag import db
+from scripts.verify_contextual_indexing import verified_backup
+from scripts.activate_failure_evaluation import source_identity
+cfg = load_config()
+dump = Path(os.environ['RAG_BACKUP_DUMP'])
+report_path = Path(os.environ['RAG_BACKUP_REPORT'])
+report = verified_backup(cfg, dump)
+report['source_db_name'] = cfg.db_name
+with db.connect(cfg, role='owner') as conn:
+    report['source_identity'] = source_identity(conn)
+report['verified_at'] = datetime.now(timezone.utc).isoformat()
+fd = os.open(report_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+with os.fdopen(fd, 'w') as stream:
+    json.dump(report, stream, indent=2)
+```
+
+Run the same guarded helper exercised by the owned rehearsal:
+
+```bash
+PYTHONPATH="$RAG_CANDIDATE_PATH" "$RAG_ORIGINAL_PYTHON" \
+  "$RAG_CANDIDATE_PATH/scripts/activate_failure_evaluation.py" \
+  --canonical "$RAG_CANONICAL_PATH" --candidate "$RAG_CANDIDATE_PATH" \
+  --approved-target "$RAG_APPROVED_TARGET_REVISION" \
+  --verified-dump "$RAG_BACKUP_DUMP" --backup-report "$RAG_BACKUP_REPORT"
+```
+
+It requires exact unchanged019 SQL/ledger, strict fresh019 backup checksum/0600 flags
+and actual server/database identity. It checks both clean checkouts before and under
+the worker lock, immediately after schema verification/before Git and after switching.
+It never applies DDL. A busy lock or drift causes rejection; correct the cause and retry.
+Already-active exact targets are idempotent. Fresh clients must reconnect to load code.
+For separately authorized recovery, use the same helper with `--recover`; it skips backup
+restoration and detaches source code while retaining019, later writes and branch refs:
+
+```bash
+PYTHONPATH="$RAG_CANDIDATE_PATH" "$RAG_ORIGINAL_PYTHON" \
+  "$RAG_CANDIDATE_PATH/scripts/activate_failure_evaluation.py" \
+  --canonical "$RAG_CANONICAL_PATH" --candidate "$RAG_CANDIDATE_PATH" \
+  --approved-target "$RAG_APPROVED_TARGET_REVISION" --recover
+```
+
 ## Rehearsal and code recovery
 
 The unified driver executes actual owned Git source019→target019 fast-forward, repeat,
@@ -103,7 +158,5 @@ PYTHONPATH=. /Users/peter/Agents/agentic-rag/.venv/bin/python scripts/verify_fai
 
 No production activation is performed by this rehearsal. For the supported current live018
 installation, the executable authorized upgrade/recovery command is [PB-5.9](incremental-ingestion.md),
-with the exact separately approved combined target. Already019 code-only deployment must
-follow the same clean checkout/worker lock/original interpreter checks demonstrated here;
-retain the strict019 backup and exact adopted/recovered revisions as operator evidence.
+with the exact separately approved combined target. Already019 code-only deployment uses the exact guarded command above; retain the strict019 backup and exact adopted/recovered revisions as operator evidence.
 A full database restore is not implemented by Feature10 and needs separate loss-boundary approval.

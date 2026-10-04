@@ -33,7 +33,12 @@ raw FTS with a NULL vector and one literal scope, and exact entity routing. Both
 use a12000-character budget. Neither can invoke embeddings, rerankers, contextual
 vectors, graph expansion or providers. A new private candidate file is sealed at
 `OUTPUT.candidate.json` before selected held-out evaluation. Selection depends only
-on development scores; fixed tie order chooses FTS. If independent dev/test source
+on development scores and first minimizes wrong-scope results, stale results and
+failed cases, then maximizes supported cases; fixed tie order chooses FTS. The
+0600 candidate is reread and compared against its exact sealed bytes, content and
+SHA-256 before held-out scoring and again after all scoring before report creation.
+Permission or content drift, including a replacement with a recomputed hash, raises
+an opaque integrity error and leaves no accepted report. If independent dev/test source
 families are absent, selection is explicitly unavailable. No live profile loader or
 configuration mutation exists. The synthetic/public optimizer remains separate.
 
@@ -52,9 +57,20 @@ Exceptions in evaluation expose their type only.
   could be serialized; attribute-aware withholding made it pass.
 - An existing candidate-path regression failed because evaluation entered the database
   seam before refusing overwrite; candidate preflight now rejects before that seam.
-- Final bounded pure selection:22 passed in0.78s. It includes dev-only selection,
+- Independent review confirmed missing candidate reread checks: six pure tamper
+  regressions failed because changed bytes, recomputed candidate hashes and relaxed
+  permissions were accepted immediately after sealing or during held-out scoring.
+  Three safety regressions failed because higher support outranked wrong-scope,
+  stale or failed development results. Initial combined result:9 failed in1.19s.
+  Exact seal checks and safety-first selection made those regressions pass; three
+  additional cases cover drift during the separate entity-baseline scoring pass.
+- Final bounded pure selection:34 passed in2.15s. It includes dev-only selection,
   candidate sealing before opposed held-out outcomes, literal-scope FTS and forbidden
   inference seams. No selected test requested `conn`, `cfg`, `dbinit` or database reset.
+  `git diff --check` passed. The red and targeted green command was
+  `/Users/peter/Agents/agentic-rag/.venv/bin/python -m pytest -q tests/benchmark/test_corrections.py::test_private_candidate_tampering_rejects_without_report tests/benchmark/test_corrections.py::test_private_selection_prioritizes_safety_before_support`.
+  The final green pass explicitly selected all15 pure test function node IDs in
+  this module; parameterization expanded these to34 cases.
 
 Database regressions are authored for original support, local citation support,
 withdrawal/incomplete/unreviewed/expired/later-withdrawn support, independent later

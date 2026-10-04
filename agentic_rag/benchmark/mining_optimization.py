@@ -142,7 +142,8 @@ def run(cfg, *, output: Path, model=False, progress=None):
             guard()
             if progress:progress('public held-out mining case completed')
     guard()
-    assert sha256((output/'candidate.json').read_bytes().rstrip(b'\n')).hexdigest()==sealed
+    if sha256((output/'candidate.json').read_bytes().rstrip(b'\n')).hexdigest()!=sealed:
+        raise ValueError('public mining candidate changed during held-out evaluation')
     report=dict(version=1,source_revision=revision,source_sha256=frozen_source,embedding_identity=expected_model,
         prompt_sha256=prompt_hashes,provider=cfg.llm_provider,model=cfg.llm_model,
         candidate_sha256=sealed,selected_prompt=chosen,development=development,heldout=heldout,

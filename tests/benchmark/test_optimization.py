@@ -153,6 +153,69 @@ def test_renamed_translation_and_history_still_cannot_cross_split():
         validate(corpus)
 
 
+def same_name_corpus():
+    corpus = fixture_corpus()
+    source = corpus['documents'][1]
+    source.update(title='Zebra: revision', body='Zebra revision is 6193.', project='/synthetic/zebra')
+    source['assertion'].update(entity='Zebra', attribute='revision')
+    source['evidence']['quote'] = source['body']
+    corpus['queries'][1].update(query='Zebra revision', entity='Zebra', attribute='revision', project='/synthetic/zebra')
+    return corpus
+
+
+def test_same_identity_different_attribute_rejected_before_service_access(tmp_path, monkeypatch):
+    from agentic_rag.benchmark import optimization
+    from agentic_rag.config import Config
+    path = tmp_path/'corpus.json'; path.write_text(json.dumps(same_name_corpus()))
+    monkeypatch.setattr(optimization, 'local_model', lambda cfg: pytest.fail('validate before model/service access'))
+    monkeypatch.setattr(optimization, 'isolated_database', lambda cfg: pytest.fail('validate before DB'))
+    with pytest.raises(ValueError, match='identity|component|history'):
+        optimization.run(Config(), output=tmp_path/'report', corpus_path=path)
+    assert not (tmp_path/'report').exists()
+
+
+@pytest.mark.parametrize('endpoint', ['alias', 'target'])
+def test_alias_endpoint_connects_renamed_families_across_split(endpoint):
+    from agentic_rag.benchmark.optimization import validate
+    corpus = fixture_corpus()
+    alias, target = ('Otter','Bridge') if endpoint == 'alias' else ('Bridge','Otter')
+    corpus['documents'].append(dict(id='dev-bridge', title='Alias bridge',
+        body=f'{alias} is another name for {target}.', project='/synthetic/otter', domain='general',
+        actor='user-a', family='renamed-dev-family', split='dev',
+        alias=dict(alias=alias, target=target, effective_at='2026-04-01T00:00:00Z')))
+    with pytest.raises(ValueError, match='identity|component|alias|history'):
+        validate(corpus)
+
+
+@pytest.mark.parametrize('boundary', ['project', 'domain'])
+def test_same_name_in_independent_boundaries_does_not_leak(boundary):
+    from agentic_rag.benchmark.optimization import validate
+    corpus = same_name_corpus()
+    value = '/synthetic/independent-zebra' if boundary == 'project' else 'programming'
+    corpus['documents'][1][boundary] = value
+    corpus['queries'][1][boundary] = value
+    validate(corpus)
+
+
+def test_explicit_global_scope_uses_nonmutating_legacy_validation_adapter():
+    from agentic_rag.benchmark.optimization import validate
+    corpus = fixture_corpus()
+    for item in [*corpus['documents'], *corpus['queries']]:
+        item.update(project=None, scope='global')
+    original = deepcopy(corpus)
+    validate(corpus)
+    assert corpus == original
+    assert all(d['project'] is None for d in corpus['documents'])
+
+
+def test_all_scope_is_rejected_explicitly():
+    from agentic_rag.benchmark.optimization import validate
+    corpus = fixture_corpus()
+    corpus['queries'][0]['scope'] = 'all'
+    with pytest.raises(ValueError):
+        validate(corpus)
+
+
 def test_heldout_labels_cannot_change_selection_and_seal_precedes_evaluation(tmp_path, monkeypatch):
     # The external owned-database phase is replaced; orchestration/sealing stay real.
     from agentic_rag.benchmark import optimization

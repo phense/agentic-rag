@@ -70,3 +70,16 @@ def test_changed_loaded_prompt_invalidates_native_comparison(tmp_path,monkeypatc
     with pytest.raises(ValueError,match='prompt/source'):
         mining_optimization.run(Config(),output=tmp_path/'changed',model=True)
     assert not (tmp_path/'changed/results.json').exists()
+
+
+def test_changed_public_candidate_prevents_accepted_report(tmp_path,monkeypatch):
+    from agentic_rag.benchmark import identity,mining_optimization
+    monkeypatch.setattr(identity,'model_digest',lambda cfg:'a'*64)
+    output=tmp_path/'candidate-drift'
+    def measure(cfg,family,prompt):
+        if family=='test-1':(output/'candidate.json').write_text('{}')
+        return dict(prompt=prompt,unsafe=0,user_correct=True,error=None,provider_calls=0)
+    monkeypatch.setattr(mining_optimization,'_measure',measure)
+    with pytest.raises(ValueError,match='candidate changed'):
+        mining_optimization.run(Config(),output=output,model=True)
+    assert not (output/'results.json').exists()
