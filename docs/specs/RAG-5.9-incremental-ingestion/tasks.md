@@ -8,5 +8,5 @@
 - [x] T004: Actual populated upgrade/interrupt/retry/restore/code recovery rehearsal.
 - [x] T005: Three paired measurements, local input counts, throughput/RSS/queue delay.
 - [x] T006: Reference and independently reviewed/rehearsed PB-5.9; reconcile Feature8 adoption.
-- [ ] T007: Independent complete diff reviews, findings disposition, full suites and CI.
+- [x] T007: Independent complete diff reviews, findings disposition, full suites and CI.
 - [x] T008: Publish linked Feature9 PR; keep merge pending until Feature10 is ready.
