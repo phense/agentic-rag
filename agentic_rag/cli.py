@@ -202,6 +202,24 @@ def _main(argv: list[str] | None = None) -> int:
     b_run.add_argument("--smoke", action="store_true", help="reduce source corpus; not a full baseline")
     b_run.add_argument("--answers", action="store_true", help="call configured LLM for answers")
     b_run.add_argument("--judge", action="store_true", help="separately call configured LLM for grading (requires --answers)")
+    b_opt = bench_sub.add_parser('optimize', help='bounded public offline failure evaluation')
+    b_opt.add_argument('--output', type=Path, required=True)
+    b_opt.add_argument('--corpus', type=Path)
+    b_opt.add_argument('--context-chars', type=int, default=4000)
+    b_opt.add_argument('--repeats', type=int, default=20)
+    b_opt.add_argument('--mining-candidate', type=Path)
+    b_export = bench_sub.add_parser('export-corrections', help='private read-only confirmed correction labels')
+    b_export.add_argument('--output', type=Path, required=True)
+    b_export.add_argument('--domain', required=True)
+    b_export.add_argument('--project')
+    b_export.add_argument('--scope', choices=['project', 'global'])
+    b_export.add_argument('--limit', type=int, default=32)
+    b_private = bench_sub.add_parser('evaluate-corrections', help='network-free private correction evaluation')
+    b_private.add_argument('--input', type=Path, required=True)
+    b_private.add_argument('--output', type=Path, required=True)
+    b_mine = bench_sub.add_parser('optimize-mining', help='actual existing-provider public prompt comparison')
+    b_mine.add_argument('--output', type=Path, required=True)
+    b_mine.add_argument('--mine-model', action='store_true', help='explicitly invoke configured provider on public fixtures')
     b_compare = bench_sub.add_parser("compare")
     b_compare.add_argument("before", type=Path)
     b_compare.add_argument("after", type=Path)
@@ -351,6 +369,31 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "benchmark":
+        if args.benchmark_cmd == 'optimize':
+            from .benchmark.optimization import run as optimize
+            candidate = json.loads(args.mining_candidate.read_text()) if args.mining_candidate else None
+            report = optimize(cfg, output=args.output, corpus_path=args.corpus,
+                context_chars=args.context_chars, repeats=args.repeats, mining_candidate=candidate,
+                progress=lambda message: print(message, file=sys.stderr))
+            print(json.dumps(report.get('summary', {}), indent=2))
+            return 3 if report.get('failed_queries', 0) else 0
+        if args.benchmark_cmd == 'export-corrections':
+            from .benchmark.corrections import export_confirmed_corrections
+            report = export_confirmed_corrections(cfg, domain=args.domain, project=args.project,
+                scope=args.scope, limit=args.limit, output_path=args.output)
+            print(json.dumps(report, indent=2))
+            return 0
+        if args.benchmark_cmd == 'evaluate-corrections':
+            from .benchmark.corrections import evaluate_export
+            report = evaluate_export(cfg, export_path=args.input, output_path=args.output)
+            print(json.dumps(report, indent=2))
+            return 0
+        if args.benchmark_cmd == 'optimize-mining':
+            from .benchmark.mining_optimization import run as optimize_mining
+            report = optimize_mining(cfg, output=args.output, model=args.mine_model,
+                progress=lambda message: print(message, file=sys.stderr))
+            print(json.dumps({k: report[k] for k in ('selected_prompt', 'provider_calls', 'cleanup')}, indent=2))
+            return 3 if any(row['error'] for row in report['development']+report['heldout']) else 0
         from .benchmark.runner import compare, run
         if args.benchmark_cmd == "compare":
             print(json.dumps(compare(json.loads(args.before.read_text()),

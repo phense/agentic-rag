@@ -447,3 +447,7 @@ Run the suite with `uv run pytest`. See the handbook's [Contributing](docs/12-co
 Source-backed advisory profiles and selective EN/DE project recall share one local
 context service across hooks, CLI and MCP. Exact pins and checkpoint restoration
 retain priority. See [usage and limits](docs/project-context.md).
+
+### Confirmed-failure evaluation
+
+Use `rag benchmark optimize --output /new/report` for bounded public offline routing/ranking comparison, `benchmark export-corrections` and `evaluate-corrections` for private confirmed user labels, and explicit `benchmark optimize-mining --mine-model` for public configured-provider prompt measurements. Sealed candidates do not change live policy. [Contracts and limits](docs/failure-evaluation.md), [PB-5.10](docs/playbooks/failure-evaluation.md).
