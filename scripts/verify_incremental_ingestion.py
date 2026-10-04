@@ -139,7 +139,7 @@ def child_main(args):
                     job = real_claim(c)
                     if job:
                         claims.append(job['id'])
-                        row = c.execute('SELECT extract(epoch FROM now()-created_at)*1000 AS ms FROM mining_queue WHERE id=%s', (job['id'],)).fetchone()
+                        row = c.execute('SELECT extract(epoch FROM now()-enqueued_at)*1000 AS ms FROM mining_queue WHERE id=%s', (job['id'],)).fetchone()
                         delay.append(float(row['ms']))
                     return job
                 fixture_outputs = [extraction(f'backlog-{rep}-{i}') for i in range(3)] if mode == 'backlog' else [ext]
