@@ -265,6 +265,13 @@ both MCP privilege modes, local Ollama embeddings and old/new clients against
 an owned populated restore before approving the PR. Production remains on its
 retained environment until separately authorized adoption.
 
+The [0.6.1 verification record](verification/dependency-anyio.json) reports
+1,275 passing Python tests, seven passing Node tests, exact source-row/grant
+comparison across 22 restored tables and retained citations for three lexical
+queries (five hits each). The combined old/intermediate/new MCP matrix
+passes 18 reader/main combinations. These checks make no latency-improvement
+claim and leave production adoption open.
+
 Adoption requires separate authorization for the package environment and its
 caller bindings. Keep the old environment and checkout at their existing paths.
 Build the new environment at its permanent path with

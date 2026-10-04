@@ -1,0 +1,72 @@
+{
+  "issue": "https://github.com/phense/agentic-rag/issues/37",
+  "pull_request": "https://github.com/phense/agentic-rag/pull/10",
+  "release": "0.6.1",
+  "source_revision": "a9106d2affa94d7163be73c4c94ece80f9c3d883",
+  "tested_revision": "52e2c6c93b9ab1c81c5ade036ad96e3df7ee8045",
+  "python": "3.13.12",
+  "packages": {
+    "agentic-rag": "0.6.1",
+    "anyio": "4.14.2",
+    "PyJWT": "2.13.0",
+    "mcp": "1.28.1"
+  },
+  "commands": [
+    "uv sync --frozen --python /Users/peter/Agents/agentic-rag/.venv/bin/python",
+    ".venv/bin/python -m pytest -q",
+    "node --test tests/test_opencode_plugin.mjs",
+    "uv lock --check",
+    "git diff --check"
+  ],
+  "python_suite": {
+    "passed": 1275,
+    "failed": 0,
+    "seconds": 181.54
+  },
+  "node_suite": {
+    "passed": 7,
+    "failed": 0
+  },
+  "baseline": {
+    "python": "3.14.6",
+    "passed": 1273,
+    "failed": 1,
+    "failure": "Historical 0.5.0 release test asserted the current project must still be 0.5.0. Reproduced on source with Python 3.13.12; corrected with current package/lock/badge/changelog consistency checks while preserving history."
+  },
+  "provenance": {
+    "version": "4.14.2",
+    "verified_pypi_artifacts": 2,
+    "requires_python": ">=3.10"
+  },
+  "existing_installation": {
+    "schema": 19,
+    "public_tables": 22,
+    "documents": 10632,
+    "domains": 7,
+    "pins": 22,
+    "strict_source_restore": true,
+    "all_source_rows_and_application_table_grants_match": true,
+    "read_only_probes_changed_rows": 0,
+    "lexical_query_cases": 3,
+    "hits_per_case": 5,
+    "retained_citations": 15,
+    "local_embedding_vectors": 1,
+    "local_embedding_dimensions": 1024,
+    "combined_old_intermediate_new_mcp_matrix": 18,
+    "reader_main_tools": [
+      10,
+      18
+    ],
+    "audited_later_writes_retained": 3,
+    "strict_postwrite_restore": true,
+    "owned_cleanup": "verified"
+  },
+  "limits": [
+    "Aggregate evidence only; private source data, citations and backups are excluded.",
+    "The full suite ran at tested_revision; later changes are documentation/evidence only and receive focused documentation tests.",
+    "No production dependency environment, caller binding or service was changed.",
+    "Stored-launcher switch evidence is recorded with PR11.",
+    "Native host/client and scheduler reconnect checks remain production-adoption gates.",
+    "Merge requires approval; PR10 follows release PR50."
+  ]
+}
