@@ -60,7 +60,6 @@ def test_v050_release_metadata_and_whats_new_are_linked():
     handbook = Path("docs/README.md").read_text()
     whats_new = Path("docs/00-whats-new-in-0.5.md")
 
-    assert 'version = "0.5.0"' in pyproject
     assert "## [0.5.0] - 2026-09-06" in changelog
     assert whats_new.is_file()
     assert whats_new.read_text().startswith("# What’s New in 0.5.0\n")
@@ -68,6 +67,23 @@ def test_v050_release_metadata_and_whats_new_are_linked():
     assert "00-whats-new-in-0.5.md" in handbook
     assert "unreleased" not in readme.lower().split("what’s new in 0.5.0")[0]
     assert "assets/agy/compact_prompt.md" in pyproject
+
+
+def test_current_release_metadata_is_consistent():
+    project = tomllib.loads(Path("pyproject.toml").read_text())["project"]
+    lock = tomllib.loads(Path("uv.lock").read_text())
+    locked_project = next(
+        package for package in lock["package"] if package["name"] == project["name"]
+    )
+    version = project["version"]
+
+    assert locked_project["version"] == version
+    assert f"badge/version-{version}-" in Path("README.md").read_text()
+    assert re.search(
+        rf"^## \[{re.escape(version)}\] - \d{{4}}-\d{{2}}-\d{{2}}$",
+        Path("CHANGELOG.md").read_text(),
+        re.M,
+    )
 
 
 def test_wheel_configuration_includes_runtime_migrations():
