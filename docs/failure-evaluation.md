@@ -1,5 +1,7 @@
 # Confirmed-failure evaluation
 
+Available in 0.6.0; [approved local adoption](verification/features9-10-production-adoption.md) completed on 2026-10-04. Evaluation remains offline and does not activate a production policy.
+
 A plausible search result may not answer a question. This benchmark separates the
 candidate list, the original evidence that fits the context budget, and the exact
 supported value returned by an extractive answerer. Every expected source and failed

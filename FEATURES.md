@@ -358,18 +358,18 @@ preserves the distinction from the controlled measurements above.
 
 ## Incremental embedding reuse and bounded preprocessing (issue #34)
 
-Implemented and verified on an isolated branch; merge and local adoption remain pending. Exact sanitized chunk/model hashes
+Merged in [PR47](https://github.com/phense/agentic-rag/pull/47) and adopted locally on 2026-10-04 at `b849d34`/schema019 with Feature10. Exact sanitized chunk/model hashes
 allow a disposable FIFO vector cache while original write gateways own all canonical,
 cache and audit transactions. Known-identity preprocessing is bounded and parallel;
 accepted mining applies final documents and deduplication in original order. Migration019
-is additive; no production adoption is authorized. See [reference](docs/incremental-ingestion.md)
+is additive. The [production acceptance](docs/verification/features9-10-production-adoption.md) records the approved upgrade and retained source state. See [reference](docs/incremental-ingestion.md)
 and [verification](docs/verification/incremental-ingestion.md) for current gates and limits.
 
 Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populated018→019 restore/recovery and old/new client overlap. Small-edit HTTP inputs240→20, retry plus auxiliary reembedding160→0, backlog1920→1920 with bounded parallel inference. [Measurements and limits](docs/benchmarks/2026-10-04-incremental-ingestion/README.md).
 
 ## Confirmed-failure evaluation and offline optimization (issue #35)
 
-Implemented, measured and independently reviewed in [PR49](https://github.com/phense/agentic-rag/pull/49), stacked on [PR47](https://github.com/phense/agentic-rag/pull/47); merge and local adoption remain pending. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
+Merged after [PR47](https://github.com/phense/agentic-rag/pull/47) in [PR49](https://github.com/phense/agentic-rag/pull/49), independently reviewed and adopted locally on 2026-10-04 at `b849d34`/schema019. [Production acceptance](docs/verification/features9-10-production-adoption.md) verifies the existing installation. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
 
 Feature10 validation:1274 Python/7 Node checks;48 held-out public queries across six
 source families with20 paired repeats. Supported exact answers30/48→48/48, evidence

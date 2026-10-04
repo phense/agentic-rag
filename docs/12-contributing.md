@@ -112,6 +112,27 @@ approval for that specific PR after its compatibility and verification checks
 are ready. Keep unresolved rollout criteria open. Merge approval alone does not
 authorize production deployment, migration, or interruption.
 
+## Version and documentation requirement for every PR
+
+After the prepared 0.6.0 release, every PR increases the patch version by exactly
+`0.0.1` over its target branch at merge time. This includes feature, fix,
+documentation-only and maintenance PRs: 0.6.0 → 0.6.1 → 0.6.2.
+
+Minor or major increases require an explicit manual maintainer instruction. That
+instruction replaces the normal patch increment for the affected PR; feature size
+or change type alone never authorizes a minor or major release.
+
+Keep `pyproject.toml`, the project entry in `uv.lock`, the README version badge
+and `CHANGELOG.md` in agreement. Include the documentation for the changed behavior,
+workflow or maintenance outcome in the same PR, including affected upgrade/recovery
+steps. Preserve historical version references and benchmark revisions. A version-only
+edit is insufficient.
+
+Before requesting merge approval, check the current target version and documentation.
+Stacked PRs use consecutive patch versions; update the version and documentation when
+the base advances. This is a mandatory project instruction in
+[AGENTS.md](../AGENTS.md#mandatory-version-bump-and-documentation-for-every-pr).
+
 ## The TDD expectation
 
 This codebase was built test-first, module by module, and that's the

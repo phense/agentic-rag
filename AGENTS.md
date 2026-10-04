@@ -52,6 +52,25 @@ upgrade path from that installation. A fresh-install test alone is insufficient.
   approval. Keep unresolved work open until its acceptance criteria and required rollout evidence
   are met; do not bypass the PR workflow with direct pushes to the default branch.
 
+## Mandatory version bump and documentation for every PR
+
+- Starting after the already prepared 0.6.0 release PR, every PR must increase the
+  patch version by exactly `0.0.1` relative to its target branch at merge time.
+  This applies to feature, fix, documentation-only and maintenance PRs. The next
+  version after 0.6.0 is 0.6.1.
+- Increase the minor or major version only on an explicit manual instruction from
+  the maintainer. That instruction replaces the normal patch bump for the affected PR;
+  never infer a minor or major bump from feature size or change type.
+- Update `pyproject.toml`, the project's version in `uv.lock`, the README version
+  badge and `CHANGELOG.md` together in that same PR. Keep current-version
+  references consistent; preserve historical release and measurement versions.
+- Include the relevant documentation update in every PR. Document the changed
+  behavior, workflow or maintenance outcome, and any affected upgrade/recovery
+  steps. A version-only change does not satisfy the documentation requirement.
+- Before requesting merge approval, verify the version against the current target
+  branch and check documentation consistency. Stacked PRs use consecutive patch
+  versions; refresh the bump and documentation when their base changes.
+
 ## Code review and feature evidence
 
 - Every code change requires an independent review of its complete bounded diff.

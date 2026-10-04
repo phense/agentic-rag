@@ -9,11 +9,17 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.5.0-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.0-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
-> **New in v0.5.0:** Antigravity CLI (`agy`, Gemini) compaction continuity —
+> **New in v0.6.0:** ten retrieval and ingestion features, including original-backed
+> entity aliases, bounded embedding reuse and offline confirmed-failure evaluation.
+> Features 1–10 are adopted locally on schema 001–019. Read
+> **[What’s New in 0.6.0](docs/00-whats-new-in-0.6.md)** and the
+> [latest production acceptance](docs/verification/features9-10-production-adoption.md).
+>
+> **0.5.0:** Antigravity CLI (`agy`, Gemini) compaction continuity —
 > `rag install --agy`, SessionStart/PreInvocation/Stop hooks, `/compact`
 > handoff, automatic-compaction detection, Antigravity transcript mining. Read
 > **[What’s New in 0.5.0](docs/00-whats-new-in-0.5.md)**.
@@ -61,18 +67,24 @@ data-safety-first — it archives rather than deletes, writes through a
 least-privilege role matrix, audits every change, and periodically
 restore-tests its own backups.
 
-Unreleased source also extends bounded profiles with [incremental thematic
+Bounded profiles include [incremental thematic
 summaries](docs/thematic-summaries.md): local original excerpts with source/version
 drill-down, trust/temporal invalidation and audited reuse. The additive017 cache
 preserves baseline reads on016. [Paired measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md)
 record compression, coverage and additional original-corpus query cost.
 
-The source candidate adds [entity identities and scoped aliases](docs/entity-identities.md).
+[Entity identities and scoped aliases](docs/entity-identities.md) link confirmed alternate names to original facts.
 `rag entity resolve` retrieves original facts under confirmed alternate names;
 explicit source-backed links preserve scope/domain boundaries and support audited
 revocation. Existing exact-name search and assertion keys remain unchanged.
-[PB-5.8](docs/playbooks/entity-identities.md) defines the supported017→018 upgrade
-and code recovery; merge and production adoption require separate approval.
+[PB-5.8](docs/playbooks/entity-identities.md) records the supported 017→018 upgrade
+and code recovery. [Incremental ingestion](docs/incremental-ingestion.md) reuses
+exact sanitized embedding inputs under a verified local model identity, with bounded
+preprocessing and ordered audited writes. [Confirmed-failure evaluation](docs/failure-evaluation.md)
+compares offline routes and public mining prompts while retaining original evidence.
+The supported 018→019 upgrade and recovery are in [PB-5.9](docs/playbooks/incremental-ingestion.md);
+[PB-5.10](docs/playbooks/failure-evaluation.md) covers evaluation and code-only adoption.
+Sealed benchmark candidates do not change production search or mining policy.
 
 > **Your data stays under your control, with explicit provider calls.** This
 > repository is **code only** — it ships no content. The canonical store lives
@@ -114,7 +126,7 @@ default research do not call either provider.
 
 ## Quick start
 
-**OpenCode / DeepSeek (unreleased source addition):** [install the native RAG adapter](docs/opencode.md) on the execution host with `uv run rag install --opencode`. It supports startup context, selective recall, checkpoint/handoff and idle mining. For T3 on Windows, install on the Mac execution host; canonical context and a real read-only RAG tool call were [verified through T3](docs/verification/opencode.md#production-t3-read-path-check). See the documented limits.
+**OpenCode / DeepSeek:** [install the native RAG adapter](docs/opencode.md) on the execution host with `uv run rag install --opencode`. It supports startup context, selective recall, checkpoint/handoff and idle mining. For T3 on Windows, install on the Mac execution host; canonical context and a real read-only RAG tool call were [verified through T3](docs/verification/opencode.md#production-t3-read-path-check). See the documented limits.
 
 agentic-rag is a `rag` command-line tool with provider integrations. The
 no-option install wires two MCP servers, six lifecycle hooks, and the managed
@@ -401,6 +413,11 @@ and rollout state are listed separately below:
   install, `/hooks` trust, manual/automatic compaction, provider-recovery, and
   SessionEnd smoke tests remain open. See
   [`FEATURES.md`](FEATURES.md) and blocker-first [`BACKLOG.md`](BACKLOG.md).
+- ✅ **Features 1–10 adopted locally:** retrieval routing/caches, local reranking,
+  contextual indexing, filtered vector search, bounded research, thematic summaries,
+  scoped entity aliases, incremental ingestion and offline failure evaluation.
+  Schema 001–019 and fresh 10-tool reader / 18-tool main MCP clients pass the
+  [production acceptance](docs/verification/features9-10-production-adoption.md).
 - ✅ **Quality:** a content-free repository with a comprehensive local test
   suite; exact verification counts belong in rollout evidence, not a static
   badge.
@@ -424,6 +441,12 @@ Project and global applicability now share [one explicit scope policy](docs/proj
 `rag search "your question" --project /absolute/repository`.
 
 ## Contributing
+
+Every future PR increments the patch version by exactly `0.0.1` and includes its
+relevant documentation update. Minor and major bumps require an explicit manual
+maintainer instruction and replace the normal patch increment for that PR. Keep package/lock metadata, this version badge and the
+changelog consistent; preserve historical versions. See the mandatory
+[version and documentation rule](docs/12-contributing.md#version-and-documentation-requirement-for-every-pr).
 
 Tests come first (TDD), and `docs/` is kept in step with the code. A **warn-only doc-reminder hook** ships under `.githooks/`: if a commit touches `agentic_rag/` or `sql/` without touching `docs/`, it prints a reminder — it never blocks. Enable it once per clone:
 

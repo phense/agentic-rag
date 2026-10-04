@@ -1,5 +1,7 @@
 # Incremental embedding reuse
 
+Available in 0.6.0; [approved local schema019 adoption](verification/features9-10-production-adoption.md) completed on 2026-10-04.
+
 A document edit often leaves most of its chunks unchanged. The write gateway can
 reuse their embeddings when the exact sanitized model input and observed model
 identity match. Original documents, evidence, project/domain selection and source
