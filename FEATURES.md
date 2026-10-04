@@ -358,9 +358,11 @@ preserves the distinction from the controlled measurements above.
 
 ## Incremental embedding reuse and bounded preprocessing (issue #34)
 
-Implementation in progress on an isolated branch. Exact sanitized chunk/model hashes
+Implemented and verified on an isolated branch; merge and local adoption remain pending. Exact sanitized chunk/model hashes
 allow a disposable FIFO vector cache while original write gateways own all canonical,
 cache and audit transactions. Known-identity preprocessing is bounded and parallel;
 accepted mining applies final documents and deduplication in original order. Migration019
 is additive; no production adoption is authorized. See [reference](docs/incremental-ingestion.md)
 and [verification](docs/verification/incremental-ingestion.md) for current gates and limits.
+
+Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populated018→019 restore/recovery and old/new client overlap. Small-edit HTTP inputs240→20, retry plus auxiliary reembedding160→0, backlog1920→1920 with bounded parallel inference. [Measurements and limits](docs/benchmarks/2026-10-04-incremental-ingestion/README.md).
