@@ -299,3 +299,28 @@ paths until they can reconnect. Reverse only the changed RAG-owned fields to
 the captured old interpreter/`rag` paths for recovery; repeat the same fresh
 process checks. Keep the current database and later writes throughout. Recovery
 restores the old dependency vulnerabilities and is temporary containment.
+
+[PR11](https://github.com/phense/agentic-rag/pull/11) follows PR10 and updates
+PyJWT from 2.13.0 to 2.15.0 with release metadata at 0.6.2. Its upstream
+[2.15.0 changelog](https://github.com/jpadilla/pyjwt/blob/2.15.0/CHANGELOG.rst)
+includes the intervening 2.14.0 security fixes. RAG contains no JWT decoding,
+JWK lookup or token-authentication caller; both deployed MCP servers use
+stdio with HTTP authentication disabled. Future HTTP/OAuth integrations
+require a fresh applicability review.
+
+Advisory [GHSA-gvp8-978c-rx2q](https://github.com/advisories/GHSA-gvp8-978c-rx2q)
+lists affected releases through 2.13.0 but has no first-patched-version field.
+Validate its reused-options reproduction on the installed candidate and
+report the result separately from GitHub alert state. Read alerts back
+after merging; do not dismiss them manually or close Issue37 before
+applicable remediation and separately authorized production acceptance.
+
+The [0.6.2 verification record](verification/dependency-pyjwt.json) reports
+1,275 passing Python tests and seven passing Node tests. Stored stdio
+launcher commands were switched old → AnyIO → PyJWT → old on an owned
+populated restore: eight reader/main launches passed, foreign configuration
+and every table row remained unchanged, and nine old/intermediate/new CLI
+reads retained three later audited writes. Native host client settings, hooks
+and scheduler reloads remain separate adoption checks. One reused-options
+reproduction per PyJWT version confirms the old bypass and candidate rejection;
+this narrow result is separate from GitHub's 16 still-open alerts.

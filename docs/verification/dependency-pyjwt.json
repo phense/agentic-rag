@@ -1,0 +1,252 @@
+{
+  "issue": "https://github.com/phense/agentic-rag/issues/37",
+  "pull_request": "https://github.com/phense/agentic-rag/pull/11",
+  "release": "0.6.2",
+  "tested_revision": "813a277f083479c71a48d97c8fbabb3f73d2565b",
+  "python": "3.13.12",
+  "packages": {
+    "agentic-rag": "0.6.2",
+    "anyio": "4.14.2",
+    "PyJWT": "2.15.0",
+    "mcp": "1.28.1"
+  },
+  "commands": [
+    "uv sync --frozen --python /Users/peter/Agents/agentic-rag/.venv/bin/python",
+    ".venv/bin/python -m pytest -q",
+    "node --test tests/test_opencode_plugin.mjs",
+    "uv lock --check",
+    "git diff --check"
+  ],
+  "python_suite": {
+    "passed": 1275,
+    "failed": 0,
+    "seconds": 173.0
+  },
+  "node_suite": {
+    "passed": 7,
+    "failed": 0
+  },
+  "provenance": {
+    "version": "2.15.0",
+    "verified_pypi_artifacts": 2,
+    "requires_python": ">=3.9"
+  },
+  "advisory_comparison": [
+    {
+      "alert": 17,
+      "ghsa": "GHSA-gvp8-978c-rx2q",
+      "package": "pyjwt",
+      "range": ">= 2.11.0, <= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": null
+    },
+    {
+      "alert": 16,
+      "ghsa": "GHSA-42vr-xj54-vc7v",
+      "package": "pyjwt",
+      "range": ">= 2.0.0a1, <= 2.14.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.15.0"
+      }
+    },
+    {
+      "alert": 15,
+      "ghsa": "GHSA-jwrc-g2q2-pq5p",
+      "package": "pyjwt",
+      "range": "<= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 14,
+      "ghsa": "GHSA-hxm8-2xgr-2p9m",
+      "package": "pyjwt",
+      "range": "<= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 13,
+      "ghsa": "GHSA-ffc3-869f-jxw9",
+      "package": "pyjwt",
+      "range": "<= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 12,
+      "ghsa": "GHSA-9v7f-9g4p-ffgj",
+      "package": "pyjwt",
+      "range": "<= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 11,
+      "ghsa": "GHSA-p4g4-x82p-q773",
+      "package": "pyjwt",
+      "range": ">= 2.4.0, < 2.14.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 10,
+      "ghsa": "GHSA-2gx3-rcp4-g85q",
+      "package": "pyjwt",
+      "range": "<= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 9,
+      "ghsa": "GHSA-w6j9-cwv2-h6wq",
+      "package": "pyjwt",
+      "range": ">= 2.9.0, <= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 8,
+      "ghsa": "GHSA-8wjv-2p76-3863",
+      "package": "pyjwt",
+      "range": ">= 2.13.0, < 2.14.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 7,
+      "ghsa": "GHSA-9j54-fg26-wv3r",
+      "package": "pyjwt",
+      "range": ">= 2.13.0, < 2.14.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 6,
+      "ghsa": "GHSA-w2cx-738m-mc7w",
+      "package": "pyjwt",
+      "range": "= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 5,
+      "ghsa": "GHSA-r6x4-923q-g947",
+      "package": "pyjwt",
+      "range": "= 2.13.0",
+      "candidate": "2.15.0",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "2.14.0"
+      }
+    },
+    {
+      "alert": 4,
+      "ghsa": "GHSA-3w57-8xmc-8v26",
+      "package": "anyio",
+      "range": ">= 4.14.0, < 4.14.2",
+      "candidate": "4.14.2",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "4.14.2"
+      }
+    },
+    {
+      "alert": 3,
+      "ghsa": "GHSA-82r6-8w77-94w6",
+      "package": "anyio",
+      "range": "< 4.14.2",
+      "candidate": "4.14.2",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "4.14.2"
+      }
+    },
+    {
+      "alert": 2,
+      "ghsa": "GHSA-5p39-cfhj-2xmp",
+      "package": "anyio",
+      "range": "< 4.14.2",
+      "candidate": "4.14.2",
+      "candidate_in_affected_range": false,
+      "first_patched": {
+        "identifier": "4.14.2"
+      }
+    }
+  ],
+  "github_open_alerts_before_merge": 16,
+  "candidate_versions_within_reported_affected_ranges": 0,
+  "jwt_reused_options_reproduction": {
+    "sample_size_per_version": 1,
+    "before": {
+      "pyjwt": "2.13.0",
+      "options_unmodified": false,
+      "reused_options_expired_token_rejected": false
+    },
+    "after": {
+      "pyjwt": "2.15.0",
+      "options_unmodified": true,
+      "reused_options_expired_token_rejected": true
+    }
+  },
+  "stored_launcher_switch": {
+    "routes": [
+      "baseline",
+      "anyio",
+      "pyjwt",
+      "baseline"
+    ],
+    "reader_main_launches": 8,
+    "reader_main_tools": [
+      10,
+      18
+    ],
+    "foreign_configuration_preserved": true,
+    "exact_source_binding_recovered": true,
+    "all_table_rows_preserved": true,
+    "later_write_reads": 9,
+    "owned_cleanup": "verified"
+  },
+  "limits": [
+    "See dependency-anyio.json for the shared 22-table populated restore and 18-client evidence.",
+    "Later changes contain documentation/evidence only; the runtime and test trees match tested_revision.",
+    "The launcher rehearsal uses owned stdio MCP definitions and explicit CLI paths, not live host client settings, hooks or launchd.",
+    "Native host/client and scheduler reconnect checks require separate production-adoption authorization.",
+    "GitHub alerts remain open until merge and read-back; no alert was dismissed.",
+    "GHSA-gvp8-978c-rx2q has no first-patched-version metadata; candidate reproduction is recorded separately.",
+    "PR11 follows PR10, and both follow release PR50."
+  ]
+}
