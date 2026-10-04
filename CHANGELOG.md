@@ -44,6 +44,12 @@ milestones rather than every commit, and interfaces may still change between `0.
   read-only RAG search through T3 on the Mac. See [evidence](docs/verification/opencode.md).
   Sustained automatic compaction and automatic Flash/Pro routing are not claimed.
 
+### Changed
+- Require every future PR to include a `0.0.1` patch bump and matching documentation.
+  Minor and major bumps require an explicit manual maintainer instruction and replace
+  that PR's normal patch increment. Keep package/lock/README/changelog versions aligned;
+  stacked PRs use consecutive patch versions. See [the mandatory project rule](AGENTS.md#mandatory-version-bump-and-documentation-for-every-pr).
+
 ## [0.5.0] - 2026-09-06
 
 ### Added

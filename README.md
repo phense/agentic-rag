@@ -442,6 +442,12 @@ Project and global applicability now share [one explicit scope policy](docs/proj
 
 ## Contributing
 
+Every future PR increments the patch version by exactly `0.0.1` and includes its
+relevant documentation update. Minor and major bumps require an explicit manual
+maintainer instruction and replace the normal patch increment for that PR. Keep package/lock metadata, this version badge and the
+changelog consistent; preserve historical versions. See the mandatory
+[version and documentation rule](docs/12-contributing.md#version-and-documentation-requirement-for-every-pr).
+
 Tests come first (TDD), and `docs/` is kept in step with the code. A **warn-only doc-reminder hook** ships under `.githooks/`: if a commit touches `agentic_rag/` or `sql/` without touching `docs/`, it prints a reminder — it never blocks. Enable it once per clone:
 
 ```bash
