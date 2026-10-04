@@ -217,7 +217,7 @@ def test_reader_privilege_and_mcp_contract(conn,cfg,hook_env):
         with pytest.raises(PermissionError): refresh(reader,cfg)
         assert read(reader,cfg)['entries']
     assert 'memory_summary' in mcp_server.tool_names(True)
-    assert len(mcp_server.tool_names(False))-len(mcp_server.tool_names(True))==6
+    assert len(mcp_server.tool_names(False))-len(mcp_server.tool_names(True))==8
     wire=mcp_server.memory_summary('provider-outages',project=PROJECT)
     assert wire['entries'] and isinstance(wire['entries'][0]['versions'],dict)
     json.dumps(wire)

@@ -110,6 +110,25 @@ def _main(argv: list[str] | None = None) -> int:
     p_assert.add_argument('--project')
     p_assert.add_argument('--scope',choices=['project','global','unknown'])
 
+    p_entity = sub.add_parser('entity', help='exact scoped identities and evidence-backed aliases')
+    en = p_entity.add_subparsers(dest='entity_cmd',required=True)
+    er = en.add_parser('resolve',help='read original facts, no provider or writes')
+    er.add_argument('name');er.add_argument('--domain',required=True)
+    er.add_argument('--project');er.add_argument('--scope',choices=['project','global'])
+    er.add_argument('--attribute');er.add_argument('--as-of');er.add_argument('--history',action='store_true')
+    er.add_argument('--context-chars',type=int,default=4800)
+    ea = en.add_parser('alias',help='save review suggestion; confirm only after checking original evidence')
+    for option in ('alias','target','domain','namespace','source-id','quote','effective-at'):
+        ea.add_argument('--'+option,required=True)
+    ea.add_argument('--role',choices=['user','assistant','unknown'],default='user')
+    ea.add_argument('--complete',action='store_true',help='attest that the source span is complete')
+    ea.add_argument('--confirm',action='store_true',help='explicitly confirm same identity after checking source')
+    ea.add_argument('--project');ea.add_argument('--scope',choices=['project','global'])
+    ev = en.add_parser('review');ev.add_argument('document_id')
+    ev.add_argument('--state',required=True,choices=['accepted','revoked']);ev.add_argument('--reason',required=True)
+    eb = en.add_parser('backfill',help='audit-index one bounded batch; repeat until remaining=0')
+    eb.add_argument('--limit',type=int,default=100)
+
     p_get = sub.add_parser("get")
     p_get.add_argument("id_or_slug")
     p_get.add_argument("--json", action="store_true")
@@ -288,6 +307,23 @@ def _main(argv: list[str] | None = None) -> int:
         if args.opencode_config_dir is not None or args.uninstall:
             p.error("--opencode-config-dir and --uninstall require --opencode")
     cfg = load_config()
+
+    if args.cmd == 'entity':
+        from . import entities
+        with db.connect(cfg,role='reader' if args.entity_cmd=='resolve' else 'writer') as connection:
+            if args.entity_cmd=='resolve':
+                result=entities.read(connection,args.name,domain=args.domain,project=args.project,scope=args.scope,
+                    attribute=args.attribute,as_of=args.as_of,history=args.history,context_chars=args.context_chars)
+            elif args.entity_cmd=='alias':
+                result=store.save_entity_alias(connection,cfg,alias=args.alias,target=args.target,domain=args.domain,
+                    project=args.project,scope=args.scope,effective_at=args.effective_at,confirm=args.confirm,
+                    evidence=dict(namespace=args.namespace,source_id=args.source_id,role=args.role,quote=args.quote,complete=args.complete))
+            elif args.entity_cmd=='review':
+                result=store.review_entity_alias(connection,args.document_id,state=args.state,reason=args.reason)
+            else:
+                result=store.backfill_entity_identities(connection,limit=args.limit)
+        print(json.dumps(result,default=_json_default,ensure_ascii=False))
+        return 0
 
     if args.cmd == 'summary':
         from . import thematic

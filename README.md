@@ -67,6 +67,13 @@ drill-down, trust/temporal invalidation and audited reuse. The additive017 cache
 preserves baseline reads on016. [Paired measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md)
 record compression, coverage and additional original-corpus query cost.
 
+The source candidate adds [entity identities and scoped aliases](docs/entity-identities.md).
+`rag entity resolve` retrieves original facts under confirmed alternate names;
+explicit source-backed links preserve scope/domain boundaries and support audited
+revocation. Existing exact-name search and assertion keys remain unchanged.
+[PB-5.8](docs/playbooks/entity-identities.md) defines the supported017→018 upgrade
+and code recovery; merge and production adoption require separate approval.
+
 > **Your data stays under your control, with explicit provider calls.** This
 > repository is **code only** — it ships no content. The canonical store lives
 > in *your* PostgreSQL database, but the configured CLI intentionally sends

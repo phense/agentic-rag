@@ -314,7 +314,7 @@ No migration, reinstall, configuration edit or service interruption was required
 
 ## Incremental thematic profiles (issue #32)
 
-Feature7 candidate adds local extractive summaries to bounded profiles, with
+Feature7 adds local extractive summaries to bounded profiles, with
 `rag summary` and reader-only `memory_summary`. Audited refresh reuses unchanged
 excerpts; each entry preserves original citations and source/version references.
 Correction, expiry, source trust and scope changes withhold stale excerpts.
@@ -328,5 +328,25 @@ fact coverage and one-entry rebuild/seven-entry reuse. These are structural
 retrieval measurements, not production semantic accuracy. See
 [measurements](docs/benchmarks/2026-10-03-thematic-summaries/README.md),
 [reference](docs/thematic-summaries.md), [PB-5.7](docs/playbooks/thematic-summaries.md)
-and [verification](docs/verification/thematic-summaries.md). Merge approval and
-production017 rollout are pending separate authority.
+and [verification](docs/verification/thematic-summaries.md). PR45 was merged with specific approval and separately adopted at `2a29c50`, schema017; Issue32 is closed. [Canonical adoption record](https://github.com/phense/agentic-rag/issues/32#issuecomment-5974266962).
+
+
+## Evidence-backed entity identities and scoped aliases (issue #33)
+
+Feature8 candidate adds `rag entity resolve` and reader-only `memory_entity`.
+Explicit operator-confirmed source spans link direct aliases within one exact
+project/domain; revocation separates them while retaining originals and audit.
+No embedding union or transitive identity merge occurs. Current replacement under
+a new name suppresses obsolete status under the old name; qualified history keeps
+both. Uncertain links/conflicts remain inspectable and withheld from answer context.
+
+The additive018 identity/index/relation tables preserve source017 rows and old/new
+clients. Exact assertion/search/mining contracts stay unchanged; explicit gateway
+backfill persists stable IDs and unindexed new facts remain readable.1137 Python
+and7 Node tests, independent reviews, strict backup/restore, interrupted resume,
+actual concurrent clients and literal code activation/recovery pass. Three controlled
+20-pair cases recover1/2→2/2,0/1→1/1 and0/2→2/2 facts with zero foreign output; no
+general speedup or production alias-quality gain is claimed. See [measurements](docs/benchmarks/2026-10-04-entity-identities/README.md),
+[reference](docs/entity-identities.md), [PB-5.8](docs/playbooks/entity-identities.md)
+and [verification](docs/verification/entity-identities.md). Merge approval and
+separately authorized production018 adoption remain pending; Issue33 is open.

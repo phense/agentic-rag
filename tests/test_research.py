@@ -142,7 +142,8 @@ def test_cli_and_both_mcp_privileges_expose_readonly_research(conn,cfg,hook_env,
     claim(conn,cfg,'storage','Storage uses PostgreSQL with pgvector.')
     assert 'memory_research' in mcp_server.tool_names(True)
     assert set(mcp_server.tool_names(False))-set(mcp_server.tool_names(True))=={
-        'memory_save','memory_assert','memory_source_state','memory_review_claim','memory_pin','memory_unpin'}
+        'memory_save','memory_assert','memory_source_state','memory_review_claim','memory_pin','memory_unpin',
+        'memory_entity_alias','memory_entity_alias_review'}
     assert cli.main(['research','Storage PostgreSQL','--project','/projects/alpha','--strategy','lexical','--json'])==0
     out=json.loads(capsys.readouterr().out)
     assert len(out['supported'])==1

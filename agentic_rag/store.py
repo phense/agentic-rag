@@ -402,3 +402,21 @@ def refresh_summaries(conn, cfg, topic, *, project=None, domain=None, history=Fa
     from .thematic import _refresh
     return _refresh(conn,cfg,topic,project=project,domain=domain,history=history,
                     context_chars=context_chars,actor=actor,commit=commit)
+
+
+def save_entity_alias(conn, cfg, **kwargs):
+    """Audited original-evidence alias proposal/confirmation; no identity union."""
+    from .entities import _save_alias
+    return _save_alias(conn,cfg,**kwargs)
+
+
+def review_entity_alias(conn, document_id, **kwargs):
+    """Audited reversible relation review, with support/boundary revalidation."""
+    from .entities import _review_alias
+    return _review_alias(conn,document_id,**kwargs)
+
+
+def backfill_entity_identities(conn, **kwargs):
+    """Audited bounded exact-key indexing; no assertion or source rewrite."""
+    from .entities import _backfill
+    return _backfill(conn,**kwargs)
