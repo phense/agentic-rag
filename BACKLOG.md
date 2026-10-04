@@ -29,11 +29,13 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
-- ⬜ **0.7** _(security)_ **Triage and remediate existing dependency alerts.** 16 open
+- 🔵 **0.7** _(security)_ **Triage and remediate existing dependency alerts.** 16 open
   AnyIO/PyJWT alerts verified on 2026-10-03 (2 Critical, 6 High, 8 Medium). The deployed
   stdio/local-HTTP paths were triaged; the reported vulnerable paths are inactive in this
-  installation. Patched isolated-environment verification and remediation remain open.
-  The triage permits the three-feature rollout; it does not resolve or dismiss alerts.
+  installation. PR10 (0.6.1, AnyIO) and PR11 (0.6.2, PyJWT) are prepared as a
+  stack after release PR50. Isolated tests and populated restore/client checks are
+  recorded in [verification](docs/verification/dependency-anyio.json). Specific
+  merge approval, alert read-back and separate production adoption remain open.
   → *Issue:* [#37](https://github.com/phense/agentic-rag/issues/37).
 
 - ✅ **0.6** _(enh)_ **OpenCode hooks and DeepSeek rollout.** Implemented, independently reviewed, locally merged and installed from the retained checkout. 800 Python and 7 Node tests pass; real DeepSeek startup/manual-compaction/handoff/restore passed against a synthetic test DB. Canonical startup context and read-only MCP healthy; a real T3 thread on the Mac verified context delivery and a completed DeepSeek Flash RAG search. All 17 Engineering Method skills preserved. Sustained auto-compaction and abrupt-termination limits remain documented in docs/opencode.md. *(M, completed 2026-09-11)*
