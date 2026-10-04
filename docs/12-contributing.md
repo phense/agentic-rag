@@ -265,14 +265,33 @@ both MCP privilege modes, local Ollama embeddings and old/new clients against
 an owned populated restore before approving the PR. Production remains on its
 retained environment until separately authorized adoption.
 
-For adoption, retain the complete old environment and checkout, build a separate
-new environment from the approved lock, and use that environment for fresh
-processes. Existing clients keep their loaded code until reconnecting; do not
-terminate them to force an update. No SQL migration or installer is required.
-Recovery selects the retained checkout and environment while keeping the
-current database and later writes. Verify fresh reader/main MCP tools and
-search after either switch. Recovery restores package compatibility but also
-restores the old dependency vulnerabilities; it is temporary containment.
+Adoption requires separate authorization for the package environment and its
+caller bindings. Keep the old environment and checkout at their existing paths.
+Build the new environment at its permanent path with
+`UV_PROJECT_ENVIRONMENT=/absolute/new/environment uv sync --frozen --python 3.13`
+from the approved checkout. Do not relocate environments or replace the old
+`.venv`: installed scripts contain absolute interpreter paths, and active
+processes may still import modules from their old environment.
+
+Capture the current RAG-owned launcher fields and their complete configuration
+files before switching. Change only their old interpreter path to
+`/absolute/new/environment/bin/python`: both `agentic-rag` and `agentic-rag-ro`
+MCP commands, owned Claude/Codex/Antigravity hook commands, and the OpenCode
+loader's `python` option. Point scheduled RAG commands and CLI aliases at
+`/absolute/new/environment/bin/rag`. Preserve foreign hooks, settings, server
+entries, scheduler arguments and environment values. Existing additive
+installer helpers generate these commands; a reviewed path-only update can
+avoid rerunning unrelated policy installation. No SQL migration is required.
+Merely activating a shell environment does not update any stored launcher.
+
+Read back each changed path, then reconnect the affected client or reload the
+specific scheduler binding only with authorization. A fresh launched process
+must report the candidate package versions; verify both MCP tool sets and
+search through the stored commands. Keep active sessions on their original
+paths until they can reconnect. Reverse only the changed RAG-owned fields to
+the captured old interpreter/`rag` paths for recovery; repeat the same fresh
+process checks. Keep the current database and later writes throughout. Recovery
+restores the old dependency vulnerabilities and is temporary containment.
 
 [PR11](https://github.com/phense/agentic-rag/pull/11) follows PR10 and updates
 PyJWT from 2.13.0 to 2.15.0 with release metadata at 0.6.2. Its upstream
