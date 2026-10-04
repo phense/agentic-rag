@@ -367,3 +367,14 @@ def test_wider_visible_sources_reject_before_entity_comparison(tmp_path,monkeypa
     with pytest.raises(ValueError,match='exact-boundary'):
         optimization.run(Config(),output=tmp_path/'report',corpus_path=path)
     assert not (tmp_path/'report').exists()
+
+
+def test_public_visibility_validation_bounds_scope_resolution_work(monkeypatch):
+    from agentic_rag.benchmark import optimization
+    corpus=json.loads(optimization.DEFAULT_CORPUS.read_text())
+    calls=[]
+    def scope(project=None,scope=None):
+        calls.append((project,scope));return project if project is not None else scope
+    monkeypatch.setattr(optimization,'write_scope',scope)
+    optimization.validate(corpus)
+    assert len(calls)<1000  # Never canonicalize paths once per document/query pair.
