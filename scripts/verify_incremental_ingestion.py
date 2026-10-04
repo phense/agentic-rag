@@ -109,7 +109,7 @@ def extraction(rep, n=8):
             body=(f'Independent public fixture {rep}-{i}.\n\n## Scope\n\nScoped item {rep}-{i}. '
                 + ('Documented configuration. '*82)+f'\n\n## Recovery\n\nRecovery item {rep}-{i}. '
                 + ('Documented configuration. '*82))
-        memories.append(dict(title=f'Public item {rep}-{i}',body=body,domain='general',edges=[]))
+        memories.append(dict(title=f'Public item {rep}-{i}',body=body.rstrip(),domain='general',edges=[]))
     return dict(memories=memories, lessons=[], signals=[],
         contradictions=[], pin_suggestions=[], contradictions_with_pins=[], domain_proposals=[])
 
