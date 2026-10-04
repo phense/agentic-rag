@@ -66,6 +66,29 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `rag migrate apply-domains <report_tsv>` | `--yes` | Applies a classification report's domain assignments. Refuses without `--yes`. Takes the same worker flock as `migrate run`, since it writes too. |
 | `rag migrate report` | `--golden <path>` | Produces the migration acceptance report, optionally scored against a golden set. Reader role; no writes. |
 
+### Offline failure evaluation
+
+These commands extend `benchmark run`/`compare`; existing modes and MCP tools are
+unchanged. Public indexing uses audited gateways in randomly owned databases.
+Private commands use reader snapshots and never invoke providers. Candidates are
+review artifacts with no live policy loader. See [contracts](failure-evaluation.md)
+and [PB-5.10](playbooks/failure-evaluation.md).
+
+| Command | Flags | Contract |
+| --- | --- | --- |
+| `rag benchmark optimize` | `--output` (required) · `--corpus` · `--context-chars` (4000;1000–12000) · `--repeats` (20;1–30) · `--mining-candidate` | Public synthetic corpus only, at most256 documents/queries and2MiB; four finite profiles select on development data before sealed held-out evaluation. Exact original source/value checks, raw misses, latency/context/index costs and uncertainty are reported. Project comparisons reject wider-visible global/ancestor sources; evaluate those at their own exact boundary. |
+| `rag benchmark export-corrections` | `--output` (required) · `--domain` (required) · `--project` / `--scope project\|global` · `--limit` (32;1–32) | Exports confirmed current replacements supported by original complete reviewed user evidence from one exact boundary. Empty exports are valid. New absolute0600 file under0700 parent outside Git, with no symlink ancestors. Private format cannot enter public optimization or mining. |
+| `rag benchmark evaluate-corrections` | `--input` (required) · `--output` (required) | Validates a bounded private export, rechecks original evidence locally and scores entity support. Independent dev/test families enable sealed FTS/entity selection; insufficient splits explicitly disable optimization. New private output and candidate files; only aggregates printed. |
+| `rag benchmark optimize-mining` | `--output` (required) · `--mine-model` (required authorization flag) | At most eight existing-provider calls on built-in public transcripts; two static prompts select using dev families before separate held-out calls. Role/quote/time grounding and accepted-batch replay remain authoritative. No private corpus argument or configuration change. |
+
+Choose a new output directory without symlink ancestors. On macOS, use a literal
+`/private/tmp/...` path rather than the `/tmp` symlink. Public comparisons require a
+verified local embedding model identity. Source/model/prompt/candidate drift invalidates
+the run; retain partial output and rerun on a new path. Query repeats measure timing,
+not additional independent quality samples. General model accuracy remains unmeasured.
+Index/query execution or native-provider errors produce exit3; measured quality misses
+remain in the report. Successful private scoring returns0 even when support is missing.
+
 ### Exit-code contract
 
 `main()` maps every code path to one of four exit codes:

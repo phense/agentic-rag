@@ -9,7 +9,10 @@ flowchart LR
   S --> H[Separate owned held-out evaluation]
   H --> R[Exact original evidence metrics and raw misses]
   U[Confirmed original user corrections] --> P[Read-only snapshot and private0600 export]
-  P --> L[Network-free local evaluation]
+  P --> L[Whole private source/alias-family split]
+  L --> PS[Dev FTS/entity choice and private seal]
+  PS --> PH[Network-free held-out original support recheck]
+  L --> UO[Missing splits: optimization unavailable]
   M[Public native mining fixtures] --> T[Two static prompts on dev families]
   T --> S
   T --> N[Sealed prompt and separate held-out native calls]
@@ -19,6 +22,13 @@ The candidate has no production loader. Public and private formats have separate
 points; only built-in public mining fixtures can invoke the configured native provider.
 Model/source/prompt identity checks invalidate mixed observations. Original write gateways
 and existing scope/domain/time/claim gates remain authoritative.
+
+Private candidate bytes/permissions and
+full source/revision attribution are rechecked before result publication; public
+identity components join names across attributes and alias endpoints before splits.
+Wider-visible public corpora are rejected before service access so compared original
+pools remain equal. Fixture actor labels remain source metadata under the supported
+audited CLI executor, without introducing per-user ACLs.
 
 Design findings II-01–06 are in the plan. Independent pre-execution review found candidate
 hash-format incompatibility, missing run-level model/prompt identity guards and a schema-time

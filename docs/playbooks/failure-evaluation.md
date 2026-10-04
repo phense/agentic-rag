@@ -160,3 +160,21 @@ No production activation is performed by this rehearsal. For the supported curre
 installation, the executable authorized upgrade/recovery command is [PB-5.9](incremental-ingestion.md),
 with the exact separately approved combined target. Already019 code-only deployment uses the exact guarded command above; retain the strict019 backup and exact adopted/recovered revisions as operator evidence.
 A full database restore is not implemented by Feature10 and needs separate loss-boundary approval.
+
+## Executed evidence and recovery limits
+
+PB-5.10 is reviewed and rehearsed at measured code5b390692e32e07c8816e98091dfa66e15e0c2cb3.
+The unified driver exits0 and uses the same guarded019 operator helper for actual owned
+activation/retry/detached recovery. It executes dirty/busy/schema-time drift rejection,
+strict backup/restore, original rows/grants, overlapping old/new writers, branch retention
+and worker lock reacquisition. Combined018→019 also executes PB-5.9's eight rejection
+cases and schema interruption/retry/no-op. A fresh populated production018 copy preserves
+all21 source tables/grants after restore and migration on the copy; canonical writes0.
+See [raw evidence](../benchmarks/2026-10-04-failure-evaluation/results.json) and
+[verification](../verification/failure-evaluation.md) for exact counts/commands/reviews.
+
+Recovery retains019 and later writes; it restores code, not the database. Restoring an
+older dump would discard later rows and requires separate approval. A failed evaluation
+keeps its partial directory/candidate; never overwrite it or tune held-out labels. No
+operator action above is permission to change production. Fresh sessions must reconnect
+to discover new CLI behavior; existing MCP tools/privileges/configuration remain unchanged.

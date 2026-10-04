@@ -14,7 +14,10 @@ jobs:
           python-version: '3.13'
       - run: python -m pip install . pytest
       - name: Metrics, corpus and failure contracts without services or credentials
-        run: python -m pytest -q tests/benchmark/test_metrics.py tests/benchmark/test_failures.py tests/benchmark/test_identity.py tests/benchmark/test_mining_prompt.py tests/benchmark/test_optimization_cli.py
+        run: python -m pytest -q tests/benchmark/test_metrics.py tests/benchmark/test_failures.py tests/benchmark/test_identity.py tests/benchmark/test_mining_prompt.py tests/benchmark/test_optimization_cli.py tests/benchmark/test_mining_optimization.py tests/benchmark/test_failure_corrections_rehearsal.py tests/benchmark/test_activation_failure_evaluation.py -k "not owned_grounding"
 
       - name: Offline optimization split, seal and drift contracts
         run: python -m pytest -q tests/benchmark/test_optimization.py -k "not owned_gateway"
+
+      - name: Private candidate safety and attribution without services or private data
+        run: python -m pytest -q tests/benchmark/test_corrections.py -k "private_candidate or private_selection or private_source_attribution"

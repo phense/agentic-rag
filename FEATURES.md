@@ -369,4 +369,14 @@ Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populat
 
 ## Confirmed-failure evaluation and offline optimization (issue #35)
 
-Implementation and integration are in progress on the Feature9 stack. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
+Implemented, measured and independently reviewed on the Feature9 stack; merge and local adoption remain pending. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
+
+Feature10 validation:1274 Python/7 Node checks;48 held-out public queries across six
+source families with20 paired repeats. Supported exact answers30/48→48/48, evidence
+recall24/36→36/36, irrelevant unanswerable exposure12→0 and wrong-scope0. Native mining
+uses8 actual public calls, preserves reviewed dev misses and selects the existing prompt;
+held-out corrections2/2 on both routes, unsafe0. No general model/prompt quality gain or
+live optimization is claimed. Actual018→019 and019 code-only activation/retry/recovery,
+strict21-table production-copy restore, old/new clients and private-label controls pass.
+[Measured examples/limits](docs/benchmarks/2026-10-04-failure-evaluation/README.md).
+Pre-existing domain-free temporal validity remains separate [Issue48](https://github.com/phense/agentic-rag/issues/48).
