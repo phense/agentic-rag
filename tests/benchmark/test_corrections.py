@@ -442,3 +442,22 @@ def test_confirmed_alias_star_with_independent_sources_is_one_split_family(conn,
     assert summary['cases']==2 and len({c['family'] for c in cases})==2
     assert len({c['identity_family'] for c in cases})==1 and len({c['split_family'] for c in cases})==1
     assert len({c['split'] for c in cases})==1
+
+
+@pytest.mark.parametrize('changed',['revision','source'])
+def test_private_source_attribution_drift_prevents_accepted_report(tmp_path,monkeypatch,changed):
+    from agentic_rag.benchmark import corrections
+    from agentic_rag.benchmark import runner
+    path=_mock_export(tmp_path,monkeypatch,_both_splits())
+    state={'changed':False}
+    monkeypatch.setattr(corrections,'_revision',lambda:'b'*40 if state['changed'] and changed=='revision' else 'a'*40)
+    monkeypatch.setattr(runner,'source_hash',lambda:'d'*64 if state['changed'] and changed=='source' else 'c'*64)
+    def score(conn,cfg,case,at,profile):
+        if case['split']=='test':state['changed']=True
+        return dict(id=case['id'],family=case['family'],split_family=case['split_family'],split=case['split'],
+            supported=True,miss=False,stale=0,wrong_scope=0,error=None,context_chars=30)
+    monkeypatch.setattr(corrections,'_score_case',score)
+    output=tmp_path/'result.json'
+    with pytest.raises(ValueError,match='source changed'):
+        corrections.evaluate_export(Config(),export_path=path,output_path=output)
+    assert not output.exists()

@@ -5,7 +5,7 @@ from dataclasses import asdict
 from hashlib import sha256
 import json
 from pathlib import Path
-import subprocess
+import re
 import tempfile
 import time
 from unittest.mock import patch
@@ -14,7 +14,7 @@ from .. import db, mining, store
 from ..validity import parse_time
 from .database import isolated_database
 from .identity import local_model,model_guard
-from .runner import source_hash
+from .runner import source_hash,_revision
 
 PROMPTS = ('source', 'correction-v1')
 
@@ -111,12 +111,13 @@ def run(cfg, *, output: Path, model=False, progress=None):
     def guard():
         model_guard(cfg,expected_model)
         current={prompt:sha256((mining.SYSTEM+mining.BENCHMARK_PROMPTS.get(prompt,'')).encode()).hexdigest() for prompt in PROMPTS}
-        if source_hash()!=frozen_source or current!=prompt_hashes:
+        if source_hash()!=frozen_source or current!=prompt_hashes or _revision()!=revision:
             raise ValueError('prompt/source changed during mining comparison')
+    revision=_revision()
+    if not re.fullmatch('[0-9a-f]{40}',revision or ''):raise ValueError('exact package source revision required')
     output=Path(output)
     if output.exists():raise ValueError('choose a new public mining report directory')
     output.mkdir(parents=True)
-    revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     development=[]
     for family in ('dev-0','dev-1'):
         for prompt in PROMPTS:

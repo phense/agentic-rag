@@ -24,6 +24,7 @@ from agentic_rag.benchmark.identity import local_model,model_guard
 from agentic_rag.config import Config,load_config
 from scripts import verify_incremental_ingestion as ingestion
 from scripts import activate_failure_evaluation as code_activation
+from scripts.verify_failure_corrections import rehearse as corrections_rehearsal
 from scripts.verify_contextual_indexing import verified_backup
 from scripts.verify_entity_identities import assert_originals,inventories
 from scripts.verify_filter_aware_search import privileges,table_names
@@ -155,6 +156,7 @@ def main():
         result['combined018_to019']=ingestion.rehearsal(source,temp,args.private_dir)
         model_guard(cfg,expected_model)
         result['code_only019']=code_only(temp,args.private_dir)
+        result['confirmed_corrections']=corrections_rehearsal(cfg,private_dir=args.private_dir/'controlled-corrections')
         model_guard(cfg,expected_model)
         candidate=None
         if args.mine_model:

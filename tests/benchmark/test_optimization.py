@@ -346,3 +346,18 @@ def test_model_drift_aborts_comparison_instead_of_counting_a_query_miss(tmp_path
     with pytest.raises(ValueError, match='model identity changed'):
         optimization.run(Config(), output=tmp_path/'report', corpus_path=path, repeats=2)
     assert not (tmp_path/'report/candidate.json').exists()
+
+
+@pytest.mark.parametrize('boundary',['global','ancestor'])
+def test_wider_visible_sources_reject_before_entity_comparison(tmp_path,monkeypatch,boundary):
+    from agentic_rag.benchmark import optimization
+    from agentic_rag.config import Config
+    corpus=fixture_corpus()
+    source=corpus['documents'][0]
+    if boundary=='global':source.update(project=None,scope='global')
+    else:corpus['queries'][0]['project']='/synthetic/zebra/subset'
+    path=tmp_path/'corpus.json';path.write_text(json.dumps(corpus))
+    monkeypatch.setattr(optimization,'local_model',lambda cfg:pytest.fail('unsupported corpus reached model'))
+    with pytest.raises(ValueError,match='exact-boundary'):
+        optimization.run(Config(),output=tmp_path/'report',corpus_path=path)
+    assert not (tmp_path/'report').exists()

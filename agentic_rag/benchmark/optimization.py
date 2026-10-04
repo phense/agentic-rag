@@ -181,6 +181,15 @@ def validate(corpus):
             raise ValueError('authored answer absent from expected original source')
     if {q['split'] for q in corpus['queries']} != {'dev', 'test'}:
         raise ValueError('both dev and held-out queries required')
+    # Entity reads deliberately use one literal boundary. Wider-visible global or
+    # ancestor originals need their own exact query; never compare unequal pools.
+    for query in corpus['queries']:
+        exact = write_scope(query.get('project'), query.get('scope'))
+        visible = selection(query.get('project'), query.get('scope'))
+        for document in corpus['documents']:
+            source_scope = write_scope(document.get('project'), document.get('scope'))
+            if document['split'] == query['split'] and document['domain'] == query['domain'] and source_scope in visible and source_scope != exact:
+                raise ValueError('public entity comparison requires exact-boundary originals; query global/ancestor separately')
     components = {}
     for key, split in identity_declarations:
         bind(components, root(key), split, 'identity/alias translation history component')

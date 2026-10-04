@@ -492,6 +492,12 @@ def evaluate_export(cfg, *, export_path, output_path):
     candidate_path=Path(output_path).with_name(Path(output_path).name+'.candidate.json')
     if {c['split'] for c in payload['cases']}=={'dev','test'}:
         _private_path(candidate_path)
+    from . import runner
+    frozen_revision, frozen_source = _revision(), runner.source_hash()
+    def source_guard():
+        if _revision()!=frozen_revision or runner.source_hash()!=frozen_source:
+            raise ValueError('private evaluation source changed')
+    source_guard()
     candidate=None
     details=[];optimization=dict(status='unavailable',reason='independent dev and test source/alias families are required',
         profiles=2,chosen=None,dev=None,heldout=None,candidate_sha256=None)
@@ -506,7 +512,7 @@ def evaluate_export(cfg, *, export_path, output_path):
             candidate=dict(kind='private-correction-candidate',version=1,synthetic=False,profile=chosen,
                 context_chars=12000,profiles=['fts','entity'],dev=summaries,
                 dev_evidence_sha256=_hash([c['original_sha256'] for c in dev]),
-                source_revision=_revision(),source_sha256=sha256(Path(__file__).read_bytes()).hexdigest())
+                source_revision=frozen_revision,source_sha256=frozen_source)
             candidate['artifact_sha256']=_hash(candidate)
             _write_private(candidate_path,candidate)  # Seal before any held-out scoring.
             chosen=_verify_private_candidate(candidate_path,candidate)['profile']
@@ -520,9 +526,10 @@ def evaluate_export(cfg, *, export_path, output_path):
     summary = _summary(details)
     summary['optimization']=optimization
     report = dict(kind='private-correction-evaluation',version=1,synthetic=False,export_sha256=payload['artifact_sha256'],
-        source_revision=_revision(),source_sha256=sha256(Path(__file__).read_bytes()).hexdigest(),source_schema=schema,
+        source_revision=frozen_revision,source_sha256=frozen_source,source_schema=schema,
         as_of=at,summary=summary,cases=details)
     report['artifact_sha256'] = _hash(report)
     if candidate is not None:_verify_private_candidate(candidate_path,candidate)
+    source_guard()
     _write_private(output_path,report)
     return summary

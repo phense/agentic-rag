@@ -10,6 +10,9 @@ answer accuracy.
 or exact entity/attribute routing, each with title-overlap weight0 or1. Both routes use
 the same original-source answer checks. Entity routing requires literal caller selectors;
 labels never enter retrieval. Existing scope/domain/time/claim eligibility stays in force.
+The public comparison requires exact-boundary originals: a project query whose corpus
+contains visible global/ancestor sources is rejected before services. Evaluate those
+sources with separate literal global/ancestor queries; production search visibility is unchanged.
 The command selects on development cases, seals candidate.json, then evaluates held-out
 cases. It does not load the candidate into live retrieval or modify configuration.
 

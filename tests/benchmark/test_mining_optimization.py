@@ -83,3 +83,19 @@ def test_changed_public_candidate_prevents_accepted_report(tmp_path,monkeypatch)
     with pytest.raises(ValueError,match='candidate changed'):
         mining_optimization.run(Config(),output=output,model=True)
     assert not (output/'results.json').exists()
+
+
+def test_native_source_revision_uses_package_repository_from_foreign_cwd(tmp_path,monkeypatch):
+    import subprocess
+    from agentic_rag.benchmark import identity,mining_optimization,runner
+    expected=runner._revision()
+    foreign=tmp_path/'foreign';foreign.mkdir()
+    subprocess.run(['git','init','--quiet'],cwd=foreign,check=True)
+    subprocess.run(['git','-c','user.name=Public fixture','-c','user.email=fixture@example.invalid',
+        'commit','--quiet','--allow-empty','-m','Unrelated source'],cwd=foreign,check=True)
+    monkeypatch.chdir(foreign)
+    monkeypatch.setattr(identity,'model_digest',lambda cfg:'a'*64)
+    monkeypatch.setattr(mining_optimization,'_measure',lambda cfg,family,prompt:
+        dict(prompt=prompt,unsafe=0,user_correct=True,error=None,provider_calls=0))
+    result=mining_optimization.run(Config(),output=tmp_path/'report',model=True)
+    assert result['source_revision']==expected
