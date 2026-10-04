@@ -157,6 +157,7 @@ def child_main(args):
                 fields = dict(title=f'Large public guide {rep}', body=body, domain='general', dtype='reference', project='/synthetic/ingestion/a')
                 with count_embeddings() as initial:
                     saved = store.save_document(connection, cfg, **fields)
+                assert not saved.warnings
                 changed = body.replace('section 6.', 'section 6 revised.')
                 with count_embeddings() as measured:
                     start = time.perf_counter()
@@ -164,10 +165,19 @@ def child_main(args):
                     elapsed = time.perf_counter() - start
                 from agentic_rag.chunker import chunk_markdown
                 target = chunk_markdown('# ' + fields['title'] + '\n\n' + changed)
-                actual = connection.execute('SELECT content FROM chunks WHERE document_id=%s ORDER BY idx', (saved.doc_id,)).fetchall()
+                actual = connection.execute('SELECT content,embedding::text AS vector FROM chunks WHERE document_id=%s ORDER BY idx', (saved.doc_id,)).fetchall()
                 assert [r['content'] for r in actual] == target
+                assert result.n_chunks==len(target) and not result.warnings
+                assert all(r['vector'] is not None and len(json.loads(r['vector']))==cfg.embed_dim
+                    and all(math.isfinite(v) for v in json.loads(r['vector'])) for r in actual)
+                doc=store.get_document(connection,saved.doc_id)
+                assert (doc['title'],doc['body'],doc['domain'],doc['project_scope'])==(fields['title'],changed,'general','/synthetic/ingestion/a')
+                assert connection.execute("SELECT count(*) n FROM mining_queue WHERE kind='embed' AND payload->>'document_id'=%s",(saved.doc_id,)).fetchone()['n']==0
+                original=chunk_markdown('# '+fields['title']+'\n\n'+body)
                 return dict(ms=round(elapsed*1000, 3), **identity, **measured, initial_inputs=initial['inputs'],
                     chunks=result.n_chunks, complete_ordered_content=True, peak_mib=peak_mib(),
+                    chunk_denominator=len(target),validated_chunk_vectors=len(actual),wrong_scope=0,
+                    changed_exact_inputs=len(set(target)-set(original)),unchanged_exact_inputs=len(set(target)&set(original)),
                     throughput_chunks_s=round(result.n_chunks/elapsed, 3), queue_delay_ms=None)
             transcript = temp / 'session.jsonl'
             ext = extraction(f'{mode}-{rep}')

@@ -176,6 +176,14 @@ lock-model/requirement-label corrections were rechecked. Read-only convergence
 against AC-001–008, the plan, as-built model and EI-S01–04/EI-R01–03 found no missing
 implementation or evidence task; no convergence work was appended. [PR46](https://github.com/phense/agentic-rag/pull/46) is published and registered
 with the T3 thread; Issue33 records implementation evidence. T010 is complete.
-Issue33 remains open for applicable merge and separately authorized adoption.
-Request approval of the specific Feature8 PR only after verified publication;
-merge approval alone does not authorize deployment, migration or interruption.
+PR46 was subsequently merged and adopted locally with the maintainer's explicit
+merge and rollout approval at1294d6c44fd02b66715692f12791bfa2fd4c8856/schema018.
+The [canonical adoption record](https://github.com/phense/agentic-rag/issues/33#issuecomment-5975004882)
+records fresh1137 Python tests (147.10s),7 Node tests (81.995875ms),10 reader/18 main
+MCP tools and strict verified017 backup/restore. All607 active assertions were mapped
+in seven bounded batches, with review dispositions retained and zero aliases inferred
+or confirmed. Original evidence/config/grants,37698 historical audit records and original
+checkpoint/queue/batch IDs were retained. The worker lock was held63.439s and released;
+no services or client settings were rewritten. Issue33 is closed. Historical candidate
+measurements above remain controlled evidence; production alias-quality gains were not
+measured. Approval for this adoption does not authorize later feature deployment.

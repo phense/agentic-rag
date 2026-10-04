@@ -333,7 +333,7 @@ and [verification](docs/verification/thematic-summaries.md). PR45 was merged wit
 
 ## Evidence-backed entity identities and scoped aliases (issue #33)
 
-Feature8 candidate adds `rag entity resolve` and reader-only `memory_entity`.
+Feature8 adds `rag entity resolve` and reader-only `memory_entity`.
 Explicit operator-confirmed source spans link direct aliases within one exact
 project/domain; revocation separates them while retaining originals and audit.
 No embedding union or transitive identity merge occurs. Current replacement under
@@ -348,5 +348,19 @@ actual concurrent clients and literal code activation/recovery pass. Three contr
 20-pair cases recover1/2→2/2,0/1→1/1 and0/2→2/2 facts with zero foreign output; no
 general speedup or production alias-quality gain is claimed. See [measurements](docs/benchmarks/2026-10-04-entity-identities/README.md),
 [reference](docs/entity-identities.md), [PB-5.8](docs/playbooks/entity-identities.md)
-and [verification](docs/verification/entity-identities.md). Merge approval and
-separately authorized production018 adoption remain pending; Issue33 is open.
+and [verification](docs/verification/entity-identities.md). PR46 was merged with specific approval and locally adopted at1294d6c/schema018.
+Post-adoption1137 Python/7 Node tests and fresh10/18-tool clients passed. All607
+legacy assertions were indexed with review dispositions retained; no production
+aliases or semantic quality gain are claimed. Issue33 is closed; the
+[canonical adoption record](https://github.com/phense/agentic-rag/issues/33#issuecomment-5975004882)
+preserves the distinction from the controlled measurements above.
+
+
+## Incremental embedding reuse and bounded preprocessing (issue #34)
+
+Implementation in progress on an isolated branch. Exact sanitized chunk/model hashes
+allow a disposable FIFO vector cache while original write gateways own all canonical,
+cache and audit transactions. Known-identity preprocessing is bounded and parallel;
+accepted mining applies final documents and deduplication in original order. Migration019
+is additive; no production adoption is authorized. See [reference](docs/incremental-ingestion.md)
+and [verification](docs/verification/incremental-ingestion.md) for current gates and limits.
