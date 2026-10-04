@@ -118,7 +118,9 @@ def refresh(conn,cfg,*,doc_id,title,body,domain,dtype,limit=8,actor='cli',commit
         return ContextIndexResult(str(doc_id),0,0,warnings)
     vectors=None
     if digest is not None:
-        vectors=embed.try_embed_texts([h+'\n'+r['content'][:4000] for r,h in batch],cfg)
+        from . import embedding_reuse
+        vectors=embedding_reuse.vectors(conn,cfg,[h+'\n'+r['content'][:4000] for r,h in batch],
+            loader=embed.try_embed_texts,actor=actor,representation="context-v1",expected_digest=digest)
         valid=(isinstance(vectors,list) and len(vectors)==len(batch)
             and all(isinstance(v,list) and len(v)==cfg.embed_dim
                     and all(type(x) in (int,float) and math.isfinite(x) for x in v) for v in vectors))

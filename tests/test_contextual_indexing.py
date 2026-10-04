@@ -234,7 +234,10 @@ def test_index_only_save_is_bounded_resumable_and_preserves_raw_rows(conn,cfg,mo
     for _ in range(len(raw)-1):store.save_document(conn,cfg,**kwargs)
     result=store.save_document(conn,cfg,**kwargs)
     assert result.indexed_chunks==0 and result.remaining_chunks==0
-    assert conn.execute('SELECT count(*) n FROM audit_log').fetchone()['n']==audits+len(raw)
+    # Context indexing retains its original audit effects; derived cache fills add
+    # separately audited entries without changing source rows.
+    assert conn.execute("SELECT count(*) n FROM audit_log WHERE op='index_context'").fetchone()['n']==len(raw)
+    assert conn.execute("SELECT count(*) n FROM audit_log WHERE op='embedding_reuse'").fetchone()['n']==len(raw)
     assert conn.execute('SELECT row_to_json(c) AS data FROM chunks c WHERE document_id=%s ORDER BY idx',(saved.doc_id,)).fetchall()==raw
     assert conn.execute('SELECT row_to_json(d) AS data FROM documents d WHERE id=%s',(saved.doc_id,)).fetchone()==doc
 

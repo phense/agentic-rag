@@ -182,7 +182,8 @@ def _save_txn(
 
     # chunks: swapped atomically via SECURITY DEFINER fn (writer has no DELETE)
     chunks = chunk_markdown(f"# {title}\n\n{body}")
-    vecs = try_embed_texts(chunks, cfg) if chunks else []
+    from . import embedding_reuse
+    vecs = embedding_reuse.vectors(conn, cfg, chunks, loader=try_embed_texts, actor=actor) if chunks else []
     if chunks and vecs is None:
         warnings.append("embedding unavailable — stored without vectors, queued retry")
         conn.execute(
@@ -318,10 +319,11 @@ def reembed_document(conn, cfg: Config, doc_id: str) -> int:
     ).fetchone()
     if doc is None:
         raise ValueError(f"no such document: {doc_id}")
-    chunks = chunk_markdown(f"# {doc['title']}\n\n{doc['body']}")
-    vecs = embed_texts(chunks, cfg) if chunks else []
-    literals = [vec_literal(v) for v in vecs]
     try:
+        chunks = chunk_markdown(f"# {doc['title']}\n\n{doc['body']}")
+        from . import embedding_reuse
+        vecs = embedding_reuse.vectors(conn, cfg, chunks, loader=embed_texts, actor="mining", strict=True) if chunks else []
+        literals = [vec_literal(v) for v in vecs]
         # Do not hold a document lock during inference. A newer save must win.
         current = conn.execute('SELECT title,body FROM documents WHERE id=%s FOR UPDATE NOWAIT',
                                (doc_id,)).fetchone()

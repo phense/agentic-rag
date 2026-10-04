@@ -40,6 +40,7 @@ def document(conn, cfg, **kwargs):
 def test_repeat_mcp_query_reuses_only_inference(conn, cfg, cached_mcp):
     calls, _ = cached_mcp
     doc = document(conn, cfg, scope='global')
+    calls.clear()  # Query reuse counts exclude the independent ingestion path.
     first = mcp_server.memory_search('cached semantic question')
     second = mcp_server.memory_search('cached semantic question')
     assert first == second
