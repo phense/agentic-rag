@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from contextlib import contextmanager
-from dataclasses import replace
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
@@ -28,7 +28,7 @@ from unittest.mock import patch
 from urllib.parse import urlsplit
 
 from agentic_rag import db, embed, jobs, mining, store, worker
-from agentic_rag.benchmark.database import isolated_database
+from agentic_rag.benchmark.database import isolated_database, validate_name
 from agentic_rag.config import Config, load_config
 from scripts.verify_contextual_indexing import snapshot, verified_backup
 from scripts.verify_entity_identities import assert_originals, inventories, restored, trading
@@ -43,19 +43,32 @@ def git(*args):
 
 
 def config_file(cfg, path):
-    path.write_text(f'[db]\nname="{cfg.db_name}"\nhost="{cfg.db_host}"\n[ollama]\nurl="{cfg.ollama_url}"\n')
+    # Config accepts known flat field names within a recognized section.
+    values = {k: str(v) if isinstance(v, Path) else v for k, v in asdict(cfg).items() if v is not None}
+    path.write_text('[db]\n' + '\n'.join(k+' = '+json.dumps(v, ensure_ascii=False) for k,v in values.items())+'\n')
     path.chmod(0o600)
+    assert load_config(path) == cfg
     return path
 
 
 def child(source, cfg, temp, args, expected=0):
+    from agentic_rag.query_cache import model_digest
+    digest = model_digest(cfg)
+    assert digest is not None
+    validate_name(cfg.db_name)
+    with db.connect(cfg, role='reader') as c:
+        token = c.execute('SELECT owner_id FROM benchmark_ownership').fetchone()['owner_id']
     config = config_file(cfg, temp / ('config-' + cfg.db_name + '.toml'))
-    env = dict(os.environ, PYTHONPATH=str(source), AGENTIC_RAG_CONFIG=str(config), AGENTIC_RAG_HOOKS_DISABLE='1')
+    env = dict(os.environ, PYTHONPATH=str(source), AGENTIC_RAG_CONFIG=str(config), AGENTIC_RAG_HOOKS_DISABLE='1',
+        RAG_INGESTION_OWNERSHIP=token, RAG_EXPECTED_EMBED_DIGEST=digest)
     result = subprocess.run([sys.executable, str(ROOT / 'scripts/verify_incremental_ingestion.py'),
         '--child', *args], cwd=source, env=env, capture_output=True, text=True, timeout=180)
     if result.returncode != expected:
         raise RuntimeError('Owned child failed: ' + result.stderr[-3000:])
-    return json.loads(result.stdout)
+    assert model_digest(cfg) == digest, 'Model changed during measurement; discard results'
+    packet = json.loads(result.stdout)
+    assert packet['embedding_model'] == cfg.embed_model and packet['embed_dim'] == cfg.embed_dim and packet['model_digest'] == digest
+    return packet
 
 
 @contextmanager
@@ -89,14 +102,48 @@ def peak_mib():
 
 
 def extraction(rep, n=8):
-    return dict(memories=[dict(title=f'Public item {rep}-{i}',
-        body=f'Independent public fixture {rep}-{i}. ' + ('Documented configuration. ' * 12),
-        domain='general', edges=[]) for i in range(n)], lessons=[], signals=[],
+    memories=[]
+    for i in range(n):
+        body=f'Independent public fixture {rep}-{i}. ' + ('Documented configuration. ' * 12)
+        if str(rep).startswith('backlog'):
+            body=(f'Independent public fixture {rep}-{i}.\n\n## Scope\n\nScoped item {rep}-{i}. '
+                + ('Documented configuration. '*82)+f'\n\n## Recovery\n\nRecovery item {rep}-{i}. '
+                + ('Documented configuration. '*82))
+        memories.append(dict(title=f'Public item {rep}-{i}',body=body,domain='general',edges=[]))
+    return dict(memories=memories, lessons=[], signals=[],
         contradictions=[], pin_suggestions=[], contradictions_with_pins=[], domain_proposals=[])
+
+
+def assert_documents(connection, session, expected):
+    from agentic_rag.chunker import chunk_markdown
+    rows = connection.execute("SELECT id,title,body,domain,dtype,project_scope FROM documents WHERE provenance->>'session_id'=%s", (session,)).fetchall()
+    assert len(rows) == len(expected['memories'])
+    assert {(r['title'],r['body']) for r in rows} == {(r['title'],r['body']) for r in expected['memories']}
+    count = 0
+    for row in rows:
+        assert (row['domain'],row['dtype'],row['project_scope']) == ('general','memory','/synthetic/ingestion/a')
+        chunks = connection.execute('SELECT idx,content,embedding::text AS vector FROM chunks WHERE document_id=%s ORDER BY idx', (row['id'],)).fetchall()
+        target = chunk_markdown('# '+row['title']+'\n\n'+row['body'])
+        assert [(r['idx'],r['content']) for r in chunks] == list(enumerate(target))
+        assert all(r['vector'] is not None and len(json.loads(r['vector'])) == 1024
+            and all(math.isfinite(v) for v in json.loads(r['vector'])) for r in chunks)
+        count += len(chunks)
+    return dict(validated_documents=len(rows), document_denominator=len(expected['memories']),
+        validated_original_chunks=count, missing_or_unexpected_documents=0, missing_vectors=0, wrong_scope=0)
 
 
 def child_main(args):
     cfg = load_config()
+    validate_name(cfg.db_name)  # Reject canonical configuration before any connection.
+    with db.connect(cfg,role='reader') as reader:
+        markers = reader.execute('SELECT owner_id FROM benchmark_ownership').fetchall()
+        if len(markers)!=1 or markers[0]['owner_id']!=os.environ.get('RAG_INGESTION_OWNERSHIP'):
+            raise ValueError('owned database marker/token mismatch')
+    from agentic_rag.query_cache import model_digest
+    digest = model_digest(cfg)
+    if digest is None or digest!=os.environ.get('RAG_EXPECTED_EMBED_DIGEST'):
+        raise ValueError('child model identity differs from parent')
+    identity = dict(embedding_model=cfg.embed_model,embed_dim=cfg.embed_dim,model_digest=digest)
     mode, rep = args[0], int(args[1])
     # Never call hosted miners/curation or production log/profile/health paths.
     with tempfile.TemporaryDirectory(prefix='ingestion-child-') as name:
@@ -118,7 +165,7 @@ def child_main(args):
                 target = chunk_markdown('# ' + fields['title'] + '\n\n' + changed)
                 actual = connection.execute('SELECT content FROM chunks WHERE document_id=%s ORDER BY idx', (saved.doc_id,)).fetchall()
                 assert [r['content'] for r in actual] == target
-                return dict(ms=round(elapsed*1000, 3), **measured, initial_inputs=initial['inputs'],
+                return dict(ms=round(elapsed*1000, 3), **identity, **measured, initial_inputs=initial['inputs'],
                     chunks=result.n_chunks, complete_ordered_content=True, peak_mib=peak_mib(),
                     throughput_chunks_s=round(result.n_chunks/elapsed, 3), queue_delay_ms=None)
             transcript = temp / 'session.jsonl'
@@ -151,7 +198,7 @@ def child_main(args):
                             original_save = store.save_claim
                             def die_after_first(*args, **kwargs):
                                 original_save(*args, **kwargs)
-                                print(json.dumps(dict(uncommitted_application=True, **measured)), flush=True)
+                                print(json.dumps(dict(uncommitted_application=True, **identity, **measured)), flush=True)
                                 os._exit(78)
                             with patch.object(store,'save_claim',die_after_first):
                                 worker.process_job(connection,cfg,job)
@@ -159,14 +206,16 @@ def child_main(args):
                         result = worker.process_job(connection, cfg, job)
                         assert result.saved == 8
                         # Real process exit after application commit before queue acknowledgement.
-                        packet = dict(committed_documents=8, **measured, peak_mib=peak_mib())
+                        quality = assert_documents(connection,session,ext)
+                        packet = dict(committed_documents=8, **quality, **identity, **measured, peak_mib=peak_mib())
                         print(json.dumps(packet), flush=True)
                         os._exit(77)
                     result = worker.drain(connection, cfg)
                     elapsed = time.perf_counter()-start
                 assert result == {'done':3, 'failed':0, 'provider_unavailable':0}
                 assert claims == sorted(claims) and len(claims)==3
-                return dict(ms=round(elapsed*1000,3), **measured, documents=24,
+                quality = [assert_documents(connection,session+('' if i==0 else f'-{i}'),extraction(f'backlog-{rep}-{i}')) for i in range(3)]
+                return dict(ms=round(elapsed*1000,3), **identity, **measured, documents=24, quality=quality,
                     ordered_jobs=True, throughput_documents_s=round(24/elapsed,3), peak_mib=peak_mib(),
                     queue_delay_ms=delay)
             if mode in ('retry','retry_apply'):
@@ -185,7 +234,11 @@ def child_main(args):
                     elapsed=time.perf_counter()-start
                 batch=connection.execute('SELECT count(*) AS n FROM mining_batches WHERE session_id=%s', (f'public-{"crash_apply" if mode == "retry_apply" else "crash"}-{rep}',)).fetchone()['n']
                 assert batch==1
-                return dict(ms=round(elapsed*1000,3),**measured,documents=8,batches=1,
+                original_mode = 'crash_apply' if mode=='retry_apply' else 'crash'
+                quality = assert_documents(connection,f'public-{original_mode}-{rep}',extraction(f'{original_mode}-{rep}'))
+                queue=connection.execute('SELECT status,last_uuid FROM mining_queue WHERE session_id=%s',(f'public-{original_mode}-{rep}',)).fetchone()
+                assert queue['status']=='done' and queue['last_uuid']=='end'
+                return dict(ms=round(elapsed*1000,3),**identity,**measured,**quality,documents=8,batches=1,
                     no_reextraction=True,no_duplicate_application=True,queue_done=True,
                     peak_mib=peak_mib(),throughput_documents_s=round(8/elapsed,3),queue_delay_ms=None)
             raise ValueError('unknown child mode')
@@ -236,6 +289,12 @@ def activation_rehearsal(cfg, temp, private, report):
         assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=clone).decode().strip()==BASE
     with patch.object(worker,'LOCK_PATH',temp/'owned-worker.lock'):
         reject('abbreviated-target',target=target[:12])
+        manifest.write_text(json.dumps(dict(report,source_identity='wrong-server')))
+        try:reject('wrong-backup-server-database')
+        finally:manifest.write_text(json.dumps(report))
+        manifest.write_text(json.dumps(dict(report,verified_at='2026-01-01T00:00:00+00:00')))
+        try:reject('stale-backup')
+        finally:manifest.write_text(json.dumps(report))
         marker=clone/'.owned-dirty-fixture';marker.write_text('public fixture')
         try:reject('source-drift')
         finally:marker.unlink()
@@ -249,15 +308,82 @@ def activation_rehearsal(cfg, temp, private, report):
         try:
             with patch.object(worker,'acquire_lock',drift_after_lock):reject('post-lock-source-drift')
         finally:marker.unlink()
+        migrate=db.apply_migrations
+        def drift_during_migration(*args,**kwargs):
+            result=migrate(*args,**kwargs);marker.write_text('migration-time drift');return result
+        try:
+            with patch.object(db,'apply_migrations',drift_during_migration):
+                try:run()
+                except ValueError as exc:rejected.append(dict(case='post-migration-source-drift',reason=str(exc)))
+                else:raise AssertionError('post-migration drift must reject before Git switch')
+            assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=clone).decode().strip()==BASE
+        finally:marker.unlink()
         first=run()
         assert first['schema']==19
         subprocess.run(['git','switch','--detach',BASE],cwd=clone,check=True,capture_output=True)
         retry=run()  # Actual migration committed before code activation acknowledged.
+        from scripts import activate_incremental_ingestion as activation
+        check=activation.schema
+        def recovery_drift(*args,**kwargs):
+            result=check(*args,**kwargs);marker.write_text('recovery-time drift');return result
+        try:
+            with patch.object(activation,'schema',recovery_drift):
+                try:run(recover=True)
+                except ValueError as exc:rejected.append(dict(case='pre-recovery-switch-drift',reason=str(exc)))
+                else:raise AssertionError('recovery drift must reject before Git switch')
+            assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=clone).decode().strip()==target
+        finally:marker.unlink()
+        branches=subprocess.check_output(['git','for-each-ref','--format=%(refname) %(objectname)','refs/heads'],cwd=clone)
         recovered=run(recover=True)
         assert recovered['revision']==BASE and recovered['schema']==19
+        assert subprocess.check_output(['git','for-each-ref','--format=%(refname) %(objectname)','refs/heads'],cwd=clone)==branches
         released=worker.acquire_lock(worker.LOCK_PATH);assert released is not None;released.close()
     return dict(executed_guarded_adoption=first,committed_schema_retry=retry,executed_code_recovery=recovered,
         preflight_rejections=rejected,worker_lock_reacquired=True,source_branch_unchanged=True)
+
+
+@contextmanager
+def overlapping_clients(source, cfg, temp):
+    config=config_file(cfg,temp/'overlap.toml')
+    code='''
+import json,sys
+from agentic_rag import db,store
+from agentic_rag.config import load_config
+cfg=load_config();route=sys.argv[1]
+with db.connect(cfg,role='writer') as c:
+    for step in range(2):
+        if not sys.stdin.readline():break
+        result=store.save_document(c,cfg,title='Concurrent '+route+str(step),
+            body='Public concurrent '+route+str(step),domain='general',dtype='memory',
+            project='/synthetic/ingestion/'+route,actor='public-'+route)
+        actual=store.get_document(c,result.doc_id)
+        original=store.get_document(c,'public-legacy')
+        assert actual['body']=='Public concurrent '+route+str(step) and original['body']=='Preserved original user-a knowledge'
+        schema=len(c.execute('SELECT * FROM schema_migrations').fetchall());c.commit()
+        print(json.dumps(dict(route=route,step=step,schema=schema,original_read_ok=True,write_ok=True)),flush=True)
+'''
+    processes=[];observations=[]
+    try:
+        for directory,route in ((source,'source'),(ROOT,'candidate')):
+            env=dict(os.environ,PYTHONPATH=str(directory),AGENTIC_RAG_CONFIG=str(config),AGENTIC_RAG_HOOKS_DISABLE='1')
+            processes.append(subprocess.Popen([sys.executable,'-u','-c',code,route],cwd=directory,env=env,
+                stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True))
+        def advance(schema):
+            assert all(p.poll() is None for p in processes)
+            for p in processes:p.stdin.write('next\n');p.stdin.flush()
+            for p in processes:
+                line=p.stdout.readline()
+                if not line:raise RuntimeError('Owned overlapping client failed: '+p.stderr.read()[-2000:])
+                packet=json.loads(line);assert packet['schema']==schema
+                observations.append(packet)
+        yield advance,observations
+    finally:
+        for p in processes:
+            if p.stdin:p.stdin.close()
+            try:p.wait(timeout=10)
+            except subprocess.TimeoutExpired:p.kill();p.wait()
+            if p.stdout:p.stdout.close()
+            if p.stderr:p.stderr.close()
 
 
 def rehearsal(source, temp, private):
@@ -272,35 +398,50 @@ def rehearsal(source, temp, private):
         old(['save','--title','Public legacy','--body','Preserved original user-a knowledge','--domain','general','--dtype','memory','--project','/synthetic/ingestion/a'])
         old(['domain','add','infrastructure'])
         old(['save','--title','Public other','--body','Independent user-b domain','--domain','infrastructure','--dtype','memory','--project','/synthetic/ingestion/b'])
+        # Candidate gateway is exercised against populated018 before migration.
+        subprocess.run([sys.executable,'-m','agentic_rag.cli','save','--title','Public candidate on018',
+            '--body','Candidate retained source compatibility','--domain','general','--dtype','memory',
+            '--project','/synthetic/ingestion/new18'],cwd=ROOT,env=dict(env,PYTHONPATH=str(ROOT)),
+            capture_output=True,text=True,check=True,timeout=30)
+        pre019=clients(source,cfg,temp)
         with db.connect(cfg,role='writer') as c:
             from agentic_rag import pins
             from agentic_rag.continuity import store as checkpoints
             from agentic_rag.continuity.model import CheckpointSnapshot
             pins.add_pin(c,body='Preserved original rule',scope='/synthetic/ingestion/a',actor='user-a')
             checkpoints.upsert_snapshot(c,CheckpointSnapshot(session_id='public-upgrade',turn_id='t',cursor='c',source='test',trigger='manual',cwd='/synthetic/ingestion/a',project_root='/synthetic/ingestion/a',artifacts=('AGENTS.md',)))
-        report=verified_backup(cfg,private/'synthetic-source018.dump');report.pop('dump');report['source_db_name']=cfg.db_name
-        with db.connect(cfg) as c:
-            tables=table_names(c);before=snapshot(c,tables);grants=privileges(c)
-            assert len(c.execute('SELECT * FROM schema_migrations').fetchall())==18
-            c.execute((ROOT/'sql/019_embedding_reuse.sql').read_text());c.rollback()
-            assert c.execute("SELECT to_regclass('embedding_reuse_cache') AS t").fetchone()['t'] is None
-            c.rollback()
-            c.rollback()
-        activation=activation_rehearsal(cfg,temp,private,report)
-        with db.connect(cfg) as c:
-            assert db.apply_migrations(c,db.SQL_DIR)==[]
-            assert snapshot(c,tables)==before
-            assert [r for r in privileges(c) if r['table_name']!='embedding_reuse_cache']==grants
+        with overlapping_clients(source,cfg,temp) as (advance,overlap):
+            advance(18)
+            report=verified_backup(cfg,private/'synthetic-source018.dump');report.pop('dump');report['source_db_name']=cfg.db_name
+            from scripts.activate_incremental_ingestion import source_identity
+            with db.connect(cfg) as c:report['source_identity']=source_identity(c)
+            report['verified_at']=datetime.now(timezone.utc).isoformat()
+            with db.connect(cfg) as c:
+                tables=table_names(c);before=snapshot(c,tables);grants=privileges(c)
+                assert len(c.execute('SELECT * FROM schema_migrations').fetchall())==18
+                c.execute((ROOT/'sql/019_embedding_reuse.sql').read_text());c.rollback()
+                assert c.execute("SELECT to_regclass('embedding_reuse_cache') AS t").fetchone()['t'] is None
+                c.rollback()
+            activation=activation_rehearsal(cfg,temp,private,report)
+            with db.connect(cfg) as c:
+                assert db.apply_migrations(c,db.SQL_DIR)==[]
+                assert snapshot(c,tables)==before
+                assert [r for r in privileges(c) if r['table_name']!='embedding_reuse_cache']==grants
+            advance(19)
         observed=clients(source,cfg,temp)
         final=verified_backup(cfg,private/'synthetic-target019.dump');final.pop('dump')
     return dict(source_schema=18,target_schema=19,strict_source_restore=report,strict_target_restore=final,
-        interrupted_ddl_rollback=True,retry_noop=True,original_rows_grants_preserved=True,clients=observed,activation=activation)
+        interrupted_ddl_rollback=True,retry_noop=True,original_rows_grants_preserved=True,clients=observed,
+        candidate_save_and_clients_on018=pre019,overlapping_source_candidate=overlap,activation=activation)
 
 
 def private_recovery(private):
     sourcecfg=load_config()
     report=verified_backup(sourcecfg,private/'production-source018.dump')
     report['source_db_name']=sourcecfg.db_name
+    from scripts.activate_incremental_ingestion import source_identity
+    with db.connect(sourcecfg) as c:report['source_identity']=source_identity(c)
+    report['verified_at']=datetime.now(timezone.utc).isoformat()
     (private/'production-source018-report.json').write_text(json.dumps(report,indent=2))
     (private/'production-source018-report.json').chmod(0o600)
     with restored(Config(ollama_url='http://localhost:1'),private/'production-source018.dump') as cfg:
@@ -337,6 +478,10 @@ def main():
     if args.output is None or args.private_dir is None or not 1<=args.repeats<=30:parser.error('output/private-dir and1–30 repeats required')
     args.private_dir.mkdir(parents=True,exist_ok=True,mode=0o700)
     args.private_dir.chmod(0o700)
+    common=Path(git('rev-parse','--git-common-dir').decode().strip())
+    common=(ROOT/common).resolve() if not common.is_absolute() else common.resolve()
+    if args.private_dir.resolve().is_relative_to(common.parent):
+        raise ValueError('private dumps/reports must stay outside the repository')
     cfg=load_config()
     endpoint=urlsplit(cfg.ollama_url)
     if endpoint.hostname not in ('localhost','127.0.0.1','::1') or endpoint.username or endpoint.password or endpoint.query:
@@ -344,7 +489,7 @@ def main():
     result=dict(source_revision=BASE,candidate_revision=git('rev-parse','HEAD').decode().strip(),
         generated_at=datetime.now(timezone.utc).isoformat(),repetitions=args.repeats,
         embedding_model=cfg.embed_model,model_digest=None,hosted_provider_calls=0,production_application_writes=0,
-        limits='Controlled public fixtures. Whole child peak RSS includes interpreter/client startup. Warm process/DB/OS caches are not flushed. Mining extractor is deterministic; embedding HTTP is real. No universal speedup claimed.')
+        limits='Controlled public fixtures. Fresh child process per observation; whole child peak RSS includes interpreter/client startup. DB/Ollama/OS caches are retained, not flushed. Mining extractor is deterministic; embedding HTTP is real. No universal speedup claimed.')
     paths=[p for directory in ('agentic_rag','sql','scripts') for p in (ROOT/directory).rglob('*') if p.suffix in ('.py','.sql','.mjs') and '__pycache__' not in p.parts]
     frozen={str(p.relative_to(ROOT)):sha256(p.read_bytes()).hexdigest() for p in paths}
     from agentic_rag.query_cache import model_digest
@@ -357,12 +502,16 @@ def main():
         initial=db.init_db
         with patch.object(db,'init_db',lambda c:initial(c,sql_dir=source/'sql')),isolated_database(cfg) as before, isolated_database(cfg) as after:
             with db.connect(after) as c:db.apply_migrations(c,db.SQL_DIR)
-            interrupted=child(ROOT,after,temp,['crash_apply','999'],expected=78)
+            with isolated_database(cfg) as fault_cfg:
+                with db.connect(fault_cfg) as c:db.apply_migrations(c,db.SQL_DIR)
+                interrupted=child(ROOT,fault_cfg,temp,['crash_apply','999'],expected=78)
+                with db.connect(fault_cfg,role='reader') as c:
+                    assert c.execute("SELECT count(*) n FROM documents WHERE provenance->>'session_id'='public-crash_apply-999'").fetchone()['n']==0
+                    assert c.execute("SELECT result FROM mining_batches WHERE session_id='public-crash_apply-999'").fetchone()['result'] is None
+                result['interrupted_application']=dict(interrupted,retained_extraction=True,
+                    resumed=child(ROOT,fault_cfg,temp,['retry_apply','999']))
             with db.connect(after,role='reader') as c:
-                assert c.execute("SELECT count(*) n FROM documents WHERE provenance->>'session_id'='public-crash_apply-999'").fetchone()['n']==0
-                assert c.execute("SELECT result FROM mining_batches WHERE session_id='public-crash_apply-999'").fetchone()['result'] is None
-            result['interrupted_application']=dict(interrupted,retained_extraction=True,
-                resumed=child(ROOT,after,temp,['retry_apply','999']))
+                assert c.execute('SELECT count(*) n FROM documents').fetchone()['n']==0
             scenarios={name:{r:[] for r in ('before','after')} for name in ('small-edit','interrupted-retry','independent-backlog')}
             for rep in range(args.repeats):
                 for route in (('before','after') if rep%2==0 else ('after','before')):
@@ -376,7 +525,10 @@ def main():
                 print(json.dumps({'finished_pair':rep+1}),flush=True)
             result['scenarios']={name:{r:stat(rows) for r,rows in routes.items()} for name,routes in scenarios.items()}
         if args.production_copy:result['populated_private_recovery']=private_recovery(args.private_dir)
-        if args.trading:result['trading_reader']=trading(args.repeats)
+        if args.trading:
+            result['trading_reader']=trading(args.repeats)
+            result['trading_reader']['limits']='Live source018 lexical read-only controls; no production ingestion/cache writes or semantic gain measured.'
+            result['trading_reader']['source_revision']=BASE
     assert {str(p.relative_to(ROOT)):sha256(p.read_bytes()).hexdigest() for p in paths}==frozen
     result['measured_files_sha256']=frozen;result['measured_hashes_unchanged']=True
     args.output.parent.mkdir(parents=True,exist_ok=True)

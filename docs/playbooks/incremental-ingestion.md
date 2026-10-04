@@ -52,12 +52,18 @@ from pathlib import Path
 import json, os
 from agentic_rag.config import load_config
 from scripts.verify_contextual_indexing import verified_backup
+from scripts.activate_incremental_ingestion import source_identity
+from agentic_rag import db
+from datetime import datetime, timezone
 cfg = load_config()
 dump = Path(os.environ['RAG_BACKUP_DUMP'])
 report_path = Path(os.environ['RAG_BACKUP_REPORT'])
 if report_path.exists(): raise SystemExit('Choose a new backup report path')
 report = verified_backup(cfg, dump)
 report['source_db_name'] = cfg.db_name
+with db.connect(cfg, role='owner') as conn:
+    report['source_identity'] = source_identity(conn)
+report['verified_at'] = datetime.now(timezone.utc).isoformat()
 report_path.write_text(json.dumps(report, indent=2))
 report_path.chmod(0o600)
 ```
@@ -72,8 +78,10 @@ PYTHONPATH="$RAG_CANDIDATE_PATH" "$RAG_ORIGINAL_PYTHON" \
 
 The guarded implementation refuses unsupported schema/code, abbreviated target,
 source/candidate drift, wrong imported module/migration path, invalid backup checksum,
-permissions or source identity and a busy worker lock. It repeats checkout guards
-under the lock. Migration commits before code activation. An interruption before DDL
+permissions, actual cluster/database/connection identity or a busy worker lock. The
+verified backup must be dated within one hour. It repeats checkout/backup guards
+under the lock and checkout guards immediately before Git activation/recovery.
+Migration commits before code activation. An interruption before DDL
 commit rolls back019; after commit, retry applies no migration and completes activation.
 No cache backfill is necessary. Old vectors cannot silently become reusable cache entries.
 

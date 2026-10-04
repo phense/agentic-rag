@@ -8,6 +8,7 @@ for adoption; recovery retains019 and all later knowledge rather than restoring.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -51,6 +52,14 @@ def schema(conn, candidate):
     return len(actual)
 
 
+def source_identity(conn):
+    row=conn.execute('SELECT system_identifier::text AS cluster FROM pg_control_system()').fetchone()
+    database=conn.execute('SELECT oid::text AS oid FROM pg_database WHERE datname=current_database()').fetchone()
+    # Hash only; actual socket/cluster/database identity stays in the private manifest.
+    return sha256(json.dumps([row['cluster'],database['oid'],conn.info.dbname,
+        conn.info.host,conn.info.port,conn.info.user],separators=(',',':')).encode()).hexdigest()
+
+
 def backup_guard(cfg, dump, report):
     manifest=json.loads(report.read_text())
     flags=('strict_restore_exit_zero','all_public_table_rows_match','application_table_privileges_match','consistent_exported_snapshot')
@@ -58,6 +67,14 @@ def backup_guard(cfg, dump, report):
         raise ValueError('strict verified backup required')
     if manifest.get('source_db_name')!=cfg.db_name or manifest.get('tables',{}).get('schema_migrations',{}).get('rows')!=18:
         raise ValueError('backup source does not match installed018')
+    with db.connect(cfg,role='owner') as conn:
+        if manifest.get('source_identity')!=source_identity(conn):
+            raise ValueError('backup server/database identity mismatch')
+    try:
+        age=(datetime.now(timezone.utc)-datetime.fromisoformat(manifest['verified_at'])).total_seconds()
+    except (KeyError,ValueError,TypeError):
+        raise ValueError('dated verified backup required') from None
+    if not -300<=age<=3600:raise ValueError('verified backup must be fresh within one hour')
     if dump.stat().st_mode & 0o077 or sha256(dump.read_bytes()).hexdigest()!=manifest.get('dump_sha256'):
         raise ValueError('backup permission or checksum mismatch')
 
@@ -74,6 +91,7 @@ def activate(canonical, candidate, target, *, recover=False, dump=None, report=N
     try:
         # Catch changes between preflight and worker exclusion.
         guard(canonical,candidate,target)
+        if not recover:backup_guard(cfg,Path(dump),Path(report))
         with db.connect(cfg,role='owner') as conn:
             installed=schema(conn,candidate)
             conn.rollback()
@@ -85,6 +103,7 @@ def activate(canonical, candidate, target, *, recover=False, dump=None, report=N
             elif installed!=19:
                 raise ValueError('code recovery requires retained019')
         revision=BASE if recover else target
+        guard(canonical,candidate,target)  # Never switch code after migration-time drift.
         head=git(canonical,'rev-parse','HEAD')
         if head!=revision:
             if recover:

@@ -10,3 +10,8 @@ counter; these were corrected without weakening source/query assertions. Targete
 its shared semaphore and regression were added. A second review identified ambiguous
 reuse counters; cache hit occurrences and prepared consumptions now have distinct
 fields and cold/warm regressions. Complete final review/evidence remain pending.
+
+The second full run passed1166 Python tests in155.31s and7 Node tests in96.25525ms.
+The independent operational/measurement reviews then found backup server identity,
+pre-switch drift, child ownership/config, literal-content oracle and asymmetric fixture
+issues. Fixes and their executed re-review remain required before readiness.
