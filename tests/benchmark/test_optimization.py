@@ -280,11 +280,17 @@ def test_owned_gateway_alias_route_and_original_citations(cfg, tmp_path, monkeyp
         body='OldZebra is another name for Zebra.', project='/synthetic/zebra', domain='general',
         actor='user-a', family='Zebra', split='dev',
         alias=dict(alias='OldZebra', target='Zebra', effective_at='2026-04-01T00:00:00Z')))
+    corpus['documents'][0]['assertion']['relation']='replacement'
+    old=deepcopy(corpus['documents'][0]);old.update(id='old-zebra',body='Zebra checksum was 8121.',title='Prior checksum')
+    old['evidence'].update(source_id='old-zebra',quote=old['body'])
+    old['assertion'].update(value='8121',relation='assertion',event_at='2026-03-01T00:00:00Z')
+    corpus['documents'].insert(0,old)
     corpus['queries'][0].update(entity='OldZebra', query='OldZebra checksum')
     path = tmp_path/'corpus.json'; path.write_text(json.dumps(corpus))
     report = run(cfg, output=tmp_path/'report', corpus_path=path, repeats=2)
     assert report['candidate']['profile']['route'] == 'entity'
     assert report['failed_queries'] == 0
+    assert report['development']['ingestion']['failed_sources']=={}
     assert report['cleanup'] == 'verified'
     assert report['heldout']['ingestion']['source_denominator'] == 1
     for profile in report['heldout']['profiles']:

@@ -49,7 +49,7 @@ def _text(value, label, maximum=2000):
 
 def _evidence(document):
     value = dict(namespace='public-failure-benchmark', source_id=document['id'], role='user',
-                 quote=document['body'], complete=True)
+                 quote=document['body'], complete=True, fixture_actor=document['actor'])
     value.update(document.get('evidence', {}))
     return value
 
@@ -324,7 +324,7 @@ def _ingest(connection, cfg, documents, progress, *, expected_model):
         try:
             evidence = _evidence(document)
             common = dict(domain=document['domain'], project=document.get('project'),
-                          scope=document.get('scope'), actor=document['actor'])
+                          scope=document.get('scope'), actor='cli')
             if 'assertion' in document:
                 evidence['event_at'] = document['assertion']['event_at']
                 result = store.save_assertion(connection, cfg, **document['assertion'], evidence=evidence, **common)
@@ -342,7 +342,7 @@ def _ingest(connection, cfg, documents, progress, *, expected_model):
             else:
                 result = store.save_claim(connection, cfg, title=document['title'], body=document['body'],
                     dtype='memory', claim_kind='stated', evidence=[evidence],
-                    provenance=dict(origin='synthetic-benchmark', source_id=document['id']), **common)
+                    provenance=dict(origin='synthetic-benchmark', source_id=document['id'], fixture_actor=document['actor']), **common)
                 mapping[str(result.doc_id)] = document['id']
                 store.review_claim(connection, result.doc_id, state='confirmed',
                                    reason='independently authored public fixture', actor=document['actor'])

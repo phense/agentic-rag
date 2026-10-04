@@ -23,7 +23,10 @@ access. Development runs once per profile; held-out timing repetitions do not in
 truth denominator. Reports show family uncertainty or null when there are too few families,
 misses, original citations, indexing/vector coverage, latency, context and token estimates.
 
-All indexing uses existing audited gateways in randomly owned local databases. Public
+All indexing uses existing audited gateways in randomly owned local databases.
+Fixture users are retained source labels under shared roles, not per-user ACLs. The
+supported CLI executor creates graph edges; original evidence/provenance retains each
+fixture actor label. No new database role or graph actor is introduced. Public
 embedding comparisons require the existing local model's exact observed digest, endpoint
 hash, tag and dimension. Identity guards reject drift throughout indexing/evaluation;
 query timers exclude the guard requests. Database/Ollama/OS caches are retained. These

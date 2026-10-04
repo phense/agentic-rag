@@ -38,12 +38,12 @@ def _inventory(conn):
 def _save(conn,cfg,entity,attribute,value,event,*,relation='replacement',role='user',complete=True,confirmed=True):
     source=f'public-correction:{entity}:{attribute}:{event}'
     result=store.save_assertion(conn,cfg,entity=entity,attribute=attribute,value=value,
-        event_at=event,relation=relation,domain=DOMAIN,project=PROJECT,actor='benchmark',
+        event_at=event,relation=relation,domain=DOMAIN,project=PROJECT,actor='cli',
         evidence={'namespace':'public-controlled','source_id':source,'role':role,
             'quote':f'{entity} {attribute} is now {value}', 'complete':complete})
     _require(result.disposition==('accepted' if role=='user' else 'review'))
     if confirmed:
-        store.review_claim(conn,result.doc_id,state='confirmed',reason='Explicit public fixture user confirmation',actor='benchmark')
+        store.review_claim(conn,result.doc_id,state='confirmed',reason='Explicit public fixture user confirmation',actor='cli')
     return result.doc_id
 
 
@@ -56,7 +56,7 @@ def _family(conn,cfg,index):
         document=_save(conn,cfg,entity,attribute,new,'2026-02-01T00:00:00Z')
         expected[document]=(entity,attribute,new)
     relation=store.save_entity_alias(conn,cfg,alias=alias,target=target,domain=DOMAIN,project=PROJECT,
-        effective_at='2026-03-01T00:00:00Z',confirm=True,actor='benchmark',
+        effective_at='2026-03-01T00:00:00Z',confirm=True,actor='cli',
         evidence={'namespace':'public-controlled','source_id':f'public-alias:{index}','role':'user',
             'quote':f'{alias} is the same service as {target}','complete':True})
     _require(relation['state']=='accepted')
