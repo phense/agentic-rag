@@ -7,6 +7,18 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-10-04
+
+### Fixed
+- Apply the existing 24-hour curation freshness gate after the worker queue drain;
+  explicit queued curation still runs, and provider outages still skip the automatic
+  pass ([Issue17](https://github.com/phense/agentic-rag/issues/17)).
+- Retain built SessionStart context when maintenance scheduling or connection
+  cleanup fails. Emit a separate bounded, sanitized `systemMessage` warning without
+  consuming the context budget ([Issue23](https://github.com/phense/agentic-rag/issues/23)).
+- Document the code-only 0.6.2 upgrade and recovery in
+  [Session mining & curation](docs/05-session-mining-and-curation.md#worker-and-sessionstart-fix-upgrade).
+
 ## [0.6.2] - 2026-10-04
 
 ### Fixed

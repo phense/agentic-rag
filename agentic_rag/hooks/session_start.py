@@ -2,9 +2,11 @@
 
 Injects: ALL matching pins (no cap; explicit warning when over budget), the
 domain map, project-relevant documents, and every operational warning
-(backup fallback, queue errors). On ANY error the hook still injects
+(backup fallback, queue errors). If context construction fails, it injects
 'agentic-rag unavailable: <reason>' — absence of knowledge is always
-visible, never silent (the ultra-memory fail-open lesson). Also the daily
+visible, never silent (the ultra-memory fail-open lesson). Subsequent maintenance
+failures retain the built context and emit a separate systemMessage warning.
+Also the daily
 curation trigger: last curation > 24 h → enqueue a curate job and spawn the
 worker; and any due jobs → spawn the worker (mining tail pickup)."""
 from __future__ import annotations
@@ -272,9 +274,16 @@ def build_context(
         elastic=elastic, pin_units=pin_units)
 
 
-def _trigger_maintenance(conn) -> None:
+def _spawn_worker() -> None:
+    error = common.spawn_worker()
+    if isinstance(error, Exception):
+        raise error
+
+
+def _trigger_maintenance(conn) -> Exception | None:
     """Daily curation guarantee (spec §7) + mining-tail pickup. Never runs
-    work in-process — enqueue and spawn only."""
+    work in-process — enqueue and spawn only. Return launch errors so callers
+    can report them without changing other clients' fail-open behavior."""
     last = jobs.last_curation_at(conn)
     spawn = False
     if last is None or (datetime.now(timezone.utc) - last
@@ -284,12 +293,14 @@ def _trigger_maintenance(conn) -> None:
     if jobs.due_jobs_exist(conn):
         spawn = True
     if spawn:
-        common.spawn_worker()
+        return common.spawn_worker()
 
 
 def run(payload: dict, stdout) -> None:
     if not common.is_interactive(payload):
         return
+    text = None
+    warning = None
     try:
         cfg = load_config()
         conn = db.connect(cfg, role="writer")
@@ -313,21 +324,37 @@ def run(payload: dict, stdout) -> None:
                     profile_status = profiles.read(conn, cfg, payload.get("cwd"))['status']
                 if profile_status != 'fresh':
                     if jobs.enqueue_profile(conn,cfg,payload.get("cwd")):
-                        common.spawn_worker()
+                        _spawn_worker()
             except Exception as exc:
                 conn.rollback()
                 common.log_hook_error('session_start.profile',repr(exc))
+                safe_error = common.sanitize_error(f"profile refresh: {type(exc).__name__}: {exc}")
+                warning = f"⚠️ agentic-rag maintenance delayed: {safe_error[:240]}"
             if not render_failed:
-                _trigger_maintenance(conn)
+                try:
+                    launch_error = _trigger_maintenance(conn)
+                    if isinstance(launch_error, Exception):
+                        raise launch_error
+                except Exception:
+                    try:
+                        conn.rollback()
+                    except Exception as exc:
+                        common.log_hook_error("session_start.rollback", repr(exc))
+                    raise
         finally:
             conn.close()
-        common.emit_context(stdout, "SessionStart", text)
-    except Exception as e:  # noqa: BLE001 — fail closed, VISIBLY
+        common.emit_context(stdout, "SessionStart", text, system_message=warning)
+    except Exception as e:  # noqa: BLE001 — preserve built context, VISIBLY
         common.log_hook_error("session_start", repr(e))
         safe_error = common.sanitize_error(f"{type(e).__name__}: {e}")
-        common.emit_context(
-            stdout, "SessionStart",
-            f"⚠️ agentic-rag unavailable: {safe_error}")
+        if text is None:
+            common.emit_context(
+                stdout, "SessionStart",
+                f"⚠️ agentic-rag unavailable: {safe_error}")
+        else:
+            common.emit_context(
+                stdout, "SessionStart", text,
+                system_message=f"⚠️ agentic-rag maintenance delayed: {safe_error[:240]}")
 
 
 def main() -> int:

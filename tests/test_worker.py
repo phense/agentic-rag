@@ -359,3 +359,111 @@ def test_main_skips_post_drain_curation_after_provider_outage(
             AssertionError("must not make another LLM call")))
     monkeypatch.setattr(worker, "_opportunistic_backup", lambda *a: None)
     assert worker.main([]) == 0
+
+
+@pytest.mark.parametrize("initial_age", [None, "1 hour", "25 hours"])
+def test_main_age_gates_repeated_post_drain_passes(
+        conn, cfg, monkeypatch, initial_age):
+    """Unconditional post-drain curation adds three audits inside one day."""
+    if initial_age is not None:
+        conn.execute(
+            "INSERT INTO audit_log(actor,op,summary,at)"
+            " VALUES ('mining','curation_pass','previous',"
+            " statement_timestamp() - %s::interval)", (initial_age,))
+        conn.commit()
+    monkeypatch.setattr(worker, "load_config", lambda: cfg)
+    monkeypatch.setattr(worker, "_opportunistic_backup", lambda _cfg: None)
+
+    for _ in range(3):
+        assert worker.main([]) == 0
+
+    expected = 2 if initial_age == "25 hours" else 1
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op='curation_pass'"
+    ).fetchone()["n"] == expected
+    released = worker.acquire_lock(worker.LOCK_PATH)
+    assert released is not None
+    released.close()
+
+
+def test_main_preserves_explicit_queued_curation_when_fresh(
+        conn, cfg, monkeypatch):
+    """The age gate must skip only opportunistic work, never a queued pass."""
+    from agentic_rag import jobs
+    worker.curation.run_pass(conn, cfg)
+    assert jobs.enqueue_curate(conn, reason="explicit operator request")
+    monkeypatch.setattr(worker, "load_config", lambda: cfg)
+    monkeypatch.setattr(worker, "_opportunistic_backup", lambda _cfg: None)
+
+    assert worker.main([]) == 0
+
+    assert conn.execute(
+        "SELECT status,attempts FROM mining_queue WHERE kind='curate'"
+    ).fetchone() == {"status": "done", "attempts": 1}
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op='curation_pass'"
+    ).fetchone()["n"] == 2
+
+
+@pytest.mark.parametrize("age_seconds,expected", [(86400, 1), (86401, 2), (-3600, 1)])
+def test_post_drain_curation_freshness_boundary(
+        conn, cfg, monkeypatch, age_seconds, expected):
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    conn.execute(
+        "INSERT INTO audit_log(actor,op,summary,at)"
+        " VALUES ('mining','curation_pass','boundary',%s)",
+        (now - timedelta(seconds=age_seconds),))
+    conn.commit()
+
+    class Clock:
+        @staticmethod
+        def now(tz=None):
+            return now
+
+    monkeypatch.setattr(worker, "datetime", Clock)
+    monkeypatch.setattr(worker, "load_config", lambda: cfg)
+    monkeypatch.setattr(worker, "_opportunistic_backup", lambda _cfg: None)
+
+    assert worker.main([]) == 0
+    assert conn.execute(
+        "SELECT count(*) AS n FROM audit_log WHERE op='curation_pass'"
+    ).fetchone()["n"] == expected
+
+
+def test_fresh_worker_preserves_populated_store_and_future_queue(
+        conn, cfg, monkeypatch):
+    """Code-only adoption must preserve existing scoped data and queued work."""
+    from agentic_rag import jobs, pins, store
+    from agentic_rag.continuity import store as checkpoints
+    from agentic_rag.continuity.model import CheckpointSnapshot
+    from scripts.verify_contextual_indexing import snapshot
+
+    conn.execute("INSERT INTO domains(name) VALUES ('general'),('programming')")
+    conn.commit()
+    monkeypatch.setattr(store, "embed_texts", lambda texts, _cfg: [[0.1] * 1024 for _ in texts])
+    for domain, actor, project in [
+        ("general", "alice", "/example/project-a"),
+        ("programming", "bob", "/example/project-b"),
+    ]:
+        document = store.save_document(
+            conn, cfg, slug=f"{actor}-note", title=f"{actor} note",
+            body=f"Distinct retained knowledge from {actor}.",
+            domain=domain, dtype="memory", project=project, actor=actor)
+        pins.add_pin(conn, document_id=document.doc_id, scope=project, actor=actor)
+        checkpoints.upsert_snapshot(conn, CheckpointSnapshot(
+            session_id=f"{actor}-session", turn_id="t1", cursor="c1",
+            source="PreCompact", trigger="auto", cwd=project, project_root=project))
+        assert jobs.enqueue_mine(conn, cfg, session_id=f"{actor}-session",
+                                 transcript_path="/synthetic/transcript", project=project)
+    worker.curation.run_pass(conn, cfg)
+    tables = [row["tablename"] for row in conn.execute(
+        "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")]
+    before = snapshot(conn, tables)
+    conn.commit()
+    monkeypatch.setattr(worker, "load_config", lambda: cfg)
+    monkeypatch.setattr(worker, "_opportunistic_backup", lambda _cfg: None)
+
+    assert worker.main([]) == 0
+
+    assert snapshot(conn, tables) == before

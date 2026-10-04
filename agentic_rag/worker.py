@@ -16,10 +16,10 @@ import errno
 import json
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from . import backup, curation, db, mining, provider_health, store
+from . import backup, curation, db, jobs, mining, provider_health, store
 from .continuity import enrich
 from .config import Config, load_config
 from .llm import LLMUnavailableError
@@ -63,6 +63,7 @@ else:
 LOCK_PATH = Path.home() / ".agentic-rag" / "state" / "worker.lock"
 LOG_PATH = Path.home() / ".agentic-rag" / "log" / "worker.log"
 BACKUP_MAX_AGE_H = 24
+CURATION_MAX_AGE_H = 24
 
 
 def _log(msg: str) -> None:
@@ -298,7 +299,10 @@ def main(argv: list[str] | None = None) -> int:
             rep = drain(conn, cfg)
             _log(f"drain: {rep}")
             if not rep["provider_unavailable"]:
-                curation.run_pass(conn, cfg)
+                last = jobs.last_curation_at(conn)
+                if last is None or (datetime.now(timezone.utc) - last
+                                    > timedelta(hours=CURATION_MAX_AGE_H)):
+                    curation.run_pass(conn, cfg)
         finally:
             conn.close()
         _opportunistic_backup(cfg)
