@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-04
+
+### Fixed
+- Upgrade locked AnyIO from 4.14.1 to 4.14.2 for its process-group, IDNA TLS
+  and process-worker stderr security corrections ([PR10](https://github.com/phense/agentic-rag/pull/10),
+  [Issue37](https://github.com/phense/agentic-rag/issues/37)).
+- Document isolated dependency validation and retained-environment recovery in
+  [Contributing](docs/12-contributing.md#dependency-security-updates).
+
 ## [0.6.0] - 2026-10-04
 
 ### Added

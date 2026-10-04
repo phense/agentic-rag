@@ -245,3 +245,31 @@ and the data-safety choices behind all of it.
 ## OpenCode integration
 
 The OpenCode adapter lives in `agentic_rag/integrations/opencode/`. In addition to `uv run pytest`, run `node --test tests/test_opencode_plugin.mjs`; check packaged JS and isolated wheel installation. See [native evidence](verification/opencode.md).
+
+## Dependency security updates
+
+[Issue37](https://github.com/phense/agentic-rag/issues/37) tracks AnyIO/PyJWT
+remediation. [PR10](https://github.com/phense/agentic-rag/pull/10) updates only
+AnyIO, from 4.14.1 to 4.14.2, with release metadata at 0.6.1. It follows the
+0.6.0 release PR. The upstream
+[4.14.2 release](https://github.com/agronholm/anyio/releases/tag/4.14.2) fixes
+process-worker stderr deadlock, IDNA hostname matching and supplementary-group
+handling. RAG uses stdio MCP and local HTTP; its provider subprocesses use the
+standard library. These reported vulnerable paths are inactive in that deployment.
+
+The schema remains 001–019. Package updates change no stored-data format,
+configuration, CLI/MCP interface, hook or scheduled job. Build each candidate
+with `uv sync --frozen` in its own checkout and run the Python and Node suites
+sequentially because the Python suite resets the shared test database. Validate
+both MCP privilege modes, local Ollama embeddings and old/new clients against
+an owned populated restore before approving the PR. Production remains on its
+retained environment until separately authorized adoption.
+
+For adoption, retain the complete old environment and checkout, build a separate
+new environment from the approved lock, and use that environment for fresh
+processes. Existing clients keep their loaded code until reconnecting; do not
+terminate them to force an update. No SQL migration or installer is required.
+Recovery selects the retained checkout and environment while keeping the
+current database and later writes. Verify fresh reader/main MCP tools and
+search after either switch. Recovery restores package compatibility but also
+restores the old dependency vulnerabilities; it is temporary containment.
