@@ -55,14 +55,19 @@ def is_interactive(payload: dict) -> bool:
     return source is None or source in INTERACTIVE_SOURCES
 
 
-def emit_context(stdout, event: str, text: str) -> None:
-    json.dump({"hookSpecificOutput": {"hookEventName": event,
-                                      "additionalContext": text}}, stdout)
+def emit_context(stdout, event: str, text: str, *,
+                 system_message: str | None = None) -> None:
+    output = {"hookSpecificOutput": {"hookEventName": event,
+                                     "additionalContext": text}}
+    if system_message is not None:
+        output["systemMessage"] = system_message
+    json.dump(output, stdout)
 
 
-def spawn_worker() -> None:
+def spawn_worker() -> Exception | None:
     """Fire-and-forget the singleton worker. A no-op when one already runs
-    (it exits on lock contention). Never raises into the hook."""
+    (it exits on lock contention). Never raises into the hook. Return a launch
+    error for callers that can report it; existing callers may ignore the result."""
     try:
         WORKER_LOG.parent.mkdir(parents=True, exist_ok=True)
         with WORKER_LOG.open("ab") as log:
@@ -70,8 +75,8 @@ def spawn_worker() -> None:
                 [sys.executable, "-m", "agentic_rag.worker"],
                 start_new_session=True, stdin=subprocess.DEVNULL,
                 stdout=log, stderr=log)
-    except Exception:  # noqa: BLE001 — fail-open by contract
-        pass
+    except Exception as exc:  # noqa: BLE001 — fail-open by contract
+        return exc
 
 
 def sanitize_error(err: object) -> str:

@@ -2,6 +2,8 @@ import io
 import json
 import subprocess
 
+import pytest
+
 from agentic_rag import pins, provider_health
 from agentic_rag.continuity import store
 from agentic_rag.continuity.model import CheckpointSnapshot
@@ -538,3 +540,108 @@ def test_session_start_caps_total_output_from_config(conn, hook_env, monkeypatch
     assert len(ctx) <= 1000
     assert "⚠️ context truncated" in ctx
     assert "Rule 0:" in ctx
+
+
+@pytest.mark.parametrize("failure", ["enqueue", "due_query", "spawn", "real_spawn", "profile", "close"])
+def test_maintenance_failure_keeps_pins_domains_and_checkpoint(
+        conn, hook_env, tmp_path, monkeypatch, failure):
+    """Scheduling/cleanup failures must not replace already-built context."""
+    secret = "sk-abcdefghijklmnop1234"
+    _seed(conn)
+    pins.add_pin(conn, body="Retain the calibration rule.")
+    checkpoint = _checkpoint(
+        conn, session_id="s1", project_root="/Users/example/proj",
+        cursor="retained", goal="finish the retained checkpoint")
+    real_spawn_worker = session_start.common.spawn_worker
+    monkeypatch.setattr(session_start.jobs, "enqueue_profile", lambda *a: False)
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
+    real_connect = session_start.db.connect
+    opened = []
+
+    class Connection:
+        def __init__(self, actual):
+            self.actual = actual
+            self.rolled_back = False
+
+        def __getattr__(self, name):
+            return getattr(self.actual, name)
+
+        def rollback(self):
+            self.rolled_back = True
+            self.actual.rollback()
+
+        def close(self):
+            self.actual.close()
+            if failure == "close":
+                raise RuntimeError(f"close failed with {secret}")
+
+    def connect(*args, **kwargs):
+        wrapped = Connection(real_connect(*args, **kwargs))
+        opened.append(wrapped)
+        return wrapped
+
+    def fail_query(runtime_conn, *args, **kwargs):
+        # A realistic partially applied enqueue followed by an aborted transaction.
+        runtime_conn.execute("INSERT INTO mining_queue(kind) VALUES ('backup')")
+        runtime_conn.execute("SELECT 1 / 0")
+
+    if failure == "enqueue":
+        monkeypatch.setattr(session_start.jobs, "enqueue_curate", fail_query)
+    elif failure == "due_query":
+        monkeypatch.setattr(session_start.jobs, "due_jobs_exist", fail_query)
+    elif failure == "spawn":
+        def fail_spawn():
+            raise RuntimeError(f"spawn failed with {secret}")
+        monkeypatch.setattr(session_start.common, "spawn_worker", fail_spawn)
+    elif failure == "real_spawn":
+        from agentic_rag.hooks import common
+        # Restore the real helper: its Popen boundary, rather than the helper,
+        # fails so this catches silently swallowed launch errors.
+        def fail_popen(*args, **kwargs):
+            raise OSError(f"Popen failed with {secret}")
+        monkeypatch.setattr(common, "spawn_worker", real_spawn_worker)
+        monkeypatch.setattr(common.subprocess, "Popen", fail_popen)
+    elif failure == "profile":
+        monkeypatch.setattr(session_start.jobs, "enqueue_profile", fail_query)
+    monkeypatch.setattr(session_start.db, "connect", connect)
+    out = io.StringIO()
+
+    session_start.run(_payload(source="compact"), out)
+
+    data = json.loads(out.getvalue())  # Exactly one JSON object.
+    ctx = data["hookSpecificOutput"]["additionalContext"]
+    assert "Retain the calibration rule." in ctx
+    assert "nature" in ctx and "field observations" in ctx
+    assert checkpoint.id in ctx and "finish the retained checkpoint" in ctx
+    assert "agentic-rag unavailable" not in ctx
+    assert "maintenance delayed" in data["systemMessage"]
+    assert data["hookSpecificOutput"]["hookEventName"] == "SessionStart"
+    assert all(c.actual.closed for c in opened)
+    if failure in {"enqueue", "due_query", "profile"}:
+        assert opened[0].rolled_back
+        assert conn.execute(
+            "SELECT count(*) AS n FROM mining_queue WHERE kind='backup'"
+        ).fetchone()["n"] == 0
+    assert secret not in out.getvalue()
+    assert secret not in (tmp_path / "hooks.log").read_text()
+
+
+def test_maintenance_warning_does_not_consume_context_budget(
+        hook_env, monkeypatch):
+    """Do not truncate a full context to append a secondary error diagnostic."""
+    from agentic_rag import context
+    original = "Pinned rule. " + "x" * 9484 + "END"
+    assert len(original) == 9500
+    monkeypatch.setattr(context, "build", lambda *a, **k: {
+        "text": original, "profile_status": "fresh"})
+
+    def fail(_conn):
+        raise RuntimeError("x" * 20000)
+    monkeypatch.setattr(session_start, "_trigger_maintenance", fail)
+    out = io.StringIO()
+
+    session_start.run(_payload(), out)
+
+    data = json.loads(out.getvalue())
+    assert data["hookSpecificOutput"]["additionalContext"] == original
+    assert len(data["systemMessage"]) <= 300

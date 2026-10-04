@@ -200,10 +200,18 @@ the rules above (on Claude including the handoff, within the 10,000-character
 hook limit). It checks two things that spawn the worker without doing any
 work itself: whether curation hasn't run in the last 24 hours (if so, it
 enqueues a `curate` job), and whether any queued job is already due (the
-tail of a previous session that the debounce window hadn't reached yet). On
-*any* failure it still injects a visible `⚠️ agentic-rag unavailable: …`
-message — silence about missing context is treated as a bug, not a
-degrade-gracefully case.
+tail of a previous session that the debounce window hadn't reached yet).
+If context construction fails, it injects a visible
+`⚠️ agentic-rag unavailable: …` message. If maintenance scheduling or subsequent
+connection cleanup fails, the built context survives unchanged. One JSON response
+contains the original `hookSpecificOutput.additionalContext` and a separate
+`systemMessage` beginning `⚠️ agentic-rag maintenance delayed:`. The diagnostic
+is secret-stripped before being limited to 240 characters; details remain in the
+sanitized hook log. This warning does not use the context budget. Clients that
+ignore `systemMessage` still receive the original context.
+Profile-refresh enqueue failures and worker-launch failures also produce this
+warning. The shared spawn helper returns launch errors without raising into
+other hooks; SessionStart checks that result and reports the delay.
 
 ### UserPromptSubmit — prompt_recall
 
@@ -239,11 +247,41 @@ short-lived process, spawned on-demand by hooks (never a daemon), that:
   (`worker_backoff_seconds`, default 300s, doubling per attempt) up to
   `worker_max_attempts` (default 3), after which it's marked `error` and
   surfaces in `rag status` and `rag review`.
-- Runs a curation pass after draining, then an opportunistic backup if the
-  newest local dump is more than 24 hours old.
+- Runs an automatic curation pass after draining only when the latest
+  `curation_pass` audit is missing or more than 24 hours old. A pass exactly
+  24 hours old is still fresh, matching the SessionStart trigger. Explicit queued
+  curation runs regardless of this age gate; its committed audit prevents a second
+  automatic pass after the same drain. A provider outage skips automatic curation.
+  The worker then takes an opportunistic backup if the newest local dump is more
+  than 24 hours old.
 - Logs everything to `~/.agentic-rag/log/worker.log` and **always exits 0**
   — a worker crash must never surface as a hook failure or block your
   session.
+
+### Worker and SessionStart fix upgrade
+
+The 0.6.2→0.6.3 update changes Python code only. It uses the existing
+`audit_log` and `mining_queue` contracts on schema 001–019. No migration, queue
+rewrite, role/grant change, hook reinstall or configuration edit is required.
+Existing users, domains, documents/chunks, sources, graph records, pins,
+checkpoints and audit history remain in the same shared store.
+
+After separate merge and rollout approval, activate the approved revision through
+the installation's normal code update. Existing hook commands load it on their
+next invocation. A worker already running completes with its loaded code; later
+workers retain the same single-flight lock. No maintenance window or service
+termination is needed. Existing queued curation requests remain executable even
+when the latest pass is fresh. The update does not retroactively delete excess
+audit rows. Rolling back to 0.6.2 requires only restoring the previous code and
+reintroduces both bugs; it does not require a database restore or discard later
+legitimate writes.
+
+The regression suite exercises an already populated schema019 store with two
+actors, two domains, separate projects, pins, checkpoints and future mining jobs.
+An unchanged full-table snapshot after a fresh worker start checks preservation.
+Maintenance-failure tests use actual PostgreSQL transactions to check rollback
+and connection closure, and retain pins/domains/checkpoints in one JSON output.
+These are isolated compatibility checks, not production-adoption evidence.
 
 ## What gets mined, and how
 
@@ -328,10 +366,13 @@ effort, not a blocker) and the item is saved without a duplicate check.
 
 ## Curation: keeping the store honest
 
-Curation runs automatically after every drain, and is also guaranteed at
-least once every 24 hours (SessionStart enqueues a `curate` job if the last
-one is stale). Each pass, bounded by a shared budget (`curation_budget`,
-default 20 actions total):
+Curation runs automatically after a queue drain when its last audit is missing
+or more than 24 hours old and the drain has not encountered a provider outage.
+SessionStart also enqueues a `curate` job when the audit is missing or stale;
+explicit queued passes run even while a previous audit is fresh. Automatic
+curation requires a worker invocation and an available provider, so this is
+an invocation-driven freshness check, not a wall-clock schedule. Each pass is
+bounded by a shared budget (`curation_budget`, default 20 actions total):
 
 - **Resolves dangling edges** — deterministic: any edge whose `dst_slug`
   now matches a document that didn't exist when the edge was created gets

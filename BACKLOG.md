@@ -197,6 +197,13 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
   process-death regressions. Integrated locally; migration 009 applied after backup.
   Published on main; issue closed. See [recovery](docs/implementation/issue-4-recovery.md).
 
+- ⬜ **1.6** _(docs, P3)_ **Correct the documented automatic curation cadence.**
+  Track the Low finding from the #17/#23 review: automatic passes depend on a
+  worker invocation, stale/missing audit and provider availability; explicit
+  queued passes remain executable while fresh. → *Issue:*
+  [#51](https://github.com/phense/agentic-rag/issues/51). The correction is included
+  in the #17/#23 candidate; merge approval remains pending.
+
 ## §2 — Housekeeping & test coverage
 
 - ⬜ **2.1** _(chore)_ **Log/audit housekeeping — remaining gap.** `hooks.log`/`worker.log`

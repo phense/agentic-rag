@@ -74,6 +74,27 @@ def test_session_start_db_down_is_visible_not_silent(hook_env, tmp_path):
     assert "agy.session_start" in (tmp_path / "hooks.log").read_text()
 
 
+def test_session_start_keeps_context_when_real_worker_launch_fails(
+        conn, hook_env, tmp_path, monkeypatch):
+    """Shared maintenance must retain Antigravity's existing launch-failure behavior."""
+    from agentic_rag import pins
+    transcript = _transcript(tmp_path, _user(0, "hi"))
+    conn.execute("INSERT INTO domains(name,description) VALUES ('nature','field notes')")
+    conn.commit()
+    pins.add_pin(conn, body="Retain this Antigravity calibration rule.")
+
+    def fail_popen(*args, **kwargs):
+        raise OSError("worker launch unavailable")
+    monkeypatch.setattr(common.subprocess, "Popen", fail_popen)
+
+    result = agy.run("session-start", _payload(tmp_path, transcript))
+
+    text, = _messages(result)
+    assert "Retain this Antigravity calibration rule." in text
+    assert "nature" in text and "field notes" in text
+    assert "agentic-rag unavailable" not in text
+
+
 # ------------------------------------------------------------ pre-invocation
 
 def test_pre_invocation_treats_compact_request_as_pre_compact(
