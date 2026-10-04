@@ -245,3 +245,57 @@ and the data-safety choices behind all of it.
 ## OpenCode integration
 
 The OpenCode adapter lives in `agentic_rag/integrations/opencode/`. In addition to `uv run pytest`, run `node --test tests/test_opencode_plugin.mjs`; check packaged JS and isolated wheel installation. See [native evidence](verification/opencode.md).
+
+## Dependency security updates
+
+[Issue37](https://github.com/phense/agentic-rag/issues/37) tracks AnyIO/PyJWT
+remediation. [PR10](https://github.com/phense/agentic-rag/pull/10) updates only
+AnyIO, from 4.14.1 to 4.14.2, with release metadata at 0.6.1. It follows the
+0.6.0 release PR. The upstream
+[4.14.2 release](https://github.com/agronholm/anyio/releases/tag/4.14.2) fixes
+process-worker stderr deadlock, IDNA hostname matching and supplementary-group
+handling. RAG uses stdio MCP and local HTTP; its provider subprocesses use the
+standard library. These reported vulnerable paths are inactive in that deployment.
+
+The schema remains 001–019. Package updates change no stored-data format,
+configuration, CLI/MCP interface, hook or scheduled job. Build each candidate
+with `uv sync --frozen` in its own checkout and run the Python and Node suites
+sequentially because the Python suite resets the shared test database. Validate
+both MCP privilege modes, local Ollama embeddings and old/new clients against
+an owned populated restore before approving the PR. Production remains on its
+retained environment until separately authorized adoption.
+
+The [0.6.1 verification record](verification/dependency-anyio.json) reports
+1,275 passing Python tests, seven passing Node tests, exact source-row/grant
+comparison across 22 restored tables and retained citations for three lexical
+queries (five hits each). The combined old/intermediate/new MCP matrix
+passes 18 reader/main combinations. These checks make no latency-improvement
+claim and leave production adoption open.
+
+Adoption requires separate authorization for the package environment and its
+caller bindings. Keep the old environment and checkout at their existing paths.
+Build the new environment at its permanent path with
+`UV_PROJECT_ENVIRONMENT=/absolute/new/environment uv sync --frozen --python 3.13`
+from the approved checkout. Do not relocate environments or replace the old
+`.venv`: installed scripts contain absolute interpreter paths, and active
+processes may still import modules from their old environment.
+
+Capture the current RAG-owned launcher fields and their complete configuration
+files before switching. Change only their old interpreter path to
+`/absolute/new/environment/bin/python`: both `agentic-rag` and `agentic-rag-ro`
+MCP commands, owned Claude/Codex/Antigravity hook commands, and the OpenCode
+loader's `python` option. Point scheduled RAG commands and CLI aliases at
+`/absolute/new/environment/bin/rag`. Preserve foreign hooks, settings, server
+entries, scheduler arguments and environment values. Existing additive
+installer helpers generate these commands; a reviewed path-only update can
+avoid rerunning unrelated policy installation. No SQL migration is required.
+Merely activating a shell environment does not update any stored launcher.
+
+Read back each changed path, then reconnect the affected client or reload the
+specific scheduler binding only with authorization. A fresh launched process
+must report the candidate package versions; verify both MCP tool sets and
+search through the stored commands. Keep active sessions on their original
+paths until they can reconnect. Reverse only the changed RAG-owned fields to
+the captured old interpreter/`rag` paths for recovery; repeat the same fresh
+process checks. Keep the current database and later writes throughout. Recovery
+restores the old dependency vulnerabilities and is temporary containment.
