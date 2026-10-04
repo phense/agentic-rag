@@ -314,3 +314,13 @@ Validate its reused-options reproduction on the installed candidate and
 report the result separately from GitHub alert state. Read alerts back
 after merging; do not dismiss them manually or close Issue37 before
 applicable remediation and separately authorized production acceptance.
+
+The [0.6.2 verification record](verification/dependency-pyjwt.json) reports
+1,275 passing Python tests and seven passing Node tests. Stored stdio
+launcher commands were switched old → AnyIO → PyJWT → old on an owned
+populated restore: eight reader/main launches passed, foreign configuration
+and every table row remained unchanged, and nine old/intermediate/new CLI
+reads retained three later audited writes. Native host client settings, hooks
+and scheduler reloads remain separate adoption checks. One reused-options
+reproduction per PyJWT version confirms the old bypass and candidate rejection;
+this narrow result is separate from GitHub's 16 still-open alerts.
