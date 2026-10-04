@@ -32,8 +32,12 @@ Two independent reviewers (`review_failures_quality`, `review_failures_operation
 reviewed the complete source9→5b39069 bounded diff and draft PB-5.10, including the
 actual operator helper, fixtures, CLI/CI, correction and recovery drivers. Each reports
 zero Critical/High/Medium/Low findings. Neither accessed private state/configuration,
-canonical databases or providers. Final public evidence/handoff review and hosted CI
-are recorded with the PR before merge approval is requested.
+canonical databases or providers. Both independently reviewed the final public evidence/docs/CI/PB handoff with zero
+findings and verified all125 hashes, raw numerators/timings/seals and actual recovery
+records. [PR49](https://github.com/phense/agentic-rag/pull/49) is stacked on PR47.
+Hosted push/PR checks pass at publication6531071: [run37174177453](https://github.com/phense/agentic-rag/actions/runs/37174177453)
+and [run37174180310](https://github.com/phense/agentic-rag/actions/runs/37174180310);
+subsequent publication-link-only commit checks are recorded with the PR.
 
 | Finding | Verified disposition |
 | --- | --- |

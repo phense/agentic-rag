@@ -369,7 +369,7 @@ Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populat
 
 ## Confirmed-failure evaluation and offline optimization (issue #35)
 
-Implemented, measured and independently reviewed on the Feature9 stack; merge and local adoption remain pending. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
+Implemented, measured and independently reviewed in [PR49](https://github.com/phense/agentic-rag/pull/49), stacked on [PR47](https://github.com/phense/agentic-rag/pull/47); merge and local adoption remain pending. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).
 
 Feature10 validation:1274 Python/7 Node checks;48 held-out public queries across six
 source families with20 paired repeats. Supported exact answers30/48→48/48, evidence

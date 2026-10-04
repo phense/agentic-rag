@@ -20,9 +20,10 @@
 - [x] T007: Populated018/019 compatibility, source/new clients, interruption/retry/code recovery; Trading read-only.
 - [x] T008: Independently reviewed/rehearsed PB-5.10, as-built reconciliation and durable evidence.
 - [x] T009: Independent complete reviews, fixes/reviews, full Python/Node suites and CI.
-- [ ] T010: Publish stacked PR, request specific Feature9/10 approvals together; no deployment implied.
+- [x] T010: Publish stacked PR49; preserve the specific joint Feature9/10 merge-approval handoff. No deployment implied.
 
 Implementation/convergence gates T001–T009 are verified at5b39069 with1274 Python/7 Node
 checks, actual20-pair public/8-native-call evidence and reviewed/rehearsed PB-5.10.
-T010 is the remaining publication/approval handoff; merge and deployment are separate
-maintainer actions, not incomplete implementation. Source9 remains PR47 pending approval.
+T010 publication is complete: [PR49](https://github.com/phense/agentic-rag/pull/49),
+stacked on [PR47](https://github.com/phense/agentic-rag/pull/47). Both await specific
+maintainer merge approval; deployment is separate. No implementation task remains.
