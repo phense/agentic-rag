@@ -366,3 +366,7 @@ is additive; no production adoption is authorized. See [reference](docs/incremen
 and [verification](docs/verification/incremental-ingestion.md) for current gates and limits.
 
 Feature9 validation:1169 Python/7 Node checks;20 paired examples, strict populated018→019 restore/recovery and old/new client overlap. Small-edit HTTP inputs240→20, retry plus auxiliary reembedding160→0, backlog1920→1920 with bounded parallel inference. [Measurements and limits](docs/benchmarks/2026-10-04-incremental-ingestion/README.md).
+
+## Confirmed-failure evaluation and offline optimization (issue #35)
+
+Implementation and integration are in progress on the Feature9 stack. Strict public source/query-family splits feed four bounded routing/title-weight profiles; dev selection is sealed before held-out evaluation. A distinct reader-only private correction format requires original reviewed user support and offers network-free local route evaluation. Explicit public native prompt comparison preserves mining grounding/replay. No live strategy loader or SQL migration is added. [Reference](docs/failure-evaluation.md), [verification](docs/verification/failure-evaluation.md).

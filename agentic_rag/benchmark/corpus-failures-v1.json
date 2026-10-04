@@ -1,0 +1,4954 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "name": "confirmed-failures-v1",
+  "source_revision": "authored-failure-fixtures-v1",
+  "documents": [
+    {
+      "id": "dev-failure-0-old-status",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-current-status",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now running.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-0-port",
+      "title": "quasar-dev-0: port",
+      "body": "quasar-dev-0 port is now 8400.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "port",
+        "value": "8400",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-tls",
+      "title": "quasar-old-dev-0: tls",
+      "body": "quasar-old-dev-0 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-0",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-other-project",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-0",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-other-domain",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-0-alias",
+      "title": "quasar-old-dev-0 became quasar-dev-0",
+      "body": "quasar-old-dev-0 is another name for quasar-dev-0.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-0",
+        "target": "quasar-dev-0",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-0-notes-0",
+      "title": "quasar-old-dev-0 service status memory capacity notes 0",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/0.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-1",
+      "title": "quasar-old-dev-0 service status memory capacity notes 1",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/1.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-2",
+      "title": "quasar-old-dev-0 service status memory capacity notes 2",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/2.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-3",
+      "title": "quasar-old-dev-0 service status memory capacity notes 3",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/3.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-4",
+      "title": "quasar-old-dev-0 service status memory capacity notes 4",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/4.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-5",
+      "title": "quasar-old-dev-0 service status memory capacity notes 5",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/5.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-6",
+      "title": "quasar-old-dev-0 service status memory capacity notes 6",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/6.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-7",
+      "title": "quasar-old-dev-0 service status memory capacity notes 7",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/7.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-8",
+      "title": "quasar-old-dev-0 service status memory capacity notes 8",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/8.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-9",
+      "title": "quasar-old-dev-0 service status memory capacity notes 9",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/9.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-old-status",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-current-status",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now running.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-1-port",
+      "title": "quasar-dev-1: port",
+      "body": "quasar-dev-1 port is now 8401.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "port",
+        "value": "8401",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-tls",
+      "title": "quasar-old-dev-1: tls",
+      "body": "quasar-old-dev-1 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-1",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-other-project",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-1",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-other-domain",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-1-alias",
+      "title": "quasar-old-dev-1 became quasar-dev-1",
+      "body": "quasar-old-dev-1 is another name for quasar-dev-1.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-1",
+        "target": "quasar-dev-1",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-1-notes-0",
+      "title": "quasar-old-dev-1 service status memory capacity notes 0",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/0.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-1",
+      "title": "quasar-old-dev-1 service status memory capacity notes 1",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/1.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-2",
+      "title": "quasar-old-dev-1 service status memory capacity notes 2",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/2.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-3",
+      "title": "quasar-old-dev-1 service status memory capacity notes 3",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/3.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-4",
+      "title": "quasar-old-dev-1 service status memory capacity notes 4",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/4.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-5",
+      "title": "quasar-old-dev-1 service status memory capacity notes 5",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/5.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-6",
+      "title": "quasar-old-dev-1 service status memory capacity notes 6",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/6.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-7",
+      "title": "quasar-old-dev-1 service status memory capacity notes 7",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/7.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-8",
+      "title": "quasar-old-dev-1 service status memory capacity notes 8",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/8.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-9",
+      "title": "quasar-old-dev-1 service status memory capacity notes 9",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/9.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-old-status",
+      "title": "quasar-dev-2: status",
+      "body": "quasar-dev-2 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-2",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-2-current-status",
+      "title": "quasar-dev-2: status",
+      "body": "quasar-dev-2 status is now running.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-2",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-2-port",
+      "title": "quasar-dev-2: port",
+      "body": "quasar-dev-2 port is now 8402.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-2",
+        "attribute": "port",
+        "value": "8402",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-2-tls",
+      "title": "quasar-old-dev-2: tls",
+      "body": "quasar-old-dev-2 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-2",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-2-other-project",
+      "title": "quasar-dev-2: status",
+      "body": "quasar-dev-2 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-2",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-2",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-2-other-domain",
+      "title": "quasar-dev-2: status",
+      "body": "quasar-dev-2 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-2",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-2-alias",
+      "title": "quasar-old-dev-2 became quasar-dev-2",
+      "body": "quasar-old-dev-2 is another name for quasar-dev-2.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-2",
+        "target": "quasar-dev-2",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-2-notes-0",
+      "title": "quasar-old-dev-2 service status memory capacity notes 0",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/0.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-1",
+      "title": "quasar-old-dev-2 service status memory capacity notes 1",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/1.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-2",
+      "title": "quasar-old-dev-2 service status memory capacity notes 2",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/2.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-3",
+      "title": "quasar-old-dev-2 service status memory capacity notes 3",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/3.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-4",
+      "title": "quasar-old-dev-2 service status memory capacity notes 4",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/4.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-5",
+      "title": "quasar-old-dev-2 service status memory capacity notes 5",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/5.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-6",
+      "title": "quasar-old-dev-2 service status memory capacity notes 6",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/6.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-7",
+      "title": "quasar-old-dev-2 service status memory capacity notes 7",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/7.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-8",
+      "title": "quasar-old-dev-2 service status memory capacity notes 8",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/8.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-2-notes-9",
+      "title": "quasar-old-dev-2 service status memory capacity notes 9",
+      "body": "quasar-old-dev-2 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-2. Independent note dev-failure-2/9.",
+      "project": "/synthetic/failures/dev/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-2",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-old-status",
+      "title": "quasar-dev-3: status",
+      "body": "quasar-dev-3 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-3",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-3-current-status",
+      "title": "quasar-dev-3: status",
+      "body": "quasar-dev-3 status is now running.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-3",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-3-port",
+      "title": "quasar-dev-3: port",
+      "body": "quasar-dev-3 port is now 8403.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-3",
+        "attribute": "port",
+        "value": "8403",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-3-tls",
+      "title": "quasar-old-dev-3: tls",
+      "body": "quasar-old-dev-3 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-3",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-3-other-project",
+      "title": "quasar-dev-3: status",
+      "body": "quasar-dev-3 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-3",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-3",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-3-other-domain",
+      "title": "quasar-dev-3: status",
+      "body": "quasar-dev-3 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-3",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-3-alias",
+      "title": "quasar-old-dev-3 became quasar-dev-3",
+      "body": "quasar-old-dev-3 is another name for quasar-dev-3.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-3",
+        "target": "quasar-dev-3",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-3-notes-0",
+      "title": "quasar-old-dev-3 service status memory capacity notes 0",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/0.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-1",
+      "title": "quasar-old-dev-3 service status memory capacity notes 1",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/1.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-2",
+      "title": "quasar-old-dev-3 service status memory capacity notes 2",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/2.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-3",
+      "title": "quasar-old-dev-3 service status memory capacity notes 3",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/3.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-4",
+      "title": "quasar-old-dev-3 service status memory capacity notes 4",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/4.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-5",
+      "title": "quasar-old-dev-3 service status memory capacity notes 5",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/5.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-6",
+      "title": "quasar-old-dev-3 service status memory capacity notes 6",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/6.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-7",
+      "title": "quasar-old-dev-3 service status memory capacity notes 7",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/7.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-8",
+      "title": "quasar-old-dev-3 service status memory capacity notes 8",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/8.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-3-notes-9",
+      "title": "quasar-old-dev-3 service status memory capacity notes 9",
+      "body": "quasar-old-dev-3 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-3. Independent note dev-failure-3/9.",
+      "project": "/synthetic/failures/dev/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-3",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-old-status",
+      "title": "quasar-dev-4: status",
+      "body": "quasar-dev-4 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-4",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-4-current-status",
+      "title": "quasar-dev-4: status",
+      "body": "quasar-dev-4 status is now running.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-4",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-4-port",
+      "title": "quasar-dev-4: port",
+      "body": "quasar-dev-4 port is now 8404.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-4",
+        "attribute": "port",
+        "value": "8404",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-4-tls",
+      "title": "quasar-old-dev-4: tls",
+      "body": "quasar-old-dev-4 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-4",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-4-other-project",
+      "title": "quasar-dev-4: status",
+      "body": "quasar-dev-4 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-4",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-4",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-4-other-domain",
+      "title": "quasar-dev-4: status",
+      "body": "quasar-dev-4 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-4",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-4-alias",
+      "title": "quasar-old-dev-4 became quasar-dev-4",
+      "body": "quasar-old-dev-4 is another name for quasar-dev-4.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-4",
+        "target": "quasar-dev-4",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-4-notes-0",
+      "title": "quasar-old-dev-4 service status memory capacity notes 0",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/0.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-1",
+      "title": "quasar-old-dev-4 service status memory capacity notes 1",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/1.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-2",
+      "title": "quasar-old-dev-4 service status memory capacity notes 2",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/2.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-3",
+      "title": "quasar-old-dev-4 service status memory capacity notes 3",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/3.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-4",
+      "title": "quasar-old-dev-4 service status memory capacity notes 4",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/4.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-5",
+      "title": "quasar-old-dev-4 service status memory capacity notes 5",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/5.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-6",
+      "title": "quasar-old-dev-4 service status memory capacity notes 6",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/6.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-7",
+      "title": "quasar-old-dev-4 service status memory capacity notes 7",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/7.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-8",
+      "title": "quasar-old-dev-4 service status memory capacity notes 8",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/8.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-4-notes-9",
+      "title": "quasar-old-dev-4 service status memory capacity notes 9",
+      "body": "quasar-old-dev-4 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-4. Independent note dev-failure-4/9.",
+      "project": "/synthetic/failures/dev/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-4",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-old-status",
+      "title": "quasar-dev-5: status",
+      "body": "quasar-dev-5 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-5",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-5-current-status",
+      "title": "quasar-dev-5: status",
+      "body": "quasar-dev-5 status is now running.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-5",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-5-port",
+      "title": "quasar-dev-5: port",
+      "body": "quasar-dev-5 port is now 8405.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-5",
+        "attribute": "port",
+        "value": "8405",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-5-tls",
+      "title": "quasar-old-dev-5: tls",
+      "body": "quasar-old-dev-5 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-5",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-5-other-project",
+      "title": "quasar-dev-5: status",
+      "body": "quasar-dev-5 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-5",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-5",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-5-other-domain",
+      "title": "quasar-dev-5: status",
+      "body": "quasar-dev-5 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-5",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-5-alias",
+      "title": "quasar-old-dev-5 became quasar-dev-5",
+      "body": "quasar-old-dev-5 is another name for quasar-dev-5.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-5",
+        "target": "quasar-dev-5",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-5-notes-0",
+      "title": "quasar-old-dev-5 service status memory capacity notes 0",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/0.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-1",
+      "title": "quasar-old-dev-5 service status memory capacity notes 1",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/1.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-2",
+      "title": "quasar-old-dev-5 service status memory capacity notes 2",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/2.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-3",
+      "title": "quasar-old-dev-5 service status memory capacity notes 3",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/3.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-4",
+      "title": "quasar-old-dev-5 service status memory capacity notes 4",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/4.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-5",
+      "title": "quasar-old-dev-5 service status memory capacity notes 5",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/5.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-6",
+      "title": "quasar-old-dev-5 service status memory capacity notes 6",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/6.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-7",
+      "title": "quasar-old-dev-5 service status memory capacity notes 7",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/7.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-8",
+      "title": "quasar-old-dev-5 service status memory capacity notes 8",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/8.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-5-notes-9",
+      "title": "quasar-old-dev-5 service status memory capacity notes 9",
+      "body": "quasar-old-dev-5 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-5. Independent note dev-failure-5/9.",
+      "project": "/synthetic/failures/dev/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-5",
+      "split": "dev"
+    },
+    {
+      "id": "test-failure-0-old-status",
+      "title": "quasar-test-0: status",
+      "body": "quasar-test-0 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-0",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-0-current-status",
+      "title": "quasar-test-0: status",
+      "body": "quasar-test-0 status is now running.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-0",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-0-port",
+      "title": "quasar-test-0: port",
+      "body": "quasar-test-0 port is now 8400.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-0",
+        "attribute": "port",
+        "value": "8400",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-0-tls",
+      "title": "quasar-old-test-0: tls",
+      "body": "quasar-old-test-0 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-0",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-0-other-project",
+      "title": "quasar-test-0: status",
+      "body": "quasar-test-0 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-0",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-0",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-0-other-domain",
+      "title": "quasar-test-0: status",
+      "body": "quasar-test-0 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-0",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-0-alias",
+      "title": "quasar-old-test-0 became quasar-test-0",
+      "body": "quasar-old-test-0 is another name for quasar-test-0.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-0",
+        "target": "quasar-test-0",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-0-notes-0",
+      "title": "quasar-old-test-0 service status memory capacity notes 0",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/0.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-1",
+      "title": "quasar-old-test-0 service status memory capacity notes 1",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/1.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-2",
+      "title": "quasar-old-test-0 service status memory capacity notes 2",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/2.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-3",
+      "title": "quasar-old-test-0 service status memory capacity notes 3",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/3.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-4",
+      "title": "quasar-old-test-0 service status memory capacity notes 4",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/4.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-5",
+      "title": "quasar-old-test-0 service status memory capacity notes 5",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/5.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-6",
+      "title": "quasar-old-test-0 service status memory capacity notes 6",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/6.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-7",
+      "title": "quasar-old-test-0 service status memory capacity notes 7",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/7.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-8",
+      "title": "quasar-old-test-0 service status memory capacity notes 8",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/8.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-0-notes-9",
+      "title": "quasar-old-test-0 service status memory capacity notes 9",
+      "body": "quasar-old-test-0 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-0. Independent note test-failure-0/9.",
+      "project": "/synthetic/failures/test/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-0",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-old-status",
+      "title": "quasar-test-1: status",
+      "body": "quasar-test-1 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-1",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-1-current-status",
+      "title": "quasar-test-1: status",
+      "body": "quasar-test-1 status is now running.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-1",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-1-port",
+      "title": "quasar-test-1: port",
+      "body": "quasar-test-1 port is now 8401.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-1",
+        "attribute": "port",
+        "value": "8401",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-1-tls",
+      "title": "quasar-old-test-1: tls",
+      "body": "quasar-old-test-1 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-1",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-1-other-project",
+      "title": "quasar-test-1: status",
+      "body": "quasar-test-1 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-1",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-1",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-1-other-domain",
+      "title": "quasar-test-1: status",
+      "body": "quasar-test-1 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-1",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-1-alias",
+      "title": "quasar-old-test-1 became quasar-test-1",
+      "body": "quasar-old-test-1 is another name for quasar-test-1.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-1",
+        "target": "quasar-test-1",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-1-notes-0",
+      "title": "quasar-old-test-1 service status memory capacity notes 0",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/0.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-1",
+      "title": "quasar-old-test-1 service status memory capacity notes 1",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/1.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-2",
+      "title": "quasar-old-test-1 service status memory capacity notes 2",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/2.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-3",
+      "title": "quasar-old-test-1 service status memory capacity notes 3",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/3.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-4",
+      "title": "quasar-old-test-1 service status memory capacity notes 4",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/4.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-5",
+      "title": "quasar-old-test-1 service status memory capacity notes 5",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/5.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-6",
+      "title": "quasar-old-test-1 service status memory capacity notes 6",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/6.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-7",
+      "title": "quasar-old-test-1 service status memory capacity notes 7",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/7.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-8",
+      "title": "quasar-old-test-1 service status memory capacity notes 8",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/8.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-1-notes-9",
+      "title": "quasar-old-test-1 service status memory capacity notes 9",
+      "body": "quasar-old-test-1 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-1. Independent note test-failure-1/9.",
+      "project": "/synthetic/failures/test/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-1",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-old-status",
+      "title": "quasar-test-2: status",
+      "body": "quasar-test-2 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-2",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-2-current-status",
+      "title": "quasar-test-2: status",
+      "body": "quasar-test-2 status is now running.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-2",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-2-port",
+      "title": "quasar-test-2: port",
+      "body": "quasar-test-2 port is now 8402.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-2",
+        "attribute": "port",
+        "value": "8402",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-2-tls",
+      "title": "quasar-old-test-2: tls",
+      "body": "quasar-old-test-2 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-2",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-2-other-project",
+      "title": "quasar-test-2: status",
+      "body": "quasar-test-2 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-2",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-2",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-2-other-domain",
+      "title": "quasar-test-2: status",
+      "body": "quasar-test-2 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-2",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-2-alias",
+      "title": "quasar-old-test-2 became quasar-test-2",
+      "body": "quasar-old-test-2 is another name for quasar-test-2.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-2",
+        "target": "quasar-test-2",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-2-notes-0",
+      "title": "quasar-old-test-2 service status memory capacity notes 0",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/0.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-1",
+      "title": "quasar-old-test-2 service status memory capacity notes 1",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/1.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-2",
+      "title": "quasar-old-test-2 service status memory capacity notes 2",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/2.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-3",
+      "title": "quasar-old-test-2 service status memory capacity notes 3",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/3.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-4",
+      "title": "quasar-old-test-2 service status memory capacity notes 4",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/4.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-5",
+      "title": "quasar-old-test-2 service status memory capacity notes 5",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/5.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-6",
+      "title": "quasar-old-test-2 service status memory capacity notes 6",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/6.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-7",
+      "title": "quasar-old-test-2 service status memory capacity notes 7",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/7.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-8",
+      "title": "quasar-old-test-2 service status memory capacity notes 8",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/8.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-2-notes-9",
+      "title": "quasar-old-test-2 service status memory capacity notes 9",
+      "body": "quasar-old-test-2 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-2. Independent note test-failure-2/9.",
+      "project": "/synthetic/failures/test/alice-2",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-2",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-old-status",
+      "title": "quasar-test-3: status",
+      "body": "quasar-test-3 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-3",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-3-current-status",
+      "title": "quasar-test-3: status",
+      "body": "quasar-test-3 status is now running.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-3",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-3-port",
+      "title": "quasar-test-3: port",
+      "body": "quasar-test-3 port is now 8403.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-3",
+        "attribute": "port",
+        "value": "8403",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-3-tls",
+      "title": "quasar-old-test-3: tls",
+      "body": "quasar-old-test-3 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-3",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-3-other-project",
+      "title": "quasar-test-3: status",
+      "body": "quasar-test-3 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-3",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-3",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-3-other-domain",
+      "title": "quasar-test-3: status",
+      "body": "quasar-test-3 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-3",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-3-alias",
+      "title": "quasar-old-test-3 became quasar-test-3",
+      "body": "quasar-old-test-3 is another name for quasar-test-3.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-3",
+        "target": "quasar-test-3",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-3-notes-0",
+      "title": "quasar-old-test-3 service status memory capacity notes 0",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/0.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-1",
+      "title": "quasar-old-test-3 service status memory capacity notes 1",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/1.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-2",
+      "title": "quasar-old-test-3 service status memory capacity notes 2",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/2.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-3",
+      "title": "quasar-old-test-3 service status memory capacity notes 3",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/3.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-4",
+      "title": "quasar-old-test-3 service status memory capacity notes 4",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/4.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-5",
+      "title": "quasar-old-test-3 service status memory capacity notes 5",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/5.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-6",
+      "title": "quasar-old-test-3 service status memory capacity notes 6",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/6.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-7",
+      "title": "quasar-old-test-3 service status memory capacity notes 7",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/7.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-8",
+      "title": "quasar-old-test-3 service status memory capacity notes 8",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/8.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-3-notes-9",
+      "title": "quasar-old-test-3 service status memory capacity notes 9",
+      "body": "quasar-old-test-3 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-3. Independent note test-failure-3/9.",
+      "project": "/synthetic/failures/test/alice-3",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-3",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-old-status",
+      "title": "quasar-test-4: status",
+      "body": "quasar-test-4 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-4",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-4-current-status",
+      "title": "quasar-test-4: status",
+      "body": "quasar-test-4 status is now running.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-4",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-4-port",
+      "title": "quasar-test-4: port",
+      "body": "quasar-test-4 port is now 8404.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-4",
+        "attribute": "port",
+        "value": "8404",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-4-tls",
+      "title": "quasar-old-test-4: tls",
+      "body": "quasar-old-test-4 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-4",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-4-other-project",
+      "title": "quasar-test-4: status",
+      "body": "quasar-test-4 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-4",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-4",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-4-other-domain",
+      "title": "quasar-test-4: status",
+      "body": "quasar-test-4 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-4",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-4-alias",
+      "title": "quasar-old-test-4 became quasar-test-4",
+      "body": "quasar-old-test-4 is another name for quasar-test-4.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-4",
+        "target": "quasar-test-4",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-4-notes-0",
+      "title": "quasar-old-test-4 service status memory capacity notes 0",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/0.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-1",
+      "title": "quasar-old-test-4 service status memory capacity notes 1",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/1.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-2",
+      "title": "quasar-old-test-4 service status memory capacity notes 2",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/2.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-3",
+      "title": "quasar-old-test-4 service status memory capacity notes 3",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/3.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-4",
+      "title": "quasar-old-test-4 service status memory capacity notes 4",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/4.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-5",
+      "title": "quasar-old-test-4 service status memory capacity notes 5",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/5.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-6",
+      "title": "quasar-old-test-4 service status memory capacity notes 6",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/6.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-7",
+      "title": "quasar-old-test-4 service status memory capacity notes 7",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/7.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-8",
+      "title": "quasar-old-test-4 service status memory capacity notes 8",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/8.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-4-notes-9",
+      "title": "quasar-old-test-4 service status memory capacity notes 9",
+      "body": "quasar-old-test-4 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-4. Independent note test-failure-4/9.",
+      "project": "/synthetic/failures/test/alice-4",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-4",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-old-status",
+      "title": "quasar-test-5: status",
+      "body": "quasar-test-5 status is now stopped.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-5",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-5-current-status",
+      "title": "quasar-test-5: status",
+      "body": "quasar-test-5 status is now running.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-5",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-5-port",
+      "title": "quasar-test-5: port",
+      "body": "quasar-test-5 port is now 8405.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-5",
+        "attribute": "port",
+        "value": "8405",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-5-tls",
+      "title": "quasar-old-test-5: tls",
+      "body": "quasar-old-test-5 tls is now enabled.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-old-test-5",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-5-other-project",
+      "title": "quasar-test-5: status",
+      "body": "quasar-test-5 status is now maintenance.",
+      "project": "/synthetic/failures/test/bob-5",
+      "domain": "general",
+      "actor": "bob",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-5",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "test-failure-5-other-domain",
+      "title": "quasar-test-5: status",
+      "body": "quasar-test-5 status is now compiling.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "assertion": {
+        "entity": "quasar-test-5",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "test-failure-5-alias",
+      "title": "quasar-old-test-5 became quasar-test-5",
+      "body": "quasar-old-test-5 is another name for quasar-test-5.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test",
+      "alias": {
+        "alias": "quasar-old-test-5",
+        "target": "quasar-test-5",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "test-failure-5-notes-0",
+      "title": "quasar-old-test-5 service status memory capacity notes 0",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/0.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-1",
+      "title": "quasar-old-test-5 service status memory capacity notes 1",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/1.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-2",
+      "title": "quasar-old-test-5 service status memory capacity notes 2",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/2.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-3",
+      "title": "quasar-old-test-5 service status memory capacity notes 3",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/3.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-4",
+      "title": "quasar-old-test-5 service status memory capacity notes 4",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/4.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-5",
+      "title": "quasar-old-test-5 service status memory capacity notes 5",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/5.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-6",
+      "title": "quasar-old-test-5 service status memory capacity notes 6",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/6.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-7",
+      "title": "quasar-old-test-5 service status memory capacity notes 7",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/7.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-8",
+      "title": "quasar-old-test-5 service status memory capacity notes 8",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/8.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    },
+    {
+      "id": "test-failure-5-notes-9",
+      "title": "quasar-old-test-5 service status memory capacity notes 9",
+      "body": "quasar-old-test-5 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-test-5. Independent note test-failure-5/9.",
+      "project": "/synthetic/failures/test/alice-5",
+      "domain": "general",
+      "actor": "alice",
+      "family": "test-failure-5",
+      "split": "test"
+    }
+  ],
+  "queries": [
+    {
+      "id": "dev-failure-0-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-current-en",
+      "query": "What is the current status of quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-0-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-0-independent-project",
+      "query": "What is the status of quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-independent-domain",
+      "query": "Was ist der status von quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-historical",
+      "query": "What was the status of quasar-dev-0 in January?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-current-canonical",
+      "query": "What is the current status of quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-current-en",
+      "query": "What is the current status of quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-independent-project",
+      "query": "What is the status of quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-independent-domain",
+      "query": "Was ist der status von quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-historical",
+      "query": "What was the status of quasar-dev-1 in January?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-current-canonical",
+      "query": "What is the current status of quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-2-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-2?",
+      "entity": "quasar-old-dev-2",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-2-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-2?",
+      "entity": "quasar-old-dev-2",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-2-current-en",
+      "query": "What is the current status of quasar-old-dev-2?",
+      "entity": "quasar-old-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-2-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-2?",
+      "entity": "quasar-old-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-2-independent-project",
+      "query": "What is the status of quasar-dev-2?",
+      "entity": "quasar-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-2-independent-domain",
+      "query": "Was ist der status von quasar-dev-2?",
+      "entity": "quasar-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-2-historical",
+      "query": "What was the status of quasar-dev-2 in January?",
+      "entity": "quasar-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-2-current-canonical",
+      "query": "What is the current status of quasar-dev-2?",
+      "entity": "quasar-dev-2",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-2",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-3-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-3?",
+      "entity": "quasar-old-dev-3",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-3-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-3?",
+      "entity": "quasar-old-dev-3",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-3-current-en",
+      "query": "What is the current status of quasar-old-dev-3?",
+      "entity": "quasar-old-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-3-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-3?",
+      "entity": "quasar-old-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-3-independent-project",
+      "query": "What is the status of quasar-dev-3?",
+      "entity": "quasar-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-3-independent-domain",
+      "query": "Was ist der status von quasar-dev-3?",
+      "entity": "quasar-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-3-historical",
+      "query": "What was the status of quasar-dev-3 in January?",
+      "entity": "quasar-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-3-current-canonical",
+      "query": "What is the current status of quasar-dev-3?",
+      "entity": "quasar-dev-3",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-3",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-4-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-4?",
+      "entity": "quasar-old-dev-4",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-4-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-4?",
+      "entity": "quasar-old-dev-4",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-4-current-en",
+      "query": "What is the current status of quasar-old-dev-4?",
+      "entity": "quasar-old-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-4-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-4?",
+      "entity": "quasar-old-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-4-independent-project",
+      "query": "What is the status of quasar-dev-4?",
+      "entity": "quasar-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-4-independent-domain",
+      "query": "Was ist der status von quasar-dev-4?",
+      "entity": "quasar-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-4-historical",
+      "query": "What was the status of quasar-dev-4 in January?",
+      "entity": "quasar-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-4-current-canonical",
+      "query": "What is the current status of quasar-dev-4?",
+      "entity": "quasar-dev-4",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-4",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-5-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-5?",
+      "entity": "quasar-old-dev-5",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-5-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-5?",
+      "entity": "quasar-old-dev-5",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-5-current-en",
+      "query": "What is the current status of quasar-old-dev-5?",
+      "entity": "quasar-old-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-5-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-5-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-5?",
+      "entity": "quasar-old-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-5-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-5-independent-project",
+      "query": "What is the status of quasar-dev-5?",
+      "entity": "quasar-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-5-independent-domain",
+      "query": "Was ist der status von quasar-dev-5?",
+      "entity": "quasar-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-5-historical",
+      "query": "What was the status of quasar-dev-5 in January?",
+      "entity": "quasar-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-5-current-canonical",
+      "query": "What is the current status of quasar-dev-5?",
+      "entity": "quasar-dev-5",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-5",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-5-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-0-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-0?",
+      "entity": "quasar-old-test-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-0-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-0?",
+      "entity": "quasar-old-test-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-0-current-en",
+      "query": "What is the current status of quasar-old-test-0?",
+      "entity": "quasar-old-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-0-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-0?",
+      "entity": "quasar-old-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-0-independent-project",
+      "query": "What is the status of quasar-test-0?",
+      "entity": "quasar-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-0-independent-domain",
+      "query": "Was ist der status von quasar-test-0?",
+      "entity": "quasar-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-0-historical",
+      "query": "What was the status of quasar-test-0 in January?",
+      "entity": "quasar-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-0-current-canonical",
+      "query": "What is the current status of quasar-test-0?",
+      "entity": "quasar-test-0",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-1-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-1?",
+      "entity": "quasar-old-test-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-1-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-1?",
+      "entity": "quasar-old-test-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-1-current-en",
+      "query": "What is the current status of quasar-old-test-1?",
+      "entity": "quasar-old-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-1-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-1?",
+      "entity": "quasar-old-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-1-independent-project",
+      "query": "What is the status of quasar-test-1?",
+      "entity": "quasar-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-1-independent-domain",
+      "query": "Was ist der status von quasar-test-1?",
+      "entity": "quasar-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-1-historical",
+      "query": "What was the status of quasar-test-1 in January?",
+      "entity": "quasar-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-1-current-canonical",
+      "query": "What is the current status of quasar-test-1?",
+      "entity": "quasar-test-1",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-2-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-2?",
+      "entity": "quasar-old-test-2",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-2-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-2?",
+      "entity": "quasar-old-test-2",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-2-current-en",
+      "query": "What is the current status of quasar-old-test-2?",
+      "entity": "quasar-old-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-2-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-2?",
+      "entity": "quasar-old-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-2-independent-project",
+      "query": "What is the status of quasar-test-2?",
+      "entity": "quasar-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-2-independent-domain",
+      "query": "Was ist der status von quasar-test-2?",
+      "entity": "quasar-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-2-historical",
+      "query": "What was the status of quasar-test-2 in January?",
+      "entity": "quasar-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-2-current-canonical",
+      "query": "What is the current status of quasar-test-2?",
+      "entity": "quasar-test-2",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-2-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-2",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-2",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-2-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-3-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-3?",
+      "entity": "quasar-old-test-3",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-3-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-3?",
+      "entity": "quasar-old-test-3",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-3-current-en",
+      "query": "What is the current status of quasar-old-test-3?",
+      "entity": "quasar-old-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-3-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-3?",
+      "entity": "quasar-old-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-3-independent-project",
+      "query": "What is the status of quasar-test-3?",
+      "entity": "quasar-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-3-independent-domain",
+      "query": "Was ist der status von quasar-test-3?",
+      "entity": "quasar-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-3-historical",
+      "query": "What was the status of quasar-test-3 in January?",
+      "entity": "quasar-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-3-current-canonical",
+      "query": "What is the current status of quasar-test-3?",
+      "entity": "quasar-test-3",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-3-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-3",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-3",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-3-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-4-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-4?",
+      "entity": "quasar-old-test-4",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-4-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-4?",
+      "entity": "quasar-old-test-4",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-4-current-en",
+      "query": "What is the current status of quasar-old-test-4?",
+      "entity": "quasar-old-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-4-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-4?",
+      "entity": "quasar-old-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-4-independent-project",
+      "query": "What is the status of quasar-test-4?",
+      "entity": "quasar-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-4-independent-domain",
+      "query": "Was ist der status von quasar-test-4?",
+      "entity": "quasar-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-4-historical",
+      "query": "What was the status of quasar-test-4 in January?",
+      "entity": "quasar-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-4-current-canonical",
+      "query": "What is the current status of quasar-test-4?",
+      "entity": "quasar-test-4",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-4-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-4",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-4",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-4-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-5-absent-en",
+      "query": "What is the memory_limit of quasar-old-test-5?",
+      "entity": "quasar-old-test-5",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-5-absent-de",
+      "query": "Welches memory_limit hat quasar-old-test-5?",
+      "entity": "quasar-old-test-5",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-5-current-en",
+      "query": "What is the current status of quasar-old-test-5?",
+      "entity": "quasar-old-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-5-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-5-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-test-5?",
+      "entity": "quasar-old-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-5-old-status"
+      ]
+    },
+    {
+      "id": "test-failure-5-independent-project",
+      "query": "What is the status of quasar-test-5?",
+      "entity": "quasar-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/bob-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-5-independent-domain",
+      "query": "Was ist der status von quasar-test-5?",
+      "entity": "quasar-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "test-failure-5-historical",
+      "query": "What was the status of quasar-test-5 in January?",
+      "entity": "quasar-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "test-failure-5-current-canonical",
+      "query": "What is the current status of quasar-test-5?",
+      "entity": "quasar-test-5",
+      "attribute": "status",
+      "expected_ids": [
+        "test-failure-5-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "test",
+      "family": "test-failure-5",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/test/alice-5",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "test-failure-5-old-status"
+      ]
+    }
+  ]
+}
