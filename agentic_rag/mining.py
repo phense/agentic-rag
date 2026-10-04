@@ -396,6 +396,21 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
 
 def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
                       output_cursor):
+    from . import embedding_reuse, store
+    documents = []
+    for items in (ext.memories, ext.lessons, ext.signals):
+        for item in items:
+            body = item.body
+            if item.signal and item.signal not in body:
+                body = f"{body}\n\n## Signal\n\n{item.signal}"
+            documents.append((item.title, body))
+    with embedding_reuse.prepare_documents(conn, cfg, documents, loader=store.try_embed_texts):
+        return _apply_prepared_extraction(conn, cfg, ext, session_id=session_id,
+            project=project, batch_id=batch_id, output_cursor=output_cursor)
+
+
+def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
+                               output_cursor):
     provenance = {"origin": "session-mining", "session_id": session_id,
                   "project": project, "mining_batch": batch_id}
     saved = duplicates = 0

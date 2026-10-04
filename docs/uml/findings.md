@@ -142,3 +142,14 @@ and retained018 rollback are evidenced. Initial automatic indexing design was
 revised to explicit audited backfill after real source/batch deadlock regressions;
 existing assertion/mining code is byte-identical to source. No open architecture
 finding; production rollout remains separately authorized.
+
+## RAG-5.9 incremental ingestion
+
+The independent source gate identified model/input drift, optional SQL transaction
+poisoning, chunk/dedup representation confusion, premature mining commits, queue
+priority and evidence truncation risks. The [as-built model](incremental-ingestion.md)
+keeps one audited writer and parallelizes pure bounded inference only. Shared
+nonblocking cache mutation, explicit savepoints and exact prepared inputs address
+these integration risks. Operational reviews added backup actual-server identity,
+pre-switch drift checks, child ownership/configuration and measurable content/vector
+oracles. Final source and recovery verification remains in the feature record.
