@@ -27,4 +27,4 @@ Fresh populated production018 backup/strict owned restore, interrupted019 migrat
 
 PB-5.9 remains executable for the separately approved exact target. Application/cache writes stay within original audited gateways. Code recovery retains019 and later knowledge; restoring a backup would lose later writes and requires separate authority. Existing active MCP processes must reconnect after a separately authorized activation to load new code. No service interruption, configuration rewrite, provider change or editable reinstall occurred.
 
-[PR47](https://github.com/phense/agentic-rag/pull/47) is published and linked to this thread. Remote CI is pending; merge/adoption remain pending. Both complete reviews found no open Critical/High/Medium/Low bugs.
+[PR47](https://github.com/phense/agentic-rag/pull/47) is published and linked to this thread. Remote offline benchmark-contract CI passed (runs37169239028 and37169241717,12s/15s); merge/adoption remain pending. Both complete reviews found no open Critical/High/Medium/Low bugs.
