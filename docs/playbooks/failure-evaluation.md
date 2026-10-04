@@ -5,7 +5,9 @@
 Class: system. Owner: maintainer. Audience: local operators and reviewers.
 Origin: RAG-5.10 AC-001–008, [Issue35](https://github.com/phense/agentic-rag/issues/35).
 Source: reviewed Feature9d5e2ce49a4a48554b5d9de58c3beb3b5a4d43d9d/schema019;
-live1294d6c44fd02b66715692f12791bfa2fd4c8856/schema018.
+combined-upgrade source1294d6c44fd02b66715692f12791bfa2fd4c8856/schema018.
+Approved local adoption on 2026-10-04 reached b849d3423a51a5d0f90273c3d5ed88433ec78778/schema019;
+see [production acceptance](../verification/features9-10-production-adoption.md).
 Target: exact separately approved Feature10 commit, unchanged018/019 schema support.
 Last edited:2026-10-04. Required reviewed/rehearsed evidence before handoff:
 [verification](../verification/failure-evaluation.md).
@@ -156,7 +158,7 @@ PYTHONPATH=. /Users/peter/Agents/agentic-rag/.venv/bin/python scripts/verify_fai
   --repeats 20 --mine-model --production-copy --trading
 ```
 
-No production activation is performed by this rehearsal. For the supported current live018
+No production activation is performed by this rehearsal. For the supported pre-upgrade018
 installation, the executable authorized upgrade/recovery command is [PB-5.9](incremental-ingestion.md),
 with the exact separately approved combined target. Already019 code-only deployment uses the exact guarded command above; retain the strict019 backup and exact adopted/recovered revisions as operator evidence.
 A full database restore is not implemented by Feature10 and needs separate loss-boundary approval.

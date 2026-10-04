@@ -1,9 +1,9 @@
 # RAG-5.10 verification record
 
-Implemented and measured; merge and production adoption remain pending. Feature9 is
+Implemented, measured, merged and adopted locally with explicit approval on 2026-10-04. PR49 merged at `b849d3423a51a5d0f90273c3d5ed88433ec78778`/schema019. [Executed production acceptance](features9-10-production-adoption.md). Feature9 is
 PR47, source `d5e2ce49a4a48554b5d9de58c3beb3b5a4d43d9d`/schema019. Measured
 Feature10 code is `5b390692e32e07c8816e98091dfa66e15e0c2cb3`; both compared retrieval
-profiles use that revision. Canonical live code remains
+profiles use that revision. The pre-adoption canonical source was
 `1294d6c44fd02b66715692f12791bfa2fd4c8856`/schema018. Feature10 adds no SQL,
 provider/client configuration, hooks, jobs or MCP tools. Existing source018 fallback
 and source019 clients remain supported; combined adoption needs Feature9's019 migration
@@ -34,7 +34,7 @@ actual operator helper, fixtures, CLI/CI, correction and recovery drivers. Each 
 zero Critical/High/Medium/Low findings. Neither accessed private state/configuration,
 canonical databases or providers. Both independently reviewed the final public evidence/docs/CI/PB handoff with zero
 findings and verified all125 hashes, raw numerators/timings/seals and actual recovery
-records. [PR49](https://github.com/phense/agentic-rag/pull/49) is stacked on PR47.
+records. [PR49](https://github.com/phense/agentic-rag/pull/49) was stacked on PR47 and merged after it.
 Hosted push/PR checks pass at publication6531071: [run37174177453](https://github.com/phense/agentic-rag/actions/runs/37174177453)
 and [run37174180310](https://github.com/phense/agentic-rag/actions/runs/37174180310);
 subsequent publication-link-only commit checks are recorded with the PR.
@@ -139,5 +139,5 @@ The new corpus confirms a pre-existing domain-free temporal comparison/supersess
 problem, tracked separately in [Issue48](https://github.com/phense/agentic-rag/issues/48).
 Exact entity routing recovers this fixture's original; no historical gateway/SQL repair
 or private impact estimate is included. All review findings in the bounded implementation
-are resolved. Feature9/10 Issues remain open pending applicable approved merges/adoption.
+are resolved. Feature9/10 Issues34/35 are closed after their explicitly approved merges and separately approved local production adoption.
 Merge approval does not authorize production migration, rollout or interruption.

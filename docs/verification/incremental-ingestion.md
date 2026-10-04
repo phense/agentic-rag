@@ -1,6 +1,6 @@
 # RAG-5.9 verification record
 
-Implementation verification is complete; merge and production adoption remain pending.
+Implementation verification and approved local production adoption are complete. PR47 merged at `eb655601ca95dc8dca11e20a64a4415daca7be36`; the combined Feature9/10 code was activated at `b849d3423a51a5d0f90273c3d5ed88433ec78778`/schema019. [Executed production acceptance](features9-10-production-adoption.md).
 Source1294d6c44fd02b66715692f12791bfa2fd4c8856/schema018. Measured code88c1c36f2fe6f3145d290a6de141e65914acc403/schema019. Documentation/evidence commits after that revision do not alter measured code. [Raw evidence and limits](../benchmarks/2026-10-04-incremental-ingestion/README.md).
 
 ## Fresh suites
@@ -27,4 +27,4 @@ Fresh populated production018 backup/strict owned restore, interrupted019 migrat
 
 PB-5.9 remains executable for the separately approved exact target. Application/cache writes stay within original audited gateways. Code recovery retains019 and later knowledge; restoring a backup would lose later writes and requires separate authority. Existing active MCP processes must reconnect after a separately authorized activation to load new code. No service interruption, configuration rewrite, provider change or editable reinstall occurred.
 
-[PR47](https://github.com/phense/agentic-rag/pull/47) is published and linked to this thread. Remote offline benchmark-contract CI passed (runs37169239028 and37169241717,12s/15s); merge/adoption remain pending. Both complete reviews found no open Critical/High/Medium/Low bugs.
+[PR47](https://github.com/phense/agentic-rag/pull/47) is published and linked to this thread. Remote offline benchmark-contract CI passed (runs37169239028 and37169241717,12s/15s); merge and approved local adoption are complete; see the acceptance record above. Both complete reviews found no open Critical/High/Medium/Low bugs.

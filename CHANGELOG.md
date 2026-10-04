@@ -7,7 +7,20 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-04
+
 ### Added
+- Evidence-backed entity identities and project/domain-scoped aliases with original
+  history and audited revocation (018; [Issue33](https://github.com/phense/agentic-rag/issues/33)).
+- Exact input/model embedding reuse and bounded preprocessing under ordered audited
+  writes (019; [Issue34](https://github.com/phense/agentic-rag/issues/34)).
+- Offline failure evaluation with sealed development/held-out profiles, private local
+  confirmed-correction evaluation and explicit public configured-provider mining
+  comparison ([Issue35](https://github.com/phense/agentic-rag/issues/35)).
+- Adaptive exact/lexical/semantic retrieval, permission-safe caches, contextual original-backed
+  chunk indexing (015) and filter-aware vector retrieval (016).
+- [0.6.0 feature map and measured limits](docs/00-whats-new-in-0.6.md), plus
+  [actual approved 018→019 production acceptance](docs/verification/features9-10-production-adoption.md).
 - Local incremental `rag summary` and reader-only `memory_summary`, extending
   bounded project profiles with original excerpts, source/version drill-down,
   explicit inference/review labels and correction/expiry/access invalidation.

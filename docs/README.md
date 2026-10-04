@@ -10,6 +10,8 @@ are canonical for open work; [contributing](12-contributing.md#production-compat
 explains production compatibility, upgrade evidence, and merge approval.
 
 ## Start here
+
+- [What’s New in 0.6.0](00-whats-new-in-0.6.md) — ten adopted retrieval/ingestion features, measured limits and verified schema 018→019 adoption.
 - [What’s New in 0.5.0](00-whats-new-in-0.5.md) — Antigravity CLI (`agy`) continuity: what Gemini/Antigravity offer, the three-hook install, `/compact` handoff, automatic-compaction detection.
 - [What’s New in 0.4.0](00-whats-new-in-0.4.md) — Claude compaction continuity, the managed 1M/500K policy, handoff capture, check/restore for the Claude install.
 - [What’s New in 0.3.0](00-whats-new-in-0.3.md) — Codex continuity, native memories, safe installation, upgrade steps, and operational boundaries.
@@ -19,6 +21,10 @@ explains production compatibility, upgrade evidence, and merge approval.
 - [02 · The mental model](02-mental-model.md) — documents, graph/search, the write gateway, mining, and continuation checkpoints.
 
 ## Use
+
+- [Entity identities](entity-identities.md) — original-backed, scoped aliases with historical lookup and audited revocation.
+- [Incremental ingestion](incremental-ingestion.md) — exact local embedding reuse and bounded ordered preprocessing.
+- [Confirmed-failure evaluation](failure-evaluation.md) — sealed public profiles, private local correction evaluation and explicit public mining measurements.
 - [Bounded research](bounded-research.md) — compound questions, exact source quotations, disagreement, abstention, budgets and code-only rollback.
 - [03 · Quick start](03-quick-start.md) — prerequisites, the Claude six-hook install and the Codex target, check/trust/verify/rollback for both, and your first save/search.
 - [04 · Working with your memory](04-working-with-memory.md) — save / get / search / pin, domains, and the MCP tools inside a Claude session.
@@ -33,6 +39,8 @@ explains production compatibility, upgrade evidence, and merge approval.
 - [09 · Maintenance & backups](09-maintenance-and-backups.md) — `rag backup`/`restore`, `rag maintenance`, and scheduling on macOS and Linux.
 
 ## Develop
+
+- [Features 9–10 production acceptance](verification/features9-10-production-adoption.md) — actual upgrade, protected state and fresh CLI/MCP checks.
 - [10 · Architecture](10-architecture.md) — schema, roles, gateway, worker, the Claude and Codex hook tables, both checkpoint data flows, installers, and MCP.
 - [11 · Reference — CLI & MCP](11-reference-cli-and-mcp.md) — every command/flag, Claude and Codex check/install/restore and hook contracts, MCP, SQL, and exit codes.
 - [12 · Contributing](12-contributing.md) — dev setup, tests, the doc-reminder hook, and code layout.

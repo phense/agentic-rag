@@ -8,6 +8,7 @@
 - Supported source:1294d6c44fd02b66715692f12791bfa2fd4c8856, schema001–018.
 - Target: the exact separately approved Feature9 commit, additive019, existing store.
 - Readiness deadline: before handoff and before separately authorized production adoption.
+- Approved local combined target adopted on2026-10-04: `b849d3423a51a5d0f90273c3d5ed88433ec78778`/schema019. [Production acceptance](../verification/features9-10-production-adoption.md).
 - Last edited:2026-10-04. [Review/rehearsal evidence](../verification/incremental-ingestion.md).
 
 ## When to use / when not to use
@@ -64,8 +65,9 @@ report['source_db_name'] = cfg.db_name
 with db.connect(cfg, role='owner') as conn:
     report['source_identity'] = source_identity(conn)
 report['verified_at'] = datetime.now(timezone.utc).isoformat()
-report_path.write_text(json.dumps(report, indent=2))
-report_path.chmod(0o600)
+fd = os.open(report_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+with os.fdopen(fd, 'w') as stream:
+    json.dump(report, stream, indent=2)
 ```
 
 ```bash
