@@ -3,8 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-
-import psycopg
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -62,13 +60,13 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
         if expiry and (when is None or expiry <= when):
             raise ValueError('expiry must be after event time')
         project_scope = write_scope(project=clean['project'],scope=scope) or 'unknown'
-        key = json.dumps([project_scope,domain,entity,attribute],ensure_ascii=False)
+        key = json.dumps([project_scope,entity,attribute],ensure_ascii=False)
         lock = int.from_bytes(hashlib.sha256(key.encode()).digest()[:8],signed=True)
         conn.execute('SELECT pg_advisory_xact_lock(%s)',(lock,))
         candidates = conn.execute(
             'SELECT a.*,d.slug FROM fact_assertions a JOIN documents d ON d.id=a.document_id'
-            ' WHERE d.project_scope=%s AND d.domain=%s AND a.entity=%s AND a.attribute=%s ORDER BY a.event_at NULLS LAST,a.document_id LIMIT 51',
-            (project_scope,domain,entity,attribute)).fetchall()
+            ' WHERE d.project_scope=%s AND a.entity=%s AND a.attribute=%s ORDER BY a.event_at NULLS LAST,a.document_id LIMIT 51',
+            (project_scope,entity,attribute)).fetchall()
         reason = None
         if project_scope == 'unknown': reason = 'unknown project applicability'
         elif when is None: reason = 'missing explicit event time'
@@ -96,20 +94,10 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
                     edges.append(EdgeSpec('supersedes',c['slug'],evidence['quote'],'high'))
                 elif relation == 'extension':
                     edges.append(EdgeSpec('extends',c['slug'],evidence['quote'],'high'))
-        # Different domain locks permit simultaneous equal-title creations. Keep
-        # the gateway's existing slug format, and retry only its slug uniqueness
-        # race inside a savepoint without losing the outer assertion transaction.
-        for attempt in range(3):
-            try:
-                with conn.transaction():
-                    result = save_document(conn,cfg,title=f'{entity}: {attribute}',body=value,
-                        domain=domain,dtype='memory',project=clean['project'],scope=scope,
-                        provenance={'origin':'atomic-assertion','evidence':evidence},edges=edges,
-                        actor=actor,commit=False)
-                break
-            except psycopg.errors.UniqueViolation as exc:
-                if exc.diag.constraint_name != 'documents_slug_key' or attempt == 2:
-                    raise
+        result = save_document(conn,cfg,title=f'{entity}: {attribute}',body=value,
+            domain=domain,dtype='memory',project=clean['project'],scope=scope,
+            provenance={'origin':'atomic-assertion','evidence':evidence},edges=edges,
+            actor=actor,commit=False)
         conn.execute('INSERT INTO fact_assertions(document_id,entity,attribute,value,event_at,expires_at,relation,disposition,review_reason,evidence)'
                      ' VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                      (result.doc_id,entity,attribute,value,when,expiry,relation,disposition,reason,json.dumps(evidence)))

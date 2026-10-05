@@ -259,7 +259,7 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
 
 - 🔵 **3.5** _(bug, P1)_ **Reject incomplete maintenance backup restores.** Strict transactional restores, all-public-table inventories and ownership-checked scratch cleanup are implemented. Source fidelity and ACL preservation remain explicitly unverified without a matching manifest. Owned 018/019 success/failure/interruption evidence is in [verification](docs/verification/maintenance-backup.md). Merge and production adoption remain pending. → *Issue:* [#41](https://github.com/phense/agentic-rag/issues/41).
 
-- ⬜ **3.6** _(bug, P1)_ **Keep atomic facts and temporal supersession within domain.** Existing comparison/locking/SQL eligibility omit domain from the entity/attribute/project key. Controlled Feature10 cases show independent programming facts suppressed by general replacements; exact entity routing retains originals. Gateway duplicate-path risk remains code-inspection evidence. No production repair is included. → *Issue:* [#48](https://github.com/phense/agentic-rag/issues/48). → *Trigger:* Isolated source reproduction, domain-bound comparisons and a separately tested additive upgrade with historical evidence preserved.
+- 🔵 **3.6** _(bug, P1)_ **Keep atomic facts and temporal supersession within domain.** Domain-bound gateway and additive020 reader correction are implemented. Owned018/019 strict backup, migration rollback/retry, row/role preservation and historical diagnosis are recorded in [verification](docs/verification/domain-assertions.md). Historical mixed-domain consequences are retained; merge and production adoption remain pending. → *Issue:* [#48](https://github.com/phense/agentic-rag/issues/48).
 
 ## §4 — Supermemory-inspired improvement requests (2026-09-05)
 
