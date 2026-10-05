@@ -18,7 +18,7 @@ the genuine residual needs:
   rotate_logs   the hooks/worker/backup/maintenance logs are append-only; bound
                 their growth (size-based, one .1 generation kept).
   verify_backup weekly, REPORT-ONLY: pg_restore the newest dump into an ISOLATED
-                throwaway database, sanity-check its row counts against live,
+                throwaway database, inventory all restored tables,
                 then drop it. Never touches the live store; never auto-remediates.
 
 Everything runs under a single-flight flock inside an always-exit-0, audited
@@ -32,10 +32,12 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from uuid import uuid4
 from datetime import datetime
 from pathlib import Path
 
 import psycopg
+from psycopg import sql
 
 from . import backup as backup_mod
 from . import db
@@ -51,7 +53,6 @@ _LOG_PATH = _LOG_DIR / "maintenance.log"
 _LOG_MAX_BYTES = 5 * 1024 * 1024   # rotate a log once it passes 5 MiB
 _WORKER_TIMEOUT = 900              # 15 min hard cap on the drain tick
 _VERIFY_WEEKDAY = 6               # Sunday (Mon=0) — the weekly restore-test
-_SCRATCH_SUFFIX = "_verify_scratch"
 
 PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / "com.agentic-rag.maintenance.plist"
 
@@ -93,71 +94,84 @@ def rotate_logs(*, log_dir: Path = _LOG_DIR,
 
 
 def _counts(cfg: Config, dbname: str) -> dict:
-    conn = db.connect(cfg, role="owner", dbname=dbname)
-    try:
-        docs = conn.execute("SELECT count(*) AS n FROM documents").fetchone()["n"]
-        chunks = conn.execute("SELECT count(*) AS n FROM chunks").fetchone()["n"]
-    finally:
-        conn.close()
-    return {"documents": docs, "chunks": chunks}
+    """Inventory all restored public tables in one read-only snapshot."""
+    with db.connect(cfg, role="owner", dbname=dbname) as conn:
+        conn.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        tables = [row["tablename"] for row in conn.execute(
+            "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename"
+        )]
+        if not {"documents", "chunks"}.issubset(tables):
+            raise RuntimeError("restored archive lacks canonical tables")
+        return {table: conn.execute(sql.SQL("SELECT count(*) AS n FROM public.{}").format(
+            sql.Identifier(table))).fetchone()["n"] for table in tables}
 
 
-def _drop_scratch(cfg: Config, scratch: str) -> None:
-    admin = psycopg.connect(db.dsn(cfg, "owner", dbname="postgres"),
-                            autocommit=True)
-    try:
-        admin.execute(f'DROP DATABASE IF EXISTS "{scratch}"')
-    finally:
-        admin.close()
+def _drop_scratch(cfg: Config, scratch: str, oid: int) -> None:
+    """Drop only the database created by this invocation, still owned by us."""
+    with psycopg.connect(db.dsn(cfg, "owner", dbname="postgres"), autocommit=True) as admin:
+        row = admin.execute(
+            "SELECT oid, datdba = (SELECT oid FROM pg_roles WHERE rolname=current_user) "
+            "FROM pg_database WHERE datname=%s", (scratch,)
+        ).fetchone()
+        if row is None:
+            return
+        if row != (oid, True):
+            raise RuntimeError("scratch database identity or ownership changed; cleanup refused")
+        admin.execute(sql.SQL("DROP DATABASE {}").format(sql.Identifier(scratch)))
+
+
+def _restore_diagnostic(stderr: str) -> str:
+    """Retain safe error categories; raw SQL/data and credentials stay out of logs."""
+    categories = ("permission denied", "does not exist", "could not connect", "unexpected end",
+                  "unsupported version", "not a valid archive", "could not read", "could not open")
+    lowered = stderr.lower()
+    return "; ".join(category for category in categories if category in lowered) or "details omitted"
 
 
 def verify_backup(cfg: Config, *, runner=subprocess.run) -> dict:
-    """REPORT-ONLY weekly restore-test. pg_restore the newest local dump into an
-    ISOLATED throwaway database, compare its documents/chunks counts to live,
-    then drop the scratch DB. Never touches the live store; no auto-remediation.
+    """Strict isolated restore smoke test, with source fidelity explicitly unverified.
 
-    The isolation is the load-bearing safety property: the restore target is a
-    dedicated scratch database (live name + a fixed suffix), asserted distinct
-    from the live db, created fresh and always dropped in the finally."""
-    scratch = cfg.db_name + _SCRATCH_SUFFIX
-    if scratch == cfg.db_name:                       # defensive — never the live db
-        raise RuntimeError("scratch db name collides with the live db")
+    Existing dumps carry no same-snapshot source inventory. Restoring every archive
+    entry successfully proves restorability, not that all source rows were captured.
+    No independently changing live counts are queried or used as evidence.
+    """
     dumps = backup_mod._dumps(cfg.backup_local_dir)
     if not dumps:
         return {"step": "verify_backup", "ok": False,
-                "warning": "no local dump to verify"}
+                "warning": "no local dump to verify", "fidelity_verified": False}
     dump = dumps[0]
-
-    _drop_scratch(cfg, scratch)                       # clear any stale scratch
-    admin = psycopg.connect(db.dsn(cfg, "owner", dbname="postgres"),
-                            autocommit=True)
+    scratch = "rag_verify_" + uuid4().hex
+    if scratch == cfg.db_name:
+        raise RuntimeError("scratch db name collides with the live db")
+    result = {"step": "verify_backup", "ok": False, "dump": dump.name,
+              "fidelity_verified": False}
+    oid = None
     try:
-        admin.execute(f'CREATE DATABASE "{scratch}"')
+        with psycopg.connect(db.dsn(cfg, "owner", dbname="postgres"), autocommit=True) as admin:
+            admin.execute(sql.SQL("CREATE DATABASE {} TEMPLATE template0").format(sql.Identifier(scratch)))
+            oid = admin.execute("SELECT oid FROM pg_database WHERE datname=%s", (scratch,)).fetchone()[0]
+        proc = runner([backup_mod._pg_bin("pg_restore", cfg), "--no-owner", "--no-privileges",
+                       "--single-transaction", "--exit-on-error", "-d", db.dsn(cfg, dbname=scratch), str(dump)],
+                      capture_output=True, text=True, check=False, timeout=_WORKER_TIMEOUT)
+        result["returncode"] = proc.returncode
+        if proc.returncode != 0:
+            result["warning"] = f"restore failed (exit {proc.returncode}): {_restore_diagnostic(proc.stderr or '')}"
+        else:
+            result["restored"] = _counts(cfg, scratch)
+            result["ok"] = True
+            result["warning"] = ("source fidelity unverified: archive restored successfully, but no "
+                                 "same-snapshot source inventory exists; ownership and ACLs were not tested")
+    except Exception as exc:  # report-only: do not leak raw server errors or SQL data
+        result["warning"] = f"restore verification failed: {type(exc).__name__} (details omitted)"
     finally:
-        admin.close()
-
-    try:
-        # Ignore pg_restore's exit code: restoring a role-owned/ACL'd dump into a
-        # bare scratch db emits non-fatal role/GRANT errors even with
-        # --no-owner/--no-privileges. The row counts below are the real signal.
-        proc = runner([backup_mod._pg_bin("pg_restore", cfg), "--no-owner",
-                       "--no-privileges", "-d", scratch, str(dump)],
-                      capture_output=True, text=True, check=False)
-        restored = _counts(cfg, scratch)
-        live = _counts(cfg, cfg.db_name)
-        # A healthy nightly dump loads the corpus; it may lag live slightly but
-        # must not be empty or catastrophically short.
-        ok = restored["documents"] > 0 and \
-            restored["documents"] >= live["documents"] * 0.5
-        result = {"step": "verify_backup", "ok": ok, "dump": dump.name,
-                  "restored": restored, "live": live}
-        if not ok:
-            result["warning"] = (
-                f"restore-test mismatch: restored={restored} live={live}; "
-                f"pg_restore stderr: {(proc.stderr or '').strip()[:200]}")
-        return result
-    finally:
-        _drop_scratch(cfg, scratch)
+        if oid is not None:
+            try:
+                _drop_scratch(cfg, scratch, oid)
+            except Exception as exc:
+                result["ok"] = False
+                result["cleanup_warning"] = f"scratch cleanup failed: {type(exc).__name__} (details omitted)"
+                result["warning"] = result.get("warning", "") + "; " + result["cleanup_warning"]
+    return result
 
 
 # ---- orchestration -----------------------------------------------------------

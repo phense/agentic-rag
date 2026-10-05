@@ -117,10 +117,20 @@ class _FakeAdmin:
         self._log = log
 
     def execute(self, sql, *a):
-        self._log.append(sql)
+        self._log.append(sql.as_string() if hasattr(sql, "as_string") else sql)
+        return self
+
+    def fetchone(self):
+        return (123, True)
 
     def close(self):
         pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
 
 
 class _FakeCountConn:
@@ -138,51 +148,106 @@ class _FakeCountConn:
 
 
 def test_verify_backup_only_ever_touches_a_scratch_db(cfg, tmp_path, monkeypatch):
-    admin_sql: list[str] = []
-    restore_argv: list = []
-
-    monkeypatch.setattr(m.backup_mod, "_dumps",
-                        lambda d: [Path("agentic_rag-20260706-182612.dump")])
-    monkeypatch.setattr(m.backup_mod, "_pg_bin", lambda name, cfg=None: name)
-    monkeypatch.setattr(m.psycopg, "connect",
-                        lambda dsn, autocommit=False: _FakeAdmin(admin_sql))
-    # scratch restores fewer docs than live but well above the 50% floor
-    counts = {cfg.db_name: 100, cfg.db_name + m._SCRATCH_SUFFIX: 98}
-    monkeypatch.setattr(m.db, "connect",
-                        lambda c, role="owner", dbname=None: _FakeCountConn(counts[dbname]))
-
-    def fake_runner(argv, **kw):
-        restore_argv.extend(argv)
-        return _cp(rc=0)
-
-    res = m.verify_backup(cfg, runner=fake_runner)
-
-    scratch = cfg.db_name + m._SCRATCH_SUFFIX
-    # The live db name must NEVER appear in any CREATE/DROP DATABASE statement.
-    for sql in admin_sql:
-        if "DATABASE" in sql:
-            assert cfg.db_name not in sql.replace(scratch, "")
-    assert any(f'CREATE DATABASE "{scratch}"' in s for s in admin_sql)
-    assert sum(f'DROP DATABASE IF EXISTS "{scratch}"' in s for s in admin_sql) >= 1
-    # pg_restore targets the scratch db, not live
-    assert "-d" in restore_argv
-    assert restore_argv[restore_argv.index("-d") + 1] == scratch
-    assert res["step"] == "verify_backup" and res["ok"] is True
-
-
-def test_verify_backup_flags_a_short_restore(cfg, monkeypatch):
+    admin_sql = []
+    restore_argv = []
     monkeypatch.setattr(m.backup_mod, "_dumps", lambda d: [Path("d.dump")])
     monkeypatch.setattr(m.backup_mod, "_pg_bin", lambda name, cfg=None: name)
-    monkeypatch.setattr(m.psycopg, "connect",
-                        lambda dsn, autocommit=False: _FakeAdmin([]))
-    counts = {cfg.db_name: 100, cfg.db_name + m._SCRATCH_SUFFIX: 3}  # catastrophic short
-    monkeypatch.setattr(m.db, "connect",
-                        lambda c, role="owner", dbname=None: _FakeCountConn(counts[dbname]))
-    res = m.verify_backup(cfg, runner=lambda argv, **kw: _cp(rc=0))
-    assert res["ok"] is False and "mismatch" in res["warning"]
+    monkeypatch.setattr(m.psycopg, "connect", lambda *a, **k: _FakeAdmin(admin_sql))
+    counts_seen = []
+    def counts(config, name):
+        counts_seen.append(name)
+        return {"documents": 98, "chunks": 200, "audit_log": 150}
+    monkeypatch.setattr(m, "_counts", counts)
+    def runner(argv, **kw):
+        restore_argv.extend(argv)
+        assert kw['timeout'] == 900
+        return _cp()
+    res = m.verify_backup(cfg, runner=runner)
+    scratch = counts_seen[0]
+    assert scratch.startswith("rag_verify_") and scratch != cfg.db_name
+    assert counts_seen == [scratch]
+    assert any(f'CREATE DATABASE "{scratch}"' in s for s in admin_sql)
+    assert any(f'DROP DATABASE "{scratch}"' in s for s in admin_sql)
+    assert not any('DROP DATABASE IF EXISTS' in s for s in admin_sql)
+    assert restore_argv[restore_argv.index("-d") + 1] == "dbname=" + scratch
+    assert {"--single-transaction", "--exit-on-error"}.issubset(restore_argv)
+    assert res['ok'] is True and res['fidelity_verified'] is False
 
 
 def test_verify_backup_no_dump(cfg, monkeypatch):
     monkeypatch.setattr(m.backup_mod, "_dumps", lambda d: [])
     res = m.verify_backup(cfg, runner=lambda argv, **kw: _cp(rc=0))
     assert res["ok"] is False and "no local dump" in res["warning"]
+
+
+def test_verify_backup_rejects_nonzero_restore_with_plausible_counts(cfg, monkeypatch):
+    """A failed restore must never succeed merely because many rows loaded."""
+    monkeypatch.setattr(m.backup_mod, '_dumps', lambda d: [Path('d.dump')])
+    monkeypatch.setattr(m.backup_mod, '_pg_bin', lambda name, cfg=None: name)
+    monkeypatch.setattr(m.psycopg, 'connect', lambda *a, **k: _FakeAdmin([]))
+    monkeypatch.setattr(m, '_counts', lambda *a: {'documents': 98, 'chunks': 200})
+    result = m.verify_backup(cfg, runner=lambda *a, **k: _cp(1, 'restore failed'))
+    assert result['ok'] is False
+    assert result['returncode'] == 1
+
+
+def test_verify_backup_reports_unverified_fidelity_without_live_comparison(cfg, monkeypatch):
+    """A successful restore cannot prove fidelity to an unrelated live snapshot."""
+    monkeypatch.setattr(m.backup_mod, '_dumps', lambda d: [Path('d.dump')])
+    monkeypatch.setattr(m.backup_mod, '_pg_bin', lambda name, cfg=None: name)
+    monkeypatch.setattr(m.psycopg, 'connect', lambda *a, **k: _FakeAdmin([]))
+    seen = []
+    def counts(config, name):
+        seen.append(name)
+        return {'documents': 98, 'chunks': 200}
+    monkeypatch.setattr(m, '_counts', counts)
+    result = m.verify_backup(cfg, runner=lambda *a, **k: _cp())
+    assert result['ok'] is True
+    assert result['fidelity_verified'] is False
+    assert 'unverified' in result['warning']
+    assert cfg.db_name not in seen
+
+
+@pytest.mark.parametrize('failure', ['timeout', 'raised', 'ownership'])
+def test_verify_backup_failure_is_reported_and_cleanup_is_guarded(cfg, monkeypatch, failure):
+    sql_seen = []
+    monkeypatch.setattr(m.backup_mod, '_dumps', lambda d: [Path('d.dump')])
+    monkeypatch.setattr(m.backup_mod, '_pg_bin', lambda name, cfg=None: name)
+    class Admin(_FakeAdmin):
+        def fetchone(self):
+            if failure == 'ownership' and any('datdba' in s for s in self._log):
+                return (124, False)
+            return (123, True)
+    monkeypatch.setattr(m.psycopg, 'connect', lambda *a, **k: Admin(sql_seen))
+    monkeypatch.setattr(m, '_counts', lambda *a: {'documents': 0, 'chunks': 0})
+    def runner(*a, **k):
+        if failure == 'timeout':
+            raise subprocess.TimeoutExpired('pg_restore', 900)
+        if failure == 'raised':
+            raise OSError('private database content must not leak')
+        return _cp()
+    result = m.verify_backup(cfg, runner=runner)
+    assert result['ok'] is False
+    assert 'private database content' not in str(result)
+    drops = [s for s in sql_seen if 'DROP DATABASE' in s]
+    assert len(drops) == (0 if failure == 'ownership' else 1)
+    if failure == 'ownership':
+        assert 'cleanup' in result['warning']
+
+
+def test_verify_backup_creation_failure_does_not_drop_foreign_database(cfg, monkeypatch):
+    sql_seen = []
+    monkeypatch.setattr(m.backup_mod, '_dumps', lambda d: [Path('d.dump')])
+    class Admin(_FakeAdmin):
+        def execute(self, sql, *args):
+            super().execute(sql, *args)
+            raise RuntimeError('database already exists')
+    monkeypatch.setattr(m.psycopg, 'connect', lambda *a, **k: Admin(sql_seen))
+    result = m.verify_backup(cfg)
+    assert result['ok'] is False
+    assert not any('DROP DATABASE' in s for s in sql_seen)
+
+
+def test_restore_diagnostic_never_returns_raw_data():
+    assert m._restore_diagnostic('COPY private-data; password=privatepassword permission denied') == 'permission denied'
+    assert m._restore_diagnostic('secret user row in failed INSERT') == 'details omitted'

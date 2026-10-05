@@ -87,7 +87,7 @@ three residual jobs, and nothing else:
 |---|---|
 | **Worker drain tick** | Runs the single-writer worker (`python -m agentic_rag.worker`) once, with a 15-minute timeout. The worker is otherwise spawned only by session hooks, so on a quiet day — no Claude session, or Ollama was briefly down when a document was written — embed-retries and queued curation would just sit there. This tick unsticks them. The worker is itself a flock singleton, so if one is already running, this is a clean no-op — never a second pipeline. Skip it with `--no-worker`. |
 | **Log rotation** | Any `*.log` file under `~/.agentic-rag/log/` past 5 MiB is moved to `<name>.log.1` (one prior generation kept) and started fresh. Only touches agentic-rag's own logs. |
-| **Weekly restore-test** | On Sundays — or immediately with `--verify-backup` — restores the newest local dump into an isolated, disposable scratch database (the live database name plus a fixed suffix, never the live name itself), compares `documents`/`chunks` row counts against the live database, then drops the scratch database in a `finally` block regardless of outcome. **Report-only**: it never touches the live store and never auto-remediates a bad backup. A restore counts as healthy if it produced at least one document and at least half of the live document count — a real backup can lag live by a little, but not be empty or drastically short. |
+| **Weekly restore-test** | On Sundays — or with `--verify-backup` — restores the newest local archive into a fresh, uniquely named scratch database using `--single-transaction --exit-on-error`. Nonzero exit, timeout, missing canonical tables or cleanup failure is reported as a failed check. All restored public tables are counted in one read-only snapshot. Cleanup checks the scratch database OID and owner; it never drops a pre-existing target. A zero restore exit proves archive restorability. `fidelity_verified=false` and a warning explicitly state that complete source fidelity, ownership and ACL preservation remain unverified. Existing archives contain no same-snapshot source manifest, so this check never compares their row counts against a changing live database. |
 
 The whole run is wrapped in a single-flight lock
 (`~/.agentic-rag/state/maintenance.lock`): if another maintenance run is
@@ -167,3 +167,24 @@ job actually ran before you trust it.
 [10 · Architecture](10-architecture.md) — the schema, the role matrix, HNSW
 + full-text indexing, the write gateway, and how the worker, hooks, and MCP
 servers fit together.
+
+### Upgrading the restore verifier
+
+Version 0.6.4 is a code-only upgrade from 0.6.3, with compatible schema 001–019,
+existing archives, maintenance flags, weekly schedule and always-zero process exit.
+No dump rewrite, database migration, client configuration change or scheduler
+reinstall is required. Existing 018 archives are restored at their original schema;
+the verifier does not apply new migrations to them. A successful empty corpus is
+restorable too. Review `ok`, `returncode`, `restored`, `warning` and
+`fidelity_verified` in the maintenance audit. Consumers of the former `live`
+comparison must switch to the explicitly qualified archive inventory.
+
+Adopt the reviewed package separately from PR merge approval. Keep the previous
+checkout/environment and stored launcher paths for code rollback. Do not run
+`rag restore` to test a backup: it targets the configured live store. Verification
+uses a fresh scratch database and never writes knowledge, pins, queues or audits
+in the source. Interrupted restores roll back; failed cleanup is reported for
+operator inspection rather than deleting an unrecognized database.
+
+[Issue41 verification](verification/maintenance-backup.md) records owned-source
+018/019 restore and failure rehearsals and the limits of this smoke test.
