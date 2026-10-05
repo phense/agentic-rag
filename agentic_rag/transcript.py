@@ -1,4 +1,4 @@
-"""Version-tolerant Claude Code transcript digests (spec §6.1).
+"""Version-tolerant client transcript digests (spec §6.1).
 
 The JSONL format is officially internal and unstable: skip what we cannot
 parse, ignore fields we do not know, degrade — never crash. The digest keeps
@@ -16,6 +16,7 @@ from pathlib import Path
 
 from .secrets import strip_secrets
 from .transcript_agy import is_step, step_identity, step_prose
+from .transcript_codex import response_identity, response_prose
 
 
 @dataclass(frozen=True)
@@ -51,7 +52,8 @@ def build_digest(path, *, after_uuid: str | None = None,
     start = 0
     if after_uuid is not None:
         for i, ev in enumerate(events):
-            if ev.get("uuid") == after_uuid or step_identity(ev) == after_uuid:
+            if (ev.get("uuid") == after_uuid or step_identity(ev) == after_uuid
+                    or response_identity(ev) == after_uuid):
                 start = i + 1
                 break
         # unknown uuid (rotated file, format change) → mine the full
@@ -68,6 +70,12 @@ def build_digest(path, *, after_uuid: str | None = None,
             # tool names come from the step-specific digest helper.
             last_uuid = step_identity(ev)
             lines.extend(step_prose(ev, per_block=per_block))
+            continue
+        elif ev.get("type") == "response_item":
+            identity = response_identity(ev)
+            if identity is not None:
+                last_uuid = identity
+            lines.extend(response_prose(ev, per_block=per_block))
             continue
         msg = ev.get("message")
         if not isinstance(msg, dict):

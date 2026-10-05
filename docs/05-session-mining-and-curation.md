@@ -90,6 +90,44 @@ Native Codex memories are complementary and inspectable with `/memories`.
 They can supply lightweight native adaptation; agentic-rag remains canonical
 for durable searchable knowledge and explicit continuation state.
 
+### Codex response-item digest repair and code recovery
+
+Version 0.6.6 repairs the continuity digest used by checkpoint enrichment. Native
+Codex rollout records store messages inside `response_item.payload`, often with
+null message IDs. Earlier continuity readers ignored them and completed the
+enrichment job with an empty digest, leaving a snapshot. The separate lossless
+mining-window reader already accepted Codex messages and is unchanged.
+
+The repaired reader accepts user/assistant text and tool names, with slug/query
+hints only for named memory tools. It excludes reasoning, system/developer text,
+event-message mirrors, compaction internals, custom-tool inputs, ordinary function
+arguments and tool outputs. Existing digest budgets and secret stripping apply.
+Capture and enrichment share `codex-event-v1:<sha256>` cursors derived from the
+parsed response record, including its timestamp. Equal records retain equal cursors
+across JSON reformatting; capture still reads only its bounded tail. An unrecognized
+historical continuity cursor retains the existing full-file fallback before the
+bounded tail is selected. This fallback is specific to continuity digests; lossless
+`mw1:` mining cursors continue to verify their source prefix and fail on drift.
+
+No new migration or configuration edit is required for this repair on 018/019 or 020.
+The PR stack's separate 020 migration still follows the
+[domain upgrade procedure](fact-validity.md#existing-installation-upgrade-and-recovery).
+Use the installation's approved backup and code-adoption procedure; publish a clean
+environment, switch only owned launcher fields and let the singleton worker finish
+before a replacement reads pending jobs. Existing MCP sessions need reconnect to
+load the new package. Hook handlers load code on their next invocation. Keep the
+source environment for recovery: old code can read newly enriched checkpoints, but
+does not enrich native Codex transcripts. Pause enrichment while recovering to old
+code, and resume after a forward repair.
+
+Pending enrichment jobs remain usable, including historical fallback cursors.
+Previously completed empty jobs are not automatically requeued, and historical
+snapshots are not rewritten. Any replay is a separate audited recovery decision,
+with the normal configured-provider privacy and cost boundary. The code repair does
+not prove fresh live manual/automatic compaction, restored goal/pending work/pins/domains,
+provider outage/recovery or SessionEnd tail capture. See the measured evidence and
+remaining gates in [Codex continuity verification](verification/codex-continuity.md).
+
 ## Claude continuity around compaction
 
 Claude Code reuses the same checkpoint store, selection rules, and renderer,

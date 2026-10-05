@@ -9,7 +9,7 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.5-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.6-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
@@ -272,6 +272,12 @@ PostCompact ──► mark boundary only (cannot inject context)
      │
 SessionStart(source="compact") ──► bounded checkpoint context ──► next request
 ```
+
+Codex checkpoint enrichment reads native rollout response items, including records
+with null message IDs. It keeps user/assistant prose and safe tool-name hints;
+reasoning, system/developer context, event mirrors and tool outputs are excluded.
+The code-only repair and remaining live-verification limits are recorded in
+[Codex continuity verification](docs/verification/codex-continuity.md).
 
 Native Codex memories are complementary, not the canonical record. With the
 installed policy they remain enabled and can be inspected with `/memories`;
