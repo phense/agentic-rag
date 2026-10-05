@@ -284,24 +284,23 @@ A dump file sitting on disk is not the same claim as "this backup works." So
 **report-only restore-test**: on Sundays (or on demand with
 `--verify-backup`), it takes the newest local dump, restores it with
 `pg_restore` into an isolated, disposable scratch database — never the live
-one — and compares document/chunk row counts against the live database:
+one — using `--single-transaction --exit-on-error --no-owner --no-privileges`.
+A nonzero restore exit or timeout fails the check. The verifier inventories every
+restored public table in one read-only snapshot. It does not compare archive
+counts against a changing live database.
 
-```python
-scratch = cfg.db_name + _SCRATCH_SUFFIX
-if scratch == cfg.db_name:      # defensive — never the live db
-    raise RuntimeError("scratch db name collides with the live db")
-...
-ok = restored["documents"] > 0 and \
-    restored["documents"] >= live["documents"] * 0.5
-```
+Each scratch database has a fresh random name. Cleanup checks its PostgreSQL OID
+and owner before dropping it; a foreign or replaced target is left untouched and
+the cleanup failure is reported. The verifier never auto-remediates a backup or
+writes to the live store.
 
-The scratch database is dropped afterward whether the check passes or
-fails. This step never touches the live store and never auto-remediates a
-bad backup — it only tells you, in the maintenance audit log, whether last
-night's dump actually restores to something sane. `rag restore` (the
-real, deliberate recovery path) requires an explicit `--yes` and restores
-inside a single transaction, so a failure partway through can't leave the
-database half-dropped.
+A successful restore reports archive restorability with `fidelity_verified=false`
+and a warning: existing dumps lack a matching source-snapshot manifest, and this
+restore skips ownership and ACL restoration. Full source fidelity and access-boundary
+preservation remain unverified. `rag restore` (the deliberate recovery path)
+requires `--yes` and restores inside a single transaction, so a failure partway
+through rolls back. See [maintenance and backups](09-maintenance-and-backups.md)
+for the report contract and code-only upgrade path.
 
 Codex configuration rollback is separate from database backup/restore. A
 changing `rag install --codex` creates a unique sibling backup for each

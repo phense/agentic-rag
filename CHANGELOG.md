@@ -7,6 +7,14 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-10-05
+
+### Fixed
+- Reject failed or interrupted maintenance backup restores and inventory all restored
+  public tables without comparing to a different live snapshot ([Issue41](https://github.com/phense/agentic-rag/issues/41)).
+- Use fresh scratch databases and verify their identity and ownership before cleanup.
+  Successful restore reports explicitly leave source fidelity and ACL preservation unverified.
+
 ## [0.6.3] - 2026-10-04
 
 ### Fixed
