@@ -85,4 +85,3 @@ Critical, High, Medium or Low findings. No source/private content was sent to a
 new provider. A read-only aggregate diagnosis on the running source found zero
 cross-domain temporal assertion edges; historical collapsed-duplicate attribution
 remains unverified and this does not establish absence of all prior domain errors.
-
