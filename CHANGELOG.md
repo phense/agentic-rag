@@ -7,6 +7,17 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-10-05
+
+### Fixed
+- Parse native Codex rollout response items for checkpoint enrichment instead of
+  accepting an empty digest; share an opaque cursor with bounded checkpoint capture
+  ([Issue12](https://github.com/phense/agentic-rag/issues/12)).
+- Preserve existing Claude/Antigravity readers, lossless mining-window cursors,
+  queued work and historical checkpoints without a schema migration or bulk replay.
+- Document populated018/019 compatibility, local before/after evidence, and the
+  outstanding sustained-session acceptance criteria.
+
 ## [0.6.5] - 2026-10-05
 
 ### Fixed

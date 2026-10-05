@@ -49,7 +49,13 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
   suite, isolated wheel install, immutable temporary-home check mode, and final
   code review passed. Verified findings have focused regressions and minimal
   fixes. *(M, completed 2026-09-03)*
-- 🔵 **0.2** _(chore)_ **Prove Codex continuity end to end.** A reference
+- 🔵 **0.2** _(chore)_ **Prove Codex continuity end to end.** The 2026-10-05
+  read-only audit found 33 automatic checkpoint boundaries but no semantic enrichment:
+  the continuity digest ignored native Codex response items. The bounded code repair,
+  populated 018/019 compatibility and remaining live gates are recorded in
+  [verification](docs/verification/codex-continuity.md). Issue #12 remains open for
+  fresh manual/automatic restoration, trust, provider-recovery and SessionEnd evidence.
+  A reference
   macOS deployment completed on 2026-09-03: migrations 006/007 were applied;
   the 600000/500000 policy, native memories, compact prompt, and all six merged
   handlers were installed; the post-install check is idempotent; the handler
