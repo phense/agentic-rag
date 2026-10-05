@@ -84,8 +84,7 @@ def test_project_domain_and_global_are_exact_boundaries(conn,cfg):
     b=fact(conn,cfg,'server','status','offline',project='/synthetic/entities/b')
     g=store.save_assertion(conn,cfg,entity='server',attribute='status',value='global',domain='general',scope='global',
         event_at='2026-01-01T00:00:00Z',evidence={'source_id':'global','role':'user','quote':'global'})
-    # Baseline exact-key replacement incorrectly ignores domain; the explicit
-    # entity read must derive domain-local status from retained original rows.
+    # Both ordinary and entity reads retain facts in the other domain.
     foreign=fact(conn,cfg,'server','status','other-domain','2026-03-01T00:00:00Z',domain='infrastructure',relation='replacement')
     assert [f['document_id'] for f in read(conn,'server',domain='general',project=PROJECT)['facts']]==[a.doc_id]
     assert [f['document_id'] for f in read(conn,'server',domain='general',project='/synthetic/entities/b')['facts']]==[b.doc_id]
@@ -419,7 +418,7 @@ def test_admin_document_purge_retains_legacy_delete_contract(conn,cfg,monkeypatc
     assert conn.execute("SELECT count(*) n FROM audit_log WHERE op='entity_alias_save'").fetchone()['n']==1
 
 
-def test_cross_domain_legacy_duplicate_saves_do_not_deadlock(conn,cfg):
+def test_cross_domain_distinct_saves_do_not_deadlock(conn,cfg):
     from concurrent.futures import ThreadPoolExecutor
     from agentic_rag import db
     domains.add_domain(conn,'infrastructure')
@@ -429,7 +428,9 @@ def test_cross_domain_legacy_duplicate_saves_do_not_deadlock(conn,cfg):
             c.execute("SET LOCAL lock_timeout='2s'; SET LOCAL statement_timeout='4s'")
             return fact(c,cfg,'host','port','8766',domain=domain).doc_id
     with ThreadPoolExecutor(max_workers=2) as pool:
-        assert list(pool.map(write,['infrastructure','general']))==[saved.doc_id,saved.doc_id]
+        results = list(pool.map(write,['infrastructure','general']))
+        assert results[0] != saved.doc_id
+        assert results[1] == saved.doc_id
 
 
 def test_caller_owned_assertion_batch_and_concurrent_second_key_complete(conn,cfg):
@@ -502,7 +503,7 @@ def test_candidate_on_populated017_retains_legacy_reads_writes_and_fallback(cfg,
                 link(writer,owned,confirm=True)
             assert store.get_document(writer,saved.doc_id)['body']=='8766'
         with db.connect(owned,role='owner') as owner:
-            assert db.apply_migrations(owner,db.SQL_DIR)==['018_entity_identities.sql', '019_embedding_reuse.sql']
+            assert db.apply_migrations(owner,db.SQL_DIR)==['018_entity_identities.sql', '019_embedding_reuse.sql', '020_domain_assertions.sql']
         with db.connect(owned,role='reader') as reader:
             initial=entities.read(reader,'legacy-on017',domain='general',project=PROJECT)
             assert not initial['identity_persisted'] and initial['facts'][0]['document_id']==saved.doc_id

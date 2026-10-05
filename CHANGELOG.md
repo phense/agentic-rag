@@ -7,6 +7,18 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-10-05
+
+### Fixed
+- Keep atomic assertion comparison, deduplication, locks and temporal supersession
+  within exact project/domain/entity/attribute boundaries ([Issue48](https://github.com/phense/agentic-rag/issues/48)).
+- Add retryable migration020 to correct the shared reader function without rewriting
+  assertions, source attachments, graph history, pins or audit records.
+- Retry simultaneous assertion slug-allocation collisions through gateway savepoints;
+  preserve existing slug format and caller-owned transaction boundaries.
+- Document populated018/019 upgrade, writer cutover, read-only code recovery and
+  aggregate diagnosis of historical cross-domain edges.
+
 ## [0.6.4] - 2026-10-05
 
 ### Fixed

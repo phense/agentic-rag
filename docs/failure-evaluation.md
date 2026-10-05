@@ -71,3 +71,8 @@ Original `benchmark run`/`compare`, CLI/MCP privileges, hooks, jobs, provider co
 and client adapters retain their existing behavior. Feature10 adds no SQL migration.
 Source019 code-only adoption/recovery and combined live018→019 are rehearsed on owned
 copies. See [PB-5.10](playbooks/failure-evaluation.md) and [verification](verification/failure-evaluation.md).
+
+Correction export and local evaluation accept populated schema 020 as well as 018
+and 019 after the domain-bound assertion upgrade. Existing artifact format, hashes,
+source revision and exact-snapshot schema attribution remain unchanged. An old
+export does not acquire new evidence or a new domain merely because020 is applied.

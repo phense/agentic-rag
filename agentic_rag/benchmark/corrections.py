@@ -126,8 +126,9 @@ def _reader_snapshot(cfg):
         conn.execute("SET LOCAL statement_timeout='5s'")
         schema = [r['filename'] for r in conn.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
         expected = [p.name for p in sorted(db.SQL_DIR.glob('*.sql')) if p.name <= '018_entity_identities.sql']
-        if schema not in (expected, expected + ['019_embedding_reuse.sql']):
-            raise ValueError('correction export supports populated schema018/019 only')
+        if schema not in (expected, expected + ['019_embedding_reuse.sql'],
+                           expected + ['019_embedding_reuse.sql', '020_domain_assertions.sql']):
+            raise ValueError('correction export supports populated schema018/019/020 only')
         at = conn.execute('SELECT transaction_timestamp() AS at').fetchone()['at'].isoformat()
         yield conn, at, schema
         conn.rollback()
@@ -302,7 +303,8 @@ def _validate_export(data):
     expected=[p.name for p in sorted(db.SQL_DIR.glob('*.sql')) if p.name<='018_entity_identities.sql']
     if (not isinstance(data.get('source_revision'),str) or not re.fullmatch('[0-9a-f]{40}',data['source_revision'])
         or not isinstance(data.get('source_sha256'),str) or not HEX.fullmatch(data['source_sha256'])
-        or data.get('source_schema') not in (expected,expected+['019_embedding_reuse.sql'])):
+        or data.get('source_schema') not in (expected,expected+['019_embedding_reuse.sql'],
+                                            expected+['019_embedding_reuse.sql','020_domain_assertions.sql'])):
         raise ValueError('invalid original code/schema revision')
     cases=data.get('cases')
     if not isinstance(cases,list) or len(cases)>MAX_CASES: raise ValueError('invalid bounded cases')
