@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.9] - 2026-10-29
+
+### Dependencies
+- Upgrade the locked certifi CA bundle from 2026.6.17 to 2026.10.19,
+  including removal of compromised emSign roots (Dependabot alert20).
+- Existing installations can update the isolated runtime and restart clients;
+  no schema migration or knowledge reprocessing is required. Runtime recovery
+  must account for the older bundle retaining the affected trust anchors.
+
 ## [0.6.8] - 2026-10-29
 
 ### Dependencies
