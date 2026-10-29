@@ -7,6 +7,23 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.8] - 2026-10-29
+
+### Dependencies
+- Upgrade the locked MCP SDK from 1.28.1 to 1.30.0. Retain the existing
+  stdio tool contracts and read-only registration; no data migration is required.
+- Existing installations can update their isolated runtime and restart MCP
+  processes. Recovery uses the prior runtime with the same unchanged database.
+
+## [0.6.7] - 2026-10-29
+
+### Documentation
+- Index the standalone/central multi-VM service foundation and 15 follow-up
+  feature requests as planned work in BACKLOG.md ([Issue58](https://github.com/phense/agentic-rag/issues/58)).
+- Keep GitHub Issues canonical and explicitly require verified upgrades for
+  installations that remain local. This release introduces no service behavior,
+  schema migration or deployment change.
+
 ## [0.6.6] - 2026-10-05
 
 ### Fixed
