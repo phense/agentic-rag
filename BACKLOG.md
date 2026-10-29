@@ -319,3 +319,30 @@ Implement in stable ID order 5.1–5.10. Every feature needs full tests, indepen
 
 _Completed entries above retain historical rollout evidence and Issue links.
 See `CHANGELOG.md` for release history; GitHub Issues track remaining open work._
+
+---
+
+## §6 — Standalone and central service roadmap (2026-10-29)
+
+GitHub Issues are canonical for scope, dependencies, acceptance and rollout status.
+These entries are planned work, not shipped capabilities. Issue 6.0 owns the
+minimum local/service/upgrade foundation; its follow-up features are separate
+deliverables and do not all block the first service release. Existing installations
+must have a verified upgrade path even when they remain fully local.
+
+- ⬜ **6.0** _(P1, enhancement)_ **Support standalone and centralized multi-VM service deployments with verified in-place upgrades.** → [#58](https://github.com/phense/agentic-rag/issues/58)
+- ⬜ **6.1** _(P2, enhancement)_ **Add an authenticated dashboard and resumable setup assistant.** → [#59](https://github.com/phense/agentic-rag/issues/59)
+- ⬜ **6.2** _(P2, enhancement)_ **Expose bounded request and job tracing in the dashboard.** → [#60](https://github.com/phense/agentic-rag/issues/60)
+- ⬜ **6.3** _(P2, enhancement)_ **Support configurable model and embedding providers with safe index migration.** → [#61](https://github.com/phense/agentic-rag/issues/61)
+- ⬜ **6.4** _(P2, enhancement)_ **Improve reranker quality and provider choice using measured failure cases.** → [#62](https://github.com/phense/agentic-rag/issues/62)
+- ⬜ **6.5** _(P2, enhancement)_ **Expose a consistent source-evidence and review-state contract across service clients.** → [#63](https://github.com/phense/agentic-rag/issues/63)
+- ⬜ **6.6** _(P2, enhancement)_ **Interpret relative time in EN/DE queries and apply explainable temporal ranking.** → [#64](https://github.com/phense/agentic-rag/issues/64)
+- ⬜ **6.7** _(P3, enhancement)_ **Derive source-linked pattern memories with opt-in Dream-style synthesis.** → [#65](https://github.com/phense/agentic-rag/issues/65)
+- ⬜ **6.8** _(P2, enhancement)_ **Extend duplicate handling and source-backed supersession with Dream-style lifecycle views.** → [#66](https://github.com/phense/agentic-rag/issues/66)
+- ⬜ **6.9** _(P2, enhancement)_ **Define versioned custom extraction instructions without application code changes.** → [#67](https://github.com/phense/agentic-rag/issues/67)
+- ⬜ **6.10** _(P1, enhancement)_ **Ship native agent plugins with shared connectors and verified compaction continuity.** → [#68](https://github.com/phense/agentic-rag/issues/68)
+- ⬜ **6.11** _(P2, enhancement)_ **Extend bounded multi-step research with entity-aware graph exploration and coverage diagnostics.** → [#69](https://github.com/phense/agentic-rag/issues/69)
+- ⬜ **6.12** _(P3, enhancement)_ **Ingest images as source-backed memories through an opt-in vision pipeline.** → [#70](https://github.com/phense/agentic-rag/issues/70)
+- ⬜ **6.13** _(P2, enhancement)_ **Add a scoped feedback API linked to retrieval events and confirmed-failure evaluation.** → [#71](https://github.com/phense/agentic-rag/issues/71)
+- ⬜ **6.14** _(P3, enhancement)_ **Publish authorized memory and job events through reliable signed webhooks.** → [#72](https://github.com/phense/agentic-rag/issues/72)
+- ⬜ **6.15** _(P2, enhancement)_ **Add typed metadata filters without weakening domain, project or authorization boundaries.** → [#73](https://github.com/phense/agentic-rag/issues/73)
