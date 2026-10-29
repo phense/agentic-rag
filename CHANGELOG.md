@@ -7,6 +7,14 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.8] - 2026-10-29
+
+### Dependencies
+- Upgrade the locked MCP SDK from 1.28.1 to 1.30.0. Retain the existing
+  stdio tool contracts and read-only registration; no data migration is required.
+- Existing installations can update their isolated runtime and restart MCP
+  processes. Recovery uses the prior runtime with the same unchanged database.
+
 ## [0.6.7] - 2026-10-29
 
 ### Documentation
