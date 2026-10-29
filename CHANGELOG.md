@@ -7,6 +7,15 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-10-29
+
+### Documentation
+- Index the standalone/central multi-VM service foundation and 15 follow-up
+  feature requests as planned work in BACKLOG.md ([Issue58](https://github.com/phense/agentic-rag/issues/58)).
+- Keep GitHub Issues canonical and explicitly require verified upgrades for
+  installations that remain local. This release introduces no service behavior,
+  schema migration or deployment change.
+
 ## [0.6.6] - 2026-10-05
 
 ### Fixed
