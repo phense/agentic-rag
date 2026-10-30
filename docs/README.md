@@ -9,6 +9,20 @@ learn. Shipped versus still-planned rollout state lives in
 are canonical for open work; [contributing](12-contributing.md#production-compatibility-and-pr-workflow)
 explains production compatibility, upgrade evidence, and merge approval.
 
+## Choose your deployment
+
+For a new local store, follow [Quick start](03-quick-start.md). For an existing
+store, start with the [verified upgrade procedure](13-central-service.md#upgrade-the-local-store).
+For agents using an existing central service, follow the
+[client setup](13-central-service.md#configure-the-server-and-clients): the client
+needs Python and its own credential/configuration, while PostgreSQL, embeddings
+and extraction run on the server. Server operators use the complete
+[central-service guide](13-central-service.md).
+
+Version0.6.10 includes optional REST/MCP service access and additive schema023.
+Standalone remains supported. [Measured deployment evidence](verification/issue58-service.md)
+distinguishes a tested reference copy from a completed production cutover.
+
 ## Start here
 
 - [What’s New in 0.6.0](00-whats-new-in-0.6.md) — ten adopted retrieval/ingestion features, measured limits and verified schema 018→019 adoption.
@@ -31,6 +45,7 @@ explains production compatibility, upgrade evidence, and merge approval.
 - [05 · Session mining & curation](05-session-mining-and-curation.md) — durable mining, the Claude and Codex checkpoint lifecycle/restoration (including the Claude handoff), provider recovery, and curation.
 
 ## Configure
+- [13 · Central service](13-central-service.md) — standalone upgrades, multi-VM authentication, durable input, bounded operation and cutover/recovery playbooks.
 - [06 · Configuration reference](06-configuration-reference.md) — agentic-rag defaults, the `[continuity]` handoff/context caps, the managed Claude 1M/500K policy, and the managed 350K/250K Codex policy.
 - [07 · Privacy, cost & control](07-privacy-and-cost.md) — provider calls, native/external memory, long-context pricing, hook trust, secrets, roles, and recovery.
 

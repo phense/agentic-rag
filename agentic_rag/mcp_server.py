@@ -24,7 +24,16 @@ from .query_cache import QueryCache
 _QUERY_CACHE = QueryCache()
 
 
+def _actor() -> str:
+    from .service.context import actor
+    return actor('claude')
+
+
 def _readonly() -> bool:
+    from .service.context import CURRENT
+    request = CURRENT.get()
+    if request is not None:
+        return request.read_only or request.principal.readonly
     return os.environ.get("RAG_READONLY", "").strip() == "1"
 
 
@@ -118,6 +127,11 @@ def memory_get(id_or_slug: str) -> dict:
     incoming and outgoing typed edges."""
     cfg, conn = _connect()
     with conn:
+        from .service.context import CURRENT
+        if CURRENT.get() is not None:
+            # Budget preflight and materialization must see the same records;
+            # concurrent source-trust updates cannot enlarge a checked result.
+            conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
         doc = get_document(conn, id_or_slug)
         if doc is None:
             return {"error": f"not found: {id_or_slug}"}
@@ -199,7 +213,7 @@ def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
             conn, cfg, title=title, body=body, domain=domain, dtype=dtype,
             slug=slug, doc_id=doc_id, edges=specs,
             provenance={"origin": "manual", "via": "mcp"},
-            actor="claude", mark_verified=mark_verified, project=project, scope=scope)
+            actor=_actor(), mark_verified=mark_verified, project=project, scope=scope)
         return _plain(res)
 
 
@@ -216,7 +230,7 @@ def memory_assert(entity: str, attribute: str, value: str, domain: str,
     with conn:
         return _plain(save_assertion(conn,cfg,entity=entity,attribute=attribute,value=value,
             domain=domain,evidence=evidence,event_at=event_at,expires_at=expires_at,
-            relation=relation,project=project,scope=scope,actor='claude'))
+            relation=relation,project=project,scope=scope,actor=_actor()))
 
 
 def memory_source_state(source_key: str, state: str, reason: str) -> dict:
@@ -224,7 +238,7 @@ def memory_source_state(source_key: str, state: str, reason: str) -> dict:
     Retains all evidence; dependent current claims use surviving active support."""
     from .store import set_source_state
     cfg,conn=_connect()
-    with conn:set_source_state(conn,source_key,state=state,reason=reason,actor='claude')
+    with conn:set_source_state(conn,source_key,state=state,reason=reason,actor=_actor())
     return {'source_key':source_key,'state':state}
 
 
@@ -236,7 +250,7 @@ def memory_review_claim(id_or_slug: str, state: str, reason: str) -> dict:
     with conn:
         doc_id=_resolve_id(conn,id_or_slug)
         if doc_id is None:return {'error':'document not found'}
-        review_claim(conn,doc_id,state=state,reason=reason,actor='claude')
+        review_claim(conn,doc_id,state=state,reason=reason,actor=_actor())
     return {'document_id':doc_id,'review_state':state}
 
 
@@ -250,7 +264,7 @@ def memory_pin(body: str | None = None, document_id: str | None = None,
     with conn:
         return {"pin_id": add_pin(conn, body=body, document_id=document_id,
                                   scope=scope, priority=priority,
-                                  actor="claude")}
+                                  actor=_actor())}
 
 
 def memory_unpin(pin_id: str) -> dict:
@@ -258,7 +272,7 @@ def memory_unpin(pin_id: str) -> dict:
     explicit instruction."""
     cfg, conn = _connect()
     with conn:
-        return {"unpinned": unpin(conn, pin_id, actor="claude")}
+        return {"unpinned": unpin(conn, pin_id, actor=_actor())}
 
 
 def memory_context(project: str | None = None, prompt: str | None = None,
@@ -317,7 +331,7 @@ def memory_entity_alias(alias: str, target: str, domain: str, evidence: dict,
     cfg,conn=_connect()
     with conn:
         return _plain(save_entity_alias(conn,cfg,alias=alias,target=target,domain=domain,evidence=evidence,
-            effective_at=effective_at,project=project,scope=scope,confirm=confirm,actor='claude'))
+            effective_at=effective_at,project=project,scope=scope,confirm=confirm,actor=_actor()))
 
 
 def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dict:
@@ -328,7 +342,7 @@ def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dic
     from .store import review_entity_alias
     cfg,conn=_connect()
     with conn:
-        return _plain(review_entity_alias(conn,document_id,state=state,reason=reason,actor='claude'))
+        return _plain(review_entity_alias(conn,document_id,state=state,reason=reason,actor=_actor()))
 
 
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
@@ -342,12 +356,30 @@ def tool_names(readonly: bool) -> list[str]:
 
 
 def build_server(readonly: bool) -> FastMCP:
+    from .config import load_config as current_config
+    cfg=current_config()
+    def tool(fn):
+        if cfg.service_mode!='client':return fn
+        import asyncio
+        from functools import wraps
+        import inspect
+        from typing import get_type_hints
+        @wraps(fn)
+        async def proxy(**arguments):
+            from .service.client import RemoteClient,RemoteError
+            def call():
+                with RemoteClient(cfg) as client:return client.invoke(fn.__name__,arguments)
+            try:return await asyncio.to_thread(call)
+            except RemoteError as exc:raise ValueError(exc.code) from None
+        hints=get_type_hints(fn)
+        proxy.__signature__=inspect.signature(fn).replace(parameters=[p.replace(annotation=hints.get(p.name,p.annotation)) for p in inspect.signature(fn).parameters.values()],return_annotation=dict)
+        return proxy
     server = FastMCP("agentic-rag")
     for fn in READ_TOOLS:
-        server.add_tool(fn)
+        server.add_tool(tool(fn))
     if not readonly:
         for fn in WRITE_TOOLS:
-            server.add_tool(fn)
+            server.add_tool(tool(fn))
     return server
 
 

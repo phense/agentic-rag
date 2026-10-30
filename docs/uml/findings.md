@@ -153,3 +153,32 @@ nonblocking cache mutation, explicit savepoints and exact prepared inputs addres
 these integration risks. Operational reviews added backup actual-server identity,
 pre-switch drift checks, child ownership/configuration and measurable content/vector
 oracles. Final source and recovery verification remains in the feature record.
+
+
+## Issue58 service architecture findings
+
+### AF-058-001 — Scope must survive transaction commits (design response required)
+
+FR-004; `central-service.md`, `db.py`, gateways that commit internally. Per-transaction settings would reset halfway through an existing tool. Apply service authorization settings for the lifetime of each fresh non-pooled role-limited connection and close it after the call. Test a read following a gateway commit and definer writes to guessed IDs. Owner: coordinator; status: implemented and independently verified in S1, task T058-02.
+
+### AF-058-002 — Machine-local locks are insufficient (design response required)
+
+FR-008; `central-service.md`, `worker.py:acquire_lock/requeue_orphans`. Hold a database session advisory lock across all worker commits and orphan recovery. Keep old binaries fenced during cutover. Test concurrent worker contenders and crash/retry. Owner: coordinator; status: implemented with keeper checks plus per-connection execution pins; keeper/main loss and accepted-batch replay regressions pass, confirmed in independent S2 review3, task T058-06.
+
+### AF-058-003 — Accepted input and applied knowledge are different states
+
+FR-006/007; durable-ACK sequence and `mining.py:mine_session`. Commit source+queue before ACK; persist accepted normalized batches before applying. Never remove a local submission after a timeout without an exact receipt replay. Owner: coordinator; status: implemented, replay/ownership/crash tests pass; confirmed in independent S2 review3, task T058-05.
+
+### AF-058-004 — Migration cannot infer remote-readable transcript paths
+
+FR-009/010; legacy `jobs.py` local-path payloads. Inventory blocking source dependencies, credentials, versions and independent stores before an opt-in remote move. Refuse unresolved path/mapping/collision state; do not fabricate evidence or claim a lossless move based on an old dump alone. Owner: coordinator; status: implemented with strict inventory/restore and source fence; final independent review pending, task T058-08.
+
+### AF-058-005 — Team reading must not collapse uploader authority
+
+FR-003A/AC-002B, maintainer clarification during final review. IT colleagues need
+shared knowledge/logs, while agent cursors and job authority remain distinct.
+Record immutable publication teams separately from principal/session IDs; use
+current team/project grants for SELECT only. Preserve original-row write guards
+and explicit receipt-owner checks. Do not infer permissions from Herdr labels
+or disappear team history when its author leaves. Owner: coordinator; implemented
+with real SQL/HTTP regressions, complete-feature re-review pending, T058-07C.

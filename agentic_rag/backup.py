@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import os
 import shutil
 import subprocess
 import sys
@@ -83,6 +84,8 @@ def _week(p: Path) -> str:
 
 
 def rotate(directory: Path, keep_daily: int, keep_weekly: int = 0) -> list[Path]:
+    if type(keep_daily) is not int or type(keep_weekly) is not int or not 1<=keep_daily<=366 or not 0<=keep_weekly<=366:
+        raise ValueError('finite backup retention required')
     dumps = _dumps(directory)
     keep = set(dumps[:keep_daily])
     if keep_weekly:
@@ -100,11 +103,23 @@ def rotate(directory: Path, keep_daily: int, keep_weekly: int = 0) -> list[Path]
     return deleted
 
 
+def ensure_storage(cfg: Config, directory: Path, *, incoming: int) -> None:
+    from .service.engine import ResourcePressure
+    if shutil.disk_usage(directory).free<cfg.service_min_free_bytes+incoming:
+        raise ResourcePressure('backup_storage_low',507)
+
+
 def run_backup(cfg: Config) -> BackupResult:
+    from . import db
     cfg.backup_local_dir.mkdir(parents=True, exist_ok=True)
+    if cfg.service_mode=='server':
+        with db.connect(cfg) as conn:
+            size=conn.execute('SELECT pg_database_size(current_database()) bytes').fetchone()['bytes']
+        ensure_storage(cfg,cfg.backup_local_dir,incoming=size*2)
     name = f"agentic_rag-{datetime.now():%Y%m%d-%H%M%S}.dump"
     local = cfg.backup_local_dir / name
-    _run_pg([_pg_bin("pg_dump", cfg), "-Fc", "-f", str(local), "-d", cfg.db_name])
+    fd=os.open(local,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600);os.close(fd)
+    _run_pg([_pg_bin("pg_dump", cfg), "-Fc", "-f", str(local), "-d", db.dsn(cfg)])
     result = BackupResult(local_path=local, cloud_path=None)
     result.deleted += rotate(cfg.backup_local_dir, cfg.backup_keep_local)
 
@@ -114,6 +129,8 @@ def run_backup(cfg: Config) -> BackupResult:
     if cloud_parent.exists():  # volume mounted — never mkdir a mount point
         cfg.backup_cloud_dir.mkdir(parents=True, exist_ok=True)
         cloud = cfg.backup_cloud_dir / name
+        if cfg.service_mode=='server':ensure_storage(cfg,cfg.backup_cloud_dir,incoming=local.stat().st_size)
+        fd=os.open(cloud,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600);os.close(fd)
         shutil.copy2(local, cloud)
         result.cloud_path = cloud
         result.deleted += rotate(
@@ -131,12 +148,13 @@ def run_backup(cfg: Config) -> BackupResult:
 
 
 def restore(cfg: Config, dump: Path, assume_yes: bool = False) -> None:
+    from . import db
     if not assume_yes:
         raise RuntimeError("restore requires explicit confirmation (assume_yes=True)")
     # --single-transaction: restore is all-or-nothing — a mid-restore failure
     # must never leave a half-dropped database
     _run_pg([_pg_bin("pg_restore", cfg), "--clean", "--if-exists",
-             "--single-transaction", "-d", cfg.db_name, str(dump)])
+             "--single-transaction", "-d", db.dsn(cfg), str(dump)])
 
 
 _PLIST = """<?xml version="1.0" encoding="UTF-8"?>

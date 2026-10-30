@@ -124,6 +124,9 @@ def recall_context(prompt: str, project: str | None) -> str | None:
     if not detect_signature(prompt) and not context_gate.detect(prompt, project):
         return None
     cfg = load_config()
+    if cfg.service_mode == 'client':
+        from ..service.local import context
+        return context(cfg,{'cwd':project},prompt=prompt) or None
     with db.connect(cfg, role="reader") as conn:
         result = context.build(conn, cfg, project=project, mode="prompt", prompt=prompt)
     return result["text"] or None
@@ -138,6 +141,11 @@ def run(payload: dict, stdout) -> None:
         if not detect_signature(prompt) and not context_gate.detect(prompt,payload.get('cwd')):
             return
         cfg=load_config()
+        if cfg.service_mode == 'client':
+            from ..service.local import context
+            text=context(cfg,payload,prompt=prompt)
+            if text:common.emit_context(stdout,'UserPromptSubmit',text)
+            return
         with db.connect(cfg,role='reader') as conn:
             result=context.build(conn,cfg,project=payload.get('cwd'),mode='prompt',prompt=prompt)
         text=result['text']

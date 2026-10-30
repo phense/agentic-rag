@@ -34,7 +34,7 @@ def cleanup(cfg, name: str, ownership: str) -> None:
 
 
 @contextmanager
-def isolated_database(cfg):
+def isolated_database(cfg,*,initialize=True):
     if any(os.environ.get(key) for key in ['PGHOST', 'PGHOSTADDR', 'PGSERVICE', 'PGSERVICEFILE']):
         raise ValueError('unset PGHOST, PGHOSTADDR, PGSERVICE and PGSERVICEFILE for the local benchmark')
     if (cfg.db_host not in {'', 'localhost', '127.0.0.1', '::1'}
@@ -60,7 +60,7 @@ def isolated_database(cfg):
             admin.execute(sql.SQL('DROP DATABASE {}').format(sql.Identifier(name)))
             raise
     try:
-        db.init_db(isolated)
+        if initialize:db.init_db(isolated)
         yield isolated
     finally:
         cleanup(isolated, name, ownership)

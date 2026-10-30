@@ -110,7 +110,7 @@ def test_context_pool_rejects_stale_source_and_wrong_model(vectors,conn,cfg,monk
     assert conn.execute('SELECT * FROM filtered_vector_candidates(%s::halfvec,%s,%s,%s,%s,%s,%s)',tuple(moved)).fetchall()==[]
 
 
-@pytest.mark.parametrize('timeout',['40ms','1s','1min','0'])
+@pytest.mark.parametrize('timeout',['250ms','1s','1min','0'])
 def test_success_restores_real_caller_budgets_and_neighbor_connection(vectors,conn,cfg,timeout):
     vectors()
     with db.connect(cfg,role='reader') as reader,db.connect(cfg,role='reader') as neighbor:
@@ -132,9 +132,21 @@ def test_idle_connection_keeps_setting_contract(vectors,cfg,autocommit):
         assert settings(reader)==original
 
 
+def evidenced_candidate(conn,cfg):
+    # The optimized predicate intentionally skips evidence for legacy documents.
+    # A real claim makes the controlled evidence-table lock meaningful on both
+    # schema022 and023, without weakening cancellation or the caller deadline.
+    return store.save_claim(conn,cfg,title='Controlled evidence candidate',
+        body='Synthetic service uses TLS.',domain='general',dtype='memory',
+        project='/synthetic/filter-a',claim_kind='stated',evidence=[{
+            'namespace':'synthetic:cancel','source_id':'e1','role':'user',
+            'quote':'Synthetic service uses TLS.','complete':True}])
+
+
 def test_real_timeout_rolls_back_only_planner_savepoint(vectors,conn,cfg):
     import psycopg
     vectors()
+    evidenced_candidate(conn,cfg)
     with db.connect(cfg,role='writer') as writer,db.connect(cfg) as blocker:
         pending=store.save_document(writer,cfg,title='Pending caller write',body='Private synthetic pending fact.',domain='general',dtype='reference',project='/synthetic/filter-a',commit=False)
         writer.execute("SET LOCAL statement_timeout='40ms'")
@@ -145,6 +157,9 @@ def test_real_timeout_rolls_back_only_planner_savepoint(vectors,conn,cfg):
         assert settings(writer)==original
         assert writer.execute('SELECT id FROM documents WHERE id=%s',(pending.doc_id,)).fetchone()
         blocker.rollback()
+        # The 40ms deadline above proves cancellation and restoration; successful
+        # cold planning is hardware-dependent and also exceeded it on schema020.
+        writer.execute("SET LOCAL statement_timeout='1s'")
         assert vector_plan.candidates(writer,params())
         writer.rollback()
     assert conn.execute('SELECT id FROM documents WHERE id=%s',(pending.doc_id,)).fetchone() is None
@@ -154,6 +169,7 @@ def test_external_cancellation_preserves_caller_write_and_settings(vectors,conn,
     import psycopg,time
     from concurrent.futures import ThreadPoolExecutor
     vectors()
+    evidenced_candidate(conn,cfg)
     with db.connect(cfg,role='writer') as writer,db.connect(cfg) as blocker:
         pending=store.save_document(writer,cfg,title='Cancelable caller write',body='Original pending source.',domain='general',dtype='reference',project='/synthetic/filter-a',commit=False)
         original=settings(writer)
@@ -171,14 +187,18 @@ def test_external_cancellation_preserves_caller_write_and_settings(vectors,conn,
         assert settings(writer)==original
         assert writer.execute('SELECT id FROM documents WHERE id=%s',(pending.doc_id,)).fetchone()
         blocker.rollback()
+        # The 40ms deadline above proves cancellation and restoration; successful
+        # cold planning is hardware-dependent and also exceeded it on schema020.
+        writer.execute("SET LOCAL statement_timeout='1s'")
         assert vector_plan.candidates(writer,params())
         writer.rollback()
     assert conn.execute('SELECT id FROM documents WHERE id=%s',(pending.doc_id,)).fetchone() is None
 
 
-def test_autocommit_timeout_leaves_connection_usable(vectors,cfg):
+def test_autocommit_timeout_leaves_connection_usable(vectors,conn,cfg):
     import psycopg
     vectors()
+    evidenced_candidate(conn,cfg)
     with db.connect(cfg,role='reader') as reader,db.connect(cfg) as blocker:
         reader.autocommit=True
         reader.execute("SET statement_timeout='40ms'")
@@ -187,6 +207,7 @@ def test_autocommit_timeout_leaves_connection_usable(vectors,cfg):
         with pytest.raises(psycopg.errors.QueryCanceled):vector_plan.candidates(reader,params())
         assert settings(reader)==original
         blocker.rollback()
+        reader.execute("SET statement_timeout='1s'")
         assert vector_plan.candidates(reader,params())
 
 

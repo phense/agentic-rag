@@ -1,0 +1,50 @@
+# Private 0600, owned by the service user. Replace all placeholders with CLI
+# verifiers before starting. Plaintext keys/passwords never belong here.
+# Example identities: provision separate entries/keys per actual user/client
+# profile, including when several users share a VM. Labels grant no authority.
+version = 1
+
+[users.operator]
+# Give every authorized IT user this same team to share retained session logs.
+session_teams = ["it"]
+password = "REPLACE_WITH_RAG_SERVICE_PASSWORD_VERIFIER"
+admin = true
+read_domains = ["sysadmin", "general"]
+write_domains = ["sysadmin"]
+read_projects = ["/projects/it", "global", "unknown"]
+write_projects = ["/projects/it"]
+
+[machines.vm1]
+label = "First agent VM"
+user = "operator"
+enabled = true
+read_domains = ["sysadmin", "general"]
+write_domains = ["sysadmin"]
+read_projects = ["/projects/it", "global", "unknown"]
+write_projects = ["/projects/it"]
+
+[machines.vm1.keys]
+vm1 = "REPLACE_WITH_RAG_SERVICE_KEY_VERIFIER"
+
+# This user/client cannot read IT or general/global knowledge, even when it
+# runs on the same host. Expose reviewed common domains only by explicit grant.
+[users.bookkeeper]
+session_teams = ["accounting"]
+password = "REPLACE_WITH_ACCOUNTING_PASSWORD_VERIFIER"
+admin = false
+read_domains = ["accounting"]
+write_domains = ["accounting"]
+read_projects = ["/projects/accounting"]
+write_projects = ["/projects/accounting"]
+
+[machines.vm1_bookkeeper]
+label = "First agent VM"
+user = "bookkeeper"
+enabled = true
+read_domains = ["accounting"]
+write_domains = ["accounting"]
+read_projects = ["/projects/accounting"]
+write_projects = ["/projects/accounting"]
+
+[machines.vm1_bookkeeper.keys]
+vm1_bookkeeper = "REPLACE_WITH_ACCOUNTING_KEY_VERIFIER"

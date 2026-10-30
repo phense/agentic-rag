@@ -119,7 +119,8 @@ async def research_async(cfg: Config, question: str, *, domain=None, project=Non
     env = dict(os.environ)
     env['PYTHONPATH'] = str(Path(__file__).resolve().parent.parent)
     env['AGENTIC_RAG_HOOKS_DISABLE'] = '1'
-    payload = _json({'config': asdict(cfg), 'question': question,
+    from .service.context import wire_scope
+    payload = _json({'config': asdict(cfg), 'service_scope': wire_scope(), 'question': question,
                      'options': options, 'budget': asdict(budget)}).encode('utf-8')
     with tempfile.TemporaryDirectory(prefix='agentic-rag-research-') as cwd:
         env.update(TMPDIR=cwd,TMP=cwd,TEMP=cwd)

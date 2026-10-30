@@ -144,6 +144,11 @@ def _checkpoint_for_context(
     if not isinstance(cwd, str) or not cwd.strip() or not session_id:
         return None
 
+    from ..service.context import CURRENT
+    if CURRENT.get() is not None:
+        from ..scope import project_id
+        return store.latest_for_project(conn, project_id(cwd))
+
     # Reuse the public capture boundary to discover and canonicalize the Git
     # project root.  This does not persist a new checkpoint.
     location = capture.capture_snapshot({
@@ -163,9 +168,11 @@ def build_context(
     parts: list[tuple[str, str]] = [("header", "# agentic-rag memory")]
     warnings: list[str] = []
     elastic: dict[str, tuple[Callable[[int], str], int]] = {}
+    from ..service.context import CURRENT
+    remote = CURRENT.get() is not None
 
     if WARNING_STATE.exists():
-        warnings.append(
+        warnings.append("⚠️ backup_warning" if remote else
             f"⚠️ backup: {common.sanitize_error(WARNING_STATE.read_text().strip())}")
     n_err = conn.execute(
         "SELECT count(*) AS n FROM mining_queue WHERE status = 'error'"
@@ -175,18 +182,21 @@ def build_context(
             f"⚠️ {n_err} queue job(s) in error state — see `rag status`")
     health = provider_health.read_health()
     if health is not None and not health.available:
-        safe_provider = common.sanitize_error(health.provider)
-        since = (
-            f" since {health.first_failure_at:%Y-%m-%d %H:%M %Z}"
-            if health.first_failure_at is not None else ""
-        )
-        remediation = (
-            " — run `codex login`, then the next worker run resumes automatically"
-            if health.provider == "codex" else " — see `rag status`"
-        )
-        warnings.append(
-            f"⚠️ session mining provider {safe_provider} unavailable"
-            f"{since}{remediation}")
+        if remote:
+            warnings.append("⚠️ provider_unavailable")
+        else:
+            safe_provider = common.sanitize_error(health.provider)
+            since = (
+                f" since {health.first_failure_at:%Y-%m-%d %H:%M %Z}"
+                if health.first_failure_at is not None else ""
+            )
+            remediation = (
+                " — run `codex login`, then the next worker run resumes automatically"
+                if health.provider == "codex" else " — see `rag status`"
+            )
+            warnings.append(
+                f"⚠️ session mining provider {safe_provider} unavailable"
+                f"{since}{remediation}")
 
     pin_units = []
     pin_list = matching_pins(conn, cwd)
@@ -236,12 +246,16 @@ def build_context(
         if checkpoint is not None:
             current_project_root = None
             if isinstance(cwd, str) and cwd.strip() and session_id:
-                current_project_root = capture.capture_snapshot({
-                    "session_id": session_id,
-                    "hook_event_name": "SessionStart",
-                    "source": source or "startup",
-                    "cwd": cwd,
-                }).project_root
+                if remote:
+                    from ..scope import project_id
+                    current_project_root = project_id(cwd)
+                else:
+                    current_project_root = capture.capture_snapshot({
+                        "session_id": session_id,
+                        "hook_event_name": "SessionStart",
+                        "source": source or "startup",
+                        "cwd": cwd,
+                    }).project_root
             render_budget = max(MIN_RENDER_CHARS, cfg.checkpoint_render_max_chars)
 
             def render(budget: int, *, checkpoint=checkpoint,
@@ -264,7 +278,7 @@ def build_context(
             conn.rollback()
         except Exception:  # noqa: BLE001 — the outer visible failure remains
             pass
-        warnings.append(
+        warnings.append("⚠️ checkpoint_unavailable" if remote else
             "⚠️ checkpoint restoration delayed: "
             + common.sanitize_error(f"{type(exc).__name__}: {exc}")
         )
@@ -303,6 +317,12 @@ def run(payload: dict, stdout) -> None:
     warning = None
     try:
         cfg = load_config()
+        if cfg.service_mode == 'client':
+            from ..service.local import context
+            text=context(cfg,payload)
+            common.spawn_worker()
+            common.emit_context(stdout,'SessionStart',text)
+            return
         conn = db.connect(cfg, role="writer")
         try:
             from .. import context, profiles

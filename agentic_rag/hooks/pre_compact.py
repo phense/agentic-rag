@@ -37,6 +37,11 @@ def _persist(payload: dict) -> str | None:
     """Snapshot, enrich-enqueue, and return the checkpoint id (or None)."""
     session_id, transcript = _validate(payload)
     cfg = load_config()
+    if cfg.service_mode == 'client':
+        from ..service.local import pre_compact
+        identity = pre_compact(cfg,payload)
+        common.spawn_worker()
+        return 'local:' + identity
     snapshot = capture.capture_snapshot_seed(payload)
     conn = db.connect(cfg, role="writer")
     try:

@@ -7,6 +7,27 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.10] - 2026-10-29
+
+### Added
+- Add the optional protocol1 REST/remote-MCP service foundation with separate
+  static machine/user identities, human login, revocation and scoped engine
+  connections (Issue58). Local stdio behavior remains available.
+- Add durable client spooling and compaction continuity, owned source receipts,
+  serial fenced workers, explicit reauthorization and finite storage/log limits.
+- Add explicit session teams: colleagues share retained redacted source logs and
+  checkpoints through bounded REST reads while keeping uploader/audit identity
+  and job mutation authority distinct. Department access is server-enforced.
+- Add operator CLI, populated legacy inventory, strict verified backups and
+  additive local/remote upgrade procedures with private deployment examples.
+- Add service authorization/state migrations021/022 and an additive023 upgrade
+  for scoped evidence lookup performance and original022 uploader profiles.
+  Preserve original session fields and require fresh login for pre-profile sessions.
+- Prioritize interactive API processes over serial background extraction with
+  explicit CPU weights and a one-CPU worker quota.
+- Preserve canonical knowledge and existing embeddings during additive upgrades.
+  Production rollout remains separate.
+
 ## [0.6.9] - 2026-10-29
 
 ### Dependencies

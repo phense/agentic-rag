@@ -50,7 +50,8 @@ def _project(tmp_path):
 
 # ------------------------------------------------------------- session-start
 
-def test_session_start_injects_memory_as_ephemeral_message(conn, hook_env, tmp_path):
+def test_session_start_injects_memory_as_ephemeral_message(conn, hook_env, tmp_path,monkeypatch):
+    monkeypatch.setattr(common,'spawn_worker',lambda:None)
     transcript = _transcript(tmp_path, _user(0, "hi"))
     conn.execute("INSERT INTO domains(name, description) VALUES ('nature', 'field notes')")
     conn.commit()

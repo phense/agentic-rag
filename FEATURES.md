@@ -8,6 +8,26 @@ tests exist.
 precondition · ⏸ paused. The numbered source of truth for unfinished work is
 [`BACKLOG.md`](BACKLOG.md).
 
+## Optional central service (F-058 / issue #58)
+
+🔵 Implemented in the feature branch and rehearsed on a verified remote copy;
+implementation PR and production cutover remain separate. Protocol1 REST and RO/RW MCP, verifier-only static users/machines,
+revocable human sessions, scoped SQL, durable client source/continuity input and
+one fenced central worker reuse the existing engine. Standalone remains default.
+Explicit session teams share retained redacted logs/checkpoints within IT or
+accounting, with current team/project authorization and distinct uploader/audit
+identity. Session names grant no permissions.
+Operator CLI and populated018/019 upgrade/strict restore paths preserve original
+knowledge and grants; independent-store merging requires separate mappings/import.
+Finite request/spool/backlog/database/log limits,40persistent TLS clients,
+24independent sessions and30real-model synthetic extraction jobs were exercised
+on a4-vCPU/8-GiB reference host. Migration023 removes the populated scoped-search
+timeout without changing eligibility or raising its deadline. One serial worker
+has lower CPU priority than the API; shared-model scheduling remains in6.10.
+No production cutover, automatic multi-store import, day-long stability or
+unlimited model throughput is claimed. [Operator guide](docs/13-central-service.md),
+[verification](docs/verification/issue58-service.md), [Issue58](https://github.com/phense/agentic-rag/issues/58).
+
 ## Memory platform
 
 - ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown

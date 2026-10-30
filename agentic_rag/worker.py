@@ -12,6 +12,7 @@ worker crash must never surface into a hook or a session.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 import errno
 import json
 import subprocess
@@ -23,6 +24,8 @@ from . import backup, curation, db, jobs, mining, provider_health, store
 from .continuity import enrich
 from .config import Config, load_config
 from .llm import LLMUnavailableError
+from .service.engine import JobBlocked, ResourcePressure
+from .service.fence import OWNER_LOCK,EXECUTION_LOCK,WorkerAuthorityLost,assert_authority,worker_scope
 from .secrets import strip_secrets
 
 # The singleton lock primitive, dispatched by platform. fcntl is POSIX-only —
@@ -68,11 +71,8 @@ CURATION_MAX_AGE_H = 24
 
 def _log(msg: str) -> None:
     try:
-        safe = strip_secrets(msg)[0]
-        LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with LOG_PATH.open("a", encoding="utf-8") as fh:
-            fh.write(f"{datetime.now().isoformat(timespec='seconds')} "
-                     f"{safe}\n")
+        from .bounded_log import append
+        append(LOG_PATH,msg)
     except OSError:
         pass
 
@@ -101,6 +101,24 @@ def acquire_lock(path: Path = LOCK_PATH):
         fd.close()
         return None
     return fd
+
+
+@contextmanager
+def acquire_database_lock(cfg):
+    """Cross-host authority: dedicated session survives all job commits."""
+    connection=db.connect(cfg,role='writer')
+    try:
+        locked=connection.execute('SELECT pg_try_advisory_lock(%s) ok',(OWNER_LOCK,)).fetchone()['ok']
+        connection.commit()
+        if not locked:
+            yield None
+            return
+        ready=connection.execute('SELECT pg_try_advisory_lock(%s) ok',(EXECUTION_LOCK,)).fetchone()['ok']
+        if ready:connection.execute('SELECT pg_advisory_unlock(%s)',(EXECUTION_LOCK,))
+        connection.commit()
+        yield connection if ready else None
+    finally:
+        connection.close()
 
 
 def requeue_orphans(conn, cfg: Config) -> int:
@@ -145,6 +163,12 @@ def process_job(conn, cfg: Config, job: dict, *,
     payload = job.get("payload") or {}
     if isinstance(payload, str):
         payload = json.loads(payload)
+    if cfg.service_mode=='server' and job['kind'] not in {'source_window','backup'}:
+        from .service.resources import check_worker
+        check_worker(cfg)
+    if job["kind"] == "source_window":
+        from .service.worker import process_source
+        return process_source(conn,cfg,job,runner=runner)
     if job["kind"] == "mine":
         res = mining.mine_session(
             conn, cfg, session_id=job["session_id"],
@@ -168,7 +192,14 @@ def process_job(conn, cfg: Config, job: dict, *,
         _log("profile_refresh: done")
         return None
     if job["kind"] == "embed":
-        n = store.reembed_document(conn, cfg, payload["document_id"])
+        if '_principal' in payload:
+            from .service.worker import process_embed
+            return process_embed(cfg,payload)
+        if cfg.service_mode=='server':
+            from .service.resources import check_worker
+            n = store.reembed_document(conn,cfg,payload['document_id'],before_commit=lambda:check_worker(cfg))
+        else:
+            n = store.reembed_document(conn, cfg, payload["document_id"])
         _log(f"embed {payload['document_id']}: {n} chunks")
         return None
     if job["kind"] == "curate":
@@ -213,14 +244,14 @@ def _fail(conn, cfg: Config, job: dict, error: Exception) -> None:
     if job["attempts"] >= cfg.worker_max_attempts:
         conn.execute(
             "UPDATE mining_queue SET status = 'error', finished_at = now(),"
-            " last_error = %s WHERE id = %s",
+            " last_error = %s WHERE id = %s AND status='processing'",
             (clean, job["id"]))
     else:
         delay = cfg.worker_backoff_seconds * 2 ** (job["attempts"] - 1)
         conn.execute(
             "UPDATE mining_queue SET status = 'pending', last_error = %s,"
             " next_attempt_at = now() + make_interval(secs => %s)"
-            " WHERE id = %s",
+            " WHERE id = %s AND status='processing'",
             (clean, delay, job["id"]))
     conn.commit()
 
@@ -235,16 +266,18 @@ def _provider_unavailable(conn, cfg: Config, job: dict,
         " attempts = GREATEST(attempts - 1, 0), finished_at = NULL,"
         " last_error = %s,"
         " next_attempt_at = now() + make_interval(secs => %s)"
-        " WHERE id = %s",
+        " WHERE id = %s AND status='processing'",
         (clean, cfg.provider_backoff_seconds, job["id"]))
     conn.commit()
     provider_health.record_failure(cfg.llm_provider, clean)
 
 
 def drain(conn, cfg: Config, *, runner=subprocess.run,
-          max_jobs: int = 50) -> dict:
+          max_jobs: int = 50, stop=None) -> dict:
     done = failed = unavailable = 0
     for _ in range(max_jobs):
+        if stop is not None and stop.is_set():break
+        assert_authority()
         job = claim_next(conn)
         if job is None:
             break
@@ -255,6 +288,7 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
             provider_succeeded = True
 
         try:
+            assert_authority()
             new_uuid = process_job(
                 conn, cfg, job, runner=runner,
                 on_provider_success=note_provider_success,
@@ -263,6 +297,22 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
             if job["kind"] in {"mine", "curate"} or provider_succeeded:
                 provider_health.record_success(cfg.llm_provider)
             done += 1
+        except WorkerAuthorityLost:
+            conn.rollback()
+            raise
+        except ResourcePressure as exc:
+            conn.rollback()
+            conn.execute("UPDATE mining_queue SET status='pending',attempts=GREATEST(attempts-1,0),"
+                         "next_attempt_at=now()+make_interval(secs=>60),last_error=%s "
+                         "WHERE id=%s AND status='processing'",(exc.code,job['id']))
+            conn.commit()
+            failed += 1
+            break
+        except JobBlocked:
+            conn.rollback()
+            conn.execute("UPDATE mining_queue SET status='pending',attempts=GREATEST(attempts-1,0),next_attempt_at=now()+make_interval(secs=>60),last_error='authorization_or_predecessor_blocked' WHERE id=%s AND status='processing'",(job['id'],))
+            conn.commit()
+            failed += 1
         except LLMUnavailableError as e:
             _log(f"job {job['id']} ({job['kind']}) provider unavailable: {e!r}")
             _provider_unavailable(conn, cfg, job, e)
@@ -288,30 +338,40 @@ def _opportunistic_backup(cfg: Config) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    lock = acquire_lock(LOCK_PATH)
-    if lock is None:
-        return 0        # another writer is live — skip, never queue
     try:
-        cfg = load_config()
-        conn = db.connect(cfg, role="writer")
-        try:
-            requeue_orphans(conn, cfg)
-            rep = drain(conn, cfg)
-            _log(f"drain: {rep}")
-            if not rep["provider_unavailable"]:
-                last = jobs.last_curation_at(conn)
-                if last is None or (datetime.now(timezone.utc) - last
-                                    > timedelta(hours=CURATION_MAX_AGE_H)):
-                    curation.run_pass(conn, cfg)
-        finally:
-            conn.close()
-        _opportunistic_backup(cfg)
-    except Exception as e:  # noqa: BLE001 — never surface into a hook
+        cfg=load_config()
+        if cfg.service_mode=='client': return 0
+    except Exception as exc:
+        _log(f'worker config error: {exc!r}')
+        return 0
+    lock = acquire_lock(LOCK_PATH)
+    if lock is None: return 0
+    try:
+        with acquire_database_lock(cfg) as singleton:
+            if singleton is None: return 0
+            with worker_scope(singleton):
+                return _run_owned(cfg)
+    except Exception as e:
         _log(f"worker error: {e!r}")
     finally:
         lock.close()
     return 0
 
+
+def _run_owned(cfg):
+    conn = db.connect(cfg, role="writer")
+    try:
+        requeue_orphans(conn, cfg)
+        rep = drain(conn, cfg)
+        _log(f"drain: {rep}")
+        if not rep["provider_unavailable"]:
+            last = jobs.last_curation_at(conn)
+            if last is None or (datetime.now(timezone.utc)-last > timedelta(hours=CURATION_MAX_AGE_H)):
+                curation.run_pass(conn,cfg)
+    finally:
+        conn.close()
+    _opportunistic_backup(cfg)
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

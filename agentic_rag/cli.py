@@ -56,6 +56,8 @@ def _format_age(value) -> str:
 def _main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="rag")
     sub = p.add_subparsers(dest="cmd", required=True)
+    from .service.operator import add_parser
+    add_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -324,6 +326,9 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
         if args.opencode_config_dir is not None or args.uninstall:
             p.error("--opencode-config-dir and --uninstall require --opencode")
+    if args.cmd=='service':
+        from .service.operator import run
+        return run(args,load_config(args.config) if args.config else load_config())
     cfg = load_config()
 
     if args.cmd == 'entity':
@@ -946,7 +951,7 @@ def main(argv: list[str] | None = None) -> int:
     except (psycopg.OperationalError, RuntimeError) as e:
         print(f"error: {_safe(e)}", file=sys.stderr)
         return 3
-    except (ValueError, FileNotFoundError) as e:
+    except (ValueError, FileNotFoundError, FileExistsError) as e:
         print(f"error: {_safe(e)}", file=sys.stderr)
         return 1
     except Exception as e:  # noqa: BLE001 — last-resort mapping, never a traceback

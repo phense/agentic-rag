@@ -4,6 +4,20 @@
 order-sensitive), your first `rag save` and `rag search`, and how to confirm
 everything is wired up.*
 
+## Choose local setup or service access
+
+The commands below create a standalone installation. To upgrade an existing
+populated database, use the [verified upgrade](13-central-service.md#upgrade-the-local-store)
+instead of treating it as a fresh install.
+
+If your organization already operates the central service, use its
+[client enrollment procedure](13-central-service.md#configure-the-server-and-clients).
+A remote client needs Python, this package, a protected credential and the
+correct `AGENTIC_RAG_CONFIG`. It does not need a local database, Ollama or an
+extraction-provider login. Existing adapters read that configuration; install
+only the selected adapter and keep both RO/RW MCP registrations. Server
+operators provision the database and model prerequisites below on the server.
+
 ## Prerequisites
 
 Install these first — agentic-rag doesn't bundle or manage any of them:
@@ -12,7 +26,7 @@ Install these first — agentic-rag doesn't bundle or manage any of them:
 |---|---|
 | **PostgreSQL 17** with the [`pgvector`](https://github.com/pgvector/pgvector) extension | The schema uses `halfvec`, which needs pgvector ≥ 0.7. This is where documents, chunks, and edges live. |
 | **[Ollama](https://ollama.com)**, with the embedding model pulled | `ollama pull bge-m3` — `bge-m3` produces the 1024-dim embeddings the schema is built for. Search degrades to full-text-only if Ollama is unreachable, but embeddings need it. |
-| **An authenticated LLM CLI** | Mining, curation, and bounded checkpoint enrichment support `codex exec` (authenticate with `codex login`) and `claude -p` (supported OAuth or API-key authentication). Select it in `[llm]`; Claude/Haiku is the compatibility default. Embeddings stay local (Ollama/`bge-m3`). |
+| **An authenticated LLM CLI** | Mining, curation, and bounded checkpoint enrichment support `codex exec` (authenticate with `codex login`) and `claude -p` (supported OAuth or API-key authentication). Select it in `[llm]`; Claude/Haiku is the compatibility default. Embeddings run with the engine (Ollama/`bge-m3`), locally or on your server. |
 | **[`uv`](https://docs.astral.sh/uv/)** | Dependency management and running the project. |
 | **Python ≥ 3.13** | `uv sync` will pick this up automatically if it's on your machine. |
 
@@ -78,7 +92,8 @@ Here's why the order matters:
 Claude MCP/hooks and (on macOS) job scheduling; `--codex` manages Codex
 continuity artifacts only. If you run either before `rag init-db`,
 every command that touches the store will fail with a connection or
-schema error. `init-db` first, always.
+schema error. `init-db` first for a new standalone store. A remote client uses its enrolled
+service configuration and does not initialize a local database.
 
 On **macOS**, `rag install` also auto-schedules the nightly **backup** job
 via `launchd` — nothing further to do for backups. The **maintenance** job

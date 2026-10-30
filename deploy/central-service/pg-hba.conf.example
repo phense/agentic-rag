@@ -1,0 +1,3 @@
+# Add before generic local rules, after checking operator access remains usable.
+local agentic_rag rag,rag_reader,rag_writer,rag_admin peer map=rag-service
+# No host rule is needed: dedicated instance has listen_addresses=''.

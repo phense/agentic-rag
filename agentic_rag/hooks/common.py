@@ -69,12 +69,14 @@ def spawn_worker() -> Exception | None:
     (it exits on lock contention). Never raises into the hook. Return a launch
     error for callers that can report it; existing callers may ignore the result."""
     try:
-        WORKER_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with WORKER_LOG.open("ab") as log:
-            subprocess.Popen(
-                [sys.executable, "-m", "agentic_rag.worker"],
-                start_new_session=True, stdin=subprocess.DEVNULL,
-                stdout=log, stderr=log)
+        from ..config import load_config
+        module='agentic_rag.service.uploader' if load_config().service_mode=='client' else 'agentic_rag.worker'
+        # Children use their own bounded diagnostics. A raw append-only stderr
+        # descriptor would bypass rotation and could fill the client filesystem.
+        subprocess.Popen(
+            [sys.executable, "-m", module],
+            start_new_session=True, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as exc:  # noqa: BLE001 — fail-open by contract
         return exc
 
@@ -90,10 +92,7 @@ def sanitize_error(err: object) -> str:
 
 def log_hook_error(hook: str, err: str) -> None:
     try:
-        safe_err = sanitize_error(err)
-        HOOK_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with HOOK_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(f"{datetime.now().isoformat(timespec='seconds')} "
-                     f"[{hook}] {safe_err}\n")
+        from ..bounded_log import append
+        append(HOOK_LOG,f'[{hook}] {sanitize_error(err)}')
     except OSError:
         pass

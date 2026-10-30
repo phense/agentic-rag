@@ -1,5 +1,6 @@
 """Private subprocess entrypoint. No shell, user artifacts or persistent writes."""
 import json
+from contextlib import nullcontext
 import sys
 from pathlib import Path
 
@@ -19,7 +20,13 @@ def main():
     def emit(packet):
         print(json.dumps(packet,ensure_ascii=False,separators=(',',':')),flush=True)
     try:
-        with db.connect(cfg, role='reader') as conn:
+        from .service.context import request_scope
+        from .service.auth import Principal
+        authority=payload.get('service_scope')
+        if authority is not None:
+            for key in ('read_domains','write_domains','read_projects','write_projects','session_teams'):
+                authority[key]=frozenset(authority.get(key,[]))
+        with (request_scope(Principal(**authority),cfg,read_only=True) if authority else nullcontext()), db.connect(cfg, role='reader') as conn:
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
             result = _research(conn,cfg,payload['question'],budget=budget,
                                progress=emit,**payload['options'])

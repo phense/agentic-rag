@@ -186,9 +186,15 @@ def _save_txn(
     vecs = embedding_reuse.vectors(conn, cfg, chunks, loader=try_embed_texts, actor=actor) if chunks else []
     if chunks and vecs is None:
         warnings.append("embedding unavailable — stored without vectors, queued retry")
+        queued = {"document_id": doc_id}
+        from .service.context import CURRENT
+        scope=CURRENT.get()
+        if scope is not None:
+            from .service.ingest import credential_reference
+            queued['_principal']=credential_reference(scope.principal,None)
         conn.execute(
             "INSERT INTO mining_queue(kind, payload) VALUES ('embed', %s)",
-            (json.dumps({"document_id": doc_id}),),
+            (json.dumps(queued),),
         )
         vecs = [None] * len(chunks)
     literals = [vec_literal(v) if v else None for v in vecs]
@@ -220,7 +226,7 @@ def _save_txn(
             " SET evidence = COALESCE(EXCLUDED.evidence, edges.evidence),"
             " confidence = COALESCE(EXCLUDED.confidence, edges.confidence)",
             (doc_id, dst["id"] if dst else None, e.dst_slug, e.predicate,
-             evidence, e.confidence, _CREATED_BY.get(actor, actor)),
+             evidence, e.confidence, 'manual' if actor.startswith('service:') else _CREATED_BY.get(actor, actor)),
         )
         n_edges += 1
 
@@ -272,6 +278,8 @@ def get_document(conn, id_or_slug: str) -> dict | None:
         cond, val = "id = %s", id_or_slug
     except ValueError:
         cond, val = "slug = %s", id_or_slug
+    from .service.read_limits import document as check_document
+    check_document(conn,cond,val)
     doc = conn.execute(
         f"SELECT * FROM documents WHERE {cond}", (val,)
     ).fetchone()
@@ -310,7 +318,7 @@ def _s(v) -> str | None:
     return str(v) if v is not None else None
 
 
-def reembed_document(conn, cfg: Config, doc_id: str) -> int:
+def reembed_document(conn, cfg: Config, doc_id: str, *, before_commit=None) -> int:
     """Re-chunk and re-embed ONE document (the queued-embed retry path).
     Raises EmbedError when Ollama is unavailable — the caller (worker queue)
     owns retry/backoff; this function must not swallow the failure."""
@@ -337,6 +345,7 @@ def reembed_document(conn, cfg: Config, doc_id: str) -> int:
             "INSERT INTO audit_log(actor, op, document_id, summary)"
             " VALUES ('mining', 'reembed', %s, %s)",
             (doc_id, f"re-embedded {len(chunks)} chunks"))
+        if before_commit is not None:before_commit()
         conn.commit()
     except Exception:
         conn.rollback()

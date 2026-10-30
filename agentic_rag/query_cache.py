@@ -68,7 +68,11 @@ class QueryCache:
         digest = model_digest(cfg)
         if digest is None:
             return loader([query], cfg)
-        encoded = json.dumps([cfg.ollama_url, cfg.embed_model, cfg.embed_dim, digest,
+        from .service.context import CURRENT
+        authority = CURRENT.get()
+        authorization = None if authority is None else [authority.principal.namespace,
+            sorted(authority.principal.read_domains), sorted(authority.principal.read_projects)]
+        encoded = json.dumps([cfg.ollama_url, cfg.embed_model, cfg.embed_dim, digest, authorization,
                               context, query], sort_keys=True, separators=(',', ':'))
         key = sha256(encoded.encode()).digest()
         now = time.monotonic()

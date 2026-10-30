@@ -1,0 +1,5 @@
+# Intentional parameter: OS rag must match User= in both systemd units.
+rag-service rag rag
+rag-service rag rag_reader
+rag-service rag rag_writer
+rag-service rag rag_admin

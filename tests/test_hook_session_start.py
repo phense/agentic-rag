@@ -346,6 +346,7 @@ def test_checkpoint_context_follows_warnings_and_pins(
 
 def test_continuity_failure_keeps_existing_context_and_runs_maintenance(
         conn, hook_env, tmp_path, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
     secret = "ghp_abcdefghijklmnopqrstuvwxyz123456"
     pins.add_pin(conn, body="Keep this pinned rule visible.")
     _seed(conn)
@@ -386,6 +387,7 @@ def test_continuity_failure_keeps_existing_context_and_runs_maintenance(
 
 def test_continuity_query_failure_rolls_back_before_maintenance(
         conn, hook_env, monkeypatch):
+    monkeypatch.setattr(session_start.common, "spawn_worker", lambda: None)
     pins.add_pin(conn, body="Context survives a selector failure.")
     maintained = []
 

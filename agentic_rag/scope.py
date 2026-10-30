@@ -9,6 +9,11 @@ import os
 def _location(value: str) -> tuple[Path, Path | None]:
     if not isinstance(value, str) or not value.startswith('/') or '\x00' in value:
         raise ValueError('project must be an absolute directory path')
+    from .service.context import CURRENT
+    if CURRENT.get() is not None:
+        import posixpath
+        # Client project IDs are logical scopes, never service-host Git paths.
+        return Path(posixpath.normpath(value)), None
     path = Path(value).resolve()
     existing = path
     while not existing.exists() and existing.parent != existing:

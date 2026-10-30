@@ -208,11 +208,21 @@ guarantee.
 
 ## Local-first: your Postgres, not ours
 
-There's no agentic-rag cloud service. `save_document`, `search`, and every
-CLI command talk directly to a PostgreSQL database you run — `localhost` by
-default, or another host you point `config.toml` at. Embeddings come from a
-local Ollama model (`bge-m3`). There is no telemetry endpoint, hosted vector
-index, or third-party sync.
+You operate the knowledge engine and its PostgreSQL store. Standalone commands
+access it locally; a configured service client uses authenticated REST/MCP and
+keeps only bounded pending input/context on its VM. Ollama runs on the engine
+host, which can be a private cloud VM. No vendor-operated agentic-rag account or
+telemetry endpoint is required. Your chosen extraction provider still receives
+redacted source prose and the checkpoint or pin context described above.
+
+A central server retains authorized source windows and checkpoints as well as
+knowledge. Give IT and accounting explicit domain/project scopes and distinct
+session teams. All IT members may share IT knowledge/logs; each credential still
+identifies its own writes and uploader cursors. Hostnames, prompts and Herdr
+session names cannot grant access. Revocation is checked on requests and before
+canonical application. RAG permissions do not restrict a user's local filesystem
+or administrative tools: use separate OS accounts/VMs and tool permissions for
+those boundaries. Never treat secret stripping as guaranteed credential removal.
 
 The configured LLM provider receives the mining, curation, and checkpoint
 enrichment inputs enumerated above. The transcript digest and checkpoint delta
