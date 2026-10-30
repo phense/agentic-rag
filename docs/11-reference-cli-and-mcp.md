@@ -89,6 +89,39 @@ not additional independent quality samples. General model accuracy remains unmea
 Index/query execution or native-provider errors produce exit3; measured quality misses
 remain in the report. Successful private scoring returns0 even when support is missing.
 
+### Service operator commands
+
+Put `--config PATH` immediately after `rag service`. The mode and permissions
+come from that configuration and authenticated policy, not a session label.
+
+| Command after `rag service [--config PATH]` | Contract |
+|---|---|
+| `key --id ID --output FILE` / `password [--password-file FILE]` | Private client key or human password verifier; avoid secrets in command arguments |
+| `check-policy --file FILE` | Validate static users, machines, scopes and session teams |
+| `client-config --url URL --token-file FILE --spool-dir DIR --output FILE` | Create a protected client profile |
+| `login --url URL --username USER --output FILE [--uploader-file FILE]` / `logout` | Expiring human session; retain each VM profile's uploader file across renewal |
+| `serve --auth-file FILE [--host HOST] [--port PORT] [--allowed-host HOST]` | Authenticated API/MCP; default loopback8765 |
+| `worker` / `status` | Supervised server drain / mode-aware bounded operational status |
+| `spool [--flush] [--retry-blocked]` | Inspect pending client input or explicitly retry blocked uploads |
+| `job-retry RECEIPT` | Explicit owned retry using current authority; old credentials do not revive automatically |
+| `inventory --source-version VERSION --output FILE [--identities]` | Non-mutating private source inventory |
+| `preflight --source-version VERSION --mode local\|remote` | Supported version/schema, storage and unresolved input checks |
+| `collisions INVENTORY... --output FILE` | Report mappings required before independent-store import |
+| `verified-backup --source-version VERSION --output FILE` | Strict owned restore verification and private manifest |
+| `upgrade` / `prepare-cutover` | Require `--source-version`, `--dump`, `--apply`, `--writers-stopped`; see playbooks before mutation |
+| `restore-target --dump FILE --manifest FILE --apply [--resume]` | Strict empty target restore or verified unchanged-target resume |
+
+REST clients send `x-rag-protocol: 1`. Capabilities are at `/v1/capabilities`;
+OpenAPI is at `/v1/openapi.json`. RO/RW MCP endpoints are `/mcp/ro/` and `/mcp/rw/`.
+Service HTTP codes differ from process exit codes:202 means durable source
+acceptance,401/403 deny authority,409 reports cursor/application conflicts,
+413 rejects oversized data,426 rejects a protocol mismatch,429 applies finite
+capacity/backlog pressure,503 indicates unavailable service protection, and507
+reports storage admission pressure. A durable ACK does not mean extraction has
+completed. Source receipt status, cancellation and shared session routes are
+specified in [protocol1](specs/6-0-central-service/contracts/service-v1.md).
+
+
 ### Exit-code contract
 
 `main()` maps every code path to one of four exit codes:

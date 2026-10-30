@@ -8,7 +8,33 @@ This is the headline feature. Everything else in agentic-rag — the schema,
 the search, the gateway — exists to make this loop possible: **you work, and
 the memory fills itself.**
 
-## The loop, end to end
+## Local processing and central source capture
+
+In standalone mode, adapters retain their existing local queue and worker.
+With `[service] mode="client"`, they retain a bounded raw transcript snapshot
+and continuation checkpoints in a private SQLite spool. Treat that spool as
+sensitive raw data. The uploader builds redacted source windows from the
+snapshot and sends those windows over authenticated HTTP. It retires an entry only after a durable
+server ACK; that ACK means accepted input, not completed memory extraction.
+The server owns embeddings and one supervised extraction worker. Client hooks
+never start a mining worker against the remote queue.
+
+Before compaction, retain the original source delta and local handoff. After
+compaction, restore the checkpoint and current authorized knowledge while
+extraction may still be pending. Previously captured input remains in the
+finite spool during outages or server pressure. A full spool or oversized source
+rejects fresh capture: retain the original transcript, resolve the reported
+pressure, then follow the [recovery procedure](13-central-service.md#pb-058-03-outage-pressure-and-compaction).
+Already buffered input is never evicted to admit it. Session teams share
+retained logs within IT; uploader profiles keep cursors distinct. See
+[team access](13-central-service.md#share-within-teams-and-separate-departments).
+
+The0.6.10 server still returns429 for saturated synchronous tools. General tool
+queuing, explicit waiting and native plugin lifecycle coverage are tracked in
+[6.10 / Issue68](https://github.com/phense/agentic-rag/issues/68); source-window
+queuing already exists.
+
+## The standalone loop, end to end
 
 1. You have a supported coding session. Nothing you do is special — no
    `memory_save` calls required.
@@ -34,10 +60,15 @@ the memory fills itself.**
    project-relevant documents that resulted, and **UserPromptSubmit** can
    recall a stored signal the instant you paste an error that matches one.
 
-Nothing in this loop reaches outside your machine except the configured LLM
-provider call. There is no separate telemetry or hosted RAG backend.
+In this standalone loop, the configured provider receives bounded mining input.
+In client mode, redacted windows and checkpoints also travel to your server;
+that server invokes its configured provider. Neither mode sends telemetry.
 
 ## Codex continuity around compaction
+
+The worker/enrichment steps below describe standalone operation. Service clients
+retain local source/checkpoint state and upload it as described above; processing
+runs centrally, and accepted extraction may still be pending at resume.
 
 Mining creates durable knowledge for later sessions. Continuation checkpoints
 preserve the smaller set of operational facts needed to resume the current
@@ -268,8 +299,8 @@ becomes something a future session's identical error can recall.
 ## The queue and the single writer
 
 Every mining, curation, checkpoint-enrichment, retry-embed, and
-opportunistic-backup job lives in one `mining_queue` table. The worker is a
-short-lived process, spawned on-demand by hooks (never a daemon), that:
+opportunistic-backup job lives in one `mining_queue` table. In standalone mode the worker is a
+short-lived process spawned on demand by hooks. It:
 
 - Takes an exclusive `flock` on a lock file before doing anything. If the
   lock is held, it exits 0 immediately — it never queues extra work behind
@@ -468,15 +499,16 @@ row naming which slugs were removed.
 
 - **Single writer.** Whatever else is running — a hook, a stale process, a
   parallel session — at most one worker ever touches the queue or runs
-  curation. Contention means skip, never queue extra work.
+  curation. Standalone workers use a host-local flock; server workers use
+  database authority and execution pins. Client mode spawns only an uploader.
 - **Fail-open hooks, never a blocked session.** Every hook swallows its own
   errors and exits 0. A dead database, a missing provider binary, an
   unreachable Ollama — none of it can stop you from working; at worst you
   lose the context injection (and SessionStart tells you so, visibly).
 - **Provider-configurable, local-first.** LLM-assisted mining, curation, and
   bounded checkpoint enrichment use the local Codex or Claude CLI you
-  configure. There's no separate hosted RAG service, and embeddings are always
-  local (Ollama).
+  configure on the engine host. Optional central deployment moves that CLI and
+  Ollama to your server; clients only capture and upload bounded source input.
 - **Local source, bounded transcript input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all. The

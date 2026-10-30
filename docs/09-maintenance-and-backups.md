@@ -5,6 +5,25 @@ optional offsite copy works, the difference between `rag restore` and the
 automatic restore-*test*, what `rag maintenance` does on every run (and why
 it's deliberately small), and how to schedule both on macOS and Linux.*
 
+## Choose the canonical backup location
+
+In client mode, PostgreSQL backups run on the server, not on every agent VM.
+Keep the client's private spool as well: accepted source input lives on the
+server, but unacknowledged input exists only on that client until upload.
+A database backup does not include local credential/configuration files.
+
+For a verified upgrade or move, use `rag service --config /owned/source.toml
+verified-backup --source-version 0.6.3 --output /owned/new.dump` and retain the
+private manifest beside the dump. This performs a strict isolated restore and
+records original state. Follow the [move/recovery playbook](13-central-service.md#pb-058-02-move-restore-and-recover)
+for source fencing, target bootstrap and forward recovery. Restoring an old
+source dump after new target writes would lose those writes.
+
+The ordinary backup retention below remains configurable; daily scheduling,
+SSD alerts, NAS transport and encryption are installation-specific. A7-day
+policy needs the corresponding retention settings at every actual destination.
+An on-VM backup alone does not survive VM loss.
+
 ## `rag backup`: local always, cloud when you ask for it
 
 ```bash

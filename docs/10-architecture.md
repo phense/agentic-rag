@@ -310,10 +310,27 @@ contributes nothing (its `WHERE query_vec IS NOT NULL` guard excludes every
 row) and the ranking degrades to FTS-only automatically, with the warning
 already attached by `search()` before the SQL call.
 
-## The single writer: flock, never a PID file
+## Worker authority by deployment
+
+Standalone uses the host-local flock described below. A central service uses
+PostgreSQL advisory-lock authority and execution pins on each actual working
+connection. A replacement runner must acquire exclusive execution authority
+before orphan recovery; a lost keeper/working connection fences the old runner.
+Client adapters start only a bounded uploader and never drain the server queue.
+See the [as-built central model](uml/central-service.md) and
+[operator guide](13-central-service.md) for scope enforcement and crash recovery.
+
+Idle HTTP/MCP connections reserve no permanent database connection or model.
+The API authenticates before dispatch, enforces RLS and revalidates the original
+credential/session before canonical commit. Immutable uploader cursors and
+explicit session-team read access are separate identities. Durable source ACKs
+commit input, cursor, job and audit together. This service boundary reuses the
+existing audited write gateway and does not introduce a second knowledge engine.
+
+### Standalone flock
 
 Exactly one `worker.py` process may be draining `mining_queue` at any time,
-across however many supported sessions are open. The guarantee is a kernel
+on the same standalone host. The guarantee is a kernel
 `flock`, not an application-level check:
 
 ```python

@@ -18,7 +18,7 @@ agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
-`[curation]`, `[worker]`, `[continuity]`. Unknown sections and unknown keys inside a known
+`[curation]`, `[worker]`, `[continuity]`, `[service]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -47,8 +47,8 @@ curation](05-session-mining-and-curation.md).)
 
 ### Path fields and `~` expansion
 
-Three fields hold filesystem paths: `backup_cloud_dir`, `backup_local_dir`,
-`pg_bin_dir`. Any value you give them in TOML is expanded (`~` resolves to
+Filesystem paths include `backup_cloud_dir`, `backup_local_dir`, `pg_bin_dir`,
+and service `storage_path`, `token_file`, `auth_file`, `spool_dir`. Any value you give them in TOML is expanded (`~` resolves to
 your home directory) when the file loads. `backup_cloud_dir` and
 `pg_bin_dir` default to unset (`None`) — no cloud copy, no bin-dir
 override — until you configure them.
@@ -63,6 +63,34 @@ sets or overrides them. If you're pointing at a networked Postgres and
 need role passwords or a non-default port, use those, not a
 config.toml field. See [10 · Architecture](10-architecture.md) for the
 role matrix these connections authenticate against.
+
+## `[service]`
+
+This section selects deployment; it does not grant database or department access.
+Server policy derives permissions from authenticated credentials. Keep token and
+authentication files private. See the [server/client procedure](13-central-service.md).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `mode` | `"standalone"` | `standalone`, `server`, or `client`; local behavior remains default |
+| `url` | empty | Client HTTPS base URL; HTTP allowed only on loopback |
+| `token_file` | unset | Client bearer credential in a protected0600 file |
+| `auth_file` | unset | Server verifier-only user/machine policy |
+| `spool_dir` | `~/.agentic-rag/spool` | Private pending input, handoff and bounded context cache |
+| `storage_path` | unset | Server filesystem path used for free-space admission; defaults to the database data directory |
+| `max_database_bytes` | `8589934592` | Database admission budget,8GiB; not a filesystem quota |
+| `min_free_bytes` | `2147483648` | Free-space reserve,2GiB |
+| `max_pending` | `1000` | Global pending-job admission limit |
+| `max_pending_per_owner` | `100` | Pending source-window limit for one owner |
+| `max_pending_bytes` | `67108864` | Pending source payload budget,64MiB |
+
+A client profile can be generated with `rag service client-config`; server
+examples are under `deploy/central-service/`. Budgets stop fresh admissions with
+explicit errors. They never authorize deletion of pending input or retained
+knowledge. Process/model caps are separate deployment settings. Current fixed
+transport/spool/read limits are listed in the
+[resource table](13-central-service.md#operating-limits-and-stop-conditions).
+
 
 ## `[db]`
 
