@@ -60,6 +60,8 @@ def _main(argv: list[str] | None = None) -> int:
     add_parser(sub)
     from .plugins.package import add_parser as add_plugin_parser
     add_plugin_parser(sub)
+    from .provider_cli import add_parser as add_provider_parser
+    add_provider_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -335,6 +337,10 @@ def _main(argv: list[str] | None = None) -> int:
         from .service.operator import run
         return run(args,load_config(args.config) if args.config else load_config())
     cfg = load_config()
+
+    if args.cmd in ('providers', 'index'):
+        from .provider_cli import run
+        return run(args, cfg)
 
     if args.cmd == 'entity':
         from . import entities

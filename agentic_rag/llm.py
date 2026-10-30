@@ -26,6 +26,8 @@ _STRIP_ENV = (
 
 class LLMError(RuntimeError):
     """Base class for structured-provider failures."""
+    code = 'provider_failure'
+    retryable = False
 
 
 class LLMJobError(LLMError):
@@ -190,6 +192,16 @@ def run_structured(prompt: str, schema: dict, cfg: Config, *,
                    system: str | None = None, timeout: int | None = None,
                    runner=subprocess.run, env: dict | None = None) -> dict:
     """Run one provider-backed structured transform and return a JSON object."""
+    if cfg.llm_provider == 'openai-compatible':
+        from .providers import ProviderError, run_http_structured
+        try:
+            return run_http_structured(prompt, schema, cfg, system=system, timeout=timeout)
+        except ProviderError as error:
+            # Permanent failures spend the finite job budget instead of causing
+            # an indefinitely pending provider outage. No request/body is logged.
+            failure = (LLMUnavailableError if error.retryable else LLMJobError)(str(error))
+            failure.code, failure.retryable = error.code, error.retryable
+            raise failure from None
     child_env = _child_env(env)
     if cfg.llm_provider == "claude":
         return _run_claude_structured(

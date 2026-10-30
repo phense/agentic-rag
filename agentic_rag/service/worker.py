@@ -6,7 +6,7 @@ import json
 import subprocess
 
 from .. import db, mining
-from ..llm import LLMUnavailableError
+from ..llm import LLMJobError, LLMUnavailableError
 from .auth import AuthenticationError, resolve_reference
 from .context import request_scope
 from .ingest import mining_window
@@ -92,8 +92,14 @@ def process_source(conn,cfg,job,*,runner=subprocess.run):
     except JobBlocked:
         _state(conn,receipt,'blocked','authorization_or_predecessor_blocked')
         raise
-    except LLMUnavailableError:
-        _state(conn,receipt,'blocked','provider_unavailable')
+    except LLMUnavailableError as error:
+        from .provider_status import failure_code
+        terminal = cfg.llm_provider == 'openai-compatible' and job['attempts'] >= cfg.worker_max_attempts
+        _state(conn,receipt,'error' if terminal else 'blocked',failure_code(error,'provider_unavailable'))
+        raise
+    except LLMJobError as error:
+        from .provider_status import failure_code
+        _state(conn,receipt,'error',failure_code(error,'processing_failed'))
         raise
     except Exception:
         _state(conn,receipt,'error','processing_failed')

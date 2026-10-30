@@ -174,7 +174,8 @@ def receipt_status(cfg,principal,receipt,*,cancel=False):
         queue=conn.execute('SELECT status,attempts,next_attempt_at FROM mining_queue WHERE id=%s',(row['queue_id'],)).fetchone()
         result=row.get('result')
         code=result.get('code') if isinstance(result,dict) else None
-        allowed={'authorization_or_predecessor_blocked','provider_unavailable','processing_failed','database_budget_exceeded','storage_low','storage_check_unavailable','write_capacity_exceeded'}
+        from .provider_status import PROVIDER_FAILURE_CODES
+        allowed={'authorization_or_predecessor_blocked','provider_unavailable','processing_failed','database_budget_exceeded','storage_low','storage_check_unavailable','write_capacity_exceeded'} | PROVIDER_FAILURE_CODES
         return {'origin_request_id':str(row['origin_request_id']) if row['origin_request_id'] else None,'origin_correlation_id':str(row['origin_correlation_id']) if row['origin_correlation_id'] else None,'code':code if code in allowed else None,'receipt':str(row['id']),'state':row['state'],'queue':dict(queue) if queue else None,
                 'created_at':row['created_at'].isoformat(),'applied_at':row['applied_at'].isoformat() if row['applied_at'] else None}
 

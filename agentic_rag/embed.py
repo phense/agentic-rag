@@ -89,14 +89,13 @@ def _embed_texts(texts: list[str], cfg: Config, *, timeout: float | None = None)
             )
             r.raise_for_status()
             vecs = r.json()["embeddings"]
-            if len(vecs) != len(texts) or any(
-                len(v) != cfg.embed_dim for v in vecs
-            ):
-                raise EmbedError(
-                    f"embedding dimension mismatch: expected {cfg.embed_dim}"
-                )
-    except (httpx.HTTPError, KeyError, ValueError, TypeError) as e:
-        raise EmbedError(f"ollama embed failed: {e}") from e
+            from .providers import ProviderError, validate_vectors
+            try:
+                vecs = validate_vectors(vecs, len(texts), cfg.embed_dim)
+            except ProviderError:
+                raise EmbedError('embedding dimension or numeric value mismatch') from None
+    except (httpx.HTTPError, KeyError, ValueError, TypeError):
+        raise EmbedError('ollama embed failed; check provider availability and response format') from None
     return vecs
 
 

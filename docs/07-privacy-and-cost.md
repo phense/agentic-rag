@@ -23,8 +23,13 @@ Supported choices are:
   use. agentic-rag runs fine either way; the metering is between you and
   Anthropic, on the account you chose.
 
-In every case, **embeddings are local** — retrieval and re-embedding run on
-your own Ollama (`bge-m3`). The provider inputs are:
+Embeddings default to your own Ollama (`bge-m3`). Version0.6.14 also supports
+explicit [managed HTTP profiles](provider-indexes.md): selecting one sends query
+text to that destination, while corpus rebuilds require an explicit bounded
+operator action. Offline inspection makes no requests; probes use fixed
+synthetic inputs. Input/request/token bounds limit usage, not a monetary total;
+set account-side spend limits before external corpus processing. The extraction
+provider inputs are:
 
 - **mining:** a secret-stripped transcript digest, live domain names, and
   secret-stripped copies of all matching pin bodies for global or matching

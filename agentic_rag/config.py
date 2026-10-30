@@ -6,6 +6,7 @@ import os
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Mapping
 
 DEFAULT_PATH = Path.home() / ".agentic-rag" / "config.toml"
 MIN_DIGEST_CHARS = 128
@@ -29,6 +30,13 @@ _SECTION_PREFIX = {
     "continuity": "checkpoint",
     "service": "service",
 }
+
+
+class _FrozenProfiles(dict):
+    """Immutable mapping that preserves Config's dataclasses.asdict wire path."""
+    def _immutable(self, *args, **kwargs):
+        raise TypeError('embedding profiles are immutable')
+    __setitem__ = __delitem__ = clear = pop = popitem = setdefault = update = __ior__ = _immutable
 
 
 @dataclass(frozen=True)
@@ -69,6 +77,14 @@ class Config:
     llm_reasoning_effort: str = "high"
     llm_timeout: int = 300
     llm_bin: str = "claude"
+    # Managed vector spaces are opt-in; legacy [embed]/[ollama] stay independent.
+    embedding_profiles: Mapping = field(default_factory=dict)
+    llm_url: str = ""
+    llm_revision: str = ""
+    llm_credential_env: str = ""
+    llm_credential_file: str = ""
+    llm_max_input_chars: int = 24000
+    llm_max_output_tokens: int = 2048
     provider_backoff_seconds: int = 3600
     mine_debounce_seconds: int = 600
     mine_max_digest_chars: int = 12000
@@ -84,6 +100,15 @@ class Config:
     context_max_chars: int = 9500
 
     def __post_init__(self) -> None:
+        from .providers import EmbeddingProfile, ProviderError
+        if not isinstance(self.embedding_profiles, Mapping):
+            raise ProviderError('configuration', False, 'Embedding profiles must be a named mapping.')
+        profiles = {}
+        for name, value in self.embedding_profiles.items():
+            if not isinstance(name, str) or not name or len(name) > 80:
+                raise ProviderError('configuration', False, 'Invalid embedding profile name.')
+            profiles[name] = value if isinstance(value, EmbeddingProfile) else EmbeddingProfile.from_mapping(value)
+        object.__setattr__(self, 'embedding_profiles', _FrozenProfiles(profiles))
         for name,minimum in [('backup_keep_local',1),('backup_keep_daily',1),('backup_keep_weekly',0)]:
             value=getattr(self,name)
             if type(value) is not int or not minimum<=value<=366:
@@ -142,6 +167,9 @@ def load_config(path: Path | None = None) -> Config:
     known = {f.name for f in dataclasses.fields(Config)}
     kwargs: dict = {}
     for section, values in data.items():
+        if section == 'embedding_profiles':
+            kwargs['embedding_profiles'] = values
+            continue
         prefix = _SECTION_PREFIX.get(section)
         if prefix is None or not isinstance(values, dict):
             continue

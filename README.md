@@ -9,7 +9,7 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.13-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.14-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
@@ -107,6 +107,9 @@ Sealed benchmark candidates do not change production search or mining policy.
 > secret-stripped transcript delta and validates the returned checkpoint
 > content before persistence. Explicit research provider mode sends a redacted
 > question and selected bounded source excerpts; default research stays local.
+> Optional [managed provider profiles](docs/provider-indexes.md) can send search
+> queries and explicitly selected rebuild batches to their configured HTTP
+> destination. Inspection is offline; probes use fixed synthetic inputs.
 > Optional synced backups copy data only to a
 > directory you configure. agentic-rag has no separate hosted RAG backend.
 
@@ -295,7 +298,7 @@ installed policy they remain enabled and can be inspected with `/memories`;
 agentic-rag is canonical for durable searchable knowledge, audit history, and
 explicit continuation checkpoints.
 
-- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Transcript digests and checkpoint deltas are character-bounded; each curation call covers one selected document/evidence set. Mining also sends secret-stripped copies of all matching pin bodies without changing the stored pins. Explicit research provider mode sends a bounded evidence packet. Embeddings never leave the box (local Ollama); ordinary search and default research are independent of provider authentication.
+- **Your chosen inference providers.** Every extraction call goes through `agentic_rag.llm`: existing Codex/Claude CLI login or an explicitly configured compatible HTTP endpoint. Transcript digests and checkpoint deltas are character-bounded; mining also sends secret-stripped copies of matching pins. Embeddings default to local Ollama. Optional [managed profiles](docs/provider-indexes.md) support separate local/HTTP vector spaces, protected credentials and explicit bounded corpus rebuilds; selecting an external profile also sends its future search queries there. Default research remains local.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
 - **Least privilege, by role.** Three login roles enforce a destruction-protection matrix: `rag_reader` (SELECT only, used by search and the read-only MCP), `rag_writer` (INSERT/UPDATE but **no DELETE/TRUNCATE/DROP**), and `rag_admin` (migrate, purge, restore).
 - **It steps aside, not in front.** If Ollama is down, search degrades to full-text-only and returns a warning rather than failing; the maintenance job always exits 0.

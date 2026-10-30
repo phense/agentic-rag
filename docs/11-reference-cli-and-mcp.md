@@ -4,6 +4,14 @@
 
 ## The `rag` CLI
 
+`rag providers inspect` shows provider identities, destinations and usage bounds
+offline. `rag providers probe PROFILE` and `probe-extraction` explicitly test fixed
+synthetic input. `rag index status/create/build/activate/rollback` manage opt-in
+generations as the local database owner; `build --dry-run` reports coverage and
+destination without inference. See [the complete lifecycle](provider-indexes.md)
+for protected configuration and required corpus/egress choices. No remote
+generation-administration API or new knowledge MCP write tool is exposed.
+
 All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the library. `rag <command> --help` always reflects the same definitions this table does.
 
 ### Database & install

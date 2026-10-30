@@ -299,6 +299,17 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
     project_scope = write_scope(scope=project) if project in {'global','unknown'} else write_scope(project=project)
     if not project_scope or project_scope == "unknown":
         return None
+    from . import indexes
+    selected = indexes.active(conn, cfg)
+    if selected is not None:
+        from .providers import ProviderError
+        from .service.engine import ResourcePressure
+        import psycopg
+        try:
+            return indexes.near_duplicate(conn, cfg, f'{title}\n{body}', domain=domain,
+                scope=project_scope, threshold=cfg.dedup_threshold, selection=selected)
+        except (ProviderError, ResourcePressure, psycopg.errors.QueryCanceled, psycopg.errors.LockNotAvailable):
+            return None
     vecs = try_embed_texts([f"{title}\n{body}"], cfg)
     if vecs is None:
         return None

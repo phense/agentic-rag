@@ -1,5 +1,54 @@
 # RAG-005 architecture findings
 
+## RAG-061 provider indexes (as-built reconciliation, 2026-10-30)
+
+- AF061-001 (implemented, acceptance pending; AC003/005, IC003): How can equal-size model changes avoid
+  mixing raw/context/dedup vectors? `provider-indexes.md`, search.py:56,
+  mining.py:_near_duplicate and SQL016's unconditional raw union show the gap.
+  Category: interface consistency. Build sidecar generations from source and
+  route all managed semantic reads through one descriptor; never import untagged
+  historical vectors. Resolve in T003/T006; legacy mode documented separately.
+- AF061-002 (implemented, acceptance pending; AC004–006, IC004): How does coverage survive an edit during
+  inference or activation? Sequence/state views in `provider-indexes.md` and
+  contextual.refresh source recheck show the required order. Category: race.
+  Hash source metadata/content, recheck under locks, validate completeness while
+  excluding canonical writes for atomic pointer change; rollback catches up
+  post-cutover writes. Resolve in T005/T007.
+- AF061-003 (implemented, acceptance pending; AC004/008): Who may inspect/write global generations?
+  SQL021 service RLS and scoped definer gateways are authority boundaries.
+  Category: security. Local-owner lifecycle only, invoker scoped retrieval,
+  audited scope/source-checked derivative writes. Resolve in T005/T007.
+- AF061-004 (implemented, acceptance pending; AC002/003/007): What does provider identity actually prove?
+  Query cache model_digest checks an Ollama SHA but historical raw vectors have
+  no identity. Category: trust boundary. Explicit profile revision guarantees,
+  bounded opt-in probes, no plaintext credentials or response diagnostics, no
+  fallback. Resolve in T002/T003; do not claim remote weight attestation.
+
+Next: execute dependency-ordered tasks, then reconcile actual code and request
+independent architecture-derived integration tests before convergence.
+
+As-built RAG-061: AF061-001–004 implemented; independent acceptance pending.
+Source contracts, authority, locking, index representation and recovery topology
+reconciled against providers.py/indexes.py/SQL027/search.py/mining.py/store.py
+and actual green bounded test exits on2026-10-30. See provider-indexes.md.
+
+- AF061-005 (implemented, acceptance pending; AC007/US003): Do classified HTTP extraction failures remain
+  visible through source receipt and tracing? Independent architect found
+  ingest.receipt_status's static allowlist dropping rate_limit/transient and
+  service.worker replacing permanent failures with processing_failed.
+  Category: integration mismatch; Medium. Fixed with bounded provider_status codes
+  at worker and receipt projection. Real HTTP submit→process_source→receipt/trace
+  regression observed RED3, then24 related tests passed (31.35s, exit0).
+- AF061-006 (clarified, acceptance pending; AC005/SC002): The no-mixing guarantee
+  applies to managed reads in the new binary. Historical untagged legacy reads
+  and old binaries remain explicitly unverified; a managed rebuild is required
+  for verified identity. No historical identity is inferred from a current tag.
+- AF061-007 (implemented, acceptance pending; AC003): Empty stores made coverage
+  vacuously complete without proving embedding capability/dimensions. RED2
+  actual-adapter tests reproduced acceptance of wrong-dimension/unsupported
+  providers. Selection now runs one fixed synthetic input before canonical locks;
+ 94 provider/index/search/CLI tests passed (61.92s, exit0).
+
 - AF-001 (implemented; AC-001/003): Post-filtering loses eligible candidates and recursive
   traversal can bridge through B. Evidence: 003_search.sql LIMIT50, 004_graph.sql
   recursive walk; project-scope.md. Require scope in each candidate and hop (T003).

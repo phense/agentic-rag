@@ -317,6 +317,13 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
             failed += 1
         except LLMUnavailableError as e:
             _log(f"job {job['id']} ({job['kind']}) provider unavailable: {e!r}")
+            if cfg.llm_provider == 'openai-compatible':
+                # HTTP adapters make no inline retry. Their durable jobs still
+                # consume the finite attempt budget, including 429/outages.
+                _fail(conn, cfg, job, e)
+                provider_health.record_failure(cfg.llm_provider, str(e))
+                failed += 1
+                break
             _provider_unavailable(conn, cfg, job, e)
             unavailable += 1
             break
