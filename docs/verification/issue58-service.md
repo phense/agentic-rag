@@ -1,6 +1,6 @@
 # Issue58 service verification
 
-Status: implementation verification passed on the reference-host copy; production cutover and complete Issue58 rollout remain open. Roadmap6.0 uses one implementation PR, patch0.6.10. The user authorized merges74/56/57; those are complete. A future implementation merge and any production move remain separate approvals.
+Status: implementation verification passed on the reference-host copy; [PR76](https://github.com/phense/agentic-rag/pull/76) is open. Production cutover and complete Issue58 rollout remain open. Roadmap6.0 uses one implementation PR, patch0.6.10. The user authorized merges74/56/57; those are complete. A future implementation merge and any production move remain separate approvals.
 
 ## Dependency baseline
 
