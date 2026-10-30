@@ -208,3 +208,18 @@ completed; round3 reports0 C/H/M/feature Low and158 passing checks. T059-01..05
 supply the implementation and integration evidence. No unresolved architecture
 difference remains; final full-suite and delivery evidence is tracked separately
 in the [verification record](../verification/issue59-dashboard.md).
+
+## RAG-060 design-time gate — 2026-10-30
+
+Question: how can cross-request/job diagnostics remain bounded without leaking broader source authority or changing durable outcomes? Sequence: `issue60-tracing.mmd` (Mermaid sequence notation; source semantics inspected, no renderer claimed). Sources: `service/api.py` Gateway, `dashboard.py`, `ingest.py:accept`, `requests.py:submit`, specification IC-001..003.
+
+- AF-060-01 (resolved, trust boundary): owner-only metadata has no automatic RLS; T002/T004 apply current read-envelope and identity predicates before every count/page/detail/export. Restricted administrators cannot see global anonymous failures. Real two-department, policy-realm, empty-scope and revocation probes pass.
+- AF-060-02 (resolved, recovery): trace retention must not erase accepted-job provenance. T002/T003 persist nullable origin IDs transactionally on each queue source, preserve on replay/retry, and avoid trace foreign keys. Prune/replay regressions and independent HTTP→source→worker success/recovery probes pass with exactly one acceptance.
+- AF-060-03 (resolved, resource/failure): logging after canonical commit must not rewrite HTTP outcomes or create unbounded tasks. T003/T005 bound metadata/concurrency/storage/SQL time and expose fixed degraded diagnostics. Real storage reserve, lock/outage, scheduler error and cancellation probes preserve audited outcomes and admission ownership.
+
+As-built reconciliation2026-10-30: the sequence matches Gateway/Dashboard context,
+transactional queue origins, bounded best-effort recorder and live authorized job
+projection. Independent complete-diff review and architecture-derived success/
+recovery probes pass after cursor-type and CLI-import corrections. No architecture
+difference remains. Final whole-project convergence and actual exit are recorded
+in [Issue60 verification](../verification/issue60-tracing.md); deployment is separate.

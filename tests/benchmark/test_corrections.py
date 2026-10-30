@@ -461,3 +461,15 @@ def test_private_source_attribution_drift_prevents_accepted_report(tmp_path,monk
     with pytest.raises(ValueError,match='source changed'):
         corrections.evaluate_export(Config(),export_path=path,output_path=output)
     assert not output.exists()
+
+
+def test_schema026_correction_export_remains_read_only(conn,cfg,tmp_path):
+    from agentic_rag.benchmark import corrections
+    before=conn.execute('SELECT count(*) n FROM audit_log').fetchone()['n']
+    path=tmp_path/'schema026-labels.json'
+    result=corrections.export_confirmed_corrections(cfg,domain='general',scope='global',output_path=path)
+    assert result['application_writes']==0 and result['provider_calls']==0
+    payload=json.loads(path.read_text())
+    assert payload['source_schema'][-1]=='026_request_tracing.sql'
+    corrections._validate_export(payload)
+    assert conn.execute('SELECT count(*) n FROM audit_log').fetchone()['n']==before

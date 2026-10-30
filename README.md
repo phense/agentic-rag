@@ -9,9 +9,14 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.12-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.13-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.13 request tracing:** metadata-only request IDs and authorized job diagnostics
+are available through the dashboard, REST and CLI. Read the
+[tracing operations guide](docs/16-request-tracing.md). Existing service stores
+require the additive schema026 upgrade before starting this API.
 
 **0.6.12 dashboard:** authenticated setup, enrolled-client administration and scoped
 knowledge/source browsing, served by the same engine. Read the

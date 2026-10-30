@@ -31,10 +31,23 @@ from .auth import AuthenticationError, Policy, hash_key
 from .context import CURRENT, request_scope
 from .engine import ServiceError, invoke
 from .schema import validate_schema
+from . import tracing
 
 PROTOCOL='1'
 MAX_BODY=1048576
 BODY_TIMEOUT=5.0
+
+
+class TracedMCP(FastMCP):
+    async def call_tool(self,name,arguments):
+        trace=tracing.CURRENT_TRACE.get()
+        if trace is not None:
+            trace.operation='tool.'+name if name in mcp_server.tool_names(False) else 'tool.unknown'
+        try:
+            return await super().call_tool(name,arguments)
+        except Exception:
+            tracing.semantic_error('mcp_error')
+            raise
 
 
 class Gateway:
@@ -59,6 +72,7 @@ class Gateway:
             if message['type']=='http.response.start':response_started=True
             await send(message)
         async def error(code,status):
+            tracing.semantic_error(code if code in tracing.ERRORS else 'http_error')
             if path.startswith('/v1/requests') and status in {429,507}:
                 self.rejections[code]=min(2**63-1,self.rejections.get(code,0)+1)
                 while len(self.rejections)>16:self.rejections.popitem(last=False)
@@ -130,6 +144,7 @@ class Gateway:
                     raise AuthenticationError()
                 principal=await asyncio.to_thread(authenticate,policy,self.cfg,token)
                 state['principal'],state['token_hash']=principal,hash_key(token)
+                tracing.authenticated(principal)
                 from .dashboard_presence import observe
                 await asyncio.to_thread(observe,self.cfg,self.auth_file,principal,request.headers.get('x-rag-client-version',''),request.headers.get('x-rag-client-capabilities',''))
                 if path.startswith('/v1/requests'):
@@ -176,9 +191,14 @@ def _remote_tool(fn, cfg, read_only):
         scope=CURRENT.get()
         if scope is None:
             raise ValueError('authentication_required')
+        trace=tracing.CURRENT_TRACE.get()
+        if trace is not None:trace.operation='tool.'+fn.__name__
         try:
-            return await invoke(fn.__name__,kwargs,scope.principal,cfg,read_only=read_only)
+            result=await invoke(fn.__name__,kwargs,scope.principal,cfg,read_only=read_only)
+            if isinstance(result,dict) and result.get('error'):tracing.semantic_error('mcp_error')
+            return result
         except ServiceError as exc:
+            tracing.semantic_error(exc.code)
             raise ValueError(exc.code) from None
     hints=get_type_hints(fn)
     signature=inspect.signature(fn)
@@ -191,18 +211,20 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
     from dataclasses import replace
     auth_file=Path(auth_file)
     cfg=replace(cfg,service_auth_file=auth_file)
+    recorder=tracing.Recorder(cfg)
     Policy.load(auth_file)  # fail startup on malformed/exposed credentials
     with db.connect(cfg) as conn:
         validate_schema(conn)  # never expose transports against an unprotected legacy store
     servers=[]
     mounts=[]
     for read_only,name in [(True,'ro'),(False,'rw')]:
-        server=FastMCP('agentic-rag',stateless_http=True,json_response=True,
+        server=TracedMCP('agentic-rag',stateless_http=True,json_response=True,
                        streamable_http_path='/',max_request_body_size=MAX_BODY,
                        # TrustedHostMiddleware below validates configured hosts on both transports.
                        transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
         for fn in (*mcp_server.READ_TOOLS,*(() if read_only else mcp_server.WRITE_TOOLS)):
             server.add_tool(_remote_tool(fn,cfg,read_only))
+        server._mcp_server=tracing.ProtocolObserver(server._mcp_server)
         mounts.append(Mount('/mcp/'+name,app=server.streamable_http_app()))
         servers.append(server)
 
@@ -223,6 +245,7 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
         except ValueError:raise ServiceError('invalid_request') from None
         policy=request.state.policy
         principal=await asyncio.to_thread(policy.authenticate_password,data['username'],data['password'])
+        tracing.authenticated(principal)
         from .dashboard import persist_session
         token,expiry=await asyncio.to_thread(persist_session,cfg,policy,principal,uploader)
         return JSONResponse({'access_token':token,'token_type':'Bearer','expires_at':expiry.isoformat(),'uploader_id':uploader})
@@ -248,6 +271,7 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
     async def tool(request):
         args=await request.json()
         result=await invoke(request.path_params['name'],args,request.state.principal,cfg)
+        if isinstance(result,dict) and result.get('error'):tracing.semantic_error('operation_failed')
         return JSONResponse(mcp_server._plain(result))
 
     async def queued_request(request):
@@ -336,21 +360,34 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
             'fairness':await asyncio.to_thread(fairness),
             'foreground':await asyncio.to_thread(foreground_counts),'machines':machines,'protocol':1})
 
+    async def traces(request):
+        p=request.state.principal
+        if 'identity' in request.path_params:
+            result=await asyncio.to_thread(tracing.detail,cfg,p,request.path_params['identity'],recorder=recorder)
+        else:
+            result=await asyncio.to_thread(tracing.listing,cfg,p,dict(request.query_params),export=request.url.path.endswith('/export'),recorder=recorder)
+        return JSONResponse(result)
+
     async def openapi(request):
         from .openapi import document
         tools=await mcp_server.build_server(request.state.principal.readonly).list_tools()
         return JSONResponse(document(tools))
 
     routes=[Route('/v1/requests',queued_request,methods=['POST']),Route('/v1/requests/{identity}',queued_request),Route('/v1/requests/{identity}/cancel',queued_request,methods=['POST']),Route('/v1/checkpoints',checkpoint,methods=['POST']),Route('/v1/checkpoints/{session:path}',checkpoint),Route('/v1/windows',submit_window,methods=['POST']),Route('/v1/jobs/{receipt}',job_status),Route('/v1/jobs/{receipt}/cancel',job_status,methods=['POST']),Route('/health',health),Route('/v1/login',login,methods=['POST']),Route('/v1/logout',logout,methods=['POST']),Route('/v1/capabilities',capabilities),Route('/v1/tools/{name}',tool,methods=['POST']),Route('/v1/admin/status',admin_status),Route('/v1/openapi.json',openapi),*mounts]
+    routes[0:0]=[Route('/v1/traces',traces),Route('/v1/traces/export',traces),Route('/v1/traces/{identity}',traces)]
     routes.insert(0,Route('/v1/jobs/{receipt}/retry',job_retry,methods=['POST']))
     routes.insert(0,Route('/v1/sessions',session_logs))
     routes.insert(0,Route('/v1/sessions/{session}/{kind}',session_logs))
     async def service_error(request, exc):
+        tracing.semantic_error(exc.code if exc.code in tracing.ERRORS else 'http_error')
         return JSONResponse({'error':exc.code},status_code=exc.status)
     async def authentication_error(request, exc):
+        tracing.semantic_error('invalid_credentials')
         return JSONResponse({'error':'invalid_credentials'},status_code=401)
     async def invalid_request(request, exc):
+        tracing.semantic_error('invalid_request')
         return JSONResponse({'error':'invalid_request'},status_code=400)
     app=Starlette(routes=routes,lifespan=lifespan,exception_handlers={ServiceError:service_error,AuthenticationError:authentication_error,ValueError:invalid_request})
     gateway=Gateway(app,cfg,auth_file)
-    return TrustedHostMiddleware(gateway,allowed_hosts=list(allowed_hosts))
+    gateway.dashboard.recorder=recorder
+    return tracing.Middleware(TrustedHostMiddleware(gateway,allowed_hosts=list(allowed_hosts)),recorder)

@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant C as Authenticated client
+    participant G as Gateway / dashboard
+    participant Q as Audited durable queue
+    participant T as Bounded operational trace
+    participant V as Authorized viewer
+    C->>G: Request (new server UUID / validated correlation)
+    G->>G: Authenticate current identity and grants
+    G->>Q: Atomic acceptance with immutable origin IDs
+    Q-->>G: Durable receipt (pending, not applied)
+    G-->>C: HTTP result + request UUID
+    G->>T: Bounded metadata only (best effort)
+    Note over G,T: Failure never changes committed outcome; fixed degraded diagnostic
+    V->>T: Current-authority filters/keyset page
+    T-->>V: Scoped metadata and next cursor
+    V->>Q: Authorized current job projection
+    Q-->>V: Pending / success / refusal / retry / cancelled

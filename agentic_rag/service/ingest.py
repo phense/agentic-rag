@@ -16,6 +16,7 @@ from ..validity import parse_time
 from .context import request_scope
 from .engine import ServiceError
 from .spool import canonical
+from . import tracing
 
 
 class Contract(BaseModel):
@@ -109,10 +110,13 @@ def accept(cfg,principal,policy,data):
         with db.connect(cfg,role='writer') as conn:
             # Protect empty streams and exact retries across simultaneous requests.
             conn.execute("SELECT pg_advisory_xact_lock(hashtext('service_stream'),hashtext(%s))",(session,))
-            existing=conn.execute('SELECT id,content_hash,state FROM service_windows WHERE session_id=%s AND input_cursor=%s',(session,envelope.input_cursor)).fetchone()
+            existing=conn.execute('SELECT id,content_hash,state,origin_request_id,origin_correlation_id FROM service_windows WHERE session_id=%s AND input_cursor=%s',(session,envelope.input_cursor)).fetchone()
             if existing:
                 if existing['content_hash']!=digest: raise ServiceError('cursor_conflict',409)
-                return {'receipt':str(existing['id']),'durable':True,'state':existing['state']}
+                tracing.link_job(existing['id'],'source',accepted=True)
+                return {'receipt':str(existing['id']),'durable':True,'state':existing['state'],
+                        'origin_request_id':str(existing['origin_request_id']) if existing['origin_request_id'] else None,
+                        'origin_correlation_id':str(existing['origin_correlation_id']) if existing['origin_correlation_id'] else None}
             stream=conn.execute('SELECT project,last_cursor FROM service_streams WHERE session_id=%s',(session,)).fetchone()
             if (stream and (stream['last_cursor']!=envelope.input_cursor or stream['project']!=project)) or (not stream and envelope.input_cursor):
                 raise ServiceError('cursor_conflict',409)
@@ -127,22 +131,24 @@ def accept(cfg,principal,policy,data):
             clean,_=strip_secrets_json(envelope.model_dump())
             clean['window']['text']='\n'.join(event['text'] for event in clean['window']['events'])
             clean['_principal']=credential_reference(principal,policy)
-            row=conn.execute('''INSERT INTO service_windows(owner_namespace,session_id,input_cursor,output_cursor,content_hash,payload,project)
-                VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id''',(principal.namespace,session,envelope.input_cursor,envelope.output_cursor,digest,json.dumps(clean),project)).fetchone()
+            row=conn.execute('''INSERT INTO service_windows(owner_namespace,session_id,input_cursor,output_cursor,content_hash,payload,project,origin_request_id,origin_correlation_id)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id''',(principal.namespace,session,envelope.input_cursor,envelope.output_cursor,digest,json.dumps(clean),project,*tracing.origin())).fetchone()
             receipt=str(row['id'])
             job=conn.execute("INSERT INTO mining_queue(kind,session_id,payload,last_uuid) VALUES ('source_window',%s,%s,%s) RETURNING id",(session,json.dumps({'receipt':receipt}),envelope.input_cursor or None)).fetchone()
             conn.execute('UPDATE service_windows SET queue_id=%s WHERE id=%s',(job['id'],receipt))
             conn.execute('UPDATE service_streams SET last_cursor=%s WHERE session_id=%s',(envelope.output_cursor,session))
             conn.execute("INSERT INTO audit_log(actor,op,summary) VALUES (%s,'source_window_accept',%s)",(principal.actor,'accepted source window '+receipt))
         # Connection context commits source, stream and queue together before returning.
-    return {'receipt':receipt,'durable':True,'state':'queued'}
+    tracing.link_job(receipt,'source',accepted=True)
+    request_id,correlation_id=tracing.origin()
+    return {'receipt':receipt,'durable':True,'state':'queued','origin_request_id':request_id,'origin_correlation_id':correlation_id}
 
 
 def receipt_status(cfg,principal,receipt,*,cancel=False):
     try: receipt=str(uuid.UUID(receipt))
     except (ValueError,TypeError): raise ServiceError('not_found',404) from None
     with request_scope(principal,cfg,read_only=not cancel),db.connect(cfg,role='writer' if cancel else 'reader') as conn:
-        row=conn.execute('SELECT id,state,queue_id,created_at,applied_at,result,owner_namespace,project FROM service_windows WHERE id=%s',(receipt,)).fetchone()
+        row=conn.execute('SELECT id,state,queue_id,created_at,applied_at,result,owner_namespace,project,origin_request_id,origin_correlation_id FROM service_windows WHERE id=%s',(receipt,)).fetchone()
         if not row: raise ServiceError('not_found',404)
         if cancel:
             if row['owner_namespace']!=principal.namespace:raise ServiceError('not_found',404)
@@ -151,7 +157,7 @@ def receipt_status(cfg,principal,receipt,*,cancel=False):
             locked=conn.execute("SELECT pg_try_advisory_xact_lock(hashtext('service_window'),hashtext(%s)) ok",(receipt,)).fetchone()['ok']
             if not locked: raise ServiceError('job_in_progress',409)
             # Re-read under the same lock held throughout worker application.
-            row=conn.execute('SELECT id,state,queue_id,created_at,applied_at,result FROM service_windows WHERE id=%s',(receipt,)).fetchone()
+            row=conn.execute('SELECT id,state,queue_id,created_at,applied_at,result,origin_request_id,origin_correlation_id FROM service_windows WHERE id=%s',(receipt,)).fetchone()
             if row['state']!='cancelled':
                 if row['state']=='applied': raise ServiceError('already_applied',409)
                 applied=conn.execute('''SELECT 1 FROM mining_batches b JOIN service_windows w
@@ -164,11 +170,12 @@ def receipt_status(cfg,principal,receipt,*,cancel=False):
                 if queued is None:raise ServiceError('job_state_conflict',409)
                 conn.execute("INSERT INTO audit_log(actor,op,summary) VALUES (%s,'source_window_cancel',%s)",(principal.actor,'cancelled source window '+receipt))
                 row['state']='cancelled'
+        tracing.link_job(receipt,'source')
         queue=conn.execute('SELECT status,attempts,next_attempt_at FROM mining_queue WHERE id=%s',(row['queue_id'],)).fetchone()
         result=row.get('result')
         code=result.get('code') if isinstance(result,dict) else None
         allowed={'authorization_or_predecessor_blocked','provider_unavailable','processing_failed','database_budget_exceeded','storage_low','storage_check_unavailable','write_capacity_exceeded'}
-        return {'code':code if code in allowed else None,'receipt':str(row['id']),'state':row['state'],'queue':dict(queue) if queue else None,
+        return {'origin_request_id':str(row['origin_request_id']) if row['origin_request_id'] else None,'origin_correlation_id':str(row['origin_correlation_id']) if row['origin_correlation_id'] else None,'code':code if code in allowed else None,'receipt':str(row['id']),'state':row['state'],'queue':dict(queue) if queue else None,
                 'created_at':row['created_at'].isoformat(),'applied_at':row['applied_at'].isoformat() if row['applied_at'] else None}
 
 

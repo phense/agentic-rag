@@ -19,6 +19,7 @@ from .. import db
 from .auth import AuthenticationError,Policy,hash_key
 from .engine import ServiceError
 from . import dashboard_policy as policies
+from . import tracing
 
 ASSETS=Path(__file__).with_name('dashboard_assets')
 ASSET_NAMES={'app.js':'text/javascript','style.css':'text/css','index.html':'text/html'}
@@ -58,6 +59,7 @@ class Dashboard:
         request=Request(scope,receive)
         path=scope['path'].removeprefix('/dashboard').rstrip('/')
         async def reply(response):
+            if response.status_code>=400:tracing.semantic_error('http_error')
             response.headers.update(SAFE_HEADERS)
             await response(scope,receive,send)
         if scope['method']=='GET' and (path in {'','/'} or path in {'/app.js','/style.css'}):
@@ -93,6 +95,7 @@ class Dashboard:
                 if path=='/api/bootstrap':return await reply(JSONResponse(await asyncio.to_thread(policies.bootstrap,self.cfg,self.path,data)))
                 if set(data)!={'username','password'} or not all(isinstance(v,str) for v in data.values()) or len(data['username'])>80:raise ServiceError('invalid_request')
                 principal=await asyncio.to_thread(policy.authenticate_password,data['username'],data['password'])
+                tracing.authenticated(principal)
                 token,expiry=await asyncio.to_thread(persist_session,self.cfg,policy,principal)
                 response=JSONResponse({'authenticated':True,'expires_at':expiry.isoformat()})
                 response.set_cookie(cookie_name(request),token,max_age=8*3600,httponly=True,secure=request.url.scheme=='https',samesite='strict',path='/')
@@ -102,6 +105,7 @@ class Dashboard:
             if not token.startswith('session.') or len(token)>2048:raise AuthenticationError()
             principal=await asyncio.to_thread(authenticate,policy,self.cfg,token)
             if principal.machine_id is not None:raise AuthenticationError()
+            tracing.authenticated(principal)
             from .dashboard_presence import observe
             await asyncio.to_thread(observe,self.cfg,self.path,principal)
             csrf=hash_key('dashboard-csrf:'+token)
@@ -115,6 +119,12 @@ class Dashboard:
                 await asyncio.to_thread(remove)
                 response=JSONResponse({'logged_out':True});response.delete_cookie(cookie_name(request),path='/',secure=request.url.scheme=='https',httponly=True,samesite='strict')
                 return await reply(response)
+            elif path=='/api/traces' or path=='/api/traces/export':
+                if scope['method']!='GET':raise ServiceError('method_not_allowed',405)
+                result=await asyncio.to_thread(tracing.listing,self.cfg,principal,dict(request.query_params),export=path.endswith('/export'),recorder=self.recorder)
+            elif path.startswith('/api/traces/'):
+                if scope['method']!='GET':raise ServiceError('method_not_allowed',405)
+                result=await asyncio.to_thread(tracing.detail,self.cfg,principal,path.removeprefix('/api/traces/'),recorder=self.recorder)
             elif path=='/api/policy' and scope['method']=='GET':
                 if not principal.admin:raise ServiceError('administrator_required',403)
                 result=await asyncio.to_thread(policies.policy_view,self.path)

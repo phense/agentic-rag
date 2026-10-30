@@ -1,0 +1,223 @@
+{
+  "feature": "RAG-060",
+  "version": "0.6.13",
+  "base_commit": "75dc321530b135b851c809c3ddb5f16eee7cd5d9",
+  "baseline_same_tree_commit": "05af7870e82aa13eb0fb8d4a97aeff27dd20a690",
+  "runtime_sql_tests_source_sha256": "b07b684d891929c39bb6bf77347012da1ebc40d04f1bdd29b20fe6f298c78007",
+  "limits": "Synthetic owned local PostgreSQL17; finite workload, no TLS/real-provider/target-hardware/multi-day guarantee. Full final suite exit0; limits remain explicit.",
+  "full_suite_forty_client_resource_test": {
+    "connections": 40,
+    "requests": 4000,
+    "churn_connections": 100,
+    "successful_clients": 40,
+    "elapsed_seconds": 58.265,
+    "status_counts": {
+      "200": 800,
+      "429": 3200
+    },
+    "baseline": {
+      "rss_kib": 71868,
+      "pss_kib": 50107,
+      "fds": 10,
+      "threads": 5
+    },
+    "idle40": {
+      "rss_kib": 73336,
+      "pss_kib": 51527,
+      "fds": 50,
+      "threads": 7
+    },
+    "peak_pss_kib": 53453,
+    "first_plateau": {
+      "rss_kib": 74468,
+      "pss_kib": 52597,
+      "fds": 52,
+      "threads": 13
+    },
+    "last_plateau": {
+      "rss_kib": 75340,
+      "pss_kib": 53405,
+      "fds": 52,
+      "threads": 13
+    },
+    "released": {
+      "rss_kib": 75340,
+      "pss_kib": 53405,
+      "fds": 8,
+      "threads": 13
+    },
+    "after_churn": {
+      "rss_kib": 75340,
+      "pss_kib": 53373,
+      "fds": 8,
+      "threads": 13
+    },
+    "database_before": {
+      "streams": 0,
+      "windows": 0,
+      "jobs": 4,
+      "bytes": 10204851
+    },
+    "database_after": {
+      "streams": 0,
+      "windows": 0,
+      "jobs": 4,
+      "bytes": 11024051
+    },
+    "idle_database_backends": 1
+  },
+  "concurrent_noisy_pair": {
+    "before": {
+      "cpu_seconds": 3.0039657,
+      "elapsed_seconds": 4.281098619001568,
+      "fds_after": 8,
+      "fds_before": 8,
+      "limits": "Synthetic ASGI in-process, localhost isolated PostgreSQL55461; no model; no TLS/network/long soak claim",
+      "maxrss_kib": 93916,
+      "median_ms": 137.87298450006347,
+      "p95_ms": 193.82446199961123,
+      "parallelism": 4,
+      "revision": "05af7870e82aa13eb0fb8d4a97aeff27dd20a690",
+      "route": "POST /v1/tools/memory_domains",
+      "samples": 120,
+      "trace_state": null,
+      "tree_dirty": false
+    },
+    "after": {
+      "cpu_seconds": 3.5041328000000003,
+      "elapsed_seconds": 7.9426926739979535,
+      "fds_after": 8,
+      "fds_before": 8,
+      "limits": "Synthetic ASGI in-process, localhost isolated PostgreSQL55461; no model; no TLS/network/long soak claim",
+      "maxrss_kib": 94116,
+      "median_ms": 258.02816949908447,
+      "p95_ms": 347.98275899811415,
+      "parallelism": 4,
+      "revision": "75dc321530b135b851c809c3ddb5f16eee7cd5d9",
+      "route": "POST /v1/tools/memory_domains",
+      "samples": 120,
+      "trace_state": {
+        "logical_bytes": 81948,
+        "relation_bytes": 163840,
+        "rows": 125
+      },
+      "tree_dirty": true
+    }
+  },
+  "previous_full_forty_client_resource_test": {
+    "connections": 40,
+    "requests": 4000,
+    "churn_connections": 100,
+    "successful_clients": 40,
+    "elapsed_seconds": 37.69,
+    "status_counts": {
+      "200": 800,
+      "429": 3200
+    },
+    "baseline": {
+      "rss_kib": 71648,
+      "pss_kib": 49750,
+      "fds": 8,
+      "threads": 4
+    },
+    "idle40": {
+      "rss_kib": 73092,
+      "pss_kib": 51193,
+      "fds": 52,
+      "threads": 6
+    },
+    "peak_pss_kib": 53195,
+    "first_plateau": {
+      "rss_kib": 74156,
+      "pss_kib": 52196,
+      "fds": 51,
+      "threads": 12
+    },
+    "last_plateau": {
+      "rss_kib": 75156,
+      "pss_kib": 53195,
+      "fds": 54,
+      "threads": 13
+    },
+    "released": {
+      "rss_kib": 75156,
+      "pss_kib": 53196,
+      "fds": 8,
+      "threads": 13
+    },
+    "after_churn": {
+      "rss_kib": 75156,
+      "pss_kib": 53196,
+      "fds": 10,
+      "threads": 13
+    },
+    "database_before": {
+      "streams": 0,
+      "windows": 0,
+      "jobs": 4,
+      "bytes": 10204851
+    },
+    "database_after": {
+      "streams": 0,
+      "windows": 0,
+      "jobs": 4,
+      "bytes": 11056819
+    },
+    "idle_database_backends": 1
+  },
+  "final_quiet_sequential_pair": {
+    "before": {
+      "cpu_seconds": 3.2781301000000003,
+      "elapsed_seconds": 4.775100888000452,
+      "fds_after": 8,
+      "fds_before": 8,
+      "limits": "Synthetic ASGI in-process, localhost isolated PostgreSQL55461; no model; no TLS/network/long soak claim",
+      "maxrss_kib": 93648,
+      "median_ms": 148.77525300107663,
+      "p95_ms": 240.478626001277,
+      "parallelism": 4,
+      "revision": "05af7870e82aa13eb0fb8d4a97aeff27dd20a690",
+      "route": "POST /v1/tools/memory_domains",
+      "samples": 120,
+      "trace_state": null,
+      "tree_dirty": false
+    },
+    "after": {
+      "cpu_seconds": 3.6786484,
+      "elapsed_seconds": 5.608590042000287,
+      "fds_after": 8,
+      "fds_before": 8,
+      "limits": "Synthetic ASGI in-process, localhost isolated PostgreSQL55461; no model; no TLS/network/long soak claim",
+      "maxrss_kib": 94540,
+      "median_ms": 183.8959935012099,
+      "p95_ms": 242.6338110017241,
+      "parallelism": 4,
+      "revision": "75dc321530b135b851c809c3ddb5f16eee7cd5d9",
+      "route": "POST /v1/tools/memory_domains",
+      "samples": 120,
+      "trace_state": {
+        "logical_bytes": 81944,
+        "relation_bytes": 163840,
+        "rows": 125
+      },
+      "tree_dirty": true
+    }
+  },
+  "full_suite": {
+    "exit": 0,
+    "seconds": 1409.51,
+    "source_digest_before": "b07b684d891929c39bb6bf77347012da1ebc40d04f1bdd29b20fe6f298c78007",
+    "source_digest_after": "b07b684d891929c39bb6bf77347012da1ebc40d04f1bdd29b20fe6f298c78007",
+    "passed": 1590,
+    "skipped": 1,
+    "warnings": 1,
+    "pytest_seconds": 1408.03,
+    "log_sha256": "629c05cfed1eda996dde5a3f83708d36ee9a8a74709c30e77f7b2274b71d22b6"
+  },
+  "previous_full_suite": {
+    "exit": 1,
+    "seconds": 1341.74,
+    "source_digest_before": "b07b684d891929c39bb6bf77347012da1ebc40d04f1bdd29b20fe6f298c78007",
+    "source_digest_after": "b07b684d891929c39bb6bf77347012da1ebc40d04f1bdd29b20fe6f298c78007"
+  }
+}

@@ -2,8 +2,8 @@
 'use strict';
 const root=document.getElementById('app');
 let me=null,page='overview',generation=0,activeRequest=null;
-const labels={overview:'Overview',memories:'Knowledge',clients:'Clients & access',setup:'Setup assistant'};
-const icons={overview:'▦',memories:'▤',clients:'◇',setup:'⚙'};
+const labels={overview:'Overview',memories:'Knowledge',clients:'Clients & access',setup:'Setup assistant',traces:'Request tracing'};
+const icons={overview:'▦',memories:'▤',clients:'◇',setup:'⚙',traces:'◎'};
 function el(tag,attrs={},...children){
   const node=document.createElement(tag);
   for(const [key,value] of Object.entries(attrs)){
@@ -61,7 +61,7 @@ function renderLogin(bootstrap=false,message=''){
 }
 function shell(){
   const nav=el('nav',{class:'nav','aria-label':'Main navigation'});
-  for(const name of ['overview','memories',...(me.admin?['clients','setup']:[])])nav.append(button([icons[name]+'  ',labels[name]].join(''),()=>navigate(name),'',{'aria-current':page===name?'page':'false'}));
+  for(const name of ['overview','memories','traces',...(me.admin?['clients','setup']:[])])nav.append(button([icons[name]+'  ',labels[name]].join(''),()=>navigate(name),'',{'aria-current':page===name?'page':'false'}));
   const side=el('aside',{class:'sidebar'},brand(),el('div',{class:'eyebrow'},'Workspace'),nav,el('div',{class:'side-foot'},el('strong',{},me.admin?'Service administrator':'Knowledge member'),me.readonly?'Read-only knowledge access':'Scoped knowledge access',el('br'),el('small',{},'File-owned configuration · protocol 1')));
   const content=el('main',{id:'content',class:'content'});
   const wrap=el('div',{class:'shell'},side,el('div',{class:'workarea'},el('header',{class:'topbar'},button('☰',()=>{wrap.classList.toggle('menu-open');wrap.querySelector('.menu-toggle').setAttribute('aria-expanded',String(wrap.classList.contains('menu-open')));},'menu-toggle',{'aria-label':'Toggle navigation','aria-expanded':'false'}),el('div',{class:'breadcrumbs'},'Workspace  /  ',el('span',{},labels[page])),el('div',{class:'user'},el('span',{class:'avatar','aria-hidden':'true'},me.user.slice(0,2).toUpperCase()),el('span',{},me.user),button('Sign out',async()=>{try{await api('logout',{});me=null;generation++;renderLogin();}catch(e){notice(e.message);}},'quiet'))),content));
@@ -70,7 +70,7 @@ function shell(){
 async function navigate(next){
   page=next;const epoch=++generation;activeRequest=null;notice('');const content=shell();
   content.append(header(labels[page],'Loading your workspace…'),el('div',{class:'pending',role:'status'},el('span',{class:'spinner','aria-hidden':'true'}),'Loading…'));
-  try{const view=await ({overview:overviewPage,memories:memoryPage,clients:clientsPage,setup:setupPage}[page])();if(epoch!==generation)return;content.replaceChildren(...view);content.querySelector('h1')?.focus({preventScroll:true});}
+  try{const view=await ({overview:overviewPage,memories:memoryPage,clients:clientsPage,setup:setupPage,traces:tracesPage}[page])();if(epoch!==generation)return;content.replaceChildren(...view);content.querySelector('h1')?.focus({preventScroll:true});}
   catch(error){if(epoch===generation)content.replaceChildren(header(labels[page],'The service could not complete this view.'),errorBox(error),button('Try again',()=>navigate(page)));}
 }
 function stat(label,value,note){return el('section',{class:'card'},el('div',{class:'stat-label'},label),el('div',{class:'stat-value'},value),el('div',{class:'stat-note'},note));}
@@ -222,3 +222,47 @@ async function setupPage(){
   return [header('Set up with confidence.','Choose a path, validate its prerequisites and resume whenever you need.',badge(state.completed?'Completed':'Resumable',state.completed?'good':'')),choose,checks,finish];
 }
 (async()=>{try{me=await api('me');await navigate('overview');}catch{try{const state=await api('bootstrap');renderLogin(state.available);}catch{renderLogin(false,'Dashboard unavailable. Check the private service URL and database/schema prerequisites.');}}})();
+
+// Operational metadata only; detail never renders stored tool arguments/results.
+async function tracesPage(){
+  const controls=el('form',{class:'toolbar'},
+    field('From (UTC ISO time)','since'),field('Until (UTC ISO time)','until'),
+    field('Principal','principal'),field('Client','client'),field('Operation','operation'),
+    field('HTTP status','status'),field('Request ID','request_id'),
+    field('Correlation ID','correlation_id'),field('Job ID','job_id'),
+    selectField('Rows per page','limit',[['10','10'],['25','25'],['50','50']],'25'),
+    el('button',{type:'submit',class:'primary'},'Filter traces'));
+  const results=el('section',{class:'card'});let cursor=null,history=[];
+  const params=()=>new URLSearchParams(Object.entries(dataOf(controls)).filter(([,v])=>v));
+  const load=async(next=null,remember=true)=>{
+    const query=params();if(next)query.set('cursor',next);
+    const found=await api('traces?'+query);
+    if(remember&&next)history.push(cursor);cursor=next;
+    results.replaceChildren(el('div',{class:'section-head'},el('h2',{},'Requests'),el('small',{},found.total+' visible')),
+      el('p',{role:'status'},found.capture.status==='degraded'?'Tracing is degraded. Some requests were not recorded.':'Metadata only. Request and response bodies are never captured.'));
+    const table=el('table',{},el('thead',{},el('tr',{},['Started','Operation','Principal / client','HTTP','Outcome','Duration',''].map(label=>el('th',{scope:'col'},label)))));
+    const rows=el('tbody');
+    for(const row of found.rows)rows.append(el('tr',{},el('td',{},date(row.started_at)),el('td',{},row.operation),el('td',{},(row.principal||'Unauthenticated')+' / '+(row.client||'human')),el('td',{},row.status),el('td',{},row.outcome),el('td',{},row.duration_ms.toFixed(1)+' ms'),el('td',{},button('Inspect request',()=>showTrace(row.request_id),'quiet',{'aria-label':'Inspect request '+row.request_id}))));
+    table.append(rows);results.append(el('div',{class:'table-wrap'},table));
+    if(!found.rows.length)results.append(el('p',{class:'empty'},'No requests are visible for these filters.'));
+    results.append(el('div',{class:'actions'},history.length?button('Previous traces',()=>load(history.pop(),false)):null,found.next_cursor?button('Next traces',()=>load(found.next_cursor)):null));
+  };
+  controls.addEventListener('submit',async event=>{event.preventDefault();history=[];cursor=null;try{await load();}catch(error){results.replaceChildren(errorBox(error));}});
+  if(me.admin)controls.append(button('Export this page',async()=>{
+    try{const query=params();if(cursor)query.set('cursor',cursor);const data=await api('traces/export?'+query);
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);
+      const link=el('a',{href:url,download:'request-traces.json'});document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Scoped metadata page exported.');
+    }catch(error){notice(error.message);}
+  }));
+  await load();return [header('Request tracing','Follow requests to their current job outcome within your current permissions.'),controls,results];
+}
+async function showTrace(identity){
+  const epoch=++generation;const content=root.querySelector('#content');
+  content.replaceChildren(header('Request details','HTTP completion and durable job processing are separate outcomes.'),button('Back to request tracing',()=>navigate('traces'),'quiet'));
+  try{
+    const found=await api('traces/'+encodeURIComponent(identity));if(epoch!==generation)return;
+    const row=found.trace;
+    content.append(el('section',{class:'card spaced'},el('h2',{},'Request metadata'),el('dl',{class:'trace-details'},Object.entries(row).map(([key,value])=>[el('dt',{},key.replaceAll('_',' ')),el('dd',{},value===null?'Unreported':String(value))]))));
+    content.append(el('section',{class:'card spaced'},el('h2',{},'Current job outcome'),found.job?el('pre',{},JSON.stringify(found.job,null,2)):el('p',{},'No current job is available within your permissions.')));
+  }catch(error){if(epoch===generation)content.append(errorBox(error));}
+}
