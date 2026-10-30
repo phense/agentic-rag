@@ -1,0 +1,28 @@
+{
+  "sha256_verified_before": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+  "source": "/dev/shm/agentic-rag-issue62-20261030/model.download",
+  "records": [
+    {
+      "path": "/dev/shm/agentic-rag-issue62-20261030/process-cold/qwen.gguf",
+      "inode": 937823,
+      "size": 639153184
+    },
+    {
+      "path": "/dev/shm/agentic-rag-issue62-20261030/reference-c/qwen.gguf",
+      "inode": 937823,
+      "size": 639153184
+    },
+    {
+      "path": "/dev/shm/agentic-rag-issue62-20261030/reference-b/qwen.gguf",
+      "inode": 937823,
+      "size": 639153184
+    },
+    {
+      "path": "/dev/shm/agentic-rag-german-20261030/qwen.gguf",
+      "inode": 937823,
+      "size": 639153184
+    }
+  ],
+  "reclaimed_bytes": 2556612736,
+  "rollback": "Copy the retained source to a fresh file and atomically replace any alias to restore independent storage; contents and paths are unchanged."
+}

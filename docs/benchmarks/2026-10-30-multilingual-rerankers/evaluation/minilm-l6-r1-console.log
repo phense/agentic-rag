@@ -1,0 +1,12 @@
+Running as unit: rag62-four-runs-f-minilm-l6-r1.service; invocation ID: 2cc72772d3bd42f5956b813630c2ec39
+minilm-l6 performance 6 120 round 1
+minilm-l6 performance 6 600 round 1
+minilm-l6 performance 6 1200 round 1
+minilm-l6 performance 12 600 round 1
+minilm-l6 performance 12 1200 round 1
+minilm-l6 round 1 actual exit 0 observations 76
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 1min 14.075s
+             CPU time consumed: 4min 41.387s
+                   Memory peak: 720.9M (swap: 0B)

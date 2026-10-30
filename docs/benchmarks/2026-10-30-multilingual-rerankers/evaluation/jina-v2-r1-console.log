@@ -1,0 +1,12 @@
+Running as unit: rag62-four-runs-f-jina-v2-r1.service; invocation ID: ccdaa633b89d4cebb49ef7d05d212c0b
+jina-v2 performance 6 120 round 1
+jina-v2 performance 6 600 round 1
+jina-v2 performance 6 1200 round 1
+jina-v2 performance 12 600 round 1
+jina-v2 performance 12 1200 round 1
+jina-v2 round 1 actual exit 0 observations 76
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 7min 41.392s
+             CPU time consumed: 30min 22.604s
+                   Memory peak: 1.2G (swap: 0B)

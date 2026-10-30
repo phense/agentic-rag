@@ -1,0 +1,31 @@
+{
+  "exit": 0,
+  "observations": 76,
+  "child_stopped": true,
+  "child_exit": -15,
+  "cleanup_errors": [],
+  "remaining_group_members": [],
+  "temporary_model_copy_removed": true,
+  "envelope_after": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-f-minilm-l6-r2.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      4.1142578125,
+      4.18310546875,
+      4.09521484375
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 279002737\nuser_usec 277500407\nsystem_usec 1502330\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 728\nnr_throttled 267\nthrottled_usec 304115\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "53075968",
+    "memory.peak": "756080640",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "utc": "2026-10-30T22:53:19.872474+00:00"
+}

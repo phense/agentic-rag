@@ -11,6 +11,10 @@ summary: Paired public German/English semantic probes, separate from the origina
 
 # German suitability of the pinned Jina tiny reranker
 
+The subsequent [four-model multilingual comparison](../2026-10-30-multilingual-rerankers/README.md)
+tests MiniLM L6 EN/DE, mMARCO, Jina v2 and Jina v3.5 on an expanded corpus.
+This earlier tiny diagnostic and its original source hashes remain preserved.
+
 The pinned Jina tiny processes German inputs, but this diagnostic rejects a
 blanket adoption for our German RAG use: six of sixteen first-ranked sources
 miss the question, including permission/negation and subject/object cases.

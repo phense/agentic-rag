@@ -1,0 +1,12 @@
+{
+  "mock_only": true,
+  "no_model_calls": true,
+  "original_R0_used_for_fixture": true,
+  "synthetic_repetitions_not_measurements": true,
+  "exit": 0,
+  "stdout": "minilm-l6 DE 38 /48 EN 38 /48 scored DE/EN 48 48 unavailable DE/EN 0 0 6x600 p95ms 511.41358479944756 RSS MiB 835.2 adapter {'ranked': 48}\nmmarco DE 41 /48 EN 41 /48 scored DE/EN 48 48 unavailable DE/EN 0 0 6x600 p95ms 1358.4559315975632 RSS MiB 697.9 adapter {'ranked': 48}\njina-v2 DE 46 /48 EN 41 /48 scored DE/EN 48 48 unavailable DE/EN 0 0 6x600 p95ms 4182.365955399288 RSS MiB 1170.8 adapter {'ranked': 46, 'timeout': 2}\njina-v3.5 DE 44 /48 EN 44 /48 scored DE/EN 48 48 unavailable DE/EN 0 0 6x600 p95ms None RSS MiB 3756.9 adapter {'timeout': 48}\n",
+  "total2338": true,
+  "missing350": true,
+  "censored_long_unavailable": true,
+  "unattempted_performance_NA": true
+}

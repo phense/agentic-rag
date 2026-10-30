@@ -1,0 +1,94 @@
+{
+  "utc": "2026-10-30T22:35:26.703153+00:00",
+  "source_revision": "e81b21ffc907218800e1fa9646abf74d0c81b7e7",
+  "frozen": {
+    "analyze_bounded.py": "708f573d36b59c0bd68c0cf4ef802ce57e5cf9194394bc79bec8ceb5a950c259",
+    "benchmark.py": "cf90803200011b86bcc4a96e3d4fcbf1458b565c83712e4e1dfd6c0505e77a7d",
+    "check_failure_persistence.py": "b2acc7daf2d2b536c80ac494d18a6b7c55c43247b54670f9d5514139e48b88a3",
+    "build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+    "finish_bounded_matrix.py": "97c19afe509874fae3a32c745d9fbc75cb1565e7be01e16ddba3195b68ded3a6",
+    "run_matrix.py": "b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db",
+    "server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+    "analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+    "resume_matrix.py": "94535392fd77bb5e34cfcfee8000e0e062905f23d41c7d4338d7c61ca67576cf",
+    "corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36"
+  },
+  "product": {
+    "agentic_rag/neural_rerank.py": "5300d78b87ae0b5a9985b5f5a9aba7bdd35245c88da9674cca5eaca7eee149f7",
+    "agentic_rag/config.py": "6ed392ba9c9cdb8873ce140140395d57562b9a767d396e1b5644b42885407efa",
+    "agentic_rag/retrieval.py": "0476b66af0af4b8d923ff6b1de9fc1b723f59917baec06a2f79c80eeb6069490"
+  },
+  "model": {
+    "name": "jina-v2",
+    "repo": "jinaai/jina-reranker-v2-base-multilingual",
+    "revision": "9cfeff2df7d40d1b78e75e5e9cebec92a99813c9",
+    "license": "cc-by-nc-4.0",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quantized.onnx",
+        "bytes": 279577152,
+        "sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3",
+        "upstream_lfs_sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 17082734,
+        "sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20",
+        "upstream_lfs_sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20"
+      },
+      "config.json": {
+        "upstream_path": "config.json",
+        "bytes": 1102,
+        "sha256": "af16fe07e9b623d5a47b42bde0daba1b6510344212c03363145c51a81e9e4572",
+        "upstream_lfs_sha256": null
+      },
+      "tokenizer_config.json": {
+        "upstream_path": "tokenizer_config.json",
+        "bytes": 1148,
+        "sha256": "4bf8eb7ce5367af6f7bcef4bef6fa5945c345ee5a7ecbe6464712a7d96f98015",
+        "upstream_lfs_sha256": null
+      },
+      "special_tokens_map.json": {
+        "upstream_path": "special_tokens_map.json",
+        "bytes": 964,
+        "sha256": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+        "upstream_lfs_sha256": null
+      },
+      "README.md": {
+        "upstream_path": "README.md",
+        "bytes": 15744,
+        "sha256": "e285d801c24ef9fc6acbdc835adc5069050ea9bc148a122c9e1307e7a8fef461",
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  "envelope": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-f-jina-v2-r1.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      4.0,
+      3.517578125,
+      3.88037109375
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 492463\nuser_usec 414706\nsystem_usec 77757\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 5\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "21590016",
+    "memory.peak": "21590016",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "versions": {
+    "onnxruntime": "1.31.1",
+    "tokenizers": "0.22.2",
+    "numpy": "2.5.4",
+    "torch": "2.15.0+cpu",
+    "transformers": "4.57.3",
+    "httpx": "0.28.1"
+  }
+}

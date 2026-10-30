@@ -1,0 +1,31 @@
+body {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 24px;
+  font: 17px/1.55 system-ui, sans-serif;
+  color: #20252b;
+}
+table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 24px 0;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.45;
+}
+th, td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #d4dbe3;
+}
+th { background: #f1f4f8; }
+h1, h2, h3 { line-height: 1.2; }
+h2 { margin-top: 40px; }
+pre { overflow-x: auto; padding: 12px; background: #f1f4f8; }
+code { overflow-wrap: anywhere; }
+a { color: #175b99; }
+@media (max-width: 600px) {
+  body { padding: 0 16px; font-size: 16px; }
+  th, td { padding: 6px 10px; }
+}

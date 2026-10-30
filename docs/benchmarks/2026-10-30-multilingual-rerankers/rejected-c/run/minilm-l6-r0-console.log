@@ -1,0 +1,14 @@
+Running as unit: rag62-four-runs-c-minilm-l6-r0.service; invocation ID: 3ff6561e80ca44e6a4289d3bfd0edf9d
+Traceback (most recent call last):
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-10-30-multilingual-rerankers/benchmark.py", line 303, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-10-30-multilingual-rerankers/benchmark.py", line 135, in main
+    with socket.socket() as s:s.bind(('127.0.0.1',a.port))
+                              ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 98] Address already in use
+          Finished with result: exit-code
+Main processes terminated with: code=exited, status=1/FAILURE
+               Service runtime: 2.060s
+             CPU time consumed: 2.044s
+                   Memory peak: 133.6M (swap: 0B)

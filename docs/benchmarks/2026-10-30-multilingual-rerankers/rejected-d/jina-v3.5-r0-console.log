@@ -1,0 +1,21 @@
+Running as unit: rag62-four-runs-d-jina-v35-r0.service; invocation ID: 0963998e989e454ea678b7c3147c9c25
+Traceback (most recent call last):
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-10-30-multilingual-rerankers/benchmark.py", line 307, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-10-30-multilingual-rerankers/benchmark.py", line 132, in main
+    shutil.copyfile(src,dest)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/administrator/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/lib/python3.13/shutil.py", line 273, in copyfile
+    _fastcopy_sendfile(fsrc, fdst)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/administrator/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/lib/python3.13/shutil.py", line 170, in _fastcopy_sendfile
+    raise err
+  File "/home/administrator/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/lib/python3.13/shutil.py", line 150, in _fastcopy_sendfile
+    sent = os.sendfile(outfd, infd, offset, blocksize)
+OSError: [Errno 122] Disk quota exceeded: '/dev/shm/rag62-three-models-20261030/jina-v3.5/model.safetensors' -> '/dev/shm/rag62-four-jina-v3.5-3tkw7nhs/model/model.safetensors'
+          Finished with result: exit-code
+Main processes terminated with: code=exited, status=1/FAILURE
+               Service runtime: 1.669s
+             CPU time consumed: 1.570s
+                   Memory peak: 566M (swap: 0B)

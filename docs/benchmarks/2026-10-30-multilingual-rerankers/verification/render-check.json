@@ -1,0 +1,16 @@
+{
+  "exit": 0,
+  "checks": [
+    "Detailed report:12tables,1title,readablelayout",
+    "Chartmetric de",
+    "Chartmetric en",
+    "Chartmetric accepted",
+    "Chartmetric primary",
+    "Chartmetric focused",
+    "Chartmetric rss",
+    "Chart390px nohorizontaloverflow",
+    "Detailedreportresponsive1000px/390pxnohorizontalpageoverflow;tablescanbescolled"
+  ],
+  "page_errors": [],
+  "preview_tool_limitation": "T3 html_preview missing host ATK/AT-SPI/Xcomposite/Xdamage; local Playwright used existing isolated libraries; no system installation."
+}

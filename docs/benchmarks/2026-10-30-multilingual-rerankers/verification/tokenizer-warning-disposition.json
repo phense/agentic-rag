@@ -1,0 +1,25 @@
+{
+  "model_type": "qwen3",
+  "saved_transformers_version": "4.57.3",
+  "upstream_pre_tokenizer": {
+    "type": "Sequence",
+    "pretokenizers": [
+      {
+        "type": "Split",
+        "pattern": {
+          "Regex": "(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\\r\\n\\p{L}\\p{N}]?\\p{L}+|\\p{N}| ?[^\\s\\p{L}\\p{N}]+[\\r\\n]*|\\s*[\\r\\n]+|\\s+(?!\\S)|\\s+"
+        },
+        "behavior": "Isolated",
+        "invert": false
+      },
+      {
+        "type": "ByteLevel",
+        "add_prefix_space": false,
+        "trim_offsets": true,
+        "use_regex": false
+      }
+    ]
+  },
+  "warning_origin": "transformers/tokenization_utils_base.py _patch_mistral_regex lines2459-2493",
+  "disposition": "False-positive local-config detection: saved4.57.3 falls after <=4.57.2 non-Mistral return and before >=5.0 return. Qwen3 config is treated as detected despite non-Mistral architecture. fix flag was absent so code only warns and sets tokenizer.fix_mistral_regex=False; correction branch is not executed. Pinned upstream Qwen2 tokenizer regex is retained. No model, tokenizer or library patch applied."
+}

@@ -1,0 +1,19 @@
+Running as unit: rag62-four-runs-d-mmarco-r0.service; invocation ID: 5c336c8495194395a0cdd4cd0a7df301
+mmarco quality 16 /96
+mmarco quality 32 /96
+mmarco quality 48 /96
+mmarco quality 64 /96
+mmarco quality 80 /96
+mmarco quality 96 /96
+mmarco semantic diagnostics complete
+mmarco performance 6 120 round 0
+mmarco performance 6 600 round 0
+mmarco performance 6 1200 round 0
+mmarco performance 12 600 round 0
+mmarco performance 12 1200 round 0
+mmarco round 0 actual exit 0 observations 520
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 8min 59.921s
+             CPU time consumed: 35min 25.894s
+                   Memory peak: 853.8M (swap: 0B)

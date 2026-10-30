@@ -1,0 +1,233 @@
+{
+  "utc": "2026-10-30T20:33:11.043481+00:00",
+  "frozen": {
+    "benchmark.py": "4f0fb69842e4dde808795825b4e5bb609736d50970f82a1e6d65198bf917a147",
+    "build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+    "run_matrix.py": "b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db",
+    "server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+    "analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+    "corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36",
+    "PLAN.md": "e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce"
+  },
+  "models": [
+    {
+      "name": "minilm-l6",
+      "repo": "cross-encoder/msmarco-MiniLM-L6-en-de-v1",
+      "revision": "9eb610d90d409cfefb7422e13debd405f8465af6",
+      "license": "apache-2.0",
+      "files": {
+        "model.onnx": {
+          "upstream_path": "onnx/model_quint8_avx2.onnx",
+          "bytes": 107494476,
+          "sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+          "upstream_lfs_sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab"
+        },
+        "tokenizer.json": {
+          "upstream_path": "tokenizer.json",
+          "bytes": 9096735,
+          "sha256": "96ef91dd5d1c3b157a0437e85ff1f29d0eb3cf32fd40f863dab45baa5e839fad",
+          "upstream_lfs_sha256": null
+        },
+        "config.json": {
+          "upstream_path": "config.json",
+          "bytes": 840,
+          "sha256": "a9b877e1045cab3fa0a8cdded9af95827f04415c441b379782934cc078e30d2f",
+          "upstream_lfs_sha256": null
+        },
+        "tokenizer_config.json": {
+          "upstream_path": "tokenizer_config.json",
+          "bytes": 541,
+          "sha256": "d6ce88bf6b3994954d997ea969f0da21d435dfbbb74825e9e496e1090cb8a6d4",
+          "upstream_lfs_sha256": null
+        },
+        "special_tokens_map.json": {
+          "upstream_path": "special_tokens_map.json",
+          "bytes": 150,
+          "sha256": "7638f5bbbe86ef6d604ef28ad3647dc690d6d117c81c0d63e885416be8da1150",
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "upstream_path": "README.md",
+          "bytes": 4998,
+          "sha256": "904aed3fcf00f8486b5dc0ddcc8960cfd1d8dc8c6e26ac6cd726ec9e1b822768",
+          "upstream_lfs_sha256": null
+        }
+      }
+    },
+    {
+      "name": "mmarco",
+      "repo": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+      "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+      "license": "apache-2.0",
+      "files": {
+        "model.onnx": {
+          "upstream_path": "onnx/model_quint8_avx2.onnx",
+          "bytes": 118620016,
+          "sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+          "upstream_lfs_sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
+        },
+        "tokenizer.json": {
+          "upstream_path": "tokenizer.json",
+          "bytes": 17082660,
+          "sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+          "upstream_lfs_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626"
+        },
+        "config.json": {
+          "upstream_path": "config.json",
+          "bytes": 891,
+          "sha256": "cc2cfe51aa3fd759d21d21acf5dfd6994aa67a3c9210636d22e143699d336c77",
+          "upstream_lfs_sha256": null
+        },
+        "tokenizer_config.json": {
+          "upstream_path": "tokenizer_config.json",
+          "bytes": 435,
+          "sha256": "e7fbfbfa6347b4e414c1cee50d142e2c2f9a895dad68b068ae83a8b564c3837e",
+          "upstream_lfs_sha256": null
+        },
+        "special_tokens_map.json": {
+          "upstream_path": "special_tokens_map.json",
+          "bytes": 239,
+          "sha256": "378eb3bf733eb16e65792d7e3fda5b8a4631387ca04d2015199c4d4f22ae554d",
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "upstream_path": "README.md",
+          "bytes": 2278,
+          "sha256": "474736a65d6393a060119a8dc304563af67af4d8d86ccfee4a05dd0df107fc11",
+          "upstream_lfs_sha256": null
+        }
+      }
+    },
+    {
+      "name": "jina-v2",
+      "repo": "jinaai/jina-reranker-v2-base-multilingual",
+      "revision": "9cfeff2df7d40d1b78e75e5e9cebec92a99813c9",
+      "license": "cc-by-nc-4.0",
+      "files": {
+        "model.onnx": {
+          "upstream_path": "onnx/model_quantized.onnx",
+          "bytes": 279577152,
+          "sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3",
+          "upstream_lfs_sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3"
+        },
+        "tokenizer.json": {
+          "upstream_path": "tokenizer.json",
+          "bytes": 17082734,
+          "sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20",
+          "upstream_lfs_sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20"
+        },
+        "config.json": {
+          "upstream_path": "config.json",
+          "bytes": 1102,
+          "sha256": "af16fe07e9b623d5a47b42bde0daba1b6510344212c03363145c51a81e9e4572",
+          "upstream_lfs_sha256": null
+        },
+        "tokenizer_config.json": {
+          "upstream_path": "tokenizer_config.json",
+          "bytes": 1148,
+          "sha256": "4bf8eb7ce5367af6f7bcef4bef6fa5945c345ee5a7ecbe6464712a7d96f98015",
+          "upstream_lfs_sha256": null
+        },
+        "special_tokens_map.json": {
+          "upstream_path": "special_tokens_map.json",
+          "bytes": 964,
+          "sha256": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "upstream_path": "README.md",
+          "bytes": 15744,
+          "sha256": "e285d801c24ef9fc6acbdc835adc5069050ea9bc148a122c9e1307e7a8fef461",
+          "upstream_lfs_sha256": null
+        }
+      }
+    },
+    {
+      "name": "jina-v3.5",
+      "repo": "jinaai/jina-reranker-v3.5",
+      "revision": "e8a93f33f0b22108f8c2364f8484ce3422552fbc",
+      "license": "cc-by-nc-4.0",
+      "files": {
+        "README.md": {
+          "upstream_path": "README.md",
+          "bytes": 6678,
+          "sha256": "da4fd1e360aef1139a5e0dc12cee19093e1fb7958a46682df062430a2a990ffc",
+          "upstream_lfs_sha256": null
+        },
+        "added_tokens.json": {
+          "upstream_path": "added_tokens.json",
+          "bytes": 795,
+          "sha256": "7e57ca349de401cc35df7a7f04f6202f444ffaeb9ee83a5c1709f87bc99bf01b",
+          "upstream_lfs_sha256": null
+        },
+        "config.json": {
+          "upstream_path": "config.json",
+          "bytes": 1516,
+          "sha256": "6750b018f53b2dc66a9a584ce0c1993542166ce39f9a996f71e0d031ea9c426f",
+          "upstream_lfs_sha256": null
+        },
+        "generation_config.json": {
+          "upstream_path": "generation_config.json",
+          "bytes": 202,
+          "sha256": "4bb63613633138e256b1fa3a1ef653feb34175620f6f92ad8f415b7a9f175be1",
+          "upstream_lfs_sha256": null
+        },
+        "merges.txt": {
+          "upstream_path": "merges.txt",
+          "bytes": 1671853,
+          "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+          "upstream_lfs_sha256": null
+        },
+        "model.safetensors": {
+          "upstream_path": "model.safetensors",
+          "bytes": 1193708152,
+          "sha256": "50c684b703a1770389cd2992c6ca3c5f76ad0a270e975374c182cde3e5dfb6fe",
+          "upstream_lfs_sha256": "50c684b703a1770389cd2992c6ca3c5f76ad0a270e975374c182cde3e5dfb6fe"
+        },
+        "modeling.py": {
+          "upstream_path": "modeling.py",
+          "bytes": 10389,
+          "sha256": "ec6612461b4307eb3bab089e6916c00881b7e6b2e8edfbd56a9ace4560244837",
+          "upstream_lfs_sha256": null
+        },
+        "special_tokens_map.json": {
+          "upstream_path": "special_tokens_map.json",
+          "bytes": 777,
+          "sha256": "9c61cd9afb8a31aea657bb51fd6e53d758a1ebb288f284b0b7420cad3e8417e7",
+          "upstream_lfs_sha256": null
+        },
+        "tokenizer.json": {
+          "upstream_path": "tokenizer.json",
+          "bytes": 11423225,
+          "sha256": "4e95945ab0cef486709f760b81efcc7a6e75747f9165d13ead29159737455803",
+          "upstream_lfs_sha256": "4e95945ab0cef486709f760b81efcc7a6e75747f9165d13ead29159737455803"
+        },
+        "tokenizer_config.json": {
+          "upstream_path": "tokenizer_config.json",
+          "bytes": 10723,
+          "sha256": "88bbd231e995ec6cadadf7115691703b0376a64e9dae124fd59aa1508ad02ee3",
+          "upstream_lfs_sha256": null
+        },
+        "vocab.json": {
+          "upstream_path": "vocab.json",
+          "bytes": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "upstream_lfs_sha256": null
+        }
+      }
+    }
+  ],
+  "host": {
+    "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+    "machine": "x86_64",
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz",
+    "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid tsc_known_freq pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 popcnt aes xsave avx hypervisor lahf_lm pti ssbd ibrs ibpb stibp xsaveopt md_clear flush_l1d arch_capabilities",
+    "meminfo": "MemTotal:       15754080 kB\nMemFree:         1957500 kB\nMemAvailable:    6674536 kB\nBuffers:          452040 kB\nCached:          8542024 kB\nSwapCached:       124604 kB\nActive:          6055184 kB\nInactive:        6365152 kB\nActive(anon):    4398148 kB\nInactive(anon):  3618036 kB\nActive(file):    1657036 kB\nInactive(file):  2747116 kB\nUnevictable:       13004 kB\nMlocked:            9932 kB\nSwapTotal:       4194300 kB\nSwapFree:        1248508 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              3052 kB\nWriteback:             0 kB\nAnonPages:       3385564 kB\nMapped:           785392 kB\nShmem:           4582476 kB\nKReclaimable:     646636 kB\nSlab:            1026608 kB\nSReclaimable:     646636 kB\nSUnreclaim:       379972 kB\nKernelStack:       17332 kB\nPageTables:        53920 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    12071340 kB\nCommitted_AS:   15223332 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       54892 kB\nVmallocChunk:          0 kB\nPercpu:           193920 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     10240 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    530432 kB\nFilePmdMapped:         0 kB\nCmaTotal:              0 kB\nCmaFree:          359864 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nGPUActive:             0 kB\nGPUReclaim:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      216480 kB\nDirectMap2M:     9220096 kB\nDirectMap1G:     8388608 kB\n",
+    "loadavg": [
+      0.5224609375,
+      0.58642578125,
+      0.6640625
+    ]
+  },
+  "source_revision": "e81b21ffc907218800e1fa9646abf74d0c81b7e7"
+}

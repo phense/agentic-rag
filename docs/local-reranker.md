@@ -215,6 +215,18 @@ six of sixteen German first sources are wrong, and six English probes produce
 finite negative scores that trigger the adapter's unchanged range guard. General
 production adoption remains blocked on semantic and contract acceptance.
 
+The [four-model multilingual comparison](benchmarks/2026-10-30-multilingual-rerankers/README.md)
+measures MiniLM L6 EN/DE, mMARCO, Jina v2 and Jina v3.5. On its fixed 48 German
+and 48 English questions, mMARCO ranks 41/48 first sources correctly per language
+with all 96 primary adapter calls accepted. L6 ranks 38/48 per language and has
+more headroom in the concurrent load controls. mMARCO's padded two-client bursts
+all time out, so its single-client result does not establish concurrent capacity.
+Jina v2 improves German raw ranking but exceeds the deadline on longer inputs;
+v3.5 times out on all 96 actual adapter calls and fails the prescribed long-text
+runtime bound. The report retains that failure and all unattempted cells.
+These lab bridges apply explicit score mappings and have not been activated
+as production services. Jina weight licensing requires a separate adoption decision.
+
 For a separately authorized Jina tiny lab test, use the pinned tiny file from the
 rehearsal prerequisites with the same startup command, replacing `--model` with
 that file and `--alias` with `agentic-rag-jina-tiny-en-q8`. In the private TOML

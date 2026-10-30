@@ -1,0 +1,31 @@
+{
+  "exit": 0,
+  "observations": 76,
+  "child_stopped": true,
+  "child_exit": -15,
+  "cleanup_errors": [],
+  "remaining_group_members": [],
+  "temporary_model_copy_removed": true,
+  "envelope_after": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-f-mmarco-r1.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      4.0,
+      3.517578125,
+      3.88037109375
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 534491874\nuser_usec 532067605\nsystem_usec 2424269\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 1393\nnr_throttled 566\nthrottled_usec 624297\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "112574464",
+    "memory.peak": "804134912",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "utc": "2026-10-30T22:35:26.015523+00:00"
+}

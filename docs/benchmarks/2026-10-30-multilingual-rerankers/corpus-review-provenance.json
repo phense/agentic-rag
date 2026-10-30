@@ -1,0 +1,6 @@
+{
+  "reviewed_sha256": "653793215e741e74877a53dde961f8ffa4fca5c172039a22904800201ca972bf",
+  "final_sha256": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36",
+  "cases_unchanged": true,
+  "only_metadata_change": "Long-context declaration changed from2400characters/common512 to6000characters/bounded512 before inference; helper review confirmed boundary coverage."
+}

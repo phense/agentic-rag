@@ -146,3 +146,26 @@ production adapter are measured separately. Six German first-source misses and
 the native score-range mismatch block blanket tiny/native adoption. All 343
 original test-manifest and 159 measured source files remain byte-identical;
 production code, schema, corpus selection and deployed configuration are unchanged.
+
+## Four-model multilingual comparison
+
+The [complete comparison](../benchmarks/2026-10-30-multilingual-rerankers/README.md)
+retains 2,338 actual observations: nine successful units for MiniLM L6, mMARCO
+and Jina v2, plus one failed Jina v3.5 unit. Its 96 primary questions per model
+are fully scored. Jina v3.5 reached the prescribed 30-second HTTP timeout and
+120-second native-drain limit on the first long-text control; 350 later
+observations remain unattempted. The original 2,688-observation protocol failed.
+A zero exit from the bounded continuation means the other six units finished.
+
+The [independent bounded review](../benchmarks/2026-10-30-multilingual-rerankers/verification/independent-review.txt)
+reconstructs every recorded request and native response, all summary values,
+source and model identities, failure provenance and cleanup. No open C/H/M or
+actionable Low finding remains in that bounded code/evidence review. A reproduced
+failed-drain evidence-loss defect was fixed, with five model-free regressions;
+the real v3.5 failure now retains its attempted row. This does not resolve the
+model's measured runtime limit. The report records fresh documentation checks
+separately from the historical 1,735-pass same-source full suite.
+
+The embedding substitution benchmark is separately tracked in
+[Issue #83](https://github.com/phense/agentic-rag/issues/83). No embedding model,
+runtime service, production configuration or stored vector was changed here.

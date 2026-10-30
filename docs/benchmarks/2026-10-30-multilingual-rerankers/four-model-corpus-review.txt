@@ -1,0 +1,27 @@
+# Four-model corpus review
+
+Scope: read-only review of `docs/benchmarks/2026-10-30-multilingual-rerankers/build_corpus.py` and `corpus.json` before the requested candidate comparison. No implementation edits, model inference, downloads or GitHub actions were performed. This report is the only written file.
+
+## Verdict
+
+No Critical, High, Medium or actionable Low finding in the reviewed gold labels or DE/EN alignment. The corpus is suitable for the proposed bounded synthetic source-ranking diagnostic; it does not establish population accuracy or independent evidence from 96 unrelated questions.
+
+## Independently verified
+
+- Exactly 96 unique cases and queries, 48 DE / 48 EN, in 24 related families and 48 aligned language pairs. Each case contains exactly six uniquely identified passages.
+- All gold sets are nonempty, contain valid distinct candidate IDs, and match across each language pair. Ten cases require two sources; the other 86 require one.
+- The first 32 cases preserve the prior diagnostic byte-equivalent JSON values apart from the newly added `split` field. The 64 new cases agree with the builder constants and expected-ID derivation, checked without executing the writer.
+- All 16 new families were read in both languages, including every distractor. The selected gold distinguishes subject/object roles, passive roles, denied permissions, withdrawn approval, date validity, decimal amounts, net/gross, units, nearby identifiers, umlaut names, conditional exceptions, site scope, causality and both multi-source workflows. No alternative passage independently supplies a competing correct answer.
+- In `new-two-source-prerequisites`, question one requires IDs 0+1 and question two IDs 2+3. The same partition applies to `new-two-source-recovery`; neither gold source alone supplies both requested prerequisites/steps.
+- All eight prior families were read in both languages. Gold labels and faithful translations remain coherent, including prior two-source `multi-condition-1`.
+
+## Evidence boundary
+
+This review checks labels and alignment only. It does not prove absence of earlier candidate inference, unseen training data, runtime correctness, test execution, or performance. Keep prior/new results separate and use first permutations for the primary denominator; reverse orders are robustness controls. Long-context padding and unsupported-query construction are outside these two files' concrete case definitions and require separate helper/method review.
+
+## Frozen inputs reviewed
+
+- Builder SHA-256: `dda8cbdeff3dfce83ba3ac17932a85d93a6204f674d2b124adb6148c64ad5f59`.
+- Corpus SHA-256: `653793215e741e74877a53dde961f8ffa4fca5c172039a22904800201ca972bf`.
+
+Validation was performed by read-only Python assertions over counts, pair alignment, candidate IDs, gold bounds, prior preservation and builder/corpus parity. Actual exit 0. No product code or benchmark inputs were changed.

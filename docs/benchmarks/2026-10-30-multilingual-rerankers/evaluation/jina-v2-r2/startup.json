@@ -1,0 +1,11 @@
+{
+  "process_to_ready_ms": 3627.4436859966954,
+  "pid": 1217552,
+  "same_cgroup": true,
+  "affinity": [
+    0,
+    1,
+    2,
+    3
+  ]
+}
