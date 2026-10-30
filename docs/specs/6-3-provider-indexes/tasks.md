@@ -47,7 +47,7 @@ measurement cases; independent full bounded review and final full-suite exit.
 ### Slice S5: Convergence and final verification handoff
 
 - [x] T013 Invoke speckit-converge; reconcile acceptance, architecture, actual exits and review state, execute any appended fix slice; full suite, version/docs checks; depends on T012.
-- [ ] T014 Commit/push, create/link PR immediately, report step3/15 and wait for maintainer merge/weiter; depends on T013.
+- [x] T014 Commit/push, create/link PR immediately, report step3/15 and wait for maintainer merge/weiter; depends on T013.
 
 ## Dependencies and ownership
 
@@ -62,3 +62,9 @@ Readonly reviews may overlap unrelated execution; test clusters must not overlap
 PB061-OPS readiness blocks T014; independent content review plus actual synthetic
 CLI resume/cutover/rollback evidence required. Reused PB061-DEV applicability must
 be checked before T008; no production upgrade is part of this execution.
+
+## Publication handoff
+
+[PR #81](https://github.com/phense/agentic-rag/pull/81) is published and linked.
+Implementation and verification are complete; maintainer merge/weiter is pending.
+Roadmap#58 step3/15; continue with#62 only after approval.
