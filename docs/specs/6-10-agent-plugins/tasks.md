@@ -19,5 +19,5 @@
   PB06801 rehearsal; FR08–09; depends03/05.
 - [x] T06807 Real40-client/p50/p95/resource and2–3continuity traces, full Python/
   Node checks and independent full-range review; fix C/H/M, append Lows75.
-- [ ] T06808 Publish tested stacked PR, immediate T3link, canonical68evidence;
+- [x] T06808 Publish tested stacked PR, immediate T3link, canonical68evidence;
   no merge/cutover without specific authorization; depends06/07.

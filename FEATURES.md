@@ -30,7 +30,8 @@ unlimited model throughput is claimed. [Operator guide](docs/13-central-service.
 
 ## Native plugins and bounded waiting (F-068 / issue #68)
 
-🔵 Implemented and tested in the feature branch, stacked on the central service.
+🔵 Implemented and tested in [PR #77](https://github.com/phense/agentic-rag/pull/77),
+stacked on the central service in #76.
 Native Claude/Codex packages and a distinct Gemini CLI extension reuse the shared
 source/checkpoint connector. Preview, install, update, doctor, uninstall and
 interrupted-operation recovery preserve foreign files and pending input.
