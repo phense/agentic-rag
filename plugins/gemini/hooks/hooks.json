@@ -1,0 +1,70 @@
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event AfterAgent",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event BeforeAgent",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "BeforeModel": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event BeforeModel",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreCompress": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event PreCompress",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event SessionEnd",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host gemini --event SessionStart",
+            "timeout": 3000,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

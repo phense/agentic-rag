@@ -36,7 +36,7 @@ def test_verified_local_upgrade_preserves_rows_grants_and_retries(tmp_path,monke
         assert not (tmp_path/'upgrade.dump').exists()
         result=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'upgrade.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['applied'] and len(result['migrations_applied'])==23-schema
+        assert result['applied'] and len(result['migrations_applied'])==24-schema
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         retry=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'retry.dump',apply=True,writers_stopped=True)
         assert retry['migrations_applied']==[]
@@ -143,7 +143,7 @@ def test_populated_original022_adds_uploader_without_rewriting_session_history(t
             old=dict(conn.execute('SELECT * FROM service_sessions').fetchone())
             conn.commit()
         result=upgrade.local_upgrade(cfg,'0.6.9',tmp_path/'original022.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['023_claim_lookup.sql']
+        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql']
         assert result['original_rows_unchanged'] and result['restore_verified']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         with db.connect(cfg) as conn:
@@ -188,3 +188,21 @@ def test_original022_compatibility_rejects_uploader_schema_drift(tmp_path,monkey
             upgrade.verify_preserved(cfg,original)
         with db.connect(cfg) as conn:
             with pytest.raises(ServiceSchemaError):validate_schema(conn)
+
+
+def test_populated023_upgrade_current024_backup_restore_and_retry(tmp_path,monkeypatch):
+    from agentic_rag.service import upgrade
+    monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
+    with owned_source(tmp_path,23) as cfg:
+        with db.connect(cfg) as conn:
+            conn.execute("INSERT INTO mining_queue(kind,session_id,transcript_path) VALUES ('mine','preserve-pending','/owned/original.jsonl')")
+        old=upgrade.inventory(cfg,'0.6.10')
+        result=upgrade.local_upgrade(cfg,'0.6.10',tmp_path/'upgrade024.dump',apply=True,writers_stopped=True)
+        assert result['original_rows_unchanged'] and result['restore_verified']
+        assert result['migrations_applied']==['024_request_queue.sql']
+        assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
+        current=upgrade.verified_backup(cfg,'0.6.11',tmp_path/'current024.dump')
+        assert current['restore_verified']
+        retry=upgrade.local_upgrade(cfg,'0.6.11',tmp_path/'retry024.dump',apply=True,writers_stopped=True)
+        assert retry['migrations_applied']==[] and retry['original_rows_unchanged']
+        assert upgrade.inventory(cfg,'0.6.11')['tables']==current['manifest']['tables']

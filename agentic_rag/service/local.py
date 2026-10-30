@@ -66,6 +66,8 @@ def pre_compact(cfg,payload):
     packet={'version':1,'session_id':session,'project':project(payload),'snapshot':snapshot,'handoff':None,'compacted':False}
     with RemoteClient(cfg) as client:
         identity=client.stage_checkpoint(packet)  # durable before optional repository/network work
+    if payload.get('transcript_path') and Path(payload['transcript_path']).is_file():
+        capture_transcript(cfg,payload)  # original source survives context discard
     return identity
 
 
@@ -87,6 +89,14 @@ def context(cfg,payload,*,prompt=None):
         session=payload.get('session_id') or ''
         text=client.context(session,project(payload),prompt=prompt)
         if prompt is None:
+            extraction=client.extraction_states(session)
+            if extraction:
+                lines='\n'.join(f"{r['receipt']}: {r['state']}"+(f"; status unavailable ({r['status_error']}); last observed state" if r.get('status_error') else '') for r in extraction)
+                text=('## Accepted source extraction (not a foreground request)\n'+lines+'\nAccepted/queued work does not imply memories are applied.\n'+text)[:10000]
+            pending_requests=client.spool.request_summaries()
+            if pending_requests:
+                handles='\n'.join(f"{row['server_id'] or row['id']} ({row['tool']}; {row['code'] or 'waiting'})" for row in pending_requests)
+                text=('## Pending uploader requests (VM-wide; not necessarily this session)\n'+handles+'\nUse memory_request_status; do not re-enqueue ambiguous writes.\n'+text)[:10000]
             status=client.spool.status()
             warning=''
             if status['pending'] or status['error'] not in {None,'source_captured'}:

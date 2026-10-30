@@ -1,0 +1,7 @@
+{
+  "description": "Source-backed knowledge, durable compaction handoffs and bounded queued tools.",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "name": "agentic-rag",
+  "version": "0.6.11"
+}

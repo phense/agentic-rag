@@ -51,8 +51,13 @@ class Spool:
             PRIMARY KEY(partition,session));
           CREATE TABLE IF NOT EXISTS checkpoints(partition TEXT,session TEXT,payload TEXT,
             PRIMARY KEY(partition,session));
+          CREATE TABLE IF NOT EXISTS tool_requests(id TEXT PRIMARY KEY,partition TEXT NOT NULL,
+            fingerprint TEXT NOT NULL,envelope TEXT NOT NULL,server_id TEXT,code TEXT,created REAL NOT NULL,last_checked REAL NOT NULL DEFAULT 0);
           CREATE TABLE IF NOT EXISTS health(partition TEXT PRIMARY KEY,code TEXT);
         ''')
+
+        if 'last_checked' not in {r[1] for r in self.conn.execute('PRAGMA table_info(tool_requests)')}:
+            self.conn.execute('ALTER TABLE tool_requests ADD COLUMN last_checked REAL NOT NULL DEFAULT 0')
 
     def __enter__(self): return self
     def __exit__(self,*args): self.conn.close()
@@ -109,6 +114,15 @@ class Spool:
             self.conn.execute('INSERT OR REPLACE INTO receipts VALUES(?,?,?,?)',(identity,self.partition,canonical(receipt),time.time()))
             self.conn.execute('DELETE FROM outbox WHERE id=? AND partition=?',(identity,self.partition))
             self.conn.execute('DELETE FROM receipts WHERE id NOT IN (SELECT id FROM receipts ORDER BY created DESC LIMIT 256)')
+
+    def extraction_states(self,session):
+        rows=[json.loads(r['receipt']) for r in self.conn.execute('SELECT receipt FROM receipts WHERE partition=? ORDER BY created DESC LIMIT 256',(self.partition,))]
+        return [r for r in rows if r.get('kind')=='window' and r.get('session')==session][:3]
+
+    def receipt_state(self,value):
+        if len(canonical(value).encode())>4096:raise ValueError('invalid receipt status')
+        with self.conn:
+            self.conn.execute("UPDATE receipts SET receipt=? WHERE partition=? AND json_extract(receipt,'$.receipt')=?",(canonical(value),self.partition,value['receipt']))
 
     def fail(self,identity,code,*,blocked=False):
         # Retain only a stable code, never an HTTP/provider exception body or token.
@@ -182,3 +196,58 @@ class Spool:
         error=self.conn.execute('SELECT code FROM health WHERE partition=?',(self.partition,)).fetchone()
         return {**dict(row),'error':error['code'] if error else None,
             'source_bytes':self.conn.execute('SELECT COALESCE(sum(length(raw)),0) FROM sources WHERE partition=?',(self.partition,)).fetchone()[0]}
+
+    def stage_request(self,tool,arguments):
+        import uuid
+        from datetime import datetime,timezone
+        fingerprint=hashlib.sha256(canonical([tool,arguments]).encode()).hexdigest()
+        envelope=canonical({'idempotency_key':str(uuid.uuid4()),'created_at':datetime.now(timezone.utc).isoformat(),
+                            'tool':tool,'arguments':arguments})
+        self.conn.execute('BEGIN IMMEDIATE')
+        try:
+            existing=self.conn.execute('SELECT id FROM tool_requests WHERE partition=? AND fingerprint=?',(self.partition,fingerprint)).fetchone()
+            if existing:
+                self.conn.rollback()
+                return existing['id']
+            count,total=self.conn.execute('SELECT count(*),COALESCE(sum(length(CAST(envelope AS BLOB))),0) FROM tool_requests').fetchone()
+            if count>=64 or total+len(envelope.encode())>4*1024*1024 or len(envelope.encode())>60*1024:
+                raise SpoolFull('request spool full; pending requests retained')
+            identity='local.'+str(uuid.uuid4())
+            self.conn.execute('INSERT INTO tool_requests(id,partition,fingerprint,envelope,created) VALUES(?,?,?,?,?)',
+                              (identity,self.partition,fingerprint,envelope,time.time()))
+            self.conn.commit()
+            return identity
+        except BaseException:
+            self.conn.rollback();raise
+
+    def pending_requests(self):
+        return [dict(r) for r in self.conn.execute('SELECT * FROM tool_requests WHERE partition=? ORDER BY last_checked,created',(self.partition,))]
+
+    def request_record(self,identity):
+        row=self.conn.execute('SELECT * FROM tool_requests WHERE id=? AND partition=?',(identity,self.partition)).fetchone()
+        if row is None:raise ValueError('unknown local request')
+        return dict(row)
+
+    def request_by_server(self,identity):
+        row=self.conn.execute('SELECT id FROM tool_requests WHERE partition=? AND server_id=?',(self.partition,identity)).fetchone()
+        return row['id'] if row else None
+
+    def request_touch(self,identity):
+        with self.conn:self.conn.execute('UPDATE tool_requests SET last_checked=? WHERE id=? AND partition=?',(time.time(),identity,self.partition))
+
+    def request_ack(self,identity,server_id):
+        import uuid
+        server_id=str(uuid.UUID(server_id))
+        with self.conn:
+            self.conn.execute('UPDATE tool_requests SET server_id=?,code=NULL WHERE id=? AND partition=?',(server_id,identity,self.partition))
+
+    def request_finish(self,identity):
+        with self.conn:self.conn.execute('DELETE FROM tool_requests WHERE id=? AND partition=?',(identity,self.partition))
+
+    def request_error(self,identity,code):
+        if not isinstance(code,str) or not code.replace('_','').isalnum() or len(code)>80:code='request_failed'
+        with self.conn:self.conn.execute('UPDATE tool_requests SET code=? WHERE id=? AND partition=?',(code,identity,self.partition))
+
+    def request_summaries(self,limit=8):
+        return [dict(r) for r in self.conn.execute("SELECT id,server_id,code,json_extract(envelope,'$.tool') tool FROM tool_requests WHERE partition=? ORDER BY created LIMIT ?",
+            (self.partition,min(8,max(0,int(limit)))))]
