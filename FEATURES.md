@@ -423,3 +423,21 @@ live optimization is claimed. Actual018→019 and019 code-only activation/retry/
 strict21-table production-copy restore, old/new clients and private-label controls pass.
 [Measured examples/limits](docs/benchmarks/2026-10-04-failure-evaluation/README.md).
 Pre-existing domain-free temporal validity remains separate [Issue48](https://github.com/phense/agentic-rag/issues/48).
+
+
+## Authenticated dashboard and resumable setup (Issue59)
+
+Version0.6.12 adds one-time operator-armed bootstrap, isolated cookie sessions,
+explicit audited enrollment/rotation/revocation, effective VM rights and safe
+client freshness, plus scoped knowledge/original-source browsing through the
+existing engine and queue. Four setup paths retain progress and verify the
+actual configured compatibility target without receiving browser secrets.
+Configuration remains file-owned; local CLI/stdio and protocol1 clients remain
+available. Migration025 adds three owner-only control tables.
+
+The owned populated024→025 rehearsal preserves301,183 original rows in28 tables.
+Four real-browser flows and adversarial logout/expiry, custom-default-ACL,
+authenticated negotiation and crash/recovery integrations pass. The final whole-feature
+review reports0 C/H/M/feature Low with158 passing targeted checks; the final
+full suite passes 1,569 tests (1 intentional Linux skip). This is not a canonical rollout claim. See [operations](docs/15-dashboard.md),
+[reference](docs/dashboard-reference.md) and [verification](docs/verification/issue59-dashboard.md).

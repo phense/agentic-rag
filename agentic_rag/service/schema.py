@@ -41,6 +41,30 @@ def validate_schema(conn):
         required={'021_service_scope.sql','022_service_state.sql'} | {p.name for p in SQL_DIR.glob('*.sql')}
         if not required <= installed or not uploader_column_valid(conn):
             raise ServiceSchemaError()
+        # Owner-only means no arbitrary ACL grantee, including groups inherited
+        # by another login. A non-superuser able to SET ROLE to the owner is also
+        # an unexpected control-state authority. Known limited SQL principals
+        # must have no effective rights, even through direct ownership or
+        # accidental elevation. Separately configured owners/DBAs stay trusted.
+        control=conn.execute("""SELECT c.relname,
+            (EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
+                WHERE r.rolname IN ('rag_reader','rag_writer','rag_admin')
+                  AND pg_catalog.has_table_privilege(r.oid,c.oid,
+                    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+             OR EXISTS(SELECT 1 FROM pg_catalog.aclexplode(
+                coalesce(c.relacl,pg_catalog.acldefault('r',c.relowner))) a
+                WHERE a.grantee<>c.relowner)
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute att
+                CROSS JOIN LATERAL pg_catalog.aclexplode(att.attacl) a
+                WHERE att.attrelid=c.oid AND NOT att.attisdropped
+                  AND a.grantee<>c.relowner)
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
+                WHERE r.oid<>c.relowner AND NOT r.rolsuper
+                  AND pg_catalog.pg_has_role(r.oid,c.relowner,'MEMBER'))) exposed
+            FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(%s)""",
+            (['dashboard_changes','dashboard_setup','dashboard_presence'],)).fetchall()
+        if len(control)!=3 or any(r['exposed'] for r in control):raise ServiceSchemaError()
         rows=conn.execute("""
             SELECT c.relname,c.relrowsecurity,
               (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND starts_with(p.polname,'service_')) policies,

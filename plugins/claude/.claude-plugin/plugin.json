@@ -3,5 +3,5 @@
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",
   "name": "agentic-rag",
-  "version": "0.6.11"
+  "version": "0.6.12"
 }

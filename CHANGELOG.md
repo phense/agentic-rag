@@ -5,6 +5,15 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.12] - 2026-10-30
+
+- Add an authenticated responsive dashboard with one-time first-admin bootstrap, protected browser sessions and scoped knowledge/source browsing.
+- Add resumable four-path setup checks, real authenticated target negotiation, explicit synthetic model probes and file-owned configuration exports.
+- Add validated policy preview/apply, enrollment, once-only API credentials, rotation/revocation, restart-recoverable administrative audit and bounded client freshness metadata.
+- Serialize policy commits with exact session revocation and expiry; keep new control tables owner-only despite custom default grants or inherited role authority.
+- Preserve local and protocol1 clients; additive migration025 extends the verified upgrade/restore path from populated024.
+
+
 ## [Unreleased]
 
 ## [0.6.11] - 2026-10-30

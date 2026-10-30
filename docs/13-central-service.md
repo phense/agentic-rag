@@ -440,3 +440,9 @@ remain a nullable UUID without a default or generated value. Existing pre-profil
 login rows remain in history, but those users
 must log in again with a stable per-VM uploader profile. Machine keys are
 unchanged. Apply pending migrations once; never replay022 manually.
+
+## Dashboard in 0.6.12
+
+The additive [dashboard](15-dashboard.md) uses schema025 and the same service/queue.
+The measurements and version matrix above describe their recorded release; use
+the dashboard guide for current bootstrap, browser access and upgrade prerequisites.

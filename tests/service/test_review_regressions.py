@@ -7,6 +7,7 @@ import psycopg
 import pytest
 
 from agentic_rag import db, store
+from agentic_rag.config import Config
 from agentic_rag.service.context import request_scope
 from .test_scope import service_store, principal
 
@@ -80,14 +81,14 @@ def test_owned_dangling_reference_resolves_later_and_hides_foreign_target(servic
                 dtype='memory', project='/projects/a', actor='manual', edges=[store.EdgeSpec('references','foreign')])
 
 
-def test_unfinished_bodies_expire_and_release_all_capacity(monkeypatch):
+def test_unfinished_bodies_expire_and_release_all_capacity(monkeypatch,tmp_path):
     from agentic_rag.service import api
     monkeypatch.setattr(api, 'BODY_TIMEOUT', .03, raising=False)
     async def run():
         called=[]
         async def app(scope, receive, send):
             called.append(scope['path'])
-        gateway=api.Gateway(app, None, None)
+        gateway=api.Gateway(app, Config(), tmp_path/'unused-policy.toml')
         async def never():
             await asyncio.Event().wait()
         scope={'type':'http','method':'POST','path':'/v1/tools/memory_get','scheme':'https',
@@ -209,7 +210,7 @@ def test_remote_checkpoint_failure_does_not_echo_operator_exception(service_stor
     assert 'checkpoint_unavailable' in result['text']
 
 
-def test_eight_idle_mcp_gets_cannot_reserve_rest_capacity(monkeypatch):
+def test_eight_idle_mcp_gets_cannot_reserve_rest_capacity(monkeypatch,tmp_path):
     from agentic_rag.service import api
     monkeypatch.setattr(api.Policy,'load',lambda _:None)
     monkeypatch.setattr(api,'authenticate',lambda *args:principal(readonly=True))
@@ -219,7 +220,7 @@ def test_eight_idle_mcp_gets_cannot_reserve_rest_capacity(monkeypatch):
             if scope['path'].startswith('/mcp/'):
                 await release.wait()
             await api.JSONResponse({'status':'ok'})(scope,receive,send)
-        gateway=api.Gateway(app,None,None)
+        gateway=api.Gateway(app, Config(), tmp_path/'unused-policy.toml')
         async def one(path,method):
             messages=[]
             async def receive():

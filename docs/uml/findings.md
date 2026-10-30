@@ -182,3 +182,29 @@ current team/project grants for SELECT only. Preserve original-row write guards
 and explicit receipt-owner checks. Do not infer permissions from Herdr labels
 or disappear team history when its author leaves. Owner: coordinator; implemented
 with real SQL/HTTP regressions, complete-feature re-review pending, T058-07C.
+
+## AF-059-01 — Policy/audit cross-resource recovery (resolved, RAG-059)
+
+Question and source: dashboard sequence, IC-059-02, service/auth.py's file authority. Category: failure ordering. Required response T059-02: serialized prepared journal, old/new digest reconciliation, atomic file replace and lost-secret response behavior. Validate crash/drift probes before delivery.
+
+## AF-059-02 — Browser authority isolation (resolved, RAG-059)
+
+Question and source: dashboard sequence, IC-059-01, existing Bearer Gateway. Category: trust boundary. T059-01 must keep cookies isolated, enforce same-origin/session CSRF, bounded bodies/concurrency/rate and safe cache/CSP headers. Test expired/revoked session and hostile origins.
+
+## AF-059-03 — Administration versus knowledge scope (resolved, RAG-059)
+
+Question and source: dashboard sequence, IC-059-03, scope RLS and service/read_limits.py. Category: ownership/resource boundaries. T059-03 must project scoped bounded knowledge and never treat admin as knowledge superuser; heartbeat fields are informational. Test same-project foreign department and large legacy fields.
+
+
+As-built disposition for AF-059-01..03, 2026-10-30: the current
+[sequence](dashboard.md) matches filesystem `flock`, durable prepared audit,
+exact-session row locking through replacement/commit and final clock-expiry
+validation. Crash exit73 and known/unknown-digest recovery pass; replay never
+reveals an old secret. Cookie/Origin/CSRF and Bearer isolation, body/rate/concurrency
+budgets and expiry/revocation regressions pass. Scoped browse/count/source/review
+uses existing RLS/engine/queue; the bootstrap admin sees0 documents while its
+authorized reader sees2 and the original quote. All three whole-feature reviews
+completed; round3 reports0 C/H/M/feature Low and158 passing checks. T059-01..05
+supply the implementation and integration evidence. No unresolved architecture
+difference remains; final full-suite and delivery evidence is tracked separately
+in the [verification record](../verification/issue59-dashboard.md).

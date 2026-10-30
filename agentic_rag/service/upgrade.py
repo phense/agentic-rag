@@ -12,6 +12,9 @@ import json
 import os
 from pathlib import Path
 import uuid
+import re
+import subprocess
+import tempfile
 
 import psycopg
 from psycopg import sql
@@ -22,7 +25,7 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(12))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(13))
 EXCLUDED={'benchmark_ownership'}
 ROLES=('rag_reader','rag_writer','rag_admin')
 
@@ -225,7 +228,30 @@ def verify_preserved(cfg,manifest):
         return _verify(conn,manifest,preserved=True)
 
 
-def verified_backup(cfg,source_version,path):
+def _restore_verification(cfg,target,path,manifest,*,prepared_template=False):
+    command=[backup._pg_bin('pg_restore',cfg),'--single-transaction','--exit-on-error','-d',db.dsn(target)]
+    if not prepared_template:
+        backup._run_pg([*command,str(path)])
+        return
+    # A DBA installs vector in the explicit empty template. Never grant the
+    # runtime owner superuser, recreate the extension, or mutate its comments.
+    with db.connect(target) as conn:
+        extension=conn.execute("SELECT extversion,n.nspname FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace WHERE extname='vector'").fetchone()
+        if not extension or extension['extversion']!=manifest['identity']['vector_version'] or extension['nspname']!='public':
+            raise ValueError('verification_template_extension_mismatch')
+    with tempfile.TemporaryDirectory(prefix='.restore-list-',dir=Path(path).parent) as directory:
+        listing=Path(directory)/'restore.list'
+        with listing.open('wb') as output:
+            subprocess.run([backup._pg_bin('pg_restore',cfg),'--list',str(path)],stdout=output,stderr=subprocess.PIPE,check=True)
+        # Match just vector's extension/COMMENT TOC records, never application
+        # schemas, privileges, data, comments or extension-dependent objects.
+        lines=listing.read_text().splitlines()
+        pattern=r'^\d+; \d+ \d+ (?:EXTENSION - vector|COMMENT - EXTENSION vector)\s*$'
+        listing.write_text('\n'.join(line for line in lines if not re.fullmatch(pattern,line))+'\n')
+        backup._run_pg([*command,'--use-list',str(listing),str(path)])
+
+
+def verified_backup(cfg,source_version,path,*,verification_template=None):
     _operator(cfg,source_version);path=Path(path)
     path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
     with db.connect(cfg) as sizing:
@@ -238,8 +264,8 @@ def verified_backup(cfg,source_version,path):
         exported=source.execute('SELECT pg_export_snapshot() snapshot').fetchone()['snapshot']
         backup._run_pg([backup._pg_bin('pg_dump',cfg),'-Fc','--snapshot='+exported,'--exclude-table=public.benchmark_ownership','-f',str(path),'-d',db.dsn(cfg)])
         manifest['dump_sha256']=_file_digest(path)
-        with isolated_database(cfg,initialize=False) as target:
-            backup._run_pg([backup._pg_bin('pg_restore',cfg),'--single-transaction','--exit-on-error','-d',db.dsn(target),str(path)])
+        with isolated_database(cfg,initialize=False,template=verification_template) as target:
+            _restore_verification(cfg,target,path,manifest,prepared_template=verification_template is not None)
             with db.connect(target) as restored:
                 restored.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
                 _verify(restored,manifest,label='restore_mismatch')
@@ -292,21 +318,21 @@ def _migrate_preserving(cfg,manifest):
         return applied
 
 
-def local_upgrade(cfg,source_version,path,*,apply=False,writers_stopped=False):
+def local_upgrade(cfg,source_version,path,*,apply=False,writers_stopped=False,verification_template=None):
     plan=preflight(cfg,source_version,mode='local')
     if not apply:return {'mode':'local','applied':False,'plan':plan}
     with source_fence(cfg,writers_stopped=writers_stopped):
-        proof=verified_backup(cfg,source_version,path)
+        proof=verified_backup(cfg,source_version,path,verification_template=verification_template)
         applied=_migrate_preserving(cfg,proof['manifest'])
     return {'mode':'local','applied':True,'migrations_applied':applied,'original_rows_unchanged':True,**proof}
 
 
-def prepare_cutover(cfg,source_version,path,*,apply=False,writers_stopped=False):
+def prepare_cutover(cfg,source_version,path,*,apply=False,writers_stopped=False,verification_template=None):
     plan=preflight(cfg,source_version,mode='remote')
     if not apply:return {'mode':'remote','applied':False,'plan':plan}
     if not plan['ready']:raise ValueError('unresolved_transcript_paths')
     with source_fence(cfg,writers_stopped=writers_stopped) as fence:
-        proof=verified_backup(cfg,source_version,path)
+        proof=verified_backup(cfg,source_version,path,verification_template=verification_template)
         private_json(Path(path).with_suffix('.fence.json'),fence)
         fence['retain']=True
     return {'mode':'remote','applied':True,'source_remains_read_only':True,**proof}
@@ -329,7 +355,7 @@ def restore_target(cfg,path,manifest,*,apply=False,resume=False):
         with db.connect(cfg) as conn:
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
             _verify(conn,manifest,preserved=True,label='target_drift')
-            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground'}
+            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence'}
             if set(current)-allowed:raise ValueError('target_drift')
             for table in set(current)-set(manifest['tables']):
                 if conn.execute(sql.SQL('SELECT 1 FROM public.{} LIMIT 1').format(sql.Identifier(table))).fetchone():raise ValueError('target_drift')

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+from importlib.metadata import version
 import ipaddress
 import json
 import random
@@ -22,7 +23,8 @@ class RemoteError(Exception):
         super().__init__(code)
 
 
-class RemoteClient:
+class RemoteConnection:
+    """Authenticated discovery/HTTP transport without a durable client outbox."""
     def __init__(self,cfg,*,sender=None):
         self.cfg=cfg
         url=urlsplit(cfg.service_url)
@@ -34,8 +36,6 @@ class RemoteClient:
         self.token=protected_file(cfg.service_token_file).decode().strip()
         if not 1<=len(self.token)<=2048 or any(c.isspace() for c in self.token): raise ValueError('invalid service token file')
         self.url=cfg.service_url.rstrip('/')
-        self.partition=hashlib.sha256((self.url+'\0'+hashlib.sha256(self.token.encode()).hexdigest()).encode()).hexdigest()
-        self.spool=Spool(cfg.service_spool_dir/'spool.sqlite',self.partition)
         self.owns_sender=sender is None
         self.sender=sender or httpx.Client(timeout=httpx.Timeout(1.0,connect=.3),follow_redirects=False,trust_env=False)
         self.negotiated=False
@@ -43,13 +43,12 @@ class RemoteClient:
 
     def __enter__(self): return self
     def __exit__(self,*args):
-        self.spool.conn.close()
         if self.owns_sender:self.sender.close()
 
     def request(self,method,path,payload=None,*,seconds=1,headers=None):
         deadline=time.monotonic()+seconds
         try:
-            with self.sender.stream(method,self.url+path,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1',**(headers or {})},
+            with self.sender.stream(method,self.url+path,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1',**(headers or {})},
                                     timeout=httpx.Timeout(seconds,connect=min(.3,seconds)),
                                     **({'json':payload} if payload is not None else {})) as response:
                 content=bytearray()
@@ -71,9 +70,29 @@ class RemoteClient:
     def negotiate(self,*,seconds=1):
         if not self.negotiated:
             capabilities=self.request('GET','/v1/capabilities',seconds=seconds)
-            if capabilities.get('protocol')!=1:raise RemoteError('unsupported_protocol',426)
-            self.queued_tools=capabilities.get('extensions',{}).get('queued_tools')==1
+            if type(capabilities.get('protocol')) is not int or capabilities['protocol']!=1:raise RemoteError('unsupported_protocol',426)
+            extensions=capabilities.get('extensions',{})
+            if not isinstance(extensions,dict):raise RemoteError('invalid_response')
+            self.queued_tools=type(extensions.get('queued_tools')) is int and extensions['queued_tools']==1
+            self.capabilities=capabilities
             self.negotiated=True
+        return self.capabilities
+
+
+
+class RemoteClient(RemoteConnection):
+    """Shared transport plus the partitioned durable outbox for actual work."""
+    def __init__(self,cfg,*,sender=None):
+        super().__init__(cfg,sender=sender)
+        self.partition=hashlib.sha256((self.url+'\0'+hashlib.sha256(self.token.encode()).hexdigest()).encode()).hexdigest()
+        try:self.spool=Spool(cfg.service_spool_dir/'spool.sqlite',self.partition)
+        except BaseException:
+            if self.owns_sender:self.sender.close()
+            raise
+
+    def __exit__(self,*args):
+        try:self.spool.conn.close()
+        finally:super().__exit__(*args)
 
     def invoke(self,name,arguments,*,seconds=None):
         seconds=self.cfg.service_tool_wait_seconds if seconds is None else seconds

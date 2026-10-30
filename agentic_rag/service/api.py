@@ -40,6 +40,8 @@ BODY_TIMEOUT=5.0
 class Gateway:
     def __init__(self, app, cfg, auth_file):
         self.app,self.cfg,self.auth_file=app,cfg,auth_file
+        from .dashboard import Dashboard
+        self.dashboard=Dashboard(cfg,auth_file)
         self.slots=asyncio.Semaphore(8)
         self.control_slots=asyncio.Semaphore(4)
         self.logins=OrderedDict()
@@ -72,6 +74,8 @@ class Gateway:
             loopback=False
         if scope['scheme']!='https' and not loopback:
             return await error('tls_required',400)
+        if path=='/dashboard' or path.startswith('/dashboard/'):
+            return await self.dashboard(scope,receive,send)
         # Stateless JSON MCP has no server-initiated event channel. Reject it
         # before reserving shared capacity, including idle GET/SSE requests.
         if path.startswith('/mcp/') and scope['method']!='POST':
@@ -126,6 +130,8 @@ class Gateway:
                     raise AuthenticationError()
                 principal=await asyncio.to_thread(authenticate,policy,self.cfg,token)
                 state['principal'],state['token_hash']=principal,hash_key(token)
+                from .dashboard_presence import observe
+                await asyncio.to_thread(observe,self.cfg,self.auth_file,principal,request.headers.get('x-rag-client-version',''),request.headers.get('x-rag-client-capabilities',''))
                 if path.startswith('/v1/requests'):
                     now=time.monotonic()
                     start,count=self.polls.pop(principal.namespace,(now,0))
@@ -217,17 +223,8 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
         except ValueError:raise ServiceError('invalid_request') from None
         policy=request.state.policy
         principal=await asyncio.to_thread(policy.authenticate_password,data['username'],data['password'])
-        token='session.'+secrets.token_urlsafe(32)
-        expiry=datetime.now(timezone.utc)+timedelta(hours=8)
-        def persist():
-            with db.connect(cfg) as conn:
-                conn.execute("SELECT pg_advisory_xact_lock(hashtext('service_session_enrollment'))")
-                conn.execute('DELETE FROM service_sessions WHERE expires_at<=now()')
-                counts=conn.execute('SELECT count(*) n,count(*) FILTER(WHERE user_id=%s) own FROM service_sessions',(principal.user_id,)).fetchone()
-                if counts['n']>=10000 or counts['own']>=16:
-                    raise ServiceError('session_capacity_exceeded',429)
-                conn.execute('INSERT INTO service_sessions(token_hash,user_id,password_revision,uploader_id,expires_at) VALUES (%s,%s,%s,%s,%s)',(hash_key(token),principal.user_id,policy.password_revision(principal.user_id),uploader,expiry))
-        await asyncio.to_thread(persist)
+        from .dashboard import persist_session
+        token,expiry=await asyncio.to_thread(persist_session,cfg,policy,principal,uploader)
         return JSONResponse({'access_token':token,'token_type':'Bearer','expires_at':expiry.isoformat(),'uploader_id':uploader})
 
     async def logout(request):
