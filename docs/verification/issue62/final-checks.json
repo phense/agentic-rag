@@ -1,0 +1,46 @@
+{
+  "checked_documents": [
+    "BACKLOG.md",
+    "CHANGELOG.md",
+    "FEATURES.md",
+    "README.md",
+    "docs/06-configuration-reference.md",
+    "docs/benchmarks/2026-10-30-measured-reranker/README.md",
+    "docs/local-reranker.md",
+    "docs/openspec/changes/archive/2026-10-30-measured-reranker/design.md",
+    "docs/openspec/changes/archive/2026-10-30-measured-reranker/proposal.md",
+    "docs/openspec/changes/archive/2026-10-30-measured-reranker/specs/retrieval-ordering/spec.md",
+    "docs/openspec/changes/archive/2026-10-30-measured-reranker/tasks.md",
+    "docs/openspec/specs/retrieval-ordering/spec.md",
+    "docs/playbooks/evidence/measured-reranker.md",
+    "docs/verification/issue62-reranker.md"
+  ],
+  "local_links": 202,
+  "missing_links": [],
+  "frozen_test_files": 343,
+  "frozen_measured_files": 159,
+  "source_drift": false,
+  "playbook_sha256": "d16bd8383da8d9a1b43bd9b2608b3ec5c83d1bad77267eaa9774034d94c842e0",
+  "archive_record": "archive.json",
+  "rendered_and_visually_inspected": [
+    "PB062-OPS identity/options/recovery",
+    "measurement report tables",
+    "comparison chart desktop"
+  ],
+  "post_archive_documentation_tests": {
+    "passed": 17,
+    "exit": 0,
+    "seconds": 0.85
+  },
+  "raw_log_whitespace_preserved": {
+    "path": "docs/verification/issue62/full-v2.log",
+    "lines": [
+      19,
+      51,
+      81,
+      111,
+      141
+    ],
+    "reason": "Keep failed pytest output byte-identical; authored files checked with git diff --check excluding only this raw log."
+  }
+}

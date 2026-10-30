@@ -1,0 +1,94 @@
+# RAG-062 independent complete bounded code review
+
+## Scope and exact revisions
+
+- Base: `7a61955446119df522a34967273d8dacae56108b`, 0.6.14/schema027.
+- Reviewed HEAD: `4ac82cdf2aca20b54d7071eb59ac0437cfdcd550`.
+- Worktree was clean at inspection. All 25 changed files were inspected: runtime
+  config/neural/search, evaluation module, two corpus artifacts and generator,
+  evaluator/rehearsal scripts, three test files, all measured-reranker OpenSpec
+  artifacts, operator/evidence/benchmark docs, backlog/features and four release
+  metadata files. Existing retrieval, audited writers, isolated-database ownership,
+  corpus validator and service consumers were also considered.
+- Requirements: Issue62 acceptance previously read directly; AC062-001–007,
+  C062-001–008 and the retrieval-ordering delta at this exact HEAD.
+- Reviewer independent of implementation. Read-only review on 2026-10-30; no
+  product edits, model/service/database/test calls or child agents. The coordinator
+  reports 108 affected tests passing in 44.68s; not rerun by this reviewer.
+
+## Findings and static verdict
+
+**Ready — no unresolved Critical, High, Medium or actionable Low code finding
+identified in the complete bounded slice at the reviewed HEAD.** This is a static
+implementation verdict, not a completed evidence/acceptance verdict.
+
+The prior four implementation Medium findings are resolved: all trial errors
+are counted and gate success; selector failure counts cannot increase; complete
+profiles/budgets/runtime manifest and wrapper source enter the seal; direct PG
+child tracking covers partial startup and independent cleanup. Additional fixes
+preserve approved citation error codes, reject forced shutdown, check remaining
+cgroup members and reject duplicate request contracts. Their targeted regressions
+are present and exercise the identified counterexamples.
+
+## Requirement and interface observations
+
+- `Config` retains legacy defaults and validates the two fixed policies, bounded
+  alias, pinned SHA256 assertion, boolean diagnostics and finite 0.01–1.5s deadline.
+  Existing TOML options and clients need no required additional field.
+- Neural inference keeps literal-loopback validation, redirect/proxy restrictions,
+  model discovery before passage transfer, bounded response parsing and exact
+  score/index completeness. Focused mode limits the prefix to 6x600 and retains
+  the original tail; original retrieval scores and payload objects survive.
+  Existing `retrieval.rerank` still accepts only a full identity permutation and
+  rehydrates original hits. Search retains eligibility/time/scope/exact filtering,
+  diversity and the opt-in fixed safe diagnostic warning.
+- Public corpus validation enforces source/family split boundaries and unique
+  actual query/domain/project/scope/as_of requests. Historical Issue35 failures
+  have exact report hash/query attribution; their new baseline observations are
+  frozen into the candidate. Expected IDs/answers/language/family/category/split
+  labels never enter ranking: ordinary search receives only query/selectors,
+  neural ordering receives authorized original titles/snippets, and labels score
+  the returned sources afterward.
+- Candidate choice uses development only, no per-case recall/nDCG regressions,
+  no additional counted failures, actual successful inference and the frozen
+  latency threshold. Exclusive seal creation precedes held-out calls. Repeated
+  timing trials do not enlarge quality denominators; all errors/misses remain.
+  Citation checks use stored originals and authorized/current boundaries.
+- Both model processes, evaluator and owned PostgreSQL are required in the same
+  effective four-CPU/eight-GiB/zero-swap group, with actual parent affinity checked.
+  File checksums and runtime identity are recorded; native idle drain is separate
+  from stage latency and real wall throughput. Cleanup verifies owned child
+  membership, failures and remaining group PIDs. These controls require live
+  artifact verification before their outcomes can be claimed.
+- The compatibility test compares populated current local/authenticated ASGI
+  results, exact bypass, foreign-project exclusion and source withdrawal; a fresh
+  interpreter executes actual archived 0.6.14 local and ASGI engines with saved
+  configuration. Knowledge table hashes remain equal; authorized tracing/admission
+  writes are explicitly distinguished from immutable canonical data.
+- PB062-OPS contains the independently corrected local-versus-central rollback:
+  central failure restores server code/config and rechecks authenticated search.
+  Public rehearsal inputs/ownership, bounded runtime, interrupted-run rejection
+  and separate production authority are explicit. Release metadata consistently
+  advances 0.6.14 to 0.6.15 without SQL/schema/dependency changes.
+
+## Evidence and delivery verdict: pending
+
+Reference-c is reported running, not completed. Its native outputs, cgroup
+resources/membership/OOM state, original-source quality results, selected-profile
+seal, final process/unit cleanup and first/warm timing claims were not available
+for final verification. No score, throughput, success or measured gain is approved
+by this static report.
+
+The measurement README and playbook evidence remain explicit drafts; tasks remain
+unchecked. They require actual results, all retained invalid attempts, 2–3
+attributable examples, denominators and generalization limits. Final complete-suite
+exit, source hashes matching the measured run, release/links/render checks and
+published evidence still block C062-004–008/Issue62 acceptance. The initial
+reference-class/failure-attribution contract concerns now have implementation and
+planned artifacts; their actual evidence remains to be inspected.
+
+Keep the rejected v1/attempt-b outputs invalid; fresh v2's three held-out families
+share authored templates and do not establish general traffic/answer accuracy.
+No production deployment, private-source inference, dedicated-hardware equivalence
+or fleet-capacity approval follows from this review. Final independent evidence
+recheck is required after the bounded measurement and full suite finish.

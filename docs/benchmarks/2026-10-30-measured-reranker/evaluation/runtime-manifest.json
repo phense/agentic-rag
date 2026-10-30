@@ -1,0 +1,118 @@
+{
+  "started_at": "2026-10-30T16:32:10.125337+00:00",
+  "reference_before": {
+    "cpu.max": "400000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.current": "27865088",
+    "memory.peak": "27865088",
+    "cpu.stat": "usage_usec 775883\nuser_usec 663465\nsystem_usec 112417\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 8\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+    "cpuset.cpus.effective": "not delegated",
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "member_count": 1
+  },
+  "runtime_version": "version: 1 (cb295bf59)\nbuilt with GNU 11.2.1 for Linux x86_64",
+  "runtime_sha256": "dbfeea380cdc1de9bbfe32399befbcd8381a3c5ac83e573d79d0fa41bdc40037",
+  "runtime_libraries": {
+    "libggml.so.0.15.3": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+    "libmtmd.so": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+    "libggml-cpu-sse42.so": "d7e26d057a2b2b9c71a1456b14a491db40866d816d482d07e21ac8d9542b0178",
+    "libllama-server-impl.so": "ad64929e139fd7054ec649d02633fea41e72c6c7ec04d621d0dbe3f8efc16ec2",
+    "libmtmd.so.0": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+    "libggml-base.so.0": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+    "libggml-cpu-cascadelake.so": "60a8910833dfcd9a83cb831b13559472ae0e5c7a01fc929cae57d8efcb547348",
+    "libggml-cpu-piledriver.so": "460930881b89f4d475d68e5740d1d472a5129c9ee447a4102eeca682e5cf4cd7",
+    "libggml-cpu-icelake.so": "8bdbcabf5aaab461e660f4a3a96958edd7ee863af3902275c42001327e605391",
+    "libggml-cpu-haswell.so": "46286721d8ff20a6f9efcdea0a58a0ab443b0ed8df54f5004965990975282659",
+    "libggml-cpu-x64.so": "7010432f10660c8a6af29d25e2f9b7774c0731eae0b09a26a7808ff22d33b9bb",
+    "libllama-common.so.0": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+    "libggml-base.so.0.15.3": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+    "libggml-cpu-sapphirerapids.so": "3c91d160674e345f4ab6a76723eecfb81bd24f9b314af15cb7bfcdc0568056ce",
+    "libggml-cpu-skylakex.so": "dd734564cc3c4ec3fee15d13c4e5c3a17c7a25fb7f1f5e00d74cbe61a92cbad3",
+    "libgomp.so.1.0.0": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+    "libllama.so.0": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+    "libllama-common.so": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+    "libggml.so.0": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+    "libggml-cpu-cannonlake.so": "4758e90f465c822732a06ed472ce0fbb58d697b536e48b7573cd831e3e7c4b30",
+    "libggml-cpu-cooperlake.so": "3c4f08d3898d61830912d74ec622e4474a62748d9d2aaa6dca0ba95816eef170",
+    "libggml.so": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+    "libggml-base.so": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+    "libggml-cpu-alderlake.so": "0d61e463591ac8f7fb984afeb473f1c75e4c5e0a08377a0b84de5085850360e8",
+    "libggml-cpu-ivybridge.so": "3e0c7a4cbf80413c696a1cc81e6c44968a6be9d5546c70ca4cec0a562e906614",
+    "libggml-cpu-sandybridge.so": "13e01306a3bb0bc0008e09079c9f4fb963e8d8d8bf27ac2d264348e270da62e3",
+    "libllama-quantize-impl.so": "8ba8c50f0c7fa155055e4e7e65a8c19364178c80f7e3b656d1733b180909aa3d",
+    "libggml-cpu-zen4.so": "f8f4250e5e2934621958ec852710bb510faaf6ef15ed2968323668cd077089f8",
+    "libgomp.so.1": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+    "libllama.so.0.0.1": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+    "libllama-common.so.0.0.1": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+    "libllama.so": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+    "libmtmd.so.0.0.1": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4"
+  },
+  "model_probes": [
+    {
+      "model": "agentic-rag-qwen3-reranker-0.6b-q8",
+      "sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+      "startup_ms": 3785.762250998232,
+      "first_ms": 7779.712115006987,
+      "warm_ms": [
+        7187.1768119963235,
+        8209.5146359934
+      ],
+      "synthetic_scores": {
+        "0": 0.9978052973747253,
+        "1": 0.000359953788574785
+      },
+      "threads": 4
+    },
+    {
+      "model": "agentic-rag-jina-tiny-en-q8",
+      "sha256": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+      "startup_ms": 3522.5146820012014,
+      "first_ms": 84.74341400142293,
+      "warm_ms": [
+        75.87688600324327,
+        75.97848500154214
+      ],
+      "synthetic_scores": {
+        "0": 0.1423105150461197,
+        "1": 0.04644045978784561
+      },
+      "threads": 4
+    }
+  ],
+  "membership": {
+    "postgres": true,
+    "agentic-rag-qwen3-reranker-0.6b-q8": true,
+    "agentic-rag-jina-tiny-en-q8": true
+  },
+  "child_affinity": {
+    "postgres": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "agentic-rag-qwen3-reranker-0.6b-q8": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "agentic-rag-jina-tiny-en-q8": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "model_pages_created_in_cgroup": true,
+  "host_cpus": 8,
+  "host_memory_kib": 15754080,
+  "limits": "One effective4CPU/8GiBzero-swap cgroup, shared8CPU/16GiB host; no dedicated VM or fleet-capacity proof."
+}

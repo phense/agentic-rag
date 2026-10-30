@@ -17,7 +17,7 @@ file — if it doesn't exist, every field just takes its default and
 agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
-`[ollama]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
+`[ollama]`, `[rerank]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
 `[curation]`, `[worker]`, `[continuity]`, `[service]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
@@ -117,6 +117,28 @@ and an explicit rebuild/cutover; do not repurpose historical untagged vectors.
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `url` | `ollama_url` | `"http://localhost:11434"` | Base URL of the local Ollama server used for embedding calls. |
+
+## `[rerank]`
+
+Optional local neural ordering uses a separate loopback runtime. It preserves
+original citations and falls back to deterministic search ordering when inference
+cannot complete. Follow [PB062-OPS](local-reranker.md) for verified model identity,
+activation, diagnostics and local/central recovery. Measured configurations are
+reported separately; no benchmark winner is adopted automatically.
+
+| Key | Field | Default | What it does |
+|---|---|---|---|
+| `url` | `rerank_url` | `"http://127.0.0.1:8766"` | Literal HTTP loopback origin; environment proxies and redirects are disabled. |
+| `policy` | `rerank_policy` | `"legacy-v1"` | `legacy-v1` sends at most 12 passages of 1200 characters; `focused-v1` sends 6 of 600. |
+| `model` | `rerank_model` | `"agentic-rag-qwen3-reranker-0.6b-q8"` | Required advertised alias; at most 80 ASCII letters, digits, dots, underscores or hyphens, starting with a letter or digit. |
+| `revision` | `rerank_revision` | Qwen SHA-256 in PB062-OPS | Exactly 64 lowercase hex characters. Labels the operator's verified weights; discovery alone cannot attest them. |
+| `timeout_seconds` | `rerank_timeout_seconds` | `1.5` | Finite inference deadline from 0.01 to 1.5 seconds. Native work can continue after HTTP cancellation. |
+| `diagnostics` | `rerank_diagnostics` | `false` | Opt-in fixed-schema route/model/revision/outcome and bounded counts; excludes query, passages, URL and exception text. |
+
+Both policies retain a 512-character query bound, 32-KiB response bound and two
+nonqueued calls per Python process. Exact/short queries can bypass inference.
+Client search options remain `--rerank auto|off`; central requests use the server's
+configuration. Removing the optional keys restores legacy defaults.
 
 ## `[backup]`
 

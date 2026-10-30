@@ -5,7 +5,7 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
-## 0.6.15
+## [0.6.15] - 2026-10-30
 
 - Add opt-in bounded local reranker model/policy selection and safe diagnostics; preserve legacy defaults and original citation payloads.
 - Add sealed bilingual public failure-derived evaluation, target-class service resource accounting and populated code/config rollback evidence.

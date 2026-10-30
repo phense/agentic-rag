@@ -1,0 +1,32 @@
+{
+  "startup_ms": 3595.120270001644,
+  "first_ms": 68.25014300557086,
+  "response": {
+    "model": "agentic-rag-jina-tiny-en-q8",
+    "object": "list",
+    "usage": {
+      "prompt_tokens": 48,
+      "total_tokens": 48
+    },
+    "results": [
+      {
+        "index": 0,
+        "relevance_score": 0.029179152101278305
+      },
+      {
+        "index": 1,
+        "relevance_score": 0.016441425308585167
+      }
+    ]
+  },
+  "binary_sha256": "dbfeea380cdc1de9bbfe32399befbcd8381a3c5ac83e573d79d0fa41bdc40037",
+  "version": "version: 1 (cb295bf59)\nbuilt with GNU 11.2.1 for Linux x86_64",
+  "model_sha256": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+  "warm_ms": [
+    83.18942099867854,
+    78.8279570042505,
+    70.73142300214386
+  ],
+  "threads": 4,
+  "public_synthetic_only": true
+}

@@ -1,0 +1,92 @@
+# RAG-062 independent final delivery artifact review
+
+Reviewed 2026-10-30 for the maintainer/operator. Runtime/evaluator revision is
+`4ac82cdf2aca20b54d7071eb59ac0437cfdcd550`, against source installation
+`7a61955446119df522a34967273d8dacae56108b`. Writing depth: medium standalone
+reference. Reviewer only inspected files, rendered images, checksums and package
+contents; no product edits, tests, model/provider/database/service calls or child
+agents. Only this ignored review report was written.
+
+## Verdict
+
+**Ready for the coordinator's terminal delivery steps. No unresolved Critical,
+High, Medium or actionable Low finding remains in the reviewed implementation,
+measurement, compatibility, operator documentation or completed verification.**
+
+This closes the prior full-suite/final-artifact acceptance gap. It does not itself
+complete archival, commit/PR publication, maintainer merge or production adoption.
+The prior independent complete-code, measured-evidence and documentation-delta
+reviews remain historical records of their exact snapshots; their then-pending
+suite statements are superseded by the actual evidence inspected here.
+
+## Independently checked completion evidence
+
+- Read the complete public full-green output and actual exit manifest. The command
+  is `.venv/bin/python -m pytest -q --tb=short -p no:cacheprovider`; actual exit is
+  **0**, with **1735 passed, 1 skipped, 1 warning in 1565.23s**. Runner wall time is
+  1567.612209s, a separate measurement. The skipped installation test is guarded
+  for macOS/launchd; the sole warning is the documented upstream Starlette/httpx
+  deprecation. These counts are not inferred from a running process or targeted
+  selection. Public output/manifest bytes exactly match retained scratch originals.
+- Rehashed every entry in both **343-file** before/after maps against current
+  files. Both maps are identical; all 343 current hashes match. README and
+  CHANGELOG are included. Separately rehashed all **159** sealed primary measured
+  source files: all match current files. No unchanged runtime test or model
+  measurement needs repetition for this final artifact review.
+- Current verification and PB rehearsal evidence correctly credit the actual
+  completed suite while retaining invalid/failed attempts, synthetic/source and
+  host limitations, distinct central recovery, and separate production acceptance.
+  PB062-OPS itself remains at the previously reviewed exact hash. The previous
+  342-file failed-run manifest is accurately distinguished from the fresh
+  343-file successful manifest that additionally freezes CHANGELOG.
+- Read the finalization helper without executing it. It requires actual exit0,
+  equal/current full-suite manifests and current measured source hashes before
+  copying actual output and changing evidence status. Its published output agrees
+  with the originals and independent checks above.
+- Recomputed final wheel SHA256 as
+  `6a081b14fb7d11eb471ee570b58998bd46423761eec8e7771c648bda15a2831e`.
+  Inspected the actual wheel and installed target outside the checkout: 0.6.15
+  metadata, all 27 SQL files and corpus-v2 present; packaged runtime/SQL bytes
+  match source, and installed wheel files match archive bytes apart from the
+  normal installer-maintained RECORD. The coordinator observed actual offline
+  lock/build/install/import exits0; this review inspected those retained results
+  and package bytes without repeating import execution.
+- Independently checked pyproject/lock/README badge/dated CHANGELOG version
+  consistency at **0.6.15**, from 0.6.14, with schema027 retained. Reconstructed
+  the release record's selected-document scope: 13 authored/change documents,
+  **195 local Markdown links, zero missing targets**. The release/package record
+  agrees. Existing external URLs were not requested or revalidated.
+- Inspected the retained final operator and measurement rendered sections. Text,
+  code, tables and links are legible; no blocking render defect found. These are
+  local documentation render checks, not deployed UI or production TLS evidence.
+
+The already accepted primary/supplemental measurement arithmetic, selected-profile
+seal, six English misses, small-family uncertainty, native resource/cleanup proof
+and actual archived 0.6.14 local/authenticated ASGI rollback evidence remain valid
+within the earlier review's stated limits. No new claim broadens those limits.
+
+## Exact final artifact SHA256
+
+```text
+67327bba83365a6eaeea209e0052054b1fff4244af41815796811d099ae790cc  docs/verification/issue62/full-green.log
+3b75462b4e3e755469fe6e104788b4f3e34c2aacd848f9db91a0342bebd8e400  docs/verification/issue62/full-green-exit.json
+c6d62c8cebdfc5f295e3557059e1824482ae20a3b5b4cb528e754a7581c440f4  docs/verification/issue62/release-package-check.json
+c86aa6868903b262f8727d546bf3a18cee02d64eb82f94fb0af0bc5c47e809ab  docs/verification/issue62-reranker.md
+6bf9a64aa1f8df53d050a7d3ea53ac9e168a132cbb3bdc429deda1dab67e85a3  docs/playbooks/evidence/measured-reranker.md
+466b3cbf11f18198c1972633398cbee64e84440f71263ec92ef19391297f1ba5  docs/local-reranker.md
+```
+
+## Terminal handoff boundaries
+
+The coordinator may record C062-007 complete and perform the specified terminal
+C062-008 preparation, accepted-delta synchronization and byte-exact archive, then
+mechanical archive-link updates and their documentation/link checks. Those final
+mechanical facts must be recorded against their actual results. Ownership and
+cleanup of the separate test PG55460 are coordinator-verified; no production
+service is part of that action. Commit/PR handoff remains distinct from merge.
+
+No fresh model measurement or repetition of unchanged runtime tests is required
+by this review. Any runtime/evaluator/test change invalidating the checked frozen
+manifests needs appropriate fresh verification. Maintainer merge approval,
+production activation, external TLS, private-query inference, fleet capacity and
+general German capability remain outside this acceptance.

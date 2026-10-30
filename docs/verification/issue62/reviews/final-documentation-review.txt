@@ -1,0 +1,65 @@
+# RAG-062 independent final documentation delta review
+
+Reviewed 2026-10-30 for the maintainer/operator at runtime revision
+`4ac82cdf2aca20b54d7071eb59ac0437cfdcd550`. Writing depth: medium standalone review
+record. Scope is the documentation/publication delta since the accepted measured
+review. No product edits, tests, model/provider/database/service calls or child
+agents were used. Measurement arithmetic was not repeated.
+
+## Verdict and evidence
+
+No new Critical/High/Medium finding or actionable Low finding in this delta.
+Documentation content is ready for the remaining completion gates; full delivery
+is **pending**, not accepted by this review.
+
+- The configuration reference matches current defaults and validation: legacy
+  policy, pinned Qwen alias/revision, finite 0.01–1.5-second deadline, bounded alias,
+  safe opt-in diagnostics and existing query/response/concurrency limits. Server
+  configuration governs central requests. Benchmark selection does not activate
+  a model automatically.
+- PB062-OPS's reviewed status and updated prose are consistent with completed
+  content/resource/recovery reviews. The explicit tiny-model adoption and local
+  versus server code/config rollback paths remain coherent. Production adoption
+  and authorization are separate.
+- Playbook evidence credits completed synthetic local/central recovery and actual
+  bounded native rehearsal, while explicitly withholding complete-suite
+  acceptance. Its 28-test line describes the earlier focused rehearsal; the
+  verification record separately reports the later 108-test affected selection.
+- Tasks C062-004–006 have supporting completed measurement/playbook/independent
+  review evidence. C062-007 remains unchecked. C062-008 separates preparation from
+  requirement synchronization, archival and PR publication after passing gates.
+  The delta's added title/Purpose preserves its acceptance requirements.
+- All seven public raw review copies are byte-identical to the original ignored
+  reviewer reports. Links to raw review and failed-suite evidence resolve to
+  existing files. The README now points to the current measured comparison.
+- Published affected/node logs confirm 108 passed in 44.68s and seven node cases.
+  The first full attempt actually exited 2 after five browser failures/190 passed;
+  the next actually exited 1 with 1734 passed, one skipped and the release-heading
+  failure. Both exit records report drift=false at 4ac82cd. Publication preserves
+  these failures and does not credit them as passing gates. The bracketed dated
+  0.6.15 changelog heading now matches the required release convention.
+- The verification report retains the rebuilt wheel's exact SHA256
+  `6a081b14fb7d11eb471ee570b58998bd46423761eec8e7771c648bda15a2831e`.
+  Final wheel/import/release/render acceptance remains part of the coordinator's
+  final artifact handoff; this delta review does not substitute for it.
+
+The fresh complete suite identified by the coordinator as exec61191/full-green
+was still running at this review request. No successful exit artifact has been
+accepted. After its actual completion, independently inspect the completed
+output, before/after source manifest, final release/link/render and published
+verification artifacts. Do not infer full acceptance from prior targeted passes,
+progress output, reviewed frontmatter or this content verdict.
+
+## Exact inspected documentation SHA256
+
+```text
+f03780ef7b1c51c50ef7e4cead0e4dfbd46dc91924021fda11c49519c54b226a  docs/06-configuration-reference.md
+466b3cbf11f18198c1972633398cbee64e84440f71263ec92ef19391297f1ba5  docs/local-reranker.md
+3658c5b87d2c084658f5f2f692e439048744758bbe9dc082bf91c0bca64ccd49  docs/playbooks/evidence/measured-reranker.md
+369c0cec7b3c82cbabc6c468604e5db6c6fea7731bae00d218365f33909675e2  docs/verification/issue62-reranker.md
+012add07ca63d1adc62baf4451b248c84e210a0ab26e0b774e8c97d962f70179  docs/openspec/changes/measured-reranker/tasks.md
+ff725e9cec61c424736a8e8384cd3771e68d8562a976bf9e7b5b91c48b6e52b4  docs/openspec/changes/measured-reranker/specs/retrieval-ordering/spec.md
+6a0f860085664e12241bc5216262e6ff137f2b426100069cf1b0f8dbb4e663c2  docs/benchmarks/2026-10-30-measured-reranker/README.md
+a3ba6be6890d5f4f8d9b6f7dafe42003b0fec54dc7778a59e2b71c96e42c5858  CHANGELOG.md
+665aca6d022c9e1dffbf4ed009069262474c8e2e8b100e8773b5ab1347ebbf87  README.md
+```

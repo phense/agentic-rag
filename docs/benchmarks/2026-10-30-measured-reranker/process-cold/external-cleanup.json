@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-30T16:55:48.910993+00:00",
+  "command": [
+    "systemctl",
+    "--user",
+    "is-active",
+    "rag62-process-cold-20261030.service"
+  ],
+  "exit": 4,
+  "stdout": "inactive\n",
+  "cgroup_exists": false
+}

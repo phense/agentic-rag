@@ -4,9 +4,9 @@ title: Run a local multilingual reranker
 type: how-to
 doc_id: standalone
 readers: [maintainer, operator]
-status: drafted
+status: reviewed
 version: 0.6.15 / schema027
-last_reviewed: 2026-10-03
+last_reviewed: 2026-10-30
 depends_on: []
 assets: []
 summary: Deploy an optional pinned loopback model without changing canonical knowledge.
@@ -151,11 +151,11 @@ role and fixed snapshot. See [measured quality and latency limits](benchmarks/20
 No production rollout or acceptance is implied by these isolated checks.
 
 
-## Identity and scope for0.6.15
+## Identity and scope for 0.6.15
 
 This system playbook is owned by the deployment administrator. Its origin is
-Issue62 and [AC062-003–007](openspec/changes/measured-reranker/proposal.md).
-It must be reviewed and rehearsed before adopting0.6.15. Last edited2026-10-30;
+Issue #62 and [AC062-003–007](openspec/changes/archive/2026-10-30-measured-reranker/proposal.md).
+It must be reviewed and rehearsed before adopting 0.6.15. Last edited 2026-10-30;
 [review and rehearsal evidence](playbooks/evidence/measured-reranker.md).
 The operator is expected to know the existing CLI and private TOML configuration.
 Production activation requires its own authorization. The measurement procedure
@@ -177,7 +177,7 @@ below uses only invented public sources and owned processes.
 ### Inspect and choose a configuration
 
 Keep the old checkout and a private copy of your configuration. All new fields
-are optional; omitting them preserves the Qwen alias, `legacy-v1` and1500ms.
+are optional; omitting them preserves the Qwen alias, `legacy-v1` and 1500 ms.
 No provider migration, re-embedding or canonical write accompanies a policy change.
 A configured revision labels an operator assertion; model discovery cannot prove
 which weights are loaded. Check the model checksum independently before activation.
@@ -207,10 +207,19 @@ which weights are loaded. Check the model checksum independently before activati
 4. Repeat the offline inspection. Require the approved route, alias and revision;
    `outcome=bypass` here describes inspection, not a live inference observation.
    Invalid aliases, non-hex revisions, unknown policies, nonboolean diagnostics,
-   nonfinite deadlines and deadlines outside0.01–1.5seconds are rejected.
+   nonfinite deadlines and deadlines outside 0.01–1.5 seconds are rejected.
 
-The focused policy sends at most6passages of600characters. The legacy policy
-sends12of1200; both retain512query characters,32KiB responses and two nonqueued
+For a separately approved Jina tiny adoption, use the pinned tiny file from the
+rehearsal prerequisites with the same startup command, replacing `--model` with
+that file and `--alias` with `agentic-rag-jina-tiny-en-q8`. In the private TOML
+select `policy = "focused-v1"`, that same `model` alias, and
+`revision = "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553"`.
+Repeat checksum, discovery, smoke and scoped acceptance before activation.
+The Qwen example above shows the configuration syntax; it does not recommend
+Qwen on hardware where the measured deadline fails.
+
+The focused policy sends at most 6 passages of 600 characters. The legacy policy
+sends 12 of 1200; both retain 512 query characters, 32 KiB responses and two nonqueued
 requests per Python process. The tail is retained, ties preserve input order,
 and original retrieval scores remain unchanged. Multi-client runtime capacity
 requires separate sizing; the semaphore is not a global daemon queue.
@@ -218,7 +227,7 @@ requires separate sizing; the semaphore is not a global daemon queue.
 ### Validate adoption and recovery
 
 1. Restart only the separately approved Python/MCP client processes from the new
-   checkout. Existing0.6.14clients continue on the same schema027 database.
+   checkout. Existing 0.6.14 clients continue on the same schema027 database.
 2. Compare an authorized representative query using
    `rag search 'YOUR APPROVED QUERY' --json` and the same command with
    `--rerank off`. Inspect original citations, domain/project and current sources.
@@ -228,9 +237,9 @@ requires separate sizing; the semaphore is not a global daemon queue.
    alias, revision, candidate/passage counts and a fixed outcome. It omits the
    endpoint, query, passages, response and exception. Exact-identifier/custom/off
    routes can bypass the neural stage before this warning is created.
-4. Restore the saved configuration and0.6.14code if acceptance fails, then restart
+4. Restore the saved configuration and 0.6.14 code if acceptance fails, then restart
    the affected local Python/MCP processes. If the central server adopted the
-   change, restore its saved configuration and0.6.14server code under that same
+   change, restore its saved configuration and 0.6.14 server code under that same
    deployment authorization and restart that server. Recheck the same
    authenticated `memory_search` path and source/citation selections. Reverting
    client code alone does not change the central policy. No database downgrade
@@ -253,7 +262,7 @@ permissions to make a failed model pass.
 
 ### Reproduce the public resource rehearsal
 
-Use Linux/systemd user services, PostgreSQL17/pgvector, the project environment,
+Use Linux/systemd user services, PostgreSQL 17/pgvector, the project environment,
 and independently verified native runtime/libraries and both pinned GGUF files.
 The Jina Q8 conversion is pinned to
 [34fdafe5a08b64246bcbfdbf0b8a23f818baf8e3](https://huggingface.co/gpustack/jina-reranker-v1-tiny-en-GGUF/tree/34fdafe5a08b64246bcbfdbf0b8a23f818baf8e3),
@@ -262,8 +271,8 @@ This is an intentional local challenger, with no hosted reranking integration.
 
 1. Set `RERANK_OUTPUT` and `RERANK_WORK` to new absolute output/work directories,
    and set `RERANK_BIN`,
-   `QWEN_FILE` and `TINY_FILE` to inspected local files. Keep at least2GiB free
-   working space. Ports55463/8768/8769must be unused. Existing production
+   `QWEN_FILE` and `TINY_FILE` to inspected local files. Keep at least 2 GiB free
+   working space. Ports 55463/8768/8769 must be unused. Existing production
    PostgreSQL and model daemons are outside this operation.
 2. Run from the project checkout, substituting those inspected paths:
 

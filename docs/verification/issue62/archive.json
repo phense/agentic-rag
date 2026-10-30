@@ -1,0 +1,20 @@
+{
+  "archive": "docs/openspec/changes/archive/2026-10-30-measured-reranker",
+  "source_absent": true,
+  "files_before": {
+    "proposal.md": "915cda7939b138d1fdbb03ef9f5d38589ba76055838ddcc9eb5d81b35b0d4d1a",
+    "design.md": "52b40361065c24802bf87226ecd8c218c03483a51b83a268ba7671f5ecb9f6f7",
+    "tasks.md": "ffd221d7a24e7edea2239a4f9c36e8f846aa1daf4cfadcad56afed1fe1831153",
+    "specs/retrieval-ordering/spec.md": "ff725e9cec61c424736a8e8384cd3771e68d8562a976bf9e7b5b91c48b6e52b4"
+  },
+  "files_after": {
+    "proposal.md": "915cda7939b138d1fdbb03ef9f5d38589ba76055838ddcc9eb5d81b35b0d4d1a",
+    "design.md": "52b40361065c24802bf87226ecd8c218c03483a51b83a268ba7671f5ecb9f6f7",
+    "tasks.md": "ffd221d7a24e7edea2239a4f9c36e8f846aa1daf4cfadcad56afed1fe1831153",
+    "specs/retrieval-ordering/spec.md": "ff725e9cec61c424736a8e8384cd3771e68d8562a976bf9e7b5b91c48b6e52b4"
+  },
+  "byte_identical": true,
+  "requirement_count": 4,
+  "capability": "docs/openspec/specs/retrieval-ordering/spec.md",
+  "capability_sha256": "f5e56a8edc4a24d4ca89f509e0a32764f05805a6ef07d92dbbee93a5546cd4c4"
+}

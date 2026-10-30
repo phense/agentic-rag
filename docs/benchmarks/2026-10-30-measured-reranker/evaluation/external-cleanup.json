@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-30T16:54:37.133791+00:00",
+  "command": [
+    "systemctl",
+    "--user",
+    "is-active",
+    "rag62-reference-20261030-c.service"
+  ],
+  "exit": 4,
+  "stdout": "inactive\n",
+  "stderr": "",
+  "cgroup_exists": false,
+  "nonproduction_loopback_connect_codes": {
+    "55463": 111,
+    "8768": 111,
+    "8769": 111
+  }
+}

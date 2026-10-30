@@ -1,0 +1,70 @@
+# RAG-062 v2 experiment and rollback recheck
+
+Independent read-only review of changes since `b16ee74`, 2026-10-30. Inspected
+the evaluator, generator, active/rejected fixtures, expanded metric/dev-route
+tests, archived-version local/ASGI rollback test and related playbook changes.
+No model, service, database or test calls; no product edits or child agents.
+The coordinator reports 15 targeted tests passing in 17.4s; not rerun here.
+
+## Finding
+
+**RAG062-V2-001 — Medium: duplicate temporal requests inflate quality observations.**
+`scripts/build_reranker_corpus.py:48-54` creates EN and DE cases with the identical
+`subject + ' status'` request, same domain/project/as_of and expected sources.
+`rerank_evaluation._phase` counts both IDs as independent quality observations.
+Thus the three new held-out families have 24 IDs but only 21 distinct request
+contracts. The same duplicate occurs in dev-orbit. This violates the sealed
+one-observation-per-unique-query contract and labels language-neutral text twice.
+Use genuinely distinct EN/DE temporal queries supported by the bilingual source
+text, or deduplicate identical request contracts and report actual language-neutral
+coverage. Add a request-contract uniqueness regression before model evaluation.
+Sent to coordinator and independently rechecked after correction: the generator
+now retains only one short temporal request per family. The active held-out
+corpus has 21 distinct requests, and validation rejects duplicated request
+contracts regardless of row ID or language/label metadata. Its regression copies
+a real case under another ID and requires rejection. **Verified resolved.**
+
+No Critical or High finding identified. No other Medium bug identified in this
+bounded experiment/rollback diff.
+
+## Verified controls and limits
+
+- Rejected fixture SHA256
+  `dd99c3ce8605b5e94cc79452e3cd1cc494a3553fa8029a2cd5726c7dbd9e8df3`
+  exactly matches the former v1 blob at b16ee74. It is retained, not rewritten.
+  Active CORPUS points to v2 with fresh spruce/amber/falcon held-out families;
+  old meadow/cobalt/harbor cases are excluded. Prior failed attempts must remain
+  disclosed; related authoring templates still limit independent generalization.
+- The temporal current assertion now uses the audited replacement relation.
+  Dev-only real-gateway tests require all sources accepted, at least three
+  eligible ordering/multi-source candidates, exact/current coverage and stale
+  exclusion. No held-out model outputs were supplied as evidence for this review.
+- Labels do not enter the ranking call. `_one` supplies only query plus literal
+  domain/project/scope/as_of selectors to ordinary search. Neural ordering receives
+  only the query and authorized original title/snippet prefix. Expected IDs,
+  answer labels, language/category/family/split metadata are used after retrieval
+  for metrics or orchestration, not to construct ranker input or ordering.
+- The idle gate retries native HTTP timeouts, still checks the elapsed overall
+  drain window and requires an observed idle slot response. The added mocked
+  timeout-to-idle regression matches the reported busy-endpoint failure mode.
+  Native idle/retry behavior remains an actual rehearsal gate.
+- The expanded compatibility test starts actual archived 0.6.14 ASGI and local
+  readers in a fresh subprocess, uses the existing synthetic authentication
+  contract and prior configuration, and compares original result payloads against
+  current reads after source withdrawal. Knowledge-table hashes remain checked;
+  permitted request-tracing/admission records are explicitly excluded from
+  immutable-state comparison. This is stronger old-server recovery coverage.
+
+## Verdict
+
+**Ready for a new bounded measurement; no unresolved C/H/M in this recheck.** Final
+complete-diff/evidence review, native results, clean resource/unit recovery,
+full-suite exit and publication consistency remain pending. Reference-b is a
+failed experiment, not valid acceptance evidence or a reusable held-out score.
+
+Reviewed active corpus SHA256:
+`f3a75e1520389903118ef2b072b78c469c6553b4e9393e8e5c012c9d9b8b9171`.
+Evaluator SHA256:
+`50ac0eea92298333a10c232a932f9e33404ab0a7bc53be4839b0d1c91c4a115b`.
+Generator SHA256:
+`8ed2e39089bc60c83e061ad26dabe4dafff5d7b1240e502abf904d1045533a30`.

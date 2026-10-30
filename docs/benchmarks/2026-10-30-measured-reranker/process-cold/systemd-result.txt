@@ -1,0 +1,6 @@
+Running as unit: rag62-process-cold-20261030.service; invocation ID: ae5518af782e4f72a00f35feff80081c
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 1min 47.259s
+             CPU time consumed: 5min 7.529s
+                   Memory peak: 1.2G (swap: 0B)

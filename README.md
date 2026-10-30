@@ -74,7 +74,7 @@ support; `--provider` explicitly enables configured-provider assessment.
 An optional [local multilingual reranker](docs/local-reranker.md)
 can improve ambiguous-source ordering when its measured gains justify extra latency. The default installation adds no always-on daemon beyond Postgres and
 Ollama. Optional neural reranking uses a separate local model process with its
-[measured RAM budget](docs/benchmarks/2026-10-03-neural-rerank/README.md). And it's built
+[measured budgets and configuration choices](docs/benchmarks/2026-10-30-measured-reranker/README.md). And it's built
 data-safety-first — it archives rather than deletes, writes through a
 least-privilege role matrix, audits every change, and periodically
 restore-tests its own backups.

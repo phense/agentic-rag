@@ -1,0 +1,18 @@
+{
+  "browser_version": "Google Chrome for Testing 156.0.8078.4",
+  "browser_sha256": "4fa61f0ba0b4f89b7bec242c32ca16d3bccf69dbfef0651924a9ba8fede5f9d6",
+  "libraries": {
+    "libXdamage.so.1.1.0": "25b558d1963cdce972682a289e577ac29e939ae935b7a32f75c3f526db453c6e",
+    "libatk-bridge-2.0.so.0": "f15ca1b81111a2255d523da5601daa3a18de61d9d3b18a2f6cc12532f3e3bd5b",
+    "libXcomposite.so.1.0.0": "be906a680b3888b37233cc3d3327ae3e989a943e8aa0ba80d493072dde5f5fa2",
+    "libXdamage.so.1": "25b558d1963cdce972682a289e577ac29e939ae935b7a32f75c3f526db453c6e",
+    "libXRes.so.1": "6254b635bf62a576fe9410fcd25fea6b4f7e66d4fe33d50fd7c7aebbc0a657cb",
+    "libatk-1.0.so.0": "08346e9481ee7a4b0a8f08d1cc8298c6212e175eb76da6afdac5a72c38a2aa39",
+    "libXcomposite.so.1": "be906a680b3888b37233cc3d3327ae3e989a943e8aa0ba80d493072dde5f5fa2",
+    "libatk-bridge-2.0.so.0.0.0": "f15ca1b81111a2255d523da5601daa3a18de61d9d3b18a2f6cc12532f3e3bd5b",
+    "libatspi.so.0": "068e164f938fb6414b7ef44bd7fb3835d71d35c7a3edd58d0367bd4a8b12e8e1",
+    "libatspi.so.0.0.1": "068e164f938fb6414b7ef44bd7fb3835d71d35c7a3edd58d0367bd4a8b12e8e1",
+    "libXRes.so.1.0.0": "6254b635bf62a576fe9410fcd25fea6b4f7e66d4fe33d50fd7c7aebbc0a657cb",
+    "libatk-1.0.so.0.26013.1": "08346e9481ee7a4b0a8f08d1cc8298c6212e175eb76da6afdac5a72c38a2aa39"
+  }
+}

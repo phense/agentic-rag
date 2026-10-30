@@ -1,0 +1,88 @@
+# RAG-062 independent bounded implementation review
+
+Reviewed 2026-10-30 against base
+`7a61955446119df522a34967273d8dacae56108b`, including tracked runtime changes and
+the new evaluation module, corpus builder/fixture, evaluator/rehearsal scripts,
+and their two new test files. Requirements: Issue62 and measured-reranker
+proposal/design/tasks/delta. Existing search/retrieval/config consumers and prior
+Issue28/35 reports were inspected. No product edits, provider/database/test calls,
+or child agents. The coordinator's reported test results were not rerun here.
+
+## Findings
+
+1. **Medium — errors in repeated trials can pass the success gate.**
+   `agentic_rag/benchmark/rerank_evaluation.py:274-284` copies only the first
+   trial's error into the row. `summarize` at lines116-120 counts that error,
+   while `scripts/rehearse_reranker.py:95-98` accepts the summary. A later
+   database exception or original-citation mismatch sets that trial's hits to
+   empty; the intersection parity check becomes vacuously true. Thus an actual
+   failed repeat is retained in raw JSON but absent from error counts and the
+   run can exit successfully. Keep unique-query quality denominators, aggregate
+   all trial errors separately, mark every affected query, make citation failure
+   explicit, and reject any failed trial at the wrapper gate. Add a regression
+   with a successful first trial followed by a failed repeat.
+
+2. **Medium — selector permits additional failed inference observations.**
+   `agentic_rag/benchmark/rerank_evaluation.py:80-82` compares whether each row
+   has any failure, rather than their counts. Baseline outcomes
+   `[timeout, ranked]` and challenger `[timeout, timeout]` satisfy this check;
+   the challenger is selected if sufficiently faster despite an extra failure.
+   This violates the preregistered no-additional-failures rule. Compare failure
+   counts over equally sized paired trials, retaining fixed outcome categories;
+   add the exact counterexample as a selection regression.
+
+3. **Medium — sealed identity omits the execution contract.**
+   `agentic_rag/benchmark/rerank_evaluation.py:313-315` seals only the primary
+   cfg model/revision, not explicit per-profile identity/configuration, runtime
+   executable/libraries, or the external runtime manifest. Tiny can be selected
+   while the top-level sealed model still describes Qwen. The complete source
+   manifest at lines130-133 also omits `scripts/rehearse_reranker.py`, which
+   controls process launch, resource assumptions and model verification. Model,
+   executable and budget drift are therefore not checked by the source/corpus
+   seal even though AC062-002 requires them frozen. Seal complete definitions
+   for all preregistered profiles, bind the preflight runtime manifest by hash,
+   include the wrapper source, and verify those same identities/budgets before
+   held-out work and at completion. Direct `run(cfg=...)` must reject unsupported
+   baseline settings or record the exact hardcoded old-module baseline separately.
+
+4. **Medium — failed PostgreSQL startup/crash can bypass cleanup and exit evidence.**
+   `scripts/rehearse_reranker.py:60-61` marks PG started only after `pg_ctl -w`
+   succeeds. A startup timeout/nonzero exit may leave its spawned postmaster alive,
+   but line106 then skips recovery. Conversely a PG crash/OOM, missing PID file,
+   or stop failure raises inside the finalizer at lines107-109, skipping remaining
+   file closure and exit.json. Track attempted startup; discover a still-live
+   postmaster only after owned directory/port/cgroup validation; attempt each
+   owned cleanup independently and always emit a nonzero exit artifact containing
+   cleanup failures. Test startup-timeout-with-live-child and missing-PID/crash
+   paths without touching production services.
+
+No Critical or High bug identified in the bounded diff. The coordinator confirmed
+findings 1–3 and planned fixes; verification of those fixes is still required.
+Finding 4 was sent separately before measurement.
+
+## Additional measurement boundary
+
+`_phase` alternates policies immediately after the HTTP deadline. The parent has
+already observed that Qwen may need about four seconds under the 1.5-second
+budget. HTTP cancellation does not by itself prove backend inference has stopped.
+Establish backend cancellation/idle behavior or drain/reset the owned runtime
+between paired trials before interpreting stage latency as attributable to policy.
+Otherwise document the actual mixed-policy backlog workload and avoid an isolated
+policy-speedup claim. This is an unverified experimental assumption, not a proven
+runtime bug in this review.
+
+## Pending gates, not additional code findings
+
+Actual resource-envelope membership/CPU/RSS/OOM evidence, baseline failure
+reproductions, final measurement outputs, populated local/HTTP old/new rollback,
+PB062-OPS revision, release metadata, and actual full-suite exit remain pending.
+All must be inspected in the final complete-diff review. Original payload
+restoration, loopback restrictions, bounded focused prefix/tail preservation,
+finite configuration checks and fixed diagnostic fields are consistent with the
+stated runtime design in this snapshot.
+
+## Verdict
+
+**Ready after fixes for this implementation slice; not ready for acceptance.**
+Resolve findings 1–4 with focused regressions, then inspect fresh complete
+implementation and required evidence. No production-readiness claim is made.

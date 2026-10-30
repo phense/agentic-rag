@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-30T17:44:48.606115+00:00",
+  "port": 55460,
+  "pid": 918796,
+  "data_directory": "/dev/shm/agentic-rag-issue60-20261030/pgdata",
+  "verified_identity": "/dev/shm/agentic-rag-issue60-20261030/pgdata|55460",
+  "pg_ctl_exit": 0,
+  "postmaster_pid_absent": true,
+  "tcp_connection_error": 111,
+  "retained_data": true
+}

@@ -1,3 +1,10 @@
+# Retrieval ordering
+
+## Purpose
+
+Bound optional local inference to reordering authorized original search hits,
+with explainable fallback and source-bound evaluation before operator adoption.
+
 ## ADDED Requirements
 
 ### Requirement: Explicit bounded local reranker configurations

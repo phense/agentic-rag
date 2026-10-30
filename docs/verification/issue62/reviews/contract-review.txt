@@ -1,0 +1,74 @@
+# RAG-062 independent acceptance-contract review
+
+Reviewed 2026-10-30. Base and observed HEAD:
+`7a61955446119df522a34967273d8dacae56108b` (0.6.14/schema027).
+The bounded change currently consists of untracked measured-reranker OpenSpec
+artifacts; product implementation/evaluation are not yet present. This is an
+independent requirements/design review, not a completed-code approval.
+
+Read proposal/design/tasks/delta, Issue62, current config/search/retrieval/neural
+ordering, operator guide, and the published Issue28/35 measurement reports.
+No provider calls, database actions, tests, or product edits were performed.
+
+## Findings
+
+1. **Medium — reference service-class evidence is silently narrowed.**
+   `docs/openspec/changes/measured-reranker/design.md:44-46` replaces Issue62's
+   reference-class memory/CPU measurements with an explicitly different shared
+   8CPU/16GiB host; proposal AC062-006 and task C062-004 omit the original gate.
+   Disclosure makes host results honest but does not satisfy the missing gate.
+   Minimum resolution: put the gate back. Run the complete measured service
+   workload (owned PostgreSQL, inference runtime and evaluator, including children)
+   together under an effective four-CPU/eight-GiB boundary, with zero swap, and
+   record cgroup paths, effective cpuset/quota/memory limits, member PIDs, peak
+   memory, CPU usage/throttling and OOM events. If cgroups cannot be delegated,
+   use a real reference-class VM or preserve this as an explicit acceptance blocker.
+   Thread counts or CPU affinity alone do not bound the service's memory/CPU.
+   Label constrained shared-host results accurately; retained filesystem caches
+   and host contention still prevent dedicated-machine/cold-disk capacity claims.
+
+2. **Medium — failure-class reconstructions lack a confirmed-failure gate.**
+   `docs/openspec/changes/measured-reranker/design.md:29-32` permits invented
+   class-based fixtures without requiring an observed baseline failure. Issue62
+   requests evaluation derived from confirmed failures. A plausible synthetic
+   pattern is not evidence that the baseline actually fails on that case.
+   Minimum resolution: reuse public Issue35 cases where suitable; add per-case
+   attribution to the exact prior failure/result and an independently reproduced
+   baseline miss under the supported source revision. Keep representative controls
+   separately labelled. Preserve all attempted reproductions and rejected cases;
+   choose development/family separation before inspecting held-out candidate
+   outputs. Do not export private labels or claim invented text is original traffic.
+   Failure reproductions must freeze before development selection/held-out calls.
+
+No Critical or High contract finding identified. Both findings concern plan
+acceptance coverage, not established implementation bugs. Proposed resolutions
+were communicated to the coordinator; they are not yet verified here.
+
+## Minimum final evidence to inspect
+
+- A source/corpus/model/runtime/budget manifest frozen before held-out access,
+  exclusive candidate seal, whole-family bilingual separation, source identities
+  and labels absent from ranking requests, and rejection of post-seal drift.
+- Unique query and independent family counts, every miss/error/timeout, actual
+  inference activation versus bypass counts, binary relevance denominators,
+  retrieval-empty versus answer-abstention distinction, original citation checks,
+  new-process startup/first requests and repeated warm timings kept distinct.
+- Representative difficult cases must actually reach successful inference;
+  all-timeout or all-bypass equality cannot support a reranker improvement claim.
+  A rejected challenger is a valid measured outcome but must be reported as such.
+- Populated schema027 local and central reads through actual old/new client
+  contracts; exact/scope/time/source-withdrawal checks before inference; complete
+  original payload parity and before/after persistent-table inventories covering
+  canonical records, permissions, queues, pins and audit history.
+- Actual 0.6.14 code/config rollback and retry against retained data, including
+  removal of additive options and process restart boundaries; mocked callback
+  equality alone is not old-version compatibility evidence.
+- Updated PB062-OPS replaces the currently historical 342bccf/schema014 adoption
+  paragraph with the supported 0.6.14/schema027 path, safe bounded diagnostics,
+  explicit model assertion/checksum limits and exercised local/central recovery.
+
+## Verdict
+
+**Not ready for Issue62 acceptance.** Resolve and verify findings 1–2, then review
+the complete implementation, measurements and rollback artifacts independently.
+No final implementation/full-suite/production-readiness claim is made.
