@@ -20,6 +20,7 @@ def add_parser(sub):
     parser=sub.add_parser('service',help='operate a standalone or central deployment')
     parser.add_argument('--config',type=Path)
     commands=parser.add_subparsers(dest='service_command',required=True)
+    bootstrap=commands.add_parser('bootstrap');bootstrap.add_argument('--auth-file',type=Path,required=True);bootstrap.add_argument('--output',type=Path,required=True)
     key=commands.add_parser('key');key.add_argument('--id',required=True);key.add_argument('--output',type=Path,required=True)
     password=commands.add_parser('password');password.add_argument('--password-file',type=Path)
     policy=commands.add_parser('check-policy');policy.add_argument('--file',type=Path,required=True)
@@ -34,9 +35,9 @@ def add_parser(sub):
     inventory=commands.add_parser('inventory');inventory.add_argument('--source-version',required=True);inventory.add_argument('--identities',action='store_true');inventory.add_argument('--output',type=Path,required=True)
     preflight=commands.add_parser('preflight');preflight.add_argument('--source-version',required=True);preflight.add_argument('--mode',choices=['local','remote'],default='local')
     collision=commands.add_parser('collisions');collision.add_argument('inventories',nargs='+',type=Path);collision.add_argument('--output',type=Path,required=True)
-    backup=commands.add_parser('verified-backup');backup.add_argument('--source-version',required=True);backup.add_argument('--output',type=Path,required=True)
+    backup=commands.add_parser('verified-backup');backup.add_argument('--source-version',required=True);backup.add_argument('--output',type=Path,required=True);backup.add_argument('--verification-template')
     for name in ('upgrade','prepare-cutover'):
-        command=commands.add_parser(name);command.add_argument('--source-version',required=True);command.add_argument('--dump',type=Path,required=True);command.add_argument('--apply',action='store_true');command.add_argument('--writers-stopped',action='store_true')
+        command=commands.add_parser(name);command.add_argument('--source-version',required=True);command.add_argument('--dump',type=Path,required=True);command.add_argument('--apply',action='store_true');command.add_argument('--writers-stopped',action='store_true');command.add_argument('--verification-template')
     restore=commands.add_parser('restore-target');restore.add_argument('--dump',type=Path,required=True);restore.add_argument('--manifest',type=Path,required=True);restore.add_argument('--apply',action='store_true');restore.add_argument('--resume',action='store_true')
     return parser
 
@@ -108,7 +109,10 @@ def status(cfg):
 
 def run(args,cfg):
     command=args.service_command
-    if command=='key':
+    if command=='bootstrap':
+        from .dashboard_policy import arm_bootstrap
+        result=arm_bootstrap(args.auth_file,args.output)
+    elif command=='key':
         token=new_key(args.id);path=_write(args.output,(token+'\n').encode());result={'id':args.id,'verifier':hash_key(token),'token_file':str(path)}
     elif command=='password':result={'verifier':hash_password(_password(args))}
     elif command=='check-policy':
@@ -155,10 +159,10 @@ def run(args,cfg):
     elif command=='preflight':result=upgrade.preflight(cfg,args.source_version,mode=args.mode)
     elif command=='collisions':
         result=upgrade.collision_report([_json(path) for path in args.inventories]);upgrade.private_json(args.output,result);result={'report':str(args.output),'ready':result['ready'],'requires_explicit_mapping':result['requires_explicit_mapping']}
-    elif command=='verified-backup':result=upgrade.verified_backup(cfg,args.source_version,args.output)
+    elif command=='verified-backup':result=upgrade.verified_backup(cfg,args.source_version,args.output,verification_template=args.verification_template)
     elif command in {'upgrade','prepare-cutover'}:
         fn=upgrade.local_upgrade if command=='upgrade' else upgrade.prepare_cutover
-        result=fn(cfg,args.source_version,args.dump,apply=args.apply,writers_stopped=args.writers_stopped)
+        result=fn(cfg,args.source_version,args.dump,apply=args.apply,writers_stopped=args.writers_stopped,verification_template=args.verification_template)
     elif command=='restore-target':result=upgrade.restore_target(cfg,args.dump,_json(args.manifest),apply=args.apply,resume=args.resume)
     else:raise ValueError('unknown_service_command')
     print(json.dumps(result,sort_keys=True,default=str))

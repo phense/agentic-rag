@@ -36,7 +36,7 @@ def test_verified_local_upgrade_preserves_rows_grants_and_retries(tmp_path,monke
         assert not (tmp_path/'upgrade.dump').exists()
         result=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'upgrade.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['applied'] and len(result['migrations_applied'])==24-schema
+        assert result['applied'] and len(result['migrations_applied'])==25-schema
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         retry=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'retry.dump',apply=True,writers_stopped=True)
         assert retry['migrations_applied']==[]
@@ -143,7 +143,7 @@ def test_populated_original022_adds_uploader_without_rewriting_session_history(t
             old=dict(conn.execute('SELECT * FROM service_sessions').fetchone())
             conn.commit()
         result=upgrade.local_upgrade(cfg,'0.6.9',tmp_path/'original022.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql']
+        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql']
         assert result['original_rows_unchanged'] and result['restore_verified']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         with db.connect(cfg) as conn:
@@ -199,10 +199,91 @@ def test_populated023_upgrade_current024_backup_restore_and_retry(tmp_path,monke
         old=upgrade.inventory(cfg,'0.6.10')
         result=upgrade.local_upgrade(cfg,'0.6.10',tmp_path/'upgrade024.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['migrations_applied']==['024_request_queue.sql']
+        assert result['migrations_applied']==['024_request_queue.sql','025_dashboard.sql']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         current=upgrade.verified_backup(cfg,'0.6.11',tmp_path/'current024.dump')
         assert current['restore_verified']
         retry=upgrade.local_upgrade(cfg,'0.6.11',tmp_path/'retry024.dump',apply=True,writers_stopped=True)
         assert retry['migrations_applied']==[] and retry['original_rows_unchanged']
         assert upgrade.inventory(cfg,'0.6.11')['tables']==current['manifest']['tables']
+
+
+def test_populated024_upgrade025_preserves_all_originals_and_retry(tmp_path,monkeypatch):
+    from agentic_rag.service import upgrade
+    from agentic_rag.service.schema import validate_schema
+    monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
+    with owned_source(tmp_path,24) as cfg:
+        original=upgrade.inventory(cfg,'0.6.11')
+        changed=upgrade.local_upgrade(cfg,'0.6.11',tmp_path/'upgrade025.dump',apply=True,writers_stopped=True)
+        assert changed['migrations_applied']==['025_dashboard.sql']
+        assert changed['original_rows_unchanged'] and changed['restore_verified']
+        assert upgrade.verify_preserved(cfg,original)['unchanged']
+        with db.connect(cfg) as conn:
+            validate_schema(conn)
+            assert conn.execute('SELECT count(*) n FROM dashboard_changes').fetchone()['n']==0
+        backup=upgrade.verified_backup(cfg,'0.6.12',tmp_path/'current025.dump')
+        assert backup['restore_verified']
+        repeated=upgrade.local_upgrade(cfg,'0.6.12',tmp_path/'retry025.dump',apply=True,writers_stopped=True)
+        assert repeated['migrations_applied']==[] and repeated['original_rows_unchanged']
+
+
+def test_verified_backup_accepts_explicit_empty_extension_template(tmp_path,monkeypatch):
+    from agentic_rag.service import upgrade
+    monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
+    with owned_source(tmp_path,24) as cfg:
+        with isolated_database(cfg,initialize=False) as template:
+            with db.connect(template) as conn:
+                marker=conn.execute('SELECT owner_id FROM benchmark_ownership').fetchone()['owner_id']
+                conn.execute('DROP TABLE benchmark_ownership')
+                conn.execute('CREATE EXTENSION vector')
+            # Restore verification creates its own random database; it never
+            # mutates or cleans up this explicitly selected operator template.
+            try:
+                proof=upgrade.verified_backup(cfg,'0.6.11',tmp_path/'template.dump',verification_template=template.db_name)
+                assert proof['restore_verified']
+            finally:
+                with db.connect(template) as conn:
+                    conn.execute('CREATE TABLE benchmark_ownership(owner_id text PRIMARY KEY)')
+                    conn.execute('INSERT INTO benchmark_ownership VALUES (%s)',(marker,))
+
+
+def test_prepared_vector_template_restores_without_superuser(tmp_path,monkeypatch):
+    """The deployment role cannot create/comment vector; only DBA prepares it."""
+    import os,uuid,subprocess,psycopg
+    from psycopg import sql
+    from agentic_rag import backup
+    from agentic_rag.service.upgrade import _restore_verification
+    cfg=Config()
+    role='rag_verify_'+uuid.uuid4().hex[:12]
+    with psycopg.connect(db.dsn(cfg,'owner',dbname='postgres'),autocommit=True) as admin:
+        admin.execute(sql.SQL('CREATE ROLE {} LOGIN CREATEDB NOSUPERUSER NOINHERIT').format(sql.Identifier(role)))
+        try:
+            with isolated_database(cfg,initialize=False) as template,isolated_database(cfg,initialize=False) as source:
+                with db.connect(template) as conn:
+                    marker=conn.execute('SELECT owner_id FROM benchmark_ownership').fetchone()['owner_id']
+                    conn.execute('DROP TABLE benchmark_ownership');conn.execute('CREATE EXTENSION vector')
+                    ext=conn.execute("SELECT extversion FROM pg_extension WHERE extname='vector'").fetchone()['extversion']
+                admin.execute(sql.SQL('ALTER DATABASE {} OWNER TO {}').format(sql.Identifier(template.db_name),sql.Identifier(role)))
+                try:
+                    with db.connect(source) as conn:
+                        conn.execute('CREATE EXTENSION vector')
+                        conn.execute('CREATE TABLE synthetic_embedding(id int PRIMARY KEY,value vector(3))')
+                        conn.execute("INSERT INTO synthetic_embedding VALUES (1,'[1,2,3]')")
+                        conn.execute(sql.SQL('ALTER TABLE synthetic_embedding OWNER TO {}').format(sql.Identifier(role)))
+                    dump=tmp_path/'limited.dump'
+                    subprocess.run([backup._pg_bin('pg_dump',cfg),'-Fc','--table=synthetic_embedding','-f',str(dump),'-d',db.dsn(source)],check=True,capture_output=True)
+                    # Include the actual vector extension TOC entries too.
+                    subprocess.run([backup._pg_bin('pg_dump',cfg),'-Fc','--exclude-table=benchmark_ownership','-f',str(dump),'-d',db.dsn(source)],check=True,capture_output=True)
+                    with monkeypatch.context() as patch:
+                        patch.setenv('PGUSER',role)
+                        with isolated_database(cfg,initialize=False,template=template.db_name) as target:
+                            _restore_verification(cfg,target,dump,{'identity':{'vector_version':ext}},prepared_template=True)
+                            with db.connect(target) as conn:
+                                assert conn.execute('SELECT value::text value FROM synthetic_embedding').fetchone()['value']=='[1,2,3]'
+                                assert not conn.execute('SELECT rolsuper FROM pg_roles WHERE rolname=current_user').fetchone()['rolsuper']
+                finally:
+                    with db.connect(template) as conn:
+                        conn.execute('CREATE TABLE benchmark_ownership(owner_id text PRIMARY KEY)')
+                        conn.execute('INSERT INTO benchmark_ownership VALUES (%s)',(marker,))
+        finally:
+            admin.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))

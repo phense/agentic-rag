@@ -9,9 +9,15 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.11-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.12-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.12 dashboard:** authenticated setup, enrolled-client administration and scoped
+knowledge/source browsing, served by the same engine. Read the
+[dashboard operations guide](docs/15-dashboard.md) and [access/limits reference](docs/dashboard-reference.md).
+Existing installations require the verified additive schema025 upgrade before
+starting the new API; standalone CLI/stdio operation remains available.
 
 > **New in v0.6.0:** ten retrieval and ingestion features, including original-backed
 > entity aliases, bounded embedding reuse and offline confirmed-failure evaluation.

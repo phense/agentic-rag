@@ -194,3 +194,9 @@ After source ACK the private spool retains the latest 256 small receipt records,
 not uploaded payloads. Resume reports up to 3 extraction states for that session
 with bounded status lookup. Offline lookup labels the last observed state;
 `queued` or `accepted` never means knowledge has applied.
+
+## Dashboard in 0.6.12
+
+The additive [dashboard](15-dashboard.md) uses schema025 and the same service/queue.
+The measurements and version matrix above describe their recorded release; use
+the dashboard guide for current bootstrap, browser access and upgrade prerequisites.

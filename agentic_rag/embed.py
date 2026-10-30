@@ -75,7 +75,7 @@ def embed_texts(texts: list[str], cfg: Config) -> list[list[float]]:
     return result
 
 
-def _embed_texts(texts: list[str], cfg: Config) -> list[list[float]]:
+def _embed_texts(texts: list[str], cfg: Config, *, timeout: float | None = None) -> list[list[float]]:
     from .service.fence import LEASE
     # validation stays INSIDE the try: a malformed payload (e.g. embeddings=42)
     # must surface as EmbedError, never as a raw TypeError — try_embed_texts
@@ -85,7 +85,7 @@ def _embed_texts(texts: list[str], cfg: Config) -> list[list[float]]:
             r = client.post(
                 f"{cfg.ollama_url}/api/embed",
                 json={"model": cfg.embed_model, "input": texts},
-                **({"timeout":10.0} if cfg.service_mode == "server" and LEASE.get() is not None else {}),
+                **({"timeout":timeout} if timeout is not None else {"timeout":10.0} if cfg.service_mode == "server" and LEASE.get() is not None else {}),
             )
             r.raise_for_status()
             vecs = r.json()["embeddings"]
