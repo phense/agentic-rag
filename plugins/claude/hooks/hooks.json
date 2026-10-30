@@ -1,0 +1,70 @@
+{
+  "hooks": {
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event PostCompact",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event PreCompact",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event SessionEnd",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event SessionStart",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event Stop",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agentic_rag.plugins.lifecycle --host claude --event UserPromptSubmit",
+            "timeout": 3,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

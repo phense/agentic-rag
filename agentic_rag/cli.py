@@ -58,6 +58,8 @@ def _main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
     from .service.operator import add_parser
     add_parser(sub)
+    from .plugins.package import add_parser as add_plugin_parser
+    add_plugin_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -326,6 +328,9 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
         if args.opencode_config_dir is not None or args.uninstall:
             p.error("--opencode-config-dir and --uninstall require --opencode")
+    if args.cmd=='plugin':
+        from .plugins.package import run
+        return run(args)
     if args.cmd=='service':
         from .service.operator import run
         return run(args,load_config(args.config) if args.config else load_config())

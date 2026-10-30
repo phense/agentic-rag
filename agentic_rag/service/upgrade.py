@@ -22,7 +22,7 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(11))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(12))
 EXCLUDED={'benchmark_ownership'}
 ROLES=('rag_reader','rag_writer','rag_admin')
 
@@ -329,7 +329,7 @@ def restore_target(cfg,path,manifest,*,apply=False,resume=False):
         with db.connect(cfg) as conn:
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
             _verify(conn,manifest,preserved=True,label='target_drift')
-            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access'}
+            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground'}
             if set(current)-allowed:raise ValueError('target_drift')
             for table in set(current)-set(manifest['tables']):
                 if conn.execute(sql.SQL('SELECT 1 FROM public.{} LIMIT 1').format(sql.Identifier(table))).fetchone():raise ValueError('target_drift')

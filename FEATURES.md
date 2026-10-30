@@ -23,10 +23,33 @@ Finite request/spool/backlog/database/log limits,40persistent TLS clients,
 24independent sessions and30real-model synthetic extraction jobs were exercised
 on a4-vCPU/8-GiB reference host. Migration023 removes the populated scoped-search
 timeout without changing eligibility or raising its deadline. One serial worker
-has lower CPU priority than the API; shared-model scheduling remains in6.10.
+has lower CPU priority than the API; shared-model scheduling belongs to F-068 below.
 No production cutover, automatic multi-store import, day-long stability or
 unlimited model throughput is claimed. [Operator guide](docs/13-central-service.md),
 [verification](docs/verification/issue58-service.md), [Issue58](https://github.com/phense/agentic-rag/issues/58).
+
+## Native plugins and bounded waiting (F-068 / issue #68)
+
+🔵 Implemented and tested in [PR #77](https://github.com/phense/agentic-rag/pull/77),
+stacked on the central service in #76.
+Native Claude/Codex packages and a distinct Gemini CLI extension reuse the shared
+source/checkpoint connector. Preview, install, update, doctor, uninstall and
+interrupted-operation recovery preserve foreign files and pending input.
+Compaction captures original source before discard; host-specific fallbacks and
+advisory handoffs distinguish accepted extraction from available knowledge.
+
+Negotiated foreground requests have durable handles, bounded owner/team quotas,
+two fixed consumers, finite result retention and a private client outbox. Canonical
+mutations and their results commit together; current authority protects execution,
+commit and result release. Foreground demand gates new source/maintenance work
+and shared embedding calls while the single background worker retains accepted
+input. Gemini observations remain advisory because the tested host cannot reliably
+distinguish human input from generated continuation text.
+
+Schema024 has populated upgrade/strict restore coverage. Package installation and
+adapter tests do not close native authenticated compression scenarios in #12–14.
+The [guide](docs/14-agent-plugins.md) and [measured evidence](docs/playbooks/evidence/agent-plugins.md)
+record tested versions, finite workloads and remaining rollout boundaries.
 
 ## Memory platform
 

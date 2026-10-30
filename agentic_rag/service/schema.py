@@ -15,7 +15,7 @@ SCOPED_TABLES = (
     'knowledge_sources', 'entity_identities', 'assertion_entities', 'entity_aliases',
     'continuation_checkpoints', 'mining_batches', 'mining_queue', 'audit_log',
     'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
-    'service_session_access',
+    'service_session_access', 'service_requests',
 )
 
 

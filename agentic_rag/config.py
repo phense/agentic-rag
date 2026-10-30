@@ -39,6 +39,9 @@ class Config:
     service_max_pending_per_owner: int = 100
     service_max_pending_bytes: int = 64*1024**2
     service_storage_path: Path | None = None
+    service_tool_wait_seconds: float = 30
+    service_hook_wait_seconds: float = 1
+    service_poll_seconds: float = 1
     service_mode: str = "standalone"
     service_url: str = ""
     service_token_file: Path | None = None
@@ -89,6 +92,10 @@ class Config:
                      'service_max_pending_per_owner','service_max_pending_bytes'):
             if type(getattr(self,name)) is not int or getattr(self,name)<1:
                 raise ValueError(name+' must be a positive integer')
+        for name,upper in [('service_tool_wait_seconds',300),('service_hook_wait_seconds',5),('service_poll_seconds',30)]:
+            value=getattr(self,name)
+            if isinstance(value,bool) or not isinstance(value,(int,float)) or not .01<=value<=upper:
+                raise ValueError(name+' must be a finite bounded duration')
         if self.service_mode not in {"standalone","client","server"}:
             raise ValueError("invalid service mode")
         if (
