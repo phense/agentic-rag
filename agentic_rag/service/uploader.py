@@ -21,6 +21,7 @@ def main():
                     # Already staged input must still drain when the source/capacity
                     # problem prevents producing another window.
                 client.flush()
+                client.flush_requests()
         except Exception as exc:
             log_hook_error('uploader',type(exc).__name__)
     return 0

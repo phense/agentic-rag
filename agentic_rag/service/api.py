@@ -41,7 +41,10 @@ class Gateway:
     def __init__(self, app, cfg, auth_file):
         self.app,self.cfg,self.auth_file=app,cfg,auth_file
         self.slots=asyncio.Semaphore(8)
+        self.control_slots=asyncio.Semaphore(4)
         self.logins=OrderedDict()
+        self.polls=OrderedDict()
+        self.rejections=OrderedDict()
 
     async def __call__(self, scope, receive, send):
         if scope['type']!='http':
@@ -54,6 +57,9 @@ class Gateway:
             if message['type']=='http.response.start':response_started=True
             await send(message)
         async def error(code,status):
+            if path.startswith('/v1/requests') and status in {429,507}:
+                self.rejections[code]=min(2**63-1,self.rejections.get(code,0)+1)
+                while len(self.rejections)>16:self.rejections.popitem(last=False)
             if response_started:
                 raise  # preserve the original downstream error after its 500 response
             await JSONResponse({'error':code},status_code=status)(scope,receive,send)
@@ -76,9 +82,10 @@ class Gateway:
             if path!='/v1/login' and not request.headers.get('authorization'):
                 return await error('invalid_credentials',401)
             return await error('unsupported_protocol',426)
-        if self.slots.locked():
+        slots=self.control_slots if path.startswith('/v1/requests') else self.slots
+        if slots.locked():
             return await error('capacity_exceeded',429)
-        await self.slots.acquire()
+        await slots.acquire()
         try:
             body=bytearray()
             async with asyncio.timeout(BODY_TIMEOUT):
@@ -119,6 +126,13 @@ class Gateway:
                     raise AuthenticationError()
                 principal=await asyncio.to_thread(authenticate,policy,self.cfg,token)
                 state['principal'],state['token_hash']=principal,hash_key(token)
+                if path.startswith('/v1/requests'):
+                    now=time.monotonic()
+                    start,count=self.polls.pop(principal.namespace,(now,0))
+                    if now-start>=1:start,count=now,0
+                    self.polls[principal.namespace]=(start,count+1)
+                    while len(self.polls)>1024:self.polls.popitem(last=False)
+                    if count>=12:return await error('request_rate_limited',429)
                 if path.startswith('/mcp/rw') and principal.readonly:
                     raise ServiceError('scope_denied',403)
             if path.startswith('/mcp/'):
@@ -135,7 +149,7 @@ class Gateway:
         except (ValueError,KeyError,TypeError,RecursionError):
             await error('invalid_request',400)
         finally:
-            self.slots.release()
+            slots.release()
 
 
 def authenticate(policy,cfg,token):
@@ -188,7 +202,8 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
 
     @asynccontextmanager
     async def lifespan(app):
-        async with servers[0].session_manager.run(),servers[1].session_manager.run():
+        from .requests import Executor
+        async with servers[0].session_manager.run(),servers[1].session_manager.run(),Executor(cfg):
             yield
 
     async def health(request):
@@ -229,7 +244,7 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
         def schema():
             with db.connect(cfg,role='reader') as conn:
                 return [r['filename'] for r in conn.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
-        return JSONResponse({'protocol':1,'server_version':version('agentic-rag'),'migrations':await asyncio.to_thread(schema),
+        return JSONResponse({'extensions':{'queued_tools':1},'protocol':1,'server_version':version('agentic-rag'),'migrations':await asyncio.to_thread(schema),
                              'tools':mcp_server.tool_names(p.readonly),'limits':{'request_bytes':MAX_BODY,'window_chars':12000,'window_events':64,'inflight_requests':8},
                              'principal':{'user':p.user_id,'machine':p.machine_id,'read_only':p.readonly}})
 
@@ -237,6 +252,25 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
         args=await request.json()
         result=await invoke(request.path_params['name'],args,request.state.principal,cfg)
         return JSONResponse(mcp_server._plain(result))
+
+    async def queued_request(request):
+        from . import requests as queue
+        if 'identity' not in request.path_params:
+            try:result=await asyncio.to_thread(queue.submit,cfg,request.state.principal,await request.json())
+            except ServiceError as exc:
+                if exc.status in {429,507}:
+                    gateway.rejections[exc.code]=min(2**63-1,gateway.rejections.get(exc.code,0)+1)
+                    while len(gateway.rejections)>16:gateway.rejections.popitem(last=False)
+                raise
+            if request.headers.get('prefer')=='wait=0.1':
+                deadline=time.monotonic()+.1
+                while result['state'] in {'pending','running'} and time.monotonic()<deadline:
+                    await asyncio.sleep(.01)
+                    result=await asyncio.to_thread(queue.status,cfg,request.state.principal,result['request_id'])
+            return JSONResponse(result,status_code=200 if result['state']=='completed' and request.headers.get('prefer')=='wait=0.1' else 202,headers={'Retry-After':'1'})
+        result=await asyncio.to_thread(queue.status,cfg,request.state.principal,
+            request.path_params['identity'],cancel=request.method=='POST')
+        return JSONResponse(result,headers={'Retry-After':'1'})
 
     async def checkpoint(request):
         from . import checkpoints
@@ -285,14 +319,32 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
                 return {r['status']:r['n'] for r in conn.execute('SELECT status,count(*) n FROM mining_queue GROUP BY status')}
         policy=request.state.policy
         machines=[{'id':name,'label':row.get('label',name),'enabled':row.get('enabled',True),'user':row['user']} for name,row in policy.machines.items()]
-        return JSONResponse({'status':'ok','queue':await asyncio.to_thread(counts),'machines':machines,'protocol':1})
+        def foreground_counts():
+            with db.connect(cfg) as conn:
+                return conn.execute("""SELECT count(*) FILTER(WHERE state='pending') pending,
+                    count(*) FILTER(WHERE state='running') running,
+                    COALESCE(max(EXTRACT(epoch FROM now()-created_at)) FILTER(WHERE state='pending'),0)::float oldest_seconds,
+                    COALESCE(sum(octet_length(arguments::text)),0) input_bytes,
+                    COALESCE(sum(octet_length(result::text)),0) result_bytes,
+                    count(*) FILTER(WHERE state='expired') expired,
+                    count(*) FILTER(WHERE code='result_expired') result_expired,
+                    COALESCE(percentile_cont(0.95) WITHIN GROUP(ORDER BY EXTRACT(epoch FROM dispatched_at-created_at)),0)::float wait_p95_seconds,
+                    COALESCE(percentile_cont(0.95) WITHIN GROUP(ORDER BY EXTRACT(epoch FROM finished_at-dispatched_at)),0)::float execution_p95_seconds
+                    FROM service_requests""").fetchone()
+        def fairness():
+            with db.connect(cfg) as conn:
+                return conn.execute("SELECT team,count(*) FILTER(WHERE state='pending') pending,count(*) FILTER(WHERE state='running') running,count(*) FILTER(WHERE state='completed') completed,COALESCE(max(extract(epoch FROM now()-created_at)) FILTER(WHERE state='pending'),0)::float oldest_seconds FROM service_requests GROUP BY team ORDER BY team LIMIT 64").fetchall()
+        return JSONResponse({'status':'ok','queue':await asyncio.to_thread(counts),
+            'admission_rejections':dict(gateway.rejections) if isinstance(gateway,Gateway) else {},
+            'fairness':await asyncio.to_thread(fairness),
+            'foreground':await asyncio.to_thread(foreground_counts),'machines':machines,'protocol':1})
 
     async def openapi(request):
         from .openapi import document
         tools=await mcp_server.build_server(request.state.principal.readonly).list_tools()
         return JSONResponse(document(tools))
 
-    routes=[Route('/v1/checkpoints',checkpoint,methods=['POST']),Route('/v1/checkpoints/{session:path}',checkpoint),Route('/v1/windows',submit_window,methods=['POST']),Route('/v1/jobs/{receipt}',job_status),Route('/v1/jobs/{receipt}/cancel',job_status,methods=['POST']),Route('/health',health),Route('/v1/login',login,methods=['POST']),Route('/v1/logout',logout,methods=['POST']),Route('/v1/capabilities',capabilities),Route('/v1/tools/{name}',tool,methods=['POST']),Route('/v1/admin/status',admin_status),Route('/v1/openapi.json',openapi),*mounts]
+    routes=[Route('/v1/requests',queued_request,methods=['POST']),Route('/v1/requests/{identity}',queued_request),Route('/v1/requests/{identity}/cancel',queued_request,methods=['POST']),Route('/v1/checkpoints',checkpoint,methods=['POST']),Route('/v1/checkpoints/{session:path}',checkpoint),Route('/v1/windows',submit_window,methods=['POST']),Route('/v1/jobs/{receipt}',job_status),Route('/v1/jobs/{receipt}/cancel',job_status,methods=['POST']),Route('/health',health),Route('/v1/login',login,methods=['POST']),Route('/v1/logout',logout,methods=['POST']),Route('/v1/capabilities',capabilities),Route('/v1/tools/{name}',tool,methods=['POST']),Route('/v1/admin/status',admin_status),Route('/v1/openapi.json',openapi),*mounts]
     routes.insert(0,Route('/v1/jobs/{receipt}/retry',job_retry,methods=['POST']))
     routes.insert(0,Route('/v1/sessions',session_logs))
     routes.insert(0,Route('/v1/sessions/{session}/{kind}',session_logs))
@@ -303,4 +355,5 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
     async def invalid_request(request, exc):
         return JSONResponse({'error':'invalid_request'},status_code=400)
     app=Starlette(routes=routes,lifespan=lifespan,exception_handlers={ServiceError:service_error,AuthenticationError:authentication_error,ValueError:invalid_request})
-    return TrustedHostMiddleware(Gateway(app,cfg,auth_file),allowed_hosts=list(allowed_hosts))
+    gateway=Gateway(app,cfg,auth_file)
+    return TrustedHostMiddleware(gateway,allowed_hosts=list(allowed_hosts))

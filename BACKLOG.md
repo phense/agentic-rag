@@ -340,7 +340,7 @@ must have a verified upgrade path even when they remain fully local.
 - ⬜ **6.7** _(P3, enhancement)_ **Derive source-linked pattern memories with opt-in Dream-style synthesis.** → [#65](https://github.com/phense/agentic-rag/issues/65)
 - ⬜ **6.8** _(P2, enhancement)_ **Extend duplicate handling and source-backed supersession with Dream-style lifecycle views.** → [#66](https://github.com/phense/agentic-rag/issues/66)
 - ⬜ **6.9** _(P2, enhancement)_ **Define versioned custom extraction instructions without application code changes.** → [#67](https://github.com/phense/agentic-rag/issues/67)
-- ⬜ **6.10** _(P1, enhancement)_ **Ship native agent plugins with shared connectors, bounded request queue/waiting and verified compaction continuity.** → [#68](https://github.com/phense/agentic-rag/issues/68)
+- 🔵 **6.10** _(P1, enhancement)_ **Ship native agent plugins with shared connectors, bounded request queue/waiting and verified compaction continuity.** → [#68](https://github.com/phense/agentic-rag/issues/68); implementation/tested copy in [PR #77](https://github.com/phense/agentic-rag/pull/77), stacked on #76. Native authenticated UI scenarios and production rollout remain open.
 - ⬜ **6.11** _(P2, enhancement)_ **Extend bounded multi-step research with entity-aware graph exploration and coverage diagnostics.** → [#69](https://github.com/phense/agentic-rag/issues/69)
 - ⬜ **6.12** _(P3, enhancement)_ **Ingest images as source-backed memories through an opt-in vision pipeline.** → [#70](https://github.com/phense/agentic-rag/issues/70)
 - ⬜ **6.13** _(P2, enhancement)_ **Add a scoped feedback API linked to retrieval events and confirmed-failure evaluation.** → [#71](https://github.com/phense/agentic-rag/issues/71)

@@ -130,7 +130,9 @@ def _refute_candidates(conn, limit: int) -> list[dict]:
 
 def _review_refutes(conn, cfg: Config, budget: int, runner) -> tuple[int, int]:
     reviewed = refuted = 0
+    from .service.priority import check_background
     for c in _refute_candidates(conn, budget):
+        check_background(cfg)
         prompt = (
             f"STORED DOCUMENT '{c['slug']}' — {c['title']}:\n{c['body']}\n\n"
             f"CONTRADICTING EVIDENCE (mined from a session):\n"
@@ -139,6 +141,7 @@ def _review_refutes(conn, cfg: Config, budget: int, runner) -> tuple[int, int]:
             "Should the stored document be refuted?")
         data = run_structured(prompt, REFUTE_SCHEMA, cfg,
                               system=REFUTE_SYSTEM, runner=runner)
+        check_background(cfg)
         if not _lock_scope_pair(conn,c["id"],c["source_id"],c["expected_scope"]):
             continue
         epoch=conn.execute('SELECT reactivated_at FROM documents WHERE id=%s',(c['id'],)).fetchone()['reactivated_at']
@@ -168,14 +171,19 @@ def _review_refutes(conn, cfg: Config, budget: int, runner) -> tuple[int, int]:
 def run_pass(conn, cfg: Config, *, budget: int | None = None,
              runner=subprocess.run) -> CurationReport:
     budget = cfg.curation_budget if budget is None else budget
+    from .service.priority import check_background
+    check_background(cfg)
     dangling = _resolve_dangling(conn)
+    check_background(cfg)
     merged = _merge_exact_duplicates(conn, budget)
+    check_background(cfg)
     reviewed, refuted = _review_refutes(conn, cfg, budget - merged, runner)
     conn.execute(
         "INSERT INTO audit_log(actor, op, summary)"
         " VALUES ('mining', 'curation_pass', %s)",
         (f"dangling={dangling} merged={merged} reviewed={reviewed}"
          f" refuted={refuted}",))
+    check_background(cfg)
     conn.commit()
     return CurationReport(dangling, merged, reviewed, refuted)
 

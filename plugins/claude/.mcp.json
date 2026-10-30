@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "agentic-rag": {
+      "args": [
+        "-m",
+        "agentic_rag.plugins.mcp"
+      ],
+      "command": "python3"
+    }
+  }
+}

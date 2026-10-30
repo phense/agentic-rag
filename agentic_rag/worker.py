@@ -278,6 +278,8 @@ def drain(conn, cfg: Config, *, runner=subprocess.run,
     for _ in range(max_jobs):
         if stop is not None and stop.is_set():break
         assert_authority()
+        from .service.priority import background_ready
+        if not background_ready(cfg):break
         job = claim_next(conn)
         if job is None:
             break
@@ -364,13 +366,15 @@ def _run_owned(cfg):
         requeue_orphans(conn, cfg)
         rep = drain(conn, cfg)
         _log(f"drain: {rep}")
+        from .service.priority import background_ready
+        if not background_ready(cfg):return 0
         if not rep["provider_unavailable"]:
             last = jobs.last_curation_at(conn)
             if last is None or (datetime.now(timezone.utc)-last > timedelta(hours=CURATION_MAX_AGE_H)):
                 curation.run_pass(conn,cfg)
     finally:
         conn.close()
-    _opportunistic_backup(cfg)
+    if background_ready(cfg):_opportunistic_backup(cfg)
     return 0
 
 if __name__ == "__main__":

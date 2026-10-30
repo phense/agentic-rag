@@ -33,6 +33,10 @@ def connect(cfg: Config, role: str = "owner",
         if dbname is not None and dbname != cfg.db_name:
             raise PermissionError('service database selection is fixed')
         role = 'reader' if request.read_only or request.principal.readonly or role == 'reader' else 'writer'
+    from .service.queued_transaction import GROUP, pin
+    group = GROUP.get()
+    if request is not None and group is not None:
+        return group.connection()
     from .service.fence import LEASE,FencedConnection,pin_execution
     fenced=LEASE.get() is not None
     connector=ServiceConnection.connect if request is not None else FencedConnection.connect if fenced else psycopg.connect
@@ -41,7 +45,9 @@ def connect(cfg: Config, role: str = "owner",
         return conn
     try:
         if fenced:pin_execution(conn)
-        return apply_connection(conn, request) if request is not None else conn
+        conn = apply_connection(conn, request) if request is not None else conn
+        pin(conn)
+        return conn
     except BaseException:
         conn.close()
         raise

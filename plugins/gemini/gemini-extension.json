@@ -1,0 +1,14 @@
+{
+  "description": "Source-backed knowledge, durable compaction handoffs and bounded queued tools.",
+  "mcpServers": {
+    "agentic-rag": {
+      "args": [
+        "-m",
+        "agentic_rag.plugins.mcp"
+      ],
+      "command": "python3"
+    }
+  },
+  "name": "agentic-rag",
+  "version": "0.6.11"
+}

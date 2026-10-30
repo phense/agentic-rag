@@ -62,6 +62,15 @@ def document(tools):
     operation('/v1/login', 'post', obj({'access_token': string, 'token_type': {'const': 'Bearer'},
               'expires_at': string, 'uploader_id': identifier}, ['access_token', 'token_type', 'expires_at', 'uploader_id']), body=login, public=True)
     operation('/v1/logout', 'post', obj({'logged_out': {'const': True}}, ['logged_out']))
+    queued=obj({'request_id':identifier,'state':string,'durable':{'const':True},'expires_at':string,
+                'code':string,'status_url':string,'retry_after':integer,'result':{'type':['object','null']}},['request_id','state','durable','expires_at'])
+    submission=obj({'idempotency_key':identifier,'created_at':{'type':'string','format':'date-time'},
+                    'tool':string,'arguments':{'type':'object'}},['idempotency_key','created_at','tool','arguments'])
+    submission['additionalProperties']=False
+    operation('/v1/requests','post',queued,body=submission,status=202,
+        description='Prefer: wait=0.1 optionally returns a completed durable receipt inline with HTTP200. Opt-in queued_tools=1 extension. Replay the identical envelope; never renew its timestamp after an ambiguous ACK.')
+    operation('/v1/requests/{identity}','get',queued,params=[path_parameter('identity',identifier)])
+    operation('/v1/requests/{identity}/cancel','post',queued,params=[path_parameter('identity',identifier)])
     operation('/v1/windows', 'post', receipt, body=source, status=202,
               description='Idempotent source submission. 202 means source, stream head and queue committed; it does not mean extraction applied.')
     operation('/v1/checkpoints', 'post', obj({'durable': {'const': True}, 'checkpoint': checkpoint}, ['durable', 'checkpoint']), body=packet)

@@ -42,7 +42,7 @@ class Budget:
 
 
 @contextmanager
-def admission(cfg):
+def admission(cfg, *, lock=ADMISSION_LOCK):
     # Only this fixed aggregate check uses the trusted owner connection. It never
     # accepts SQL or returns other principals' rows to the caller. Scoped business
     # connections retain their original authority, including worker fencing.
@@ -50,11 +50,13 @@ def admission(cfg):
     try:conn=db.connect(cfg)
     finally:CURRENT.reset(token)
     try:
-        if not conn.execute('SELECT pg_try_advisory_xact_lock(%s) ok',(ADMISSION_LOCK,)).fetchone()['ok']:
+        if not conn.execute('SELECT pg_try_advisory_xact_lock(%s) ok',(lock,)).fetchone()['ok']:
             raise ResourcePressure('write_capacity_exceeded',429)
         yield Budget(conn,cfg)
     finally:conn.close()  # read-only aggregate transaction releases the gate
 
 
 def check_worker(cfg):
+    from .priority import check_background
+    check_background(cfg)
     with admission(cfg) as budget:budget.check(incoming=1048576)

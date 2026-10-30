@@ -37,6 +37,15 @@ def validator(name):
 
 
 async def invoke(name: str, arguments: dict, principal, cfg, *, read_only=False):
+    from .priority import foreground
+    from contextlib import ExitStack
+    with ExitStack() as stack:
+        if cfg.service_auth_file is not None or cfg.service_mode == 'server':
+            stack.enter_context(foreground(cfg))
+        return await _invoke(name, arguments, principal, cfg, read_only=read_only)
+
+
+async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False):
     fn,write=validator(name)
     if write and (read_only or principal.readonly):
         raise ServiceError('scope_denied',403)

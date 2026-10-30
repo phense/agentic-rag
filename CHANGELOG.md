@@ -7,6 +7,22 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [Unreleased]
 
+## [0.6.11] - 2026-10-30
+
+- Add optional durable foreground tool requests with owner/team quotas, fair
+  dispatch, finite retention, status/cancel handles and atomic write/result commit.
+  Compatible synchronous protocol-1 endpoints remain available.
+- Prefer interactive context/retrieval over source extraction and bounded shared
+  embedding pages. Keep one central source worker and fixed foreground consumers.
+- Package native Claude/Codex plugins and a separate Gemini CLI extension; reuse
+  existing source/checkpoint transport and preserve original input at compaction.
+- Add private bounded request outboxes and plugin status/cancel tools. Host UI
+  observations, reference-host measurements and rollout limits are documented in
+  [the plugin operations guide](docs/14-agent-plugins.md).
+- Known non-blocking status detail: a completed request may retain an earlier
+  transient deferral code; successful result consumption is unaffected. Tracked
+  as LOW-012 in issue #75.
+
 ## [0.6.10] - 2026-10-29
 
 ### Added

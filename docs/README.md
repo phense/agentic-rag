@@ -23,6 +23,10 @@ Version0.6.10 includes optional REST/MCP service access and additive schema023.
 Standalone remains supported. [Measured deployment evidence](verification/issue58-service.md)
 distinguishes a tested reference copy from a completed production cutover.
 
+Version0.6.11 adds [native agent plugins and bounded waiting requests](14-agent-plugins.md)
+with additive schema024. Its [verification record](playbooks/evidence/agent-plugins.md)
+separates adapter/package tests from still-open native compression observations.
+
 ## Start here
 
 - [What’s New in 0.6.0](00-whats-new-in-0.6.md) — ten adopted retrieval/ingestion features, measured limits and verified schema 018→019 adoption.
@@ -72,3 +76,5 @@ bounded audited backfill, source014→015 upgrade, interruption and recovery lim
 ## OpenCode integration
 
 [OpenCode and DeepSeek](opencode.md) — native context/recall, compaction continuity, idle mining, installation and scope.
+
+- [Agent plugins, waiting requests and compaction](14-agent-plugins.md)
