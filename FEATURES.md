@@ -51,6 +51,23 @@ adapter tests do not close native authenticated compression scenarios in #12–1
 The [guide](docs/14-agent-plugins.md) and [measured evidence](docs/playbooks/evidence/agent-plugins.md)
 record tested versions, finite workloads and remaining rollout boundaries.
 
+## Independent providers and recoverable indexes (RAG-061 / issue #61)
+
+🔵 Implemented in the feature branch, pending PR integration. Extraction supports
+existing Codex/Claude CLI authentication and optional compatible HTTP; embedding
+profiles independently support Ollama/compatible HTTP. Named source-bound
+generations retain the legacy index, rebuild in bounded explicit batches and
+switch only after complete current coverage. Catch-up rollback preserves new
+canonical writes. Managed search and semantic duplicate checks use one pinned
+space; an external selected profile receives those query/candidate inputs.
+Corpus rebuilds require a separate explicit action.
+
+Populated026→027 local/central strict restore, scoped gateway/ACL tests and a real
+CLI503/resume/cutover/catch-up rollback rehearsal pass. Synthetic measurements
+are plumbing evidence, not real-model quality or deployment approval. See the
+[operator procedure](docs/provider-indexes.md) and
+[verification](docs/verification/issue61-providers.md).
+
 ## Memory platform
 
 - ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown

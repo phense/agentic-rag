@@ -1,14 +1,16 @@
 # Privacy, cost & control
 
 *What you'll learn: how agentic-rag delegates LLM billing to your configured
-CLI provider, what happens to secrets that wander into a saved document, who can
+provider account, what happens to secrets that wander into a saved document, who can
 do what to your database, and how backups get proven to actually restore.*
 
 ## Cost: whatever provider account you choose
 
-agentic-rag has no billing path or direct provider API client of its own.
-Every AI call runs through `agentic_rag/llm.py`, which invokes the configured
-Codex or Claude CLI and therefore uses that CLI's account and limits.
+agentic-rag adds no separate RAG billing account. Structured extraction runs
+through `agentic_rag/llm.py`: existing Codex/Claude CLI authentication or an
+opt-in compatible HTTP API. Managed embedding profiles independently use
+Ollama or compatible HTTP. Each provider applies its own account limits and
+billing; compatible HTTP may require a protected token reference.
 
 Supported choices are:
 
@@ -22,11 +24,14 @@ Supported choices are:
   key, those `claude -p` calls are metered by Anthropic like any other API
   use. agentic-rag runs fine either way; the metering is between you and
   Anthropic, on the account you chose.
+- **Compatible HTTP extraction.** Explicitly configure the endpoint/model and
+  protected credential reference described in the [provider guide](provider-indexes.md).
+  Its account may charge for successful or failed requests; no CLI login is used.
 
 Embeddings default to your own Ollama (`bge-m3`). Version0.6.14 also supports
 explicit [managed HTTP profiles](provider-indexes.md): selecting one sends query
-text to that destination, while corpus rebuilds require an explicit bounded
-operator action. Offline inspection makes no requests; probes use fixed
+text and future semantic duplicate candidate title/body to that destination,
+while corpus rebuilds require an explicit bounded operator action. Offline inspection makes no requests; probes use fixed
 synthetic inputs. Input/request/token bounds limit usage, not a monetary total;
 set account-side spend limits before external corpus processing. The extraction
 provider inputs are:
@@ -39,8 +44,10 @@ provider inputs are:
 - **checkpoint enrichment:** a bounded, secret-stripped transcript delta;
 - **explicit research provider mode:** a secret-stripped question and selected
   source excerpts within the request's serialized evidence cap. `rag research`
-  defaults to local mode; `--provider` or MCP `provider=true` enables this
-  transfer to the configured account. No research answer is saved.
+  skips structured assessment by default; `--provider` or MCP `provider=true`
+  enables that assessment transfer. Retrieval still uses the selected embedding
+  profile, which can send query text externally. Use `--strategy lexical` and
+  omit `--provider` to avoid model calls. No research answer is saved.
 
 Research provider subprocesses disable inherited tools, MCP servers, hooks,
 skills, web search and persistence. Unsupported CLI controls fail closed.
@@ -58,8 +65,8 @@ checkpoint capture secret-strips bounded Git output; the enrichment path
 strips its transcript delta again and validates schema, grounding, and
 secret-shaped output before persistence. The safety-critical checkpoint does
 not depend on enrichment: `PreCompact` commits deterministic state locally
-first, and a provider outage leaves enrichment pending without consuming its
-attempt budget. `rag status` and SessionStart expose the outage; after `codex
+first. A CLI provider outage leaves enrichment pending without consuming its
+attempt budget; compatible HTTP failures use the finite job attempt budget. `rag status` and SessionStart expose the outage; after `codex
 login`, the next successful worker run closes the circuit automatically and
 enriches the same checkpoint.
 
@@ -215,8 +222,9 @@ guarantee.
 
 You operate the knowledge engine and its PostgreSQL store. Standalone commands
 access it locally; a configured service client uses authenticated REST/MCP and
-keeps only bounded pending input/context on its VM. Ollama runs on the engine
-host, which can be a private cloud VM. No vendor-operated agentic-rag account or
+keeps only bounded pending input/context on its VM. Default Ollama embeddings
+run on the engine host, which can be a private cloud VM; an explicitly selected
+managed HTTP profile sends its documented inputs to the configured endpoint. No vendor-operated agentic-rag account or
 telemetry endpoint is required. Your chosen extraction provider still receives
 redacted source prose and the checkpoint or pin context described above.
 

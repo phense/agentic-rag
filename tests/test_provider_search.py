@@ -9,15 +9,16 @@ from agentic_rag import domains, indexes, mining, providers, search, store
 
 
 @pytest.fixture
-def space(conn, cfg, monkeypatch):
+def space(conn, cfg, monkeypatch, request):
     domains.add_domain(conn, 'general')
     profiles = {name: providers.EmbeddingProfile(provider='ollama', model=name,
-        revision=revision * 64, dimensions=dim, url='http://127.0.0.1:1')
+        revision=revision * 64, dimensions=dim, url=getattr(request,'param','http://127.0.0.1:1'))
         for name, revision, dim in [('small', 'a', 2), ('large', 'b', 3), ('alternate', 'c', 2)]}
     configured = replace(cfg, embedding_profiles=profiles)
-    state = {'missing': False, 'on_embed': None, 'requests': [], 'inputs': []}
+    state = {'missing': False, 'on_embed': None, 'requests': [], 'inputs': [], 'destinations': set()}
     def handle(request):
         state['requests'].append(request.url.path)
+        state['destinations'].add(request.url.host)
         if request.url.path == '/api/tags':
             return httpx.Response(200, json={'models': [] if state['missing'] else [
                 {'name': name + ':latest', 'digest': profile.revision}
@@ -93,3 +94,21 @@ def test_managed_context_lexical_recall_keeps_title_excerpts_without_vectors(con
         strategy='lexical', rerank_mode='off')
     assert [hit.document_id for hit in hits] == [good.doc_id]
     assert not warnings
+
+
+@pytest.mark.parametrize('space',['https://models.example.invalid'],indirect=True)
+def test_research_without_assessment_uses_selected_embeddings_unless_lexical(conn,space):
+    from agentic_rag import research
+    cfg,_,_,state=space
+    def forbidden(*args,**kwargs):pytest.fail('research used structured assessment without opt-in')
+    before=len(state['inputs'])
+    result=research._research(conn,cfg,'quasar',project='/synthetic/providers',
+        provider=False,structured=forbidden)
+    assert result['abstained'] and result['usage']['provider_calls']==0
+    assert len(state['inputs'])>before
+    assert state['destinations']=={'models.example.invalid'}
+    before=len(state['requests'])
+    lexical=research._research(conn,cfg,'needle field',project='/synthetic/providers',
+        provider=False,strategy='lexical',structured=forbidden)
+    assert lexical['abstained'] and lexical['usage']['provider_calls']==0
+    assert len(state['requests'])==before

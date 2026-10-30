@@ -155,22 +155,28 @@ anything stronger than that.
 
 ## Why the LLM provider is one configurable seam
 
-Every LLM call in the system — mining extraction, curation review, and bounded
+Structured LLM work — mining extraction, curation review, and bounded
 checkpoint enrichment — goes through `agentic_rag/llm.py`. That chokepoint has
-explicit Codex and Claude CLI adapters. Public defaults remain Claude/Haiku
+Codex/Claude CLI adapters and opt-in compatible HTTP extraction. Public defaults remain Claude/Haiku
 for compatibility; a local deployment can select Codex/Luna/high and use the
 CLI's ChatGPT login without adding a direct API client or key to agentic-rag.
 
 The seam centralizes structured-output validation, timeouts, prompt handling,
 and failure classification. A bad model response is a job failure; a missing
-binary, timeout, or expired provider login is a provider outage. The latter
+CLI binary, timeout, or expired CLI login is a provider outage. The latter
 returns the job to `pending` without consuming its retry budget, stops the
 current drain, and writes an atomic health artifact. This prevents one shared
-authentication problem from exhausting every independent queue item.
+authentication problem from exhausting every independent queue item. Compatible
+HTTP instead preserves typed safe error categories and consumes the finite
+worker attempt budget for transient failures/rate limits too.
 
 Codex runs ephemerally in an empty temporary directory with repository and
 user rules ignored and read-only sandboxing. Claude remains a configuration
-rollback path. In either case embeddings are local (Ollama/bge-m3). The
+rollback path. Embeddings default to local Ollama/bge-m3. Optional managed
+profiles independently select a local/HTTP vector space; external generations
+receive queries, semantic duplicate candidate title/body and explicit rebuild
+batches. The [provider guide](provider-indexes.md) covers consent, identity and
+catch-up rollback. The
 configured provider receives mining inputs (a bounded secret-stripped digest,
 live domain names, and secret-stripped copies of all matching pin bodies),
 selected curation content for one document/evidence set, or a bounded
@@ -180,8 +186,9 @@ secret-stripped checkpoint delta.
 
 None of the above is free, and it's worth saying so in one place:
 
-- You need PostgreSQL and Ollama running before any of this works — that's
-  two services a plain file-based approach doesn't ask for.
+- The default semantic setup uses PostgreSQL and Ollama — two services a plain
+  file-based approach does not need. Lexical retrieval remains available if the
+  embedding provider is down; managed HTTP profiles are an explicit alternative.
 - The taxonomy-free domain model means a brand-new install starts with
   exactly one domain (`general`) and no opinions about how you should
   organize anything — useful for flexibility, less useful if you wanted
@@ -190,8 +197,9 @@ None of the above is free, and it's worth saying so in one place:
   and refuted rows forever until someone runs `rag purge` — the safety
   net is also, left unattended, a slow accumulation of dead weight.
 - Provider-configurable LLM access means mining, curation, and checkpoint
-  enrichment depend on the account and limits of the selected CLI, while
-  embeddings stay local; the RAG leaves that tradeoff in your hands rather
+  enrichment depend on the account and limits of the selected CLI/HTTP provider.
+  Embeddings default to local Ollama; external managed profiles are an explicit
+  choice. The RAG leaves that tradeoff in your hands rather
   than deciding it for you.
 
 Each of these is a considered choice for what this project is — a

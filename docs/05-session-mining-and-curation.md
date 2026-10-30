@@ -48,7 +48,8 @@ queuing already exists.
    at most one.
 4. The worker drains the queue: for each mining job, it builds a **digest**
    of the transcript (local file, redacted, only the new part since last
-   time) and calls the configured Codex or Claude CLI to extract durable
+   time) and calls the configured extraction provider (Codex/Claude CLI or
+   opt-in compatible HTTP) to extract durable
    memories, lessons, and error signals as schema-constrained JSON.
 5. Each extracted item is checked against the store for a near-duplicate,
    then written through the write gateway (secret-stripped, chunked,
@@ -506,19 +507,21 @@ row naming which slugs were removed.
   unreachable Ollama — none of it can stop you from working; at worst you
   lose the context injection (and SessionStart tells you so, visibly).
 - **Provider-configurable, local-first.** LLM-assisted mining, curation, and
-  bounded checkpoint enrichment use the local Codex or Claude CLI you
-  configure on the engine host. Optional central deployment moves that CLI and
-  Ollama to your server; clients only capture and upload bounded source input.
+  bounded checkpoint enrichment use the Codex/Claude CLI or compatible HTTP
+  extraction provider you configure on the engine host. Optional central
+  deployment moves processing to your server; clients capture/upload source
+  input. [Managed embedding profiles](provider-indexes.md) are a separate choice.
 - **Local source, bounded transcript input.** The input to mining starts as a JSONL file
   already sitting on your disk. Tool-result bodies and tool inputs (other
   than a memory-tool slug/query hint) never enter the digest at all. The
   resulting bounded, secret-stripped digest leaves the machine through the
-  configured Codex or Claude CLI for mining/enrichment; the mining prompt also
+  configured extraction provider for mining/enrichment; the mining prompt also
   carries secret-stripped copies of all matching pin bodies while leaving
   stored pin text unchanged.
 - **Compaction does not depend on the provider.** `PreCompact` commits the
   deterministic snapshot before optional asynchronous enrichment; provider
-  outage recovery preserves the enrichment attempt budget.
+  CLI outage recovery preserves the enrichment attempt budget; compatible HTTP
+  failures use the finite worker attempt budget instead.
 - **Audited.** Every save, merge, refute, purge, and even the inert
   suggestions carry an `audit_log` row with an actor (`mining` or `cli`) and
   a summary.

@@ -38,6 +38,7 @@ sequenceDiagram
     G->>D: lock sources and recheck hashes
     G->>D: store tagged vectors and audit atomically
     O->>G: activate or rollback
+    G->>P: verify identity and fixed synthetic embedding capability
     G->>D: serialize lifecycle, exclude canonical writes
     G->>D: verify complete coverage and select generation
     D-->>O: selected generation or incomplete refusal
@@ -64,6 +65,10 @@ contextual lexical recall remains available with NULL query vectors. Missing
 profiles/models and semantic SQL budgets select lexical degradation with warning.
 Server inference uses the shared foreground model slot; builds yield to
 foreground demand and cap background network operations at10seconds.
+Research retrieval reuses that selected search space even with structured
+assessment disabled; lexical research without assessment makes no model calls.
+Selecting an external generation also routes semantic duplicate candidate
+title/body there. These opt-in effects are explicit in the provider procedure.
 
 No topology drift. The legacy state explicitly retains unverified historical
 semantics until managed activation; its old vectors receive no retroactive
@@ -75,5 +80,10 @@ Evidence: provider109+offlinecache14 tests; index82+3 tests; coordinator integra
 search/CLI/index44 tests; populated upgrade/restore/schema26 tests, all observed
 exit0. Final independent integration/review/full-suite evidence is recorded in
 the linked verification record; these bounded results do not establish production
-or real-model readiness. AF061-005 (source receipt classification) remains under
-repair before convergence.
+or real-model readiness. AF061-005 is implemented: the real source HTTP→worker→
+receipt/trace chain retains bounded classified errors (24 related tests passed,
+31.35s, exit0). AF061-007 selection additionally proves capability/dimensions
+with a fixed synthetic input before canonical locks, including an empty corpus
+(94 provider/index/search/CLI tests passed,61.92s, exit0). The derived CLI recovery
+test passed independently (5.65s, exit0); same/different-dimensional ranking and
+in-flight selection pinning passed6 tests (4.39s, exit0).

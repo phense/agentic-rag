@@ -7,7 +7,7 @@
 - Audience and owner: CLI/MCP operators; repository maintainer owns rollout approval.
 - Target: Feature6 code on the existing source `19ed09c1b3c46d907254f63a1370586ea3213966`, schema001–016, one shared PostgreSQL store.
 - Readiness deadline: before code adoption or operational use.
-- Last edited: 2026-10-03.
+- Last edited: 2026-10-30 (provider-profile disclosure addendum).
 - Review and rehearsal evidence: [verification record](verification/bounded-research.md); practical results [here](benchmarks/2026-10-03-bounded-research/README.md).
 
 ## When to use / when not to use
@@ -32,6 +32,12 @@ source text exactly and meet the source quorum; it cannot create new citations.
 A model assessment is fallible, and distinct source IDs do not establish
 independent human authorship. Inspect the cited passages before relying on them.
 
+In0.6.14, local mode means structured assessment is off. Retrieval still follows
+the selected [embedding profile](provider-indexes.md), including an external
+HTTP destination deliberately selected by the operator. To avoid model calls,
+omit `--provider` and select `--strategy lexical`. The `usage.provider_calls`
+field counts structured assessment/planning, not nested embedding requests.
+
 ## Before starting
 
 1. Run `rag research --help` with the intended installed executable. Expect the
@@ -42,8 +48,9 @@ independent human authorship. Inspect the cited passages before relying on them.
    ISO-8601 timezone for a historical instant, or `--history` for historical
    eligibility; the two options are mutually exclusive.
 3. Decide whether this request may send a redacted question and selected stored
-   excerpts to the configured Codex or Claude account. Keep `--provider` absent
-   for local processing. Secret stripping reduces exposure; it does not make
+   excerpts to the configured CLI/HTTP extraction account. Keep `--provider`
+   absent to skip that assessment. Separately inspect the embedding destination;
+   use `--strategy lexical` to skip query embeddings. Secret stripping reduces exposure; it does not make
    private content public or authorize a new provider transfer.
 
 | Input | Default | Accepted bounds |

@@ -7,10 +7,10 @@ readers: [installation-operators]
 owner: repository-maintainer
 class: system
 origin: Issue61 AC001-008
-status: drafted
+status: reviewed
 version: 0.6.14
 last_edited: 2026-10-30
-last_reviewed: unreviewed
+last_reviewed: 2026-10-30
 depends_on: [13-central-service.md]
 assets: []
 summary: Inspect independent inference slots and explicitly rebuild, select or roll back a model-bound vector space.
@@ -124,6 +124,13 @@ from comparison. See the verification record for commands and actual results.
 You should see the independent extraction slot and named profile with finite
 bounds. No profile edit changes the selected database generation.
 
+Selecting an external generation authorizes its future search query text and
+semantic duplicate checks (candidate title/body) to reach that destination.
+Duplicate checks can run during mining, independently of an explicit index
+build. Research retrieval also uses this selected profile even when structured
+assessment is off; omit `--provider` and use `--strategy lexical` for research
+without model calls. Stored-chunk rebuilds require the separate bounded corpus action.
+
 ### Optional compatible HTTP provider
 
 The initial managed embedding providers are Ollama and `openai-compatible`.
@@ -218,12 +225,12 @@ vectors remain limited to legacy operation and rollback to an old binary.
 
 | Boundary | Behavior |
 |---|---|
-| Embedding batch | 1–32 inputs, at most4000 characters each; per-profile limits may be smaller. Oversized input is refused, never silently truncated. |
+| Embedding batch | 1–32 inputs, at most 4000 characters each; per-profile limits may be smaller. Oversized input is refused, never silently truncated. |
 | Managed embedding network usage | At most3 requests per batch/probe: discovery, one inference, discovery. Identity-only checks use1 request; activation/rollback use up to4 requests and one synthetic input. No automatic HTTP retries or fallback. |
-| Compatible HTTP adapter response/time/concurrency | At most4MiB per response; at most120seconds per HTTP operation, lower configured limit honored; two inference operations per process. These limits do not bound a Claude/Codex CLI's own internal HTTP requests. |
-| Central background builds | Shared model admission yields to foreground work; per-operation timeout capped at10seconds. This does not change standalone profile limits. |
+| Compatible HTTP adapter response/time/concurrency | At most4MiB per response; at most 120 seconds per HTTP operation, lower configured limit honored; two inference operations per process. These limits do not bound a Claude/Codex CLI's own internal HTTP requests. |
+| Central background builds | Shared model admission yields to foreground work; per-operation timeout capped at10 seconds. This does not change standalone profile limits. |
 | Vector format | halfvec,1–4000 dimensions, finite/nonzero values, cosine; normalization `none` or `l2`; raw-v1 only. |
-| HTTP extraction | Default24000input characters and2048output tokens; hard limits64000/8192. Inline bounded JSON schema only. |
+| HTTP extraction | Default 24000 input characters and2048 output tokens; hard limits 64000/8192. Inline bounded JSON schema only. |
 | Durable HTTP jobs | Finite configured worker attempt budget, including transient failures and rate limits; no per-request retries. Existing CLI outage scheduling remains compatible. |
 | Monetary cost | Input/request/output bounds limit usage, not a currency total. Configure account-side spend limits and check provider pricing before corpus processing. Failed requests may also be billed. |
 

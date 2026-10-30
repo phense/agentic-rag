@@ -29,20 +29,20 @@ measurement cases; independent full bounded review and final full-suite exit.
 
 ### Slice S2: Resumable generation lifecycle
 
-- [ ] T005 [US002] [AF061-002/003] Test-first additive SQL027, scope-checked gateway, source-bound generations, bounded resume, atomic activation and catch-up rollback — indexes.py, sql/027_provider_indexes.sql, tests/test_provider_indexes.py; depends on T004.
-- [ ] T006 [AF061-001] Route managed search/mining through the selected generation and suppress legacy vector mixing; CLI explicit inspect/probe/create/build/status/activate/rollback, store gateway facade — search.py, mining.py, store.py, cli.py, provider_cli.py; depends on T005.
-- [ ] T007 [AC004–008] Verify incompatible/equal dimensions, alias drift, interruption, concurrent writes, RLS and rollback with post-cutover writes; review slice — tests/test_provider_indexes.py and integration tests; depends on T005/T006.
+- [x] T005 [US002] [AF061-002/003] Test-first additive SQL027, scope-checked gateway, source-bound generations, bounded resume, atomic activation and catch-up rollback — indexes.py, sql/027_provider_indexes.sql, tests/test_provider_indexes.py; depends on T004.
+- [x] T006 [AF061-001] Route managed search/mining through the selected generation and suppress legacy vector mixing; CLI explicit inspect/probe/create/build/status/activate/rollback, store gateway facade — search.py, mining.py, store.py, cli.py, provider_cli.py; depends on T005.
+- [x] T007 [AC004–008] Verify incompatible/equal dimensions, alias drift, interruption, concurrent writes, RLS and rollback with post-cutover writes; review slice — tests/test_provider_indexes.py and integration tests; depends on T005/T006.
 
 ### Slice S3: Existing-install proof and operator delivery
 
-- [ ] T008 [AC008] Rehearse populated026→027 upgrade and strict restore with original rows/ACLs/IDs/queues intact, local and central modes; verify old-client compatibility — tests and isolated rehearsal script; depends on T007.
-- [ ] T009 [AC009] Record three reproducible synthetic cold/warm/resource/request cases, exact revisions and limits — scripts/measure_provider_indexes.py, docs/verification/issue61-providers.md; depends on T007.
-- [ ] T010 [PB061-OPS] Author/review/rehearse docs/provider-indexes.md; confirm reused PB061-DEV before upgrade rehearsal; update README/handbook and four release metadata files to0.6.14; depends on T007.
+- [x] T008 [AC008] Rehearse populated026→027 upgrade and strict restore with original rows/ACLs/IDs/queues intact, local and central modes; verify old-client compatibility — tests and isolated rehearsal script; depends on T007.
+- [x] T009 [AC009] Record three reproducible synthetic cold/warm/resource/request cases, exact revisions and limits — scripts/measure_provider_indexes.py, docs/verification/issue61-providers.md; depends on T007.
+- [x] T010 [PB061-OPS] Author/review/rehearse docs/provider-indexes.md; confirm reused PB061-DEV before upgrade rehearsal; update README/handbook and four release metadata files to0.6.14; depends on T007.
 
 ### Slice S4: Reconcile and verify integrated behavior
 
-- [ ] T011 Reconcile docs/uml/provider-indexes.md and findings against actual code; independent strong architect derives real success and recovery tests, run both; depends on T008–T010.
-- [ ] T012 Independent complete bounded diff review; fix/review all C/H/M, add Low findings to#75; depends on T011.
+- [x] T011 Reconcile docs/uml/provider-indexes.md and findings against actual code; independent strong architect derives real success and recovery tests, run both; depends on T008–T010.
+- [x] T012 Independent complete bounded diff review; fix/review all C/H/M, add Low findings to#75; depends on T011.
 
 ### Slice S5: Convergence and final verification handoff
 

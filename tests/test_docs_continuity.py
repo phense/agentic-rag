@@ -147,7 +147,7 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
         r"> \*\*Your data stays.*?(?=\n\n)", readme, re.S
     )
     privacy_summary = re.search(
-        r"In every case, \*\*embeddings are local\*\*.*?(?=\n### Native)",
+        r"Embeddings default to your own Ollama.*?(?=\n### Native)",
         privacy,
         re.S,
     )
@@ -168,6 +168,14 @@ def test_docs_disclose_external_provider_calls_and_rollout_boundary():
             outbound_summary,
         )
         assert "without mutating stored pin text" in outbound_summary
+        # Optional managed HTTP profiles deliberately extend the old local-only
+        # contract. Each summary must disclose both query and corpus egress,
+        # while probes remain synthetic and inspection remains offline.
+        assert re.search(r"managed (?:HTTP|provider) profiles", outbound_summary)
+        assert re.search(r"(?:search queries|query text)", outbound_summary)
+        assert re.search(r"(?:selected rebuild batches|corpus rebuilds require an explicit)", outbound_summary)
+        assert "fixed synthetic inputs" in outbound_summary
+        assert re.search(r"(?:Inspection is offline|Offline inspection makes no requests)", outbound_summary)
         assert "not independently redacted" not in outbound_summary
         assert "no-secrets rule" not in outbound_summary
         assert "all matching pin bodies" in outbound_summary
@@ -304,3 +312,24 @@ def test_docs_explain_claude_continuity_contract():
     assert "00-whats-new-in-0.4.md" in Path("docs/README.md").read_text()
     assert "## [Unreleased]" in Path("CHANGELOG.md").read_text()
     assert "Claude continuity" in Path("FEATURES.md").read_text()
+
+
+def test_current_provider_privacy_docs_do_not_promise_local_only_inference():
+    # HTTP profiles are an operator choice, so current introductions must not
+    # promise that every supported provider stays local or uses a CLI.
+    for name in ("README.md", "docs/01-what-is-agentic-rag.md"):
+        assert "always local" not in Path(name).read_text().lower()
+    privacy = Path("docs/07-privacy-and-cost.md").read_text()
+    assert "no billing path or direct provider API client" not in privacy
+    assert "Every AI call runs through" not in privacy
+    assert "compatible HTTP" in privacy
+    assert "candidate title/body" in privacy
+
+
+def test_default_research_disclosure_separates_assessment_and_embedding_egress():
+    readme = Path("README.md").read_text()
+    assert not re.search(r"default research (?:stays|remains) local",readme,re.I)
+    for name in ("docs/07-privacy-and-cost.md", "docs/bounded-research.md"):
+        text = " ".join(Path(name).read_text().split())
+        assert "selected embedding profile" in text.replace("[embedding profile](provider-indexes.md)","embedding profile")
+        assert "--strategy lexical" in text and "--provider" in text

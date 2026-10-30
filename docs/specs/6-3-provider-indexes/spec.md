@@ -32,6 +32,12 @@ Search can use lexical evidence; no other model silently receives the input.
 - AC-002: Inspection is offline/read-only. Synthetic probes require explicit
   invocation; corpus processing requires explicit permission and a finite batch.
   Inspection shows destination, input/request bounds and possible external egress.
+  Explicit external-generation selection applies to managed search queries,
+  semantic duplicate candidate title/body and research retrieval queries. Research
+  without structured assessment still uses the selected embedding profile;
+  lexical research without assessment makes no model calls. Legacy/default
+  local behavior remains unchanged. The new opt-in profile contract qualifies
+  the older research specification's assumption of exclusively local embeddings.
 - AC-003: Provider/model/revision, endpoint, dimensions, normalization, metric and
   representation identify a vector space. Same-dimension model changes never reuse
   a managed index or query cache. Invalid, zero or nonfinite vectors are rejected.
