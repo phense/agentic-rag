@@ -1,6 +1,6 @@
 # Issue59 dashboard verification
 
-Status: code, independent review and final full suite verified; PR publication and final documentation synchronization remain delivery steps.
+Status: code, independent review and final full suite verified; tested PR published. Canonical rollout remains separate.
 Base0.6.11 tree29ec9d54 (same tested plugin/queue tree as mergedPR77); target0.6.12/schema 025.
 [Requirements](../specs/6-1-dashboard/spec.md), [tasks](../specs/6-1-dashboard/tasks.md),
 [operations/playbooks](../15-dashboard.md), [model](../uml/dashboard.md).
@@ -298,3 +298,14 @@ source review and all AF05901..03 dispositions are complete.
 Review, requirement/interface mapping, success/recovery integrations, playbook
 content/rehearsal and current verification agree. No implementation gap remains.
 Merge approval and canonical rollout stay separate; no writer cutover is included.
+
+
+## Delivery
+
+[PR79](https://github.com/phense/agentic-rag/pull/79) contains this0.6.12 feature
+on the0.6.11 promotion branch from PR78. Merge PR78 first, then retarget PR79 to
+main. Runtime/tests remain byte-identical to the final reviewed/full-tested
+candidate; final convergence edits only documentation and delivery state. Final
+documentation synchronization has its own private626-file manifest/receipt;
+its hash is kept outside that manifest's input to avoid a self-referencing hash.
+The test-copy credentials remain unchanged. No canonical worker was enabled.

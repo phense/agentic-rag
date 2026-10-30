@@ -19,4 +19,4 @@ their historical version/measurement claims. Shared terms in glossary.md.
 Assets in assets.md. No copied private knowledge or credentials in illustrations.
 Acceptance: exact UI labels/CLI syntax, explicit initialized-DB prerequisite,
 file ownership precedence, once-only credentials, bounded checks, recovery and
-fresh evidence. Set-wide content review is Ready with0 open Critical/Important findings; the final full suite passes and final source synchronization/PR publication remain delivery steps recorded in the evidence.
+fresh evidence. Set-wide content review is Ready with0 open Critical/Important findings; the final full suite passes and PR79 is published and the private final documentation synchronization receipt records deployment digests.

@@ -45,4 +45,4 @@ Mermaid directive/participants/alt-end/message order was source-validated;
 no fresh diagram render is claimed. Reader paths preserve the initialized-DB
 prerequisite, explicit file/DB authority and once-only credentials. The
 verification record's acceptance mapping retains all original numbers/revisions
-and separates code/copy evidence from production rollout. The final root suite passes 1,569 tests with 1 intentional Linux skip and exit0; final source synchronization/PR publication remain delivery steps. The glossary table and JSON agree on 10 entries; actual avoid-term search returns zero matches.
+and separates code/copy evidence from production rollout. The final root suite passes 1,569 tests with 1 intentional Linux skip and exit0; [PR79](https://github.com/phense/agentic-rag/pull/79) is published; final documentation-only source synchronization is tracked in the private deployment receipt. The glossary table and JSON agree on 10 entries; actual avoid-term search returns zero matches.
