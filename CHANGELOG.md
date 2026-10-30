@@ -5,6 +5,13 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.13] - 2026-10-30
+
+- Add bounded metadata-only request tracing with generated request IDs, scoped keyset filters and current job outcomes in the dashboard, REST API and CLI (Issue60).
+- Preserve transactional source/foreground job origins across retry and trace retention. HTTP acceptance remains distinct from successful knowledge application.
+- Restrict trace rows, totals, details and paginated exports to current authority; exclude credentials, request payloads, raw URLs and exception text.
+- Bound tracing retention, storage and capture failure independently from canonical knowledge and its audited writes. Additive migration026 preserves populated025 originals.
+
 ## [0.6.12] - 2026-10-30
 
 - Add an authenticated responsive dashboard with one-time first-admin bootstrap, protected browser sessions and scoped knowledge/source browsing.

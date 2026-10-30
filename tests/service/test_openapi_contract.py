@@ -39,3 +39,17 @@ def test_openapi_describes_real_enrollment_and_durable_input(service_store, tmp_
             result = client.request(method, path, headers=headers(KEYS[0]), json=body)
             schema = paths[path][method]['responses'][str(result.status_code)]['content']['application/json']['schema']
             Draft202012Validator({**schema, 'components': spec['components']}).validate(result.json())
+
+
+def test_trace_discovery_matches_real_metadata_and_job_origin(service_store,tmp_path):
+    cfg,_=service_store;app,_=app_fixture(tmp_path,cfg)
+    with TestClient(app,base_url='https://testserver') as client:
+        response=client.get('/v1/openapi.json',headers=headers(KEYS[0]));spec=response.json()
+        for endpoint in ['/v1/traces','/v1/traces/export','/v1/traces/{identity}']:
+            assert 'X-Rag-Request-ID' in spec['paths'][endpoint]['get']['responses']['200']['headers']
+            assert any(p['name']=='X-Rag-Correlation-ID' for p in spec['paths'][endpoint]['get']['parameters'])
+        result=client.get('/v1/traces',headers=headers(KEYS[0]))
+        Draft202012Validator(spec['paths']['/v1/traces']['get']['responses']['200']['content']['application/json']['schema']).validate(result.json())
+        detail=client.get('/v1/traces/'+response.headers['x-rag-request-id'],headers=headers(KEYS[0]))
+        Draft202012Validator(spec['paths']['/v1/traces/{identity}']['get']['responses']['200']['content']['application/json']['schema']).validate(detail.json())
+        assert 'origin_request_id' in spec['paths']['/v1/windows']['post']['responses']['202']['content']['application/json']['schema']['properties']

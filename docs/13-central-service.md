@@ -446,3 +446,12 @@ unchanged. Apply pending migrations once; never replay022 manually.
 The additive [dashboard](15-dashboard.md) uses schema025 and the same service/queue.
 The measurements and version matrix above describe their recorded release; use
 the dashboard guide for current bootstrap, browser access and upgrade prerequisites.
+
+## Request tracing in0.6.13
+
+The additive [request tracing capability](16-request-tracing.md) uses schema026.
+Upgrade a populated025 service through the same verified backup/restore and writer
+fencing procedure before starting the new API. It retains bounded operational
+metadata separately from canonical knowledge/audit and preserves accepted-job
+origin IDs after metadata pruning. Existing protocol1 clients can ignore its
+new response headers. Code rollback can keep the additive tables and new writes.

@@ -18,6 +18,7 @@ from .auth import AuthenticationError, resolve_reference
 from .context import CURRENT, request_scope
 from .engine import ResourcePressure, ServiceError, invoke, validator
 from .ingest import credential_reference
+from . import tracing
 from .queued_transaction import EXECUTION, GROUP, ExecutionLost, TransactionGroup
 
 MAX_ACTIVE = 128
@@ -60,7 +61,9 @@ def cleanup(conn):
 
 def public(row):
     result = {'request_id': str(row['id']), 'state': row['state'], 'durable': True,
-              'expires_at': row['expires_at'].isoformat(), 'status_url':'/v1/requests/'+str(row['id']), 'retry_after':1}
+              'expires_at': row['expires_at'].isoformat(), 'status_url':'/v1/requests/'+str(row['id']), 'retry_after':1,
+              'origin_request_id':str(row['origin_request_id']) if row.get('origin_request_id') else None,
+              'origin_correlation_id':str(row['origin_correlation_id']) if row.get('origin_correlation_id') else None}
     if row.get('code'):
         result['code'] = row['code']
     if row['state']=='completed' and row['expires_at']<=datetime.now(timezone.utc):
@@ -108,6 +111,7 @@ def submit(cfg, principal, value):
             if existing['envelope_hash'] != digest:
                 raise ServiceError('idempotency_conflict', 409)
             authorize(cfg, existing, principal)
+            tracing.link_job(existing['id'],'foreground',accepted=True)
             return public(existing)
         # Old envelopes cannot become fresh work after bounded tombstone cleanup.
         if abs((datetime.now(timezone.utc)-timestamp).total_seconds()) > 60:
@@ -123,10 +127,11 @@ def submit(cfg, principal, value):
         if total+len(data)>4*1024*1024:raise ServiceError('request_queue_bytes_exceeded',429)
         budget.check(incoming=len(data)*4+65536, owner=principal.namespace)
         row = conn.execute("""INSERT INTO service_requests
-            (id,owner_namespace,team,envelope_hash,authority,permission_hash,tool,arguments,expires_at)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,now()+interval '300 seconds') RETURNING *""",
+            (id,owner_namespace,team,envelope_hash,authority,permission_hash,tool,arguments,origin_request_id,origin_correlation_id,expires_at)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,now()+interval '300 seconds') RETURNING *""",
             (identity, principal.namespace, team, digest, Jsonb(credential_reference(principal, None)),
-             permissions(principal), value['tool'], Jsonb(value['arguments']))).fetchone()
+             permissions(principal), value['tool'], Jsonb(value['arguments']),*tracing.origin())).fetchone()
+        tracing.link_job(row['id'],'foreground',accepted=True)
         return public(row)
 
 
@@ -141,6 +146,7 @@ def status(cfg, principal, identity, *, cancel=False):
         if row is None:
             raise ServiceError('not_found', 404)
         authorize(cfg, row, principal)
+        tracing.link_job(row['id'],'foreground')
         if row['expires_at'] <= datetime.now(timezone.utc):
             if row['state'] not in TERMINAL:
                 row = conn.execute("UPDATE service_requests SET state='expired',code='request_expired',arguments=NULL,result=NULL,finished_at=now() WHERE id=%s RETURNING *", (identity,)).fetchone()

@@ -25,7 +25,7 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(13))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(14))
 EXCLUDED={'benchmark_ownership'}
 ROLES=('rag_reader','rag_writer','rag_admin')
 
@@ -182,7 +182,9 @@ def check_dump(path,manifest):
 def _verify(conn,manifest,*,preserved=False,label='source_drift'):
     actual=_snapshot(conn);expected=manifest['tables']
     installed={r['filename']:str(r['applied_at']) for r in conn.execute('SELECT * FROM public.schema_migrations')}
-    from .schema import uploader_column_valid
+    from .schema import uploader_column_valid,origin_columns_valid
+    if '026_request_tracing.sql' in installed and not origin_columns_valid(conn):
+        raise ValueError(label+'_origin_schema')
     if '023_claim_lookup.sql' in installed and not uploader_column_valid(conn):
         raise ValueError(label+'_uploader_schema')
     if preserved:
@@ -202,6 +204,16 @@ def _verify(conn,manifest,*,preserved=False,label='source_drift'):
                 legacy=_hash_table(conn,'service_sessions',omit_columns=('uploader_id',))
                 if legacy==expected['service_sessions']:
                     actual['tables']['service_sessions']=legacy
+
+    #026 adds nullable durable origins only. An upgrade must preserve every
+    # original field, and may omit the new columns solely while all are NULL.
+    if preserved and '026_request_tracing.sql' not in manifest.get('migrations',[]):
+        for table in ('service_windows','service_requests'):
+            if table in expected and '026_request_tracing.sql' in installed:
+                assigned=conn.execute(sql.SQL('SELECT EXISTS(SELECT 1 FROM {} WHERE origin_request_id IS NOT NULL OR origin_correlation_id IS NOT NULL) present').format(sql.Identifier(table))).fetchone()['present']
+                if not assigned:
+                    legacy=_hash_table(conn,table,omit_columns=('origin_request_id','origin_correlation_id'))
+                    if legacy==expected[table]:actual['tables'][table]=legacy
 
     if (not preserved and set(actual['tables'])!=set(expected)) or any(actual['tables'].get(t)!=v for t,v in expected.items() if not(preserved and t=='schema_migrations')):
         raise ValueError(label)
@@ -355,7 +367,7 @@ def restore_target(cfg,path,manifest,*,apply=False,resume=False):
         with db.connect(cfg) as conn:
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
             _verify(conn,manifest,preserved=True,label='target_drift')
-            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence'}
+            allowed=set(manifest['tables'])|{'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence','request_traces'}
             if set(current)-allowed:raise ValueError('target_drift')
             for table in set(current)-set(manifest['tables']):
                 if conn.execute(sql.SQL('SELECT 1 FROM public.{} LIMIT 1').format(sql.Identifier(table))).fetchone():raise ValueError('target_drift')

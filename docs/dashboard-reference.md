@@ -114,6 +114,7 @@ states the measured host, workload, memory/disk observations and limits.
 |507 storage/audit budget | Operator must resolve storage or audit archival before new changes |
 |503 policy_recovery_required | Preserve current policy and prepared audit; file/database owner reconciles known digests |
 
-Request-log browsing belongs to roadmap6.2; advanced model replacement belongs
-to6.3. This release exposes operational aggregates and recent administrative
-changes, not a global raw prompt/session log.
+The0.6.13 [request tracing view](16-request-tracing.md) adds scoped metadata and
+current job diagnostics under finite retention. This0.6.12 dashboard reference
+describes its original administration surface. Advanced model replacement remains
+roadmap6.3. Tracing never captures raw prompts or session payloads.

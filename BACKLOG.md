@@ -325,14 +325,14 @@ See `CHANGELOG.md` for release history; GitHub Issues track remaining open work.
 ## §6 — Standalone and central service roadmap (2026-10-29)
 
 GitHub Issues are canonical for scope, dependencies, acceptance and rollout status.
-These entries are planned work, not shipped capabilities. Issue 6.0 owns the
+Unchecked entries are planned work, not shipped capabilities. Issue 6.0 owns the
 minimum local/service/upgrade foundation; its follow-up features are separate
 deliverables and do not all block the first service release. Existing installations
 must have a verified upgrade path even when they remain fully local.
 
 - 🔵 **6.0** _(P1, enhancement)_ **Support standalone and centralized multi-VM service deployments with verified in-place upgrades.** → [#58](https://github.com/phense/agentic-rag/issues/58)
-- ⬜ **6.1** _(P2, enhancement)_ **Add an authenticated dashboard and resumable setup assistant.** → [#59](https://github.com/phense/agentic-rag/issues/59)
-- ⬜ **6.2** _(P2, enhancement)_ **Expose bounded request and job tracing in the dashboard.** → [#60](https://github.com/phense/agentic-rag/issues/60)
+- ✅ **6.1** _(P2, enhancement)_ **Add an authenticated dashboard and resumable setup assistant.** → [#59](https://github.com/phense/agentic-rag/issues/59); merged in [PR #79](https://github.com/phense/agentic-rag/pull/79),0.6.12/schema025. [Acceptance and delivery evidence](docs/verification/issue59-dashboard.md).
+- 🔵 **6.2** _(P2, enhancement)_ **Expose bounded request and job tracing in the dashboard.** → [#60](https://github.com/phense/agentic-rag/issues/60); implementation/review evidence in [RAG-060](docs/verification/issue60-tracing.md). Per-PR merge approval and deployment remain separate.
 - ⬜ **6.3** _(P2, enhancement)_ **Support configurable model and embedding providers with safe index migration.** → [#61](https://github.com/phense/agentic-rag/issues/61)
 - ⬜ **6.4** _(P2, enhancement)_ **Improve reranker quality and provider choice using measured failure cases.** → [#62](https://github.com/phense/agentic-rag/issues/62)
 - ⬜ **6.5** _(P2, enhancement)_ **Expose a consistent source-evidence and review-state contract across service clients.** → [#63](https://github.com/phense/agentic-rag/issues/63)

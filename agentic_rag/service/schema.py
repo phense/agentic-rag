@@ -28,6 +28,21 @@ def uploader_column_valid(conn):
           AND NOT a.atthasdef AND a.attgenerated='' AND a.attidentity='') ok""").fetchone()['ok']
 
 
+def origin_columns_valid(conn):
+    rows=conn.execute("""SELECT c.relname,a.attname,
+        (a.atttypid='pg_catalog.uuid'::regtype AND NOT a.attnotnull
+         AND NOT a.atthasdef AND a.attgenerated='' AND a.attidentity='') ok
+        FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_attribute a ON a.attrelid=c.oid AND NOT a.attisdropped
+        WHERE n.nspname='public' AND c.relname IN ('service_windows','service_requests')
+        AND a.attname IN ('origin_request_id','origin_correlation_id')""").fetchall()
+    triggers=conn.execute("""SELECT count(*) n FROM pg_catalog.pg_trigger t
+        WHERE t.tgrelid IN ('public.service_windows'::regclass,'public.service_requests'::regclass)
+        AND t.tgname='immutable_request_origin' AND t.tgenabled IN ('O','A')
+        AND t.tgfoid='public.rag_immutable_request_origin()'::regprocedure""").fetchone()['n']
+    return len(rows)==4 and all(r['ok'] for r in rows) and triggers==2
+
+
 def validate_schema(conn):
     """Check startup and every fresh scoped connection; never auto-migrate here.
 
@@ -39,7 +54,7 @@ def validate_schema(conn):
         conn.execute("SELECT set_config('statement_timeout','15000',false)")
         installed={r['filename'] for r in conn.execute('SELECT filename FROM public.schema_migrations')}
         required={'021_service_scope.sql','022_service_state.sql'} | {p.name for p in SQL_DIR.glob('*.sql')}
-        if not required <= installed or not uploader_column_valid(conn):
+        if not required <= installed or not uploader_column_valid(conn) or not origin_columns_valid(conn):
             raise ServiceSchemaError()
         # Owner-only means no arbitrary ACL grantee, including groups inherited
         # by another login. A non-superuser able to SET ROLE to the owner is also
@@ -63,8 +78,8 @@ def validate_schema(conn):
                   AND pg_catalog.pg_has_role(r.oid,c.relowner,'MEMBER'))) exposed
             FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
             WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(%s)""",
-            (['dashboard_changes','dashboard_setup','dashboard_presence'],)).fetchall()
-        if len(control)!=3 or any(r['exposed'] for r in control):raise ServiceSchemaError()
+            (['dashboard_changes','dashboard_setup','dashboard_presence','request_traces'],)).fetchall()
+        if len(control)!=4 or any(r['exposed'] for r in control):raise ServiceSchemaError()
         rows=conn.execute("""
             SELECT c.relname,c.relrowsecurity,
               (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND starts_with(p.polname,'service_')) policies,

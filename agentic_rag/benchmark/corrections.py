@@ -126,8 +126,8 @@ def _reader_snapshot(cfg):
         conn.execute("SET LOCAL statement_timeout='5s'")
         schema = [r['filename'] for r in conn.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
         expected = [p.name for p in sorted(db.SQL_DIR.glob('*.sql'))]
-        if not 18<=len(schema)<=25 or schema!=expected[:len(schema)]:
-            raise ValueError('correction export supports known populated schema018..025 only')
+        if not 18<=len(schema)<=26 or schema!=expected[:len(schema)]:
+            raise ValueError('correction export supports known populated schema018..026 only')
         at = conn.execute('SELECT transaction_timestamp() AS at').fetchone()['at'].isoformat()
         yield conn, at, schema
         conn.rollback()
@@ -303,7 +303,7 @@ def _validate_export(data):
     schema=data.get('source_schema')
     if (not isinstance(data.get('source_revision'),str) or not re.fullmatch('[0-9a-f]{40}',data['source_revision'])
         or not isinstance(data.get('source_sha256'),str) or not HEX.fullmatch(data['source_sha256'])
-        or not isinstance(schema,list) or not 18<=len(schema)<=25 or schema!=expected[:len(schema)]):
+        or not isinstance(schema,list) or not 18<=len(schema)<=26 or schema!=expected[:len(schema)]):
         raise ValueError('invalid original code/schema revision')
     cases=data.get('cases')
     if not isinstance(cases,list) or len(cases)>MAX_CASES: raise ValueError('invalid bounded cases')

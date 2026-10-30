@@ -31,6 +31,13 @@ def add_parser(sub):
     retry=commands.add_parser('job-retry');retry.add_argument('receipt')
     serve=commands.add_parser('serve');serve.add_argument('--auth-file',type=Path,required=True);serve.add_argument('--host',default='127.0.0.1');serve.add_argument('--port',type=int,default=8765);serve.add_argument('--allowed-host',action='append',default=[])
     commands.add_parser('worker');commands.add_parser('status')
+    traces=commands.add_parser('traces',help='bounded current-authority service request diagnostics')
+    for field in ('since','until','principal','client','operation','status','request-id','correlation-id','job-id','cursor'):
+        traces.add_argument('--'+field)
+    traces.add_argument('--limit',type=int,default=25)
+    choice=traces.add_mutually_exclusive_group()
+    choice.add_argument('--detail');choice.add_argument('--export',action='store_true')
+    commands.add_parser('trace-prune',help='prune at most1000 expired operational rows')
     spool=commands.add_parser('spool');spool.add_argument('--retry-blocked',action='store_true');spool.add_argument('--flush',action='store_true')
     inventory=commands.add_parser('inventory');inventory.add_argument('--source-version',required=True);inventory.add_argument('--identities',action='store_true');inventory.add_argument('--output',type=Path,required=True)
     preflight=commands.add_parser('preflight');preflight.add_argument('--source-version',required=True);preflight.add_argument('--mode',choices=['local','remote'],default='local')
@@ -135,13 +142,27 @@ def run(args,cfg):
                     h11_max_incomplete_event_size=16384,proxy_headers=False,access_log=False)
         return 0
     elif command=='status':result=status(cfg)
+    elif command=='trace-prune':
+        if cfg.service_mode=='client':raise ValueError('local_operator_required')
+        from .tracing import prune
+        result=prune(cfg)
+    elif command=='traces':
+        if cfg.service_mode!='client':raise ValueError('client_mode_required')
+        from .client import RemoteConnection
+        from urllib.parse import urlencode
+        route='/v1/traces'
+        if args.detail:route+='/'+str(uuid.UUID(args.detail))
+        else:
+            if args.export:route+='/export'
+            query={field:getattr(args,field) for field in ('since','until','principal','client','operation','status','request_id','correlation_id','job_id','cursor','limit') if getattr(args,field,None) is not None}
+            route+='?'+urlencode(query)
+        with RemoteConnection(cfg) as client:result=client.request('GET',route)
     elif command in {'spool','logout','job-retry'}:
         if cfg.service_mode!='client':raise ValueError('client_mode_required')
         from .client import RemoteClient
         with RemoteClient(cfg) as client:
             if command=='logout':result=client.request('POST','/v1/logout',{})
             elif command=='job-retry':
-                import uuid
                 result=client.request('POST','/v1/jobs/'+str(uuid.UUID(args.receipt))+'/retry',{})
             else:
                 if args.retry_blocked:client.spool.retry_blocked()

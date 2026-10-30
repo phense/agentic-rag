@@ -30,7 +30,7 @@ def document(tools):
     paths = {}
     def operation(path, method, result, *, body=None, status=200, public=False, params=(), description=None):
         def response(schema, text):
-            return {'description': text, 'content': {'application/json': {'schema': schema}}}
+            return {'description': text, 'headers':{'X-Rag-Request-ID':{'description':'Server-generated request UUID; caller input is never reused.','schema':identifier}}, 'content': {'application/json': {'schema': schema}}}
         responses = {str(status): response(result, 'Durably accepted' if status == 202 else 'Successful response')}
         for code, text in [(400, 'Invalid input'), (401, 'Invalid or revoked credentials'), (403, 'Scope denied'),
                            (404, 'Not found or inaccessible'), (409, 'Cursor or job state conflict'),
@@ -39,7 +39,7 @@ def document(tools):
                            (507, 'Storage budget exceeded; pending input is retained')]:
             responses[str(code)] = response(error, text)
         entry = {'responses': responses, 'security': [] if public else [{'bearer': []}],
-                 'parameters': ([] if path == '/health' else [protocol]) + list(params)}
+                 'parameters': ([] if path == '/health' else [protocol]) + [{'name':'X-Rag-Correlation-ID','in':'header','required':False,'schema':identifier,'description':'Optional valid UUID to link attempts, never an authentication identity.'}] + list(params)}
         if body is not None:
             entry['requestBody'] = {'required': True, 'content': {'application/json': {'schema': body}}}
         if description:
@@ -51,8 +51,8 @@ def document(tools):
         return {'name': name, 'in': 'query', 'required': False, 'schema': schema}
     receipt_params = [path_parameter('receipt', identifier)]
     session_params = [path_parameter('session')]
-    receipt = obj({'receipt': identifier, 'durable': {'const': True}, 'state': string}, ['receipt', 'durable', 'state'])
-    job = obj({'receipt': identifier, 'state': string, 'code': nullable,
+    receipt = obj({'origin_request_id':nullable,'origin_correlation_id':nullable,'receipt': identifier, 'durable': {'const': True}, 'state': string}, ['receipt', 'durable', 'state'])
+    job = obj({'origin_request_id':nullable,'origin_correlation_id':nullable,'receipt': identifier, 'state': string, 'code': nullable,
                'queue': {'type': ['object', 'null'], 'properties': {'status': string, 'attempts': integer, 'next_attempt_at': string}},
                'created_at': string, 'applied_at': nullable}, ['receipt', 'state', 'code', 'queue', 'created_at', 'applied_at'])
     checkpoint_response = obj({'checkpoint': checkpoint, 'rendered': string}, ['checkpoint', 'rendered'])
@@ -62,11 +62,26 @@ def document(tools):
     operation('/v1/login', 'post', obj({'access_token': string, 'token_type': {'const': 'Bearer'},
               'expires_at': string, 'uploader_id': identifier}, ['access_token', 'token_type', 'expires_at', 'uploader_id']), body=login, public=True)
     operation('/v1/logout', 'post', obj({'logged_out': {'const': True}}, ['logged_out']))
-    queued=obj({'request_id':identifier,'state':string,'durable':{'const':True},'expires_at':string,
+    queued=obj({'origin_request_id':nullable,'origin_correlation_id':nullable,'request_id':identifier,'state':string,'durable':{'const':True},'expires_at':string,
                 'code':string,'status_url':string,'retry_after':integer,'result':{'type':['object','null']}},['request_id','state','durable','expires_at'])
     submission=obj({'idempotency_key':identifier,'created_at':{'type':'string','format':'date-time'},
                     'tool':string,'arguments':{'type':'object'}},['idempotency_key','created_at','tool','arguments'])
     submission['additionalProperties']=False
+    trace=obj({'request_id':identifier,'started_at':{'type':'string','format':'date-time'},
+        'correlation_id':nullable,'principal':nullable,'client':nullable,'operation':string,
+        'status':{'type':'integer','minimum':100,'maximum':599},
+        'outcome':{'enum':['completed','accepted','failed','disconnected']},'error_class':nullable,
+        'duration_ms':{'type':'number','minimum':0},'response_bytes':{'type':'integer','minimum':0},
+        'server_version':string,'client_version':string,'job_id':nullable,'job_kind':nullable},
+        ['request_id','started_at','operation','status','outcome','duration_ms','response_bytes'])
+    trace['additionalProperties']=False
+    capture=obj({'status':{'enum':['ok','degraded','restricted']},'payload_capture':{'const':False},'dropped':integer},['status','payload_capture'])
+    trace_page=obj({'rows':{'type':'array','items':trace,'maxItems':50},'total':integer,'next_cursor':nullable,'capture':capture},['rows','total','next_cursor','capture'])
+    filters=[query(name,{'type':'string','maxLength':512 if name=='cursor' else 96}) for name in ('since','until','principal','client','operation','status','request_id','correlation_id','job_id','cursor')]
+    filters.append(query('limit',{'type':'integer','minimum':1,'maximum':50,'default':25}))
+    for endpoint in ('/v1/traces','/v1/traces/export'):
+        operation(endpoint,'get',trace_page,params=filters,description='Metadata-only current-authority keyset page. Export additionally requires a human administrator; filters never expand scope. Payload capture is disabled.')
+    operation('/v1/traces/{identity}','get',obj({'trace':trace,'job':{'type':['object','null']},'capture':capture},['trace','job','capture']),params=[path_parameter('identity',identifier)],description='Current-authority request metadata and safe live job projection. Unknown and unauthorized identities return identical404.')
     operation('/v1/requests','post',queued,body=submission,status=202,
         description='Prefer: wait=0.1 optionally returns a completed durable receipt inline with HTTP200. Opt-in queued_tools=1 extension. Replay the identical envelope; never renew its timestamp after an ambiguous ACK.')
     operation('/v1/requests/{identity}','get',queued,params=[path_parameter('identity',identifier)])

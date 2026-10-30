@@ -29,10 +29,10 @@ def test_control_state_strips_default_grants_and_rejects_later_exposure(tmp_path
                     before=conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']
                     conn.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT,INSERT,UPDATE ON TABLES TO {}').format(sql.Identifier(group)))
                     conn.commit()
-                    assert db.apply_migrations(conn,db.SQL_DIR)==['025_dashboard.sql']
+                    assert db.apply_migrations(conn,db.SQL_DIR)==['025_dashboard.sql','026_request_tracing.sql']
                     assert conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']==before
                     assert conn.execute('SELECT body FROM documents WHERE id=%s',(doc.doc_id,)).fetchone()['body']=='Synthetic retained knowledge'
-                    for table in ('dashboard_changes','dashboard_setup','dashboard_presence'):
+                    for table in ('dashboard_changes','dashboard_setup','dashboard_presence','request_traces'):
                         assert not conn.execute("SELECT has_table_privilege(%s,%s,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') exposed",(group,table)).fetchone()['exposed']
                     validate_schema(conn)
                     # A later grant to a group exposes state to all its members.
@@ -50,7 +50,7 @@ def test_control_state_strips_default_grants_and_rejects_later_exposure(tmp_path
 
 
 @pytest.mark.parametrize('role',['reader','writer','admin'])
-@pytest.mark.parametrize('table',['dashboard_changes','dashboard_setup','dashboard_presence'])
+@pytest.mark.parametrize('table',['dashboard_changes','dashboard_setup','dashboard_presence','request_traces'])
 def test_control_owner_cannot_be_restricted_database_role(role,table,tmp_path):
     from agentic_rag.service.api import create_app
     from starlette.testclient import TestClient
@@ -75,7 +75,7 @@ def test_control_owner_cannot_be_restricted_database_role(role,table,tmp_path):
 
 
 @pytest.mark.parametrize('table,column',[
-    ('dashboard_changes','state'),('dashboard_setup','checks'),('dashboard_presence','version'),
+    ('dashboard_changes','state'),('dashboard_setup','checks'),('dashboard_presence','version'),('request_traces','outcome'),
 ])
 def test_column_grant_cannot_expose_control_state(table,column):
     with isolated_database(Config(ollama_url='http://127.0.0.1:1')) as owned:

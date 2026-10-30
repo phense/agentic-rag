@@ -205,3 +205,9 @@ For the full contract, limits and error meanings, use the
 [dashboard reference](dashboard-reference.md). Production readiness requires the
 named deployment's own TLS, account, backup and access verification after code
 review and copy rehearsal; a merged PR alone does not perform that rollout.
+
+## Request tracing after0.6.12
+
+In0.6.13, select **Request tracing** in the sidebar to inspect authorized request
+metadata and current job outcomes. Follow [the tracing operations guide](16-request-tracing.md)
+for its schema026 upgrade, permissions, bounded exports and retention.
