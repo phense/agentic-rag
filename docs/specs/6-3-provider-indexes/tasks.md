@@ -46,7 +46,7 @@ measurement cases; independent full bounded review and final full-suite exit.
 
 ### Slice S5: Convergence and final verification handoff
 
-- [ ] T013 Invoke speckit-converge; reconcile acceptance, architecture, actual exits and review state, execute any appended fix slice; full suite, version/docs checks; depends on T012.
+- [x] T013 Invoke speckit-converge; reconcile acceptance, architecture, actual exits and review state, execute any appended fix slice; full suite, version/docs checks; depends on T012.
 - [ ] T014 Commit/push, create/link PR immediately, report step3/15 and wait for maintainer merge/weiter; depends on T013.
 
 ## Dependencies and ownership

@@ -140,6 +140,7 @@ inventing a new preservation exception.
 | `tests/test_provider_indexes.py tests/test_provider_search.py tests/test_provider_cli.py tests/test_providers.py` | 94 passed,61.92s, exit0 |
 | `tests/test_provider_search.py` after same-dimension ranking assertions | 6 passed,4.39s, exit0 |
 | `tests/test_provider_search.py` after research-egress characterization | 7 passed,3.31s, exit0 |
+| `tests/test_docs_continuity.py` after disclosure/contract corrections | 17 passed,1.14s, exit0 |
 | `tests/test_provider_integration.py` independent coordinator rerun | 1 passed,5.65s, exit0 |
 | `tests/service/test_provider_receipts.py tests/service/test_provider_worker.py tests/service/test_source_worker.py tests/service/test_tracing.py` | 24 passed,31.35s, exit0; one upstream warning |
 | `tests/benchmark/test_corrections.py` | 49 passed,11.31s, exit0 |
@@ -163,7 +164,7 @@ assessment disabled, automatic retrieval still embeds queries; `provider_calls=0
 counts assessment only. Lexical research without assessment makes zero provider
 requests. This makes the documented opt-in generation's privacy effect explicit.
 
-## Review and remaining gates
+## Review and final verification
 
 Independent architecture review found two Medium issues: HTTP source receipts
 lost classified provider failures, and the no-mixing guarantee needed an explicit
@@ -182,16 +183,52 @@ assertions,691 request counts and153 unchanged runtime/SQL/script hashes.
 It reports no open Critical/High/Medium/Low findings, conditional on the actual
 full-suite gate. Corrected documentation findings remain tracked as
 [LOW-018](https://github.com/phense/agentic-rag/issues/75#issuecomment-6524729830).
-The first complete suite finished with1 failed,1696 passed,1 expected macOS skip
-and1 upstream Starlette warning in1415.15s, exit1. Runtime/test/SQL/dependency
+The [first complete suite](issue61-full-first.txt) finished with 1 failed,
+1696 passed,1 expected macOS skip and1 upstream Starlette warning in1415.15s,
+exit1. Runtime/test/SQL/dependency
 hashes were unchanged throughout. The only failure was an older documentation
 selector requiring the obsolete universal local-embedding sentence. Its repair
 retains all existing privacy/pin/secret assertions and adds explicit HTTP/query/
 corpus/probe/research disclosure guards. A focused independent recheck also
 found and corrected stale universal local-/CLI-only prose across current
 introductions; historical release documents remain unchanged. The actual
-updated documentation tests and fresh complete-suite gate are recorded below
-after execution. The failed first run is not represented as a pass.
+updated documentation tests and fresh complete-suite gate are recorded below.
+The failed first run is not represented as a pass. Its raw-log
+SHA256 is `0ffdeff94b0962c79c1e83d65909e72057dce48763e54db7c40b987f7b73947e`.
+Independent focused recheck through078ad29 confirms the Medium disclosure fix
+and retains all22 original privacy assertions. The selector correction remains
+tracked separately as [LOW-019](https://github.com/phense/agentic-rag/issues/75#issuecomment-6525128808).
+
+The fresh [complete-suite output](issue61-full-final.txt) on
+`078ad290ce5decf16c431a3c470291af66fb43b6` is **1700 passed,1 skipped,1 warning
+in1245.42s, exit0**. The skip is the macOS-only launchd installer test on Linux;
+the warning is the upstream Starlette TestClient/httpx deprecation. Neither
+test budgets nor runtime guards were relaxed. Command:
+
+```sh
+env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE \
+  PGPORT=55461 TMPDIR=/dev/shm/agentic-rag-issue61-20261030/test-artifacts \
+  LD_LIBRARY_PATH=/home/administrator/Claude/.scratch/agentic-rag-issue59-20261030/browser-libs/usr/lib/x86_64-linux-gnu \
+  .venv/bin/python -m pytest -q --tb=short
+```
+
+The library path supplies this host's isolated Chromium runtime dependencies.
+All304 runtime/test/SQL/dependency file hashes stayed identical before/after;
+the canonical sorted JSON manifest SHA256 is
+`9085448e8b1f1913226dd013a3604dc1d42fbfa0da233f851e115b8bf8b84cd1`.
+The raw final log SHA256 is
+`c91cb121cb1f36cd697feef475a7a171243c207429861b8ea89a81a5a5697e4e`.
+All153 measured runtime/SQL/script hashes also still match the clean measured
+e6cf92b revision; later fixes change documentation and characterization tests.
+
+Offline `uv lock --check --offline` and `uv build --offline --wheel` passed.
+The wheel contains exact current provider/index modules and SQL027, with the
+direct JSON-schema dependency in its metadata. Relative links and Pandoc HTML
+rendering pass; a local Chromium check renders the tables without horizontal
+overflow. Final acceptance maps AC001–009 to source preservation, as-built
+authority/locking, independently derived success/recovery, operator rehearsal,
+resolved review findings and this unchanged-source full-suite exit.
+PR publication/maintainer merge remain separate workflow actions.
 
 No live hosted credentials, real-model quality, production migration, fleet
 upgrade, service restart, cross-host TLS or target-hardware capacity is proven.

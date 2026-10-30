@@ -50,7 +50,7 @@ and actual green bounded test exits on2026-10-30. See provider-indexes.md.
 Independent review also read the actual derived success and persisted CLI
 recovery tests and verified the synthetic measurement counters/manifests.
 LOW-018 documentation inconsistencies are corrected and retained in Issue75.
-- AF061-008 (implemented, recheck pending; AC002): Current introductions still
+- AF061-008 (resolved; AC002): Current introductions still
   claimed universal local embeddings/CLI-only calls, and default research was
   called local although selected managed embeddings can be external. Focused
   independent review classifies these as Medium disclosure contradictions.
@@ -58,11 +58,20 @@ LOW-018 documentation inconsistencies are corrected and retained in Issue75.
   retrieval, discloses semantic duplicate candidate inputs and documents lexical
   research without model calls. The corresponding docs regression was RED before
   correction; actual search/research characterization passed7 tests (3.31s).
+  Independent focused recheck through078ad29 confirms the corrected contract,
+  actual17-test documentation module and unchanged153 runtime/SQL/script hashes.
+  LOW-019 retains the obsolete selector correction in Issue75.
 
 The first full suite exited1 solely on the obsolete privacy paragraph selector:
 1696 passed,1 failed,1 expected skip,1 warning,1415.15s. Its runtime/test hashes
-stayed unchanged. The selector and new disclosure guards are repaired; final
-full-suite exit and convergence remain separate completion gates.
+stayed unchanged. The selector and new disclosure guards are repaired. Fresh
+complete verification on078ad29 passes1700 tests with1 expected skip and1 upstream
+warning in1245.42s, exit0;304 runtime/test/SQL/dependency hashes stay unchanged.
+Independent full review plus the focused disclosure recheck leave no open C/H/M
+findings. Final convergence reconciles AC001–009, as-built locking/authority,
+actual success/recovery and operator rehearsal, measured-source identity and
+the unchanged-source complete-suite exit. No additional task is required;
+PR publication and maintainer merge remain separate workflow actions.
 
 - AF-001 (implemented; AC-001/003): Post-filtering loses eligible candidates and recursive
   traversal can bridge through B. Evidence: 003_search.sql LIMIT50, 004_graph.sql
