@@ -213,7 +213,7 @@ access it locally; a configured service client uses authenticated REST/MCP and
 keeps only bounded pending input/context on its VM. Ollama runs on the engine
 host, which can be a private cloud VM. No vendor-operated agentic-rag account or
 telemetry endpoint is required. Your chosen extraction provider still receives
-the bounded provider inputs described above.
+redacted source prose and the checkpoint or pin context described above.
 
 A central server retains authorized source windows and checkpoints as well as
 knowledge. Give IT and accounting explicit domain/project scopes and distinct
