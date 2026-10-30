@@ -237,3 +237,12 @@ paths and the pinned executable/weights. Preserve failed runs and their exit
 artifacts. Full suite, independent publication review and release consistency
 are recorded separately in the verification report; this measured record alone
 does not waive those gates.
+
+## German follow-up requested before adoption
+
+The [independent German/English diagnostic](../2026-10-30-german-reranker/README.md)
+rejects a blanket German recommendation: 10/16 German required sources rank
+first, with failures in permission/negation and subject/object roles. It also
+finds native finite negative scores in six English cases; the actual product
+adapter safely retains original order. The original sealed results above remain
+unchanged, but they are insufficient for general tiny/native production adoption.

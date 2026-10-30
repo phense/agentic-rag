@@ -1,0 +1,75 @@
+# RAG-062 German diagnostic scope recheck
+
+Read-only review on 2026-10-30. Original design report remains applicable except
+for the explicitly reduced evaluated-model set. No inference, database, provider
+or test calls were made by the reviewer; inspection, diff and checksums only.
+
+## Verdict
+
+The additive `--models tiny|both` delta is ready for the Tiny-only rerun. No
+unresolved Critical/High/Medium or actionable Low finding was identified.
+German/English paired Tiny evidence can answer the current user question within
+the authored-sample limits. A completed German-quality comparison against Qwen
+is not available and must not be claimed from the rejected partial attempt.
+
+Exact current helper SHA-256:
+`968d37219647278de077e01eb001d6a621dc3fa6f75849102043f72dd9d01dae`.
+Unchanged corpus SHA-256:
+`2f018b5b7b4bd03a128942fa7aadaf1139f55d41702dc0fd95f4b06e3331aa84`.
+
+## Delta and denominator checks
+
+The default remains `both`. Tiny mode selects only `tiny` for model copying,
+checksum checks, child startup, inference loops and final model-drift checks.
+The seal binds `evaluated_models` plus exactly the selected model's pinned
+checksum, and the result repeats the selected set. There is no change to
+questions, English/German translations, labels, candidate order, source metrics,
+primary first-permutation denominators, gating rule, adapter deadline or native
+response validation. The original corpus hash is byte-identical.
+
+Tiny-only completion requires 80 rows: 64 raw semantic observations
+(32 questions × two permutations) plus 16 actual German adapter probes.
+Primary quality remains 16 questions and 17 expected source occurrences per
+language, grouped into eight related families. Secondary permutations and
+adapter repetitions do not enlarge the independent question denominator.
+The helper's `80 * len(selected)` gate preserves the old 160-row both-model
+contract and correctly requires 80 for Tiny-only. Raw errors still fail the run.
+
+Ownership, cgroup/memory/affinity limits, native idle drains and independent
+child cleanup are unchanged. Only selected children are started/tracked, so the
+existing cleanup/final remaining-group checks cover the reduced process set.
+The absence of a Qwen process is a declared experiment-scope change, not a
+resource-isolation failure or a valid Qwen/Tiny capacity comparison.
+
+## Rejected attempt preserved and not credited
+
+`rejected-a/evaluate.py` is byte-identical to the independently reviewed original
+helper, SHA-256
+`6a045586906da142c693c41bb3a263f8692efd779cd62777862dcd480640ac12`, matching
+`rejected-a/seal.json`. The rejected seal has the same current corpus hash and
+all 159 original source hashes still match current files.
+
+The retained JSONL has 12 partial observations. Qwen raw rows include
+28249.707 ms followed by a 30032.796 ms `ReadTimeout`; two later raw observations
+are also retained. The helper exit is 1 with empty cleanup errors and remaining
+members, and `owned_processes_stopped=true`. External inspection records the
+collected unit inactive, no cgroup and refused ports 8772/8773. Systemd reports
+SIGINT termination as success; the explicit helper exit 1, partial row count and
+`invalid_attempt=true` correctly override that superficial status. No completed
+results file exists for this attempt. It cannot satisfy the experiment gate or
+support aggregate Qwen quality conclusions.
+
+The Tiny-only rerun must preserve every original question and the frozen rule;
+no outcome from the partial attempt justifies changing either. A full rerun
+therefore retains all difficult Tiny cases rather than filtering unsuccessful
+ones. Current source verification also independently matches all 343 before/
+after files from the prior successful complete suite. No product runtime change,
+new production configuration or adoption follows from this diagnostic.
+
+## Remaining acceptance
+
+Inspect the completed Tiny-only seal/results/exit, all 80 observations and safe
+external cleanup. Independently recompute language/rotation quality, adapter
+ranked/fallback outcomes, resources and the frozen German recommendation rule.
+Report the narrowed model scope and retained failed attempt explicitly. No new
+unchanged-runtime/model comparison is required merely by this additive selector.

@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-30T19:42:10.531818+00:00",
+  "unit": "rag62-german-20261030-c.service",
+  "systemctl_exit": 0,
+  "systemctl_stdout": "LoadState=not-found\nActiveState=inactive\nControlGroup=\n",
+  "cgroup_absent": true,
+  "owned_port_connection_errors": {
+    "8772": 111,
+    "8773": 111
+  }
+}

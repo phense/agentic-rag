@@ -209,7 +209,13 @@ which weights are loaded. Check the model checksum independently before activati
    Invalid aliases, non-hex revisions, unknown policies, nonboolean diagnostics,
    nonfinite deadlines and deadlines outside 0.01–1.5 seconds are rejected.
 
-For a separately approved Jina tiny adoption, use the pinned tiny file from the
+The [supplemental German diagnostic](benchmarks/2026-10-30-german-reranker/README.md)
+rejects a blanket German recommendation for this pinned tiny/native combination:
+six of sixteen German first sources are wrong, and six English probes produce
+finite negative scores that trigger the adapter's unchanged range guard. General
+production adoption remains blocked on semantic and contract acceptance.
+
+For a separately authorized Jina tiny lab test, use the pinned tiny file from the
 rehearsal prerequisites with the same startup command, replacing `--model` with
 that file and `--alias` with `agentic-rag-jina-tiny-en-q8`. In the private TOML
 select `policy = "focused-v1"`, that same `model` alias, and

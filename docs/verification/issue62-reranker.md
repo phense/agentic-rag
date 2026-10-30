@@ -136,3 +136,13 @@ spec. The [archive record](issue62/archive.json) verifies byte-identical movemen
 of all four change files. The [final mechanical checks](issue62/final-checks.json)
 cover link integrity, current frozen hashes and the final playbook hash. After
 archival, all 17 documentation checks passed again in 0.85 seconds.
+
+## Supplemental German suitability check
+
+The [German diagnostic](../benchmarks/2026-10-30-german-reranker/README.md) retains
+32 paired-language authored cases and 96 accepted observations, plus every
+rejected attempt. Raw finite-score semantic ranking and the unchanged strict
+production adapter are measured separately. Six German first-source misses and
+the native score-range mismatch block blanket tiny/native adoption. All 343
+original test-manifest and 159 measured source files remain byte-identical;
+production code, schema, corpus selection and deployed configuration are unchanged.

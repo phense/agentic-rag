@@ -1,0 +1,1171 @@
+{
+  "version": "german-diagnostic-v1",
+  "source_revision": "8e823f8238f14554d9af1484185f20961518efe6",
+  "scope": "Independent authored diagnostic, not original heldout retuning or population benchmark.",
+  "case_count": 32,
+  "families": 8,
+  "languages": [
+    "de",
+    "en"
+  ],
+  "permutations": 2,
+  "actual_adapter": "One first permutation per German case,unchanged1.5s total deadline;warm repeated-case probe immediately after raw scoring,short passages(max138chars),not representative/cold production latency.",
+  "raw_semantic": "Both permutations/languages/models,30s per-operation HTTP timeout for measurement only,six passages <=600chars.",
+  "decision_rule": "No blanket German recommendation if two or more DE first-permutation top1 misses,any DE first-permutation top1 miss in access-negation or subject-object families,or DE top1 trails paired EN by more than10percentagepoints.Even passing only supports a larger local acceptance trial.",
+  "cases": [
+    {
+      "id": "access-negation-1-de",
+      "family": "access-negation",
+      "pair": "access-negation-1",
+      "language": "de",
+      "query": "Wer hat eine ausdrücklich erteilte Zugangsfreigabe für das Rechnungsarchiv?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Nora darf auf das Rechnungsarchiv zugreifen. Ihr Zugang ist ausdrücklich freigegeben."
+        },
+        {
+          "id": "1",
+          "text": "Levin darf nicht auf das Rechnungsarchiv zugreifen. Sein Zugang wurde ausdrücklich verweigert."
+        },
+        {
+          "id": "2",
+          "text": "Mara darf auf das Vertragsarchiv zugreifen. Für Rechnungen wurde ihr keine Berechtigung erteilt."
+        },
+        {
+          "id": "3",
+          "text": "Die Berechtigungen für das Rechnungsarchiv werden einmal im Monat geprüft."
+        },
+        {
+          "id": "4",
+          "text": "Nora beantragte außerdem einen Zugang zum Fotoarchiv. Dieser Antrag ist noch offen."
+        },
+        {
+          "id": "5",
+          "text": "Levin hat einen freigegebenen Zugang zum Urlaubsplan, aber keinen Antrag für das Fotoarchiv gestellt."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "access-negation-1-en",
+      "family": "access-negation",
+      "pair": "access-negation-1",
+      "language": "en",
+      "query": "Who has explicitly approved access to the invoice archive?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Nora may access the invoice archive. Her access is explicitly approved."
+        },
+        {
+          "id": "1",
+          "text": "Levin must not access the invoice archive. His access was explicitly denied."
+        },
+        {
+          "id": "2",
+          "text": "Mara may access the contract archive. She was not granted permission for invoices."
+        },
+        {
+          "id": "3",
+          "text": "Permissions for the invoice archive are reviewed once a month."
+        },
+        {
+          "id": "4",
+          "text": "Nora also requested access to the photo archive. This request is still pending."
+        },
+        {
+          "id": "5",
+          "text": "Levin has approved access to the vacation schedule but has not requested photo archive access."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "access-negation-2-de",
+      "family": "access-negation",
+      "pair": "access-negation-2",
+      "language": "de",
+      "query": "Wessen beantragter Zugang zum Rechnungsarchiv wurde ausdrücklich verweigert?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Nora darf auf das Rechnungsarchiv zugreifen. Ihr Zugang ist ausdrücklich freigegeben."
+        },
+        {
+          "id": "1",
+          "text": "Levin darf nicht auf das Rechnungsarchiv zugreifen. Sein Zugang wurde ausdrücklich verweigert."
+        },
+        {
+          "id": "2",
+          "text": "Mara darf auf das Vertragsarchiv zugreifen. Für Rechnungen wurde ihr keine Berechtigung erteilt."
+        },
+        {
+          "id": "3",
+          "text": "Die Berechtigungen für das Rechnungsarchiv werden einmal im Monat geprüft."
+        },
+        {
+          "id": "4",
+          "text": "Nora beantragte außerdem einen Zugang zum Fotoarchiv. Dieser Antrag ist noch offen."
+        },
+        {
+          "id": "5",
+          "text": "Levin hat einen freigegebenen Zugang zum Urlaubsplan, aber keinen Antrag für das Fotoarchiv gestellt."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "access-negation-2-en",
+      "family": "access-negation",
+      "pair": "access-negation-2",
+      "language": "en",
+      "query": "Whose requested access to the invoice archive was explicitly denied?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Nora may access the invoice archive. Her access is explicitly approved."
+        },
+        {
+          "id": "1",
+          "text": "Levin must not access the invoice archive. His access was explicitly denied."
+        },
+        {
+          "id": "2",
+          "text": "Mara may access the contract archive. She was not granted permission for invoices."
+        },
+        {
+          "id": "3",
+          "text": "Permissions for the invoice archive are reviewed once a month."
+        },
+        {
+          "id": "4",
+          "text": "Nora also requested access to the photo archive. This request is still pending."
+        },
+        {
+          "id": "5",
+          "text": "Levin has approved access to the vacation schedule but has not requested photo archive access."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "compounds-inflection-1-de",
+      "family": "compounds-inflection",
+      "pair": "compounds-inflection-1",
+      "language": "de",
+      "query": "An wen wende ich mich wegen eines verlorenen Schlüssels für den Birkenhof?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Die Schließanlage im Gebäude Birkenhof erhält neue Schlüssel. Für Ersatzschlüssel ist die Hausverwaltung zuständig."
+        },
+        {
+          "id": "1",
+          "text": "Die Außentür am Birkenhof lässt sich nicht schließen. Der Hausmeisterdienst übernimmt die Türreparatur."
+        },
+        {
+          "id": "2",
+          "text": "Im Gebäude Ahornhof vergibt die Empfangskraft neue Ersatzschlüssel."
+        },
+        {
+          "id": "3",
+          "text": "Die Schlüsselübergabe am Birkenhof wird in einem Übergabeprotokoll festgehalten."
+        },
+        {
+          "id": "4",
+          "text": "Der Hausmeisterdienst im Birkenhof prüft außerdem jeden Montag die Beleuchtung."
+        },
+        {
+          "id": "5",
+          "text": "Für neue Bürostühle im Birkenhof ist die Einkaufsabteilung zuständig."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "compounds-inflection-1-en",
+      "family": "compounds-inflection",
+      "pair": "compounds-inflection-1",
+      "language": "en",
+      "query": "Who should I contact about a lost key for Birch Court?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The locking system at Birch Court is receiving new keys. Property management handles replacement keys."
+        },
+        {
+          "id": "1",
+          "text": "The exterior door at Birch Court will not close. The caretaker service handles door repairs."
+        },
+        {
+          "id": "2",
+          "text": "At Maple Court the receptionist issues replacement keys."
+        },
+        {
+          "id": "3",
+          "text": "Key handover at Birch Court is recorded in a handover report."
+        },
+        {
+          "id": "4",
+          "text": "The caretaker service at Birch Court also checks the lighting every Monday."
+        },
+        {
+          "id": "5",
+          "text": "The purchasing department handles new office chairs at Birch Court."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "compounds-inflection-2-de",
+      "family": "compounds-inflection",
+      "pair": "compounds-inflection-2",
+      "language": "de",
+      "query": "Wer kümmert sich um die klemmende Außentür des Birkenhofs?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Die Schließanlage im Gebäude Birkenhof erhält neue Schlüssel. Für Ersatzschlüssel ist die Hausverwaltung zuständig."
+        },
+        {
+          "id": "1",
+          "text": "Die Außentür am Birkenhof lässt sich nicht schließen. Der Hausmeisterdienst übernimmt die Türreparatur."
+        },
+        {
+          "id": "2",
+          "text": "Im Gebäude Ahornhof vergibt die Empfangskraft neue Ersatzschlüssel."
+        },
+        {
+          "id": "3",
+          "text": "Die Schlüsselübergabe am Birkenhof wird in einem Übergabeprotokoll festgehalten."
+        },
+        {
+          "id": "4",
+          "text": "Der Hausmeisterdienst im Birkenhof prüft außerdem jeden Montag die Beleuchtung."
+        },
+        {
+          "id": "5",
+          "text": "Für neue Bürostühle im Birkenhof ist die Einkaufsabteilung zuständig."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "compounds-inflection-2-en",
+      "family": "compounds-inflection",
+      "pair": "compounds-inflection-2",
+      "language": "en",
+      "query": "Who handles the jammed exterior door at Birch Court?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The locking system at Birch Court is receiving new keys. Property management handles replacement keys."
+        },
+        {
+          "id": "1",
+          "text": "The exterior door at Birch Court will not close. The caretaker service handles door repairs."
+        },
+        {
+          "id": "2",
+          "text": "At Maple Court the receptionist issues replacement keys."
+        },
+        {
+          "id": "3",
+          "text": "Key handover at Birch Court is recorded in a handover report."
+        },
+        {
+          "id": "4",
+          "text": "The caretaker service at Birch Court also checks the lighting every Monday."
+        },
+        {
+          "id": "5",
+          "text": "The purchasing department handles new office chairs at Birch Court."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "amount-threshold-1-de",
+      "family": "amount-threshold",
+      "pair": "amount-threshold-1",
+      "language": "de",
+      "query": "Welche Lieferantenrechnung liegt knapp unter fünfhundert Euro?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Die Rechnung des Lieferanten Fink beträgt 490,10 Euro. Dieser Betrag liegt unter fünfhundert Euro."
+        },
+        {
+          "id": "1",
+          "text": "Die Rechnung des Lieferanten Amsel beträgt 501,90 Euro. Dieser Betrag liegt über fünfhundert Euro."
+        },
+        {
+          "id": "2",
+          "text": "Die Rechnung des Lieferanten Drossel beträgt genau 500,00 Euro und liegt damit auf der Grenze."
+        },
+        {
+          "id": "3",
+          "text": "Das Angebot des Lieferanten Elster über 480,00 Euro wurde noch nicht als Rechnung ausgestellt."
+        },
+        {
+          "id": "4",
+          "text": "Die Rechnung des Lieferanten Specht beträgt 6.000,00 Euro."
+        },
+        {
+          "id": "5",
+          "text": "Die Reisekostenabrechnung von Fink enthält keine Lieferantenrechnung."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "amount-threshold-1-en",
+      "family": "amount-threshold",
+      "pair": "amount-threshold-1",
+      "language": "en",
+      "query": "Which supplier invoice is just below five hundred euros?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The invoice from supplier Finch totals 490.10 euros. This amount is below five hundred euros."
+        },
+        {
+          "id": "1",
+          "text": "The invoice from supplier Blackbird totals 501.90 euros. This amount is above five hundred euros."
+        },
+        {
+          "id": "2",
+          "text": "The invoice from supplier Thrush totals exactly 500.00 euros and is therefore on the threshold."
+        },
+        {
+          "id": "3",
+          "text": "The quotation from supplier Magpie for 480.00 euros has not yet been issued as an invoice."
+        },
+        {
+          "id": "4",
+          "text": "The invoice from supplier Woodpecker totals 6,000.00 euros."
+        },
+        {
+          "id": "5",
+          "text": "The travel expense report from Finch contains no supplier invoice."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "amount-threshold-2-de",
+      "family": "amount-threshold",
+      "pair": "amount-threshold-2",
+      "language": "de",
+      "query": "Welche Lieferantenrechnung liegt genau auf der Grenze von fünfhundert Euro?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Die Rechnung des Lieferanten Fink beträgt 490,10 Euro. Dieser Betrag liegt unter fünfhundert Euro."
+        },
+        {
+          "id": "1",
+          "text": "Die Rechnung des Lieferanten Amsel beträgt 501,90 Euro. Dieser Betrag liegt über fünfhundert Euro."
+        },
+        {
+          "id": "2",
+          "text": "Die Rechnung des Lieferanten Drossel beträgt genau 500,00 Euro und liegt damit auf der Grenze."
+        },
+        {
+          "id": "3",
+          "text": "Das Angebot des Lieferanten Elster über 480,00 Euro wurde noch nicht als Rechnung ausgestellt."
+        },
+        {
+          "id": "4",
+          "text": "Die Rechnung des Lieferanten Specht beträgt 6.000,00 Euro."
+        },
+        {
+          "id": "5",
+          "text": "Die Reisekostenabrechnung von Fink enthält keine Lieferantenrechnung."
+        }
+      ],
+      "expected": [
+        "2"
+      ]
+    },
+    {
+      "id": "amount-threshold-2-en",
+      "family": "amount-threshold",
+      "pair": "amount-threshold-2",
+      "language": "en",
+      "query": "Which supplier invoice is exactly on the five hundred euro threshold?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The invoice from supplier Finch totals 490.10 euros. This amount is below five hundred euros."
+        },
+        {
+          "id": "1",
+          "text": "The invoice from supplier Blackbird totals 501.90 euros. This amount is above five hundred euros."
+        },
+        {
+          "id": "2",
+          "text": "The invoice from supplier Thrush totals exactly 500.00 euros and is therefore on the threshold."
+        },
+        {
+          "id": "3",
+          "text": "The quotation from supplier Magpie for 480.00 euros has not yet been issued as an invoice."
+        },
+        {
+          "id": "4",
+          "text": "The invoice from supplier Woodpecker totals 6,000.00 euros."
+        },
+        {
+          "id": "5",
+          "text": "The travel expense report from Finch contains no supplier invoice."
+        }
+      ],
+      "expected": [
+        "2"
+      ]
+    },
+    {
+      "id": "temporal-approval-1-de",
+      "family": "temporal-approval",
+      "pair": "temporal-approval-1",
+      "language": "de",
+      "query": "An welchem Tag findet die genehmigte Wartung im November statt?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Der genehmigte Plan für November legt die Wartung auf Dienstag. Die Freigabe wurde am zwanzigsten Oktober erteilt."
+        },
+        {
+          "id": "1",
+          "text": "Der genehmigte Plan für Oktober legt die Wartung auf Montag. Diese Festlegung betrifft nur den Oktober."
+        },
+        {
+          "id": "2",
+          "text": "Ein nicht genehmigter Entwurf für November schlägt Mittwoch vor. Dieser Vorschlag ersetzt die Freigabe nicht."
+        },
+        {
+          "id": "3",
+          "text": "Der Dezemberplan nennt Donnerstag. Seine Genehmigung steht noch aus."
+        },
+        {
+          "id": "4",
+          "text": "Die Wartungsgruppe bespricht den Novemberplan am Freitag, ohne die freigegebene Festlegung zu ändern."
+        },
+        {
+          "id": "5",
+          "text": "Im November findet die Sicherheitsunterweisung am Montag statt; sie ist keine Wartung."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "temporal-approval-1-en",
+      "family": "temporal-approval",
+      "pair": "temporal-approval-1",
+      "language": "en",
+      "query": "On which day does the approved November maintenance take place?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The approved November plan schedules maintenance for Tuesday. Approval was granted on the twentieth of October."
+        },
+        {
+          "id": "1",
+          "text": "The approved October plan schedules maintenance for Monday. This decision applies only to October."
+        },
+        {
+          "id": "2",
+          "text": "An unapproved draft for November proposes Wednesday. This proposal does not replace the approval."
+        },
+        {
+          "id": "3",
+          "text": "The December plan lists Thursday. Its approval is still pending."
+        },
+        {
+          "id": "4",
+          "text": "The maintenance group discusses the November plan on Friday without changing the approved decision."
+        },
+        {
+          "id": "5",
+          "text": "The November safety briefing takes place on Monday; it is not maintenance."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "temporal-approval-2-de",
+      "family": "temporal-approval",
+      "pair": "temporal-approval-2",
+      "language": "de",
+      "query": "Welcher Wartungstag war ausschließlich für Oktober genehmigt?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Der genehmigte Plan für November legt die Wartung auf Dienstag. Die Freigabe wurde am zwanzigsten Oktober erteilt."
+        },
+        {
+          "id": "1",
+          "text": "Der genehmigte Plan für Oktober legt die Wartung auf Montag. Diese Festlegung betrifft nur den Oktober."
+        },
+        {
+          "id": "2",
+          "text": "Ein nicht genehmigter Entwurf für November schlägt Mittwoch vor. Dieser Vorschlag ersetzt die Freigabe nicht."
+        },
+        {
+          "id": "3",
+          "text": "Der Dezemberplan nennt Donnerstag. Seine Genehmigung steht noch aus."
+        },
+        {
+          "id": "4",
+          "text": "Die Wartungsgruppe bespricht den Novemberplan am Freitag, ohne die freigegebene Festlegung zu ändern."
+        },
+        {
+          "id": "5",
+          "text": "Im November findet die Sicherheitsunterweisung am Montag statt; sie ist keine Wartung."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "temporal-approval-2-en",
+      "family": "temporal-approval",
+      "pair": "temporal-approval-2",
+      "language": "en",
+      "query": "Which maintenance day was approved exclusively for October?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "The approved November plan schedules maintenance for Tuesday. Approval was granted on the twentieth of October."
+        },
+        {
+          "id": "1",
+          "text": "The approved October plan schedules maintenance for Monday. This decision applies only to October."
+        },
+        {
+          "id": "2",
+          "text": "An unapproved draft for November proposes Wednesday. This proposal does not replace the approval."
+        },
+        {
+          "id": "3",
+          "text": "The December plan lists Thursday. Its approval is still pending."
+        },
+        {
+          "id": "4",
+          "text": "The maintenance group discusses the November plan on Friday without changing the approved decision."
+        },
+        {
+          "id": "5",
+          "text": "The November safety briefing takes place on Monday; it is not maintenance."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "paraphrase-recovery-1-de",
+      "family": "paraphrase-recovery",
+      "pair": "paraphrase-recovery-1",
+      "language": "de",
+      "query": "Wie bekommen wir versehentlich entfernte Akten wieder zurück?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Versehentlich gelöschte Akten lassen sich über die Dateiwiederherstellung aus der letzten geprüften Sicherung zurückholen."
+        },
+        {
+          "id": "1",
+          "text": "Zum endgültigen Löschen von Akten muss die Aufbewahrungsfrist abgelaufen sein; danach wird die Löschung bestätigt."
+        },
+        {
+          "id": "2",
+          "text": "Neue Akten werden über die Importfunktion eingelesen und einem Ordner zugeordnet."
+        },
+        {
+          "id": "3",
+          "text": "Eine beschädigte Akte wird zunächst als schreibgeschützte Kopie zur Analyse abgelegt."
+        },
+        {
+          "id": "4",
+          "text": "Das Zurücksetzen eines vergessenen Kennworts erfolgt über die Benutzerverwaltung und stellt keine Dateien wieder her."
+        },
+        {
+          "id": "5",
+          "text": "Akten können für eine Besprechung als schreibgeschütztes Paket exportiert werden."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "paraphrase-recovery-1-en",
+      "family": "paraphrase-recovery",
+      "pair": "paraphrase-recovery-1",
+      "language": "en",
+      "query": "How can we get accidentally removed records back?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Accidentally deleted records can be recovered through file restoration from the last verified backup."
+        },
+        {
+          "id": "1",
+          "text": "Permanent deletion of records requires the retention period to have expired; deletion is then confirmed."
+        },
+        {
+          "id": "2",
+          "text": "New records are loaded through the import function and assigned to a folder."
+        },
+        {
+          "id": "3",
+          "text": "A damaged record is first saved as a read-only copy for analysis."
+        },
+        {
+          "id": "4",
+          "text": "A forgotten password is reset through user administration and does not restore files."
+        },
+        {
+          "id": "5",
+          "text": "Records can be exported as a read-only package for a meeting."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "paraphrase-recovery-2-de",
+      "family": "paraphrase-recovery",
+      "pair": "paraphrase-recovery-2",
+      "language": "de",
+      "query": "Welche Voraussetzung gilt für das endgültige Entfernen alter Akten?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Versehentlich gelöschte Akten lassen sich über die Dateiwiederherstellung aus der letzten geprüften Sicherung zurückholen."
+        },
+        {
+          "id": "1",
+          "text": "Zum endgültigen Löschen von Akten muss die Aufbewahrungsfrist abgelaufen sein; danach wird die Löschung bestätigt."
+        },
+        {
+          "id": "2",
+          "text": "Neue Akten werden über die Importfunktion eingelesen und einem Ordner zugeordnet."
+        },
+        {
+          "id": "3",
+          "text": "Eine beschädigte Akte wird zunächst als schreibgeschützte Kopie zur Analyse abgelegt."
+        },
+        {
+          "id": "4",
+          "text": "Das Zurücksetzen eines vergessenen Kennworts erfolgt über die Benutzerverwaltung und stellt keine Dateien wieder her."
+        },
+        {
+          "id": "5",
+          "text": "Akten können für eine Besprechung als schreibgeschütztes Paket exportiert werden."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "paraphrase-recovery-2-en",
+      "family": "paraphrase-recovery",
+      "pair": "paraphrase-recovery-2",
+      "language": "en",
+      "query": "What prerequisite applies to permanently removing old records?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Accidentally deleted records can be recovered through file restoration from the last verified backup."
+        },
+        {
+          "id": "1",
+          "text": "Permanent deletion of records requires the retention period to have expired; deletion is then confirmed."
+        },
+        {
+          "id": "2",
+          "text": "New records are loaded through the import function and assigned to a folder."
+        },
+        {
+          "id": "3",
+          "text": "A damaged record is first saved as a read-only copy for analysis."
+        },
+        {
+          "id": "4",
+          "text": "A forgotten password is reset through user administration and does not restore files."
+        },
+        {
+          "id": "5",
+          "text": "Records can be exported as a read-only package for a meeting."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "subject-object-1-de",
+      "family": "subject-object",
+      "pair": "subject-object-1",
+      "language": "de",
+      "query": "Wer prüft und genehmigt die Reisekostenabrechnungen von Levin?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Mara prüft die Reisekostenabrechnungen von Levin und gibt sie anschließend frei."
+        },
+        {
+          "id": "1",
+          "text": "Levin prüft die Reisekostenabrechnungen von Nora und gibt sie anschließend frei."
+        },
+        {
+          "id": "2",
+          "text": "Nora prüft die Reisekostenabrechnungen von Mara und gibt sie anschließend frei."
+        },
+        {
+          "id": "3",
+          "text": "Mara sammelt die Lieferantenrechnungen von Nora, besitzt dafür aber keine Freigabeberechtigung."
+        },
+        {
+          "id": "4",
+          "text": "Levin erstellt den Urlaubsplan für Mara und Nora."
+        },
+        {
+          "id": "5",
+          "text": "Nora archiviert alle bereits freigegebenen Reisekostenabrechnungen."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "subject-object-1-en",
+      "family": "subject-object",
+      "pair": "subject-object-1",
+      "language": "en",
+      "query": "Who reviews and approves Levin's travel expense reports?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Mara reviews Levin's travel expense reports and then approves them."
+        },
+        {
+          "id": "1",
+          "text": "Levin reviews Nora's travel expense reports and then approves them."
+        },
+        {
+          "id": "2",
+          "text": "Nora reviews Mara's travel expense reports and then approves them."
+        },
+        {
+          "id": "3",
+          "text": "Mara collects Nora's supplier invoices but has no approval authority for them."
+        },
+        {
+          "id": "4",
+          "text": "Levin prepares the vacation schedule for Mara and Nora."
+        },
+        {
+          "id": "5",
+          "text": "Nora archives all travel expense reports that have already been approved."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "subject-object-2-de",
+      "family": "subject-object",
+      "pair": "subject-object-2",
+      "language": "de",
+      "query": "Wessen Reisekostenabrechnungen werden von Levin geprüft und freigegeben?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Mara prüft die Reisekostenabrechnungen von Levin und gibt sie anschließend frei."
+        },
+        {
+          "id": "1",
+          "text": "Levin prüft die Reisekostenabrechnungen von Nora und gibt sie anschließend frei."
+        },
+        {
+          "id": "2",
+          "text": "Nora prüft die Reisekostenabrechnungen von Mara und gibt sie anschließend frei."
+        },
+        {
+          "id": "3",
+          "text": "Mara sammelt die Lieferantenrechnungen von Nora, besitzt dafür aber keine Freigabeberechtigung."
+        },
+        {
+          "id": "4",
+          "text": "Levin erstellt den Urlaubsplan für Mara und Nora."
+        },
+        {
+          "id": "5",
+          "text": "Nora archiviert alle bereits freigegebenen Reisekostenabrechnungen."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "subject-object-2-en",
+      "family": "subject-object",
+      "pair": "subject-object-2",
+      "language": "en",
+      "query": "Whose travel expense reports are reviewed and approved by Levin?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Mara reviews Levin's travel expense reports and then approves them."
+        },
+        {
+          "id": "1",
+          "text": "Levin reviews Nora's travel expense reports and then approves them."
+        },
+        {
+          "id": "2",
+          "text": "Nora reviews Mara's travel expense reports and then approves them."
+        },
+        {
+          "id": "3",
+          "text": "Mara collects Nora's supplier invoices but has no approval authority for them."
+        },
+        {
+          "id": "4",
+          "text": "Levin prepares the vacation schedule for Mara and Nora."
+        },
+        {
+          "id": "5",
+          "text": "Nora archives all travel expense reports that have already been approved."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "multi-condition-1-de",
+      "family": "multi-condition",
+      "pair": "multi-condition-1",
+      "language": "de",
+      "query": "Welche beiden Unterlagen müssen vor der Schlüsselübergabe beim Mieterwechsel vorliegen?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Für eine Schlüsselübergabe beim Mieterwechsel muss die Hausverwaltung zuerst die Freigabe schriftlich erteilen."
+        },
+        {
+          "id": "1",
+          "text": "Vor der Schlüsselübergabe beim Mieterwechsel muss außerdem das unterschriebene Übergabeprotokoll vorliegen."
+        },
+        {
+          "id": "2",
+          "text": "Die Ausgabe von Werkzeug an Handwerker wird in einer gesonderten Werkzeugliste vermerkt."
+        },
+        {
+          "id": "3",
+          "text": "Der neue Mieter kann vorab einen Besichtigungstermin vereinbaren."
+        },
+        {
+          "id": "4",
+          "text": "Für einen Termin zur Heizungsablesung genügt eine mündliche Absprache."
+        },
+        {
+          "id": "5",
+          "text": "Ein ausgefüllter, aber noch nicht unterschriebener Protokollentwurf wird zur Prüfung gespeichert."
+        }
+      ],
+      "expected": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "id": "multi-condition-1-en",
+      "family": "multi-condition",
+      "pair": "multi-condition-1",
+      "language": "en",
+      "query": "Which two documents must be available before key handover when a tenant changes?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "For key handover when a tenant changes, property management must first issue written approval."
+        },
+        {
+          "id": "1",
+          "text": "A signed handover report must also be available before keys are handed over when a tenant changes."
+        },
+        {
+          "id": "2",
+          "text": "Tools issued to tradespeople are recorded in a separate tool inventory."
+        },
+        {
+          "id": "3",
+          "text": "The new tenant may arrange a viewing in advance."
+        },
+        {
+          "id": "4",
+          "text": "A verbal agreement is sufficient for a heating meter reading appointment."
+        },
+        {
+          "id": "5",
+          "text": "A completed but not yet signed draft report is saved for review."
+        }
+      ],
+      "expected": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "id": "multi-condition-2-de",
+      "family": "multi-condition",
+      "pair": "multi-condition-2",
+      "language": "de",
+      "query": "Welchen Termin kann der neue Mieter schon vor der Schlüsselübergabe vereinbaren?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Für eine Schlüsselübergabe beim Mieterwechsel muss die Hausverwaltung zuerst die Freigabe schriftlich erteilen."
+        },
+        {
+          "id": "1",
+          "text": "Vor der Schlüsselübergabe beim Mieterwechsel muss außerdem das unterschriebene Übergabeprotokoll vorliegen."
+        },
+        {
+          "id": "2",
+          "text": "Die Ausgabe von Werkzeug an Handwerker wird in einer gesonderten Werkzeugliste vermerkt."
+        },
+        {
+          "id": "3",
+          "text": "Der neue Mieter kann vorab einen Besichtigungstermin vereinbaren."
+        },
+        {
+          "id": "4",
+          "text": "Für einen Termin zur Heizungsablesung genügt eine mündliche Absprache."
+        },
+        {
+          "id": "5",
+          "text": "Ein ausgefüllter, aber noch nicht unterschriebener Protokollentwurf wird zur Prüfung gespeichert."
+        }
+      ],
+      "expected": [
+        "3"
+      ]
+    },
+    {
+      "id": "multi-condition-2-en",
+      "family": "multi-condition",
+      "pair": "multi-condition-2",
+      "language": "en",
+      "query": "Which appointment can the new tenant arrange before key handover?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "For key handover when a tenant changes, property management must first issue written approval."
+        },
+        {
+          "id": "1",
+          "text": "A signed handover report must also be available before keys are handed over when a tenant changes."
+        },
+        {
+          "id": "2",
+          "text": "Tools issued to tradespeople are recorded in a separate tool inventory."
+        },
+        {
+          "id": "3",
+          "text": "The new tenant may arrange a viewing in advance."
+        },
+        {
+          "id": "4",
+          "text": "A verbal agreement is sufficient for a heating meter reading appointment."
+        },
+        {
+          "id": "5",
+          "text": "A completed but not yet signed draft report is saved for review."
+        }
+      ],
+      "expected": [
+        "3"
+      ]
+    },
+    {
+      "id": "domain-ambiguity-1-de",
+      "family": "domain-ambiguity",
+      "pair": "domain-ambiguity-1",
+      "language": "de",
+      "query": "Was prüfen wir zuerst, wenn sich die Datenbank nicht aus der Sicherung zurückholen lässt?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Bei einer fehlgeschlagenen Datenbankwiederherstellung wird zuerst das technische Wiederherstellungsprotokoll auf Konsistenzfehler geprüft."
+        },
+        {
+          "id": "1",
+          "text": "Bei einer fehlgeschlagenen Banküberweisung wird zuerst der finanzielle Zahlungsstatus auf eine Rückbuchung geprüft."
+        },
+        {
+          "id": "2",
+          "text": "Ein erfolgreicher Datenbankexport wird im Sicherungsverzeichnis aufbewahrt; er ist kein Zahlungsbeleg."
+        },
+        {
+          "id": "3",
+          "text": "Ein zurückgegebener Schlüssel wird im Übergabeprotokoll vermerkt und nicht als Rückbuchung gebucht."
+        },
+        {
+          "id": "4",
+          "text": "Der monatliche Kontoauszug enthält die ausgeführten Banküberweisungen, aber keine technischen Wiederherstellungsfehler."
+        },
+        {
+          "id": "5",
+          "text": "Für eine Kennwortwiederherstellung wird die Identität geprüft und danach ein neuer Anmeldelink erstellt."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "domain-ambiguity-1-en",
+      "family": "domain-ambiguity",
+      "pair": "domain-ambiguity-1",
+      "language": "en",
+      "query": "What do we check first if the database cannot be recovered from its backup?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "When database restoration fails, first inspect the technical restoration log for consistency errors."
+        },
+        {
+          "id": "1",
+          "text": "When a bank transfer fails, first check the financial payment status for a reversal."
+        },
+        {
+          "id": "2",
+          "text": "A successful database export is kept in the backup directory; it is not a payment receipt."
+        },
+        {
+          "id": "3",
+          "text": "A returned key is recorded in the handover report and is not booked as a reversal."
+        },
+        {
+          "id": "4",
+          "text": "The monthly account statement contains completed bank transfers but no technical restoration errors."
+        },
+        {
+          "id": "5",
+          "text": "Password recovery requires identity verification followed by a new sign-in link."
+        }
+      ],
+      "expected": [
+        "0"
+      ]
+    },
+    {
+      "id": "domain-ambiguity-2-de",
+      "family": "domain-ambiguity",
+      "pair": "domain-ambiguity-2",
+      "language": "de",
+      "query": "Was wird nach einer gescheiterten Überweisung zuerst auf Rückbuchungen geprüft?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "Bei einer fehlgeschlagenen Datenbankwiederherstellung wird zuerst das technische Wiederherstellungsprotokoll auf Konsistenzfehler geprüft."
+        },
+        {
+          "id": "1",
+          "text": "Bei einer fehlgeschlagenen Banküberweisung wird zuerst der finanzielle Zahlungsstatus auf eine Rückbuchung geprüft."
+        },
+        {
+          "id": "2",
+          "text": "Ein erfolgreicher Datenbankexport wird im Sicherungsverzeichnis aufbewahrt; er ist kein Zahlungsbeleg."
+        },
+        {
+          "id": "3",
+          "text": "Ein zurückgegebener Schlüssel wird im Übergabeprotokoll vermerkt und nicht als Rückbuchung gebucht."
+        },
+        {
+          "id": "4",
+          "text": "Der monatliche Kontoauszug enthält die ausgeführten Banküberweisungen, aber keine technischen Wiederherstellungsfehler."
+        },
+        {
+          "id": "5",
+          "text": "Für eine Kennwortwiederherstellung wird die Identität geprüft und danach ein neuer Anmeldelink erstellt."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    },
+    {
+      "id": "domain-ambiguity-2-en",
+      "family": "domain-ambiguity",
+      "pair": "domain-ambiguity-2",
+      "language": "en",
+      "query": "What is checked for reversals first after a failed bank transfer?",
+      "passages": [
+        {
+          "id": "0",
+          "text": "When database restoration fails, first inspect the technical restoration log for consistency errors."
+        },
+        {
+          "id": "1",
+          "text": "When a bank transfer fails, first check the financial payment status for a reversal."
+        },
+        {
+          "id": "2",
+          "text": "A successful database export is kept in the backup directory; it is not a payment receipt."
+        },
+        {
+          "id": "3",
+          "text": "A returned key is recorded in the handover report and is not booked as a reversal."
+        },
+        {
+          "id": "4",
+          "text": "The monthly account statement contains completed bank transfers but no technical restoration errors."
+        },
+        {
+          "id": "5",
+          "text": "Password recovery requires identity verification followed by a new sign-in link."
+        }
+      ],
+      "expected": [
+        "1"
+      ]
+    }
+  ]
+}

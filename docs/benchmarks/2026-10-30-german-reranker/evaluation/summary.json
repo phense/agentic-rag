@@ -1,0 +1,218 @@
+{
+  "tiny": {
+    "de": {
+      "questions": 16,
+      "families": 8,
+      "expected_source_occurrences": 17,
+      "top1": 10,
+      "all_sources3": 15,
+      "recall3": 0.9375,
+      "ndcg3": 0.8057993287946483,
+      "failures": [
+        {
+          "case": "access-negation-2-de",
+          "first": "4",
+          "expected": [
+            "1"
+          ],
+          "ranked": [
+            "4",
+            "1",
+            "2",
+            "0",
+            "5",
+            "3"
+          ]
+        },
+        {
+          "case": "amount-threshold-2-de",
+          "first": "0",
+          "expected": [
+            "2"
+          ],
+          "ranked": [
+            "0",
+            "1",
+            "2",
+            "5",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "case": "temporal-approval-2-de",
+          "first": "0",
+          "expected": [
+            "1"
+          ],
+          "ranked": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "5",
+            "4"
+          ]
+        },
+        {
+          "case": "subject-object-2-de",
+          "first": "0",
+          "expected": [
+            "1"
+          ],
+          "ranked": [
+            "0",
+            "1",
+            "2",
+            "5",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "case": "multi-condition-2-de",
+          "first": "0",
+          "expected": [
+            "3"
+          ],
+          "ranked": [
+            "0",
+            "1",
+            "3",
+            "4",
+            "2",
+            "5"
+          ]
+        },
+        {
+          "case": "domain-ambiguity-1-de",
+          "first": "5",
+          "expected": [
+            "0"
+          ],
+          "ranked": [
+            "5",
+            "1",
+            "3",
+            "4",
+            "0",
+            "2"
+          ]
+        }
+      ],
+      "second_top1": 10,
+      "position_top1_changes": 0,
+      "raw_scoring_errors": 0,
+      "production_range_incompatible": 0,
+      "raw_p50_ms": 338.22965799845406,
+      "raw_p95_ms": 704.5005769978161,
+      "adapter": {
+        "observations": 16,
+        "top1": 10,
+        "all_sources3": 15,
+        "outcomes": {
+          "ranked": 16
+        },
+        "p50_ms": 354.48191950126784,
+        "p95_ms": 853.9269980028621
+      }
+    },
+    "en": {
+      "questions": 16,
+      "families": 8,
+      "expected_source_occurrences": 17,
+      "top1": 12,
+      "all_sources3": 16,
+      "recall3": 1.0,
+      "ndcg3": 0.9077324383928644,
+      "failures": [
+        {
+          "case": "temporal-approval-1-en",
+          "first": "2",
+          "expected": [
+            "0"
+          ],
+          "ranked": [
+            "2",
+            "0",
+            "5",
+            "3",
+            "1",
+            "4"
+          ]
+        },
+        {
+          "case": "paraphrase-recovery-2-en",
+          "first": "0",
+          "expected": [
+            "1"
+          ],
+          "ranked": [
+            "0",
+            "1",
+            "3",
+            "5",
+            "2",
+            "4"
+          ]
+        },
+        {
+          "case": "subject-object-1-en",
+          "first": "1",
+          "expected": [
+            "0"
+          ],
+          "ranked": [
+            "1",
+            "0",
+            "2",
+            "5",
+            "4",
+            "3"
+          ]
+        },
+        {
+          "case": "multi-condition-2-en",
+          "first": "1",
+          "expected": [
+            "3"
+          ],
+          "ranked": [
+            "1",
+            "3",
+            "0",
+            "4",
+            "2",
+            "5"
+          ]
+        }
+      ],
+      "second_top1": 12,
+      "position_top1_changes": 0,
+      "raw_scoring_errors": 0,
+      "production_range_incompatible": 12,
+      "raw_p50_ms": 178.85557049885392,
+      "raw_p95_ms": 327.63149899983546,
+      "adapter": {
+        "observations": 16,
+        "top1": 11,
+        "all_sources3": 13,
+        "outcomes": {
+          "invalid": 6,
+          "ranked": 10
+        },
+        "p50_ms": 195.9719744991162,
+        "p95_ms": 359.7488239975064
+      }
+    },
+    "decision": {
+      "two_or_more_DE_top1_misses": true,
+      "critical_DE_top1_misses": [
+        "access-negation-2-de",
+        "subject-object-2-de"
+      ],
+      "DE_trails_EN_more_than_10pp": true,
+      "reject_blanket_german_recommendation": true
+    }
+  }
+}
