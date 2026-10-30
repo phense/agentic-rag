@@ -40,6 +40,7 @@ TOPICS = ('astronomy', 'botany', 'ceramics', 'acoustics', 'geology',
 QUERIES = ('luminous orbital survey', 'chlorophyll leaf exchange', 'kiln glaze vessels',
            'standing wave resonance', 'tectonic mineral layers', 'coordinate bearing atlas',
            'actuator feedback machine', 'loom fiber tension')
+LIFECYCLE_PROBE = 'Synthetic connectivity probe; no stored knowledge.'
 MODELS = {'synthetic-legacy': (1024, 'd'*64), 'synthetic-three-a': (3, 'a'*64),
           'synthetic-three-b': (3, 'b'*64), 'synthetic-five': (5, 'c'*64)}
 
@@ -147,10 +148,18 @@ class SyntheticAdapters:
         for text in texts:
             if text in QUERIES:
                 topic = QUERIES.index(text)
+                count['query_inputs'] += 1
+            elif text == LIFECYCLE_PROBE:
+                # Selection now proves capability even when coverage is empty.
+                # Accept only this exact public fixture, never arbitrary input.
+                topic = 0
+                count['lifecycle_synthetic_inputs'] += 1
+                count['lifecycle_synthetic_characters'] += len(text)
             else:
                 found = [i for i, name in enumerate(TOPICS) if name in text.casefold()]
                 require(len(found) == 1, 'fixture_topic_not_unique')
                 topic = found[0]
+                count['corpus_inputs'] += 1
             angle = topic*2*math.pi/len(TOPICS) + .071
             # Revision changes the coordinate frame, preserving fixture meaning.
             angle += {'synthetic-three-b': .19, 'synthetic-five': .37}.get(model, 0)
