@@ -10,7 +10,7 @@ def build():
     old=json.loads((root/'agentic_rag/benchmark/corpus-failures-v1.json').read_text())
     families={'dev-failure-0','dev-failure-1'}
     result={k:deepcopy(v) for k,v in old.items() if k not in ('documents','queries')}
-    result.update(name='reranker-failures-v1',source_revision='RAG062-public-v1-from-7a61955',
+    result.update(name='reranker-failures-v2',source_revision='RAG062-public-v2-from-7a61955',
         documents=[d for d in old['documents'] if d['family'] in families],
         queries=[q for q in old['queries'] if q['family'] in families])
     prior=root/'docs/benchmarks/2026-10-04-failure-evaluation/evaluation/dev-results.json'
@@ -25,36 +25,40 @@ def build():
     def add_family(family,split,subject):
         project='/synthetic/reranker/'+family
         common=dict(project=project,domain='general',actor='fixture-author',family=family,split=split)
+        shared=subject+' delivery recovery verification procedure. '+subject+' Zustellung Wiederherstellung Pruefung Verfahren. '
         docs=[('delivery',subject+' delivery verification',
-               subject+' delivery verification requires checking the dated receipt, not the sender success message.'),
+               shared+'Delivery is verified by checking the dated receipt, not the sender success message. '+
+               'Die Zustellung wird durch den datierten Empfangsbeleg geprueft.'),
               ('restore',subject+' recovery verification',
-               subject+' recovery verification requires restoring a copy and checking its original-row hashes.'),
-              ('distractor',subject+' delivery recovery verification notes',
-               subject+' delivery recovery verification is listed in the index. No procedure is described here.')]
+               shared+'Recovery is verified by restoring a copy and checking its original-row hashes. '+
+               'Zur Wiederherstellung wird eine Kopie wiederhergestellt und ihr urspruenglicher Zeilenhash geprueft.')]
+        for i in range(4):
+            docs.append(('distractor-'+str(i),subject+' delivery recovery verification procedure '+str(i),
+                shared+'This index entry names the procedure but describes no steps. '+
+                'Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. '+str(i)))
         for suffix,title,body in docs:
             if suffix=='restore':title=family+'-restore'
             result['documents'].append(dict(id=family+'-'+suffix,title=title,body=body,**common))
         for suffix,value,when in [('old','stopped','2026-01-01T00:00:00Z'),('current','running','2026-03-01T00:00:00Z')]:
             result['documents'].append(dict(id=family+'-'+suffix,title=subject+': status',
                 body=subject+' status is now '+value+'.',assertion=dict(entity=subject,attribute='status',
-                value=value,event_at=when,relation='assertion'),**common))
+                value=value,event_at=when,relation='replacement' if suffix=='current' else 'assertion'),**common))
         result['documents'].append(dict(id=family+'-status-notes',title=subject+' current status notes',
             body=subject+' current status notes contain no accepted status value.',**common))
-        for lang,query in [('en','What is the current status of '+subject+'?'),
-                           ('de','Was ist der aktuelle status von '+subject+'?')]:
+        for lang,query in [('en',subject+' status')]:
             result['queries'].append(dict(id=family+'-temporal-'+lang,query=query,
                 expected_ids=[family+'-current'],answers=['running'],expected_snippets=['running'],
                 stale_answers=['stopped'],stale_ids=[family+'-old'],unanswerable=False,
                 category='temporal',language=lang,as_of='2026-04-01T00:00:00Z',
                 **{k:v for k,v in common.items() if k!='actor'}))
-        for lang,query in [('en','How does '+subject+' delivery verification confirm success?'),
-                           ('de','Wie kann '+subject+' delivery verification den Erfolg bestaetigen?')]:
+        for lang,query in [('en',subject+' delivery verification procedure'),
+                           ('de',subject+' Zustellung Pruefung Verfahren')]:
             result['queries'].append(dict(id=family+'-delivery-'+lang,query=query,expected_ids=[family+'-delivery'],
                 answers=['dated receipt'],expected_snippets=['dated receipt'],stale_answers=[],
                 unanswerable=False,category='ordering',language=lang,as_of='2026-04-01T00:00:00Z',
                 **{k:v for k,v in common.items() if k!='actor'}))
-        for lang,query in [('en','Explain '+subject+' delivery and recovery verification procedures'),
-                           ('de','Erklaere '+subject+' delivery und recovery verification Verfahren')]:
+        for lang,query in [('en',subject+' delivery recovery verification procedure'),
+                           ('de',subject+' Zustellung Wiederherstellung Pruefung Verfahren')]:
             result['queries'].append(dict(id=family+'-multi-'+lang,query=query,
                 expected_ids=[family+'-delivery',family+'-restore'],answers=['dated receipt','original-row hashes'],
                 expected_snippets=['dated receipt','original-row hashes'],stale_answers=[],unanswerable=False,
@@ -70,11 +74,11 @@ def build():
             category='unanswerable',language='en',as_of='2026-04-01T00:00:00Z',
             **{k:v for k,v in common.items() if k!='actor'}))
     add_family('dev-orbit','dev','orbital')
-    for family,subject in [('test-meadow','meadow'),('test-cobalt','cobalt'),('test-harbor','harbor')]:
+    for family,subject in [('test-spruce','spruce'),('test-amber','amber'),('test-falcon','falcon')]:
         add_family(family,'test',subject)
     return result
 
 
 if __name__=='__main__':
-    target=Path(__file__).resolve().parents[1]/'agentic_rag/benchmark/corpus-reranker-v1.json'
+    target=Path(__file__).resolve().parents[1]/'agentic_rag/benchmark/corpus-reranker-v2.json'
     target.write_text(json.dumps(build(),indent=2,ensure_ascii=False)+'\n')

@@ -162,3 +162,49 @@ def test_reference_envelope_checks_actual_affinity_without_delegated_cpuset(tmp_
     assert result['affinity_cpus']==[0,1,2,3] and result['cpuset.cpus.effective']=='not delegated'
     monkeypatch.setattr(m.os,'sched_getaffinity',lambda _:set(range(8)))
     with pytest.raises(ValueError,match='envelope'):m.reference_snapshot()
+
+
+def test_development_controls_ingest_and_exercise_real_candidate_routes(conn,cfg,monkeypatch):
+    from dataclasses import replace
+    m=module();corpus=m.load_corpus()[0]
+    monkeypatch.setattr(m.store,'try_embed_texts',lambda *a,**kw:None)
+    monkeypatch.setattr(m.search,'try_embed_texts',lambda *a,**kw:None)
+    documents=[d for d in corpus['documents'] if d['family']=='dev-orbit']
+    mapping,failures=m._ingest(conn,replace(cfg,ollama_url='http://127.0.0.1:1'),documents)
+    assert failures=={} and len(mapping)==len(documents)
+    for q in [q for q in corpus['queries'] if q['family']=='dev-orbit']:
+        hits,_=m.search.search(conn,cfg,q['query'],domain=q['domain'],project=q['project'],as_of=q['as_of'],
+            k=12,context_mode='off',rerank_mode='off')
+        identities=[mapping[h.document_id] for h in hits]
+        if q['category'] in ('ordering','multi-source'):
+            assert len(identities)>=3 and m.neural_rerank.eligible(q['query'],hits)
+        if q['category'] in ('temporal','identifier'):
+            assert set(q['expected_ids'])<=set(identities)
+        assert not set(q.get('stale_ids',[]))&set(identities)
+        conn.rollback()
+
+
+def test_native_idle_endpoint_read_timeout_is_drained_within_overall_deadline(monkeypatch):
+    import httpx
+    calls=[];real=httpx.Client
+    def handler(request):
+        calls.append(request)
+        if len(calls)==1:raise httpx.ReadTimeout('busy native runtime',request=request)
+        return httpx.Response(200,json=[{'is_processing':False}])
+    monkeypatch.setattr(httpx,'Client',lambda **kw:real(transport=httpx.MockTransport(handler),**kw))
+    result=module()._drain('http://127.0.0.1:8768')
+    assert result['idle_verified'] is True and result['observations']==2
+
+
+def test_rejected_initial_test_families_are_not_reused_as_fresh_heldout():
+    corpus=module().load_corpus()[0]
+    assert {q['family'] for q in corpus['queries'] if q['split']=='test'}=={'test-spruce','test-amber','test-falcon'}
+    assert all(d.get('assertion',{}).get('relation')=='replacement'
+        for d in corpus['documents'] if d['id'] in ('dev-orbit-current','test-spruce-current','test-amber-current','test-falcon-current'))
+
+
+def test_unique_ids_do_not_hide_duplicate_quality_request_contracts():
+    m=module();corpus=m.load_corpus()[0]
+    duplicate=deepcopy(corpus['queries'][0]);duplicate['id']='duplicate-quality-row'
+    corpus['queries'].append(duplicate)
+    with pytest.raises(ValueError,match='duplicate.*request'):m.validate_corpus(corpus)

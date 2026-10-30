@@ -21,7 +21,7 @@ from . import optimization
 from .database import isolated_database
 
 ROOT = Path(__file__).resolve().parents[2]
-CORPUS = Path(__file__).with_name('corpus-reranker-v1.json')
+CORPUS = Path(__file__).with_name('corpus-reranker-v2.json')
 BASE = '7a61955446119df522a34967273d8dacae56108b'
 POLICIES = ('legacy-v1', 'focused-v1')
 TINY_MODEL='agentic-rag-jina-tiny-en-q8'
@@ -34,6 +34,11 @@ def canonical(value):
 
 def validate_corpus(corpus):
     optimization.validate(corpus)
+    requests=set()
+    for query in corpus['queries']:
+        identity=canonical({key:query.get(key) for key in ('query','domain','project','scope','as_of')})
+        if identity in requests:raise ValueError('duplicate quality request contract')
+        requests.add(identity)
     attribution=corpus.get('attribution',{})
     prior=ROOT/'docs/benchmarks/2026-10-04-failure-evaluation/evaluation/dev-results.json'
     if (attribution.get('prior_report_sha256')!=sha256(prior.read_bytes()).hexdigest()
@@ -221,11 +226,15 @@ def _drain(url):
     start=time.perf_counter();observations=0
     with httpx.Client(trust_env=False,follow_redirects=False,timeout=1) as client:
         while time.perf_counter()-start<30:
-            with client.stream('GET',url+'/slots') as response:
-                response.raise_for_status();body=bytearray()
-                for part in response.iter_bytes():
-                    if len(body)+len(part)>32768:raise ValueError('runtime_idle_response_oversized')
-                    body.extend(part)
+            try:
+                with client.stream('GET',url+'/slots') as response:
+                    response.raise_for_status();body=bytearray()
+                    for part in response.iter_bytes():
+                        if len(body)+len(part)>32768:raise ValueError('runtime_idle_response_oversized')
+                        body.extend(part)
+            except httpx.TimeoutException:
+                observations+=1
+                continue  # Busy native work can delay the idle endpoint itself.
             rows=json.loads(body);observations+=1
             if not isinstance(rows,list) or not rows or len(rows)>8 or any(type(r.get('is_processing')) is not bool for r in rows):
                 raise ValueError('runtime_idle_unverifiable')

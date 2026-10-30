@@ -92,23 +92,37 @@ def test_populated_focused_local_http_withdrawal_and_real_code_config_rollback(c
     with tarfile.open(archive) as content:content.extractall(old,filter='data')
     config=tmp_path/'rollback.toml'
     config.write_text('[db]\nname="'+cfg.db_name+'"\n[ollama]\nurl="http://127.0.0.1:1"\n[rerank]\nurl="http://127.0.0.1:1"\n')
-    env={**os.environ,'PYTHONPATH':str(old),'AGENTIC_RAG_CONFIG':str(config)}
+    env={**os.environ,'PYTHONPATH':str(old),'AGENTIC_RAG_CONFIG':str(config),
+        'RAG_TEST_POLICY':str(policy),'RAG_TEST_STORAGE':str(tmp_path/'rollback-service')}
     import sys
     code='''
 import json
-from dataclasses import asdict
+from dataclasses import asdict,replace
 from pathlib import Path
+import os
+from starlette.testclient import TestClient
+from agentic_rag.service.api import create_app
 from agentic_rag import db,search
 from agentic_rag.config import load_config
 assert str(Path(search.__file__).resolve()).startswith(str(Path.cwd()))
 cfg=load_config()
 with db.connect(cfg,role='reader') as conn:
  hits,warnings=search.search(conn,cfg,"newsletter authentication failure",domain="alpha",project="/projects/a",context_mode="off",rerank_mode="off",k=5)
- print(json.dumps([asdict(h) for h in hits],default=str))
+ local=[asdict(h) for h in hits]
+server=replace(cfg,service_storage_path=Path(os.environ['RAG_TEST_STORAGE']))
+app=create_app(server,Path(os.environ['RAG_TEST_POLICY']),allowed_hosts=['testserver'])
+with TestClient(app,base_url='https://testserver') as client:
+ response=client.post('/v1/tools/memory_search',headers={'authorization':'Bearer one.synthetic-long-random-machine-secret','x-rag-protocol':'1'},json={'query':'newsletter authentication failure','domain':'alpha','project':'/projects/a','context':'off','rerank':'off','k':5})
+ assert response.status_code==200,response.text
+ print(json.dumps({'local':local,'http':response.json()['results']},default=str))
 '''
-    prior=json.loads(subprocess.check_output([sys.executable,'-c',code],cwd=old,env=env,text=True,timeout=15))
     rollback_before=_snapshot(conn);conn.rollback()
+    prior=json.loads(subprocess.check_output([sys.executable,'-c',code],cwd=old,env=env,text=True,timeout=15))
     restored,_=search.search(conn,replace(cfg,ollama_url='http://127.0.0.1:1'),query,
         domain='alpha',project='/projects/a',context_mode='off',rerank_mode='off',k=5)
     current=json.loads(json.dumps([asdict(h) for h in restored],default=str));conn.rollback()
-    assert prior==current and _snapshot(conn)==rollback_before
+    assert prior['local']==current and prior['http']==current
+    after_rollback=_snapshot(conn);conn.rollback()
+    for name,digest in rollback_before.items():
+        if name not in ('request_traces','service_requests','service_foreground','dashboard_presence'):
+            assert after_rollback[name]==digest,name

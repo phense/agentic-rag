@@ -229,8 +229,12 @@ requires separate sizing; the semaphore is not a global daemon queue.
    endpoint, query, passages, response and exception. Exact-identifier/custom/off
    routes can bypass the neural stage before this warning is created.
 4. Restore the saved configuration and0.6.14code if acceptance fails, then restart
-   those affected clients. Recheck the same source/citation selections; no database
-   downgrade or data restoration is needed.
+   the affected local Python/MCP processes. If the central server adopted the
+   change, restore its saved configuration and0.6.14server code under that same
+   deployment authorization and restart that server. Recheck the same
+   authenticated `memory_search` path and source/citation selections. Reverting
+   client code alone does not change the central policy. No database downgrade
+   or data restoration is needed.
 
 Validation succeeds when clients preserve source eligibility and citations and
 retain original ordering on unavailable/invalid/timeout inference. A timeout
@@ -256,7 +260,8 @@ The Jina Q8 conversion is pinned to
 SHA-256 `0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553`.
 This is an intentional local challenger, with no hosted reranking integration.
 
-1. Choose new absolute output/work directories and set `RERANK_BIN`,
+1. Set `RERANK_OUTPUT` and `RERANK_WORK` to new absolute output/work directories,
+   and set `RERANK_BIN`,
    `QWEN_FILE` and `TINY_FILE` to inspected local files. Keep at least2GiB free
    working space. Ports55463/8768/8769must be unused. Existing production
    PostgreSQL and model daemons are outside this operation.

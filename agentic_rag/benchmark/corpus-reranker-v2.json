@@ -1,0 +1,1933 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "name": "reranker-failures-v2",
+  "source_revision": "RAG062-public-v2-from-7a61955",
+  "documents": [
+    {
+      "id": "dev-failure-0-old-status",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-current-status",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now running.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-0-port",
+      "title": "quasar-dev-0: port",
+      "body": "quasar-dev-0 port is now 8400.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "port",
+        "value": "8400",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-tls",
+      "title": "quasar-old-dev-0: tls",
+      "body": "quasar-old-dev-0 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-0",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-other-project",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-0",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-0-other-domain",
+      "title": "quasar-dev-0: status",
+      "body": "quasar-dev-0 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-0",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-0-alias",
+      "title": "quasar-old-dev-0 became quasar-dev-0",
+      "body": "quasar-old-dev-0 is another name for quasar-dev-0.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-0",
+        "target": "quasar-dev-0",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-0-notes-0",
+      "title": "quasar-old-dev-0 service status memory capacity notes 0",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/0.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-1",
+      "title": "quasar-old-dev-0 service status memory capacity notes 1",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/1.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-2",
+      "title": "quasar-old-dev-0 service status memory capacity notes 2",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/2.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-3",
+      "title": "quasar-old-dev-0 service status memory capacity notes 3",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/3.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-4",
+      "title": "quasar-old-dev-0 service status memory capacity notes 4",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/4.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-5",
+      "title": "quasar-old-dev-0 service status memory capacity notes 5",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/5.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-6",
+      "title": "quasar-old-dev-0 service status memory capacity notes 6",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/6.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-7",
+      "title": "quasar-old-dev-0 service status memory capacity notes 7",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/7.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-8",
+      "title": "quasar-old-dev-0 service status memory capacity notes 8",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/8.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-0-notes-9",
+      "title": "quasar-old-dev-0 service status memory capacity notes 9",
+      "body": "quasar-old-dev-0 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-0. Independent note dev-failure-0/9.",
+      "project": "/synthetic/failures/dev/alice-0",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-0",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-old-status",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now stopped.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-current-status",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now running.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-1-port",
+      "title": "quasar-dev-1: port",
+      "body": "quasar-dev-1 port is now 8401.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "port",
+        "value": "8401",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-tls",
+      "title": "quasar-old-dev-1: tls",
+      "body": "quasar-old-dev-1 tls is now enabled.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-old-dev-1",
+        "attribute": "tls",
+        "value": "enabled",
+        "event_at": "2026-02-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-other-project",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now maintenance.",
+      "project": "/synthetic/failures/dev/bob-1",
+      "domain": "general",
+      "actor": "bob",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "maintenance",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "assertion"
+      }
+    },
+    {
+      "id": "dev-failure-1-other-domain",
+      "title": "quasar-dev-1: status",
+      "body": "quasar-dev-1 status is now compiling.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "programming",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "assertion": {
+        "entity": "quasar-dev-1",
+        "attribute": "status",
+        "value": "compiling",
+        "event_at": "2025-01-01T00:00:00Z",
+        "relation": "replacement"
+      }
+    },
+    {
+      "id": "dev-failure-1-alias",
+      "title": "quasar-old-dev-1 became quasar-dev-1",
+      "body": "quasar-old-dev-1 is another name for quasar-dev-1.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev",
+      "alias": {
+        "alias": "quasar-old-dev-1",
+        "target": "quasar-dev-1",
+        "effective_at": "2026-02-15T00:00:00Z"
+      }
+    },
+    {
+      "id": "dev-failure-1-notes-0",
+      "title": "quasar-old-dev-1 service status memory capacity notes 0",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 0. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/0.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-1",
+      "title": "quasar-old-dev-1 service status memory capacity notes 1",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 1. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/1.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-2",
+      "title": "quasar-old-dev-1 service status memory capacity notes 2",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 2. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/2.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-3",
+      "title": "quasar-old-dev-1 service status memory capacity notes 3",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 3. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/3.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-4",
+      "title": "quasar-old-dev-1 service status memory capacity notes 4",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 4. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/4.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-5",
+      "title": "quasar-old-dev-1 service status memory capacity notes 5",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 5. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/5.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-6",
+      "title": "quasar-old-dev-1 service status memory capacity notes 6",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 6. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/6.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-7",
+      "title": "quasar-old-dev-1 service status memory capacity notes 7",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 7. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/7.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-8",
+      "title": "quasar-old-dev-1 service status memory capacity notes 8",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 8. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/8.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-failure-1-notes-9",
+      "title": "quasar-old-dev-1 service status memory capacity notes 9",
+      "body": "quasar-old-dev-1 operational status troubleshooting entry 9. This public note contains no memory limit or current status declaration for quasar-old-dev-1. Independent note dev-failure-1/9.",
+      "project": "/synthetic/failures/dev/alice-1",
+      "domain": "general",
+      "actor": "alice",
+      "family": "dev-failure-1",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-delivery",
+      "title": "orbital delivery verification",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. Delivery is verified by checking the dated receipt, not the sender success message. Die Zustellung wird durch den datierten Empfangsbeleg geprueft.",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-restore",
+      "title": "dev-orbit-restore",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. Recovery is verified by restoring a copy and checking its original-row hashes. Zur Wiederherstellung wird eine Kopie wiederhergestellt und ihr urspruenglicher Zeilenhash geprueft.",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-distractor-0",
+      "title": "orbital delivery recovery verification procedure 0",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 0",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-distractor-1",
+      "title": "orbital delivery recovery verification procedure 1",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 1",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-distractor-2",
+      "title": "orbital delivery recovery verification procedure 2",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 2",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-distractor-3",
+      "title": "orbital delivery recovery verification procedure 3",
+      "body": "orbital delivery recovery verification procedure. orbital Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 3",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-old",
+      "title": "orbital: status",
+      "body": "orbital status is now stopped.",
+      "assertion": {
+        "entity": "orbital",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      },
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-current",
+      "title": "orbital: status",
+      "body": "orbital status is now running.",
+      "assertion": {
+        "entity": "orbital",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      },
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-status-notes",
+      "title": "orbital current status notes",
+      "body": "orbital current status notes contain no accepted status value.",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "test-spruce-delivery",
+      "title": "spruce delivery verification",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. Delivery is verified by checking the dated receipt, not the sender success message. Die Zustellung wird durch den datierten Empfangsbeleg geprueft.",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-restore",
+      "title": "test-spruce-restore",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. Recovery is verified by restoring a copy and checking its original-row hashes. Zur Wiederherstellung wird eine Kopie wiederhergestellt und ihr urspruenglicher Zeilenhash geprueft.",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-distractor-0",
+      "title": "spruce delivery recovery verification procedure 0",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 0",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-distractor-1",
+      "title": "spruce delivery recovery verification procedure 1",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 1",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-distractor-2",
+      "title": "spruce delivery recovery verification procedure 2",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 2",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-distractor-3",
+      "title": "spruce delivery recovery verification procedure 3",
+      "body": "spruce delivery recovery verification procedure. spruce Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 3",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-old",
+      "title": "spruce: status",
+      "body": "spruce status is now stopped.",
+      "assertion": {
+        "entity": "spruce",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      },
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-current",
+      "title": "spruce: status",
+      "body": "spruce status is now running.",
+      "assertion": {
+        "entity": "spruce",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      },
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-status-notes",
+      "title": "spruce current status notes",
+      "body": "spruce current status notes contain no accepted status value.",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-delivery",
+      "title": "amber delivery verification",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. Delivery is verified by checking the dated receipt, not the sender success message. Die Zustellung wird durch den datierten Empfangsbeleg geprueft.",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-restore",
+      "title": "test-amber-restore",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. Recovery is verified by restoring a copy and checking its original-row hashes. Zur Wiederherstellung wird eine Kopie wiederhergestellt und ihr urspruenglicher Zeilenhash geprueft.",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-distractor-0",
+      "title": "amber delivery recovery verification procedure 0",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 0",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-distractor-1",
+      "title": "amber delivery recovery verification procedure 1",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 1",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-distractor-2",
+      "title": "amber delivery recovery verification procedure 2",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 2",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-distractor-3",
+      "title": "amber delivery recovery verification procedure 3",
+      "body": "amber delivery recovery verification procedure. amber Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 3",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-old",
+      "title": "amber: status",
+      "body": "amber status is now stopped.",
+      "assertion": {
+        "entity": "amber",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      },
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-current",
+      "title": "amber: status",
+      "body": "amber status is now running.",
+      "assertion": {
+        "entity": "amber",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      },
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-status-notes",
+      "title": "amber current status notes",
+      "body": "amber current status notes contain no accepted status value.",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-delivery",
+      "title": "falcon delivery verification",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. Delivery is verified by checking the dated receipt, not the sender success message. Die Zustellung wird durch den datierten Empfangsbeleg geprueft.",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-restore",
+      "title": "test-falcon-restore",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. Recovery is verified by restoring a copy and checking its original-row hashes. Zur Wiederherstellung wird eine Kopie wiederhergestellt und ihr urspruenglicher Zeilenhash geprueft.",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-distractor-0",
+      "title": "falcon delivery recovery verification procedure 0",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 0",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-distractor-1",
+      "title": "falcon delivery recovery verification procedure 1",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 1",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-distractor-2",
+      "title": "falcon delivery recovery verification procedure 2",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 2",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-distractor-3",
+      "title": "falcon delivery recovery verification procedure 3",
+      "body": "falcon delivery recovery verification procedure. falcon Zustellung Wiederherstellung Pruefung Verfahren. This index entry names the procedure but describes no steps. Dieser Indexeintrag nennt das Verfahren und beschreibt keine Pruefschritte. 3",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-old",
+      "title": "falcon: status",
+      "body": "falcon status is now stopped.",
+      "assertion": {
+        "entity": "falcon",
+        "attribute": "status",
+        "value": "stopped",
+        "event_at": "2026-01-01T00:00:00Z",
+        "relation": "assertion"
+      },
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-current",
+      "title": "falcon: status",
+      "body": "falcon status is now running.",
+      "assertion": {
+        "entity": "falcon",
+        "attribute": "status",
+        "value": "running",
+        "event_at": "2026-03-01T00:00:00Z",
+        "relation": "replacement"
+      },
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-status-notes",
+      "title": "falcon current status notes",
+      "body": "falcon current status notes contain no accepted status value.",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "actor": "fixture-author",
+      "family": "test-falcon",
+      "split": "test"
+    }
+  ],
+  "queries": [
+    {
+      "id": "dev-failure-0-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-current-en",
+      "query": "What is the current status of quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-0-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-0?",
+      "entity": "quasar-old-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-0-independent-project",
+      "query": "What is the status of quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-independent-domain",
+      "query": "Was ist der status von quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-historical",
+      "query": "What was the status of quasar-dev-0 in January?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-0-current-canonical",
+      "query": "What is the current status of quasar-dev-0?",
+      "entity": "quasar-dev-0",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-0-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-0",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-0",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-0-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-absent-en",
+      "query": "What is the memory_limit of quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "unanswerable",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-absent-de",
+      "query": "Welches memory_limit hat quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "memory_limit",
+      "expected_ids": [],
+      "answers": [],
+      "unanswerable": true,
+      "stale_answers": [],
+      "expected_snippets": [],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "unanswerable",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-current-en",
+      "query": "What is the current status of quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-current-de",
+      "query": "Was ist der aktuelle status von quasar-old-dev-1?",
+      "entity": "quasar-old-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "de",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-failure-1-independent-project",
+      "query": "What is the status of quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-other-project"
+      ],
+      "answers": [
+        "maintenance"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "maintenance"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "cross-boundary",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/bob-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-independent-domain",
+      "query": "Was ist der status von quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-other-domain"
+      ],
+      "answers": [
+        "compiling"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "compiling"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "cross-boundary",
+      "language": "de",
+      "domain": "programming",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-historical",
+      "query": "What was the status of quasar-dev-1 in January?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-old-status"
+      ],
+      "answers": [
+        "stopped"
+      ],
+      "unanswerable": false,
+      "stale_answers": [],
+      "expected_snippets": [
+        "stopped"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "historical",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-01-15T00:00:00Z"
+    },
+    {
+      "id": "dev-failure-1-current-canonical",
+      "query": "What is the current status of quasar-dev-1?",
+      "entity": "quasar-dev-1",
+      "attribute": "status",
+      "expected_ids": [
+        "dev-failure-1-current-status"
+      ],
+      "answers": [
+        "running"
+      ],
+      "unanswerable": false,
+      "stale_answers": [
+        "stopped"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "split": "dev",
+      "family": "dev-failure-1",
+      "category": "temporal-correction",
+      "language": "en",
+      "domain": "general",
+      "project": "/synthetic/failures/dev/alice-1",
+      "as_of": "2026-04-01T00:00:00Z",
+      "stale_ids": [
+        "dev-failure-1-old-status"
+      ]
+    },
+    {
+      "id": "dev-orbit-temporal-en",
+      "query": "orbital status",
+      "expected_ids": [
+        "dev-orbit-current"
+      ],
+      "answers": [
+        "running"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "stale_answers": [
+        "stopped"
+      ],
+      "stale_ids": [
+        "dev-orbit-old"
+      ],
+      "unanswerable": false,
+      "category": "temporal",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-delivery-en",
+      "query": "orbital delivery verification procedure",
+      "expected_ids": [
+        "dev-orbit-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-delivery-de",
+      "query": "orbital Zustellung Pruefung Verfahren",
+      "expected_ids": [
+        "dev-orbit-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-multi-en",
+      "query": "orbital delivery recovery verification procedure",
+      "expected_ids": [
+        "dev-orbit-delivery",
+        "dev-orbit-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-multi-de",
+      "query": "orbital Zustellung Wiederherstellung Pruefung Verfahren",
+      "expected_ids": [
+        "dev-orbit-delivery",
+        "dev-orbit-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-identifier",
+      "query": "dev-orbit-restore",
+      "expected_ids": [
+        "dev-orbit-restore"
+      ],
+      "answers": [
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "identifier",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "dev-orbit-unsupported",
+      "query": "What is the orbital quantum capacity?",
+      "expected_ids": [],
+      "answers": [],
+      "expected_snippets": [],
+      "stale_answers": [],
+      "unanswerable": true,
+      "category": "unanswerable",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/dev-orbit",
+      "domain": "general",
+      "family": "dev-orbit",
+      "split": "dev"
+    },
+    {
+      "id": "test-spruce-temporal-en",
+      "query": "spruce status",
+      "expected_ids": [
+        "test-spruce-current"
+      ],
+      "answers": [
+        "running"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "stale_answers": [
+        "stopped"
+      ],
+      "stale_ids": [
+        "test-spruce-old"
+      ],
+      "unanswerable": false,
+      "category": "temporal",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-delivery-en",
+      "query": "spruce delivery verification procedure",
+      "expected_ids": [
+        "test-spruce-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-delivery-de",
+      "query": "spruce Zustellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-spruce-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-multi-en",
+      "query": "spruce delivery recovery verification procedure",
+      "expected_ids": [
+        "test-spruce-delivery",
+        "test-spruce-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-multi-de",
+      "query": "spruce Zustellung Wiederherstellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-spruce-delivery",
+        "test-spruce-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-identifier",
+      "query": "test-spruce-restore",
+      "expected_ids": [
+        "test-spruce-restore"
+      ],
+      "answers": [
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "identifier",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-spruce-unsupported",
+      "query": "What is the spruce quantum capacity?",
+      "expected_ids": [],
+      "answers": [],
+      "expected_snippets": [],
+      "stale_answers": [],
+      "unanswerable": true,
+      "category": "unanswerable",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-spruce",
+      "domain": "general",
+      "family": "test-spruce",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-temporal-en",
+      "query": "amber status",
+      "expected_ids": [
+        "test-amber-current"
+      ],
+      "answers": [
+        "running"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "stale_answers": [
+        "stopped"
+      ],
+      "stale_ids": [
+        "test-amber-old"
+      ],
+      "unanswerable": false,
+      "category": "temporal",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-delivery-en",
+      "query": "amber delivery verification procedure",
+      "expected_ids": [
+        "test-amber-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-delivery-de",
+      "query": "amber Zustellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-amber-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-multi-en",
+      "query": "amber delivery recovery verification procedure",
+      "expected_ids": [
+        "test-amber-delivery",
+        "test-amber-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-multi-de",
+      "query": "amber Zustellung Wiederherstellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-amber-delivery",
+        "test-amber-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-identifier",
+      "query": "test-amber-restore",
+      "expected_ids": [
+        "test-amber-restore"
+      ],
+      "answers": [
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "identifier",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-amber-unsupported",
+      "query": "What is the amber quantum capacity?",
+      "expected_ids": [],
+      "answers": [],
+      "expected_snippets": [],
+      "stale_answers": [],
+      "unanswerable": true,
+      "category": "unanswerable",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-amber",
+      "domain": "general",
+      "family": "test-amber",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-temporal-en",
+      "query": "falcon status",
+      "expected_ids": [
+        "test-falcon-current"
+      ],
+      "answers": [
+        "running"
+      ],
+      "expected_snippets": [
+        "running"
+      ],
+      "stale_answers": [
+        "stopped"
+      ],
+      "stale_ids": [
+        "test-falcon-old"
+      ],
+      "unanswerable": false,
+      "category": "temporal",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-delivery-en",
+      "query": "falcon delivery verification procedure",
+      "expected_ids": [
+        "test-falcon-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-delivery-de",
+      "query": "falcon Zustellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-falcon-delivery"
+      ],
+      "answers": [
+        "dated receipt"
+      ],
+      "expected_snippets": [
+        "dated receipt"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "ordering",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-multi-en",
+      "query": "falcon delivery recovery verification procedure",
+      "expected_ids": [
+        "test-falcon-delivery",
+        "test-falcon-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-multi-de",
+      "query": "falcon Zustellung Wiederherstellung Pruefung Verfahren",
+      "expected_ids": [
+        "test-falcon-delivery",
+        "test-falcon-restore"
+      ],
+      "answers": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "dated receipt",
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "multi-source",
+      "language": "de",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-identifier",
+      "query": "test-falcon-restore",
+      "expected_ids": [
+        "test-falcon-restore"
+      ],
+      "answers": [
+        "original-row hashes"
+      ],
+      "expected_snippets": [
+        "original-row hashes"
+      ],
+      "stale_answers": [],
+      "unanswerable": false,
+      "category": "identifier",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    },
+    {
+      "id": "test-falcon-unsupported",
+      "query": "What is the falcon quantum capacity?",
+      "expected_ids": [],
+      "answers": [],
+      "expected_snippets": [],
+      "stale_answers": [],
+      "unanswerable": true,
+      "category": "unanswerable",
+      "language": "en",
+      "as_of": "2026-04-01T00:00:00Z",
+      "project": "/synthetic/reranker/test-falcon",
+      "domain": "general",
+      "family": "test-falcon",
+      "split": "test"
+    }
+  ],
+  "attribution": {
+    "prior_revision": "5b390692e32e07c8816e98091dfa66e15e0c2cb3",
+    "prior_report": "docs/benchmarks/2026-10-04-failure-evaluation/evaluation/dev-results.json",
+    "prior_report_sha256": "95a6f9193b2b64b7714c469370faa724f36a01c9ca9b2a8621b4f5c4bb79ccf6",
+    "prior_profile": "search-title-0",
+    "confirmed_dev_failures": [
+      {
+        "query_id": "dev-failure-0-current-en",
+        "prior_missing_expected_ids": [
+          "dev-failure-0-current-status"
+        ],
+        "prior_extractive_correct": false
+      },
+      {
+        "query_id": "dev-failure-0-current-de",
+        "prior_missing_expected_ids": [],
+        "prior_extractive_correct": false
+      },
+      {
+        "query_id": "dev-failure-0-independent-domain",
+        "prior_missing_expected_ids": [
+          "dev-failure-0-other-domain"
+        ],
+        "prior_extractive_correct": false
+      },
+      {
+        "query_id": "dev-failure-1-current-en",
+        "prior_missing_expected_ids": [
+          "dev-failure-1-current-status"
+        ],
+        "prior_extractive_correct": false
+      },
+      {
+        "query_id": "dev-failure-1-current-de",
+        "prior_missing_expected_ids": [],
+        "prior_extractive_correct": false
+      },
+      {
+        "query_id": "dev-failure-1-independent-domain",
+        "prior_missing_expected_ids": [
+          "dev-failure-1-other-domain"
+        ],
+        "prior_extractive_correct": false
+      }
+    ],
+    "limits": "Public previously observed synthetic failures only. Fresh held-out families are representative controls, not new confirmed real failures. Shared authoring templates limit generalization."
+  }
+}

@@ -84,3 +84,22 @@ Q8 file SHA256 `0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553
 model code executes. Both actual model probes/results and rejected attempts remain
 part of measurement evidence. Freeze the three-model/config grid before held-out
 outputs. No live/default selection follows from the winner.
+
+
+## Rejected first experiment and replacement fixture
+
+The initial corpus/model run at b16ee74 is retained as an invalid attempt:
+a new temporal fixture used assertion instead of replacement, new lexical
+questions did not exercise eligible ordering, and a busy native `/slots` read
+could exceed its one-second HTTP timeout. The success gate rejected actual
+index/query failures and all owned processes stopped. This is not quality evidence.
+
+Active public corpus-v2 fixes the authored replacement relation and validates
+candidate routes using only dev-orbit before model measurement. It replaces the
+already observed meadow/cobalt/harbor test families with previously unmeasured
+spruce/amber/falcon; both the rejected corpus and prior commit remain attributable.
+No held-out quality score chooses these corrections. Short EN/DE operational
+queries and bilingual source text create ambiguous source choices; shared authored
+templates limit independent-family generalization. Idle HTTP read timeouts are
+retried only within the same finite30-second drain budget. A new sealed run is
+required; never resume the rejected experiment or treat its outputs as valid.
