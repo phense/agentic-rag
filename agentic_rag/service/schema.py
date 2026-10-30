@@ -1,0 +1,74 @@
+"""Fail closed before service access when the installed scope protection is absent."""
+from __future__ import annotations
+
+import psycopg
+
+
+class ServiceSchemaError(PermissionError):
+    def __init__(self):
+        super().__init__('incompatible_service_schema')
+
+
+SCOPED_TABLES = (
+    'documents', 'domains', 'chunks', 'chunk_contexts', 'edges', 'pins',
+    'fact_assertions', 'assertion_sources', 'claim_records', 'claim_evidence',
+    'knowledge_sources', 'entity_identities', 'assertion_entities', 'entity_aliases',
+    'continuation_checkpoints', 'mining_batches', 'mining_queue', 'audit_log',
+    'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
+    'service_session_access',
+)
+
+
+def uploader_column_valid(conn):
+    """The migration023 field extension must remain a nullable, plain UUID."""
+    return conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_attribute a
+        WHERE a.attrelid=pg_catalog.to_regclass('public.service_sessions')
+          AND a.attname='uploader_id' AND NOT a.attisdropped
+          AND a.atttypid='pg_catalog.uuid'::regtype AND NOT a.attnotnull
+          AND NOT a.atthasdef AND a.attgenerated='' AND a.attidentity='') ok""").fetchone()['ok']
+
+
+def validate_schema(conn):
+    """Check startup and every fresh scoped connection; never auto-migrate here.
+
+    Migration markers alone are insufficient: disabled RLS, missing policies or
+    a privileged database role must also fail before a business query executes.
+    """
+    from ..db import SQL_DIR
+    try:
+        conn.execute("SELECT set_config('statement_timeout','15000',false)")
+        installed={r['filename'] for r in conn.execute('SELECT filename FROM public.schema_migrations')}
+        required={'021_service_scope.sql','022_service_state.sql'} | {p.name for p in SQL_DIR.glob('*.sql')}
+        if not required <= installed or not uploader_column_valid(conn):
+            raise ServiceSchemaError()
+        rows=conn.execute("""
+            SELECT c.relname,c.relrowsecurity,
+              (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND starts_with(p.polname,'service_')) policies,
+              (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND p.polcmd='w' AND NOT p.polpermissive) update_guards
+            FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relname=ANY(%s)
+        """,(list(SCOPED_TABLES),)).fetchall()
+        if {r['relname'] for r in rows} != set(SCOPED_TABLES) or any(not r['relrowsecurity'] or not r['policies'] for r in rows):
+            raise ServiceSchemaError()
+        # Derived/read-only tables have no write check; remaining mutable tables
+        # must enforce the original row's authority in addition to WITH CHECK.
+        read_only={'chunks','chunk_contexts','audit_log','service_session_access'}
+        if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
+            raise ServiceSchemaError()
+        roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()
+        if len(roles)!=2 or any(r['rolsuper'] or r['rolbypassrls'] for r in roles):
+            raise ServiceSchemaError()
+        # A reader/writer owning a table (including inherited ownership) bypasses RLS.
+        elevated=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_class c
+            JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relname=ANY(%s)
+            AND (pg_catalog.pg_has_role('rag_reader',c.relowner,'USAGE')
+              OR pg_catalog.pg_has_role('rag_writer',c.relowner,'USAGE'))) bad""",(list(SCOPED_TABLES),)).fetchone()['bad']
+        if elevated:
+            raise ServiceSchemaError()
+        audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
+            WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'
+            AND t.tgenabled IN ('O','A') AND t.tgfoid='public.rag_service_audit_actor()'::regprocedure) ok""").fetchone()['ok']
+        if not audit:raise ServiceSchemaError()
+    except psycopg.Error:
+        raise ServiceSchemaError() from None

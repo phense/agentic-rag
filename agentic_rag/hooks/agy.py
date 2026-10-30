@@ -90,6 +90,10 @@ def session_start(payload: dict) -> dict:
     session_id = _session_id(payload)
     try:
         cfg = load_config()
+        if cfg.service_mode=='client':
+            from ..service.local import context
+            common.spawn_worker()
+            return inject(context(cfg,internal_payload(payload)))
         conn = db.connect(cfg, role="writer")
         try:
             text = shared.build_context(
@@ -198,6 +202,35 @@ def pre_invocation(payload: dict) -> dict:
     marker = None if request is not None else ta.latest_auto_compaction(steps)
     try:
         cfg = load_config()
+        if cfg.service_mode=='client':
+            from ..service import local
+            if request is not None or marker is not None:
+                boundary=request or marker
+                data=internal_payload(payload,trigger='manual' if request else 'auto',hook_event_name='PreCompact')
+                # The stable marker identifies repeat delivery without DB access.
+                from ..continuity.capture import capture_snapshot_seed
+                from dataclasses import asdict
+                from ..service.client import RemoteClient
+                snapshot=asdict(capture_snapshot_seed(data));snapshot.pop('session_id');snapshot.pop('project_root')
+                snapshot['cursor']=boundary.identity
+                snapshot['artifacts']=list(snapshot['artifacts']);snapshot['warnings']=list(snapshot['warnings'])
+                with RemoteClient(cfg) as remote:
+                    prior=remote.spool.latest_checkpoint(session_id)
+                    fresh=not prior or prior['snapshot']['cursor']!=boundary.identity
+                    if fresh:remote.stage_checkpoint({'version':1,'session_id':session_id,'project':local.project(data),'snapshot':snapshot,'compacted':False,'handoff':None})
+                if request:
+                    from ..integrations.agy.prompt import compact_prompt_text
+                    messages.append(compact_prompt_text())
+                elif fresh:
+                    local.post_compact(cfg,{**data,'compact_summary':ta.auto_compaction_summary(marker)})
+                    messages.append(local.context(cfg,data))
+                common.spawn_worker()
+            if request is None:
+                last=ta.last_user_input(steps)
+                if last is not None:
+                    recalled=prompt_recall.recall_context(ta.user_request_text(last.content),_cwd(payload))
+                    if recalled:messages.append(recalled)
+            return inject(*messages)
         conn = db.connect(cfg, role="writer")
         try:
             if request is not None:
@@ -239,6 +272,11 @@ def _attach_manual_handoff(payload: dict, session_id: str, transcript: str) -> N
         return
     summary = ta.compaction_summary(steps, request.index)
     cfg = load_config()
+    if cfg.service_mode=='client':
+        from ..service.local import post_compact
+        post_compact(cfg,internal_payload(payload,trigger='manual',compact_summary=summary))
+        common.spawn_worker()
+        return
     conn = db.connect(cfg, role="writer")
     try:
         checkpoint = store.latest_pre_compact(conn, session_id, "manual")

@@ -17,7 +17,7 @@ from .llm import run_structured
 from .pins import matching_pins
 from .secrets import strip_secrets, strip_secrets_json
 from .store import EdgeSpec, save_document
-from .mining_window import read_window
+from .mining_window import read_window, MiningWindow
 
 MAX_ITEMS_PER_KIND = 8
 MAX_EDGES_PER_ITEM = 5
@@ -296,7 +296,7 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
     reaches cfg.dedup_threshold. None when Ollama is down (dedup is
     best-effort; the save itself is never blocked)."""
     from .scope import write_scope
-    project_scope = write_scope(project=project)
+    project_scope = write_scope(scope=project) if project in {'global','unknown'} else write_scope(project=project)
     if not project_scope or project_scope == "unknown":
         return None
     vecs = try_embed_texts([f"{title}\n{body}"], cfg)
@@ -315,6 +315,11 @@ def _near_duplicate(conn, cfg: Config, title: str, body: str,
     return None
 
 
+def _source_namespace(session_id):
+    from .service.context import CURRENT
+    return session_id if CURRENT.get() is not None else 'session:'+session_id
+
+
 def _audit(conn, op: str, summary: str) -> None:
     conn.execute(
         "INSERT INTO audit_log(actor, op, summary) VALUES ('mining', %s, %s)",
@@ -323,7 +328,8 @@ def _audit(conn, op: str, summary: str) -> None:
 
 def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  last_uuid: str | None, project: str | None,
-                 runner=subprocess.run, benchmark_prompt: str | None = None) -> MineResult:
+                 runner=subprocess.run, benchmark_prompt: str | None = None,
+                 provided_window: MiningWindow | None = None, before_apply=None) -> MineResult:
     """Accept a bounded extraction durably, then apply all its effects atomically.
 
     A previously accepted input cursor wins over new model output/source appends.
@@ -347,13 +353,15 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
         (session_id, last_uuid or "")).fetchone()
     conn.commit()
     if row is None:
-        window = read_window(transcript_path, after_uuid=last_uuid,
+        window = provided_window or read_window(transcript_path, after_uuid=last_uuid,
                              max_chars=cfg.mine_max_digest_chars,
                              per_block=cfg.mine_per_block_chars)
         if window.last_uuid == last_uuid:
             return MineResult(new_last_uuid=last_uuid, skipped="empty digest",
                               warnings=window.warnings)
-        domain_names = [d.name for d in list_domains(conn)]
+        from .service.context import CURRENT
+        authority=CURRENT.get()
+        domain_names = [d.name for d in list_domains(conn) if authority is None or authority.principal.can_write(d.name,project or 'unknown')]
         if not domain_names:
             conn.commit()
             return MineResult(new_last_uuid=last_uuid,
@@ -388,7 +396,11 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
              window.has_more, json.dumps(window.warnings))).fetchone()
         if row is not None:
             _audit(conn, "mining_accept", f"accepted batch {row['id']}")
-        conn.commit()
+        # Preserve accepted extraction independently of current write authority;
+        # before_apply and the canonical commit both revalidate that authority.
+        getattr(conn, 'commit_accepted_extraction', conn.commit)()
+    if before_apply is not None:
+        before_apply()
     # Lock the accepted row so even accidental concurrent callers cannot apply it twice.
     try:
         row = conn.execute(
@@ -407,6 +419,8 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
         conn.execute("UPDATE mining_batches SET result=%s, applied_at=now() WHERE id=%s",
                      (json.dumps(asdict(result)), row["id"]))
         _audit(conn, "mining_apply", f"applied batch {row['id']}: {result.saved} documents")
+        if before_apply is not None:
+            before_apply()
         conn.commit()
         return result
     except BaseException:
@@ -433,6 +447,7 @@ def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
                                output_cursor):
     provenance = {"origin": "session-mining", "session_id": session_id,
                   "project": project, "mining_batch": batch_id}
+    location={'scope':project} if project in {'global','unknown'} else {'project':project}
     saved = duplicates = 0
     for dtype, items in (("memory", ext.memories), ("lesson", ext.lessons),
                          ("signal", ext.signals)):
@@ -457,13 +472,13 @@ def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
             save_claim(
                 conn, cfg, claim_kind=item.claim_kind,evidence=item.evidence,title=item.title, body=body, domain=item.domain,
                 dtype=dtype, meta=meta, provenance={**provenance, "mining_item": f"{dtype}:{saved}"}, edges=edges,
-                actor="mining", commit=False)
+                actor="mining", commit=False, **location)
             saved += 1
 
     from .store import save_assertion
     for item in ext.assertions:
-        item = {**item, 'evidence': {**item['evidence'], 'namespace': 'session:'+session_id}}
-        result = save_assertion(conn, cfg, **item, project=project, actor='mining', commit=False)
+        item = {**item, 'evidence': {**item['evidence'], 'namespace': _source_namespace(session_id)}}
+        result = save_assertion(conn, cfg, **item, actor='mining', commit=False, **location)
         saved += not result.duplicate
         duplicates += result.duplicate
 
@@ -481,7 +496,7 @@ def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
             domain=c["domain"], dtype="lesson", provenance={**provenance, "mining_item": f"contradiction:{index}"},
             edges=[EdgeSpec("contradicts", c["slug"], evidence=c["quote"],
                             confidence="medium")],
-            actor="mining", commit=False)
+            actor="mining", commit=False, **location)
 
     for index, s in enumerate(ext.pin_suggestions):
         _audit(conn, "pin_suggestion",
@@ -585,7 +600,7 @@ def ground_claim_items(data, events, session_id):
                 if not source or not isinstance(quote,str) or not quote.strip() or len(quote)>4000 or quote not in source['text']:continue
                 try:timestamp=parse_time(source.get('timestamp'))
                 except (ValueError,TypeError):timestamp=None
-                links.append({'namespace':'session:'+session_id,'source_id':source['source_id'],
+                links.append({'namespace':_source_namespace(session_id),'source_id':source['source_id'],
                               'role':source.get('role') or 'unknown','timestamp':timestamp.isoformat() if timestamp else None,
                               'quote':quote,'complete':source.get('complete') is True})
                 source_texts.append(re.sub(r'^\[(?:user|assistant)\]\s*','',source['text'].strip()))

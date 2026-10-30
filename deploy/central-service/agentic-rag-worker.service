@@ -1,0 +1,37 @@
+[Unit]
+Description=Agentic RAG serial central worker
+After=network.target postgresql.service
+
+[Service]
+User=rag
+Group=rag
+WorkingDirectory=/opt/agentic-rag
+Environment=HOME=/var/lib/agentic-rag
+Environment=AGENTIC_RAG_CONFIG=/etc/agentic-rag/server.toml
+# Optional, root-owned0600 persistent headless Claude subscription credential.
+# Contains CLAUDE_CODE_OAUTH_TOKEN; never put its value in a unit or repository.
+EnvironmentFile=-/etc/agentic-rag/claude-oauth.env
+ExecStart=/opt/agentic-rag/.venv/bin/rag service --config /etc/agentic-rag/server.toml worker
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=330
+KillMode=control-group
+Nice=10
+CPUWeight=20
+# One CPU at most for the worker/CLI group; PostgreSQL/Ollama have separate budgets.
+CPUQuota=100%
+MemoryHigh=768M
+MemoryMax=1G
+TasksMax=64
+LimitNOFILE=256
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agentic-rag
+LogNamespace=agentic-rag
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

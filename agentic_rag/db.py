@@ -26,10 +26,28 @@ def dsn(cfg: Config, role: str = "owner", dbname: str | None = None) -> str:
 
 def connect(cfg: Config, role: str = "owner",
             dbname: str | None = None) -> psycopg.Connection:
-    return psycopg.connect(dsn(cfg, role, dbname), row_factory=dict_row)
+    from .service.context import CURRENT, ServiceConnection, apply_connection
+    request = CURRENT.get()
+    if request is not None:
+        cfg = request.config
+        if dbname is not None and dbname != cfg.db_name:
+            raise PermissionError('service database selection is fixed')
+        role = 'reader' if request.read_only or request.principal.readonly or role == 'reader' else 'writer'
+    from .service.fence import LEASE,FencedConnection,pin_execution
+    fenced=LEASE.get() is not None
+    connector=ServiceConnection.connect if request is not None else FencedConnection.connect if fenced else psycopg.connect
+    conn = connector(dsn(cfg, role, dbname), row_factory=dict_row, connect_timeout=5)
+    if request is None and not fenced:
+        return conn
+    try:
+        if fenced:pin_execution(conn)
+        return apply_connection(conn, request) if request is not None else conn
+    except BaseException:
+        conn.close()
+        raise
 
 
-def apply_migrations(conn: psycopg.Connection, sql_dir: Path) -> list[str]:
+def apply_migrations(conn: psycopg.Connection, sql_dir: Path, *, commit: bool = True) -> list[str]:
     """Apply pending sql/*.sql in filename order; all pending files commit
     together (one transaction on a non-autocommit connection)."""
     conn.execute(
@@ -49,7 +67,7 @@ def apply_migrations(conn: psycopg.Connection, sql_dir: Path) -> list[str]:
             "INSERT INTO schema_migrations(filename) VALUES (%s)", (f.name,)
         )
         applied.append(f.name)
-    if not conn.autocommit:
+    if commit and not conn.autocommit:
         conn.commit()
     return applied
 

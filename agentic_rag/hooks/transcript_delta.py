@@ -28,6 +28,11 @@ def enqueue_transcript_delta(payload: dict, *, hook: str) -> None:
             return
 
         cfg = load_config()
+        if cfg.service_mode == 'client':
+            from ..service.local import capture_transcript
+            capture_transcript(cfg,payload)
+            common.spawn_worker()
+            return
         conn = db.connect(cfg, role="writer")
         try:
             jobs.enqueue_mine(

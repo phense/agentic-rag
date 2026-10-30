@@ -31,6 +31,7 @@ explains production compatibility, upgrade evidence, and merge approval.
 - [05 · Session mining & curation](05-session-mining-and-curation.md) — durable mining, the Claude and Codex checkpoint lifecycle/restoration (including the Claude handoff), provider recovery, and curation.
 
 ## Configure
+- [13 · Central service](13-central-service.md) — standalone upgrades, multi-VM authentication, durable input, bounded operation and cutover/recovery playbooks.
 - [06 · Configuration reference](06-configuration-reference.md) — agentic-rag defaults, the `[continuity]` handoff/context caps, the managed Claude 1M/500K policy, and the managed 350K/250K Codex policy.
 - [07 · Privacy, cost & control](07-privacy-and-cost.md) — provider calls, native/external memory, long-context pricing, hook trust, secrets, roles, and recovery.
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from .service.read_limits import rows as bounded_rows
 
 
 @dataclass(frozen=True)
@@ -44,10 +45,10 @@ def neighbors(conn, doc_id: str, depth: int = 1,
     if history is None:
         history = project is None and scope is None and as_of is None
     at, history = time_selection(as_of, history)
-    rows = conn.execute(
+    rows = bounded_rows(conn,
         "SELECT * FROM graph_neighbors_temporal(%s, %s, %s, %s, %s, %s)",
         (doc_id, depth, predicates, scopes, at, history),
-    ).fetchall()
+    )
     return [
         EdgeHop(str(r["edge_id"]), str(r["src_id"]), str(r["dst_id"]),
                 r["predicate"], r["evidence"], r["confidence"], r["depth"])
@@ -63,12 +64,12 @@ def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
     if history is None:
         history = project is None and scope is None and as_of is None
     at, history = time_selection(as_of, history)
-    rows = conn.execute(
+    rows = bounded_rows(conn,
         "SELECT p.step, p.doc_id, p.via_predicate, d.slug, d.title"
         " FROM graph_path_temporal(%s, %s, %s, %s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
         " ORDER BY p.step",
         (from_id, to_id, max_depth, scopes, at, history),
-    ).fetchall()
+    )
     return [
         PathStep(r["step"], str(r["doc_id"]), r["slug"], r["title"],
                  r["via_predicate"])
@@ -77,9 +78,9 @@ def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
 
 
 def timeline(conn, doc_id: str) -> list[TimelineEdge]:
-    rows = conn.execute(
+    rows = bounded_rows(conn,
         "SELECT * FROM graph_timeline(%s)", (doc_id,)
-    ).fetchall()
+    )
     return [
         TimelineEdge(str(r["edge_id"]), r["src_slug"], r["dst_slug"],
                      r["predicate"], r["valid_from"], r["valid_to"])

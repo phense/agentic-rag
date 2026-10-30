@@ -82,7 +82,7 @@ def test_populated_upgrade_strict_backup_interruption_retry_and_read_only_recove
             conn.rollback()  # Interrupted DDL is safely retryable.
             assert conn.execute('SELECT assertion_eligible(%s) eligible', (programming.doc_id,)).fetchone()['eligible'] is False
             applied = db.apply_migrations(conn, db.SQL_DIR)
-            assert applied == (['019_embedding_reuse.sql'] if schema == 18 else []) + ['020_domain_assertions.sql']
+            assert applied == (['019_embedding_reuse.sql'] if schema == 18 else []) + ['020_domain_assertions.sql', '021_service_scope.sql', '022_service_state.sql', '023_claim_lookup.sql']
             assert db.apply_migrations(conn, db.SQL_DIR) == []
             assert snapshot(conn, preserved_tables) == original
             assert [r for r in privileges(conn) if r['table_name'] in preserved_tables + ['schema_migrations']] == original_grants

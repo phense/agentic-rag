@@ -340,6 +340,7 @@ def test_main_never_raises(tmp_path, monkeypatch):
 
 def test_main_skips_post_drain_curation_after_provider_outage(
         tmp_path, monkeypatch):
+    from contextlib import nullcontext
     class Conn:
         def close(self):
             pass
@@ -349,6 +350,10 @@ def test_main_skips_post_drain_curation_after_provider_outage(
     monkeypatch.setattr(worker, "LOG_PATH", tmp_path / "worker.log")
     monkeypatch.setattr(worker, "load_config", lambda: Config())
     monkeypatch.setattr(worker.db, "connect", lambda *a, **k: conn)
+    # The independent real-DB tests exercise cross-host fencing. This probe
+    # exercises post-drain provider handling after successful acquisition.
+    monkeypatch.setattr(worker,'acquire_database_lock',lambda cfg:nullcontext(object()))
+    monkeypatch.setattr(worker,'worker_scope',lambda keeper:nullcontext())
     monkeypatch.setattr(worker, "requeue_orphans", lambda *a, **k: 0)
     monkeypatch.setattr(
         worker, "drain", lambda *a, **k:
@@ -441,7 +446,7 @@ def test_fresh_worker_preserves_populated_store_and_future_queue(
 
     conn.execute("INSERT INTO domains(name) VALUES ('general'),('programming')")
     conn.commit()
-    monkeypatch.setattr(store, "embed_texts", lambda texts, _cfg: [[0.1] * 1024 for _ in texts])
+    monkeypatch.setattr(store, "try_embed_texts", lambda texts, _cfg: [[0.1] * 1024 for _ in texts])
     for domain, actor, project in [
         ("general", "alice", "/example/project-a"),
         ("programming", "bob", "/example/project-b"),

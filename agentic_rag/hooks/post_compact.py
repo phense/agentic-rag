@@ -74,6 +74,11 @@ def run(payload: dict, stdout) -> None:
         return
     try:
         cfg = load_config()
+        if cfg.service_mode == 'client':
+            from ..service.local import post_compact
+            post_compact(cfg,payload)
+            common.spawn_worker()
+            return
         conn = db.connect(cfg, role="writer")
         try:
             if client == "claude":

@@ -149,6 +149,11 @@ def dispatch(event, payload):
         cfg = load_config()
         if event == 'idle':
             path = project_transcript(payload)
+            if cfg.service_mode=='client':
+                from ...service.local import capture_transcript
+                capture_transcript(cfg,{'session_id':sid,'cwd':payload['cwd'],'transcript_path':str(path)})
+                common.spawn_worker()
+                return {'ok':True}
             with db.connect(cfg, role='writer') as conn:
                 jobs.enqueue_mine(conn, cfg, session_id=sid, transcript_path=str(path), project=payload['cwd'])
             common.spawn_worker()
@@ -159,6 +164,26 @@ def dispatch(event, payload):
             raise ValueError('compaction request identity required')
         if trigger not in ('manual', 'auto'):
             raise ValueError('compaction trigger required')
+        if cfg.service_mode=='client':
+            from ...service import local
+            from ...service.client import RemoteClient
+            data={'session_id':sid,'cwd':payload['cwd'],'turn_id':boundary,'trigger':trigger}
+            if event=='post-compact':
+                with RemoteClient(cfg) as remote:
+                    packet=remote.spool.latest_checkpoint(sid)
+                    if not packet or packet['snapshot']['turn_id']!=boundary:raise ValueError('matching pre-compaction checkpoint unavailable')
+                summary=payload.get('summary')
+                if not isinstance(summary,str) or not summary.strip():raise ValueError('completed compaction summary required')
+                local.post_compact(cfg,{**data,'compact_summary':summary})
+                common.spawn_worker()
+                return {'ok':True,'checkpoint_id':'local:'+boundary}
+            path=project_transcript(payload,boundary_id=boundary)
+            with RemoteClient(cfg) as remote:
+                packet=remote.spool.latest_checkpoint(sid)
+            if not packet or packet['snapshot']['turn_id']!=boundary:
+                local.pre_compact(cfg,{**data,'transcript_path':str(path)})
+            common.spawn_worker()
+            return {'ok':True,'checkpoint_id':'local:'+boundary,'context':COMPACT_PROMPT}
         with db.connect(cfg, role='writer') as conn:
             checkpoint = store.matching_compaction(conn, sid, boundary, trigger)
             if event == 'post-compact':

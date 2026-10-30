@@ -125,10 +125,9 @@ def _reader_snapshot(cfg):
         conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
         conn.execute("SET LOCAL statement_timeout='5s'")
         schema = [r['filename'] for r in conn.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
-        expected = [p.name for p in sorted(db.SQL_DIR.glob('*.sql')) if p.name <= '018_entity_identities.sql']
-        if schema not in (expected, expected + ['019_embedding_reuse.sql'],
-                           expected + ['019_embedding_reuse.sql', '020_domain_assertions.sql']):
-            raise ValueError('correction export supports populated schema018/019/020 only')
+        expected = [p.name for p in sorted(db.SQL_DIR.glob('*.sql'))]
+        if not 18<=len(schema)<=23 or schema!=expected[:len(schema)]:
+            raise ValueError('correction export supports known populated schema018..023 only')
         at = conn.execute('SELECT transaction_timestamp() AS at').fetchone()['at'].isoformat()
         yield conn, at, schema
         conn.rollback()
@@ -300,11 +299,11 @@ def _validate_export(data):
         raise ValueError('exact export selectors are required')
     if parse_time(data.get('as_of')) is None:
         raise ValueError('explicit export snapshot time is required')
-    expected=[p.name for p in sorted(db.SQL_DIR.glob('*.sql')) if p.name<='018_entity_identities.sql']
+    expected=[p.name for p in sorted(db.SQL_DIR.glob('*.sql'))]
+    schema=data.get('source_schema')
     if (not isinstance(data.get('source_revision'),str) or not re.fullmatch('[0-9a-f]{40}',data['source_revision'])
         or not isinstance(data.get('source_sha256'),str) or not HEX.fullmatch(data['source_sha256'])
-        or data.get('source_schema') not in (expected,expected+['019_embedding_reuse.sql'],
-                                            expected+['019_embedding_reuse.sql','020_domain_assertions.sql'])):
+        or not isinstance(schema,list) or not 18<=len(schema)<=23 or schema!=expected[:len(schema)]):
         raise ValueError('invalid original code/schema revision')
     cases=data.get('cases')
     if not isinstance(cases,list) or len(cases)>MAX_CASES: raise ValueError('invalid bounded cases')

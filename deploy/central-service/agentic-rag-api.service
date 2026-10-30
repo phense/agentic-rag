@@ -1,0 +1,31 @@
+[Unit]
+Description=Agentic RAG authenticated API
+After=network.target postgresql.service
+
+[Service]
+User=rag
+Group=rag
+WorkingDirectory=/opt/agentic-rag
+Environment=HOME=/var/lib/agentic-rag
+Environment=AGENTIC_RAG_CONFIG=/etc/agentic-rag/server.toml
+ExecStart=/opt/agentic-rag/.venv/bin/rag service --config /etc/agentic-rag/server.toml serve --auth-file /etc/agentic-rag/auth.toml --allowed-host localhost --allowed-host 127.0.0.1 --allowed-host rag.example.ts.net
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=330
+KillMode=control-group
+CPUWeight=200
+MemoryHigh=256M
+MemoryMax=384M
+TasksMax=64
+LimitNOFILE=256
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agentic-rag
+LogNamespace=agentic-rag
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

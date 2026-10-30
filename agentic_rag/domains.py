@@ -32,10 +32,11 @@ def seed_defaults(conn) -> None:
 
 
 def list_domains(conn) -> list[DomainInfo]:
-    rows = conn.execute(
+    from .service.read_limits import rows as bounded_rows
+    rows = bounded_rows(conn,
         "SELECT d.name, d.description, count(doc.id) AS docs"
         " FROM domains d LEFT JOIN documents doc"
         "   ON doc.domain = d.name AND doc.status = 'active'"
         " GROUP BY d.name, d.description ORDER BY d.name"
-    ).fetchall()
+    )
     return [DomainInfo(r["name"], r["description"], r["docs"]) for r in rows]

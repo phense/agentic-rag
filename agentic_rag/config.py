@@ -27,11 +27,23 @@ _SECTION_PREFIX = {
     "worker": "worker",
     "pg": "pg",
     "continuity": "checkpoint",
+    "service": "service",
 }
 
 
 @dataclass(frozen=True)
 class Config:
+    service_max_database_bytes: int = 8*1024**3
+    service_min_free_bytes: int = 2*1024**3
+    service_max_pending: int = 1000
+    service_max_pending_per_owner: int = 100
+    service_max_pending_bytes: int = 64*1024**2
+    service_storage_path: Path | None = None
+    service_mode: str = "standalone"
+    service_url: str = ""
+    service_token_file: Path | None = None
+    service_auth_file: Path | None = None
+    service_spool_dir: Path = field(default_factory=lambda: Path.home()/'.agentic-rag'/'spool')
     db_name: str = "agentic_rag"
     db_host: str = ""  # "" = local unix socket
     embed_model: str = "bge-m3"
@@ -69,6 +81,16 @@ class Config:
     context_max_chars: int = 9500
 
     def __post_init__(self) -> None:
+        for name,minimum in [('backup_keep_local',1),('backup_keep_daily',1),('backup_keep_weekly',0)]:
+            value=getattr(self,name)
+            if type(value) is not int or not minimum<=value<=366:
+                raise ValueError(name+' must be a finite retention count (maximum 366)')
+        for name in ('service_max_database_bytes','service_min_free_bytes','service_max_pending',
+                     'service_max_pending_per_owner','service_max_pending_bytes'):
+            if type(getattr(self,name)) is not int or getattr(self,name)<1:
+                raise ValueError(name+' must be a positive integer')
+        if self.service_mode not in {"standalone","client","server"}:
+            raise ValueError("invalid service mode")
         if (
             not isinstance(self.mine_max_digest_chars, int)
             or isinstance(self.mine_max_digest_chars, bool)
@@ -98,10 +120,14 @@ class Config:
             )
 
 
-_PATH_FIELDS = {"backup_cloud_dir", "backup_local_dir", "pg_bin_dir"}
+_PATH_FIELDS = {"service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
 
 
 def load_config(path: Path | None = None) -> Config:
+    from .service.context import CURRENT
+    request = CURRENT.get()
+    if request is not None:
+        return request.config
     p = path or Path(os.environ.get("AGENTIC_RAG_CONFIG", DEFAULT_PATH))
     if not p.exists():
         return Config()

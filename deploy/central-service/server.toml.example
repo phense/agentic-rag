@@ -1,0 +1,29 @@
+# Copy privately to /etc/agentic-rag/server.toml; choose an existing owned DB.
+[db]
+name = "agentic_rag"
+host = "/var/run/postgresql"
+
+[service]
+mode = "server"
+auth_file = "/etc/agentic-rag/auth.toml"
+storage_path = "/var/lib/postgresql"
+max_database_bytes = 8589934592
+min_free_bytes = 2147483648
+max_pending = 1000
+max_pending_per_owner = 100
+max_pending_bytes = 67108864
+
+[backup]
+local_dir = "/var/lib/agentic-rag/backups"
+keep_local = 3
+keep_daily = 3
+keep_weekly = 1
+
+[llm]
+provider = "claude"
+model = "haiku"
+timeout = 300
+
+[embed]
+model = "bge-m3"
+dim = 1024

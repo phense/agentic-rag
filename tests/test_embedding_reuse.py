@@ -16,6 +16,10 @@ def identity(monkeypatch, conn):
     conn.execute("INSERT INTO domains(name) VALUES ('nature')")
     conn.commit()
     monkeypatch.setattr(reuse, 'model_digest', lambda cfg: 'a' * 64)
+    # Context indexing has its own identity probe. Keep this fixture independent
+    # of whichever model tags happen to be installed on the test host.
+    from agentic_rag import query_cache
+    monkeypatch.setattr(query_cache, 'model_digest', lambda cfg: 'a' * 64)
     return conn
 
 
