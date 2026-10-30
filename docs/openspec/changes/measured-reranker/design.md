@@ -47,7 +47,7 @@ characters,1.5 seconds and two nonqueued in-flight operations per process.
   answer abstention; no language-model answer quality claim is made.
 - New-process runtime startup/first request and repeated warm requests are distinct.
   Run owned PG, model runtimes and evaluator/children together in an effective
-  cgroup with cpuset0-3, quota400%, MemoryMax8GiB and MemorySwapMax0. Record
+  cgroup with verified process affinity0-3, quota400%, MemoryMax8GiB and MemorySwapMax0. Record
   membership, peak memory, CPU/throttling/OOM counters and actual shared host;
   this constrained service envelope is not a dedicated VM or fleet-capacity proof.
 

@@ -264,7 +264,7 @@ This is an intentional local challenger, with no hosted reranking integration.
 
    ```sh
    systemd-run --user --wait --collect --unit=rag62-reference \
-     -p MemoryMax=8G -p MemorySwapMax=0 -p AllowedCPUs=0-3 -p CPUQuota=400% \
+     -p MemoryMax=8G -p MemorySwapMax=0 -p CPUAffinity=0-3 -p CPUQuota=400% \
      -p "WorkingDirectory=$PWD" \
      "$PWD/.venv/bin/python" scripts/rehearse_reranker.py \
      --runtime "$RERANK_BIN" --qwen "$QWEN_FILE" --tiny "$TINY_FILE" \

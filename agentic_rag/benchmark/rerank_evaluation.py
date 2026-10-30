@@ -142,9 +142,12 @@ def sources():
 
 def reference_snapshot(*,require=True):
     path=Path('/sys/fs/cgroup')/Path('/proc/self/cgroup').read_text().strip().split('::')[-1].lstrip('/')
-    result={key:(path/key).read_text().strip() for key in ('cpu.max','cpuset.cpus.effective',
+    result={key:(path/key).read_text().strip() for key in ('cpu.max',
         'memory.max','memory.swap.max','memory.current','memory.peak','cpu.stat','memory.events')}
-    if require and (result['cpu.max']!='400000 100000' or result['cpuset.cpus.effective']!='0-3'
+    result['cpuset.cpus.effective']=((path/'cpuset.cpus.effective').read_text().strip()
+        if (path/'cpuset.cpus.effective').exists() else 'not delegated')
+    result['affinity_cpus']=sorted(os.sched_getaffinity(0))
+    if require and (result['cpu.max']!='400000 100000' or result['affinity_cpus']!=[0,1,2,3]
             or result['memory.max']!='8589934592' or result['memory.swap.max']!='0'):
         raise ValueError('effective combined4CPU8GiBzero-swap envelope required')
     result['member_count']=len((path/'cgroup.procs').read_text().splitlines())

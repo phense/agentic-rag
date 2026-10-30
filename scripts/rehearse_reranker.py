@@ -90,7 +90,7 @@ def main():
         'runtime_version':subprocess.check_output([str(args.runtime),'--version'],stderr=subprocess.STDOUT,text=True).strip(),
         'runtime_sha256':sha256(args.runtime.read_bytes()).hexdigest(),
         'runtime_libraries':{str(x.name):sha256(x.read_bytes()).hexdigest() for x in args.runtime.parent.glob('*.so*') if x.is_file()},
-        'model_probes':[],'membership':{},'model_pages_created_in_cgroup':True,'host_cpus':os.cpu_count(),
+        'model_probes':[],'membership':{},'child_affinity':{},'model_pages_created_in_cgroup':True,'host_cpus':os.cpu_count(),
         'host_memory_kib':int(Path('/proc/meminfo').read_text().splitlines()[0].split()[1]),
         'limits':'One effective4CPU/8GiBzero-swap cgroup, shared8CPU/16GiB host; no dedicated VM or fleet-capacity proof.'}
     pglog=(args.output/'postgres.log').open('wb');files.append(pglog)
@@ -107,6 +107,7 @@ def main():
             except psycopg.OperationalError:time.sleep(.1)
         else:raise TimeoutError('owned PostgreSQL startup')
         metadata['membership']['postgres']=Path(f'/proc/{pg_process.pid}/cgroup').read_bytes()==own_group
+        metadata['child_affinity']['postgres']=sorted(os.sched_getaffinity(pg_process.pid))
         for model,alias,port,model_digest in [(args.qwen,Config().rerank_model,8768,QWEN_SHA),(args.tiny,TINY_MODEL,8769,TINY_REVISION)]:
             log=(args.output/(alias+'.log')).open('wb');files.append(log);start=time.perf_counter()
             process=subprocess.Popen([str(args.runtime),'--model',str(model),'--host','127.0.0.1','--port',str(port),
@@ -130,10 +131,12 @@ def main():
                     scores={v['index']:v['relevance_score'] for v in response['results']}
                     if not scores[0]>scores[1]:raise ValueError('synthetic model discrimination failed')
             metadata['membership'][alias]=Path(f'/proc/{process.pid}/cgroup').read_bytes()==own_group
+            metadata['child_affinity'][alias]=sorted(os.sched_getaffinity(process.pid))
             metadata['model_probes'].append({'model':alias,'sha256':model_digest,'startup_ms':(ready-start)*1000,
                 'first_ms':timings[0],'warm_ms':timings[1:],'synthetic_scores':scores,'threads':4})
             print(json.dumps({'ready':alias,'first_ms':timings[0],'warm_ms':timings[1:]}),flush=True)
         if not all(metadata['membership'].values()):raise ValueError('measured child outside service envelope')
+        if any(cpus!=[0,1,2,3] for cpus in metadata['child_affinity'].values()):raise ValueError('measured child outside CPU affinity')
         write(args.output/'runtime-manifest.json',metadata)
         os.environ['PGPORT']='55463'
         for key in ('PGHOST','PGHOSTADDR','PGSERVICE','PGSERVICEFILE'):os.environ.pop(key,None)

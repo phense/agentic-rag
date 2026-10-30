@@ -147,3 +147,18 @@ def test_forced_parent_shutdown_is_a_failed_rehearsal_even_if_parent_exits():
     assert stop_owned([('postgres',child)],Path('/proc/self/cgroup').read_bytes())==[
         {'child':'postgres','error':'forced_shutdown'}]
     assert child.poll()==-9
+
+
+def test_reference_envelope_checks_actual_affinity_without_delegated_cpuset(tmp_path,monkeypatch):
+    from pathlib import Path
+    m=module();root=tmp_path/'group';root.mkdir()
+    for key,value in {'cpu.max':'400000 100000','memory.max':'8589934592','memory.swap.max':'0',
+            'memory.current':'1','memory.peak':'2','cpu.stat':'usage_usec 1',
+            'memory.events':'oom 0\noom_kill 0','cgroup.procs':'1'}.items():(root/key).write_text(value)
+    membership=tmp_path/'membership';membership.write_text('0::/\n')
+    monkeypatch.setattr(m,'Path',lambda p:membership if str(p)=='/proc/self/cgroup' else root if str(p)=='/sys/fs/cgroup' else Path(p))
+    monkeypatch.setattr(m.os,'sched_getaffinity',lambda _:set(range(4)))
+    result=m.reference_snapshot()
+    assert result['affinity_cpus']==[0,1,2,3] and result['cpuset.cpus.effective']=='not delegated'
+    monkeypatch.setattr(m.os,'sched_getaffinity',lambda _:set(range(8)))
+    with pytest.raises(ValueError,match='envelope'):m.reference_snapshot()
