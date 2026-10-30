@@ -29,6 +29,12 @@ separates adapter/package tests from still-open native compression observations.
 
 ## Start here
 
+Version0.6.14 adds [independent providers and recoverable embedding indexes](provider-indexes.md)
+with additive schema027. The opt-in lifecycle rebuilds verified spaces beside
+the retained legacy index; configuration inspection and synthetic probes do not
+send stored knowledge. [Verification](verification/issue61-providers.md) separates
+synthetic implementation evidence from real-model and production readiness.
+
 - [What’s New in 0.6.0](00-whats-new-in-0.6.md) — ten adopted retrieval/ingestion features, measured limits and verified schema 018→019 adoption.
 - [What’s New in 0.5.0](00-whats-new-in-0.5.md) — Antigravity CLI (`agy`) continuity: what Gemini/Antigravity offer, the three-hook install, `/compact` handoff, automatic-compaction detection.
 - [What’s New in 0.4.0](00-whats-new-in-0.4.md) — Claude compaction continuity, the managed 1M/500K policy, handoff capture, check/restore for the Claude install.

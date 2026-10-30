@@ -5,6 +5,14 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.14] - 2026-10-30
+
+- Add independent immutable embedding profiles and bounded Ollama/compatible HTTP adapters, protected credential references and offline inspection/synthetic probes. Existing Claude/Codex CLI login remains supported.
+- Add opt-in model-bound generations with dimension-specific HNSW indexes, bounded resumable rebuilds, current-source coverage checks, atomic selection and catch-up rollback that preserves post-cutover knowledge.
+- Keep managed search/dedup in one verified space, retain contextual lexical recall and original citations, and degrade to lexical evidence on model/identity failure without provider fallback.
+- Preserve legacy columns and all original rows through additive migration027; extend populated local/central upgrade and strict-restore verification. Historical legacy vectors remain explicitly unverified until rebuilt.
+- Bound new HTTP jobs by the configured attempt budget, honor shared foreground model admission and invalidate setup checks after either provider slot or credential changes.
+
 ## [0.6.13] - 2026-10-30
 
 - Add bounded metadata-only request tracing with generated request IDs, scoped keyset filters and current job outcomes in the dashboard, REST API and CLI (Issue60).

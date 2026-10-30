@@ -52,11 +52,19 @@ def search(
     from .validity import selection as time_selection
     at, history = time_selection(as_of, history)
     warnings: list[str] = []
+    from . import indexes
+    selected_space = indexes.active(conn, cfg)
+    managed_query = indexes.BoundQuery(selected_space, None) if selected_space is not None else None
     from .retrieval import strong_symbols, exact_symbol_match
     function="hybrid_search_temporal" if baseline else "hybrid_search_candidates"
     query_model = None
     def candidates(qvec):
         from . import contextual
+        if selected_space is not None:
+            return indexes.candidates(conn, managed_query, query, domain=domain,
+                scopes=scopes, at=at, history=history, k=k if baseline else 150,
+                warnings=warnings, include_context=(context_mode == 'auto' and not baseline
+                    and strategy != 'hybrid' and not strong_symbols(query)))
         if context_mode == 'auto' and not baseline and strategy != 'hybrid' and not strong_symbols(query) and contextual.available(conn):
             if qvec is not None:
                 from . import vector_plan
@@ -80,6 +88,15 @@ def search(
             if any(exact_symbol_match(row["snippet"], symbols) for row in lexical):
                 rows = lexical
     shortcut = rows is not None
+    if rows is None and selected_space is not None:
+        if strategy != 'lexical':
+            from .providers import ProviderError
+            from .service.engine import ResourcePressure
+            try:
+                managed_query = indexes.query_vector(selected_space, cfg, query)
+            except (ProviderError, ResourcePressure) as error:
+                warnings.append(f'managed embedding {error.code}; full-text search only')
+        rows = candidates(None)
     if rows is None:
         qvec = None
         if strategy != "lexical":

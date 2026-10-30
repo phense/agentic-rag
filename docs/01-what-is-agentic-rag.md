@@ -8,7 +8,7 @@ memory differs from compaction continuity, and what agentic-rag is — and isn't
 agentic-rag is provider-neutral long-term memory plus continuity, backed by
 PostgreSQL and pgvector. It stores what you and a coding agent learn as a
 searchable knowledge graph and finds it again with hybrid vector + full-text
-search. Session mining uses the configured Codex or Claude CLI to extract
+search. Session mining uses the configured CLI or opt-in HTTP provider to extract
 durable facts, lessons, and error signals through one audited gateway. The
 Codex integration also captures bounded checkpoints before compaction and
 restores them before the next model request.
@@ -33,9 +33,11 @@ not a service you sign up for.
 - **Self-curating.** A background process de-duplicates near-identical entries, flags dangling links and stale pins, and gives you a `rag review` report instead of letting the store rot silently.
 - **Local-first and provider-configurable.** Your data lives in a Postgres
   database on your machine (or one you control). LLM-assisted mining,
-  curation, and bounded checkpoint enrichment call the configured Codex or
-  Claude CLI. Embeddings are always local (Ollama), and there's no separate
-  hosted RAG service in the loop.
+  curation, and bounded checkpoint enrichment use your configured Codex/Claude
+  CLI or opt-in compatible HTTP endpoint. Embeddings default to local Ollama;
+  external managed profiles receive query text, semantic duplicate candidate
+  title/body and explicitly selected rebuild batches. There is no separate
+  hosted RAG service in the loop. See the [provider guide](provider-indexes.md).
 - **RAM-lean.** There's no always-on daemon beyond Postgres and Ollama themselves. The background worker is single-writer and event-driven; between sessions, agentic-rag's own footprint is close to zero.
 - **Data-safety-first.** Writes go through one gateway that strips secret-shaped tokens before anything reaches disk, refuting a document archives it instead of deleting it, and backups get a real weekly restore-test — not just a file that might be a backup.
 

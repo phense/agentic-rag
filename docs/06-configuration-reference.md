@@ -103,7 +103,9 @@ Where the database lives.
 
 ## `[embed]`
 
-The embedding model, fixed to what the schema expects.
+The legacy embedding model, fixed to what its original columns expect. For a
+model or dimension change, use [managed embedding profiles](provider-indexes.md)
+and an explicit rebuild/cutover; do not repurpose historical untagged vectors.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
@@ -150,19 +152,28 @@ canonical home.
 
 ## `[llm]`
 
-The CLI provider used by mining, curation, and bounded checkpoint enrichment.
+The structured extraction provider used by mining, curation, and bounded checkpoint enrichment.
+Supported choices are Codex/Claude CLI and opt-in compatible HTTP.
 Public defaults remain Claude/Haiku for backward compatibility; a Codex
 deployment can use ChatGPT authentication without adding an API key. The
 Claude CLI supports its OAuth and API-key authentication paths.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
-| `provider` | `llm_provider` | `"claude"` | `claude` or `codex`. |
+| `provider` | `llm_provider` | `"claude"` | `claude`, `codex`, or opt-in `openai-compatible` with the [protected HTTP contract](provider-indexes.md#optional-compatible-http-provider). |
 | `model` | `llm_model` | `"haiku"` | Provider model or alias. |
 | `reasoning_effort` | `llm_reasoning_effort` | `"high"` | Codex reasoning effort. |
-| `timeout` | `llm_timeout` | `300` | Seconds before a provider call is killed as hung. |
+| `timeout` | `llm_timeout` | `300` | CLI subprocess deadline in seconds; compatible HTTP has its own bounded adapter deadline (at most120seconds). |
 | `bin` | `llm_bin` | `"claude"` | Name or absolute path of the configured CLI. Use an absolute path for unattended jobs. |
 | `provider_backoff_seconds` | `provider_backoff_seconds` | `3600` | Delay before a provider-unavailable job becomes due again. |
+
+The opt-in `[embedding_profiles.NAME]` mapping is independent of legacy embedding,
+extraction and reranker settings. Its full identity, bounds and credential
+reference fields are documented in the [operator guide](provider-indexes.md).
+HTTP extraction additionally uses `[llm]` keys `url`, `revision`, one
+`credential_env`/`credential_file`, `max_input_chars` and `max_output_tokens`.
+HTTP failures consume the finite worker attempt budget; existing CLI outage
+scheduling keeps its previous behavior.
 
 A Codex deployment can use:
 

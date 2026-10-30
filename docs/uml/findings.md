@@ -1,5 +1,78 @@
 # RAG-005 architecture findings
 
+## RAG-061 provider indexes (as-built reconciliation, 2026-10-30)
+
+- AF061-001 (resolved; AC003/005, IC003): How can equal-size model changes avoid
+  mixing raw/context/dedup vectors? `provider-indexes.md`, search.py:56,
+  mining.py:_near_duplicate and SQL016's unconditional raw union show the gap.
+  Category: interface consistency. Build sidecar generations from source and
+  route all managed semantic reads through one descriptor; never import untagged
+  historical vectors. Resolve in T003/T006; legacy mode documented separately.
+- AF061-002 (resolved; AC004–006, IC004): How does coverage survive an edit during
+  inference or activation? Sequence/state views in `provider-indexes.md` and
+  contextual.refresh source recheck show the required order. Category: race.
+  Hash source metadata/content, recheck under locks, validate completeness while
+  excluding canonical writes for atomic pointer change; rollback catches up
+  post-cutover writes. Resolve in T005/T007.
+- AF061-003 (resolved; AC004/008): Who may inspect/write global generations?
+  SQL021 service RLS and scoped definer gateways are authority boundaries.
+  Category: security. Local-owner lifecycle only, invoker scoped retrieval,
+  audited scope/source-checked derivative writes. Resolve in T005/T007.
+- AF061-004 (resolved; AC002/003/007): What does provider identity actually prove?
+  Query cache model_digest checks an Ollama SHA but historical raw vectors have
+  no identity. Category: trust boundary. Explicit profile revision guarantees,
+  bounded opt-in probes, no plaintext credentials or response diagnostics, no
+  fallback. Resolve in T002/T003; do not claim remote weight attestation.
+
+As-built RAG-061: AF061-001–004 resolved by the implementation and independent
+complete bounded review (base8e521a7, runtime5c4abce, measurement supplemente6cf92b).
+Source contracts, authority, locking, index representation and recovery topology
+reconciled against providers.py/indexes.py/SQL027/search.py/mining.py/store.py
+and actual green bounded test exits on2026-10-30. See provider-indexes.md.
+
+- AF061-005 (resolved; AC007/US003): Do classified HTTP extraction failures remain
+  visible through source receipt and tracing? Independent architect found
+  ingest.receipt_status's static allowlist dropping rate_limit/transient and
+  service.worker replacing permanent failures with processing_failed.
+  Category: integration mismatch; Medium. Fixed with bounded provider_status codes
+  at worker and receipt projection. Real HTTP submit→process_source→receipt/trace
+  regression observed RED3, then24 related tests passed (31.35s, exit0).
+- AF061-006 (resolved contract clarification; AC005/SC002): The no-mixing guarantee
+  applies to managed reads in the new binary. Historical untagged legacy reads
+  and old binaries remain explicitly unverified; a managed rebuild is required
+  for verified identity. No historical identity is inferred from a current tag.
+- AF061-007 (resolved; AC003): Empty stores made coverage
+  vacuously complete without proving embedding capability/dimensions. RED2
+  actual-adapter tests reproduced acceptance of wrong-dimension/unsupported
+  providers. Selection now runs one fixed synthetic input before canonical locks;
+  94 provider/index/search/CLI tests passed (61.92s, exit0).
+
+Independent review also read the actual derived success and persisted CLI
+recovery tests and verified the synthetic measurement counters/manifests.
+LOW-018 documentation inconsistencies are corrected and retained in Issue75.
+- AF061-008 (resolved; AC002): Current introductions still
+  claimed universal local embeddings/CLI-only calls, and default research was
+  called local although selected managed embeddings can be external. Focused
+  independent review classifies these as Medium disclosure contradictions.
+  Current prose now distinguishes structured assessment from selected embedding
+  retrieval, discloses semantic duplicate candidate inputs and documents lexical
+  research without model calls. The corresponding docs regression was RED before
+  correction; actual search/research characterization passed7 tests (3.31s).
+  Independent focused recheck through078ad29 confirms the corrected contract,
+  actual17-test documentation module and unchanged153 runtime/SQL/script hashes.
+  LOW-019 retains the obsolete selector correction in Issue75.
+
+The first full suite exited1 solely on the obsolete privacy paragraph selector:
+1696 passed,1 failed,1 expected skip,1 warning,1415.15s. Its runtime/test hashes
+stayed unchanged. The selector and new disclosure guards are repaired. Fresh
+complete verification on078ad29 passes1700 tests with1 expected skip and1 upstream
+warning in1245.42s, exit0;304 runtime/test/SQL/dependency hashes stay unchanged.
+Independent full review plus the focused disclosure recheck leave no open C/H/M
+findings. Final convergence reconciles AC001–009, as-built locking/authority,
+actual success/recovery and operator rehearsal, measured-source identity and
+the unchanged-source complete-suite exit. No additional task is required;
+PR publication and maintainer merge remain separate workflow actions.
+
 - AF-001 (implemented; AC-001/003): Post-filtering loses eligible candidates and recursive
   traversal can bridge through B. Evidence: 003_search.sql LIMIT50, 004_graph.sql
   recursive walk; project-scope.md. Require scope in each candidate and hop (T003).

@@ -16,6 +16,7 @@ SCOPED_TABLES = (
     'continuation_checkpoints', 'mining_batches', 'mining_queue', 'audit_log',
     'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
     'service_session_access', 'service_requests',
+    'embedding_vectors',
 )
 
 
@@ -91,7 +92,7 @@ def validate_schema(conn):
             raise ServiceSchemaError()
         # Derived/read-only tables have no write check; remaining mutable tables
         # must enforce the original row's authority in addition to WITH CHECK.
-        read_only={'chunks','chunk_contexts','audit_log','service_session_access'}
+        read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors'}
         if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
             raise ServiceSchemaError()
         roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()
@@ -105,6 +106,25 @@ def validate_schema(conn):
               OR pg_catalog.pg_has_role('rag_writer',c.relowner,'USAGE'))) bad""",(list(SCOPED_TABLES),)).fetchone()['bad']
         if elevated:
             raise ServiceSchemaError()
+        # Managed descriptors/selection may be read by the limited roles, but
+        # only the audited gateway/owner may change them or derived vectors.
+        managed=conn.execute("""SELECT c.relname,
+            (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(coalesce(c.relacl,
+                pg_catalog.acldefault('r',c.relowner))) a
+                WHERE a.grantee<>c.relowner AND (a.privilege_type<>'SELECT'
+                    OR a.grantee NOT IN (SELECT oid FROM pg_catalog.pg_roles
+                        WHERE rolname IN ('rag_reader','rag_writer','rag_admin'))))
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute att
+                CROSS JOIN LATERAL pg_catalog.aclexplode(att.attacl) a
+                WHERE att.attrelid=c.oid AND NOT att.attisdropped AND a.grantee<>c.relowner)
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
+                WHERE r.rolname IN ('rag_reader','rag_writer','rag_admin')
+                  AND pg_catalog.has_table_privilege(r.oid,c.oid,
+                    'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))) exposed
+            FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relname=ANY(%s)""",
+            (['embedding_generations','embedding_selection','embedding_vectors'],)).fetchall()
+        if len(managed)!=3 or any(r['exposed'] for r in managed):raise ServiceSchemaError()
         audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
             WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'
             AND t.tgenabled IN ('O','A') AND t.tgfoid='public.rag_service_audit_actor()'::regprocedure) ok""").fetchone()['ok']

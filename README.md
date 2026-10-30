@@ -9,7 +9,7 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.13-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.14-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
@@ -57,17 +57,18 @@ Every content write funnels through **one gateway**: it strips secret-shaped
 tokens, chunks and embeds the text with a local model, resolves the document's
 links into a **typed knowledge graph**, and logs the change — all in one
 transaction. When a session ends, a single-writer worker uses the configured
-Codex or Claude CLI to turn the bounded transcript digest into durable,
+extraction provider to turn the bounded transcript digest into durable,
 findable memories. The core data model and provider seam are provider-neutral;
 integrations adapt each coding agent's lifecycle and output contracts.
 
-It runs on your machine and uses **your configured CLI account** for
-LLM-assisted mining, curation, and bounded checkpoint enrichment: Codex with
-ChatGPT login or Claude with its supported OAuth or API-key authentication.
+It runs on your machine and uses **your configured provider account** for
+LLM-assisted mining, curation, and bounded checkpoint enrichment: Codex/Claude
+CLI authentication or an explicitly configured compatible HTTP endpoint.
 Mining prompts can also include all matching pin bodies; mining secret-strips
 the provider-bound copies without mutating stored pin text.
-Embeddings are **always local** (Ollama). Ordinary search and default research
-do not call either provider. [Bounded research](docs/bounded-research.md)
+Embeddings default to **local Ollama**. Selecting an external managed generation
+sends future search queries and semantic duplicate candidate title/body to its
+provider; explicit bounded builds send stored chunks. Default research skips structured assessment; its retrieval uses the selected embedding profile. [Bounded research](docs/bounded-research.md)
 collects evidence for compound questions and reports disagreement or missing
 support; `--provider` explicitly enables configured-provider assessment.
 An optional [local multilingual reranker](docs/local-reranker.md)
@@ -99,14 +100,18 @@ Sealed benchmark candidates do not change production search or mining policy.
 
 > **Your data stays under your control, with explicit provider calls.** This
 > repository is **code only** — it ships no content. The canonical store lives
-> in *your* PostgreSQL database, but the configured CLI intentionally sends
+> in *your* PostgreSQL database, but the configured extraction provider intentionally sends
 > these provider inputs: mining sends a bounded, secret-stripped transcript
 > digest, live domain names, and secret-stripped copies of all matching pin
 > bodies without mutating stored pin text; curation sends selected stored
 > documents and contradiction evidence; checkpoint enrichment sends a
 > secret-stripped transcript delta and validates the returned checkpoint
 > content before persistence. Explicit research provider mode sends a redacted
-> question and selected bounded source excerpts; default research stays local.
+> question and selected bounded source excerpts; default research skips structured assessment; retrieval still uses the selected embedding profile.
+> Optional [managed provider profiles](docs/provider-indexes.md) can send search
+> queries and explicitly selected rebuild batches to their configured HTTP
+> destination. Selecting an external generation also sends future semantic
+> duplicate candidate title/body there. Inspection is offline; probes use fixed synthetic inputs.
 > Optional synced backups copy data only to a
 > directory you configure. agentic-rag has no separate hosted RAG backend.
 
@@ -119,7 +124,7 @@ Sealed benchmark candidates do not change production search or mining policy.
 🔎 **Hybrid search that actually ranks.** Vector ANN over `pgvector` (HNSW, cosine) — multilingual by way of `bge-m3` embeddings — blended with GIN keyword full-text into one ranked query. Search in **any language**; not a file scan, not lexical-only.
 
 🌱 **It turns sessions into durable knowledge and continuation state.** Mining
-uses your configured Codex or Claude CLI. On Claude Code and Codex,
+uses your configured extraction provider (Codex/Claude CLI or opt-in HTTP). On Claude Code and Codex,
 `PreCompact` also captures a fast checkpoint so `SessionStart(source="compact")`
 can restore the goal, blockers, next action, repository state, and evidence
 references; on Claude the checkpoint also carries Claude's compact summary.
@@ -127,9 +132,10 @@ references; on Claude the checkpoint also carries Claude's compact summary.
 ♻️ **It curates itself.** A near-duplicate gate stops the store from bloating; `rag review` surfaces duplicates, dangling links, and stale pins; refuting a fact **archives** it (with a reason and evidence), never hard-deletes it.
 
 🔒 **Local-first, on your own account.** Canonical knowledge and checkpoints
-live in your Postgres. LLM-assisted work runs through the local Codex or Claude
-CLI you configured. Embeddings are always local (Ollama); ordinary search and
-default research do not call either provider.
+live in your Postgres. Structured LLM work uses your configured CLI or opt-in
+HTTP provider. Embeddings default to local Ollama; external managed profiles
+receive queries, semantic duplicate candidates and explicit rebuild batches.
+Default research skips structured assessment; its retrieval uses the selected embedding profile.
 
 ⚡ **RAM-lean.** A single-writer worker (flock singleton), no long-lived daemon of its own. Without the optional reranker runtime, the between-session footprint is essentially Postgres + Ollama idling.
 
@@ -226,7 +232,7 @@ Four things that, together, set it apart from both file-based knowledge wikis an
 Documents are chunked and embedded into `halfvec(1024)` columns indexed with **HNSW**, and each chunk is embedded with the multilingual `bge-m3` model — so semantic recall works in any language — and also carries generated `tsvector`s for English/German keyword full-text. A single query runs vector ANN and full-text together and returns **one ranked list**. Documents aren't an undifferentiated pile: they carry a type (`concept`, `lesson`, `signal`, `synthesis`, `reference`, …) and connect through a **typed edge graph** (`references`, `extends`, `depends_on`, `supersedes`, `contradicts`, …), so `rag get` shows you not just a document but its neighbourhood.
 
 ### 2. Automatic session-mining — the star feature
-This is what makes agentic-rag feel like it grows rather than sits there. When a supported coding session ends, a lifecycle hook enqueues the transcript. A **single-writer worker** drains the queue and calls the configured Codex or Claude CLI to pull out durable memories, lessons, and signals, each saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something a future session can recall, with no "remember to write this down" step. It reads only your **local** session transcripts.
+This is what makes agentic-rag feel like it grows rather than sits there. When a supported coding session ends, a lifecycle hook enqueues the transcript. A **single-writer worker** drains the queue and calls the configured extraction provider to pull out durable memories, lessons, and signals, each saved through the write gateway behind a **near-duplicate gate**. A fix you discovered today becomes something a future session can recall, with no "remember to write this down" step. It reads only your **local** session transcripts.
 
 ### 3. Knowledge domains you grow and curate
 Domains are just data — a label for *where to look* (`general` is seeded at init). Add them with `rag domain add`, scope any search with `--domain`, and let the importer derive them from an existing store's topics. Curation is first-class: `rag review` reports near-duplicates, dangling links, and stale pins; refuting a fact archives it with a required reason + evidence; `rag purge` removes only already-refuted documents, and only as `rag_admin`.
@@ -295,7 +301,7 @@ installed policy they remain enabled and can be inspected with `/memories`;
 agentic-rag is canonical for durable searchable knowledge, audit history, and
 explicit continuation checkpoints.
 
-- **Your chosen CLI provider.** Every LLM call goes through the single `agentic_rag.llm` seam and the configured local Codex or Claude command. Transcript digests and checkpoint deltas are character-bounded; each curation call covers one selected document/evidence set. Mining also sends secret-stripped copies of all matching pin bodies without changing the stored pins. Explicit research provider mode sends a bounded evidence packet. Embeddings never leave the box (local Ollama); ordinary search and default research are independent of provider authentication.
+- **Your chosen inference providers.** Every extraction call goes through `agentic_rag.llm`: existing Codex/Claude CLI login or an explicitly configured compatible HTTP endpoint. Transcript digests and checkpoint deltas are character-bounded; mining also sends secret-stripped copies of matching pins. Embeddings default to local Ollama. Optional [managed profiles](docs/provider-indexes.md) support separate local/HTTP vector spaces, protected credentials and explicit bounded corpus rebuilds; selecting an external profile also sends future search queries and semantic duplicate candidate title/body there. Default research skips structured assessment; retrieval still uses the selected embedding profile.
 - **One audited write path.** Every change — a manual `save`, a mined memory, an import — funnels through a single gateway that strips secret-shaped tokens, regenerates chunks + embeddings in one transaction, resolves dangling edges, and writes an audit row. Embeddings fail *open* (queued for retry if Ollama is down); nothing else does.
 - **Least privilege, by role.** Three login roles enforce a destruction-protection matrix: `rag_reader` (SELECT only, used by search and the read-only MCP), `rag_writer` (INSERT/UPDATE but **no DELETE/TRUNCATE/DROP**), and `rag_admin` (migrate, purge, restore).
 - **It steps aside, not in front.** If Ollama is down, search degrades to full-text-only and returns a warning rather than failing; the maintenance job always exits 0.
@@ -343,12 +349,13 @@ Legend: ✅ shipped in code and operationally established · 🧪 shipped and in
 <sub>
 ¹ agentic-rag is <strong>provider-configurable</strong>: LLM-assisted mining, curation,
 and bounded checkpoint enrichment use the configured local CLI — Codex with a
-ChatGPT login, or Claude with its supported OAuth or
-<code>ANTHROPIC_API_KEY</code> authentication. Account limits and any metering
+ChatGPT login, or Claude with OAuth/API-key authentication — or an opt-in
+compatible HTTP extraction endpoint. Account limits and any metering
 belong to that chosen provider. Mining can include secret-stripped copies of
-all matching pin bodies without mutating stored pin text. <strong>Embeddings are
-always local</strong>
-(Ollama), so ordinary search and default research do not call a model provider;
+all matching pin bodies without mutating stored pin text. <strong>Embeddings default
+to local Ollama</strong>; external managed generations receive search queries,
+semantic duplicate candidate title/body and explicit corpus rebuild batches.
+Default research skips structured assessment; its retrieval uses the selected embedding profile;
 explicit research provider mode sends bounded evidence for assessment. There is no
 third-party RAG service between you and your data. Most hosted RAG stacks route
 your documents through a paid service.<br>

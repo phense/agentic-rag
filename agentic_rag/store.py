@@ -431,3 +431,22 @@ def backfill_entity_identities(conn, **kwargs):
     """Audited bounded exact-key indexing; no assertion or source rewrite."""
     from .entities import _backfill
     return _backfill(conn,**kwargs)
+
+
+def create_embedding_index(conn, cfg, name, profile_name):
+    """Audited derivative-index gateway; never rewrites canonical knowledge."""
+    from .indexes import create
+    return create(conn, cfg, name, profile_name)
+
+
+def build_embedding_index(conn, cfg, name, *, limit=8, allow_corpus=False):
+    """Explicit bounded inference followed by source/scope-checked vector writes."""
+    from .indexes import build
+    return build(conn, cfg, name, limit=limit, allow_corpus=allow_corpus)
+
+
+def select_embedding_index(conn, cfg, name, *, rollback=False, **kwargs):
+    """Atomically select a complete generation while retaining previous indexes."""
+    from . import indexes
+    operation = indexes.rollback if rollback else indexes.activate
+    return operation(conn, cfg, name, **kwargs)

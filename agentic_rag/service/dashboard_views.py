@@ -35,7 +35,19 @@ def fingerprint(cfg,path):
     from .auth import protected_file
     try:credential=revision(protected_file(cfg.service_token_file,max_bytes=4096)) if cfg.service_token_file else 'missing'
     except (OSError,ValueError):credential='unavailable'
-    return hashlib.sha256(json.dumps([revision(protected_file(path)),cfg.db_name,cfg.db_host,cfg.embed_model,cfg.embed_dim,cfg.ollama_url,cfg.llm_provider,cfg.llm_model,cfg.llm_bin,cfg.service_url,credential],sort_keys=True).encode()).hexdigest()
+    from ..providers import ProviderError, _token, resolve_profile
+    def reference(env,file):
+        try:value=hashlib.sha256(_token(env,file).encode()).hexdigest()
+        except ProviderError:value='unavailable'
+        return [env,file,value]
+    extraction=[cfg.llm_url,cfg.llm_revision,cfg.llm_timeout,cfg.llm_max_input_chars,
+        cfg.llm_max_output_tokens,reference(cfg.llm_credential_env,cfg.llm_credential_file)]
+    profiles=[]
+    for name in sorted(cfg.embedding_profiles):
+        profile=resolve_profile(cfg,name)
+        profiles.append([name,profile.descriptor,profile.max_batch,profile.max_input_chars,
+            profile.timeout,reference(profile.credential_env,profile.credential_file)])
+    return hashlib.sha256(json.dumps([revision(protected_file(path)),cfg.db_name,cfg.db_host,cfg.embed_model,cfg.embed_dim,cfg.ollama_url,cfg.llm_provider,cfg.llm_model,cfg.llm_bin,cfg.service_url,credential,extraction,profiles],sort_keys=True).encode()).hexdigest()
 
 
 def browse(cfg,principal,query):

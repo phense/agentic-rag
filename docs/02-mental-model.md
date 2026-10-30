@@ -45,6 +45,12 @@ Each chunk carries three things generated for it automatically:
 
 Why bilingual FTS as a first-class citizen rather than an afterthought: a memory store that only does English full-text is only half-searchable if any of your source material is German. Both tsvectors are computed and indexed on every chunk unconditionally — there's no per-document language switch to get wrong.
 
+Those1024-dimensional chunk vectors describe the legacy/default index. Optional
+[managed generations](provider-indexes.md) store separately tagged vectors with
+their own dimensions and source hashes. An explicit build/selection changes
+managed semantic search and duplicate lookup; it does not rewrite canonical
+chunks or mix their legacy vectors into that space.
+
 ## Two-signal search: vector and full-text, one ranked list
 
 A query hits both signals at once and the results are fused into a single ranked list — this is what "hybrid search" means here, concretely. `hybrid_search()` (see `sql/003_search.sql`) runs three independent ranked candidate lists — cosine similarity over embeddings, English `ts_rank_cd`, German `ts_rank_cd` — each capped at its own top-50, then combines them with **Reciprocal Rank Fusion**: every chunk's score is `Σ 1/(60 + rank)` across whichever lists it appeared in, and the final list is sorted by that fused score. A chunk that ranks well on *both* the semantic and lexical signal outranks a chunk that only nails one — which is exactly the property you want from "search my memory": a query that's mostly a keyword match and a query that's mostly a paraphrase should both work, and a chunk that satisfies both should win over a chunk that only satisfies one.
@@ -68,7 +74,7 @@ The payoff of routing every writer through one place: you get secret-stripping, 
 
 The store is meant to fill itself from the sessions you already have, not just from things you deliberately `rag save`. The shape of the loop:
 
-**hooks → queue → worker → configured LLM CLI → gateway.** A lifecycle hook enqueues a supported session's transcript. A single-writer background worker drains the queue and uses the configured Codex or Claude adapter to extract durable memories, lessons, and signals from the session digest. Each candidate item is checked for a near-duplicate against what's already stored before it is written, and every extracted item still goes through `save_document()`. Provider-wide outages restore the job's attempt budget, pause that drain, and remain visible until a later success. The miner can also flag contradictions with existing documents or pins, and propose new domains — those surface for review rather than mutating anything unattended.
+**hooks → queue → worker → configured extraction provider → gateway.** A lifecycle hook enqueues a supported session's transcript. A single-writer background worker drains the queue and uses the configured Codex/Claude CLI or compatible HTTP adapter to extract durable memories, lessons, and signals from the session digest. Each candidate item is checked for a near-duplicate against what's already stored before it is written, and every extracted item still goes through `save_document()`. CLI-wide outages restore the job's attempt budget, pause that drain, and remain visible until a later success. HTTP failures use the finite worker attempt budget instead. The miner can also flag contradictions with existing documents or pins, and propose new domains — those surface for review rather than mutating anything unattended.
 
 Full mechanics — the digest format, the extraction schema, the dedup threshold, curation (`rag review` / `rag purge`) — live in [05 · Session mining & curation](05-session-mining-and-curation.md).
 
