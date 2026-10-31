@@ -320,3 +320,23 @@ CREATE POLICY service_synthesis_dependencies ON public.synthesis_dependencies
         EXISTS (SELECT 1 FROM public.documents d WHERE d.id=document_id
                 AND public.rag_service_document(d.domain, d.project_scope, true))
         AND EXISTS (SELECT 1 FROM public.documents o WHERE o.id=original_id)));
+
+-- Explicit accepted-run recovery also enqueues through a scoped service
+-- request. A queue row is visible/writable only through its authorized run;
+-- knowing another run UUID must not grant access to its job.
+ALTER POLICY service_queue ON public.mining_queue
+    USING (NOT rag_service_active() OR rag_service_session(session_id) OR
+        (kind='embed' AND EXISTS (SELECT 1 FROM public.documents d WHERE d.id::text=payload->>'document_id')) OR
+        (kind='synthesis' AND EXISTS (SELECT 1 FROM public.synthesis_runs r
+            WHERE r.id::text=payload->>'run' AND rag_service_document(r.domain,r.project_scope))))
+    WITH CHECK (NOT rag_service_active() OR rag_service_session(session_id) OR
+        (kind='embed' AND EXISTS (SELECT 1 FROM public.documents d
+            WHERE d.id::text=payload->>'document_id' AND rag_service_document(d.domain,d.project_scope,true))) OR
+        (kind='synthesis' AND EXISTS (SELECT 1 FROM public.synthesis_runs r
+            WHERE r.id::text=payload->>'run' AND rag_service_document(r.domain,r.project_scope,true))));
+ALTER POLICY service_queue_old_write ON public.mining_queue
+    USING (NOT rag_service_active() OR rag_service_session(session_id) OR
+        (kind='embed' AND EXISTS (SELECT 1 FROM public.documents d
+            WHERE d.id::text=payload->>'document_id' AND rag_service_document(d.domain,d.project_scope,true))) OR
+        (kind='synthesis' AND EXISTS (SELECT 1 FROM public.synthesis_runs r
+            WHERE r.id::text=payload->>'run' AND rag_service_document(r.domain,r.project_scope,true))));

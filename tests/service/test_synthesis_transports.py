@@ -135,6 +135,40 @@ def test_global_switch_off_rejects_writes_with_a_stable_code(pattern_store, tmp_
         assert call(client, KEYS[0], 'memory_pattern_status')[0] == 200
 
 
+def test_central_writer_recovers_accepted_run_without_another_provider_call(pattern_store, tmp_path, monkeypatch):
+    # Missing synthesis queue RLS must fail here, even when local owner recovery works.
+    from agentic_rag import synthesis
+    cfg = pattern_store
+    app, policy_file = app_fixture(tmp_path, cfg)
+    provider = fx.ScriptedProvider('K1')
+    real_register = synthesis._register
+    with TestClient(app, base_url='https://testserver') as client:
+        assert call(client, KEYS[0], 'memory_pattern_policy', domain='alpha', project='/projects/a',
+                    enabled=True, reason='recover regression')[0] == 200
+        ingest(cfg)
+        def fail_apply(*args, **kwargs):
+            raise RuntimeError('injected apply failure')
+        monkeypatch.setattr(synthesis, '_register', fail_apply)
+        assert process(cfg, policy_file, monkeypatch, provider)['state'] == 'accepted'
+        monkeypatch.setattr(synthesis, '_register', real_register)
+        # Simulate the existing worker exhausting its finite apply attempts.
+        with db.connect(cfg) as conn:
+            conn.execute("UPDATE mining_queue SET status='error',finished_at=now() WHERE kind='synthesis'")
+            conn.commit()
+        assert process(cfg, policy_file, monkeypatch, provider) == {'state': 'error', 'code': 'apply_failed'}
+        with db.connect(cfg) as conn:
+            run_id = str(conn.execute('SELECT id FROM synthesis_runs').fetchone()['id'])
+        assert call(client, KEYS[3], 'memory_pattern_recover', run_id=run_id, reason='read only')[0] == 403
+        assert call(client, KEYS[2], 'memory_pattern_recover', run_id=run_id, reason='foreign') == call(
+            client, KEYS[2], 'memory_pattern_recover', run_id='00000000-0000-0000-0000-000000000000', reason='foreign')
+        status, recovered = call(client, KEYS[0], 'memory_pattern_recover', run_id=run_id, reason='storage repaired')
+        assert status == 200, recovered
+        assert recovered == {'id': run_id, 'state': 'accepted'}
+        assert process(cfg, policy_file, monkeypatch, provider) == {'state': 'applied', 'code': None}
+        assert len(provider.calls) == 1
+        assert len(call(client, KEYS[0], 'memory_patterns', domain='alpha', project='/projects/a')[1]['items']) == 1
+
+
 def test_revoked_owner_credential_withholds_before_any_commit(pattern_store, tmp_path, monkeypatch):
     cfg = pattern_store
     app, policy_file = app_fixture(tmp_path, cfg)
