@@ -45,7 +45,7 @@ All pytest uses existing owned PG55460, never5432. `TMPDIR=/dev/shm/rag65-202610
 
 ### Slice S3: Convergence, full verification and PR handoff
 
-- [ ] T065-010 Coordinator runs speckit-converge against actual as-built, integration, review, playbook, evidence and task state; route gaps back into this executor. Execute final full pytest and relevant Node suites, inspect actual completion/exit, wheel/SQL/assets/version and links. A running suite is not passing.
+- [x] T065-010 Coordinator runs speckit-converge against actual as-built, integration, review, playbook, evidence and task state; route gaps back into this executor. Execute final full pytest and relevant Node suites, inspect actual completion/exit, wheel/SQL/assets/version and links. A running suite is not passing.
 - [ ] T065-011 Synchronize numbered backlog/capability index and GitHub Issue65 with actual evidence, create one focused PR linked to65, link it to this thread immediately, report step7of15 and2–3 measured examples. Await a new maintainer weiter before merge. No deployment is included.
 
 ## Playbook obligations
@@ -74,14 +74,13 @@ were reconstructed against prior source and are disclosed as a process
 deviation, not original test-first evidence. Current behavior is backed by
 independent probes and affected suites; no retrospective TDD claim is made.
 
-T065-010 remains open until the actual full-suite exit/result after the restore correction is
-inspected and convergence is accepted. T065-011 remains open until the focused
+T065-010 is complete: the actual full-suite result at `ea6697b` and convergence evidence were inspected. T065-011 remains open until the focused
 PR is created and linked, with the maintainer's specific merge approval still
 required afterwards. No live rollout is included.
 
 ### Slice S6: Final full-suite restore regression
 
-- [ ] T065-015 [AC-009, IC-004, R65-FULL-01] Preserve exact relation/default ACLs across the existing in-place `rag restore` path. Reproduce restore followed by dashboard browsing; protect all-or-nothing restore when SQL fails or the archive producer exits nonzero. Neutralize only the creating operator's inherited table/sequence/function/type/schema defaults within the same transaction, then restore archive defaults. Preserve bounded streaming, role checks and explicit recovery limits. Update stale writer-surface assertions to include the three pattern writers. Independently review the complete added security/restore slice; rerun full verification on a frozen revision. No production restore is included.
+- [x] T065-015 [AC-009, IC-004, R65-FULL-01] Preserve exact relation/default ACLs across the existing in-place `rag restore` path. Reproduce restore followed by dashboard browsing; protect all-or-nothing restore when SQL fails or the archive producer exits nonzero. Neutralize only the creating operator's inherited table/sequence/function/type/schema defaults within the same transaction, then restore archive defaults. Preserve bounded streaming, role checks and explicit recovery limits. Update stale writer-surface assertions to include the three pattern writers. Independently review the complete added security/restore slice; rerun full verification on a frozen revision. No production restore is included.
 
 The full run at `73ddd02` ended **exit 1: 1,965 passed, 3 failed, 1 skipped,
 1 warning**. Two failures are stale writer-surface expectations. The third
@@ -102,7 +101,7 @@ coordinator-owned; the complete independent bounded review is retained.
 
 ### Slice S7: Isolate the legacy mining migration fixture
 
-- [ ] T065-016 [AC-009, IC-004] Run the historical008→009 migration test in an owned isolated database containing exactly the first eight migrations. Preserve its queue-row and idempotency assertions; stop dropping/recreating `mining_batches` in the shared current schema, where later RLS belongs. Reproduce the migration-test→dashboard failure before the change, then verify both together and run final complete verification. This is a coordinator-reviewed test-only correction; production/SQL behavior is unchanged.
+- [x] T065-016 [AC-009, IC-004] Run the historical008→009 migration test in an owned isolated database containing exactly the first eight migrations. Preserve its queue-row and idempotency assertions; stop dropping/recreating `mining_batches` in the shared current schema, where later RLS belongs. Reproduce the migration-test→dashboard failure before the change, then verify both together and run final complete verification. This is a coordinator-reviewed test-only correction; production/SQL behavior is unchanged.
 
 The frozen full run at `bfeedf0` returned exit1:1,973passed/1failed/1skipped/
 1knownwarning, with355sourcehashes unchanged. The one failing dashboard test
@@ -110,3 +109,12 @@ found `mining_batches` without RLS or service policies after the historical
 migration test. All restore checks passed; no new product defect was found.
 The exact two-test sequence reproduced1pass/1fail. These results remain
 retained and are not full-suite acceptance.
+
+Final coordinator verification at `ea6697b`: full pytest **1,974 passed,
+1 skipped, 1 known warning**, exit 0, 2084.56 s; all 355 source hashes
+unchanged. Frozen targeted tests at `bfeedf0`: 119 passed, exit 0; corrected
+restore replay: 28/28 assertions, 6 owned DBs removed. Complete independent feature/restore
+reviews are retained, with coordinator-verified M1/M2 corrections and no open
+C/H/M/Important. Node 7/7; wheel 179/179 payload files match; populated upgrade preserves
+302 original rows across 39 tables, retry empty. T065-011 remains open until
+the PR is created/linked; merge needs a fresh maintainer weiter.

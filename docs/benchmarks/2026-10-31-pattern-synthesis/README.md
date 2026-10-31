@@ -181,3 +181,10 @@ policy is disabled, 0.6.18 withholds the pattern, but the actual 0.6.17 `memory_
 guarded in SQL. The rehearsal records this as `code_only_rollback_after_patterns`
 with verdict `forbidden`. The supported way back is the verified pre-upgrade dump
 (PB-065-OPS part D).
+
+Final acceptance after review corrections: source `ea6697b`, full pytest
+1,974  passed/1 skipped/1 known warning/exit0; original302 rows across 39 tables unchanged
+in the populated upgrade (2.44s), empty retry, verified restore. Frozen
+scripted quality measurements remain those of `8d9043e`; they were not rerun
+or relabelled. See [final acceptance](../../verification/issue65/acceptance.json)
+for review, package and source bindings.

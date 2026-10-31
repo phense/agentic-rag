@@ -4,12 +4,12 @@ title: Pattern synthesis verification
 type: reference
 doc_id: standalone
 readers: [maintainer]
-status: draft
+status: accepted
 version: 0.6.18 (schema030)
 depends_on: [../pattern-synthesis.md]
 assets: []
 last_reviewed: 2026-10-31
-summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade/recovery and independent acceptance for Issue65; full-suite acceptance remains pending.
+summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade/recovery and independent acceptance for Issue65; full-suite acceptance and coordinator correction evidence are recorded below.
 ---
 
 # Pattern synthesis verification
@@ -21,8 +21,7 @@ synthesis: source-linked, reviewable inferences over several original memories.
 Source is 0.6.17/schema029 (`81beaf6`); the target is 0.6.18 with additive
 migration030. This record covers the implementation slice (S1) and the
 review-driven corrections (S4/S5). Independent review through `73ddd02` is
-accepted with no open Critical/High/Medium or Important finding. The full test
-suite remains coordinator-owned and **not yet done**; nothing here claims it.
+accepted with no open Critical/High/Medium or Important finding. The final full test suite at `ea6697b` passed: **1,974 passed, 1 skipped, 1 known warning**, exit 0 in 2084.56 s; all 355 source hashes stayed unchanged. [Machine-readable acceptance](issue65/acceptance.json) retains the review and correction boundaries.
 
 Terms: a *pattern* is a stored inference with exact citations. An *independent
 event* is a distinct user report after merging same-source and same-text quotes.
@@ -112,7 +111,7 @@ and the erratum is published in `results.json`.
 Rehearsed on owned copies (`tests/service/test_synthesis_upgrade.py`,
 [evidence](../benchmarks/2026-10-31-pattern-synthesis/compatibility-evidence.json)):
 the archived 0.6.17 code populated 302 rows in 39 tables; the upgrade applied
-only `030_pattern_synthesis.sql` in 1.61 s (at `8d9043e`) with verified restore and unchanged
+only `030_pattern_synthesis.sql` in 2.44 s (final full run at `ea6697b`; earlier `8d9043e`: 1.61 s) with verified restore and unchanged
 original rows; the retry applied nothing; no policy, run, job or pattern existed
 afterwards. 0.6.17 reads were identical after the upgrade. 0.6.17 local writes
 and its central API worked on schema030 while no pattern existed. Accepted work
@@ -158,7 +157,7 @@ gate defect (PB065-R07). The coordinator reproduced both before fixing them:
   warning, 29.77 s, exit 0). The RO proxy now checks the four additional pattern
   reads and rejects the three pattern writes.
 
-Final full-suite acceptance remains pending. The first
+The earlier full runs were not accepted. The first
 full run was interrupted (exit 2, 997 passed/9 failed): eight browser launches
 lacked the existing library search path; one RO proxy test still expected 12
 instead of 16 tools. These failures are retained, not counted as acceptance.
@@ -188,12 +187,12 @@ and has no cancel route. Nothing is sent or consumed. The coordinator corrected
 the companion Minor documentation finding (PB065-R09) in C1/C9 and the user
 guide; the product limit remains deferred in Issue75.
 
-An offline wheel build at `73ddd02` passed. Its 184 entries include all **179
+An offline wheel built at `bfeedf0` was verified against `ea6697b` after the test-only fixture correction. Its 184 entries include all **179
 tracked Python/SQL/assets files**, byte-identical to source; all Python entries
 compile. A smoke process imported the extracted wheel, initialized an owned
 schema030 database, verified the nullable waiting field, 16 read-only tools and
 default-off empty synthesis status, then removed its database. Wheel SHA-256:
-`d3cd118f683524a7f326016f34eb22f4181b8c54184bcc12cd9dc25bda3a42f7`.
+`75569d18793bf078cc8a08301229a8fa19f599f06abcb3ecefbd53de1dcdc390`.
 
 ## Defects found and fixed during S1
 
@@ -248,7 +247,7 @@ to functions, types and schemas with their built-in PUBLIC defaults. This
 explicitly narrows in-place recovery; large-object data require verified empty-
 target recovery. Mid-stream producer/SQL failure tests supplement end-of-stream
 failures. The aborted full run at `c3df902` (exit 2, 356 passed, 1 warning) is
-retained; a new full run on frozen corrected source is required before delivery.
+retained; the final frozen run at `ea6697b` passed as recorded above.
 
 ## Legacy fixture isolation correction
 
@@ -260,8 +259,32 @@ database. The exact migration-test→dashboard sequence reproduced the failure.
 The coordinator moved the real008→009 test into an owned database with just
 those migrations, retaining queue preservation and idempotency checks.
 Production code, SQL and the accepted restore correction remain unchanged.
-A new full run is still required; the failed run is retained.
+The final full run at `ea6697b` passed; the earlier failed run is retained.
 
-## Pending before delivery
+## Final verification and delivery boundary
 
-The full test suite, final convergence and the pull request (T065-010/011).
+The restore correction at `bfeedf0` passed all **119** targeted backup/synthesis/
+research/thematic tests (exit 0, 65.25 s), with all 355 source hashes unchanged.
+A coordinator adaptation of the independent restore probes passed **28/28**
+assertions, including no target connection on large-object refusal, unchanged
+large-object bytes and original/default/function ACLs, and mid-stream failures.
+All six owned probe databases were removed. This is coordinator correction
+verification, not another independent run; the complete 16-file independent
+restore review at `c3df902` and its 23/26 result remain preserved, with M1/M2
+explicitly resolved by these corrections.
+
+The final full suite passed 1,974 tests, skipped one macOS-only launchd test and
+reported one upstream Starlette/httpx deprecation warning (exit 0, 2084.56 s).
+Seven Node adapter tests pass; the offline lock check resolves 55 packages.
+The test-only legacy fixture correction passed 32 tests; the final full run uses
+the isolated fixture. Product and SQL files are unchanged from `bfeedf0`.
+All 179 wheel payload files match source. Relative documentation links and the
+exact 0.6.17→0.6.18 patch bump were checked. The full log digest, source binding,
+package hash, current populated-upgrade proof and retained failed/interrupted
+runs are in [acceptance.json](issue65/acceptance.json).
+
+A separate same-owner, synthetic empty-target recovery using `pg_restore --single-transaction` preserved the original row, large-object bytes and function ACLs; the owner-control schema validator passed. Both owned databases were removed. This proves the documented fallback on PostgreSQL17/Linux, not a live cutover or complete production large-object inventory. Its first probe had a setup-assumption error about seeded domains; the corrected check compared the full source domain inventory and passed. Both attempts are retained.
+
+The PR and merge decision remain separate. No live store, service, model or
+client was changed. Production use still requires PB-065-OPS, all-reader
+restart, an explicitly enabled policy and the documented recovery boundary.

@@ -27,8 +27,8 @@ It is off by default and needs no migration; read [temporal search](docs/tempora
 
 **0.6.16 source evidence:** every client can inspect the exact stored quotes,
 source trust, claim review and fact lifecycle behind a memory, and reviews are
-bound to the evidence version that was inspected. Current service startup requires
-schema029; follow the verified [upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md)
+bound to the evidence version that was inspected. That release introduced
+schema029; follow its verified [upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md)
 and read [claim evidence](docs/claim-evidence.md).
 
 **0.6.15 reranker Settings:** administrators can select MiniLM L6 EN/DE,
@@ -39,7 +39,7 @@ Knowledge and existing embeddings are preserved.
 **0.6.13 request tracing:** metadata-only request IDs and authorized job diagnostics
 are available through the dashboard, REST and CLI. Read the
 [tracing operations guide](docs/16-request-tracing.md). Existing service stores
-introduced additive schema026; current startup requires029 as described above.
+introduced additive schema026; current startup requires030 as described above.
 
 **0.6.12 dashboard:** authenticated setup, enrolled-client administration and scoped
 knowledge/source browsing, served by the same engine. Read the

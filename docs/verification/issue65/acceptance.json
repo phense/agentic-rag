@@ -1,0 +1,252 @@
+{
+  "base_revision": "81beaf6c1f7a498ba74a661def70ae18f9022df7",
+  "deferred_low_findings": {
+    "ids": [
+      "LOW-038",
+      "LOW-039",
+      "LOW-040",
+      "LOW-041",
+      "LOW-042",
+      "LOW-043",
+      "LOW-044"
+    ],
+    "issue": "https://github.com/phense/agentic-rag/issues/75"
+  },
+  "documentation": {
+    "broken_links": 0,
+    "post_review_changes": "Synthesis implementation, SQL and transports unchanged since 73ddd02. Additional backup restore delta independently reviewed atc3df902; M1/M2 corrected by coordinator atbfeedf0 with frozen-source119tests and28probeassertions.",
+    "relative_links_checked": 251,
+    "versions_and_lock_consistent": true
+  },
+  "empty_target_large_object_recovery": {
+    "archive_restore_exit": 0,
+    "exit_code": 0,
+    "function_acls_preserved": true,
+    "large_object_bytes_preserved": true,
+    "large_object_sha256": "2835fcdc2d19d64fec4155dda588be1995b6026e93cec85add41bce71f46e54f",
+    "limits": [
+      "Synthetic PostgreSQL17 Linux same-owner case only",
+      "Archive excludes benchmark ownership fixture; no application data excluded",
+      "No live cutover or large-object production inventory measured"
+    ],
+    "live": false,
+    "original_row_preserved": true,
+    "owned_databases_created": 2,
+    "owned_databases_left": 0,
+    "owner": "coordinator",
+    "owner_control_schema_valid": true,
+    "preliminary_probe_setup_error": {
+      "assertion": "SELECT name FROM domains == single inserted domain",
+      "exit_code": 1,
+      "owned_database_cleanup": "both isolated contexts exited and removed their owned DBs on AssertionError",
+      "reason": "Probe overlooked init_db seeded default domains; product restore not implicated. Corrected probe compares full source domains and independently requires inserted original row."
+    },
+    "source_revision": "bfeedf0dcb24cc5440e0f032c13aaf297b8a26b1"
+  },
+  "full_suite": {
+    "command": "PGPORT=55460 PYTHONDONTWRITEBYTECODE=1 LD_LIBRARY_PATH=<existing browser libraries> .venv/bin/python -m pytest -q --tb=short -p no:cacheprovider",
+    "exit_code": 0,
+    "finished": "2026-10-31T21:59:49.225416+00:00",
+    "head": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
+    "log_sha256": "2a16c860084736cf36be646ecf76917626d39b6740784424290ce668462ef21d",
+    "passed": 1974,
+    "seconds": 2084.56,
+    "skipped": 1,
+    "skipped_limit": "launchd installation is macOS-only; tested on Linux",
+    "source_files": 355,
+    "source_manifest_sha256": "d4e069f51faf01d8f15ba1f54f773f63ff57ebc396cc0675a573eb4f04264a4a",
+    "sources_unchanged": true,
+    "started": "2026-10-31T21:25:04.665956+00:00",
+    "warning_limit": "upstream Starlette/httpx TestClient deprecation",
+    "warnings": 1
+  },
+  "independent_review": {
+    "coverage_union_before_fixture_correction": 67,
+    "final_changed_files": 13,
+    "fresh_failed_assertions": 0,
+    "fresh_integration_assertions": 34,
+    "manifest_aggregate": "1eb3174a759a8331e1c9ed5ecf448a47d9d71feedc9ce7b5a09bd64b6b661940",
+    "manifest_sha256": "a0070ad190660576e50544cf43b418f4b04fca60c5bcb92a66424857f741af0e",
+    "new_probes_supersede": [
+      "Q9",
+      "Q13"
+    ],
+    "open_critical_high_medium_important": 0,
+    "owned_databases_created": 4,
+    "owned_databases_left": 0,
+    "playbook": "independently accepted; later Minor R09 wording corrected by coordinator, executable snippets unchanged",
+    "probe_result_sha256": "44a57eb363c60763bb51174bfa0097b64d4f7363e4b0b120c5d5df8a34cb9cfe",
+    "probe_script_sha256": "b3151426f1711f56a04b70a497907e920aab22edd59d5aef5513464e8d2072b3",
+    "reviewed_files": 60,
+    "test_only_fixture_delta": "coordinator reviewed; production and SQL byte-identical to bfeedf0",
+    "unchanged_code_probes_reused": [
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4a",
+      "Q4b",
+      "Q4c",
+      "Q4d",
+      "Q5",
+      "Q6",
+      "Q7",
+      "Q8",
+      "Q10",
+      "Q11",
+      "Q12",
+      "Q14"
+    ]
+  },
+  "issue": 65,
+  "legacy_fixture_correction": {
+    "coordinator_review": "mechanical test isolation; real008to009 instead of dropping shared current table",
+    "files": [
+      "tests/test_mining_migration.py"
+    ],
+    "product_sql_changes": false,
+    "regression": "migration then dashboard reproduced1pass1fail; corrected32tests passed/exit0/39.56s",
+    "revision": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
+    "source_guard": "Full run on frozen ea6697b after correction"
+  },
+  "limits": [
+    "No real-model quality measurement",
+    "No macOS, multi-host, systemd, TLS or live-store rollout proof",
+    "Semantic stance lies can pass the structural validator (C2:1unsupportedpart)",
+    "Finite scan/context and input-group liveness limits remain in Issue75"
+  ],
+  "measurement": {
+    "applied_patterns": 4,
+    "cases": 10,
+    "cited_parts": 8,
+    "dev_evaluations": 11,
+    "evaluations": 15,
+    "held_out_evaluations": 4,
+    "label_errata": {
+      "F1-adversarial": "label expects provider_calls=1, but below the independence floor no provider is ever called (contract pattern-v1); the over-claiming answer is rejected by the validator with the labelled reason. Outcome, reason and applied count match."
+    },
+    "matches_label": 14,
+    "mismatches": [
+      "F1-adversarial"
+    ],
+    "non_conclusions": 11,
+    "outcomes_identical_across_repetitions": true,
+    "provider": "frozen scripted responses, not a real model",
+    "provider_calls": 9,
+    "rejected_suggestions": 3,
+    "repetitions": 3,
+    "semantically_supported_parts": 7,
+    "semantically_unsupported_parts": 1,
+    "source_revision": "8d9043e08a98f2928c833a5d2bebe064942209a6",
+    "synthetic_rows": 35,
+    "wall_seconds": 22.5
+  },
+  "node": {
+    "command": "node --test tests/test_opencode_plugin.mjs",
+    "exit_code": 0,
+    "failed": 0,
+    "inputs_unchanged_after_fixture_correction": true,
+    "passed": 7,
+    "tested_source_revision": "bfeedf0dcb24cc5440e0f032c13aaf297b8a26b1"
+  },
+  "package": {
+    "built_source_revision": "bfeedf0dcb24cc5440e0f032c13aaf297b8a26b1",
+    "exit_code": 0,
+    "head": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
+    "payload_files_checked": 179,
+    "payload_mismatch": 0,
+    "payload_missing": 0,
+    "smoke": {
+      "new_store_default_off": true,
+      "nullable_backfill_waiting": true,
+      "owned_database_removed": true,
+      "readonly_tools": 16,
+      "sql_migrations": 30,
+      "version": "0.6.18"
+    },
+    "verified_against_revision": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
+    "wheel": "agentic_rag-0.6.18-py3-none-any.whl",
+    "wheel_entries": 184,
+    "wheel_sha256": "75569d18793bf078cc8a08301229a8fa19f599f06abcb3ecefbd53de1dcdc390"
+  },
+  "production_changed": false,
+  "restore_correction": {
+    "M1": "Large-object archive preflight refuses before target connection; original rows, defaults, all ACLs and large-object bytes preserved. Empty-target recovery required.",
+    "M2": "All five PostgreSQL17 object default classes reset to builtins inside transaction, then replay archive defaults; function ACLs identical, no new reader EXECUTE grants.",
+    "coordinator_replay_assertions": 28,
+    "coordinator_replay_failed": 0,
+    "coordinator_replay_owned_databases": 6,
+    "coordinator_replay_result_sha256": "c6cf952d5d91bcf69569ac7137be757a50dda1b7f9ab58792a76ca6621470e8d",
+    "coordinator_replay_script_sha256": "bce64b1f4e96a1a9212ea0d55481071ac3bc62d7500257c4aa8868594b19e965",
+    "corrected_revision": "bfeedf0dcb24cc5440e0f032c13aaf297b8a26b1",
+    "frozen_targeted_tests": 119,
+    "independent_assertions": {
+      "passed": 23,
+      "three_failed_assertions": "M1 and M2, subsequently corrected by coordinator",
+      "total": 26
+    },
+    "independent_delta_files": 16,
+    "independent_review_revision": "c3df90226d0c0f759936d1d7f6bcaeb16d27543a",
+    "low_dispositions": {
+      "L1": "stage/tool exit codes without SQL content; unused stderr captures removed",
+      "L2": "SET LOCAL search_path=pg_catalog",
+      "L3": "trace AC009/IC004 corrected",
+      "L4": "final corrected source frozen during targeted/full runs",
+      "L5": "mid-stream SQL/producer failures, LO refusal, custom function defaults tested"
+    },
+    "targeted_exit": 0,
+    "targeted_revision": "bfeedf0dcb24cc5440e0f032c13aaf297b8a26b1",
+    "targeted_sources_unchanged": true
+  },
+  "retained_unaccepted_runs": [
+    {
+      "exit_code": 1,
+      "failed": 1,
+      "log_sha256": "8d689a4739e25d47de09e0a16b58088a8ad38e17151d535bf4642b0f5020d1a2",
+      "passed": 1973,
+      "reason": "legacy migration test removed later RLS from shared DB; now isolated",
+      "seconds": 1917.92,
+      "source_files": 355,
+      "source_revision": "bfeedf0",
+      "sources_unchanged": true
+    },
+    {
+      "exit_code": 2,
+      "failed": 9,
+      "passed": 997,
+      "reason": "interrupted; eight browser library-path errors and stale RO count",
+      "source_revision": "39b6bd9"
+    },
+    {
+      "exit_code": 1,
+      "failed": 3,
+      "passed": 1965,
+      "reason": "two stale writer surfaces and restore ACL amplification",
+      "source_revision": "73ddd02"
+    },
+    {
+      "exit_code": 2,
+      "passed": 356,
+      "reason": "coordinator interrupted after confirmed restore review M1/M2;355sourcesunchanged",
+      "source_revision": "c3df902"
+    }
+  ],
+  "roadmap_position": "7/15",
+  "schema": 30,
+  "tested_reviewed_source": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
+  "upgrade": {
+    "all_direct_readers_restart_before_first_pattern": true,
+    "backup_restore_verified": true,
+    "code_only_rollback_after_first_pattern": "forbidden",
+    "evidence": "../../benchmarks/2026-10-31-pattern-synthesis/compatibility-evidence.json",
+    "original_rows_preserved": 302,
+    "original_tables": 39,
+    "retry_empty": true,
+    "source_schema": 29,
+    "source_version": "0.6.17",
+    "target_schema": 30,
+    "target_version": "0.6.18",
+    "upgrade_seconds": 2.44
+  },
+  "version": "0.6.18",
+  "work_id": "RAG-065"
+}

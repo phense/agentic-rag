@@ -114,3 +114,10 @@ PB065-R09's wording correction is coordinator-reviewed against probe F2; it
 adds no executable operation. The product limit remains open as
 [LOW-044](https://github.com/phense/agentic-rag/issues/75#issuecomment-6548506675).
 This content verdict is separate from full-suite and production readiness.
+
+Final full-suite acceptance: `ea6697b`, 1,974 passed/1 skipped/1 known warning,
+exit 0, 355 source hashes unchanged. The separate legacy in-place restore correction
+was independently reviewed at `c3df902`; coordinator regression corrections
+then passed 119 targeted tests and 28/28 restore assertions at `bfeedf0`.
+PB-065-OPS executable snippets remain byte-identical to the accepted 73ddd02
+version; the verified empty-target service recovery remains unchanged.

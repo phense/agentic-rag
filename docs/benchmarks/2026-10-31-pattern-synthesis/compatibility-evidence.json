@@ -12,6 +12,8 @@
   "verdict": "forbidden"
  },
  "documents": 18,
+ "evidence_origin": "populated upgrade/recovery test in the completed full-suite run",
+ "full_suite_exit_code": 0,
  "knowledge_sources": 20,
  "old_reads_identical": true,
  "original_rows": 302,
@@ -44,6 +46,8 @@
   "processed": 0,
   "runs": 0
  },
+ "target_commit": "ea6697b0bf0cdec5b5a957f0efff46d94f845fac",
  "target_schema": 30,
- "upgrade_seconds": 1.61
+ "target_version": "0.6.18",
+ "upgrade_seconds": 2.44
 }

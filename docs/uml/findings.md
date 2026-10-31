@@ -424,3 +424,8 @@ No Critical/High/Medium or Important finding remains. LOW-038..044 are deferred
 in Issue75; the companion Minor C1/C9 wording finding is corrected by the
 coordinator without changing executable steps. Full-suite and convergence
 acceptance are still pending.
+
+Final Issue65 coordinator evidence: `ea6697b` full pytest 1974 passed/1 skip/1 known warning,
+exit 0, 355 source hashes unchanged; restore correction 119 targeted + 28/28 probe
+assertions. AF-065-001..004 remain resolved; LOW038..044 remain in75.
+No additional architecture change or live rollout occurred.
