@@ -2,8 +2,9 @@
 
 Frozen synthetic cases run through the real pattern pipeline: preview, scheduler,
 existing worker drain, validation, audited application and guarded reads. Product
-revision `3860576`, PostgreSQL 17.10, schema030, Python 3.13.13, Intel Xeon
-E5-2650. Results: [`results.json`](results.json). Behavior:
+revision `8d9043e` (clean tree, after the S4 correction: processed membership,
+budget fitting and recent context), PostgreSQL 17.10, schema030, Python 3.13.13,
+Intel Xeon E5-2650. Results: [`results.json`](results.json). Behavior:
 [pattern synthesis](../../pattern-synthesis.md); output contract:
 [pattern-v1](../../specs/6-7-pattern-synthesis/contracts/pattern-v1.md).
 
@@ -92,11 +93,19 @@ Timings in milliseconds, one in-process connection:
 
 | Step | n | Median | Max |
 |---|---:|---:|---:|
-| Preview | 45 | 15.6 | 25.1 |
-| Schedule | 42 | 18.9 | 28.4 |
-| Drain (includes the scripted call) | 42 | 45.5 | 137.8 |
-| Inspect an applied pattern | 12 | 14.9 | 18.2 |
-| Validate one answer (no database) | 3 | 0.1 | 0.2 |
+| Preview | 45 | 22.9 | 32.7 |
+| Schedule | 42 | 33.2 | 51.7 |
+| Drain (includes the scripted call) | 42 | 83.3 | 204.9 |
+| Inspect an applied pattern | 12 | 22.9 | 24.5 |
+| Validate one answer (no database) | 3 | 0.2 | 0.2 |
+
+Compared with the previous run at `3860576` (medians 15.6, 18.9, 45.5, 14.9 and
+0.1 ms), every outcome, count and provider call is identical. Schedule now fits
+the input budget and looks up recent context, and drain re-checks the gate
+before every recorded outcome; the box was also shared with other work, so the
+difference is an observation, not an isolated cost measurement. These fixtures
+exercise one scope per case: they do not measure the late-commit, budget-fit or
+cross-run context paths, which are covered by `tests/test_synthesis_forward.py`.
 
 Finite inputs: each provider prompt carried 1,041 to 1,412 characters. The
 generation limits bound every prompt: 12 memories, 8 spans per memory and
@@ -161,10 +170,14 @@ repetitions agree. Database IDs and timings differ per run.
 [`compatibility-evidence.json`](compatibility-evidence.json) was written by
 `tests/service/test_synthesis_upgrade.py`. The actual 0.6.17 code (`81beaf6`,
 schema029) populated a store with 302 rows in 39 tables. The upgrade to schema030
-took 2.22 s, preserved every original row and created no synthesis policy, run,
+took 1.61 s (run at `8d9043e`), preserved every original row and created no synthesis policy, run,
 job or pattern. Old 0.6.17 reads were identical afterwards. One pattern generated
 after the upgrade cost exactly one provider call. A pre-upgrade restore loses
 writes made after the upgrade, as expected.
 
-Old 0.6.17 `memory_get` returns a pattern body if asked for its id directly,
-because the old code lacks the new read guard. Old search stays guarded in SQL.
+After a pattern exists, a return to 0.6.17 code is a forbidden boundary: once the
+policy is disabled, 0.6.18 withholds the pattern, but the actual 0.6.17 `memory_get`,
+`memory_evidence` and evidence history still serve it; only old search stays
+guarded in SQL. The rehearsal records this as `code_only_rollback_after_patterns`
+with verdict `forbidden`. The supported way back is the verified pre-upgrade dump
+(PB-065-OPS part D).

@@ -1,8 +1,10 @@
 # PB-065-OPS review and rehearsal evidence
 
 Playbook: [rag-065-pattern-synthesis.md](rag-065-pattern-synthesis.md).
-State: **drafted and rehearsed by the implementer; independent review pending**
-(RAG-065 S2, T065-009). Delivery stays blocked until that review passes.
+State: **revised for PB065-R01..R06 and R65-04 (S4) and re-rehearsed by the
+implementer; independent re-review pending.** The earlier independent review
+(`Changes required`) applies to the previous revision. Delivery stays blocked
+until a new review passes.
 
 ## Rehearsal
 
@@ -14,12 +16,17 @@ outage is a synthetic `LLMUnavailableError`. No real model was called.
 
 | Part | Rehearsed by | What ran | Observed result |
 |---|---|---|---|
-| A1–A6 | `tests/service/test_synthesis_upgrade.py::test_operator_cli_and_central_service_on_populated_0_6_17` | The exact `rag service` inventory, preflight, plan, upgrade, retry and status commands on a store populated by the archived 0.6.17 code (`81beaf6`) | `030_pattern_synthesis.sql` applied, restore verified, original rows unchanged, retry empty, no synthesis rows; label `0.6.18` refused; old 0.6.17 central API served a scoped read and answered the unknown pattern tool with 404; new API served `memory_pattern_status` |
-| A4 interruption, D restore limits | `tests/service/test_synthesis_upgrade.py::test_populated_0_6_17_upgrade_retry_old_code_recovery_and_restore_limits` | Interrupted migration and retry, old-code reads and writes on schema030, accepted-run recovery on a restored copy, pre-upgrade restore | 302 rows in 39 tables preserved; upgrade 2.22 s; post-upgrade writes absent from the pre-upgrade restore, as documented ([evidence](../../benchmarks/2026-10-31-pattern-synthesis/compatibility-evidence.json)) |
-| A8, B1–B6, C1, C2, C4–C7, integrity check, D post-upgrade restore | `tests/service/test_synthesis_playbook.py` | The playbook's `rag pattern` commands through the real CLI, worker ticks through the central `rag service worker` loop, the `PB065-INTEGRITY` SQL block read from the playbook, and the PB-063 R1/R3 snippets on a schema030 dump | See below |
+| A1–A6 | `tests/service/test_synthesis_upgrade.py::test_operator_cli_and_central_service_on_populated_0_6_17` | The exact `rag service` inventory, preflight, plan, upgrade, retry and status commands on a store populated by the archived 0.6.17 code (`81beaf6`) | `030_pattern_synthesis.sql` applied, restore verified, original rows unchanged, retry empty, no synthesis rows (including `synthesis_processed`); label `0.6.18` refused; old 0.6.17 central API served a scoped read before any pattern existed; new API served `memory_pattern_status` |
+| A4 interruption, D rollback boundary and restore limits | `tests/service/test_synthesis_upgrade.py::test_populated_0_6_17_upgrade_retry_old_code_recovery_and_restore_limits` | Interrupted migration and retry, old-code reads and writes on schema030 before patterns, accepted-run recovery on a restored copy, disable after a pattern exists with actual 0.6.17 reads, pre-upgrade restore for retained 0.6.17 code | 302 rows in 39 tables preserved; upgrade 1.61 s; after disable, 0.6.18 withheld the pattern while 0.6.17 `get`, `evidence` and `history` served it (`code_only_rollback_after_patterns.verdict = forbidden`); post-upgrade writes absent from the pre-upgrade restore ([evidence](../../benchmarks/2026-10-31-pattern-synthesis/compatibility-evidence.json)) |
+| B0, A8, B1–B6, C1, C2, C4 (local and central), C5–C7, integrity check after a disable tick, D post-upgrade restore | `tests/service/test_synthesis_playbook.py` | The playbook's `PYFRESH`, `PYGATE` and `PB065-CLIENTS` blocks and `rag pattern` commands through the real CLI (local, and client mode against the REST API), worker ticks through the central `rag service worker` loop, the `PB065-INTEGRITY` SQL block, and the PB-063 R1/R3 snippets on a schema030 dump | See below |
 
-Observed in `test_synthesis_playbook.py` (2026-10-31, `1 passed in 14.14s`, exit 0):
+Observed at product revision `8d9043e` (2026-10-31, serial run of the affected
+suites; this file passed, report line `PB065_REHEARSAL`):
 
+- B0: `PYFRESH` printed `0.6.18` and the installed `METADATA` path. `PYGATE`
+  exited 1 and named a reader process started before the installation marker;
+  after that process was restarted it printed `no_stale_processes`, exit 0.
+  `PB065-CLIENTS` returned the expected columns (0 other clients).
 - A8: an initialized schema030 store showed no policy and no run.
 - B2: `rag pattern enable` with `[synthesis] enabled = false` exited 1.
 - B3, B1: enabling printed `pattern policy enabled (v1); forward boundary …`;
@@ -30,10 +37,17 @@ Observed in `test_synthesis_playbook.py` (2026-10-31, `1 passed in 14.14s`, exit
 - B5, B6: `list` showed `VPN reconnect clears the DNS suffix list [unreviewed, medium]`;
   `show` printed the hypothesis notice, `ev1:`/`src1:` versions and
   `support: 4 independent events in 4 memories`.
-- C4: after exhausted apply attempts the run was `error`/`apply_failed`/recoverable;
+- C4 local: after exhausted apply attempts the run was `error`/`apply_failed`/recoverable;
   `rag pattern recover` printed `re-queued (accepted)`; a second recover exited 1;
   the next tick applied it with still one provider call in total.
-- Integrity check: `patterns` 2, every mismatch column 0, `open_runs` 0.
+- C4 central: a writer enabled the I1 scope with the client CLI; after exhausted
+  apply attempts in the central worker, client-mode `status` showed the run
+  recoverable and its memories `held_for_recovery`; client-mode `rag pattern
+  recover` printed `re-queued (accepted)`; the next central tick applied it with
+  one provider call in total.
+- Integrity check after C4: `patterns` 3, every other column 0. After disabling a
+  scope with an open run, `open_runs_of_disabled_policies` was 1; after the next
+  tick the run was `withheld policy_disabled` and the check was clean again.
 - C1: a window after the forward boundary exited 1; an empty window closed without
   a run; a window below the floor ended `insufficient_independent_support` with
   zero provider calls.
@@ -44,11 +58,16 @@ Observed in `test_synthesis_playbook.py` (2026-10-31, `1 passed in 14.14s`, exit
   the PB-063 digest and manifest snippets printed `dump_digest_verified` and
   `restore_manifest_verified` on the restored copy, whose integrity result
   matched and whose pattern was readable.
+- C3, C8 and C9 recovery semantics (processed membership, held, oversized and
+  budget-blocked memories) are exercised by `tests/test_synthesis_forward.py` and
+  `tests/test_synthesis_apply.py` through the same scheduler and worker, not
+  through the CLI.
 
-The C4 rehearsal simulates two waits with SQL on the owned database: the
+The C2/C4 rehearsals simulate two waits with SQL on the owned database: the
 provider backoff elapsing (`next_attempt_at`) and the worker's attempts running
 out (`status='error'`). Those are the conditions the existing worker reaches on
-its own after its configured backoff and attempt limit.
+its own after its configured backoff and attempt limit. The B0 gate rehearsal
+uses a temporary installation marker instead of reinstalling the package.
 
 ## Correction found during rehearsal
 
@@ -60,9 +79,13 @@ state this.
 
 - Part B with a real model provider, and part D's pre-upgrade restore through the
   literal PB-063 R4 client switch with a 0.6.17 executable (the restore itself and
-  old-code reads are rehearsed in the upgrade test).
+  old-code reads are rehearsed in the upgrade test). The export of post-backup
+  writes in part D is a read-only query, not rehearsed separately.
+- B0 on more than one host, on macOS `ps`, or against a real agent session's MCP
+  server; B0 cannot detect hosts that are not on the process list.
 - A live store, a systemd-managed central worker, or a multi-host deployment.
 
 ## Independent review
 
-Pending: S2/T065-009 (coordinator-owned).
+Previous revision: changes required (PB065-R01..R06). Revised revision: pending
+(coordinator-owned).

@@ -19,9 +19,9 @@ summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade
 [Issue65](https://github.com/phense/agentic-rag/issues/65) adds opt-in pattern
 synthesis: source-linked, reviewable inferences over several original memories.
 Source is 0.6.17/schema029 (`81beaf6`); the target is 0.6.18 with additive
-migration030. This record covers the implementation slice (S1). The independent
-review (S2) and the full test suite (S3) are coordinator-owned and **not yet
-done**; nothing here claims them.
+migration030. This record covers the implementation slice (S1) and the
+review-driven correction slice (S4). The independent re-review and the full test
+suite are coordinator-owned and **not yet done**; nothing here claims them.
 
 Terms: a *pattern* is a stored inference with exact citations. An *independent
 event* is a distinct user report after merging same-source and same-text quotes.
@@ -34,8 +34,9 @@ without a pattern, with a reason.
 
 The [harness](../benchmarks/2026-10-31-pattern-synthesis/measure.py) ran the real
 preview, scheduler, worker drain, validation, audited application and guarded
-reads on product revision `3860576`, three repetitions, PostgreSQL 17.10,
-Python 3.13.13. The provider boundary was replaced by frozen scripted answers.
+reads on product revision `8d9043e` (clean tree, after S4), three repetitions,
+PostgreSQL 17.10, Python 3.13.13. Every outcome, count and provider call equals
+the earlier run at `3860576`. The provider boundary was replaced by frozen scripted answers.
 **These numbers describe how the pipeline handles honest and dishonest output.
 They are not a model-quality result; no real model was called.** An optional
 real-model run on the synthetic fixtures was not performed.
@@ -65,8 +66,31 @@ none of these counts establishes actual-model accuracy.
 | Provider calls (all below-floor cases: 0) | 9 |
 | Outcomes identical across 3 repetitions | yes |
 
-Median timings: preview 15.6 ms, schedule 18.9 ms, drain 45.5 ms (includes the
-scripted call), inspect 14.9 ms. Prompts carried 1,041 to 1,412 characters.
+Median timings: preview 22.9 ms, schedule 33.2 ms, drain 83.3 ms (includes the
+scripted call), inspect 22.9 ms (at `3860576`: 15.6, 18.9, 45.5, 14.9 ms; the
+scheduler now fits the budget and looks up context, and the box was shared).
+Prompts carried 1,041 to 1,412 characters.
+
+## S4 correction: forward processing
+
+Review findings R65-02, R65-03 and R65-06 showed that forward synthesis could
+lose originals: a 60-second settle window plus an advancing cursor skipped a save
+whose transaction committed late, an over-budget batch was consumed without a
+call, and observations arriving in different runs never met. S4 replaces this
+with processed membership per enable epoch, a budget fit before any run and a
+bounded window of recent context (contract *Forward processing*). Each behavior
+was first observed failing on the earlier code, with real simultaneous database
+connections where it matters (`tests/test_synthesis_forward.py`):
+
+| Regression | Before S4 | After S4 |
+|---|---|---|
+| Save in a held-open transaction, committed after 3 later originals were analysed | never pending, never analysed | `pending 1`, analysed as new in the next run |
+| 12 quotes of 1,100 characters, default 12,000-character input | run ends `input_budget_exceeded`, all 12 consumed, no call | first run analyses the fitting group, the rest stays pending and runs next |
+| Two DNS reports in run 1, a third in run 2 | run 2 sees only its 3 new memories: no pattern | run 2 adds run 1's memories as context: pattern citing all three |
+| Policy disabled and re-enabled during the provider call | `non_conclusion` recorded | `withheld policy_changed`, nothing consumed |
+| 6 excluded rows ahead of 3 eligible, scan bound 5 | eligible rows starve | the rotating scan reaches them on the next tick |
+
+These are pipeline tests with an in-process scripted provider, not model quality.
 
 ## Inspected examples
 
@@ -87,12 +111,15 @@ and the erratum is published in `results.json`.
 Rehearsed on owned copies (`tests/service/test_synthesis_upgrade.py`,
 [evidence](../benchmarks/2026-10-31-pattern-synthesis/compatibility-evidence.json)):
 the archived 0.6.17 code populated 302 rows in 39 tables; the upgrade applied
-only `030_pattern_synthesis.sql` in 2.22 s with verified restore and unchanged
+only `030_pattern_synthesis.sql` in 1.61 s (at `8d9043e`) with verified restore and unchanged
 original rows; the retry applied nothing; no policy, run, job or pattern existed
 afterwards. 0.6.17 reads were identical after the upgrade. 0.6.17 local writes
-and its central API worked on schema030. Accepted work survived a verified
-backup and restore and was recovered without a second provider call. A
-pre-upgrade restore loses later writes, as documented.
+and its central API worked on schema030 while no pattern existed. Accepted work
+survived a verified backup and restore and was recovered without a second
+provider call. After a pattern existed and its policy was disabled, 0.6.18
+withheld it while actual 0.6.17 get, evidence and history still served it: the
+recorded verdict for a code-only rollback is `forbidden`. A pre-upgrade restore
+loses later writes, as documented.
 
 ## Playbook rehearsal
 
@@ -100,7 +127,16 @@ PB-065-OPS parts A–D were rehearsed on owned databases through the real CLI an
 the central worker loop; details in the
 [review and evidence record](../playbooks/system/rag-065-pattern-synthesis-review.md).
 The rehearsal found one documentation error (empty backfill windows close
-without a run), corrected before commit.
+without a run), corrected before commit. After S4 the rehearsal also runs the B0
+reader-gate snippets against a deliberately stale process and recovers a parked
+run through a writer's central client CLI, the REST API and the central worker
+with one provider call.
+
+## Defects found and fixed during S4
+
+- `tests/service/test_reranker_upgrade.py` still expected 29 applied migrations
+  after an upgrade; since migration030 there are 30. Found by the S4 serial run of
+  affected suites, corrected; the file then passed (2 tests).
 
 ## Defects found and fixed during S1
 
@@ -116,15 +152,20 @@ without a run), corrected before commit.
 
 - No real-model quality figure; synthetic corpus of 35 rows in one domain.
 - The validator cannot detect a model that misstates a quote's stance (C2).
-- A 0.6.17 process returns a pattern body from `memory_get` by id on schema030;
-  its search stays guarded.
-- A writer transaction longer than the 60-second settle window can be skipped by
-  the forward cursor; a backfill covers it.
+- Once a pattern exists, actual 0.6.17 code with direct database access is a
+  forbidden boundary: its get, evidence and history serve a disabled pattern
+  (rehearsed). PB-065-OPS B0 must pass before the first enable; it cannot find
+  hosts that are not listed or not connected.
+- Recurrence is found within one run: new memories plus up to 48 recently
+  analysed ones of the epoch, within 12 memories and the input limit. Every pair
+  of an arbitrarily large history is not compared.
+- A memory larger than the maximum input limit (24,000 characters) stays
+  `oversized` and is never analysed.
 - The curation report (`rag review`) can still list withheld pattern slugs.
-- Disable every policy before a code rollback: a 0.6.17 worker cannot process
-  queued pattern jobs.
+- A code-only rollback is supported only before the first pattern; disable every
+  policy first, because a 0.6.17 worker cannot process queued pattern jobs.
 
 ## Pending before delivery
 
-Independent review (T065-009), as-built reconciliation, the full test suite and
+Independent re-review of S4, as-built reconciliation, the full test suite and
 the pull request (T065-010/011).

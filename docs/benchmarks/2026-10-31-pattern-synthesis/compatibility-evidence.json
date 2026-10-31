@@ -3,9 +3,16 @@
  "claim_evidence": 26,
  "claim_history": 28,
  "claim_records": 17,
+ "code_only_rollback_after_patterns": {
+  "new_code_withholds_disabled_pattern": true,
+  "old_evidence_exposes_pattern": true,
+  "old_get_exposes_body": true,
+  "old_history_answers": true,
+  "old_search_guarded": true,
+  "verdict": "forbidden"
+ },
  "documents": 18,
  "knowledge_sources": 20,
- "old_code_get_returns_pattern_body": true,
  "old_reads_identical": true,
  "original_rows": 302,
  "original_tables": 39,
@@ -34,8 +41,9 @@
   "jobs": 0,
   "patterns": 0,
   "policies": 0,
+  "processed": 0,
   "runs": 0
  },
  "target_schema": 30,
- "upgrade_seconds": 2.22
+ "upgrade_seconds": 1.61
 }
