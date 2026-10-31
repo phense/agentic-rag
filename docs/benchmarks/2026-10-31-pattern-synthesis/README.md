@@ -2,7 +2,7 @@
 
 Frozen synthetic cases run through the real pattern pipeline: preview, scheduler,
 existing worker drain, validation, audited application and guarded reads. Product
-revision `7603b7b`, PostgreSQL 17.10, schema030, Python 3.13.13, Intel Xeon
+revision `3860576`, PostgreSQL 17.10, schema030, Python 3.13.13, Intel Xeon
 E5-2650. Results: [`results.json`](results.json). Behavior:
 [pattern synthesis](../../pattern-synthesis.md); output contract:
 [pattern-v1](../../specs/6-7-pattern-synthesis/contracts/pattern-v1.md).
@@ -44,6 +44,12 @@ The ten cases:
 
 ## Results
 
+The frozen labels call citation-valid parts `supported_parts`; that historical field
+is interpreted as cited parts when checking the unchanged labels. The revised
+measurement reports semantic support separately, using a published human review
+of the frozen answers and quotes. C2 contributes one cited but unsupported part;
+none of these counts establishes actual-model accuracy.
+
 Three repetitions, identical outcomes in all three.
 
 | Measure | Value |
@@ -51,12 +57,14 @@ Three repetitions, identical outcomes in all three.
 | Evaluations (development / held-out) | 15 (11 / 4) |
 | Matching the frozen label | 14, plus 1 recorded label erratum |
 | Patterns applied | 4 |
-| Supported parts in applied patterns | 8 |
+| Cited parts in applied patterns | 8 |
+| Semantically supported parts (human inspection) | 7 |
+| Semantically unsupported parts (C2, human inspection) | 1 |
 | Rejected suggestions | 3 |
 | Non-conclusions | 11 |
 | Provider calls | 9 |
 | Provider calls below the support floor | 0 |
-| Wall time, 3 repetitions | 15.4 s |
+| Wall time, 3 repetitions | 15.0 s |
 
 Outcome per evaluation:
 
@@ -84,11 +92,11 @@ Timings in milliseconds, one in-process connection:
 
 | Step | n | Median | Max |
 |---|---:|---:|---:|
-| Preview | 45 | 16.2 | 60.1 |
-| Schedule | 42 | 19.2 | 45.0 |
-| Drain (includes the scripted call) | 42 | 45.2 | 148.9 |
-| Inspect an applied pattern | 12 | 15.2 | 33.4 |
-| Validate one answer (no database) | 3 | 0.1 | 0.1 |
+| Preview | 45 | 15.6 | 25.1 |
+| Schedule | 42 | 18.9 | 28.4 |
+| Drain (includes the scripted call) | 42 | 45.5 | 137.8 |
+| Inspect an applied pattern | 12 | 14.9 | 18.2 |
+| Validate one answer (no database) | 3 | 0.1 | 0.2 |
 
 Finite inputs: each provider prompt carried 1,041 to 1,412 characters. The
 generation limits bound every prompt: 12 memories, 8 spans per memory and

@@ -34,7 +34,7 @@ without a pattern, with a reason.
 
 The [harness](../benchmarks/2026-10-31-pattern-synthesis/measure.py) ran the real
 preview, scheduler, worker drain, validation, audited application and guarded
-reads on product revision `7603b7b`, three repetitions, PostgreSQL 17.10,
+reads on product revision `3860576`, three repetitions, PostgreSQL 17.10,
 Python 3.13.13. The provider boundary was replaced by frozen scripted answers.
 **These numbers describe how the pipeline handles honest and dishonest output.
 They are not a model-quality result; no real model was called.** An optional
@@ -47,18 +47,26 @@ Fixtures were frozen in `84bce47` (2026-10-31T17:30:15Z) before product code:
 
 ## Results
 
+The frozen labels call citation-valid parts `supported_parts`; that historical field
+is interpreted as cited parts when checking the unchanged labels. The revised
+measurement reports semantic support separately, using a published human review
+of the frozen answers and quotes. C2 contributes one cited but unsupported part;
+none of these counts establishes actual-model accuracy.
+
 | Measure | Value |
 |---|---:|
 | Evaluations matching the frozen label | 14 of 15, plus 1 recorded label erratum |
 | Patterns applied (honest K1, K2, I1; adversarial C2) | 4 |
-| Supported parts in applied patterns | 8 |
+| Cited parts in applied patterns | 8 |
+| Semantically supported parts (human inspection) | 7 |
+| Semantically unsupported parts (C2, human inspection) | 1 |
 | Rejected suggestions | 3 |
 | Non-conclusions | 11 |
 | Provider calls (all below-floor cases: 0) | 9 |
 | Outcomes identical across 3 repetitions | yes |
 
-Median timings: preview 16.2 ms, schedule 19.2 ms, drain 45.2 ms (includes the
-scripted call), inspect 15.2 ms. Prompts carried 1,041 to 1,412 characters.
+Median timings: preview 15.6 ms, schedule 18.9 ms, drain 45.5 ms (includes the
+scripted call), inspect 14.9 ms. Prompts carried 1,041 to 1,412 characters.
 
 ## Inspected examples
 

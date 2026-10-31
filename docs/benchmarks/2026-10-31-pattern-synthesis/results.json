@@ -15,7 +15,7 @@
     "reason": "insufficient_independent_support"
    },
    "case": "F1",
-   "drain_ms": 43.1,
+   "drain_ms": 43.6,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -29,8 +29,8 @@
     "independent_events": 1,
     "sufficient": false
    },
-   "preview_ms": 19.7,
-   "schedule_ms": 18.6,
+   "preview_ms": 21.4,
+   "schedule_ms": 19.2,
    "split": "dev",
    "variant": "worker"
   },
@@ -43,7 +43,7 @@
     "reason": "insufficient_independent_support"
    },
    "case": "F2",
-   "drain_ms": 40.3,
+   "drain_ms": 41.0,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -60,8 +60,8 @@
     "independent_events": 1,
     "sufficient": false
    },
-   "preview_ms": 10.9,
-   "schedule_ms": 15.0,
+   "preview_ms": 14.6,
+   "schedule_ms": 16.9,
    "split": "dev",
    "variant": "worker"
   },
@@ -74,7 +74,7 @@
     "reason": "insufficient_independent_support"
    },
    "case": "F3",
-   "drain_ms": 37.2,
+   "drain_ms": 38.7,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -90,8 +90,8 @@
     "independent_events": 1,
     "sufficient": false
    },
-   "preview_ms": 11.0,
-   "schedule_ms": 17.8,
+   "preview_ms": 12.3,
+   "schedule_ms": 19.1,
    "split": "dev",
    "variant": "worker"
   },
@@ -104,7 +104,7 @@
     "reason": "insufficient_independent_support"
    },
    "case": "F4",
-   "drain_ms": 44.5,
+   "drain_ms": 53.2,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -122,8 +122,8 @@
     "independent_events": 2,
     "sufficient": false
    },
-   "preview_ms": 13.7,
-   "schedule_ms": 22.9,
+   "preview_ms": 17.3,
+   "schedule_ms": 25.9,
    "split": "dev",
    "variant": "worker"
   },
@@ -136,7 +136,7 @@
     "reason": "insufficient_independent_support"
    },
    "case": "F5",
-   "drain_ms": 39.8,
+   "drain_ms": 45.0,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -150,24 +150,24 @@
     "independent_events": 2,
     "sufficient": false
    },
-   "preview_ms": 16.0,
-   "schedule_ms": 28.1,
+   "preview_ms": 17.5,
+   "schedule_ms": 28.4,
    "split": "held_out",
    "variant": "worker"
   },
   {
    "actual": {
     "applied": 0,
+    "cited_parts": 0,
     "input_chars": 1110,
     "outcome": "non_conclusion",
     "path": "forward",
     "provider_calls": 1,
     "reason": "conflicting_sources",
-    "rejected_suggestions": 0,
-    "supported_parts": 0
+    "rejected_suggestions": 0
    },
    "case": "C1",
-   "drain_ms": 42.2,
+   "drain_ms": 46.1,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -181,24 +181,24 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 20.2,
-   "schedule_ms": 17.6,
+   "preview_ms": 21.5,
+   "schedule_ms": 23.2,
    "split": "dev",
    "variant": "oracle"
   },
   {
    "actual": {
     "applied": 0,
+    "cited_parts": 0,
     "input_chars": 1041,
     "outcome": "non_conclusion",
     "path": "forward",
     "provider_calls": 1,
     "reason": "conflicting_sources",
-    "rejected_suggestions": 0,
-    "supported_parts": 0
+    "rejected_suggestions": 0
    },
    "case": "C2",
-   "drain_ms": 47.0,
+   "drain_ms": 40.9,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -212,8 +212,8 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 18.2,
-   "schedule_ms": 16.7,
+   "preview_ms": 15.4,
+   "schedule_ms": 15.5,
    "split": "held_out",
    "variant": "oracle"
   },
@@ -222,16 +222,18 @@
     "applied": 1,
     "cited_events": 3,
     "cited_memories": 3,
+    "cited_parts": 2,
     "input_chars": 1144,
     "outcome": "applied",
     "path": "forward",
     "provider_calls": 1,
     "reason": null,
     "rejected_suggestions": 0,
-    "supported_parts": 2
+    "semantically_supported_parts": 2,
+    "semantically_unsupported_parts": 0
    },
    "case": "I1",
-   "drain_ms": 109.1,
+   "drain_ms": 100.5,
    "expected": {
     "applied": 1,
     "cited_events": 3,
@@ -240,7 +242,7 @@
     "provider_calls": 1,
     "supported_parts": 2
    },
-   "inspect_ms": 15.2,
+   "inspect_ms": 15.1,
    "matches_label": true,
    "preview": {
     "eligible_memories": 3,
@@ -248,8 +250,8 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 15.6,
-   "schedule_ms": 16.7,
+   "preview_ms": 16.1,
+   "schedule_ms": 17.6,
    "split": "dev",
    "variant": "oracle"
   },
@@ -258,16 +260,18 @@
     "applied": 1,
     "cited_events": 4,
     "cited_memories": 4,
+    "cited_parts": 3,
     "input_chars": 1412,
     "outcome": "applied",
     "path": "forward",
     "provider_calls": 1,
     "reason": null,
     "rejected_suggestions": 0,
-    "supported_parts": 3
+    "semantically_supported_parts": 3,
+    "semantically_unsupported_parts": 0
    },
    "case": "K1",
-   "drain_ms": 117.2,
+   "drain_ms": 110.2,
    "expected": {
     "applied": 1,
     "cited_events": 4,
@@ -276,7 +280,7 @@
     "provider_calls": 1,
     "supported_parts": 3
    },
-   "inspect_ms": 16.9,
+   "inspect_ms": 17.0,
    "matches_label": true,
    "preview": {
     "eligible_memories": 4,
@@ -284,8 +288,8 @@
     "independent_events": 4,
     "sufficient": true
    },
-   "preview_ms": 16.9,
-   "schedule_ms": 21.0,
+   "preview_ms": 15.8,
+   "schedule_ms": 18.9,
    "split": "dev",
    "variant": "oracle"
   },
@@ -294,16 +298,18 @@
     "applied": 1,
     "cited_events": 3,
     "cited_memories": 3,
+    "cited_parts": 2,
     "input_chars": 1113,
     "outcome": "applied",
     "path": "forward",
     "provider_calls": 1,
     "reason": null,
     "rejected_suggestions": 0,
-    "supported_parts": 2
+    "semantically_supported_parts": 2,
+    "semantically_unsupported_parts": 0
    },
    "case": "K2",
-   "drain_ms": 98.4,
+   "drain_ms": 94.4,
    "expected": {
     "applied": 1,
     "cited_events": 3,
@@ -320,24 +326,24 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 15.4,
-   "schedule_ms": 20.5,
+   "preview_ms": 15.1,
+   "schedule_ms": 19.9,
    "split": "held_out",
    "variant": "oracle"
   },
   {
    "actual": {
     "applied": 0,
+    "cited_parts": 0,
     "input_chars": 1110,
     "outcome": "non_conclusion",
     "path": "forward",
     "provider_calls": 1,
     "reason": "conflicting_support",
-    "rejected_suggestions": 1,
-    "supported_parts": 0
+    "rejected_suggestions": 1
    },
    "case": "C1",
-   "drain_ms": 39.7,
+   "drain_ms": 42.2,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -351,8 +357,8 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 20.1,
-   "schedule_ms": 19.2,
+   "preview_ms": 25.1,
+   "schedule_ms": 22.1,
    "split": "dev",
    "variant": "adversarial"
   },
@@ -361,23 +367,25 @@
     "applied": 1,
     "cited_events": 3,
     "cited_memories": 3,
+    "cited_parts": 1,
     "input_chars": 1041,
     "outcome": "applied",
     "path": "forward",
     "provider_calls": 1,
     "reason": null,
     "rejected_suggestions": 0,
-    "supported_parts": 1
+    "semantically_supported_parts": 0,
+    "semantically_unsupported_parts": 1
    },
    "case": "C2",
-   "drain_ms": 94.2,
+   "drain_ms": 110.6,
    "expected": {
     "applied": 1,
     "known_limit": "a dishonest model that marks contradicting spans as supporting is not detectable structurally; the result stays an unreviewed inference",
     "outcome": "applied",
     "provider_calls": 1
    },
-   "inspect_ms": 15.3,
+   "inspect_ms": 16.2,
    "matches_label": true,
    "preview": {
     "eligible_memories": 3,
@@ -385,8 +393,8 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 15.3,
-   "schedule_ms": 19.9,
+   "preview_ms": 15.7,
+   "schedule_ms": 15.7,
    "split": "held_out",
    "variant": "adversarial"
   },
@@ -412,24 +420,24 @@
     "independent_events": 1,
     "sufficient": false
    },
-   "preview_ms": 17.9,
+   "preview_ms": 15.5,
    "split": "dev",
-   "validate_ms": 0.1,
+   "validate_ms": 0.2,
    "variant": "adversarial"
   },
   {
    "actual": {
     "applied": 0,
+    "cited_parts": 0,
     "input_chars": 1144,
     "outcome": "non_conclusion",
     "path": "forward",
     "provider_calls": 1,
     "reason": "invalid_output",
-    "rejected_suggestions": 0,
-    "supported_parts": 0
+    "rejected_suggestions": 0
    },
    "case": "I1",
-   "drain_ms": 54.8,
+   "drain_ms": 62.2,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -443,24 +451,24 @@
     "independent_events": 3,
     "sufficient": true
    },
-   "preview_ms": 12.8,
-   "schedule_ms": 21.3,
+   "preview_ms": 17.3,
+   "schedule_ms": 21.2,
    "split": "dev",
    "variant": "adversarial"
   },
   {
    "actual": {
     "applied": 0,
+    "cited_parts": 0,
     "input_chars": 1412,
     "outcome": "non_conclusion",
     "path": "forward",
     "provider_calls": 1,
     "reason": "unknown_citation",
-    "rejected_suggestions": 1,
-    "supported_parts": 0
+    "rejected_suggestions": 1
    },
    "case": "K1",
-   "drain_ms": 56.9,
+   "drain_ms": 50.3,
    "expected": {
     "applied": 0,
     "outcome": "non_conclusion",
@@ -474,8 +482,8 @@
     "independent_events": 4,
     "sufficient": true
    },
-   "preview_ms": 13.9,
-   "schedule_ms": 18.8,
+   "preview_ms": 19.7,
+   "schedule_ms": 24.0,
    "split": "dev",
    "variant": "adversarial"
   }
@@ -509,7 +517,7 @@
    "state": "non_conclusion"
   },
   "C2-adversarial": {
-   "applied_at": "2026-10-31T18:19:49.905148+00:00",
+   "applied_at": "2026-10-31T18:48:48.248742+00:00",
    "confidence": "high",
    "contract_version": 1,
    "current": true,
@@ -519,30 +527,30 @@
      "citations": [
       {
        "original": {
-        "id": "194356b4-75cd-441b-952c-f6a24fd06c35",
+        "id": "125a1ac0-6138-43a0-9478-58d4a64bef2f",
         "slug": "port-8443-a",
-        "version": "ev1:ec145719a193fa65d2ea0245a04563b0ce6a7a41aecee5480ffad92e7a39777f"
+        "version": "ev1:de55c5f7e7197bfc8eb7299f49e3080a05c692860c1d06626a675f9d7bd9bdc4"
        },
        "reference": "77c4469f5786ed12efc893f6a41535cb7d42dd86c240112a285eef424fd87efe#025f918d8bbd85270818342d31bba93d151559065da290554545e9da77a38b12",
        "source_version": "src1:d32f8167dc7ec207c11925a83d8d4a7c95bc1e85950b5eb79f31556574da2a65"
       },
       {
        "original": {
-        "id": "3c24891d-c125-4da2-bd17-53bf2c5c5797",
-        "slug": "port-8443-b",
-        "version": "ev1:4e582cfddbeff9b28d41fc9cb7f497fd358ece947217ff3304d8bc39add5e82c"
-       },
-       "reference": "186758808903be70b9853298ae5fa9537b0bbc5c1bb9821e2836be3704494576#2ef8699b59639dab874cf98fe016a59bce716ef7954ae0ac4f711326e3aff495",
-       "source_version": "src1:61c1bfe815b8132180727784b72444a894fb39aec16b3a3d811c80f2a9758957"
-      },
-      {
-       "original": {
-        "id": "691e992f-210f-401f-8fc3-66eb3554d2c0",
+        "id": "7a94eb7a-bb74-4a1b-9e31-ad6beea8f73c",
         "slug": "port-8443-c",
-        "version": "ev1:44d5272597faafe1b6bfe0c58e8c35af9417ffcc0da466686e79c4b1aa1358a9"
+        "version": "ev1:53518717c91e6b18bdcbc393fa2e4d7c5ff226af8972b95e052f6a0d9684d9d4"
        },
        "reference": "bba81f764c184c643cb4e535fd7caee77ad306f2e9802ebee12d3de52c10a60a#6a56ef914f7478212ba99a7e37f2f1767d41205c7a27f724cdea25c065b37962",
        "source_version": "src1:e8707f71167da6faeaa26c80223ab40d8289b303a4d6fb9229c33b8417616853"
+      },
+      {
+       "original": {
+        "id": "da89045e-e612-45b5-89d8-e1d6e4ce4d75",
+        "slug": "port-8443-b",
+        "version": "ev1:54cfeaea3787f157b8dffb861bc3bd427069261ea202667c511f4c4c9d67b73b"
+       },
+       "reference": "186758808903be70b9853298ae5fa9537b0bbc5c1bb9821e2836be3704494576#2ef8699b59639dab874cf98fe016a59bce716ef7954ae0ac4f711326e3aff495",
+       "source_version": "src1:61c1bfe815b8132180727784b72444a894fb39aec16b3a3d811c80f2a9758957"
       }
      ],
      "text": "Port 8443 is blocked."
@@ -550,7 +558,7 @@
    ],
    "pattern": {
     "domain": "general",
-    "id": "62675eb7-8dac-4926-a8bd-baa57a9f2c7f",
+    "id": "e7649740-3755-4010-bb39-66ac391137d0",
     "label": "Firewall blocks 8443",
     "project_scope": "/synthetic/c2-conflict",
     "slug": "firewall-blocks-8443",
@@ -573,7 +581,7 @@
    "state": "non_conclusion"
   },
   "I1-oracle": {
-   "applied_at": "2026-10-31T18:19:48.380833+00:00",
+   "applied_at": "2026-10-31T18:48:46.637739+00:00",
    "confidence": "medium",
    "contract_version": 1,
    "current": true,
@@ -583,30 +591,30 @@
      "citations": [
       {
        "original": {
-        "id": "30ef65b4-41c7-44dd-9514-22c4a97bd23d",
-        "slug": "teams-white-screen-c",
-        "version": "ev1:5400a119384c02ceb93e6ed0d9596c00999908d0eb5b3e6ef26df652374def8b"
-       },
-       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
-       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
-      },
-      {
-       "original": {
-        "id": "790f360a-0af1-4db1-873b-99404b95fb57",
+        "id": "122895b1-741c-4fb1-a114-35c068a497ae",
         "slug": "teams-white-screen-b",
-        "version": "ev1:fe7bbfeb373b1a6d48b2774f73bc59d491726b237b100cc5bb4b206f4529a58e"
+        "version": "ev1:c4932ac7aa2ea9e75a29ba677a8d273a3000212536986157976f16f6f96234de"
        },
        "reference": "56a33ab2642d079fe7d230ea294fec1eb30c3bb2502605e738844acc510e41f4#8247b67f9de95b8676a47f7db347864bba596c161673104bc02203636bffd653",
        "source_version": "src1:ad252a5e2667a3cf3ae85edd6d2b85214194dcd0a21d5064ec1d6452fb7e1261"
       },
       {
        "original": {
-        "id": "fa3dc581-add1-490a-864d-07206d3ca529",
+        "id": "7d893fe6-d928-4c78-8f6a-138aa381d80e",
         "slug": "teams-white-screen-a",
-        "version": "ev1:14a87d27b6f9709b29ef482d78e99ff211fad7c1dad506452305b25ae69452fc"
+        "version": "ev1:3b9a04a84eb432b6045e85a3d68eca728ea091fc597be7f1a4470b6a416701c8"
        },
        "reference": "39b06914add56b8f45e493627729bba6a1a9185d1f2fe5c96d85323bf35df7e1#506258045d10e1cac55a1ab2e7f7da2e76d73e425fc739194d011f2ab417e36a",
        "source_version": "src1:709a55c57a8fbfefb897881649d7e1446270f3d41a2ad734ee8a29e51f960ab7"
+      },
+      {
+       "original": {
+        "id": "95c85e76-af46-445e-8866-8aa7d46cf1a4",
+        "slug": "teams-white-screen-c",
+        "version": "ev1:77311992e4c8ca0bff13d60c1c678f0bffeef61063ee1d4ec42ada0095f6324e"
+       },
+       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
+       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
       }
      ],
      "text": "A white Teams screen recurred."
@@ -615,30 +623,30 @@
      "citations": [
       {
        "original": {
-        "id": "30ef65b4-41c7-44dd-9514-22c4a97bd23d",
-        "slug": "teams-white-screen-c",
-        "version": "ev1:5400a119384c02ceb93e6ed0d9596c00999908d0eb5b3e6ef26df652374def8b"
-       },
-       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
-       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
-      },
-      {
-       "original": {
-        "id": "790f360a-0af1-4db1-873b-99404b95fb57",
+        "id": "122895b1-741c-4fb1-a114-35c068a497ae",
         "slug": "teams-white-screen-b",
-        "version": "ev1:fe7bbfeb373b1a6d48b2774f73bc59d491726b237b100cc5bb4b206f4529a58e"
+        "version": "ev1:c4932ac7aa2ea9e75a29ba677a8d273a3000212536986157976f16f6f96234de"
        },
        "reference": "56a33ab2642d079fe7d230ea294fec1eb30c3bb2502605e738844acc510e41f4#8247b67f9de95b8676a47f7db347864bba596c161673104bc02203636bffd653",
        "source_version": "src1:ad252a5e2667a3cf3ae85edd6d2b85214194dcd0a21d5064ec1d6452fb7e1261"
       },
       {
        "original": {
-        "id": "fa3dc581-add1-490a-864d-07206d3ca529",
+        "id": "7d893fe6-d928-4c78-8f6a-138aa381d80e",
         "slug": "teams-white-screen-a",
-        "version": "ev1:14a87d27b6f9709b29ef482d78e99ff211fad7c1dad506452305b25ae69452fc"
+        "version": "ev1:3b9a04a84eb432b6045e85a3d68eca728ea091fc597be7f1a4470b6a416701c8"
        },
        "reference": "39b06914add56b8f45e493627729bba6a1a9185d1f2fe5c96d85323bf35df7e1#506258045d10e1cac55a1ab2e7f7da2e76d73e425fc739194d011f2ab417e36a",
        "source_version": "src1:709a55c57a8fbfefb897881649d7e1446270f3d41a2ad734ee8a29e51f960ab7"
+      },
+      {
+       "original": {
+        "id": "95c85e76-af46-445e-8866-8aa7d46cf1a4",
+        "slug": "teams-white-screen-c",
+        "version": "ev1:77311992e4c8ca0bff13d60c1c678f0bffeef61063ee1d4ec42ada0095f6324e"
+       },
+       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
+       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
       }
      ],
      "text": "Clearing the cache fixed it each time."
@@ -646,7 +654,7 @@
    ],
    "pattern": {
     "domain": "general",
-    "id": "674b2fa6-967e-451d-b62c-dbe6e2f70520",
+    "id": "781d515c-77e6-48ad-b052-aff3ec18a443",
     "label": "Teams white screen cleared by cache reset",
     "project_scope": "/synthetic/i1-injection",
     "slug": "teams-white-screen-cleared-by-cache-reset",
@@ -662,7 +670,7 @@
    }
   },
   "K1-oracle": {
-   "applied_at": "2026-10-31T18:19:48.660721+00:00",
+   "applied_at": "2026-10-31T18:48:46.907419+00:00",
    "confidence": "medium",
    "contract_version": 1,
    "current": true,
@@ -672,27 +680,27 @@
      "citations": [
       {
        "original": {
-        "id": "a7cb1822-7510-43ea-a006-9014456c3feb",
+        "id": "54e949a4-8dea-47ae-a1fd-39695eb13edf",
         "slug": "vpn-reconnect-name-resolution-c",
-        "version": "ev1:50cac85d98d4edbc307c371ca5a7dad582043e0b9fe93dfc7439434b178f4a36"
+        "version": "ev1:aeb751c867df5dbb419b5cfa0ef332d5f2e32735c8d5afbfe1ee87c446f9a6e9"
        },
        "reference": "9fc87a75fc5fd4cddf350c2b6851b9920a0b0efa1d1a24aaa62e05fbe6005af4#43c30105f7def8161bd26f63c1709cc11c599698415406dcc822365a5f13b837",
        "source_version": "src1:94cc828890d03755f3c57ceac450227311715a4ba453d76209e02479625268f0"
       },
       {
        "original": {
-        "id": "c3fa6684-30fa-447f-af05-81b279ade8ab",
+        "id": "69cb951a-cb08-48eb-8b1a-c992a87ee4d1",
         "slug": "vpn-reconnect-name-resolution-a",
-        "version": "ev1:612edaf9d49e448e531cb799e12fd51cd5979e91b5f38bc7b8a54cfef76c4a76"
+        "version": "ev1:301502906335e6c238ba14975315df63b7a7335f8a7cd3eb62077d64b369e4cd"
        },
        "reference": "baf35cbe423006972acc90559bc3921f03ec231d5fa4a01afd7386e16884fab9#e13a38c938f6b3ae6e256e2ac19e8b221a5ebb8e98ab446ac44e0fa7ba1b7957",
        "source_version": "src1:2b4a7231e64c8810f7762f127806946dd13ffc618e300844230b220e522b8c2e"
       },
       {
        "original": {
-        "id": "dc69d5db-1cfd-4ac3-a3d3-af805849e0ef",
+        "id": "fcbc4a02-e779-488a-a20c-562410af9209",
         "slug": "vpn-reconnect-name-resolution-b",
-        "version": "ev1:b01ffa865ff279dbb3bb7dd157607d9762dd707f0d2107d1caa143e57f12d102"
+        "version": "ev1:7a9414fa94a858b5aa36367bf4505dbf659f6f3acab7e79a8590ca0481f86366"
        },
        "reference": "7979a73571fad05f75449a48d3588d0dd7b3f079ccdb76805da369d9d73b4c62#28e8aabbf530b1fabc4d8c8af090c82e7fa00cc9221833444ed4780e904a613d",
        "source_version": "src1:e897cc1b2aceeb9a8ce6e143606efcc1170b2fbaeba9775a919288b94bc77d40"
@@ -704,27 +712,27 @@
      "citations": [
       {
        "original": {
-        "id": "a7cb1822-7510-43ea-a006-9014456c3feb",
+        "id": "54e949a4-8dea-47ae-a1fd-39695eb13edf",
         "slug": "vpn-reconnect-name-resolution-c",
-        "version": "ev1:50cac85d98d4edbc307c371ca5a7dad582043e0b9fe93dfc7439434b178f4a36"
+        "version": "ev1:aeb751c867df5dbb419b5cfa0ef332d5f2e32735c8d5afbfe1ee87c446f9a6e9"
        },
        "reference": "9fc87a75fc5fd4cddf350c2b6851b9920a0b0efa1d1a24aaa62e05fbe6005af4#43c30105f7def8161bd26f63c1709cc11c599698415406dcc822365a5f13b837",
        "source_version": "src1:94cc828890d03755f3c57ceac450227311715a4ba453d76209e02479625268f0"
       },
       {
        "original": {
-        "id": "c3fa6684-30fa-447f-af05-81b279ade8ab",
+        "id": "69cb951a-cb08-48eb-8b1a-c992a87ee4d1",
         "slug": "vpn-reconnect-name-resolution-a",
-        "version": "ev1:612edaf9d49e448e531cb799e12fd51cd5979e91b5f38bc7b8a54cfef76c4a76"
+        "version": "ev1:301502906335e6c238ba14975315df63b7a7335f8a7cd3eb62077d64b369e4cd"
        },
        "reference": "baf35cbe423006972acc90559bc3921f03ec231d5fa4a01afd7386e16884fab9#e13a38c938f6b3ae6e256e2ac19e8b221a5ebb8e98ab446ac44e0fa7ba1b7957",
        "source_version": "src1:2b4a7231e64c8810f7762f127806946dd13ffc618e300844230b220e522b8c2e"
       },
       {
        "original": {
-        "id": "dc69d5db-1cfd-4ac3-a3d3-af805849e0ef",
+        "id": "fcbc4a02-e779-488a-a20c-562410af9209",
         "slug": "vpn-reconnect-name-resolution-b",
-        "version": "ev1:b01ffa865ff279dbb3bb7dd157607d9762dd707f0d2107d1caa143e57f12d102"
+        "version": "ev1:7a9414fa94a858b5aa36367bf4505dbf659f6f3acab7e79a8590ca0481f86366"
        },
        "reference": "7979a73571fad05f75449a48d3588d0dd7b3f079ccdb76805da369d9d73b4c62#28e8aabbf530b1fabc4d8c8af090c82e7fa00cc9221833444ed4780e904a613d",
        "source_version": "src1:e897cc1b2aceeb9a8ce6e143606efcc1170b2fbaeba9775a919288b94bc77d40"
@@ -736,9 +744,9 @@
      "citations": [
       {
        "original": {
-        "id": "ad7a4958-0772-483d-a027-00c82cd72617",
+        "id": "272e20d5-ea3d-4704-b065-2998badaf0c8",
         "slug": "vpn-reconnect-name-resolution-d",
-        "version": "ev1:8107e94a10bbb100f401203f56082b32ab5e1c1993d66c0f5e89afcbf6b78e3a"
+        "version": "ev1:c10f5ea088f495cfc87bb78b1531f90aea8063d68ca224713c88030fa579b250"
        },
        "reference": "4db5faa3646c75d35757db88d16b4a36b819aa4348f2f823b50f75455b3e1d77#f8e888143d85ae2d09393f45ce9e38c1ff828256d3bb37322a5f74fd52144484",
        "source_version": "src1:bb74351e4982319a628bfad80229870005cb15d8bcdc28616f14cd35516e28cd"
@@ -749,7 +757,7 @@
    ],
    "pattern": {
     "domain": "general",
-    "id": "a949ed50-b53b-463f-a5ff-2135958d8e06",
+    "id": "b2c02404-2251-40d2-8d41-e289378484ff",
     "label": "VPN reconnect clears the DNS suffix list",
     "project_scope": "/synthetic/k1-vpn-dns",
     "slug": "vpn-reconnect-clears-the-dns-suffix-list",
@@ -765,7 +773,7 @@
    }
   },
   "K2-oracle": {
-   "applied_at": "2026-10-31T18:19:48.910260+00:00",
+   "applied_at": "2026-10-31T18:48:47.149405+00:00",
    "confidence": "medium",
    "contract_version": 1,
    "current": true,
@@ -775,21 +783,21 @@
      "citations": [
       {
        "original": {
-        "id": "82847c41-52f2-4739-9c25-f661f07b76f3",
-        "slug": "certificate-renewal-b",
-        "version": "ev1:95bfecfd447a8530af623c6e7c7204484830a76f69953df5354a600532aa01f7"
-       },
-       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
-       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
-      },
-      {
-       "original": {
-        "id": "9b431681-367c-4568-b237-447975a219ef",
+        "id": "40874d1c-e199-4fe3-aa53-ece401844ba8",
         "slug": "certificate-renewal-a",
-        "version": "ev1:587d989c53b5c56ca7a1fc4c2f406addb41aac234381766b92b26e7d80c22c39"
+        "version": "ev1:c1dba42265673e7168f8fce370bd163964622b49880097c6327ab2670d81473f"
        },
        "reference": "63f4be77457c37b680c3e3b150ec02aee7e488faebbc872c9191f7942b3eab95#d3f99299db2a0f5b5d5291f693289c0587a352c41758f0d409409a8bdb5b2342",
        "source_version": "src1:5d89f58d8850e770efb9b0250bf2ed26110214714611edd8ef9c7b812cda287a"
+      },
+      {
+       "original": {
+        "id": "7b8fd038-627f-4f4e-a451-86b25de6e0c4",
+        "slug": "certificate-renewal-b",
+        "version": "ev1:0de4701dfca485beb280b897f14b74ab2fddf22138c30661661dd4a9eb43674b"
+       },
+       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
+       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
       }
      ],
      "text": "Renewal fails with a long TXT TTL."
@@ -798,21 +806,21 @@
      "citations": [
       {
        "original": {
-        "id": "82847c41-52f2-4739-9c25-f661f07b76f3",
-        "slug": "certificate-renewal-b",
-        "version": "ev1:95bfecfd447a8530af623c6e7c7204484830a76f69953df5354a600532aa01f7"
-       },
-       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
-       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
-      },
-      {
-       "original": {
-        "id": "b6c0fcad-37b9-4458-98fc-4b474aed1ccc",
+        "id": "730ecf94-8f8b-4600-a3a2-46b21f8f6a0c",
         "slug": "certificate-renewal-c",
-        "version": "ev1:101beac4c8a6b73030c36cd8e900abc2ac4b4df63ec26ce51aab3bdfb5f26703"
+        "version": "ev1:b044c0320d1a9b4ec1c3729725ed4d3d22d04472119e1eacbc06e079baa609a6"
        },
        "reference": "b81937b18834ce92daed744d1dd4ca979468dd92acf3dd1a037147e41fea1a9d#7fe1fa3e152f883120ca8bc22f1205c74825464c215e01406ebdc59bdc85f4d6",
        "source_version": "src1:82bd997bfa53ee1d52883840f816f704bea91726ce9c927d9c81ff472ef48b7f"
+      },
+      {
+       "original": {
+        "id": "7b8fd038-627f-4f4e-a451-86b25de6e0c4",
+        "slug": "certificate-renewal-b",
+        "version": "ev1:0de4701dfca485beb280b897f14b74ab2fddf22138c30661661dd4a9eb43674b"
+       },
+       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
+       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
       }
      ],
      "text": "Lowering the TTL makes the challenge pass."
@@ -820,7 +828,7 @@
    ],
    "pattern": {
     "domain": "general",
-    "id": "028d2aa2-fc7c-43c3-b42d-45463c8b1943",
+    "id": "e8736b0c-dc1b-4630-b904-a45ae304ca03",
     "label": "Long TXT TTL breaks ACME DNS-01 renewal",
     "project_scope": "/synthetic/k2-cert",
     "slug": "long-txt-ttl-breaks-acme-dns-01-renewal",
@@ -842,10 +850,11 @@
   "responses.json": "4cd4fb6b2c322d1d9afc6f35c6c4ae2d93b3d50c3bbcbb7621106190244afb76"
  },
  "provider": "scripted (fixtures/responses.json); no real model",
- "source_revision": "7603b7b04530a2349165c5c198f8a31f9ce5a95d",
+ "source_revision": "386057674bcca7f265a3fdf3e009a60b8ea26244",
  "summary": {
   "applied_patterns": 4,
   "cases": 10,
+  "cited_parts": 8,
   "dev_evaluations": 11,
   "evaluations": 15,
   "held_out_evaluations": 4,
@@ -861,32 +870,33 @@
   "provider_calls": 9,
   "rejected_suggestions": 3,
   "repetitions": 3,
-  "supported_parts": 8,
-  "wall_seconds": 15.4
+  "semantically_supported_parts": 7,
+  "semantically_unsupported_parts": 1,
+  "wall_seconds": 15.0
  },
  "timing_ms": {
   "drain_ms": {
-   "max": 148.9,
-   "median": 45.2,
+   "max": 137.8,
+   "median": 45.5,
    "n": 42
   },
   "inspect_ms": {
-   "max": 33.4,
-   "median": 15.2,
+   "max": 18.2,
+   "median": 14.9,
    "n": 12
   },
   "preview_ms": {
-   "max": 60.1,
-   "median": 16.2,
+   "max": 25.1,
+   "median": 15.6,
    "n": 45
   },
   "schedule_ms": {
-   "max": 45.0,
-   "median": 19.2,
+   "max": 28.4,
+   "median": 18.9,
    "n": 42
   },
   "validate_ms": {
-   "max": 0.1,
+   "max": 0.2,
    "median": 0.1,
    "n": 3
   }
