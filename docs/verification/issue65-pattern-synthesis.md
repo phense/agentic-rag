@@ -250,6 +250,18 @@ target recovery. Mid-stream producer/SQL failure tests supplement end-of-stream
 failures. The aborted full run at `c3df902` (exit 2, 356 passed, 1 warning) is
 retained; a new full run on frozen corrected source is required before delivery.
 
+## Legacy fixture isolation correction
+
+The frozen full run at `bfeedf0` ended exit 1: 1,973 passed, 1 failed, 1 skipped,
+1 known warning. The failing dashboard probe now passed the restored ACL
+checks, but found `mining_batches` without its later RLS/policies. An old
+migration test had dropped that table and reapplied009 in the shared current
+database. The exact migration-test→dashboard sequence reproduced the failure.
+The coordinator moved the real008→009 test into an owned database with just
+those migrations, retaining queue preservation and idempotency checks.
+Production code, SQL and the accepted restore correction remain unchanged.
+A new full run is still required; the failed run is retained.
+
 ## Pending before delivery
 
 The full test suite, final convergence and the pull request (T065-010/011).

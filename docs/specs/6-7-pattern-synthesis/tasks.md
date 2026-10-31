@@ -99,3 +99,14 @@ PostgreSQL17 object classes. The prior full run at `c3df902` was interrupted
 (exit 2, 356 passed, 1 warning) to avoid finishing an obsolete source revision.
 It remains retained evidence, not acceptance. Focused correction checks are
 coordinator-owned; the complete independent bounded review is retained.
+
+### Slice S7: Isolate the legacy mining migration fixture
+
+- [ ] T065-016 [AC-009, IC-004] Run the historical008→009 migration test in an owned isolated database containing exactly the first eight migrations. Preserve its queue-row and idempotency assertions; stop dropping/recreating `mining_batches` in the shared current schema, where later RLS belongs. Reproduce the migration-test→dashboard failure before the change, then verify both together and run final complete verification. This is a coordinator-reviewed test-only correction; production/SQL behavior is unchanged.
+
+The frozen full run at `bfeedf0` returned exit1:1,973passed/1failed/1skipped/
+1knownwarning, with355sourcehashes unchanged. The one failing dashboard test
+found `mining_batches` without RLS or service policies after the historical
+migration test. All restore checks passed; no new product defect was found.
+The exact two-test sequence reproduced1pass/1fail. These results remain
+retained and are not full-suite acceptance.
