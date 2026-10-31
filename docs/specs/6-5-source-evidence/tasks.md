@@ -50,8 +50,15 @@ S1→S2→S3→S4; T063-005/006 are conceptually separate but executed sequentia
 
 ### S6: Convergence and handoff
 
-- [ ] T063-012 Invoke speckit-converge; run fresh whole-suite, actual exit, Node syntax, wheel artifact/migration packaging and version/docs consistency on frozen final tree. Recheck main target version; publish one PR for63 after all required gates, link it immediately, update canonical issue, report step5/15 and await NEW weiter. Never merge this PR or update production as part of this task. Depends T063-011.
+- [x] T063-012 Invoke speckit-converge; run fresh whole-suite, actual exit, Node syntax, wheel artifact/migration packaging and version/docs consistency on frozen final tree. Recheck main target version; publish one PR for63 after all required gates, link it immediately, update canonical issue, report step5/15 and await NEW weiter. Never merge this PR or update production as part of this task. Depends T063-011.
 
 ## Playbook obligations
 
 PB-063-UPGRADE is a required system deliverable, owned by implementation T063-009; independent review/rehearsal accepted at T063-010 before delivery. Development operations: none involving live systems in this PR; isolated automatic migration tests only. Existing upgrade/recovery procedures are reused and adapted rather than multiplied.
+
+
+Delivery record (2026-10-31): [PR84](https://github.com/phense/agentic-rag/pull/84)
+is published and linked. Independent review and final whole-suite gates passed;
+no open C/H/M/Important finding. Source/test/schema/assets are unchanged from
+verified `2c92d4d`; subsequent commits record delivery only. Await NEW weiter for
+this PR's merge approval; production deployment remains separate.
