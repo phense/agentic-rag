@@ -21,7 +21,7 @@ All work sequential; basea8441eb. Shared interfaces preclude parallel writes.
 - [x] T004 (depends T003, AC007/008, AF062-S3): Native3-model smoke; real old/new
   populated local/REST/MCP upgrade and rollback; unchanged canonical hashes;
   desktop/mobile Settings flows; full suite, Node, wheel checks.
-- [ ] T005 (depends T004): PB062-SETTINGS authoring/rehearsal/content review;
+- [x] T005 (depends T004): PB062-SETTINGS authoring/rehearsal/content review;
   reconcile architecture, derive and pass independent success/recovery tests;
   independent complete extension diff review, fix C/H/M, Low->Issue75;
   update PR82/Issue62 with scope/default change and await NEW merge approval.

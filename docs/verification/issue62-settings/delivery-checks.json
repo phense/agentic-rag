@@ -19,5 +19,6 @@
   "local_markdown_links_checked": 244,
   "missing_links": [],
   "final_30_source_manifest_matches": true,
-  "record_kind": "coordinator transcription of completed tool commands"
+  "record_kind": "coordinator transcription of completed tool commands",
+  "git_diff_check_boundary": "git diff a8441eb --check, after public failed-log whitespace normalization"
 }

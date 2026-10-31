@@ -30,7 +30,7 @@ Traceback (most recent call last):
     )
   File "/dev/shm/rag62-settings-optional-20261030/numpy/_core/__init__.py", line 85, in <module>
     raise ImportError(msg) from exc
-ImportError: 
+ImportError:
 
 IMPORTANT: PLEASE READ THIS FOR ADVICE ON HOW TO SOLVE THIS ISSUE!
 
@@ -58,4 +58,3 @@ This is unlikely to be a NumPy issue but will be caused by a bad install
 or environment on your machine.
 
 Original error was: No module named 'numpy._core._multiarray_umath'
-

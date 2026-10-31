@@ -22,5 +22,11 @@
     "raw_sha256": "6ef191649571d9d9bc3add5a155e30e5982caa3364a379ef21d4c467f7ae2c8f",
     "published_sha256": "affb7ab311db09edbbe44ac1ef75de43da4a5566e3f8d46f16ad7e7ab621e063",
     "normalization": "Redacted reference-host PCI path/device UUID only; raw retained locally."
+  },
+  {
+    "file": "rejected-python-abi-native.log",
+    "raw_sha256": "77966dc5e5bd7f6f50e019947f9226174b7add7210bac51996fc6eee164b1018",
+    "published_sha256": "359e188ca71b8188d342e42a45943f8f49db1331e33487d9a86c896448d1469e",
+    "normalization": "Trimmed trailing whitespace and surplus final blank line only; retained ImportError and failed startup outcome. Raw log retained locally."
   }
 ]

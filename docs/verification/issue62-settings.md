@@ -141,7 +141,8 @@ freezes30 code/catalogue/SQL/dependency/script/test files at digest
 The [playbook binding](issue62-settings/playbook-review-binding.json) records its
 frontmatter-only status change after content approval; the procedure body is
 byte-identical. The [publication normalization](issue62-settings/publication-normalization.json)
-records host PCI-identifier redaction in benign ONNX warnings. Locally retained
+records host PCI-identifier redaction in benign ONNX warnings and whitespace-only
+normalization of the rejected ABI log. Locally retained
 raw logs and failed pad-token/Python-ABI attempts remain failures; none is counted
 as a successful native run.
 
