@@ -477,13 +477,11 @@ def apply(conn, cfg, *, member, target, operation, expected_member_version, expe
             # Idempotent replay: no write; authority is re-checked by the row lock
             # and at commit. A corrected decision is returned, never reactivated.
             return {'decision': _decision(_writable_decision(conn, existing['id'])), 'replayed': True}
-        current = {r['id']: r['v'] for r in conn.execute(
-            'SELECT id::text AS id, rag_lifecycle_version(id) AS v FROM documents WHERE id = ANY(%s::uuid[])',
-            ([member_id, target_id],)).fetchall()}
-        if (current.get(member_id), current.get(target_id)) != (expected_member_version, expected_target_version):
-            raise LifecycleError('stale_version', {'member_version': current.get(member_id),
-                                                   'target_version': current.get(target_id)})
+        # Anchor class/scope first (both anchors are visible here, so naming the rule
+        # discloses nothing), then the inspected versions, then the operation proof.
         m, t, exact, order, operations = _evaluate(conn, member_id, target_id, operation)
+        if (m['version'], t['version']) != (expected_member_version, expected_target_version):
+            raise LifecycleError('stale_version', {'member_version': m['version'], 'target_version': t['version']})
         if not operations[operation]['allowed']:
             raise LifecycleError(operations[operation]['code'])
         if operation in HIDING:

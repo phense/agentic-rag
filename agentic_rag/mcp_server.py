@@ -168,22 +168,28 @@ def memory_get(id_or_slug: str, view: str | None = None) -> dict:
             # Budget preflight and materialization must see the same records;
             # concurrent source-trust updates cannot enlarge a checked result.
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
-        with lifecycle.view_scope(conn, view):
-            doc = get_document(conn, id_or_slug)
-            if doc is None:
-                return {"error": f"not found: {id_or_slug}"}
-            resolved = {"document": doc} if view is None else lifecycle.resolve_get(conn, doc, view)
-        doc = resolved["document"]
+        return get_payload(conn, id_or_slug, view)
+
+
+def get_payload(conn, id_or_slug: str, view: str | None = None) -> dict:
+    """memory_get body shared with the CLI (view already normalized)."""
+    from . import lifecycle
+    with lifecycle.view_scope(conn, view):
+        doc = get_document(conn, id_or_slug)
         if doc is None:
-            return {"document": None, "edges_out": [], "edges_in": [], "lifecycle": _plain(resolved["lifecycle"])}
-        doc = dict(doc)
-        edges_out = doc.pop("edges_out")
-        edges_in = doc.pop("edges_in")
-        out = {"document": _plain(doc), "edges_out": _plain(edges_out),
-               "edges_in": _plain(edges_in)}
-        if view is not None:
-            out["lifecycle"] = _plain(resolved["lifecycle"])
-        return out
+            return {"error": f"not found: {id_or_slug}"}
+        resolved = {"document": doc} if view is None else lifecycle.resolve_get(conn, doc, view)
+    doc = resolved["document"]
+    if doc is None:
+        return {"document": None, "edges_out": [], "edges_in": [], "lifecycle": _plain(resolved["lifecycle"])}
+    doc = dict(doc)
+    edges_out = doc.pop("edges_out")
+    edges_in = doc.pop("edges_in")
+    out = {"document": _plain(doc), "edges_out": _plain(edges_out),
+           "edges_in": _plain(edges_in)}
+    if view is not None:
+        out["lifecycle"] = _plain(resolved["lifecycle"])
+    return out
 
 
 def memory_neighbors(id_or_slug: str, depth: int = 1,
