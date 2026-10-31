@@ -9,9 +9,16 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.17-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.18-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.18 pattern synthesis:** an operator can let a model suggest recurring
+patterns across at least three independent user reports in one domain and project.
+Each suggestion is stored as a reviewable inference with exact citations and
+disappears from every read as soon as a cited source changes. It is off by default;
+upgrade with the [operations playbook](docs/playbooks/system/rag-065-pattern-synthesis.md)
+and read [pattern synthesis](docs/pattern-synthesis.md).
 
 **0.6.17 temporal search:** searches can recognize yesterday/gestern, last
 week/letzte Woche, next month/nächsten Monat and explicit dates, then order or
