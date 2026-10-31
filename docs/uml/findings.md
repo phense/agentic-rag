@@ -374,3 +374,12 @@ corrections are completed during delivery. Runtime/tests remain byte-identical
 to reviewed6291685; the full suite subsequently passed1,896tests/1skip/1known warning,exit0,
 and the wheel has181entries with176matching source/SQL/assets files. Final
 convergence checks and PR handoff remain separate gates. Public evidence: docs/verification/issue64/.
+
+
+## RAG-065 design-time findings (2026-10-31)
+
+- **AF-065-001 — Open, evidence identity and anti-recursion.** Question: what counts as independent original support, and can later-confirmed generated content bypass it? AC-002/003/004/006; sequence `pattern-synthesis-65.md`; evidence `evidence_contract.py`, `evidence.py`, `thematic.py`, `sql/012_claim_evidence.sql`. Impact: assistant/manual/duplicate/derived evidence can manufacture certainty or stale disclosure. Required response: T065-001/003/004 original-event/content deduplication, ev1/src1 identity, exact part citations and complete current dependency/read guard; independently verify later confirmation and graph/direct reads.
+- **AF-065-002 — Open, acceptance/application ordering.** Question: how does a crash after a paid inference avoid repeated output or half-application? AC-005/007; same sequence; evidence `worker.py`, `jobs.py`, `store.save_claim(commit=False)`, `service/fence.py`. Impact: duplicate provider calls/documents and partial audits. Required response: T065-002/003 persistent accepted results and unique application identity under existing worker authority, atomic gateway/dependency/audit; test post-accept failure and retry.
+- **AF-065-003 — Open, deferred authority and scope.** Question: who may enable, backfill, read and commit after credentials/policy change? AC-001/006/008/009; same sequence; evidence `service/context.py`, `service/worker.py`, `service/schema.py`, migration021/029. Impact: cross-scope joins, stale accepted work and implicit historical processing. Required response: T065-002/004/005 concrete scoped policy, forward boundary, RLS/commit revalidation and schema/startup/old-client upgrade evidence.
+
+All three are analyzed, task-mapped design obligations, not unresolved product ambiguities. Coordinator will reconcile as-built before independent success/recovery integration gate T065-009. Mermaid source semantically inspected; no render claimed.
