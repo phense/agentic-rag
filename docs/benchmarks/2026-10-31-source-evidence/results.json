@@ -41,7 +41,7 @@
       "rows_added_by_rejected": 0
     }
   },
-  "candidate_head": "7e1ecb835c15312bc2506e4fb843448c9456a26b",
+  "candidate_head": "08a75f5d4b832906d72908f5709c694e232476c5",
   "candidate_tree_dirty": false,
   "feature": "RAG-063",
   "limits": "Synthetic data on owned disposable PostgreSQL17; local SQL gateway, no service/network/provider/model; counts, not latency claims."
