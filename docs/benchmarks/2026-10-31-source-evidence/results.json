@@ -5,7 +5,7 @@
       "wrongly_superseded": 0
     },
     "inspection": {
-      "first_response_bytes": 21973,
+      "first_response_bytes": 22547,
       "host_path_occurrences": 0,
       "responses_to_see_all": 3,
       "spans_in_first_response": 20,
@@ -41,8 +41,8 @@
       "rows_added_by_rejected": 0
     }
   },
-  "candidate_head": "5390a6f6b4a7cce4b27abc9b51226acf2dac6223",
-  "candidate_tree_dirty": true,
+  "candidate_head": "7e1ecb835c15312bc2506e4fb843448c9456a26b",
+  "candidate_tree_dirty": false,
   "feature": "RAG-063",
   "limits": "Synthetic data on owned disposable PostgreSQL17; local SQL gateway, no service/network/provider/model; counts, not latency claims."
 }
