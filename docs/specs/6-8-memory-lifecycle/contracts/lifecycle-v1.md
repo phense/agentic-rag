@@ -96,7 +96,7 @@ name. When omitted, payload shape/omitted-field encoding stays byte-identical to
 
 ## Tools and errors
 
-READ: `memory_lifecycle_preview(member, target)` and `memory_lifecycle(id_or_slug,
+READ: `memory_lifecycle_preview(member, target, operation=None)` and `memory_lifecycle(id_or_slug,
 history=False, cursor=None, limit=20)`. WRITE: `memory_lifecycle_apply(...)` and
 `memory_lifecycle_correct(...)`. CLI: `rag lifecycle preview|apply|correct|show|history`.
 `include_merged` bypasses hiding only for exact/semantic duplicates and extensions;
@@ -145,3 +145,13 @@ Old automatic-curation workers/hook launchers must be upgraded and restarted.
 For a supported0.6.18 code fallback, set `curation_budget=0` before starting an old
 worker and prove the policy does not archive different-title pairs. Old reader/
 ordinary-writer support does not imply old automatic-policy support.
+
+Preview classifies the requested operation when supplied; without one it can prove
+an exact duplicate or report semantic review needed. It does not infer equivalence,
+extension, contradiction or replacement semantics from a model or text similarity.
+Manual semantic/extension/replacement apply requires `reviewed=True` plus the bounded
+reason and inspected lv1 pair; this records operator judgement, not semantic proof.
+The server derives action_key from the immutable request, including its reason.
+A repeated original request can return its existing decision even though its own
+apply advanced lv1; it must never reactivate a corrected/stale decision. Current
+read/write authority is checked again before any idempotent result is disclosed.
