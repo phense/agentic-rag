@@ -18,10 +18,6 @@ from agentic_rag.domains import seed_defaults
 
 @pytest.fixture
 def forbidden(monkeypatch):
-    from agentic_rag import synthesis
-    # Freshly ingested fixture rows are inside the forward settle window; the
-    # settle bound itself is covered by test_forward_settle_window_defers_new_rows.
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     provider = fx.ForbiddenProvider()
     fx.ForbiddenProvider.calls = 0
     monkeypatch.setattr(llm, 'run_structured', provider)
@@ -60,7 +56,7 @@ def test_config_defaults_off_with_bounded_overrides(tmp_path):
 
 def test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_17(conn):
     assert synthesis_tables(conn) == {'synthesis_policies', 'synthesis_backfills', 'synthesis_runs',
-                                      'synthesis_patterns', 'synthesis_dependencies'}
+                                      'synthesis_processed', 'synthesis_patterns', 'synthesis_dependencies'}
     assert conn.execute('SELECT count(*) n FROM synthesis_policies').fetchone()['n'] == 0
     from agentic_rag.service import upgrade
     assert '0.6.17' in upgrade.SUPPORTED_VERSIONS and '0.6.18' not in upgrade.SUPPORTED_VERSIONS
@@ -83,6 +79,7 @@ def test_default_off_ordinary_worker_and_reads_never_schedule_or_call_provider(c
     worker._schedule_synthesis(conn, replace(dead, synthesis_enabled=True))
     counts = conn.execute("""SELECT (SELECT count(*) FROM synthesis_policies) policies,
         (SELECT count(*) FROM synthesis_backfills) backfills, (SELECT count(*) FROM synthesis_runs) runs,
+        (SELECT count(*) FROM synthesis_processed) processed,
         (SELECT count(*) FROM synthesis_patterns) patterns, (SELECT count(*) FROM synthesis_dependencies) deps,
         (SELECT count(*) FROM mining_queue WHERE kind='synthesis') jobs,
         (SELECT count(*) FROM audit_log WHERE op LIKE 'synthesis%%') audits,
@@ -246,17 +243,3 @@ def test_scheduler_caps_new_runs_per_tick(conn, cfg, on, forbidden):
     assert synthesis.schedule(conn, on)['scheduled'] == 1
     assert conn.execute('SELECT count(*) n FROM synthesis_runs').fetchone()['n'] == 3
     assert fx.ForbiddenProvider.calls == 0
-
-
-def test_forward_settle_window_defers_new_rows(conn, cfg, on, forbidden, monkeypatch):
-    from agentic_rag import store, synthesis
-    seed_defaults(conn)
-    conn.commit()
-    store.set_synthesis_policy(conn, on, domain='general', enabled=True, reason='on', project=fx.project('K1'))
-    fx.ingest(conn, cfg, {'K1'})
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 3600)
-    assert synthesis.schedule(conn, on)['scheduled'] == 0
-    assert synthesis.status(conn, on, domain='general', project=fx.project('K1'))['policies'][0]['forward'] == {
-        'pending_memories': 0}
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
-    assert synthesis.schedule(conn, on)['scheduled'] == 1

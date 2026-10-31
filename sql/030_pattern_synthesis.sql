@@ -19,6 +19,9 @@ CREATE TABLE public.synthesis_policies (
     forward_from timestamptz,
     interval_seconds integer NOT NULL DEFAULT 86400 CHECK (interval_seconds BETWEEN 60 AND 2592000),
     next_due_at timestamptz,
+    -- Rotating examination position over unprocessed originals of the current
+    -- epoch (bounded scan only). Which originals were analysed is recorded in
+    -- synthesis_processed, never inferred from this position.
     cursor_at timestamptz,
     cursor_id uuid,
     owner jsonb,
@@ -41,6 +44,8 @@ CREATE TABLE public.synthesis_backfills (
     window_end timestamptz NOT NULL,
     max_batches integer NOT NULL CHECK (max_batches BETWEEN 1 AND 10),
     batches integer NOT NULL DEFAULT 0 CHECK (batches >= 0),
+    -- Originals in the window whose spans cannot fit the input budget even alone.
+    oversized integer NOT NULL DEFAULT 0 CHECK (oversized >= 0),
     cursor_at timestamptz,
     cursor_id uuid,
     state text NOT NULL DEFAULT 'pending' CHECK (state IN ('pending','done','cancelled')),
@@ -68,8 +73,6 @@ CREATE TABLE public.synthesis_runs (
     candidates integer NOT NULL CHECK (candidates BETWEEN 0 AND 12),
     snapshot jsonb NOT NULL,
     snapshot_hash text NOT NULL CHECK (snapshot_hash ~ '^[0-9a-f]{64}$'),
-    end_cursor_at timestamptz,
-    end_cursor_id uuid,
     accepted jsonb,
     accepted_at timestamptz,
     provider jsonb,
@@ -89,6 +92,25 @@ CREATE TABLE public.synthesis_runs (
 -- At most one open run per policy; concurrent schedulers cannot double-book.
 CREATE UNIQUE INDEX synthesis_runs_open ON public.synthesis_runs(policy_id) WHERE state IN ('pending','accepted');
 CREATE INDEX synthesis_runs_recent ON public.synthesis_runs(created_at DESC, id);
+
+-- Commit-safe forward processing: the newly analysed originals of a terminal run,
+-- written in the same transaction as its outcome, per policy enable epoch
+-- (epoch_from = the policy's forward_from when the run finished). A late-committed
+-- original is found because it is not a member, whatever its arrival time.
+-- Insert-only; recently processed members are also the bounded context window.
+CREATE TABLE public.synthesis_processed (
+    policy_id uuid NOT NULL REFERENCES public.synthesis_policies(id) ON DELETE CASCADE,
+    epoch_from timestamptz NOT NULL,
+    document_id uuid NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
+    run_id uuid NOT NULL REFERENCES public.synthesis_runs(id) ON DELETE CASCADE,
+    domain text NOT NULL,
+    project_scope text NOT NULL,
+    processed_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (policy_id, epoch_from, document_id)
+);
+CREATE INDEX synthesis_processed_recent ON public.synthesis_processed(policy_id, epoch_from, processed_at DESC);
+CREATE INDEX synthesis_processed_document ON public.synthesis_processed(document_id);
+CREATE INDEX synthesis_processed_run ON public.synthesis_processed(run_id);
 
 CREATE TABLE public.synthesis_patterns (
     document_id uuid PRIMARY KEY REFERENCES public.documents(id) ON DELETE CASCADE,
@@ -271,17 +293,17 @@ BEGIN
   CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl,acldefault('r',c.relowner))) a
   LEFT JOIN pg_roles r ON r.oid=a.grantee
   WHERE n.nspname='public' AND c.relname IN ('synthesis_policies','synthesis_backfills','synthesis_runs',
-        'synthesis_patterns','synthesis_dependencies') AND a.grantee<>c.relowner LOOP
+        'synthesis_processed','synthesis_patterns','synthesis_dependencies') AND a.grantee<>c.relowner LOOP
   EXECUTE format('REVOKE ALL ON TABLE %s FROM %s CASCADE',item.relation,
    CASE WHEN item.grantee=0 THEN 'PUBLIC' ELSE quote_ident(item.rolname) END);
  END LOOP;
 END $synthesis_acl$;
 GRANT SELECT ON public.synthesis_policies, public.synthesis_backfills, public.synthesis_runs,
-    public.synthesis_patterns, public.synthesis_dependencies TO rag_reader;
+    public.synthesis_processed, public.synthesis_patterns, public.synthesis_dependencies TO rag_reader;
 GRANT SELECT, INSERT, UPDATE ON public.synthesis_policies, public.synthesis_backfills, public.synthesis_runs TO rag_writer;
-GRANT SELECT, INSERT ON public.synthesis_patterns, public.synthesis_dependencies TO rag_writer;
+GRANT SELECT, INSERT ON public.synthesis_processed, public.synthesis_patterns, public.synthesis_dependencies TO rag_writer;
 GRANT ALL ON public.synthesis_policies, public.synthesis_backfills, public.synthesis_runs,
-    public.synthesis_patterns, public.synthesis_dependencies TO rag_admin;
+    public.synthesis_processed, public.synthesis_patterns, public.synthesis_dependencies TO rag_admin;
 REVOKE ALL ON FUNCTION public.rag_document_version(uuid), public.rag_pattern_current(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.rag_document_version(uuid), public.rag_pattern_current(uuid)
     TO rag_reader, rag_writer, rag_admin;
@@ -305,6 +327,13 @@ CREATE POLICY service_synthesis_runs ON public.synthesis_runs
     USING (public.rag_service_document(domain, project_scope))
     WITH CHECK (public.rag_service_document(domain, project_scope, true));
 CREATE POLICY service_synthesis_runs_old_write ON public.synthesis_runs AS RESTRICTIVE FOR UPDATE
+    USING (public.rag_service_document(domain, project_scope, true));
+ALTER TABLE public.synthesis_processed ENABLE ROW LEVEL SECURITY;
+CREATE POLICY service_synthesis_processed ON public.synthesis_processed
+    USING (public.rag_service_document(domain, project_scope))
+    WITH CHECK (public.rag_service_document(domain, project_scope, true));
+-- Insert-only for the writer (no UPDATE grant); the guard still pins any update.
+CREATE POLICY service_synthesis_processed_old_write ON public.synthesis_processed AS RESTRICTIVE FOR UPDATE
     USING (public.rag_service_document(domain, project_scope, true));
 ALTER TABLE public.synthesis_patterns ENABLE ROW LEVEL SECURITY;
 CREATE POLICY service_synthesis_patterns ON public.synthesis_patterns

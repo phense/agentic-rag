@@ -1161,10 +1161,14 @@ def _pattern(args,cfg):
             for p in result['policies']:
                 print(f"{p['domain']} {p['project_scope']}: {'enabled' if p['enabled'] else 'disabled'} v{p['version']}"
                       f" since {p['forward_from'] or '-'}; pending {p['forward']['pending_memories']}"
-                      f"{' ('+p['forward']['waiting']+')' if p['forward'].get('waiting') else ''}")
+                      f"{' ('+p['forward']['waiting']+')' if p['forward'].get('waiting') else ''}"
+                      f"{'; oversized '+str(p['forward']['blocked']['oversized']) if p['forward'].get('blocked') else ''}"
+                      f"{'; held for recovery '+str(p['forward']['held_for_recovery']) if p['forward'].get('held_for_recovery') else ''}"
+                      f"{'; more to scan' if p['forward'].get('more') else ''}")
             for r in result['runs']:
                 print(f"run {r['id']} {r['kind']} {r['state']}{' '+r['code'] if r['code'] else ''}: "
-                      f"{r['candidates']} memories, {r['provider_calls']} provider calls, {r['applied']} applied"
+                      f"{r['candidates']} memories ({r.get('new_memories',r['candidates'])} new, "
+                      f"{r.get('context_memories',0)} context), {r['provider_calls']} provider calls, {r['applied']} applied"
                       f"{' (recoverable)' if r['recoverable'] else ''}")
         else:
             for item in result['items']:

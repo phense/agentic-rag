@@ -19,7 +19,6 @@ from agentic_rag.domains import add_domain, seed_defaults
 @pytest.fixture
 def env(conn, cfg, monkeypatch):
     from agentic_rag import synthesis
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     monkeypatch.setattr('agentic_rag.store.try_embed_texts', lambda *a, **k: None)
     monkeypatch.setattr(search, 'try_embed_texts', lambda *a, **k: None)
     seed_defaults(conn)

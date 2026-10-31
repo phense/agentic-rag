@@ -17,7 +17,8 @@ SCOPED_TABLES = (
     'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
     'service_session_access', 'service_requests',
     'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
-    'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_patterns', 'synthesis_dependencies',
+    'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_processed', 'synthesis_patterns',
+    'synthesis_dependencies',
 )
 
 

@@ -26,7 +26,6 @@ K1 = [d for d in fx.load('corpus.json')['documents'] if d['case'] == 'K1']
 @pytest.fixture
 def pattern_store(monkeypatch):
     from agentic_rag import synthesis
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     monkeypatch.setattr(store, 'try_embed_texts', lambda *a, **k: None)
     cfg = Config(ollama_url='http://127.0.0.1:1', rerank_url='http://127.0.0.1:1', synthesis_enabled=True)
     with isolated_database(cfg) as owned:
@@ -89,6 +88,12 @@ def test_rest_remote_mcp_scopes_and_read_only_principals(pattern_store, tmp_path
                     reason='foreign')[0] == 403
         ids = ingest(cfg)
         assert process(cfg, policy_file, monkeypatch) == {'state': 'applied', 'code': None}
+        # Processed membership was written by the writer's scoped request under RLS.
+        with db.connect(cfg) as conn:
+            members = conn.execute('SELECT domain,project_scope,count(*) n FROM synthesis_processed'
+                                   ' GROUP BY 1,2').fetchall()
+            conn.commit()
+        assert [dict(m) for m in members] == [{'domain': 'alpha', 'project_scope': '/projects/a', 'n': 4}]
         status, listed = call(client, KEYS[0], 'memory_patterns', domain='alpha', project='/projects/a')
         assert status == 200 and len(listed['items']) == 1
         pattern = listed['items'][0]['id']

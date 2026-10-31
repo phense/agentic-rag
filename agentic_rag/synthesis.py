@@ -26,12 +26,11 @@ MAX_SPANS_PER_MEMORY = 8
 MAX_QUOTE_CHARS = 4000
 MAX_SCAN = 500
 PAGE = 100
+# Recently processed originals of the current epoch offered again as context.
+MAX_CONTEXT_SCAN = 48
 MAX_BACKFILL_DAYS = 366
 MAX_BACKFILL_BATCHES = 10
 DEFAULT_INTERVAL = 86400
-# Forward selection ignores documents younger than this, so a still-running
-# writer transaction with an earlier arrival time is not skipped by the cursor.
-SETTLE_SECONDS = 60
 CANDIDATES_MARKER = 'CANDIDATES_JSON\n'
 REASONS = ('derived', 'legacy_unmanaged', 'not_stated', 'no_qualifying_span', 'not_current')
 
@@ -84,7 +83,7 @@ def normalized(quote: str) -> str:
 
 # ------------------------------------------------------------- eligibility
 
-_DOCUMENTS = f"""SELECT d.id,d.created_at,d.dtype,d.status,c.kind,
+_DOCUMENTS = f"""SELECT d.id,d.created_at,d.domain,d.project_scope,d.dtype,d.status,c.kind,
     EXISTS(SELECT 1 FROM public.synthesis_patterns sp WHERE sp.document_id=d.id) registered,
     EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
            WHERE e.document_id=d.id AND e.complete AND s.role='user' AND s.state='active'
@@ -92,6 +91,10 @@ _DOCUMENTS = f"""SELECT d.id,d.created_at,d.dtype,d.status,c.kind,
     (d.status='active' AND public.assertion_eligible(d.id,statement_timestamp(),false)) current
   FROM public.documents d LEFT JOIN public.claim_records c ON c.document_id=d.id
   WHERE d.domain=%s AND d.project_scope=%s"""
+_BY_ID = _DOCUMENTS.replace('WHERE d.domain=%s AND d.project_scope=%s', 'WHERE d.id=ANY(%s)')
+# Eligible-candidate documents of a policy epoch that no terminal run processed.
+_PENDING = _DOCUMENTS + (' AND d.created_at>=%s AND NOT EXISTS(SELECT 1 FROM public.synthesis_processed m'
+                         ' WHERE m.policy_id=%s AND m.epoch_from=%s AND m.document_id=d.id)')
 
 
 def _classify(row):
@@ -108,7 +111,7 @@ def _classify(row):
     return None
 
 
-def _scan(conn, domain, scope, *, start=None, end=None, after=None, settle=False, limit=MAX_MEMORIES):
+def _scan(conn, domain, scope, *, start=None, end=None, after=None, limit=MAX_MEMORIES):
     """Ordered by arrival (created_at, id). Returns eligible rows (≤limit),
     excluded counts, the last scanned key, whether more documents remain and
     whether the scan bound stopped early."""
@@ -121,9 +124,6 @@ def _scan(conn, domain, scope, *, start=None, end=None, after=None, settle=False
         if end is not None:
             filters += ' AND d.created_at<%s'
             params.append(end)
-        if settle:
-            filters += ' AND d.created_at<=statement_timestamp()-make_interval(secs=>%s)'
-            params.append(SETTLE_SECONDS)
         if last is not None:
             filters += ' AND (d.created_at,d.id)>(%s,%s)'
             params.extend(last)
@@ -208,40 +208,78 @@ def independence(spans) -> dict:
             'sufficient': matched >= FLOOR_EVENTS, 'labels': labels}
 
 
-def candidates(conn, domain, scope, **kwargs):
-    """Bounded eligible originals plus exact qualifying spans and portable versions."""
-    eligible, excluded, last, more, bounded = _scan(conn, domain, scope, **kwargs)
-    by_doc = _spans(conn, [r['id'] for r in eligible])
-    memories, spans = [], []
-    for row in eligible:
+def _load(conn, rows, role='new'):
+    """Exact qualifying spans and portable versions for eligible rows, in order."""
+    by_doc = _spans(conn, [r['id'] for r in rows])
+    memories = []
+    for row in rows:
         doc_id = str(row['id'])
         items = by_doc.get(doc_id, [])
         if not items:
-            excluded['no_qualifying_span'] += 1
             continue
         for item in items:
             item['document_id'] = doc_id
         memories.append({'document_id': doc_id, 'version': contract.document_version(conn, doc_id),
-                         'created_at': row['created_at'], 'spans': items})
-        spans.extend(items)
-    return {'memories': memories, 'spans': spans, 'excluded': excluded, 'last': last, 'more': more,
-            'bounded': bounded, 'independence': independence(spans)}
+                         'created_at': row['created_at'], 'spans': items, 'role': role})
+    return memories
+
+
+def _selection(memories):
+    spans = [s for m in memories for s in m['spans']]
+    return {'memories': memories, 'spans': spans, 'independence': independence(spans)}
+
+
+def candidates(conn, domain, scope, **kwargs):
+    """Bounded eligible originals plus exact qualifying spans and portable versions."""
+    eligible, excluded, last, more, bounded = _scan(conn, domain, scope, **kwargs)
+    memories = _load(conn, eligible)
+    excluded['no_qualifying_span'] += len(eligible) - len(memories)
+    return {**_selection(memories), 'excluded': excluded, 'last': last, 'more': more, 'bounded': bounded}
+
+
+def _input_budget(cfg):
+    """The complete provider input (prompt plus SYSTEM) the provider seam accepts."""
+    return min(cfg.llm_max_input_chars, cfg.synthesis_max_input_chars)
+
+
+def _input_size(memories):
+    return len(prompt(offered(_selection(memories)))) + len(SYSTEM)
+
+
+def _fit(memories, budget, selected, *, stop=True):
+    """Greedy arrival-order fill of `selected` (mutated) up to MAX_MEMORIES and the
+    complete input budget. An original that cannot fit even alone is reported as
+    oversized and skipped. With `stop`, the first original that no longer fits ends
+    the fill (`cut`) so it is first in line next time. Returns (oversized, cut, index)."""
+    oversized = []
+    for index, memory in enumerate(memories):
+        if _input_size([memory]) > budget:
+            oversized.append(memory)
+            continue
+        if len(selected) >= MAX_MEMORIES:
+            return oversized, 'count', index
+        if _input_size(selected + [memory]) > budget:
+            if stop:
+                return oversized, 'budget', index
+            continue
+        selected.append(memory)
+    return oversized, None, None
 
 
 def _snapshot(selection):
     labels = selection['independence']['labels']
-    memories = sorted(({'document_id': m['document_id'], 'version': m['version'],
+    memories = sorted(({'document_id': m['document_id'], 'version': m['version'], 'role': m.get('role', 'new'),
                         'spans': [{'source_key': s['source_key'], 'span_hash': s['span_hash'],
                                    'source_version': s['source_version'],
                                    'event': labels[(m['document_id'], s['source_key'], s['span_hash'])]}
                                   for s in m['spans']]}
                        for m in selection['memories']), key=lambda m: m['document_id'])
-    return {'format': 1, 'memories': memories}
+    return {'format': 2, 'memories': memories}
 
 
 def _budgets(cfg):
     return {'provider_calls': 0, 'max_memories': MAX_MEMORIES, 'max_spans_per_memory': MAX_SPANS_PER_MEMORY,
-            'max_input_chars': cfg.synthesis_max_input_chars, 'max_output_tokens': cfg.synthesis_max_output_tokens,
+            'max_input_chars': _input_budget(cfg), 'max_output_tokens': cfg.synthesis_max_output_tokens,
             'timeout_seconds': cfg.synthesis_timeout_seconds, 'max_suggestions': 3}
 
 
@@ -389,14 +427,16 @@ def request_backfill(conn, cfg, *, domain, start, end, reason, project=None, sco
 def _backfill_view(row):
     return {'id': str(row['id']), 'policy_id': str(row['policy_id']), 'window_start': _time(row['window_start']),
             'window_end': _time(row['window_end']), 'max_batches': row['max_batches'], 'batches': row['batches'],
-            'state': row['state'], 'created_at': _time(row['created_at'])}
+            'oversized': row['oversized'], 'state': row['state'], 'created_at': _time(row['created_at'])}
 
 
 def _run_view(row):
     usage = row['usage'] or {}
     result = row['result'] or {}
+    roles = [m.get('role', 'new') for m in (row['snapshot'] or {}).get('memories', [])]
     return {'id': str(row['id']), 'policy_id': str(row['policy_id']), 'kind': row['kind'], 'state': row['state'],
-            'code': row['code'], 'candidates': row['candidates'], 'provider_calls': usage.get('provider_calls', 0),
+            'code': row['code'], 'candidates': row['candidates'], 'new_memories': roles.count('new'),
+            'context_memories': roles.count('context'), 'provider_calls': usage.get('provider_calls', 0),
             'provider_seconds': usage.get('provider_seconds'), 'input_chars': usage.get('input_chars'),
             'applied': result.get('applied', 0), 'non_conclusions': result.get('non_conclusions', []),
             'rejected': result.get('rejected', []),
@@ -404,20 +444,103 @@ def _run_view(row):
             'created_at': _time(row['created_at']), 'updated_at': _time(row['updated_at'])}
 
 
-def _forward(conn, policy):
+def _pending(conn, policy, exclude=frozenset()):
+    """Eligible originals of the current enable epoch that no terminal run has
+    processed, in arrival order. Membership, not an arrival cursor, decides, so an
+    original whose writer transaction commits late is still found. At most MAX_SCAN
+    unprocessed documents are examined per call; the examination rotates from the
+    stored position and wraps once, so no original waits forever behind a long
+    excluded prefix. Returns (eligible rows, bounded, next position)."""
+    base = [policy['domain'], policy['project_scope'], policy['forward_from'], policy['id'], policy['forward_from']]
+
+    def page(extra, params, limit):
+        return conn.execute(_PENDING + extra + ' ORDER BY d.created_at,d.id LIMIT %s',
+                            [*base, *params, limit]).fetchall()
+    position = (policy['cursor_at'], policy['cursor_id']) if policy['cursor_at'] else None
+    if position is None:
+        rows = page('', [], MAX_SCAN)
+    else:
+        rows = page(' AND (d.created_at,d.id)>(%s,%s)', list(position), MAX_SCAN)
+        if len(rows) < MAX_SCAN:
+            rows += page(' AND (d.created_at,d.id)<=(%s,%s)', list(position), MAX_SCAN - len(rows))
+    bounded = len(rows) >= MAX_SCAN
+    eligible = sorted((r for r in rows if not _classify(r) and str(r['id']) not in exclude),
+                      key=lambda r: (r['created_at'], str(r['id'])))
+    return eligible, bounded, ((rows[-1]['created_at'], rows[-1]['id']) if bounded else None)
+
+
+def _context(conn, policy, taken):
+    """Recently processed originals of this epoch that are still eligible, those not
+    cited by a current pattern first. Bounded to MAX_CONTEXT_SCAN; never new work."""
+    ids = [str(r['document_id']) for r in conn.execute(
+        'SELECT document_id FROM public.synthesis_processed WHERE policy_id=%s AND epoch_from=%s'
+        ' ORDER BY processed_at DESC,document_id LIMIT %s',
+        (policy['id'], policy['forward_from'], MAX_CONTEXT_SCAN)).fetchall()]
+    ids = [i for i in ids if i not in taken]
+    if not ids:
+        return []
+    rows = {str(r['id']): r for r in conn.execute(_BY_ID, (ids,)).fetchall()}
+    cited = {str(r['original_id']) for r in conn.execute(
+        'SELECT DISTINCT x.original_id FROM public.synthesis_dependencies x WHERE x.original_id=ANY(%s)'
+        ' AND public.rag_pattern_current(x.document_id)', (ids,)).fetchall()}
+    usable = [rows[i] for i in ids if i in rows and not _classify(rows[i])
+              and (rows[i]['domain'], rows[i]['project_scope']) == (policy['domain'], policy['project_scope'])]
+    usable.sort(key=lambda r: str(r['id']) in cited)  # stable: recency kept within each group
+    return _load(conn, usable, role='context')
+
+
+def _plan(conn, cfg, policy, *, exclude=frozenset()):
+    """Read-only forward plan: newly eligible originals fitted to the complete input
+    budget, then bounded recent context in the remaining capacity."""
+    budget = _input_budget(cfg)
+    eligible, bounded, position = _pending(conn, policy, exclude)
+    new, oversized, cut = [], [], None
+    for start in range(0, len(eligible), 16):  # spans are loaded only as far as the fill gets
+        found, cut, _ = _fit(_load(conn, eligible[start:start + 16]), budget, new)
+        oversized += found
+        if cut:
+            break
+    memories = list(new)
+    if new and len(memories) < MAX_MEMORIES:
+        taken = {m['document_id'] for m in new} | set(exclude)
+        _fit(_context(conn, policy, taken), budget, memories, stop=False)
+    selection = _selection(memories)
+    run = bool(new) and (selection['independence']['sufficient'] or cut == 'count')
+    waiting = None
+    if new and not run:
+        waiting = 'input_budget_below_floor' if cut == 'budget' else 'insufficient_independent_support'
+    return {'memories': memories, 'pending': len(eligible), 'oversized': len(oversized), 'cut': cut,
+            'bounded': bounded, 'position': position, 'run': run, 'waiting': waiting}
+
+
+def _held(conn, policy):
+    """New originals of this policy version's open run and of parked accepted runs.
+    They are not planned again: an open run will record them, and parked accepted
+    output waits for `recover`, so no second paid call covers the same originals."""
+    rows = conn.execute("SELECT state,snapshot FROM public.synthesis_runs WHERE policy_id=%s AND policy_version=%s"
+                        " AND (state IN ('pending','accepted') OR (state='error' AND accepted IS NOT NULL))",
+                        (policy['id'], policy['version'])).fetchall()
+    opened = any(r['state'] != 'error' for r in rows)
+    parked = {m['document_id'] for r in rows if r['state'] == 'error'
+              for m in r['snapshot']['memories'] if m.get('role', 'new') == 'new'}
+    held = {m['document_id'] for r in rows for m in r['snapshot']['memories'] if m.get('role', 'new') == 'new'}
+    return opened, frozenset(held), len(parked)
+
+
+def _forward(conn, cfg, policy):
     if not policy['enabled']:
         return {'pending_memories': 0, 'waiting': 'policy_disabled'}
-    after = (policy['cursor_at'], policy['cursor_id']) if policy['cursor_at'] else None
-    selection = candidates(conn, policy['domain'], policy['project_scope'], start=policy['forward_from'],
-                           after=after, settle=True)
-    view = {'pending_memories': len(selection['memories'])}
-    if selection['more']:
+    opened, held, parked = _held(conn, policy)
+    plan = _plan(conn, cfg, policy, exclude=held)
+    view = {'pending_memories': plan['pending']}
+    if plan['bounded']:
         view['more'] = True
-    open_run = conn.execute("SELECT 1 FROM public.synthesis_runs WHERE policy_id=%s AND state IN ('pending','accepted')",
-                            (policy['id'],)).fetchone()
-    if (view['pending_memories'] and not open_run and not selection['independence']['sufficient']
-            and len(selection['memories']) < MAX_MEMORIES and not selection['more']):
-        view['waiting'] = 'insufficient_independent_support'
+    if plan['oversized']:
+        view['blocked'] = {'oversized': plan['oversized']}
+    if parked:
+        view['held_for_recovery'] = parked
+    if plan['waiting'] and not opened:
+        view['waiting'] = plan['waiting']
     return view
 
 
@@ -442,22 +565,21 @@ def status(conn, cfg, *, domain=None, project=None, scope=None, limit=20) -> dic
     runs = conn.execute('SELECT * FROM public.synthesis_runs WHERE policy_id=ANY(%s) ORDER BY created_at DESC,id LIMIT %s',
                         (ids, limit)).fetchall()
     return {'contract_version': CONTRACT_VERSION, 'installed': True, 'global_enabled': cfg.synthesis_enabled,
-            'policies': [{**_policy_view(p), 'forward': _forward(conn, p)} for p in policies],
+            'policies': [{**_policy_view(p), 'forward': _forward(conn, cfg, p)} for p in policies],
             'backfills': [_backfill_view(b) for b in backfills], 'runs': [_run_view(r) for r in runs]}
 
 
 # ------------------------------------------------------------- scheduling
 
-def _create_run(conn, policy, selection, *, kind, backfill=None):
-    snapshot = _snapshot(selection)
+def _create_run(conn, policy, memories, *, kind, backfill=None):
+    snapshot = _snapshot(_selection(memories))
     digest = hashlib.sha256(json.dumps(snapshot, sort_keys=True).encode()).hexdigest()
-    end_at, end_id = selection['last'] if selection['last'] else (None, None)
     row = conn.execute(
         'INSERT INTO public.synthesis_runs(policy_id,policy_version,backfill_id,kind,domain,project_scope,candidates,'
-        'snapshot,snapshot_hash,end_cursor_at,end_cursor_id,owner) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        'snapshot,snapshot_hash,owner) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
         ' ON CONFLICT DO NOTHING RETURNING id',
         (policy['id'], policy['version'], backfill['id'] if backfill else None, kind, policy['domain'],
-         policy['project_scope'], len(snapshot['memories']), json.dumps(snapshot), digest, end_at, end_id,
+         policy['project_scope'], len(snapshot['memories']), json.dumps(snapshot), digest,
          json.dumps(owner) if (owner := (backfill or {}).get('owner') or policy['owner']) else None)).fetchone()
     if row is None:
         return None
@@ -465,7 +587,7 @@ def _create_run(conn, policy, selection, *, kind, backfill=None):
     return row['id']
 
 
-def _schedule_backfill(conn, policy):
+def _schedule_backfill(conn, cfg, policy):
     backfill = conn.execute("SELECT * FROM public.synthesis_backfills WHERE policy_id=%s AND state='pending'"
                             ' ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED', (policy['id'],)).fetchone()
     if backfill is None:
@@ -476,30 +598,41 @@ def _schedule_backfill(conn, policy):
     if not selection['memories']:
         conn.execute("UPDATE public.synthesis_backfills SET state='done',finished_at=now() WHERE id=%s", (backfill['id'],))
         return False
-    run = _create_run(conn, policy, selection, kind='backfill', backfill=backfill)
-    if run is None:
-        return False
-    exhausted = not selection['more'] or backfill['batches'] + 1 >= backfill['max_batches']
+    chosen = []
+    oversized, cut, index = _fit(selection['memories'], _input_budget(cfg), chosen)
     end_at, end_id = selection['last']
-    conn.execute("UPDATE public.synthesis_backfills SET batches=batches+1,cursor_at=%s,cursor_id=%s,"
-                 "state=CASE WHEN %s THEN 'done' ELSE state END,finished_at=CASE WHEN %s THEN now() END WHERE id=%s",
-                 (end_at, end_id, exhausted, exhausted, backfill['id']))
-    return True
+    if cut:  # resume at the first original that did not fit; earlier ones were chosen or reported oversized
+        previous = selection['memories'][index - 1]
+        end_at, end_id = previous['created_at'], previous['document_id']
+    finished = cut is None and not selection['more']
+    run = _create_run(conn, policy, chosen, kind='backfill', backfill=backfill) if chosen else None
+    if chosen and run is None:
+        return False
+    exhausted = finished or (run is not None and backfill['batches'] + 1 >= backfill['max_batches'])
+    conn.execute("UPDATE public.synthesis_backfills SET batches=batches+%s,oversized=oversized+%s,cursor_at=%s,"
+                 "cursor_id=%s,state=CASE WHEN %s THEN 'done' ELSE state END,finished_at=CASE WHEN %s THEN now() END"
+                 ' WHERE id=%s', (int(run is not None), len(oversized), end_at, end_id, exhausted, exhausted,
+                                  backfill['id']))
+    return run is not None
 
 
-def _schedule_forward(conn, policy):
+def _schedule_forward(conn, cfg, policy):
     if policy['next_due_at'] is None or policy['next_due_at'] > datetime.now(timezone.utc):
         return False
-    after = (policy['cursor_at'], policy['cursor_id']) if policy['cursor_at'] else None
-    selection = candidates(conn, policy['domain'], policy['project_scope'], start=policy['forward_from'],
-                           after=after, settle=True)
-    full = len(selection['memories']) >= MAX_MEMORIES or selection['more']
-    if not selection['memories'] or not (selection['independence']['sufficient'] or full):
-        return False  # wait for more independent support; the cursor stays
-    if _create_run(conn, policy, selection, kind='forward') is None:
+    plan = _plan(conn, cfg, policy, exclude=_held(conn, policy)[1])
+    position = plan['position'] or (None, None)
+    if position != (policy['cursor_at'], policy['cursor_id']):
+        conn.execute('UPDATE public.synthesis_policies SET cursor_at=%s,cursor_id=%s WHERE id=%s',
+                     (*position, policy['id']))
+    if not plan['run']:
+        return False  # nothing new, below the floor, or the floor does not fit the budget: visible in status
+    if _create_run(conn, policy, plan['memories'], kind='forward') is None:
         return False
-    conn.execute('UPDATE public.synthesis_policies SET next_due_at=now()+make_interval(secs=>interval_seconds)'
-                 ' WHERE id=%s', (policy['id'],))
+    # Pending work left behind by the count/budget fit or the scan bound is due again
+    # at once; otherwise the next forward run waits for the policy interval.
+    conn.execute('UPDATE public.synthesis_policies SET next_due_at=CASE WHEN %s THEN now()'
+                 ' ELSE now()+make_interval(secs=>interval_seconds) END WHERE id=%s',
+                 (plan['cut'] is not None or plan['bounded'], policy['id']))
     return True
 
 
@@ -563,7 +696,7 @@ def schedule(conn, cfg) -> dict:
             if conn.execute("SELECT 1 FROM public.synthesis_runs WHERE policy_id=%s AND state IN ('pending','accepted')",
                             (policy['id'],)).fetchone():
                 continue
-            if _schedule_backfill(conn, policy) or _schedule_forward(conn, policy):
+            if _schedule_backfill(conn, cfg, policy) or _schedule_forward(conn, cfg, policy):
                 scheduled += 1
         conn.commit()
         return {'scheduled': scheduled, 'policies': len(policies)}
@@ -697,16 +830,19 @@ def _principal(cfg, owner):
         return None
 
 
-def _finish(conn, run, state, code, *, usage=None, provider=None, result=None, advance=False):
+def _finish(conn, run, state, code, *, usage=None, provider=None, result=None, processed=None):
+    """Record a terminal outcome. `processed` is the policy row returned by the gate
+    just before this recording; only then are the run's newly analysed originals
+    marked processed in that policy's current epoch, in the same transaction."""
     conn.execute('UPDATE public.synthesis_runs SET state=%s,code=%s,usage=COALESCE(%s::jsonb,usage),'
                  'provider=COALESCE(%s::jsonb,provider),result=%s,updated_at=now() WHERE id=%s',
                  (state, code, json.dumps(usage) if usage else None, json.dumps(provider) if provider else None,
                   json.dumps(result or {}), run['id']))
-    if advance and run['kind'] == 'forward' and run['end_cursor_at'] is not None:
-        conn.execute('UPDATE public.synthesis_policies SET cursor_at=%s,cursor_id=%s WHERE id=%s AND'
-                     ' (cursor_at IS NULL OR (cursor_at,cursor_id)<(%s,%s))',
-                     (run['end_cursor_at'], run['end_cursor_id'], run['policy_id'],
-                      run['end_cursor_at'], run['end_cursor_id']))
+    if processed is not None:
+        ids = [m['document_id'] for m in run['snapshot']['memories'] if m.get('role', 'new') == 'new']
+        conn.execute('INSERT INTO public.synthesis_processed(policy_id,epoch_from,document_id,run_id,domain,'
+                     'project_scope) SELECT %s,%s,x,%s,%s,%s FROM unnest(%s::uuid[]) x ON CONFLICT DO NOTHING',
+                     (processed['id'], processed['forward_from'], run['id'], run['domain'], run['project_scope'], ids))
     return state
 
 
@@ -720,8 +856,7 @@ def _gate(conn, cfg, run):
     if policy['version'] != run['policy_version']:
         return 'policy_changed', None
     ids = [m['document_id'] for m in run['snapshot']['memories']]
-    rows = {str(r['id']): r for r in conn.execute(_DOCUMENTS.replace('WHERE d.domain=%s AND d.project_scope=%s',
-                                                                      'WHERE d.id=ANY(%s)'), (ids,)).fetchall()}
+    rows = {str(r['id']): r for r in conn.execute(_BY_ID, (ids,)).fetchall()}
     spans = _spans(conn, ids)
     selection = {'memories': [], 'spans': []}
     for memory in run['snapshot']['memories']:
@@ -736,7 +871,7 @@ def _gate(conn, cfg, run):
         for item in current.values():
             item['document_id'] = memory['document_id']
         selection['memories'].append({'document_id': memory['document_id'], 'version': memory['version'],
-                                      'spans': list(current.values())})
+                                      'role': memory.get('role', 'new'), 'spans': list(current.values())})
         selection['spans'].extend(current.values())
     if rows and any(r['domain'] != run['domain'] or r['project_scope'] != run['project_scope']
                     for r in conn.execute('SELECT domain,project_scope FROM public.documents WHERE id=ANY(%s)',
@@ -895,13 +1030,15 @@ def _process_locked(conn, cfg, run_id, principal, runner):
     offer = offered(selection)
     if run['state'] == 'pending':
         if not selection['independence']['sufficient']:
-            state = _finish(conn, run, 'non_conclusion', 'insufficient_independent_support', advance=True,
-                            result={'applied': 0})
+            state = _finish(conn, run, 'non_conclusion', 'insufficient_independent_support',
+                            result={'applied': 0}, processed=policy)
             conn.commit()
             return state
         text = prompt(offer)
-        if len(text) + len(SYSTEM) > cfg.synthesis_max_input_chars:
-            state = _finish(conn, run, 'non_conclusion', 'input_budget_exceeded', advance=True,
+        if len(text) + len(SYSTEM) > _input_budget(cfg):
+            # The budget was lowered after scheduling: nothing is consumed and the
+            # next tick fits the still-pending originals to the current budget.
+            state = _finish(conn, run, 'withheld', 'input_budget_exceeded',
                             usage={'provider_calls': 0, 'input_chars': len(text) + len(SYSTEM)}, result={'applied': 0})
             conn.commit()
             return state
@@ -929,17 +1066,25 @@ def _process_locked(conn, cfg, run_id, principal, runner):
         if run['state'] != 'pending':
             conn.commit()
             return run['state']
+        # Every terminal recording re-checks policy version, snapshot and scope under
+        # FOR SHARE; a changed gate withholds (paid usage kept) and consumes nothing.
+        code, current = _gate(conn, cfg, run)
+        if code:
+            state = _finish(conn, run, 'withheld', code, usage=usage, provider=provider, result={'applied': 0})
+            conn.commit()
+            return state
+        policy = current[0]
         try:
             outcome = validate(response, offer)
         except InvalidOutput:
             state = _finish(conn, run, 'non_conclusion', 'invalid_output', usage=usage, provider=provider,
-                            advance=True, result={'applied': 0})
+                            result={'applied': 0}, processed=policy)
             conn.commit()
             return state
         if not outcome['suggestions']:
             code = (outcome['rejected'][0]['code'] if outcome['rejected'] else
                     outcome['non_conclusions'][0]['reason'] if outcome['non_conclusions'] else 'no_suggestion')
-            state = _finish(conn, run, 'non_conclusion', code, usage=usage, provider=provider, advance=True,
+            state = _finish(conn, run, 'non_conclusion', code, usage=usage, provider=provider, processed=policy,
                             result={'applied': 0, 'rejected': outcome['rejected'],
                                     'non_conclusions': outcome['non_conclusions']})
             conn.commit()
@@ -975,9 +1120,9 @@ def _process_locked(conn, cfg, run_id, principal, runner):
     result = {'applied': len(applied), 'patterns': applied, 'duplicates': duplicates,
               'rejected': accepted['rejected'], 'non_conclusions': accepted['non_conclusions']}
     if applied:
-        state = _finish(conn, run, 'applied', None, result=result, advance=True)
+        state = _finish(conn, run, 'applied', None, result=result, processed=policy)
     else:
-        state = _finish(conn, run, 'non_conclusion', 'duplicate_application', result=result, advance=True)
+        state = _finish(conn, run, 'non_conclusion', 'duplicate_application', result=result, processed=policy)
     conn.commit()
     return state
 

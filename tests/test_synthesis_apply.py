@@ -18,7 +18,6 @@ from agentic_rag.llm import LLMUnavailableError
 @pytest.fixture
 def env(conn, cfg, monkeypatch):
     from agentic_rag import synthesis
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     monkeypatch.setattr('agentic_rag.store.try_embed_texts', lambda *a, **k: None)
     seed_defaults(conn)
     conn.commit()
@@ -297,14 +296,31 @@ def test_provider_outage_keeps_run_pending_then_completes_once(conn, env, monkey
 
 
 def test_input_budget_is_enforced_before_any_provider_call(conn, env, monkeypatch):
+    from agentic_rag import store, synthesis
     install(monkeypatch, fx.ForbiddenProvider())
     fx.ForbiddenProvider.calls = 0
     small = replace(env, synthesis_max_input_chars=1000)
-    forward(conn, small, 'K1')
-    worker.drain(conn, small)
-    run = run_row(conn)
-    assert (run['state'], run['code']) == ('non_conclusion', 'input_budget_exceeded')
+    store.set_synthesis_policy(conn, small, domain='general', enabled=True, reason='fixture', project=fx.project('K1'))
+    fx.ingest(conn, small, {'K1'})
+    # The independent minimum group does not fit: no run, nothing consumed, visible reason.
+    assert synthesis.schedule(conn, small)['scheduled'] == 0
+    forward_view = synthesis.status(conn, small, domain='general', project=fx.project('K1'))['policies'][0]['forward']
+    assert forward_view['waiting'] == 'input_budget_below_floor' and forward_view['pending_memories'] == 4
+    assert conn.execute('SELECT count(*) n FROM synthesis_runs').fetchone()['n'] == 0
     assert fx.ForbiddenProvider.calls == 0
+
+
+def test_budget_lowered_after_scheduling_withholds_without_consuming(conn, env, monkeypatch):
+    from agentic_rag import synthesis
+    install(monkeypatch, fx.ForbiddenProvider())
+    fx.ForbiddenProvider.calls = 0
+    forward(conn, env, 'K1')
+    worker.drain(conn, replace(env, synthesis_max_input_chars=1000))
+    run = run_row(conn)
+    assert (run['state'], run['code']) == ('withheld', 'input_budget_exceeded')
+    assert fx.ForbiddenProvider.calls == 0
+    view = synthesis.status(conn, env, domain='general', project=fx.project('K1'))['policies'][0]['forward']
+    assert view['pending_memories'] == 4
 
 
 def test_unusable_provider_output_is_a_terminal_non_conclusion(conn, env, monkeypatch):
@@ -333,6 +349,12 @@ def test_exhausted_apply_retries_park_accepted_work_for_explicit_recovery(conn, 
     assert (run['state'], run['code']) == ('error', 'apply_failed') and run['accepted'] is not None
     status = synthesis.status(conn, env, domain='general', project=fx.project('K1'))
     assert status['runs'][0]['state'] == 'error' and status['runs'][0]['recoverable'] is True
+    # Parked accepted output holds its originals for explicit recovery: no new paid run covers them.
+    conn.execute('UPDATE synthesis_policies SET next_due_at=now()')
+    conn.commit()
+    assert synthesis.schedule(conn, env)['scheduled'] == 0 and len(provider.calls) == 1
+    forward_view = synthesis.status(conn, env, domain='general', project=fx.project('K1'))['policies'][0]['forward']
+    assert forward_view['held_for_recovery'] == 4 and forward_view['pending_memories'] == 0
     with pytest.raises(ValueError, match='reason'):
         store.recover_synthesis_run(conn, env, str(run['id']), reason='')
     monkeypatch.setattr(synthesis, '_register', real)
