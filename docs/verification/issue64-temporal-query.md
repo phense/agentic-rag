@@ -22,7 +22,8 @@ or explicit filtering. Source0.6.16/schema029 is `8772fbd`; product changes end 
 `6291685`, independently reviewed through `517263c`. Target0.6.17 retains schema029.
 The independent review found zero Critical, High or Medium defects. The full-suite
 gate is 1,896passed,1expected macOS skip,1known Starlette warning,exit0,1686.96s. [PR87](https://github.com/phense/agentic-rag/pull/87) is published and awaits
-a new maintainer approval before merge. No production deployment is included.
+the final authorized merge. The maintainer subsequently requested and authorized
+Hetzner activation before merge; observed results are recorded below.
 
 Terms: a candidate is a hit already selected by authorized retrieval; an event
 time is an assertion time or qualifying original source time, never import/update
@@ -112,10 +113,12 @@ The public operator upgrade accepts source0.6.16, verifies backup restoration an
 original rows, and applies zero migrations. No re-embedding or data rewriting is
 needed. New defaults are not sent to old services unless requested.
 
-Installations still on0.6.15/schema028 first follow the separately verified
+Installations still on0.6.15/schema028 must receive029. They may follow the
 [source-evidence upgrade](../playbooks/system/rag-063-source-evidence-upgrade.md)
-to0.6.16/schema029. The code-only0.6.16→0.6.17 compatibility evidence here does
-not replace that migration or authorize a live rollout. A restart loads new
+to0.6.16 first, or the now-rehearsed direct0.6.15→0.6.17
+[PB-064-LIVE path](../playbooks/system/rag-064-live-temporal-upgrade.md).
+It applies the same bundled029 SQL; no intermediate running0.6.16 service is
+needed. The code-only0.6.16→0.6.17 proof does not replace this migration. A restart loads new
 code/config/signatures. Removing `[temporal]` or setting enabled=false restores
 legacy auto behavior; explicitly requested prefer/filter still opt in. Actual
 0.6.16 code also reads the same schema029 data and ignores the new config section.
@@ -126,16 +129,59 @@ legacy auto behavior; explicitly requested prefer/filter still opt in. Actual
 tracks LOW-031..035: version/common-word false positives, long no-intent diagnostics,
 unrecognized synonyms, extreme reference overflow and empty mode coercion. They
 remain nonblocking deferred work under the maintainer's Low-bug policy. Broad
-production opt-in should follow the parser-context correction; defaults remain off.
-LOW-036 covers documentation/evidence corrections in this delivery. RV064-P1
+production opt-in should account for the parser-context limitation; package
+defaults remain off. The maintainer explicitly enabled the two VM installations
+with these deferred limits unchanged.
+LOW-036 covers documentation/evidence corrections in this delivery. The live
+procedure adds [LOW-037](https://github.com/phense/agentic-rag/issues/75#issuecomment-6543637328),
+a safe false-block on legitimate concurrent ingest during strict preservation checks. RV064-P1
 records retrospective transport-test red evidence; it is not original test-first
 proof. Coordinator fixes for upgrade-source acceptance, graph k=3 eviction and
 fresh source withdrawal have observed red/green regressions and independent review.
 
-No production data, native model accuracy, real TLS/systemd restart, target-host
-load or multi-client production performance is claimed. The150-candidate and20-node
+The synthetic quality benchmark uses no production data. Native model accuracy,
+load and multi-client production performance remain unmeasured. The separate
+live operational checks below exercise real TLS and systemd restarts. The150-candidate and20-node
 budgets bound temporal recall; strict filtering guarantees the interval only for
 returned hits. Existing as_of/history and source/claim authority remain independent.
+
+## Authorized live upgrade and activation
+
+On2026-10-31 the maintainer explicitly requested deployment and activation before
+merging PR87. Both running installations were0.6.15/schema028. The direct path
+uses the same additive029 already shipped in0.6.16; temporal search itself needs
+no stored-data rewrite or re-embedding. Application runtime is unchanged from the
+independently reviewed/full-suite source; this extension adds an operator procedure
+and deployment evidence.
+
+| Gate | Observed result |
+|---|---|
+| Complete-copy rehearsal, both stores | Verified dump/restore,029 migration, original rows/ACL/owners/history preserved, empty retry, actual0.6.15 and new legacy reads equal (3hits each), owned copies removed |
+| Live canonical / dashboard migration |35original tables each;299,517 /300,955original rows preserved;029 once and empty retry |
+| Service activation | Both APIs0.6.17/schema029, temporal auto enabled/Europe/Berlin;300.92s from maintenance start to service startup |
+| Live HTTPS and authorization | Both TLS endpoints, four existing canonical identities, EN/DE auto interpretation and hard filtering pass; no-intent/off replies equal pre-upgrade; cross-scope/RO-write denial retained; RO-MCP temporal read and known-memory evidence contract1 pass |
+| Browser | Actual HTTPS login/logout, secure cookie,3Settings choices/default mMARCO, EN-only warning, mobile layout and0JSerrors; no model-setting write |
+| Post-traffic integrity |27original core tables unchanged in each store,299,450 /300,832rows; original grants, owners and migration timestamps unchanged; operational tables explicitly distinguished |
+| New backup | Fresh0.6.17/schema029 package,39tables/299,538rows,1,100,256,758sealed bytes, independently restored and verified; root0700 package/0600 files; timer active/enabled |
+
+[Procedure](../playbooks/system/rag-064-live-temporal-upgrade.md),
+[review/execution record](../playbooks/system/rag-064-live-temporal-upgrade-review.md),
+[sanitized results](issue64/live-upgrade-result.json),
+[HTTPS results](issue64/live-http.json), [browser results](issue64/live-dashboard.json).
+The new backup is separate from the retained same-day0.6.15 daily package; rerunning
+the normal service alone only revalidates that old package. The first fresh-backup
+attempt safely failed on intermediate-directory traversal; its retained
+[abort record](issue64/live-backup-first-failed.json) is excluded from acceptance.
+The corrected path uses the existing locked secure publisher and checks actual
+ownership/modes after backup restoration.
+
+The canonical worker remains inactive, its cutover gate absent, the original local
+production client unchanged, and provider/embedding/reranker/policy settings retained.
+The live hard-filter control excluded7unknown-time candidates and returned0hits;
+that is fail-closed behavior, not an accuracy improvement claim. The scoped dashboard
+machine's empty baseline stays empty. Existing source timestamps are retained; no
+import timestamps are manufactured into event dates. Full cross-host disaster
+recovery, a live destructive restore and process-kill recovery remain untested.
 
 Writing scope: medium standalone reference. Facts are checked against the linked
 code/evidence; terminology and source/production boundaries are checked together.

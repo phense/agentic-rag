@@ -1,0 +1,126 @@
+# RAG-064 live upgrade — independent fix review (H1/H2 + PB L10)
+
+- Reviewed: 2026-10-31 ~12:35Z, worktree `request-tracing-60-20261030`, HEAD `e51003ac8a07c77aa7741cb07cd2be3714a1d0a1`
+  (application code unchanged; only untracked driver/playbook reviewed).
+- Hashes re-computed and matching the brief:
+  `docs/verification/issue64/live-upgrade.py.txt` sha256 `8f1a200c…2b9a63`,
+  `docs/playbooks/system/rag-064-live-temporal-upgrade.md` sha256 `d05940ac…74c585`.
+  Installed `PROOF/live-upgrade.py` on the VM has the same sha256 `8f1a200c…2b9a63`.
+- Compared: `diff before-fixes.py.txt → live-upgrade.py.txt` equals `.engineering-method/inputs/RAG-064/live-upgrade-fixes.diff`
+  (no hidden extra change); `diff live-playbook-before-fixes.md → playbook` touches only L10 + the paragraph after it.
+- Live observation read-only (`ssh mcp-server sudo -n`): helper source, catalog settings, directory modes, timer unit.
+  No pytest, no database writes, no children, no product edits.
+
+## Verdict
+
+**Driver (H1/H2): READY — both fixes verified, no new finding. L2 rehearsal on owned copies may proceed.**
+**Playbook: CHANGES REQUIRED before L3 (live window) — 1 Medium in the new L10 snippet.** It does not touch L1–L9
+or the migration/recovery path; it must be fixed before the live window starts because L3–L10 run as one sequence.
+Rehearsal evidence is not claimed by this review.
+
+## Findings
+
+### M1 — L10 fresh package is not root-only; postgres gains read access to root-only recovery config
+
+- Where: `docs/playbooks/system/rag-064-live-temporal-upgrade.md:89-103` (L10 snippet), text at `:86`
+  ("make a distinct root-owned package").
+- Mechanism: the snippet calls `ops.produce(package)` directly instead of going through `main()`/`publish()`.
+  `produce()` does `os.chown(stage, postgres)` (helper line ~133) and the snippet never chowns back; `publish()`'s
+  post-steps (`chown 0:0`, `chmod 0600` per file, stage `0700` root) are skipped. The snippet also does not set the
+  helper's `os.umask(0o077)` (`main()`), and the service's `UMask=0077` does not apply to `sudo python3 -`.
+- Evidence (live, read-only): `sudo sh -c umask` → `0022`; `nwb-rag-backup.service` has `UMask=0077`;
+  `/var/backups/agentic-rag` is `root:postgres 0710`; existing daily packages are `root:root 0700`;
+  `/etc/agentic-rag` is `rag:rag 0700` and `sudo -u postgres test -r /etc/agentic-rag/server.toml` → cannot read.
+  Result of the snippet as written: package dir `postgres:postgres 0700` (traversable via the 0710 parent), root-created
+  `recovery.tar.gz` and `roles.sql` mode `0644` → the postgres OS account can read an archive of `/etc/agentic-rag`,
+  `/usr/local/lib/nwb-rag-ops`, systemd units and launcher sources, and can also rename/replace members inside its own
+  directory. The package is retained indefinitely (non-date name, outside `managed_days` rotation).
+- Impact: widens a privilege boundary the daily helper deliberately keeps (DBA account → service configuration/auth
+  material), on a persistent artifact; contradicts the playbook's "root-owned" statement. No data loss; backup content
+  itself is correct.
+- Minimal fix (playbook only): in the snippet, `import os; os.umask(0o077)` before `package.mkdir(mode=0o700)`, and after
+  `ops.produce(package)` mirror `publish()`: `for p in package.iterdir(): os.chown(p,0,0); p.chmod(0o600)`, then
+  `os.chown(package,0,0); package.chmod(0o700)`; only then `ops.validate_package(package)`. Optionally hold
+  `/var/lib/nwb-rag-ops/backup.lock` (`fcntl.flock` EX|NB) around produce so it cannot overlap a timer run — the table
+  restarts the timer first (next run 03:00 Berlin, so overlap is unlikely, see L-2).
+  Add an expected-observation check: `stat` shows `root:root 0700` dir and `0600` members.
+
+### L1 — L10 ordering: timer restarted before the fresh package is produced (no lock)
+
+- Where: playbook `:82` vs `:86-103`. The table says "restart … timer; produce …"; the snippet takes no job lock.
+- Current schedule (`OnCalendar=*-*-* 03:00 Europe/Berlin`) makes overlap practically impossible in the planned window;
+  a concurrent run would only cost load (two dumps/restores), not correctness. Fold into the M1 fix (take the lock, or
+  restart the timer after the snippet). Non-blocking on its own.
+
+### L2 — Reusing pre-created rehearsal dumps requires no live write between snapshot and `rehearse` (fail-safe)
+
+- Where: driver `proof()` `:44-53` (unchanged, prior-reviewed) interacting with the current proof directory, which already
+  contains `canonical-rehearsal.dump(.manifest.json)` (12:29Z) and `dashboard-rehearsal.dump(.manifest.json)` (12:31Z).
+- `rehearse` takes the reuse branch and calls `upgrade.verify_preserved(cfg, manifest)` against the **live** store, i.e.
+  `_verify(preserved=True)` over every original table hash, including `request_traces`/`service_requests`/`audit_log`.
+  Both APIs are still active; any request that writes one of those tables after 12:29Z/12:31Z aborts the rehearsal with
+  `source_drift`, and every retry in that directory fails again. No data risk; recovery is a fresh `rag64-*` proof
+  directory (fresh branch → `verified_backup` result is used directly, no live re-verify). Note for the operator, not a
+  content defect. Same conservative class as the post-traffic L9 note (Low backlog, documented at playbook `:108-113`).
+
+### Info
+
+- `live-upgrade.py.txt:92` `text = operator.read_text()` is now dead (only consumer removed). Harmless.
+- `old_read` uses `capture_output=True, check=True`; a failure raises `CalledProcessError` without printing stderr.
+  Fail-safe; for diagnosis inspect `exc.stderr` or rerun manually.
+
+## H1 / H2 verification (driver)
+
+**H1 fixed.** Both old (`READ`, `:34-35`) and new (`:129-130`) probes now connect with role `owner` → `db.dsn` adds no
+`user=` (`_ROLE_USERS['owner'] is None`, identical at 5390a6f and e51003a), so libpq uses OS user `postgres` over the
+Unix socket, i.e. the same path the driver already uses successfully at `:97` (preflight artifacts exist). `SET ROLE
+rag_reader` then drops privileges before `search.search`:
+- Persistence: `SET ROLE` runs in the outer (implicit) transaction; `indexes.py` states and implements savepoint-only
+  operation ("never commit a caller's pending work"); `search.py`/`indexes.py` contain no `commit`/`rollback`/`RESET ROLE`
+  at either revision (`git grep`), so the role stays `rag_reader` for the whole read, savepoint rollbacks included.
+- Fidelity vs a real reader login: live `pg_roles.rolconfig` is empty for `rag_reader/rag_writer/rag_admin`;
+  `pg_db_role_setting` has entries only for `agentic_rag_reference` and `rag_search_rehearsal_20261029` (neither in
+  scope; restored clones carry no per-database settings for `rag_bench_*`). So `SET ROLE` loses no login-time settings.
+- `session_user` stays `postgres`: the only `session_user` use is `sql/029_source_evidence.sql:79` (direct-mode actor on
+  the **write** trigger path) — not on the read path. `indexes._operator`'s `current_user` check is lifecycle-only.
+- Parity design unchanged: both sides use the identical connection shape, so before/after/new-legacy equality remains a
+  valid comparison, now actually executable.
+
+**H2 fixed.** The TOML text rewrite and `load_config_text_name` are gone; the original operator TOML is passed unchanged
+via `AGENTIC_RAG_CONFIG` (0.6.15 `load_config` honours it, `config.py:186`), and the clone name goes as `argv[1]`.
+- Validation before any connection: parent `validate_name(cfg.db_name)` (`benchmark/database.py:16-17`, regex
+  `rag_bench_[0-9a-f]{24}`) runs before `subprocess.run`; child asserts the same `re.fullmatch` before `load_config`/
+  `db.connect`. `isolated_database` generates `'rag_bench_' + uuid4().hex[:24]` (`:45`) — always matches.
+- `replace(load_config(), db_name=…)`: 0.6.15 `Config` is a frozen dataclass; `replace` re-runs `__post_init__`
+  (`config.py:109`) — same validation as the loaded config, which the driver already loaded successfully at `:93`.
+  `db_host` from the operator TOML is asserted `/var/run/postgresql` (`:94`) and equals the clone's host (`replace(cfg,
+  db_name=name, db_host=cfg.db_host or …)`), so the old process targets exactly the owned clone, never the live DB.
+- Operator TOMLs are `postgres:postgres 0600` in the `0700` proof dir; the old process runs as postgres → readable.
+  No `[temporal]` section exists at L2, so 0.6.15 parsing is unaffected.
+
+No interaction with the prior-reviewed migrate/fence/recovery path changed: `migrate`, `proof`, `apply`, `post`,
+`source_fence` usage and ownership handling are byte-identical to the before-fixes file.
+
+## PB L10 — correct parts
+
+- Rationale is right: `publish()` with an existing same-day directory only runs `validate_package(target)`; today's
+  `2026-10-31` package (created 01:50 CET, 0.6.15) exists, so `systemctl start nwb-rag-backup.service` alone would never
+  produce a 0.6.17/schema029 backup.
+- `produce()`'s bridge writes `Path(stage/'database.dump').with_suffix('.package-version.json')` =
+  `database.package-version.json` with key `installed_version` from `version('agentic-rag')` in
+  `/opt/agentic-rag/.venv` — after L6 that resolves to RELEASE → `0.6.17`. The snippet's path and key match.
+- `validate_package` checks format, `restore_verified`, presence of `database.dump` and per-file size/sha256 for every
+  sealed member (`seal_package` seals all files except `manifest.json`, incl. the version file and `recovery.tar.gz`).
+- Loading the helper via `spec_from_file_location` is side-effect free (`main()` guarded by `__name__`).
+- Non-date name is ignored by `managed_days` rotation and `cleanup_staging` (`.pending-*` only) → retained as stated.
+- `package.mkdir(mode=0o700)` without `exist_ok` refuses reuse; retry with a fresh name is documented.
+- Canonical-only coverage (bridge `Config` defaults `db_name='agentic_rag'`) is stated in the playbook; dashboard
+  recovery relies on PROOF/OPS artifacts — consistent.
+- Conservative post-traffic L9 hashes and the "do not broaden exclusions" instruction are documented (`:108-113`);
+  acceptable as fail-safe with the Low backlog item.
+
+## Required before operation
+
+1. L2 (rehearse canonical/dashboard on owned copies): no content blocker. Be aware of L2 (reuse vs live writes).
+2. Before L3: fix M1 (umask + root chown/chmod mirroring `publish()`, optional lock/ordering for L1) in the playbook,
+   re-hash, and have the changed L10 range re-checked.

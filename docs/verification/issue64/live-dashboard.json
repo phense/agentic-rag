@@ -1,0 +1,26 @@
+{
+  "public_content": false,
+  "external_tls_verified": true,
+  "checks": [
+    {
+      "port": 8443,
+      "health": 200
+    },
+    {
+      "port": 8449,
+      "health": 200
+    }
+  ],
+  "dashboard_machine_capabilities": {
+    "version": "0.6.17",
+    "migrations": 29
+  },
+  "dashboard_authorized_domains_count": 1,
+  "secure_cookie_properties": true,
+  "passed": true,
+  "settings_default": "mmarco",
+  "selectable_models": 3,
+  "readonly_settings": true,
+  "mobile_no_overflow": true,
+  "javascript_errors": 0
+}

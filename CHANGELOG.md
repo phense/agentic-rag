@@ -10,7 +10,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 - Add opt-in EN/DE temporal search (Issue64): `temporal=auto|off|prefer|filter` with optional `reference` and `timezone` on `rag search`, local/remote `memory_search` and REST. A bounded standard-library grammar maps yesterday/gestern, last week/letzte Woche, next month/nächsten Monat, ISO/German full dates and inclusive ranges to half-open UTC intervals in a named IANA zone; ambiguous or unsupported forms are reported, never guessed.
 - Order (`prefer`) or strictly filter (`filter`) already eligible candidates by canonical event time: the assertion event, otherwise qualifying active source times, never import time. Graph-expanded hits are re-checked. Responses add a `temporal` explanation and per-hit `evidence.temporal` only when interpretation was requested or applied; legacy envelopes are unchanged.
 - Add `[temporal] enabled` (default `false`) and `timezone` (default `UTC`). Soft mode keeps the base order on metadata failure; hard mode fails closed. Client-mode `rag search` now uses the central service; new arguments are sent only when set, so 0.6.16 services keep accepting legacy calls.
-- No schema change (schema029). Populated 0.6.16 compatibility, actual old-code rollback and frozen held-out measurements are in `docs/benchmarks/2026-10-31-temporal-query/`.
+- Add the independently reviewed and full-copy-rehearsed PB-064-LIVE path from existing0.6.15/schema028 directly to0.6.17, applying bundled029 with original-row/ACL/owner preservation, retained old-code recovery and secure fresh-backup checks.
+- No new schema change (schema029). Populated 0.6.16 compatibility, actual old-code rollback and frozen held-out measurements are in `docs/benchmarks/2026-10-31-temporal-query/`.
 
 ## [0.6.16] - 2026-10-31
 

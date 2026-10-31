@@ -68,3 +68,16 @@ One serialized strong implementation owner owns temporal.py, search.py, config.p
 ## Playbook obligations
 
 System: none per spec; ordinary reversible code/config activation is documented and tested. Development: none, because only isolated disposable fixtures and automatic no-write compatibility tests run; no live rollout, coordinated cutover or nontrivial migration. Reassess if schema/persistent state or deployment enters scope.
+
+## Authorized live-adoption extension (2026-10-31)
+
+The maintainer explicitly requests Hetzner activation before merging PR87.
+Observed source: both active API stores0.6.15/schema028, historical database
+owners administrator/rag; worker inactive/cutover gate absent. The target
+0.6.17 bundles unchanged029 SQL from0.6.16. T064-009 owns the
+[PB-064-LIVE](../../playbooks/system/rag-064-live-temporal-upgrade.md)
+development/system obligation: independent review and full-copy migration,
+restore and old-code recovery proof before the maintenance window; real TLS
+probes and a fresh restore-verified backup before merge. Existing provider,
+embedding, reranker, policy and worker authority remain unchanged. This adds
+operational acceptance without changing application behavior or prior tests.

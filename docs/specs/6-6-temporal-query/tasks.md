@@ -56,3 +56,19 @@ package, documentation, source identity and populated compatibility checks pass.
 [PR87](https://github.com/phense/agentic-rag/pull/87) is published and linked.
 Delivery awaits a new maintainer “weiter” for this PR; merge and production
 remain pending.
+
+## Maintainer-authorized live adoption before merge
+
+- [x] T064-009 Author and independently review PB-064-LIVE; rehearse the actual two0.6.15/schema028 stores on verified full copies, preserve every original row/grant/owner, migrate029 under historical owners, activate temporal auto/Berlin, verify real HTTPS/REST/RO-MCP/dashboard and backup recovery, commit sanitized proof to PR87 and satisfy the gates for the explicitly authorized2026-10-31 merge. Production worker activation remains out of scope.
+
+The original no-playbook assessment applied to code delivery only. The later
+maintainer request introduces a coordinated live deployment and therefore
+requires development/system PB-064-LIVE, independent content review and
+full-copy rehearsal before live DDL. Code-only0.6.16→17 remains migration-free;
+the observed live0.6.15/schema028 source must also receive029 from0.6.16.
+
+T064-009 live execution passed on both stores: original35-table preservation and
+empty retry, real HTTPS/RO-MCP/browser checks, post-traffic27core-table integrity,
+and fresh restore-verified private0.6.17backup. Both APIs now enable auto/Berlin;
+worker/cutover unchanged. No application source changed after the full1896-test
+review boundary. Merge proceeds only after final source/version/check validation.

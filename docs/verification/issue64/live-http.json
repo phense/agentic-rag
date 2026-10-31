@@ -1,0 +1,188 @@
+{
+  "phase": "after",
+  "external_tls_verified": true,
+  "identities": {
+    "8443": {
+      "version": "0.6.17",
+      "migrations": 29
+    },
+    "8449": {
+      "version": "0.6.17",
+      "migrations": 29
+    },
+    "it_vm1": {
+      "version": "0.6.17"
+    },
+    "it_vm2": {
+      "version": "0.6.17"
+    },
+    "accounting_vm": {
+      "version": "0.6.17"
+    },
+    "it_ro": {
+      "version": "0.6.17"
+    }
+  },
+  "checks": [
+    {
+      "port": 8443,
+      "no_intent_hits": 3,
+      "results_sha256": "b04c798afe52b5fa2e0734cedc38f598973f6c4a424cf6065ed1145df7496af8"
+    },
+    {
+      "port": 8443,
+      "auto_expression": "gestern",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 3
+    },
+    {
+      "port": 8443,
+      "auto_expression": "yesterday",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 3
+    },
+    {
+      "port": 8443,
+      "auto_expression": "letzte Woche",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 3
+    },
+    {
+      "port": 8443,
+      "auto_expression": "last week",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 3
+    },
+    {
+      "port": 8443,
+      "hard_filter": true,
+      "result_count": 0,
+      "temporal": {
+        "requested": "filter",
+        "mode": "filter",
+        "applied": "filter",
+        "status": "interval",
+        "interval": {
+          "start": "2026-10-29T23:00:00+00:00",
+          "end": "2026-10-30T23:00:00+00:00",
+          "bounds": "[start, end)"
+        },
+        "timezone": "Europe/Berlin",
+        "reference": "2026-10-31T12:00:00+00:00",
+        "reference_source": "request",
+        "expressions": [
+          "gestern"
+        ],
+        "kinds": [
+          "yesterday"
+        ],
+        "reasons": [],
+        "confidence": "syntactic",
+        "retrieval_query": "without_time_expressions",
+        "event_time": "assertion event time, otherwise qualifying active source event time; never document import or update time; a known source date is not independent verification",
+        "effect": {
+          "candidates": 7,
+          "matching": 0,
+          "outside": 0,
+          "unknown": 7,
+          "excluded": 7,
+          "reordered": false,
+          "graph_checked": 0
+        },
+        "limits": {
+          "candidate_limit": 150,
+          "graph_node_limit": 20,
+          "recall": "candidate_limited"
+        }
+      }
+    },
+    {
+      "port": 8443,
+      "known_memory_evidence_contract": 1
+    },
+    {
+      "port": 8449,
+      "no_intent_hits": 0,
+      "results_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "port": 8449,
+      "auto_expression": "gestern",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 0
+    },
+    {
+      "port": 8449,
+      "auto_expression": "yesterday",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 0
+    },
+    {
+      "port": 8449,
+      "auto_expression": "letzte Woche",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 0
+    },
+    {
+      "port": 8449,
+      "auto_expression": "last week",
+      "status": "interval",
+      "timezone": "Europe/Berlin",
+      "result_count": 0
+    },
+    {
+      "port": 8449,
+      "hard_filter": true,
+      "result_count": 0,
+      "temporal": {
+        "requested": "filter",
+        "mode": "filter",
+        "applied": "filter",
+        "status": "interval",
+        "interval": {
+          "start": "2026-10-29T23:00:00+00:00",
+          "end": "2026-10-30T23:00:00+00:00",
+          "bounds": "[start, end)"
+        },
+        "timezone": "Europe/Berlin",
+        "reference": "2026-10-31T12:00:00+00:00",
+        "reference_source": "request",
+        "expressions": [
+          "gestern"
+        ],
+        "kinds": [
+          "yesterday"
+        ],
+        "reasons": [],
+        "confidence": "syntactic",
+        "retrieval_query": "without_time_expressions",
+        "event_time": "assertion event time, otherwise qualifying active source event time; never document import or update time; a known source date is not independent verification",
+        "effect": {
+          "candidates": 0,
+          "matching": 0,
+          "outside": 0,
+          "unknown": 0,
+          "excluded": 0,
+          "reordered": false,
+          "graph_checked": 0
+        },
+        "limits": {
+          "candidate_limit": 150,
+          "graph_node_limit": 20,
+          "recall": "candidate_limited"
+        }
+      }
+    }
+  ],
+  "foreign_scope_denied": true,
+  "read_only_write_denied": true,
+  "read_only_mcp_auto_temporal": true,
+  "passed": true
+}

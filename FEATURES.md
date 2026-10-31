@@ -518,6 +518,6 @@ Top-1 over the post-hoc words-removed diagnostic; none regress. Paired overhead
 on195 held-out period queries is+24.4ms median/+39.7ms p95. These figures do not
 measure native embeddings/reranker or production load. Independent complete
 review reports0 C/H/M; architecture success29/recovery12 checks pass. The final
-whole suite passes1,896tests with1expected macOS skip; [PR87](https://github.com/phense/agentic-rag/pull/87) awaits merge approval; [verification](docs/verification/issue64-temporal-query.md)
+whole suite passes1,896tests with1expected macOS skip; [PR87](https://github.com/phense/agentic-rag/pull/87) is explicitly approved for merge after the successful pre-merge Hetzner deployment; [verification](docs/verification/issue64-temporal-query.md)
 tracks that gate and [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6543044931)
-tracks deferred Low limitations. Production opt-in remains separate.
+tracks deferred Low limitations. Both existing Hetzner APIs now run0.6.17/schema029 with temporal auto/Berlin enabled after full-copy rehearsal, original-row preservation and fresh verified backup. The canonical worker remains inactive; broad/native adoption remains separate.

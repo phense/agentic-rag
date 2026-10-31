@@ -175,6 +175,14 @@ stays on schema029. The existing operator upgrade workflow also accepts
 `--source-version 0.6.16`; its verified backup/restore and preservation checks
 remain available even though no migration is applied.
 
+For a store still on0.6.15/schema028, use the separately rehearsed
+[PB-064-LIVE upgrade](playbooks/system/rag-064-live-temporal-upgrade.md). The
+0.6.17 package applies the bundled029 migration directly; an intermediate
+running0.6.16 service is unnecessary. Stop writers, verify full-copy restores
+and preserve rows/rights before restarting. The authorized Hetzner deployment
+used this path on both existing stores and enabled `auto` with `Europe/Berlin`;
+package defaults remain disabled/UTC.
+
 1. Install 0.6.17 and restart long-running processes (`rag service serve`, MCP
    servers) so they load the new code and tool signatures.
 2. Try one search explicitly, without changing the configuration:

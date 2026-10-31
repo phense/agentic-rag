@@ -1,0 +1,104 @@
+# RAG-064 live upgrade slice — independent read-only review
+
+- Reviewed: 2026-10-31, worktree `request-tracing-60-20261030` at `e51003ac8a07c77aa7741cb07cd2be3714a1d0a1`
+- Inputs (untracked): `docs/playbooks/system/rag-064-live-temporal-upgrade.md` (sha256 `3e256706…eaf4f`),
+  `docs/verification/issue64/live-upgrade.py.txt` (sha256 `87e2b30c…c743`), both re-hashed and matching.
+- Compared against: `agentic_rag/service/upgrade.py`, `agentic_rag/benchmark/database.py`, `agentic_rag/db.py`,
+  `sql/029_source_evidence.sql`, `agentic_rag/search.py`/`evidence.py`/`config.py` (diff 5390a6f..e51003a), PB-063.
+- Live observation: read-only via `ssh mcp-server sudo -n` (catalog queries, masked file shapes, unit state). No mutation,
+  no pytest, no shared DB writes, no secrets/config values emitted.
+
+## Verdict
+
+**Content: NOT READY — 2 High findings block L2 (rehearsal) and therefore the whole operation.**
+Both fail safe (rehearsal aborts on a disposable clone before any live change; the owned clone is dropped by
+`isolated_database`'s `finally`), but the playbook as written cannot reach L3. Fixes are small and confined to the
+driver. Rehearsal itself: **not yet run** (only `preflight` artifacts exist in the proof directory).
+
+## Findings
+
+### H1 — Reader probes cannot authenticate on this host (rehearsal always fails)
+
+- Where: `docs/verification/issue64/live-upgrade.py.txt:33` (`db.connect(cfg,role='reader')` in the old-code READ
+  script) and `:133` (`db.connect(clone,role='reader')` for the new legacy read).
+- Mechanism: `db.dsn(role='reader')` adds `user=rag_reader` (`agentic_rag/db.py:13-24`, same in 0.6.15). The driver
+  runs as OS user `postgres` over the Unix socket. Live `pg_hba_file_rules`: the only `rag_reader` peer rules are
+  database-specific (`agentic_rag`, `rag_dashboard_rehearsal_20261030`, …) with `map=rag-service`, whose ident map
+  admits only system user `rag`; the generated clone `rag_bench_<hex>` falls through to `local all all peer` (no map),
+  which requires OS user == DB user.
+- Evidence: `sudo -u postgres psql -U rag_reader -d postgres -c 'select 1'` →
+  `FATAL: Peer authentication failed for user "rag_reader"` (same rule path a `rag_bench_*` database takes).
+  `old_read` therefore raises `CalledProcessError` at `:127`; L2 can never pass.
+- Minimal fix (no pg_hba change): connect as the invoking DBA and drop privileges inside the session, identically for
+  both sides so parity stays valid:
+  - READ script: `with db.connect(cfg) as c: c.execute('SET ROLE rag_reader'); …search…`
+  - new read (`:133`): `with db.connect(clone) as c: c.execute('SET ROLE rag_reader'); …`
+  Neither 0.6.15 nor 0.6.17 search/indexes/retrieval/evidence/validity code issues `SET/RESET ROLE` or uses
+  `session_user` on the read path (checked with `git grep` at both revisions); RLS then applies as `rag_reader`.
+
+### H2 — Clone-name rewrite of the operator TOML is a no-op on the live files (rehearsal always fails)
+
+- Where: `live-upgrade.py.txt:72-73`.
+- Mechanism: `text.replace('name = "' + original_name + '"', …)` requires spaces around `=`. Both operator copies (and
+  the live configs, byte-identical per `cmp`) use the shape `name="…"` (masked check: `xxxx="xxx…"`, exactly one
+  `name` line, in `[db]`). Exact-match count for `name = "agentic_rag"` / `name = "rag_dashboard_rehearsal_20261030"`
+  is 0 in all four files. The replace changes nothing and `assert load_config_text_name(text) == cfg.db_name`
+  fails → rehearsal aborts. (Fail-safe: the assert prevents the old reader from ever pointing at the live DB.)
+- Minimal fix: drop the textual rewrite; run the old process with `AGENTIC_RAG_CONFIG=<operator toml>` unchanged and
+  pass the clone name as `argv[1]`, then in READ: `cfg=dataclasses.replace(load_config(), db_name=sys.argv[1])`
+  (0.6.15 `Config` is a frozen dataclass at `config.py:44`, so `replace` is valid). Keep an assertion that the
+  resulting `db_name` starts with `rag_bench_`. This also removes the reliance on the module global `original_name`.
+
+### L1 — Post-traffic core check excludes too few operational tables (false block possible)
+
+- Where: `live-upgrade.py.txt:25-26` used at `:156-157` (L9).
+- `OPERATIONAL` omits tables the live API writes on legitimate client traffic: `service_windows`, `service_streams`
+  (`service/ingest.py`), `service_session_access` (`service/session_logs.py`), `continuation_checkpoints`,
+  `audit_log`, `mining_queue`, `embedding_reuse_cache`. Live `pg_stat_user_tables` shows all of these written on
+  `agentic_rag`. Pure L8 reads do not touch them, so L9 passes if no other client writes between L7 and L9; any real
+  ingest/save in that window yields `post_traffic_core_drift` and blocks the merge (fail-safe, no data risk).
+- Minimal fix (optional, does not block): either state in PB L3/L8 that no other client writes until L9, or limit the
+  L9 drift check to tables that must be immutable under reads and report the others as counts only. Non-blocking.
+
+## Checked and found correct (no finding)
+
+- **Fence/clients/retry**: `apply` runs entirely inside `upgrade.source_fence(writers_stopped=True)` (advisory
+  owner/execution locks, zero other client backends, refuses role-level read-only overrides, restores the recorded
+  prior `default_transaction_read_only` — live prior is unset for both DBs → `RESET`). Fence is reset on exceptions;
+  no destructive rollback path exists. Committed-retry path: `installed==29` → `expected=[]`, `migrate` asserts `[]`;
+  `proof()` re-verifies a reused dump/manifest (`check_dump` + `verify_preserved`) and refuses half artifacts;
+  `private_json` is `O_EXCL`, so results are never overwritten. Matches PB L4/recovery text.
+- **Owner/definer handling**: live `agentic_rag` and `rag_dashboard_rehearsal_20261030` have every public relation,
+  sequence and `rag_*` function owned by the DB owner (`administrator` / `rag`); `knowledge_sources`, `claim_records`,
+  `claim_evidence` (029 `CREATE TRIGGER` targets) likewise. `SET ROLE <owner>` before `apply_migrations` therefore
+  succeeds and gives 029's `SECURITY DEFINER` functions the historical runtime owner. Superuser session can `SET ROLE`.
+  `public` is owned by `pg_database_owner`, so `ALTER DATABASE <clone> OWNER TO <owner>` (`:125`) is required and
+  correct for an equivalent CREATE path; clone cleanup still works (superuser, marker table owned by postgres).
+- **_verify owner mapping**: manifests are produced as `postgres` (identity owner `postgres`), all table owners differ
+  from it, so `_verify` compares owners literally — correct both under `SET ROLE` and in `verify_preserved`/`post`.
+- **Restore**: `_restore_verification` restores with ownership/ACLs (no `--no-owner`) as superuser; restored clone is
+  checked with `_verify(label='rehearsal_restore_mismatch')` before migration. Dump uses an exported snapshot.
+- **029 ACL/RLS**: only new tables get grants/RLS; existing grants compared by `_verify` and `post` (`_grants` over
+  original tables + all sequences; 029 adds no sequence).
+- **Migration history timestamps**: manifest `migration_rows` are produced after `_snapshot`'s `SET LOCAL timezone='UTC'`;
+  `post` sets UTC before comparing `str(applied_at)` — consistent.
+- **Legacy-read parity design**: `SearchHit` and `evidence.summary` unchanged 5390a6f→e51003a; with `temporal='off'`
+  `_interpret` returns `(None, None)` → exact legacy path. Probe query is non-vacuous (14 008 `sysadmin` documents in
+  each store).
+- **Deployment surfaces**: installed `PROOF/live-upgrade.py` sha256 equals the reviewed `.py.txt`; operator TOMLs are
+  byte-identical to live configs and contain no `[temporal]` section; `[temporal] enabled/timezone` maps to
+  `temporal_enabled/temporal_timezone` (`config.py` section prefix); 0.6.15 ignores the unknown section, so code
+  rollback with the new config is also safe. Both launchers import only `load_config`/`create_app`
+  (`service/api.py` unchanged since 5390a6f). Daily backup bridge calls `verified_backup(cfg, None, …)` under
+  `/opt/agentic-rag` and archives the resolved release — compatible with 0.6.17/schema029.
+- **Live state**: both APIs active on 0.6.15 symlinks; worker inactive; `nwb-rag-backup.timer` enabled; both DBs at
+  28 migrations, `claim_history` absent; no role `bypassrls`/superuser among rag roles; ~56 GB free vs ~0.63 GB per DB;
+  release dirs world-readable for `postgres`. Failed transient `systemd-run` units from earlier rehearsals exist
+  (`agentic-rag-restore*`, `agentic-rag-full-tests*`) — informational only.
+
+## Required before operation
+
+1. Apply H1 and H2 fixes to the driver, re-review the diff and reinstall it. The existing proof directory holds only
+   preflight artifacts, so it may be reused if no rehearsal dump was written; after any failed rehearsal use a fresh
+   `rag64-*` directory as the playbook requires.
+2. Run L2 for both stores; only then proceed to L3.
