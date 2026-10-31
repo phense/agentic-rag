@@ -1,0 +1,573 @@
+{
+ "fixture": "RAG-064 ranking cases",
+ "version": 1,
+ "frozen_before_implementation": true,
+ "parameters": {
+  "domain": "general",
+  "k": 5,
+  "strategy": "auto",
+  "rerank": "off",
+  "context": "off",
+  "embedding": "unavailable (lexical full-text only)"
+ },
+ "expect": "ranked = quality case; unchanged = order must equal feature-off; error = hard filter must fail closed; empty = hard filter returns no hit",
+ "dev": [
+  {
+   "id": "RD01",
+   "query": "nightly backup job failed yesterday",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-backup-yesterday"
+   ],
+   "forbidden": [
+    "dev-backup-refuted",
+    "dev-backup-withdrawn",
+    "dev-backup-private"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD02",
+   "query": "nightly backup job failed last week",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-backup-lastweek"
+   ],
+   "forbidden": [
+    "dev-backup-refuted",
+    "dev-backup-withdrawn",
+    "dev-backup-private"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD03",
+   "query": "nightly backup job failed gestern",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-backup-yesterday"
+   ],
+   "forbidden": [
+    "dev-backup-refuted",
+    "dev-backup-withdrawn",
+    "dev-backup-private",
+    "dev-backup-assistant",
+    "dev-backup-legacy",
+    "dev-backup-lastweek",
+    "dev-backup-old"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD04",
+   "query": "VPN tunnel dropped on 2026-10-14",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-vpn-1014"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD05",
+   "query": "VPN tunnel dropped 14.10.2026",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-vpn-1014"
+   ],
+   "forbidden": [
+    "dev-vpn-1002",
+    "dev-vpn-0920",
+    "dev-vpn-range"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD06",
+   "query": "VPN tunnel dropped from 2026-10-01 to 2026-10-03",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "UTC",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-vpn-1002",
+    "dev-vpn-range"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD07",
+   "query": "mail relay port changed yesterday",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": null,
+   "history": true,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-relay-new"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD08",
+   "query": "mail relay port next month",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-relay-new"
+   ],
+   "forbidden": [
+    "dev-relay-future",
+    "dev-relay-old"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD09",
+   "query": "mail relay port last week",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-relay-new"
+   ],
+   "forbidden": [
+    "dev-relay-expired",
+    "dev-relay-old",
+    "dev-relay-future"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD10",
+   "query": "quarterly maintenance window planned next month",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "dev-plan-nov"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "RD11",
+   "query": "nightly backup job failed gestern und letzte Woche",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [
+    "dev-backup-refuted",
+    "dev-backup-withdrawn",
+    "dev-backup-private"
+   ],
+   "control": false,
+   "expect": "unchanged"
+  },
+  {
+   "id": "RD12",
+   "query": "nightly backup job failed gestern und letzte Woche",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": false,
+   "expect": "error"
+  },
+  {
+   "id": "RC01",
+   "query": "nightly backup job failed",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [
+    "dev-backup-refuted",
+    "dev-backup-withdrawn",
+    "dev-backup-private"
+   ],
+   "control": true,
+   "expect": "ranked"
+  },
+  {
+   "id": "RC02",
+   "query": "VPN tunnel dropped",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": true,
+   "expect": "ranked"
+  },
+  {
+   "id": "RC03",
+   "query": "mail relay port",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "as_of": "2026-10-30T10:00:00+01:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [
+    "dev-relay-future",
+    "dev-relay-old",
+    "dev-relay-expired"
+   ],
+   "control": true,
+   "expect": "ranked"
+  }
+ ],
+ "heldout": [
+  {
+   "id": "HD01",
+   "query": "certificate renewal failed yesterday",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-cert-yesterday",
+    "ho-cert-boundary"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD02",
+   "query": "certificate renewal failed letzte Woche",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-cert-lastweek",
+    "ho-cert-yesterday",
+    "ho-cert-boundary"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD03",
+   "query": "certificate renewal failed gestern",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-cert-yesterday",
+    "ho-cert-boundary"
+   ],
+   "forbidden": [
+    "ho-cert-assistant",
+    "ho-cert-nextday",
+    "ho-cert-lastweek",
+    "ho-cert-feb"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD04",
+   "query": "Druckerwartung nächsten Monat",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-print-apr"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD05",
+   "query": "Druckerwartung am 11.03.2026",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-print-mar"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD06",
+   "query": "Druckerwartung nächsten Monat",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-print-apr"
+   ],
+   "forbidden": [
+    "ho-print-mar",
+    "ho-print-jan",
+    "ho-print-legacy"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD07",
+   "query": "edge firewall rule count gestern",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": null,
+   "history": true,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-fw-new"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD08",
+   "query": "edge firewall rule count last week",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-fw-new",
+    "ho-fw-review"
+   ],
+   "forbidden": [
+    "ho-fw-old"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD09",
+   "query": "edge firewall rule count 2026-03-10",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": null,
+   "history": true,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-fw-old"
+   ],
+   "forbidden": [],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD10",
+   "query": "edge firewall rule count 2026-03-10",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [
+    "ho-fw-old"
+   ],
+   "control": false,
+   "expect": "empty"
+  },
+  {
+   "id": "HD11",
+   "query": "restore test completed on 2026-03-03",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-restore-0303"
+   ],
+   "forbidden": [
+    "ho-restore-private"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD12",
+   "query": "Restore test completed zwischen 2026-03-01 und 2026-03-12",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "UTC",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [
+    "ho-restore-0303",
+    "ho-restore-0310"
+   ],
+   "forbidden": [
+    "ho-restore-private"
+   ],
+   "control": false,
+   "expect": "ranked"
+  },
+  {
+   "id": "HD13",
+   "query": "certificate renewal failed 03/29/2026",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "prefer",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": false,
+   "expect": "unchanged"
+  },
+  {
+   "id": "HD14",
+   "query": "certificate renewal failed 03/29/2026",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "filter",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": false,
+   "expect": "error"
+  },
+  {
+   "id": "HC01",
+   "query": "certificate renewal failed",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": true,
+   "expect": "ranked"
+  },
+  {
+   "id": "HC02",
+   "query": "Druckerwartung",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [],
+   "control": true,
+   "expect": "ranked"
+  },
+  {
+   "id": "HC03",
+   "query": "restore test completed",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "as_of": "2026-03-30T09:00:00+02:00",
+   "history": false,
+   "timezone": "Europe/Berlin",
+   "mode": "auto",
+   "project": "/synthetic/team",
+   "expected": [],
+   "forbidden": [
+    "ho-restore-private"
+   ],
+   "control": true,
+   "expect": "ranked"
+  }
+ ]
+}

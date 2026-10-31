@@ -1,0 +1,498 @@
+{
+ "fixture": "RAG-064 parser cases",
+ "version": 1,
+ "frozen_before_implementation": true,
+ "semantics": "half-open UTC intervals; status in none|interval|current|ambiguous|unsupported; error = bounded validation error",
+ "dev": [
+  {
+   "id": "PD01",
+   "query": "backup failure gestern",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-28T23:00:00Z",
+    "end": "2026-10-29T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD02",
+   "query": "what changed yesterday",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-29T00:00:00Z",
+    "end": "2026-10-30T00:00:00Z"
+   }
+  },
+  {
+   "id": "PD03",
+   "query": "deploy letzte Woche",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-18T22:00:00Z",
+    "end": "2026-10-25T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD04",
+   "query": "plans for next month",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-31T23:00:00Z",
+    "end": "2026-11-30T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD05",
+   "query": "nächsten Monat Wartung",
+   "reference": "2026-12-15T12:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-12-31T23:00:00Z",
+    "end": "2027-01-31T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD06",
+   "query": "incident on 2026-10-14",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-13T22:00:00Z",
+    "end": "2026-10-14T22:00:00Z"
+   }
+  },
+  {
+   "id": "PD07",
+   "query": "Ausfall am 14.10.2026",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-13T22:00:00Z",
+    "end": "2026-10-14T22:00:00Z"
+   }
+  },
+  {
+   "id": "PD08",
+   "query": "Ausfall am 3. März 2026",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-03-02T23:00:00Z",
+    "end": "2026-03-03T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD09",
+   "query": "report from 2026-10-01 to 2026-10-03",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-01T00:00:00Z",
+    "end": "2026-10-04T00:00:00Z"
+   }
+  },
+  {
+   "id": "PD10",
+   "query": "Bericht vom 01.10.2026 bis 03.10.2026",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-01T00:00:00Z",
+    "end": "2026-10-04T00:00:00Z"
+   }
+  },
+  {
+   "id": "PD11",
+   "query": "meeting on 03/04/2026",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PD12",
+   "query": "Termin am 14.10.",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PD13",
+   "query": "status gestern und letzte Woche",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "ambiguous"
+   }
+  },
+  {
+   "id": "PD14",
+   "query": "what is currently the backup target",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "current"
+   }
+  },
+  {
+   "id": "PD15",
+   "query": "aktuell gültiger Port",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "current"
+   }
+  },
+  {
+   "id": "PD16",
+   "query": "backup target port",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "none"
+   }
+  },
+  {
+   "id": "PD17",
+   "query": "2028-02-29 leap check",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2028-02-29T00:00:00Z",
+    "end": "2028-03-01T00:00:00Z"
+   }
+  },
+  {
+   "id": "PD18",
+   "query": "2027-02-29 invalid",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PD19",
+   "query": "yesterday",
+   "reference": "2028-03-01T00:30:00+00:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2028-02-29T00:00:00Z",
+    "end": "2028-03-01T00:00:00Z"
+   }
+  },
+  {
+   "id": "PD20",
+   "query": "gestern",
+   "reference": "2026-11-02T03:00:00Z",
+   "timezone": "America/New_York",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-31T04:00:00Z",
+    "end": "2026-11-01T04:00:00Z"
+   }
+  },
+  {
+   "id": "PD21",
+   "query": "range 2026-10-05 bis 2026-10-01",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PD22",
+   "query": "letzte Woche currently",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "ambiguous"
+   }
+  },
+  {
+   "id": "PD23",
+   "query": "deploy last week Fehler",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-18T22:00:00Z",
+    "end": "2026-10-25T23:00:00Z"
+   }
+  },
+  {
+   "id": "PD24",
+   "query": "midnight boundary yesterday",
+   "reference": "2026-10-30T00:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-28T23:00:00Z",
+    "end": "2026-10-29T23:00:00Z"
+   }
+  }
+ ],
+ "heldout": [
+  {
+   "id": "PH01",
+   "query": "Restore-Test gestern",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-03-28T23:00:00Z",
+    "end": "2026-03-29T22:00:00Z"
+   }
+  },
+  {
+   "id": "PH02",
+   "query": "certificate renewal last week",
+   "reference": "2026-04-02T12:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-03-22T23:00:00Z",
+    "end": "2026-03-29T22:00:00Z"
+   }
+  },
+  {
+   "id": "PH03",
+   "query": "Migration nächsten Monat",
+   "reference": "2026-01-31T23:30:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-01-31T23:00:00Z",
+    "end": "2026-02-28T23:00:00Z"
+   }
+  },
+  {
+   "id": "PH04",
+   "query": "next month",
+   "reference": "2026-01-31T23:30:00+00:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-02-01T00:00:00Z",
+    "end": "2026-03-01T00:00:00Z"
+   }
+  },
+  {
+   "id": "PH05",
+   "query": "yesterday",
+   "reference": "2026-06-30T20:00:00Z",
+   "timezone": "Asia/Tokyo",
+   "expected": {
+    "status": "interval",
+    "start": "2026-06-29T15:00:00Z",
+    "end": "2026-06-30T15:00:00Z"
+   }
+  },
+  {
+   "id": "PH06",
+   "query": "letzte Woche",
+   "reference": "2026-01-01T08:00:00Z",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2025-12-22T00:00:00Z",
+    "end": "2025-12-29T00:00:00Z"
+   }
+  },
+  {
+   "id": "PH07",
+   "query": "Wartung am 29.02.2028",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2028-02-28T23:00:00Z",
+    "end": "2028-02-29T23:00:00Z"
+   }
+  },
+  {
+   "id": "PH08",
+   "query": "audit 2026-07-15",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "America/Los_Angeles",
+   "expected": {
+    "status": "interval",
+    "start": "2026-07-15T07:00:00Z",
+    "end": "2026-07-16T07:00:00Z"
+   }
+  },
+  {
+   "id": "PH09",
+   "query": "zwischen 2026-04-01 und 2026-04-30",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-04-01T00:00:00Z",
+    "end": "2026-05-01T00:00:00Z"
+   }
+  },
+  {
+   "id": "PH10",
+   "query": "between 1. April 2026 and 2026-04-07",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "interval",
+    "start": "2026-04-01T00:00:00Z",
+    "end": "2026-04-08T00:00:00Z"
+   }
+  },
+  {
+   "id": "PH11",
+   "query": "release 4/5/2026",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH12",
+   "query": "Rechnung vom 5. Mai",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH13",
+   "query": "yesterday and 2026-10-01",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "ambiguous"
+   }
+  },
+  {
+   "id": "PH14",
+   "query": "currently configured relay",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "current"
+   }
+  },
+  {
+   "id": "PH15",
+   "query": "relay configuration",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "none"
+   }
+  },
+  {
+   "id": "PH16",
+   "query": "gestern gestern yesterday",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-28T23:00:00Z",
+    "end": "2026-10-29T23:00:00Z"
+   }
+  },
+  {
+   "id": "PH17",
+   "query": "2026-13-01 report",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH18",
+   "query": "31.04.2026",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "UTC",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH19",
+   "query": "Ausfall gestern",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Mars/Olympus",
+   "expected": {
+    "error": "invalid_timezone"
+   }
+  },
+  {
+   "id": "PH20",
+   "query": "gestern",
+   "reference": "2026-10-30T10:00:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "error": "invalid_reference"
+   }
+  },
+  {
+   "id": "PH21",
+   "query": "yesterday",
+   "reference": "2026-09-07T12:00:00-03:00",
+   "timezone": "America/Santiago",
+   "expected": {
+    "status": "interval",
+    "start": "2026-09-06T04:00:00Z",
+    "end": "2026-09-07T03:00:00Z"
+   }
+  },
+  {
+   "id": "PH22",
+   "query": "x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x gestern",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH23",
+   "query": "Termin 2026-10-30T10:00",
+   "reference": "2026-03-30T09:00:00+02:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "unsupported"
+   }
+  },
+  {
+   "id": "PH24",
+   "query": "UUID 0b5f0a3c-1d2e-4f50-9a6b-7c8d9e0f1a2b gestern",
+   "reference": "2026-10-30T10:00:00+01:00",
+   "timezone": "Europe/Berlin",
+   "expected": {
+    "status": "interval",
+    "start": "2026-10-28T23:00:00Z",
+    "end": "2026-10-29T23:00:00Z"
+   }
+  }
+ ]
+}
