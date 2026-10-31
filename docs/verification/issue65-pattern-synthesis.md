@@ -285,6 +285,6 @@ runs are in [acceptance.json](issue65/acceptance.json).
 
 A separate same-owner, synthetic empty-target recovery using `pg_restore --single-transaction` preserved the original row, large-object bytes and function ACLs; the owner-control schema validator passed. Both owned databases were removed. This proves the documented fallback on PostgreSQL17/Linux, not a live cutover or complete production large-object inventory. Its first probe had a setup-assumption error about seeded domains; the corrected check compared the full source domain inventory and passed. Both attempts are retained.
 
-The PR and merge decision remain separate. No live store, service, model or
+[PR88](https://github.com/phense/agentic-rag/pull/88) is ready for maintainer review. The merge decision remains separate. No live store, service, model or
 client was changed. Production use still requires PB-065-OPS, all-reader
 restart, an explicitly enabled policy and the documented recovery boundary.

@@ -169,6 +169,12 @@
     "wheel_sha256": "75569d18793bf078cc8a08301229a8fa19f599f06abcb3ecefbd53de1dcdc390"
   },
   "production_changed": false,
+  "pull_request": {
+    "deployed": false,
+    "merged": false,
+    "state": "open; awaiting fresh specific maintainer approval",
+    "url": "https://github.com/phense/agentic-rag/pull/88"
+  },
   "restore_correction": {
     "M1": "Large-object archive preflight refuses before target connection; original rows, defaults, all ACLs and large-object bytes preserved. Empty-target recovery required.",
     "M2": "All five PostgreSQL17 object default classes reset to builtins inside transaction, then replay archive defaults; function ACLs identical, no new reader EXECUTE grants.",

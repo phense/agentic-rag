@@ -46,7 +46,7 @@ All pytest uses existing owned PG55460, never5432. `TMPDIR=/dev/shm/rag65-202610
 ### Slice S3: Convergence, full verification and PR handoff
 
 - [x] T065-010 Coordinator runs speckit-converge against actual as-built, integration, review, playbook, evidence and task state; route gaps back into this executor. Execute final full pytest and relevant Node suites, inspect actual completion/exit, wheel/SQL/assets/version and links. A running suite is not passing.
-- [ ] T065-011 Synchronize numbered backlog/capability index and GitHub Issue65 with actual evidence, create one focused PR linked to65, link it to this thread immediately, report step7of15 and2–3 measured examples. Await a new maintainer weiter before merge. No deployment is included.
+- [x] T065-011 Synchronize numbered backlog/capability index and GitHub Issue65 with actual evidence, create one focused PR linked to65, link it to this thread immediately, report step7of15 and2–3 measured examples. Await a new maintainer weiter before merge. No deployment is included.
 
 ## Playbook obligations
 
@@ -74,9 +74,7 @@ were reconstructed against prior source and are disclosed as a process
 deviation, not original test-first evidence. Current behavior is backed by
 independent probes and affected suites; no retrospective TDD claim is made.
 
-T065-010 is complete: the actual full-suite result at `ea6697b` and convergence evidence were inspected. T065-011 remains open until the focused
-PR is created and linked, with the maintainer's specific merge approval still
-required afterwards. No live rollout is included.
+T065-010 is complete: the actual full-suite result at `ea6697b` and convergence evidence were inspected. T065-011 is complete: [PR88](https://github.com/phense/agentic-rag/pull/88) is created and linked, and Issue65/indices are synchronized. The maintainer's specific merge approval is still required. No live rollout is included.
 
 ### Slice S6: Final full-suite restore regression
 
@@ -116,5 +114,4 @@ unchanged. Frozen targeted tests at `bfeedf0`: 119 passed, exit 0; corrected
 restore replay: 28/28 assertions, 6 owned DBs removed. Complete independent feature/restore
 reviews are retained, with coordinator-verified M1/M2 corrections and no open
 C/H/M/Important. Node 7/7; wheel 179/179 payload files match; populated upgrade preserves
-302 original rows across 39 tables, retry empty. T065-011 remains open until
-the PR is created/linked; merge needs a fresh maintainer weiter.
+302 original rows across 39 tables, retry empty. [PR88](https://github.com/phense/agentic-rag/pull/88) is created/linked; merge needs a fresh maintainer weiter.

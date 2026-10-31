@@ -90,7 +90,7 @@ No production migration, cross-host restore or live service restart is claimed.
 
 ## Source-linked pattern suggestions (RAG-065 / issue #65)
 
-🔵 Implemented at `ea6697b`; independent feature/restore reviews and coordinator correction checks are recorded. Full suite: 1,974 passed, 1 skipped, 1 known warning, exit 0. PR handoff follows. Default-off scoped policies schedule bounded
+🔵 Implemented at `ea6697b`; independent feature/restore reviews and coordinator correction checks are recorded. Full suite: 1,974 passed, 1 skipped, 1 known warning, exit 0. [PR88](https://github.com/phense/agentic-rag/pull/88) awaits specific merge approval. Default-off scoped policies schedule bounded
 inference suggestions through the existing local or central worker. Three
 independent original user events across three memories form the support floor;
 each part retains exact source/version links. Patterns remain reviewable
