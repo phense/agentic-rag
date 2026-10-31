@@ -191,7 +191,6 @@ def main(argv=None):
     parser.add_argument('--repetitions', type=int, default=3)
     parser.add_argument('--output', type=Path)
     args = parser.parse_args(argv)
-    synthesis.SETTLE_SECONDS = 0  # fixture rows are ingested immediately before scheduling
     store.try_embed_texts = lambda *a, **k: None  # no embedding model; queued retries are irrelevant here
     real = llm.run_structured
     cfg = Config(ollama_url='http://127.0.0.1:1', rerank_url='http://127.0.0.1:1')
@@ -237,6 +236,8 @@ def main(argv=None):
     result = {
         'source_revision': subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT, capture_output=True,
                                           text=True).stdout.strip(),
+        'source_tree_clean': subprocess.run(['git', 'status', '--porcelain'], cwd=ROOT, capture_output=True,
+                                            text=True).stdout.strip() == '',
         'fixtures': fx.FROZEN, 'provider': 'scripted (fixtures/responses.json); no real model',
         'environment': {'python': platform.python_version(), 'machine': platform.machine(),
                         'processor': _cpu(), 'postgresql': _pg(cfg)},

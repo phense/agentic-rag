@@ -63,8 +63,9 @@ Only original memories qualify. Excluded, with the reason shown in the preview:
 | `no_qualifying_span` | No complete user quote from an active, non-manual source |
 | `not_current` | Refuted, withdrawn, expired or otherwise not current |
 
-Each model call sees at most 12 memories with at most 8 quotes each. Every
-suggestion may cite at most 8 quotes.
+Each model call sees at most 12 memories with at most 8 quotes each, and the
+whole input, instructions included, must fit `max_input_chars` (default 12,000
+characters). Every suggestion may cite at most 8 quotes.
 
 ## Switch it on
 
@@ -91,12 +92,45 @@ If it does, enable the scope:
 rag pattern enable --domain general --project /work/helpdesk --reason "helpdesk trial"
 ```
 
+Before the first enable, every process that opens the database directly must
+run 0.6.18 and have been restarted since the upgrade; the check is step B0 of
+[PB-065-OPS](playbooks/system/rag-065-pattern-synthesis.md).
+
 The answer names the policy version and the **forward boundary**, the server time
 of enabling. From then on, the existing worker considers new memories in that
 scope on its normal tick, at most once per interval (default one day,
-`--interval-seconds`). New memories wait 60 seconds before they are considered,
-so a save that is still in progress is not missed. Use `--scope global` instead
-of `--project` for global memories.
+`--interval-seconds`). Use `--scope global` instead of `--project` for global
+memories.
+
+### Which memories a run reads
+
+A run reads two kinds of memories:
+
+- **New** memories: created after the forward boundary and not yet read by a
+  finished run. A memory counts as read only when its run ends `applied` or
+  `non_conclusion`. A save that takes long and commits after a later memory was
+  already read is still picked up on a later tick.
+- **Context**: up to the remaining room, recently read memories of the same
+  scope, those not yet cited by a current pattern first. This is how three
+  reports that arrive on different days still end up in one call. Context alone
+  never starts a run.
+
+New memories are taken in arrival order until the next one would not fit the
+input limit or 12 memories. The rest waits for the next run, which is due at
+once. `rag pattern status` shows the policy line with `pending N` (new memories
+not yet read) and, when something blocks, one of these notes:
+
+| Note | Meaning | What to do |
+|---|---|---|
+| `(insufficient_independent_support)` | Not yet 3 independent events | Wait for more memories |
+| `(input_budget_below_floor)` | 3 independent events exist, but they do not fit the input limit together | Raise `max_input_chars` (at most 24,000) and restart the worker |
+| `oversized N` | A memory does not fit the input limit even alone | The same; a memory over 24,000 characters cannot be read |
+| `held for recovery N` | Memories of a run waiting for `rag pattern recover` | See *Results of a run* |
+
+Nothing is sent to the model and nothing is marked as read while a note blocks.
+The context window is finite (the 48 most recently read memories of the current
+enable period): two reports far apart in a long history are not guaranteed to
+meet in one call.
 
 ## Older memories: backfill
 
@@ -167,11 +201,11 @@ from the current versions.
 | `non_conclusion` | `insufficient_independent_support` | Below the floor; no model call |
 | `non_conclusion` | `conflicting_sources`, `insufficient_evidence`, `ambiguous` | The model declined to conclude |
 | `non_conclusion` | `conflicting_support`, `unknown_citation`, `too_many_citations` | The model's suggestion failed validation |
-| `non_conclusion` | `invalid_output` | The answer did not fit the output schema; no retry |
-| `non_conclusion` | `input_budget_exceeded` | The prompt exceeded `max_input_chars`; no model call |
-| `withheld` | `policy_changed`, `source_changed`, `authorization_changed` | Something changed before the pattern was written |
-| `error` | `job_failed` | The worker gave up before the model answered |
-| `error` | `apply_failed` (`recoverable`) | The answer was accepted but could not be written |
+| `non_conclusion` | `invalid_output` | The answer did not fit the output schema; no retry. Its memories count as read and return only as context |
+| `withheld` | `input_budget_exceeded` | `max_input_chars` was lowered after the run was planned; no model call, nothing marked as read |
+| `withheld` | `policy_changed`, `source_changed`, `authorization_changed` | Something changed before the result was recorded; nothing marked as read |
+| `error` | `job_failed` | The worker gave up before the model answered; its memories are read again later |
+| `error` | `apply_failed` (`recoverable`) | The answer was accepted but could not be written; its memories are held for recovery |
 
 When the model provider is unreachable, the run stays `pending` and the worker
 tries again after its normal provider backoff. A run marked `recoverable` kept
@@ -190,9 +224,15 @@ rag pattern disable --domain general --project /work/helpdesk --reason "trial en
 Existing patterns are withheld at once, never deleted, and no new run starts.
 Setting `[synthesis] enabled = false` stops all scheduling, model calls and new
 backfills in every scope; existing patterns stay readable while their policy is
-enabled. Code rollback to 0.6.17 needs no database change, but disable every
-policy first: a 0.6.17 worker cannot process queued pattern jobs. The operator
-steps are in [PB-065-OPS](playbooks/system/rag-065-pattern-synthesis.md).
+enabled.
+
+Returning to 0.6.17 depends on whether a pattern exists. Without any pattern,
+only the code goes back. Once a pattern exists, running 0.6.17 against the store
+is not supported, even with every policy disabled: its `memory_get`, evidence
+and graph lookups by id would show disabled or stale patterns. The way back is
+then the verified backup taken before the upgrade, which loses every later
+write. The operator steps are in
+[PB-065-OPS](playbooks/system/rag-065-pattern-synthesis.md), part D.
 
 ## Limits
 
@@ -203,11 +243,13 @@ steps are in [PB-065-OPS](playbooks/system/rag-065-pattern-synthesis.md).
   pattern as a hypothesis until reviewed.
 - Measured only with scripted model answers on a synthetic corpus; no real-model
   quality figure exists yet.
-- A 0.6.17 client asking a 0.6.18 store for a pattern by its id with
-  `memory_get` receives the body, because the old code lacks the new read guard.
-  Its search stays guarded.
-- A save that commits more than 60 seconds after it started can be skipped by the
-  forward cursor. A backfill over that window picks it up.
+- 0.6.17 code with direct database access must not run once a pattern exists
+  (see *Switch it off*). The B0 check covers the hosts you list and the clients
+  connected at that moment; it cannot discover a host you did not name.
+- Recurrence is found within one run's memories: new ones plus the finite
+  recent context. Comparison of every pair in a large history is not promised.
+- A memory larger than the maximum input limit is reported as `oversized` and is
+  never analysed.
 
 ## Terms
 

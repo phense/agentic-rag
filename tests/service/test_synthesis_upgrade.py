@@ -7,6 +7,11 @@ grant, owner and sequence preserved, no synthesis/provider activity from the
 upgrade or ordinary work, actual old-code reads and writes on the new schema,
 new central startup and old central reads, accepted-job recovery across a
 verified backup/restore, and the explicit pre-upgrade restoration limit.
+
+Once a pattern exists, a code-only return to 0.6.17 is a FORBIDDEN boundary: the
+test shows that a disabled pattern stays withheld on 0.6.18 but is exposed by
+the old direct get, evidence and history paths. The supported rollback is the
+verified pre-upgrade dump restored for retained 0.6.17 code (step 9).
 """
 import json
 import os
@@ -104,6 +109,13 @@ if len(sys.argv) > 2:
                              evidence=[{'namespace': 'session:old', 'source_id': 'old-1', 'role': 'user',
                                         'quote': 'Old writer body after upgrade', 'complete': True}])
         out['written'] = r.doc_id
+if 'pattern' in ids:  # the old direct evidence and history paths have no pattern guard
+    from agentic_rag import evidence_contract
+    with db.connect(cfg, role='reader') as conn:
+        ev = evidence_contract.inspect(conn, ids['pattern'])
+        out['evidence_pattern'] = {'kind': ev['claim']['kind'], 'sources': len(ev['sources']['items'])}
+        out['history_pattern'] = sorted(evidence_contract.history(conn, ids['pattern']))
+        conn.rollback()
 print(json.dumps(out, default=str))
 '''
 
@@ -137,6 +149,7 @@ def synthesis_counts(cfg):
     with db.connect(cfg) as conn:
         row = conn.execute("""SELECT (SELECT count(*) FROM synthesis_policies) policies,
             (SELECT count(*) FROM synthesis_backfills) backfills, (SELECT count(*) FROM synthesis_runs) runs,
+            (SELECT count(*) FROM synthesis_processed) processed,
             (SELECT count(*) FROM synthesis_patterns) patterns, (SELECT count(*) FROM synthesis_dependencies) deps,
             (SELECT count(*) FROM mining_queue WHERE kind='synthesis') jobs,
             (SELECT count(*) FROM audit_log WHERE op LIKE 'synthesis%%') audits""").fetchone()
@@ -148,7 +161,6 @@ def test_populated_0_6_17_upgrade_retry_old_code_recovery_and_restore_limits(tmp
     from agentic_rag import synthesis
     monkeypatch.setattr(store, 'try_embed_texts', lambda *a, **k: None)
     monkeypatch.setattr('agentic_rag.query_cache.model_digest', lambda cfg: 'a' * 64)
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     report = {'source_version': '0.6.17', 'source_commit': SOURCE, 'source_schema': 29, 'target_schema': 30}
     forbidden = fx.ForbiddenProvider()
     fx.ForbiddenProvider.calls = 0
@@ -267,14 +279,30 @@ def test_populated_0_6_17_upgrade_retry_old_code_recovery_and_restore_limits(tmp
             with db.connect(target) as conn:
                 assert conn.execute('SELECT rag_pattern_current(%s) ok', (pattern,)).fetchone()['ok']
                 assert contract.document_version(conn, ids['k1-a']) == run_versions(cfg, ids['k1-a'])
-        # 8. Actual old code after patterns exist: ordinary search stays guarded by the
-        #    SQL predicate; old direct get still returns the pattern body (documented limit).
+        # 8. Patterns exist: code-only rollback to 0.6.17 is forbidden. The operator's
+        #    disable (new code) withholds the pattern on 0.6.18, but actual 0.6.17 code
+        #    still serves it through direct get, evidence and history; only ordinary
+        #    search stays guarded by the SQL predicate.
+        with db.connect(cfg) as conn:
+            store.set_synthesis_policy(conn, on, domain='general', enabled=False, reason='rollback attempt',
+                                       project='/synthetic/team-a')
+        with db.connect(cfg, role='reader') as conn:
+            assert synthesis.withheld(conn, pattern) and store.get_document(conn, pattern) is None
+            with pytest.raises(contract.EvidenceUnavailable):
+                contract.inspect(conn, pattern)
+            conn.rollback()
         old_view = run_old(old, cfg, tmp_path, OLD_CLIENT, json.dumps({**ids, 'pattern': pattern}))
         assert pattern not in old_view['VPN reconnect DNS suffix']
         assert old_view['get']['pattern'].startswith('Inferred pattern suggestion')
         assert old_view['claims']['pattern']['kind'] == 'inference'
-        report['old_code_get_returns_pattern_body'] = True
-        # 9. Pre-upgrade restoration: schema029, old reads equal, every 0.6.18 write lost.
+        assert old_view['evidence_pattern'] == {'kind': 'inference', 'sources': 4}
+        assert old_view['history_pattern']
+        report['code_only_rollback_after_patterns'] = {
+            'verdict': 'forbidden', 'new_code_withholds_disabled_pattern': True,
+            'old_get_exposes_body': True, 'old_evidence_exposes_pattern': True, 'old_history_answers': True,
+            'old_search_guarded': True}
+        # 9. Supported rollback: the verified pre-upgrade dump restored for retained 0.6.17
+        #    code. Schema029, old reads equal, every 0.6.18 write (patterns included) lost.
         manifest = changed['manifest']
         upgrade.check_dump(tmp_path / 'upgrade.dump', manifest)
         with isolated_database(cfg, initialize=False) as target:

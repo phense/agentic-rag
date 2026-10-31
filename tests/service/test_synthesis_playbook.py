@@ -3,16 +3,22 @@ and the central worker loop on an owned, automatically dropped schema030 store.
 
 The provider boundary is the frozen scripted fixture; the outage is a synthetic
 LLMUnavailableError. Parts B, C and the post-upgrade restore of part D are
-covered here; part A (populated 0.6.17 upgrade) is rehearsed by
-test_synthesis_upgrade.py::test_operator_cli_and_central_service_on_populated_0_6_17.
+covered here, C4 both through the local owner CLI and through a writer's central
+client CLI against the REST API and the central worker. The B0 reader gate is
+rehearsed with its exact snippets on a deliberately stale process. Part A
+(populated 0.6.17 upgrade) and the forbidden code-only rollback after patterns are
+rehearsed by test_synthesis_upgrade.py.
 """
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import textwrap
 import threading
+import time
+import uuid
 
 from agentic_rag import backup, cli, db, llm, store, synthesis, worker
 from agentic_rag.benchmark import pattern_synthesis as fx
@@ -35,7 +41,54 @@ COMMANDS = [
     'rag pattern recover <run_id> --reason',
     'rag pattern disable --domain DOMAIN --project PROJECT --reason',
     'rag service --config CONFIG verified-backup --source-version 0.6.17 --output DIR/current.dump',
+    "<<'PYFRESH'", "<<'PYGATE'", '-- PB065-CLIENTS',
 ]
+WRITER_KEY = 'pb.synthetic-playbook-central-writer-secret'
+
+
+def snippet(name):
+    """The exact heredoc body named `name` from the playbook."""
+    body = re.split(rf'\n[ \t]*{name}\n', PLAYBOOK.read_text().split(f"<<'{name}'\n", 1)[1], maxsplit=1)[0]
+    return textwrap.dedent(body)
+
+
+def gate_rehearsal(tmp_path):
+    """B0: a process older than the installation is reported and blocks; after its
+    restart the gate passes. The fresh-import check names the installed version."""
+    expected = next(line.split('"')[1] for line in (ROOT / 'pyproject.toml').read_text().splitlines()
+                    if line.startswith('version = '))
+    fresh = subprocess.run([sys.executable, '-I', '-c', snippet('PYFRESH')], text=True, capture_output=True, timeout=60)
+    assert fresh.returncode == 0, fresh.stderr
+    version, metadata = fresh.stdout.split()
+    assert version == expected and Path(metadata).name == 'METADATA' and Path(metadata).exists()
+    token = 'pb065-gate-' + uuid.uuid4().hex
+    reader = [sys.executable, '-c', f'import agentic_rag.store, time; time.sleep(120)  # {token}']
+    stale = subprocess.Popen(reader)
+    try:
+        time.sleep(1.2)
+        marker = tmp_path / 'installed-METADATA'
+        marker.write_text('installation marker for the rehearsal')
+        blocked = subprocess.run([sys.executable, '-c', snippet('PYGATE'), str(marker), token],
+                                 text=True, capture_output=True, timeout=60)
+        assert blocked.returncode == 1 and blocked.stdout.split()[0] == str(stale.pid), blocked
+    finally:
+        stale.kill()
+        stale.wait()
+    time.sleep(1.2)
+    restarted = subprocess.Popen(reader)
+    try:
+        passed = subprocess.run([sys.executable, '-c', snippet('PYGATE'), str(marker), token],
+                                text=True, capture_output=True, timeout=60)
+        assert passed.returncode == 0 and passed.stdout.strip() == 'no_stale_processes', passed
+    finally:
+        restarted.kill()
+        restarted.wait()
+    return {'fresh_version': version, 'stale_process_blocked': True, 'restarted_process_passes': True}
+
+
+def clients_sql():
+    block = re.split(r'\n[ \t]*-- PB065-CLIENTS\n', PLAYBOOK.read_text(), maxsplit=1)[1].split('```', 1)[0]
+    return textwrap.dedent(block)
 
 
 def integrity_sql():
@@ -52,7 +105,6 @@ def integrity(cfg):
 def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsys):
     text = PLAYBOOK.read_text()
     assert [c for c in COMMANDS if c not in text] == []
-    monkeypatch.setattr(synthesis, 'SETTLE_SECONDS', 0)
     monkeypatch.setattr(store, 'try_embed_texts', lambda *a, **k: None)
     report = {}
     with isolated_database(Config(ollama_url='http://127.0.0.1:1')) as owned:
@@ -77,7 +129,7 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
             assert code == 0, err
             return json.loads(out)
 
-        def tick():
+        def tick(worker_cfg=None):
             """One iteration of the central `rag service worker` loop."""
             stop, real = threading.Event(), worker.drain
             def once(conn, cfg, **kwargs):
@@ -87,7 +139,7 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
                     stop.set()
             monkeypatch.setattr(worker, 'drain', once)
             try:
-                assert runner.run(cfg, stop=stop, interval=.01) == 0
+                assert runner.run(worker_cfg or cfg, stop=stop, interval=.01) == 0
             finally:
                 monkeypatch.setattr(worker, 'drain', real)
 
@@ -96,6 +148,14 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
             conn.commit()
         k1, k2 = fx.project('K1'), fx.project('K2')
         scope1 = ['--domain', 'general', '--project', k1]
+
+        # B0: the all-reader gate (fresh import, stale-process check, direct clients).
+        report['reader_gate'] = gate_rehearsal(tmp_path)
+        with db.connect(cfg, role='owner') as conn:
+            clients = conn.execute(clients_sql()).fetchall()
+            conn.commit()
+        assert all(set(row) == {'pid', 'usename', 'client_addr', 'application_name', 'backend_start'} for row in clients)
+        report['reader_gate']['direct_clients_listed'] = len(clients)
 
         # A8: an upgraded store has no policy and no run.
         code, out, _ = rag(on, 'pattern', 'status', '--json')
@@ -168,10 +228,66 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
         assert status(k2)['runs'][0]['state'] == 'applied' and len(second.calls) == 1
         report['recovered_provider_calls'] = len(second.calls)
 
+        # C4 (central): a writer's client CLI recovers through the API; the central
+        # worker, resolving the writer's credential, applies without a provider call.
+        from agentic_rag.service.api import create_app
+        from agentic_rag.service.auth import hash_key
+        from agentic_rag.service import client as remote
+        from starlette.testclient import TestClient
+        i1 = fx.project('I1')
+        scope3 = ['--domain', 'general', '--project', i1]
+        principals = tmp_path / 'principals.toml'
+        grant = f'read_domains = ["general"]\nwrite_domains = ["general"]\nread_projects = ["{i1}"]\nwrite_projects = ["{i1}"]\n'
+        principals.write_text(f'version = 1\n[users.operator]\n{grant}[machines.writer]\nuser = "operator"\n{grant}'
+                              f'keys = {{pb = "{hash_key(WRITER_KEY)}"}}\n')
+        principals.chmod(0o600)
+        server = config('server.toml', True)
+        server.write_text(server.read_text() + f'\n[service]\nmode = "server"\nauth_file = "{principals}"\n')
+        server_cfg = load_config(server)
+        token = tmp_path / 'writer.token'
+        token.write_text(WRITER_KEY)
+        token.chmod(0o600)
+        client = tmp_path / 'client.toml'
+        client.write_text(f'[db]\nname = "no_local_database_access"\n\n[service]\nmode = "client"\n'
+                          f'url = "https://testserver"\ntoken_file = "{token}"\nspool_dir = "{tmp_path / "spool"}"\n')
+        original_client = remote.RemoteClient
+        with TestClient(create_app(server_cfg, principals, allowed_hosts=['testserver']),
+                        base_url='https://testserver') as sender:
+            monkeypatch.setattr(remote, 'RemoteClient', lambda c: original_client(c, sender=sender))
+            code, out, err = rag(client, 'pattern', 'enable', *scope3, '--reason', 'central rehearsal')
+            assert code == 0, err
+            with db.connect(cfg) as conn:
+                fx.ingest(conn, cfg, {'I1'})
+            third = fx.ScriptedProvider('I1')
+            monkeypatch.setattr(llm, 'run_structured', third)
+            monkeypatch.setattr(synthesis, '_register', lambda *a, **k: (_ for _ in ()).throw(RuntimeError('disk full')))
+            tick(server_cfg)
+            with db.connect(cfg, role='owner') as conn:
+                conn.execute("UPDATE mining_queue SET status='error',finished_at=now() WHERE kind='synthesis'"
+                             " AND status IN ('pending','processing')")
+                conn.commit()
+            tick(server_cfg)
+            code, out, err = rag(client, 'pattern', 'status', *scope3, '--json')
+            assert code == 0, err
+            parked = json.loads(out)['runs'][0]
+            assert (parked['state'], parked['code'], parked['recoverable']) == ('error', 'apply_failed', True)
+            assert json.loads(out)['policies'][0]['forward']['held_for_recovery'] == parked['new_memories']
+            monkeypatch.setattr(synthesis, '_register', real_register)
+            code, out, err = rag(client, 'pattern', 'recover', parked['id'], '--reason', 'central storage fixed')
+            assert code == 0 and f"run {parked['id']} re-queued (accepted)" in out, err
+            tick(server_cfg)
+            code, out, err = rag(client, 'pattern', 'status', *scope3, '--json')
+            assert json.loads(out)['runs'][0]['state'] == 'applied' and len(third.calls) == 1, err
+            code, out, err = rag(client, 'pattern', 'list', *scope3, '--json')
+            assert code == 0 and len(json.loads(out)['items']) == 1, err
+        monkeypatch.setattr(remote, 'RemoteClient', original_client)
+        report['central_recovered_provider_calls'] = len(third.calls)
+
         # Integrity check after C4.
         clean = integrity(cfg)
-        assert clean == {'patterns': 2, 'dependency_mismatch': 0, 'pattern_without_audit': 0,
-                         'applied_without_pattern': 0, 'pattern_cites_pattern': 0, 'open_runs': 0}, clean
+        assert clean == {'patterns': 3, 'dependency_mismatch': 0, 'pattern_without_audit': 0,
+                         'applied_without_pattern': 0, 'pattern_cites_pattern': 0,
+                         'processed_without_terminal_run': 0, 'open_runs_of_disabled_policies': 0}, clean
         report['integrity'] = clean
 
         # C1: backfill is explicit and bounded. An empty window closes without a run;
@@ -206,12 +322,26 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
                    '--end', boundary.isoformat(), '--reason', 'paused')[0] == 1
         assert rag(off, 'pattern', 'show', slug)[0] == 0
 
+        # Integrity after a disable is checked after the next tick: a run that was open
+        # when its policy was disabled is closed (withheld) by that tick.
+        c1, scope4 = fx.project('C1'), ['--domain', 'general', '--project', fx.project('C1')]
+        assert rag(on, 'pattern', 'enable', *scope4, '--reason', 'rehearsal')[0] == 0
+        with db.connect(cfg) as conn:
+            fx.ingest(conn, cfg, {'C1'})
+            assert synthesis.schedule(conn, cfg)['scheduled'] == 1
+        assert rag(on, 'pattern', 'disable', *scope4, '--reason', 'pause before the tick')[0] == 0
+        assert integrity(cfg)['open_runs_of_disabled_policies'] == 1
+        tick()
+        assert integrity(cfg) == clean and status(c1)['runs'][0]['code'] == 'policy_disabled'
+        assert fx.ForbiddenProvider.calls == 0
+        report['integrity_after_disable_tick'] = 'clean'
+
         # C5/C7: disable withholds without deleting; enabling again shows it.
         code, out, _ = rag(on, 'pattern', 'disable', *scope1, '--reason', 'pause')
         assert code == 0 and 'disabled (v2)' in out
         assert 'VPN reconnect' not in rag(on, 'pattern', 'list', *scope1)[1]
         assert rag(on, 'pattern', 'show', slug)[0] == 1
-        assert integrity(cfg)['patterns'] == 2
+        assert integrity(cfg)['patterns'] == 3
         assert rag(on, 'pattern', 'enable', *scope1, '--reason', 'resume')[0] == 0
         assert rag(on, 'pattern', 'show', slug)[0] == 0
 
@@ -241,7 +371,7 @@ def test_pb065_pattern_operations_on_an_owned_store(tmp_path, monkeypatch, capsy
             assert code == 0, err
             verified = check(1, manifest, inventory)
             assert verified.returncode == 0 and verified.stdout.strip() == 'restore_manifest_verified', verified.stderr
-            assert integrity(load_config(restored)) == {**clean, 'open_runs': integrity(cfg)['open_runs']}
+            assert integrity(load_config(restored)) == clean
             code, out, _ = rag(restored, 'pattern', 'show', slug)
             assert code == 0 and 'A reviewable hypothesis' in out
         report['restore'] = 'restore_manifest_verified'

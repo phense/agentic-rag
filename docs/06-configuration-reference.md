@@ -295,7 +295,7 @@ does nothing: an operator must also enable a concrete domain and project with
 | `provider` | `synthesis_provider` | `""` | `claude`, `codex` or `openai-compatible`; empty reuses `[llm] provider`. |
 | `model` | `synthesis_model` | `""` | At most 200 characters; empty reuses `[llm] model`. |
 | `timeout_seconds` | `synthesis_timeout_seconds` | `30` | Deadline of the one provider call per run, 1–300. |
-| `max_input_chars` | `synthesis_max_input_chars` | `12000` | Prompt budget, 1000–24000. A larger prompt ends the run as `input_budget_exceeded` without a call. |
+| `max_input_chars` | `synthesis_max_input_chars` | `12000` | Complete provider input (prompt plus system text), 1000–24000; the effective limit is the smaller of this and `[llm] max_input_chars`. Runs are fitted to it before any call; memories that do not fit stay pending (`input_budget_below_floor`, `oversized`). Raise it and restart the worker to analyse them. |
 | `max_output_tokens` | `synthesis_max_output_tokens` | `1024` | Provider output budget, 128–4096. |
 | `max_runs_per_tick` | `synthesis_max_runs_per_tick` | `2` | New runs the worker schedules per tick, 1–10. |
 

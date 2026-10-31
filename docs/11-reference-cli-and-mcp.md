@@ -305,7 +305,7 @@ output contract: [pattern-v1](specs/6-7-pattern-synthesis/contracts/pattern-v1.m
 | Tool | Level | Signature | What it does |
 |---|---|---|---|
 | `memory_pattern_preview` | read | `(domain, project=None, scope=None, start=None, end=None)` | Candidate memories, independent events, exclusions and budgets. No provider call, no write, no quotes. |
-| `memory_pattern_status` | read | `(domain=None, project=None, scope=None, limit=20)` | Visible policies, open backfills and newest runs with state, code, counts and provider calls. |
+| `memory_pattern_status` | read | `(domain=None, project=None, scope=None, limit=20)` | Visible policies with their forward view (`pending_memories`, optional `waiting`, `blocked.oversized`, `held_for_recovery`, `more`), open backfills and newest runs with state, code, new and context memory counts and provider calls. |
 | `memory_patterns` | read | `(domain, project=None, scope=None, limit=20, cursor=None)` | Current patterns of one scope; withheld ones are omitted without a count. |
 | `memory_pattern` | read | `(id_or_slug)` | One current pattern with exact citations; drill down with `memory_evidence(original.id, source_key)`. Otherwise `evidence_unavailable`. |
 | `memory_pattern_policy` | write | `(domain, enabled, reason, project=None, scope=None, interval_seconds=86400)` | Audited opt-in/opt-out of one scope. |
