@@ -4,11 +4,11 @@ title: Temporal search
 type: reference
 doc_id: standalone
 readers: [operators and agent users of rag search and memory_search]
-status: drafted
+status: reviewed
 version: 0.6.17 (schema029)
 depends_on: [fact-validity.md, claim-evidence.md]
 assets: []
-last_reviewed: unreviewed
+last_reviewed: 2026-10-31
 summary: How rag search and memory_search interpret yesterday, last week, next month and explicit dates, which event time they use, and how to enable, check and roll back the feature.
 ---
 
@@ -81,7 +81,7 @@ under your domain, project scope, access rights, trust and validity rules.
 3. Everything else is `unknown`. Document creation, update or import time is never
    used, so a note imported today about last week's outage matches *last week*.
 
-An assistant repetition or a partial quote dated yesterday does not make a claim
+An unreviewed assistant repetition or unreviewed partial quote dated yesterday does not make a claim
 match *yesterday*, even if another source makes the claim eligible. A known source
 date says when something was stated; it does not verify the statement.
 
@@ -127,7 +127,7 @@ another period cannot jump ahead of matching hits or slip through a filter.
 |---|---|---|
 | Ambiguous, unsupported or missing period | Original order, warning `temporal expression not applied: …` | Error `temporal_filter_requires_interval` (CLI exit 1, REST 400 `invalid_arguments`) |
 | Invalid `temporal`, `reference` or `timezone` | Error `invalid_temporal_mode`, `invalid_reference` or `invalid_timezone` | Same |
-| Event-time lookup fails in the database | Original order, warning `temporal metadata unavailable — original order kept` | Error `temporal_metadata_unavailable` (CLI exit 3); never an unfiltered result |
+| Event-time lookup fails in the database | Original order, warning `temporal metadata unavailable — original order kept` | Error `temporal_metadata_unavailable` (CLI exit 3), REST HTTP 400 `operation_failed`, or MCP error; no results |
 
 A failed lookup is rolled back to a savepoint, so the caller's transaction stays
 usable.
@@ -138,11 +138,23 @@ Temporal search reorders or filters at most the 150 retrieval candidates and 20
 graph nodes the existing search already selected. `filter` guarantees the period
 on every returned hit; it does not find older matching documents that were never
 candidates, and it is not a historical snapshot. The grammar is fixed and English
-or German only. No model, provider or network call is made. Measured on the
-synthetic benchmark, a search with an applied period took a median of about 28 ms
-longer than without (p95 about 55 ms); searches without a period showed no
-measurable difference. See the
+or German only. Date interpretation makes no model, provider or network call;
+normal retrieval still uses its configured embedding/reranking providers. Measured on the
+synthetic benchmark at `6291685`, the paired median overhead for period
+queries was +18.3 ms (development) and +24.4 ms (held-out); p95 was +40.1
+and +39.7 ms. No-period controls had paired median differences of +0.2
+and +0.0 ms on that host. See the
 [benchmark](benchmarks/2026-10-31-temporal-query/README.md) for the full numbers.
+
+Known parser limits are tracked in [Issue75](https://github.com/phense/agentic-rag/issues/75).
+Version-like strings such as `0.6.16`, English modal/name fragments such as
+`may 3`/`August 2`, and German adjective `aktuellen` can make a real period
+look ambiguous. Soft preference is then skipped and a hard filter is rejected.
+Some synonyms are not recognized, very long no-period queries can receive an
+extra diagnostic, and extreme reference years can produce a generic error.
+`temporal=""` currently follows `auto` through MCP/REST. These limits do not
+widen access or create guessed event dates; use explicit ISO dates and inspect
+the returned interpretation. Default configuration keeps interpretation disabled.
 
 ## Configuration
 

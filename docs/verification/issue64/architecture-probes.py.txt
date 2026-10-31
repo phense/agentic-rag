@@ -1,0 +1,462 @@
+"""RAG-064 independent architecture-derived integration probes (reviewer-owned).
+
+Not a pytest module: it never imports tests/ or conftest and never touches
+agentic_rag_test. It creates and drops ONE own isolated rag_bench_* database on
+the local PostgreSQL selected by PGPORT, writes only through audited gateways,
+and drives the real collaborating components:
+
+  authenticated REST /v1/tools/memory_search and server MCP /mcp/ro/
+  -> service engine (validate_call, request_scope, RLS principal)
+  -> mcp_server.memory_search -> search.search -> temporal.interpret
+  -> existing scoped eligible retrieval -> _TemporalStage canonical metadata
+  -> graph expansion -> envelope.
+
+Provider boundaries only are synthetic: embedding returns None (lexical only),
+reranker URL points to a closed local port. No model, provider or network call.
+
+SUCCESS (P-S): DST week 'letzte Woche' in Europe/Berlin, canonical source vs
+assertion event time, assistant/refuted/withdrawn/foreign-domain/foreign-project
+and future-assertion exclusion, future-plan match, prefer/filter/graph/k limits,
+REST vs server MCP parity, feature-off/no-intent parity, original row hashes.
+
+RECOVERY (P-R): real PostgreSQL privilege failure injected only into the
+temporal metadata read (column privilege on knowledge_sources.source_at revoked
+from rag_reader in the own database), soft degradation, hard fail-closed,
+savepoint keeps an in-process caller transaction usable, operator restores the
+original ACL, identical success results return, row hashes unchanged.
+
+OBSERVATIONS (P-X): reproductions of review concerns; reported, not gating.
+
+Usage (repository root):
+  env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 \
+    TMPDIR=/dev/shm/rag64-20261031-tests PYTHONDONTWRITEBYTECODE=1 \
+    .venv/bin/python .engineering-method/runs/RAG-064/agent-reports/independent-architect-probes.py <log.json>
+Exit 0 only when every success and recovery check passed; 1 otherwise.
+"""
+from dataclasses import replace
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import time
+import uuid
+
+sys.path.insert(0, os.getcwd())
+from starlette.testclient import TestClient  # noqa: E402
+
+from agentic_rag import db, search, store, temporal  # noqa: E402
+from agentic_rag.benchmark.database import isolated_database  # noqa: E402
+from agentic_rag.benchmark.rerank_evaluation import _snapshot  # noqa: E402
+from agentic_rag.config import Config  # noqa: E402
+from agentic_rag.domains import add_domain, seed_defaults  # noqa: E402
+from agentic_rag.evidence import sources  # noqa: E402
+from agentic_rag.service.api import create_app  # noqa: E402
+from agentic_rag.service.auth import hash_key  # noqa: E402
+from agentic_rag.store import EdgeSpec  # noqa: E402
+
+OPERATIONAL = {'request_traces', 'service_requests', 'service_foreground', 'dashboard_presence'}
+KEY = 'probe.synthetic-independent-review-machine-secret'
+REF = '2026-10-26T09:00:00+01:00'      # Monday after the 2026-10-25 DST end
+ZONE = 'Europe/Berlin'
+LAST_WEEK = ('2026-10-18T22:00:00+00:00', '2026-10-25T23:00:00+00:00')  # 169-hour week
+NEXT_MONTH = ('2026-10-31T23:00:00+00:00', '2026-11-30T23:00:00+00:00')
+TEXT = 'Core router firmware incident {} recorded for the synthetic probe.'
+PLAIN = 'core router firmware incident'
+Q_LAST = PLAIN + ' letzte Woche'
+Q_NEXT = PLAIN + ' nächsten Monat'
+BASE = {'domain': 'alpha', 'project': '/projects/a', 'k': 10, 'context': 'off', 'rerank': 'off'}
+MARKER = 'rag-temporal-metadata'
+
+checks, observations = [], []
+
+
+def check(group, name, condition, detail=None):
+    checks.append({'group': group, 'check': name, 'ok': bool(condition), 'detail': detail})
+    print(('PASS ' if condition else 'FAIL ') + group + ' ' + name + ('' if condition else f'  {detail}'))
+
+
+def observe(name, detail):
+    observations.append({'observation': name, 'detail': detail})
+    print('OBS  ' + name + '  ' + json.dumps(detail, default=str)[:300])
+
+
+def claim(conn, cfg, key, sources_, *, domain='alpha', project='/projects/a', body=None, edges=None):
+    body = body or TEXT.format(key)
+    return store.save_claim(conn, cfg, title='probe ' + key, body=body, domain=domain, dtype='memory',
+        project=project, claim_kind='stated', edges=edges, actor='cli', evidence=[
+            dict(namespace='synthetic-probe', source_id=f'{key}-src-{i}', role=role, quote=body, timestamp=when,
+                 complete=True) for i, (role, when) in enumerate(sources_)]).doc_id
+
+
+def populate(conn, cfg):
+    seed_defaults(conn)
+    add_domain(conn, 'alpha', 'probe allowed domain', actor='cli')
+    add_domain(conn, 'beta', 'probe foreign domain', actor='cli')
+    conn.commit()
+    k = {}
+    k['neighbour'] = claim(conn, cfg, 'neighbour', [('user', '2026-01-05T10:00:00Z')],
+                           body='Unrelated cabling inventory sheet for the probe.')
+    slug = conn.execute('SELECT slug FROM documents WHERE id=%s', (k['neighbour'],)).fetchone()['slug']
+    # Repeated query terms rank in_start first, so it is a graph seed in every arm.
+    k['in_start'] = claim(conn, cfg, 'in_start', [('user', '2026-10-18T22:00:00Z')],
+                          body=TEXT.format('in_start') + ' Core router firmware incident; core router firmware incident.',
+                          edges=[EdgeSpec('references', slug, 'synthetic probe link', 'high')])
+    k['in_dst'] = claim(conn, cfg, 'in_dst', [('user', '2026-10-25T22:30:00Z')])
+    k['out_end'] = claim(conn, cfg, 'out_end', [('user', '2026-10-25T23:00:00Z')])
+    k['out_before'] = claim(conn, cfg, 'out_before', [('user', '2026-10-18T21:59:59Z')])
+    k['asst_only'] = claim(conn, cfg, 'asst_only', [('user', '2026-09-01T10:00:00Z'), ('assistant', '2026-10-20T10:00:00Z')])
+    k['plan_next'] = claim(conn, cfg, 'plan_next', [('user', '2026-11-12T10:00:00Z')])
+    k['refuted_in'] = claim(conn, cfg, 'refuted_in', [('user', '2026-10-21T10:00:00Z')])
+    store.review_claim(conn, k['refuted_in'], state='refuted', reason='probe refutation')
+    k['withdrawn_in'] = claim(conn, cfg, 'withdrawn_in', [('user', '2026-10-21T11:00:00Z')])
+    key = sources(conn, k['withdrawn_in'])[0]['source_key']
+    store.set_source_state(conn, key, state='removed', reason='probe withdrawal')
+    k['foreign_domain'] = claim(conn, cfg, 'foreign_domain', [('user', '2026-10-21T12:00:00Z')], domain='beta',
+                                project='/projects/b')
+    k['foreign_project'] = claim(conn, cfg, 'foreign_project', [('user', '2026-10-21T13:00:00Z')],
+                                 project='/projects/b')
+    k['legacy'] = store.save_document(conn, cfg, title='probe legacy', body=TEXT.format('legacy'), domain='alpha',
+                                      dtype='memory', project='/projects/a', actor='cli').doc_id
+    for name, when in (('assert_in', '2026-10-21T10:00:00Z'), ('assert_future', '2026-11-10T10:00:00Z')):
+        saved = store.save_assertion(conn, cfg, entity='probe-router-' + name, attribute='firmware incident',
+            value=TEXT.format(name), event_at=when, expires_at=None, relation='assertion', domain='alpha',
+            project='/projects/a', evidence={'namespace': 'synthetic-probe', 'source_id': name + '-src', 'role': 'user',
+                                             'quote': TEXT.format(name), 'event_at': when})
+        if saved.disposition != 'accepted':
+            raise RuntimeError('probe assertion rejected: ' + name)
+        k[name] = saved.doc_id
+    conn.commit()
+    return k
+
+
+def policy(path):
+    path.write_text(f'''version = 1
+[users.carol]
+read_domains = ["alpha"]
+write_domains = []
+read_projects = ["/projects/a"]
+write_projects = []
+[machines.probe]
+user = "carol"
+read_domains = ["alpha"]
+write_domains = []
+read_projects = ["/projects/a"]
+write_projects = []
+keys = {{probe = "{hash_key(KEY)}"}}
+''')
+    path.chmod(0o600)
+    return path
+
+
+HEADERS = {'authorization': 'Bearer ' + KEY, 'x-rag-protocol': '1'}
+
+
+def rest(client, **arguments):
+    r = client.post('/v1/tools/memory_search', headers=HEADERS, json={**BASE, **arguments})
+    return r.status_code, r.json()
+
+
+def rpc(client, **arguments):
+    r = client.post('/mcp/ro/', headers={**HEADERS, 'accept': 'application/json, text/event-stream'},
+                    json={'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                          'params': {'name': 'memory_search', 'arguments': {**BASE, **arguments}}})
+    result = r.json()['result']
+    return r.status_code, result.get('isError'), json.loads(result['content'][0]['text'])
+
+
+def names(body, keys):
+    inverse = {v: n for n, v in keys.items()}
+    seen = []
+    for h in body['results']:
+        n = inverse.get(h['document_id'], '?' + h['document_id'])
+        if n not in seen:
+            seen.append(n)
+    return seen
+
+
+def basis(body, keys):
+    inverse = {v: n for n, v in keys.items()}
+    return {inverse.get(h['document_id']): h['evidence'].get('temporal') for h in body['results']}
+
+
+def without_temporal(body):
+    return [{**h, 'evidence': {k: v for k, v in h['evidence'].items() if k != 'temporal'}} for h in body['results']]
+
+
+class Recorder:
+    def __init__(self, conn):
+        self.conn, self.sql = conn, []
+
+    def __getattr__(self, name):
+        return getattr(self.conn, name)
+
+    def execute(self, query, *args, **kwargs):
+        self.sql.append(str(query))
+        return self.conn.execute(query, *args, **kwargs)
+
+
+def acl(conn):
+    row = conn.execute("SELECT array_agg(a::text ORDER BY a::text) a FROM pg_class, unnest(relacl) a "
+                       "WHERE oid='public.knowledge_sources'::regclass").fetchone()
+    return row['a']
+
+
+def success(client, enabled_client, keys, cfg):
+    g = 'P-S'
+    inside = {'in_start', 'in_dst', 'assert_in'}
+    never = {'refuted_in', 'withdrawn_in', 'foreign_domain', 'foreign_project', 'assert_future'}
+    status, legacy = rest(client, query=PLAIN)
+    check(g, 'legacy REST 200 with exact legacy envelope', status == 200 and set(legacy) == {'results', 'warnings'}, status)
+    lorder = names(legacy, keys)
+    check(g, 'legacy visible set is the eligible scoped set', set(lorder) == {
+        'in_start', 'in_dst', 'out_end', 'out_before', 'asst_only', 'plan_next', 'legacy', 'assert_in'}, lorder)
+    check(g, 'legacy carries no temporal evidence', all('temporal' not in h['evidence'] for h in legacy['results']))
+
+    status, prefer = rest(client, query=Q_LAST, temporal='prefer', reference=REF, timezone=ZONE)
+    porder = names(prefer, keys)
+    t = prefer.get('temporal', {})
+    check(g, 'prefer 200 interval exactly the 169h DST week', status == 200 and t.get('status') == 'interval'
+          and (t['interval']['start'], t['interval']['end']) == LAST_WEEK, t.get('interval'))
+    check(g, 'prefer puts exactly the inside set first', set(porder[:3]) == inside and not inside & set(porder[3:]), porder)
+    check(g, 'prefer keeps eligible outside/unknown behind, nothing new', set(porder) == set(lorder), porder)
+    check(g, 'prefer ties keep legacy relative order (inside, then rest)',
+          porder == [n for n in lorder if n in inside] + [n for n in lorder if n not in inside], (porder, lorder))
+    check(g, 'prefer keeps original scores/snippets/citations of retrieval text',
+          sorted(json.dumps(h, sort_keys=True) for h in without_temporal(prefer)) ==
+          sorted(json.dumps(h, sort_keys=True) for h in legacy['results']))
+    b = basis(prefer, keys)
+    check(g, 'end boundary is exclusive and start inclusive',
+          b['in_start']['match'] == 'inside' and b['out_end']['match'] == 'outside'
+          and b['out_before']['match'] == 'outside' and b['in_dst']['match'] == 'inside', b)
+    check(g, 'assertion uses assertion event time', b['assert_in'] == {
+        'basis': 'assertion_event', 'match': 'inside', 'event_at': '2026-10-21T10:00:00+00:00',
+        'qualifying_events': 1, 'support': []}, b['assert_in'])
+    check(g, 'assistant-only date never qualifies; user date used', b['asst_only']['match'] == 'outside'
+          and b['asst_only']['event_at'] == '2026-09-01T10:00:00+00:00' and b['asst_only']['qualifying_events'] == 1,
+          b['asst_only'])
+    check(g, 'legacy document stays unknown, never import time', b['legacy'] == {
+        'basis': 'unknown', 'match': 'unknown', 'event_at': None, 'qualifying_events': 0, 'support': []}, b['legacy'])
+    # Pre-existing assertion provenance is unchanged legacy output; only the
+    # temporal additions are checked for private source locators.
+    text = json.dumps([t] + [h['evidence'].get('temporal') for h in prefer['results']])
+    check(g, 'no private source locators in temporal additions', 'synthetic-probe' not in text and '-src-' not in text
+          and 'source_key' not in text and 'namespace' not in text and 'quote' not in text)
+    check(g, 'effect counts', t.get('effect', {}).get('matching') == 3 and t['effect']['unknown'] == 1
+          and t['effect']['reordered'] is True and t['limits']['recall'] == 'candidate_limited', t.get('effect'))
+
+    status, flt = rest(client, query=Q_LAST, temporal='filter', reference=REF, timezone=ZONE)
+    check(g, 'filter returns exactly inside set, all match inside', status == 200 and set(names(flt, keys)) == inside
+          and all(h['evidence']['temporal']['match'] == 'inside' for h in flt['results']), names(flt, keys))
+    s2, err, mcp_body = rpc(client, query=Q_LAST, temporal='filter', reference=REF, timezone=ZONE)
+    check(g, 'server MCP /mcp/ro/ body identical to REST', s2 == 200 and not err and mcp_body == flt)
+    for body in (legacy, prefer, flt):
+        check(g, 'never ineligible/foreign/future', not never & set(names(body, keys)), names(body, keys))
+
+    status, nxt = rest(client, query=Q_NEXT, temporal='filter', reference=REF, timezone=ZONE)
+    check(g, 'next month: stored future plan matches, future assertion stays ineligible',
+          status == 200 and names(nxt, keys) == ['plan_next']
+          and (nxt['temporal']['interval']['start'], nxt['temporal']['interval']['end']) == NEXT_MONTH,
+          (status, names(nxt, keys), nxt.get('temporal', {}).get('interval')))
+
+    status, g3 = rest(client, query=Q_LAST, temporal='filter', reference=REF, timezone=ZONE, graph_depth=1, k=3)
+    check(g, 'graph filter k=3: matching hits kept, out-of-period neighbour excluded',
+          status == 200 and set(names(g3, keys)) == inside and g3['temporal']['effect']['graph_checked'] >= 1,
+          (names(g3, keys), g3.get('temporal', {}).get('effect')))
+    status, plain_graph = rest(client, query=PLAIN, graph_depth=1, k=10)
+    status2, gp = rest(client, query=Q_LAST, temporal='prefer', reference=REF, timezone=ZONE, graph_depth=1, k=10)
+    gorder = names(gp, keys)
+    check(g, 'graph reaches neighbour in legacy (precondition)', 'neighbour' in names(plain_graph, keys),
+          names(plain_graph, keys))
+    check(g, 'graph prefer: neighbour cannot precede matching hits', set(gorder[:3]) == inside
+          and ('neighbour' not in gorder or gorder.index('neighbour') >= 3), gorder)
+    status, gk = rest(client, query=Q_LAST, temporal='prefer', reference=REF, timezone=ZONE, graph_depth=1, k=2)
+    check(g, 'graph prefer k=2: only matching hits at the k boundary', status == 200 and len(names(gk, keys)) == 2
+          and set(names(gk, keys)) <= inside, names(gk, keys))
+
+    # Feature-off / no-intent parity on the same database and principal.
+    status, enabled_plain = rest(enabled_client, query=PLAIN)
+    check(g, 'enabled auto, no intent == disabled legacy (exact body)', enabled_plain == legacy)
+    status, off_last = rest(client, query=Q_LAST, temporal='off', reference=REF, timezone=ZONE)
+    status_auto, auto_last = rest(client, query=Q_LAST)
+    check(g, 'explicit off == disabled auto == legacy envelope', off_last == auto_last
+          and set(off_last) == {'results', 'warnings'}, (set(off_last), set(auto_last)))
+    status, enabled_last = rest(enabled_client, query=Q_LAST, reference=REF)
+    check(g, 'enabled auto with period == explicit prefer order', enabled_last.get('temporal', {}).get('mode') == 'prefer'
+          and names(enabled_last, keys) == porder, names(enabled_last, keys))
+
+    # Zero additional metadata SQL for off / no intent on the real reader role.
+    reader = db.connect(cfg, role='reader')
+    try:
+        enabled_cfg = replace(cfg, temporal_enabled=True)
+        local = dict(domain='alpha', project='/projects/a', k=10, context_mode='off', rerank_mode='off')
+        counts = {}
+        for label, c, q, mode in (('enabled-auto-nointent', enabled_cfg, PLAIN, 'auto'),
+                                  ('disabled-auto-period', cfg, Q_LAST, 'auto'),
+                                  ('enabled-off-period', enabled_cfg, Q_LAST, 'off'),
+                                  ('enabled-prefer-period', enabled_cfg, Q_LAST, 'prefer')):
+            rec = Recorder(reader)
+            search.search(rec, c, q, **local, temporal=mode, reference=REF, timezone=ZONE)
+            reader.rollback()
+            counts[label] = sum(MARKER in s for s in rec.sql)
+        check(g, 'no metadata SQL for off/no-intent; exactly one for applied prefer',
+              counts == {'enabled-auto-nointent': 0, 'disabled-auto-period': 0, 'enabled-off-period': 0,
+                         'enabled-prefer-period': 1}, counts)
+    finally:
+        reader.close()
+    return {'legacy': legacy, 'prefer': prefer, 'filter': flt, 'order': porder}
+
+
+def recovery(client, keys, cfg, baseline):
+    g = 'P-R'
+    owner = db.connect(cfg, role='owner')
+    original_acl = acl(owner)
+    owner.rollback()
+    columns = [r['attname'] for r in owner.execute(
+        "SELECT attname FROM pg_attribute WHERE attrelid='public.knowledge_sources'::regclass AND attnum>0 "
+        "AND NOT attisdropped AND attname<>'source_at' ORDER BY attnum").fetchall()]
+    owner.execute('REVOKE SELECT ON public.knowledge_sources FROM rag_reader')
+    owner.execute('GRANT SELECT ({}) ON public.knowledge_sources TO rag_reader'.format(','.join(columns)))
+    owner.commit()
+    reader = db.connect(cfg, role='reader')
+    priv = reader.execute("SELECT has_column_privilege('public.knowledge_sources','source_at','SELECT') p").fetchone()['p']
+    reader.rollback()
+    check(g, 'injection: reader lost only source_at column privilege', priv is False, priv)
+    try:
+        status, legacy = rest(client, query=PLAIN)
+        check(g, 'injection is targeted: legacy REST unchanged', status == 200 and legacy == baseline['legacy'])
+        status, soft = rest(client, query=Q_LAST, temporal='prefer', reference=REF, timezone=ZONE)
+        check(g, 'soft: 200, warning, applied none, metadata_unavailable', status == 200
+              and 'temporal metadata unavailable — original order kept' in soft['warnings']
+              and soft['temporal']['applied'] == 'none' and 'metadata_unavailable' in soft['temporal']['reasons'],
+              (status, soft.get('warnings'), soft.get('temporal', {}).get('reasons')))
+        check(g, 'soft: original eligible order and fields, no temporal evidence',
+              soft['results'] == baseline['legacy']['results'])
+        status, hard = rest(client, query=Q_LAST, temporal='filter', reference=REF, timezone=ZONE)
+        check(g, 'hard: fail closed, no results returned', status >= 400 and 'results' not in hard, (status, hard))
+        r = client.post('/mcp/ro/', headers={**HEADERS, 'accept': 'application/json, text/event-stream'},
+                        json={'jsonrpc': '2.0', 'id': 2, 'method': 'tools/call', 'params': {
+                            'name': 'memory_search', 'arguments': {**BASE, 'query': Q_LAST, 'temporal': 'filter',
+                                                                   'reference': REF, 'timezone': ZONE}}})
+        result = r.json().get('result', {})
+        check(g, 'hard via server MCP: tool error, no hits', bool(result.get('isError'))
+              and 'document_id' not in json.dumps(result), r.text[:200])
+        # In-process caller transaction remains usable after both failures.
+        local = dict(domain='alpha', project='/projects/a', k=10, context_mode='off', rerank_mode='off',
+                     reference=REF, timezone=ZONE)
+        reader.execute('SELECT 1')
+        hits, warnings = search.search(reader, cfg, Q_LAST, **local, temporal='prefer')
+        alive1 = reader.execute('SELECT 1 AS a').fetchone()['a'] == 1
+        raised = None
+        try:
+            search.search(reader, cfg, Q_LAST, **local, temporal='filter')
+        except RuntimeError as exc:
+            raised = str(exc)
+        alive2 = reader.execute('SELECT 1 AS a').fetchone()['a'] == 1
+        state = reader.info.transaction_status.name
+        reader.rollback()
+        check(g, 'in-process: soft returns hits, savepoint keeps transaction usable', bool(hits) and alive1, warnings)
+        check(g, 'in-process: hard RuntimeError, transaction still usable',
+              raised is not None and raised.startswith('temporal_metadata_unavailable') and alive2, (raised, state))
+    finally:
+        owner.execute('REVOKE ALL ON public.knowledge_sources FROM rag_reader')
+        owner.execute('GRANT SELECT ON public.knowledge_sources TO rag_reader')
+        owner.commit()
+        restored = acl(owner)
+        owner.rollback()
+        owner.close()
+        reader.close()
+    check(g, 'operator recovery restores the original ACL exactly', restored == original_acl, (original_acl, restored))
+    status, prefer = rest(client, query=Q_LAST, temporal='prefer', reference=REF, timezone=ZONE)
+    check(g, 'after recovery prefer == pre-failure success body', status == 200 and prefer == baseline['prefer'])
+    status, flt = rest(client, query=Q_LAST, temporal='filter', reference=REF, timezone=ZONE)
+    check(g, 'after recovery filter == pre-failure success body', status == 200 and flt == baseline['filter'])
+
+
+def concerns(client, cfg, keys):
+    # X1: reference/zone overflow is input validation, not an internal failure.
+    for ref in ('9999-12-31T23:30:00+00:00', '0001-01-01T00:30:00+01:00'):
+        try:
+            temporal.interpret('gestern', reference=ref, timezone=ZONE)
+            outcome = 'ok'
+        except Exception as exc:  # noqa: BLE001
+            outcome = type(exc).__name__ + ': ' + str(exc)[:80]
+        status, body = rest(client, query=PLAIN + ' gestern', temporal='prefer', reference=ref, timezone=ZONE)
+        observe('X1 extreme reference ' + ref, {'interpret': outcome, 'rest_status': status, 'rest_body': body})
+    # X2/X3: enabled auto, no real temporal intent, legacy envelope changes.
+    reader = db.connect(cfg, role='reader')
+    try:
+        enabled = replace(cfg, temporal_enabled=True)
+        local = dict(domain='alpha', project='/projects/a', k=10, context_mode='off', rerank_mode='off')
+        for label, q in (('X2 long no-intent query (>1000 chars)', PLAIN + ' ' + 'firmware ' * 120),
+                         ('X3 modal may + number', PLAIN + ' may 3 retries'),
+                         ('X3b German month name as surname', PLAIN + ' August 2 Bericht')):
+            off = search.search(reader, cfg, q, **local, temporal='auto')
+            reader.rollback()
+            diag = {}
+            on = search.search(reader, enabled, q, **local, temporal='auto', diagnostics=diag)
+            reader.rollback()
+            observe(label, {'len': len(q), 'off_warnings': off[1], 'on_warnings': on[1],
+                            'same_hits': [h.chunk_id for h in off[0]] == [h.chunk_id for h in on[0]],
+                            'on_status': diag.get('temporal', {}).get('status'),
+                            'on_reasons': diag.get('temporal', {}).get('reasons')})
+    finally:
+        reader.close()
+    # X4: empty temporal string is coerced to auto by the MCP layer.
+    status, body = rest(client, query=Q_LAST, temporal='')
+    observe('X4 temporal="" via REST', {'status': status, 'keys': sorted(body)})
+    # X5: temporal-looking forms silently treated as no intent.
+    for q in ('vergangene Woche', 'previous week', 'kommenden Monat', 'im Oktober 2026', 'past week'):
+        i = temporal.interpret(PLAIN + ' ' + q, reference=REF, timezone=ZONE)
+        observe('X5 ' + q, {'status': i.status, 'reasons': i.reasons})
+
+
+def main():
+    log = Path(sys.argv[1]) if len(sys.argv) > 1 else None
+    started = time.time()
+    base = Config(ollama_url='http://127.0.0.1:1', rerank_url='http://127.0.0.1:1')
+    store.try_embed_texts = search.try_embed_texts = lambda *a: None  # synthetic provider boundary, disclosed
+    work = Path(tempfile.mkdtemp(prefix='rag64-probe-', dir=os.environ.get('TMPDIR', '/dev/shm')))
+    database = None
+    with isolated_database(base) as cfg:
+        database = cfg.db_name
+        with db.connect(cfg) as conn:
+            keys = populate(conn, cfg)
+            before = _snapshot(conn)
+            conn.rollback()
+        auth = policy(work / 'principals.toml')
+        server = replace(cfg, service_storage_path=work / 'storage')
+        enabled = replace(server, temporal_enabled=True, temporal_timezone=ZONE)
+        with TestClient(create_app(server, auth, allowed_hosts=['testserver']), base_url='https://testserver') as client, \
+                TestClient(create_app(enabled, auth, allowed_hosts=['testserver']),
+                           base_url='https://testserver') as enabled_client:
+            baseline = success(client, enabled_client, keys, cfg)
+            with db.connect(cfg) as conn:
+                mid = _snapshot(conn)
+                conn.rollback()
+            recovery(client, keys, cfg, baseline)
+            concerns(client, cfg, keys)
+        with db.connect(cfg) as conn:
+            after = _snapshot(conn)
+            conn.rollback()
+        stable = lambda s: {n: d for n, d in s.items() if n not in OPERATIONAL}  # noqa: E731
+        check('P-S', 'original row hashes unchanged by success reads', stable(mid) == stable(before),
+              sorted(n for n in stable(before) if stable(before)[n] != stable(mid).get(n)))
+        check('P-R', 'original row hashes unchanged by failure and recovery', stable(after) == stable(before),
+              sorted(n for n in stable(before) if stable(before)[n] != stable(after).get(n)))
+        tables = len(stable(before))
+    failed = [c for c in checks if not c['ok']]
+    summary = {'work': 'RAG-064', 'probe': 'independent-architect', 'database': database, 'dropped': True,
+               'compared_tables': tables, 'checks': len(checks), 'failed': len(failed),
+               'success_checks': sum(c['group'] == 'P-S' for c in checks),
+               'recovery_checks': sum(c['group'] == 'P-R' for c in checks),
+               'elapsed_seconds': round(time.time() - started, 1), 'run_id': uuid.uuid4().hex[:8]}
+    if log:
+        log.write_text(json.dumps({'summary': summary, 'checks': checks, 'observations': observations},
+                                  indent=1, default=str, ensure_ascii=False))
+    print(json.dumps(summary))
+    return 1 if failed else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

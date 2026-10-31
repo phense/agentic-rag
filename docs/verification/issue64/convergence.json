@@ -1,0 +1,30 @@
+{
+  "work": "RAG-064",
+  "source": "6291685",
+  "reviewed_head": "517263c",
+  "status": "converged",
+  "requirements": {
+    "AC-001": "48/48frozenlabels + independentcalendarcrosscheck; knownnonblockingsynonym/contextlimitsLOW031/033",
+    "AC-002": "awareclock/reference/ZoneInfo bounds/DST, independent169hweek; extremeyearsLOW034",
+    "AC-003": "canonicalassertionfirst/qualifyingsources/unknown; realSQLandprobes",
+    "AC-004": "sharedtemporalexplanation/hardfailclosed/candidatebounds, independentRESTMCP41checks",
+    "AC-005": "RLS/currentvalidity/sourcewithdrawal/graphk2k3 probes, noresurrection",
+    "AC-006": "offandno-intent6controlsidentical/zeroextrametadataSQL;longdiagnosticLOW032 andemptycoercionLOW035deferred",
+    "AC-007": "populated actual oldsource/read/rollback/publicupgrade;currentrefresh2passed exit0,35unchangedtablehashes;schemaSQLunchanged",
+    "AC-008": "frozenpreproductfixtures6291685measurement,heldout11quality/24parser,paired195latency,posthoccontrollimitsdisclosed"
+  },
+  "blocking_findings": [],
+  "deferred_low_issue": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6543044931",
+  "playbooks": "none: no migration or live operation;0.6.15prerequisite links acceptedPB063;existing ordinary reversible0.6.16code/config rollback tested",
+  "tasks_append_required": false,
+  "remaining_gates": [],
+  "fresh_verification": {
+    "head": "517263c64e3677246ca40acd7d82997b15f2f15a",
+    "passed": 1896,
+    "skipped": 1,
+    "warning": 1,
+    "exit": 0,
+    "log_sha256": "a1cb67f3d2bc5d8264f4744f59dd763c8002d6cf9addd6db4af3a7d7a8425ae7"
+  },
+  "assessment": "All required implementation/integration/review/compatibility/package gates evidenced. Nonblocking Low031..035 explicitly deferred under maintainer policy. No additional actionable blocking task; tasks.md unchanged by this read-only convergence assessment."
+}

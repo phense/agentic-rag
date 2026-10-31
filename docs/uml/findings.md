@@ -361,3 +361,16 @@ k=3 graph eviction and fresh source-withdrawal retention. See
 [temporal-query-64.md](temporal-query-64.md). Findings are resolved at the
 implementation/model boundary; independent architecture success/recovery,
 complete bounded review and fresh full suite remain pending.
+
+
+RAG-064 independent integration gate,2026-10-31: complete bounded review
+8772fbd→517263c covers32/32files and reports0Critical/High/Medium. Architecture
+probes derive29success and12failure/recovery checks through authenticated
+REST/serverMCP→engine/RLS→canonical PostgreSQL, all41pass exit0 with36data-table
+hashes unchanged. The original failed probe is retained as a probe-design failure,
+not hidden or counted as acceptance. Low findings RV064-L1..5 are deferred to
+Issue75/LOW-031..035 under the maintainer's policy; L6 documentation/evidence
+corrections are completed during delivery. Runtime/tests remain byte-identical
+to reviewed6291685; the full suite subsequently passed1,896tests/1skip/1known warning,exit0,
+and the wheel has181entries with176matching source/SQL/assets files. Final
+convergence checks and PR handoff remain separate gates. Public evidence: docs/verification/issue64/.

@@ -30,8 +30,8 @@ S1 tasks serial1→2→3→4→5; no parallel-safe writers because query/config/
 
 ### Slice S2: Reconcile authority and obtain independent gates
 
-- [ ] T064-006 Reconcile as-built model/findings from actual code; independently derive and execute real collaborating-component success and fail-closed/recovery probes. Verify no persistent writes and feature-off recovery on populated029. Owner coordinator plus separate strong independent architect; depends T064-005.
-- [ ] T064-007 Complete independent bounded base8772fbd→final diff review, including canonical time/source authorization, parser ambiguity, graph, transport compatibility and benchmark evidence. Verify/fix every C/H/M and re-review changed ranges; put nonblocking Low in Issue75. Owner coordinator plus independent reviewer; depends T064-006.
+- [x] T064-006 Reconcile as-built model/findings from actual code; independently derive and execute real collaborating-component success and fail-closed/recovery probes. Verify no persistent writes and feature-off recovery on populated029. Owner coordinator plus separate strong independent architect; depends T064-005.
+- [x] T064-007 Complete independent bounded base8772fbd→final diff review, including canonical time/source authorization, parser ambiguity, graph, transport compatibility and benchmark evidence. Verify/fix every C/H/M and re-review changed ranges; put nonblocking Low in Issue75. Owner coordinator plus independent reviewer; depends T064-006.
 
 ### Slice S3: Convergence and PR handoff
 
@@ -47,3 +47,9 @@ source-withdrawal rejection. Targeted test evidence is being collected before
 independent S2 gates. The transport tests observed red retrospectively against
 the stashed transport change, rather than before its first implementation;
 this process deviation is recorded, not represented as original test-first.
+
+S2 independent review at517263c covers32/32files with0C/H/M. Independent
+architecture success29/29 and recovery12/12 pass; originals and failed probe
+are preserved in docs/verification/issue64/. Low031..035 are explicitly deferred
+toIssue75; documentation/evidence Low036 is corrected in delivery. S3 remains
+open until an actual whole-suite exit and remaining evidence checks pass.

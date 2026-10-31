@@ -7,7 +7,7 @@ Feature off versus on over one frozen synthetic corpus, revision `6291685`
 ## What was frozen
 
 Cases and labels were written and hashed before any product code existed
-(commit `7d6aabf`, 2026-10-31T10:49:38Z; hashes in
+(commit `7d6aabf`, 2026-10-31T10:49:47Z; hashes in
 [`fixtures/FROZEN.sha256`](fixtures/FROZEN.sha256), re-checked by the harness):
 
 | File | Content | SHA-256 |
@@ -29,7 +29,7 @@ retrieval only (embeddings and the neural reranker unavailable), `k=5`,
 | Parser cases correct | 24/24 | 24/24 |
 | Ranking quality cases | 10 | 11 |
 | Top-1, feature off | 0.10 | 0.09 |
-| Top-1, feature off, time words removed by hand | 0.30 | 0.27 |
+| Top-1, feature off, time words removed with the product parser | 0.30 | 0.27 |
 | Top-1, feature on | 0.90 | 1.00 |
 | MRR off / words removed / on | 0.10 / 0.49 / 0.90 | 0.09 / 0.51 / 1.00 |
 | Recall@5 off / words removed / on | 0.10 / 0.90 / 0.90 | 0.05 / 0.88 / 1.00 |
@@ -51,8 +51,11 @@ in-process reader:
 ## How to read the numbers
 
 Removing time expressions improves candidate retrieval because lexical search
-requires every search word. The "time words removed by hand" column separates
-that effect from event-time ordering. On the held-out cases, Recall@5 rises from
+requires every search word. The "time words removed with the product parser" column separates
+that effect from event-time ordering. This control arm was added after the
+first run; `measure.py:stripped` uses the product parser to remove the recognized
+expression, so it is a post-hoc diagnostic, not an independently implemented
+or pre-registered parser control. On the held-out cases, Recall@5 rises from
 0.05 to 0.88 with word removal and to 1.00 with temporal ordering/filtering. Top-1
 rises from 0.09 to 0.27 with word removal and to 1.00 with the complete feature.
 Compared with the words-removed arm, 14 of 21 quality cases improve at top-1
@@ -98,7 +101,7 @@ run, while latency varied with host load.
 
 ## Compatibility evidence
 
-[`compatibility-evidence.json`](compatibility-evidence.json) comes from
+[`compatibility-evidence.json`](compatibility-evidence.json) was refreshed against target `517263c` (product `6291685`) by
 `tests/service/test_temporal_upgrade.py` (`RAG064_EVIDENCE=<file>`): the actual
 archived 0.6.16 code (`8772fbd`) wrote the corpus; 0.6.17 legacy and temporal
 reads, 0.6.16 local and REST reads with a 0.6.17 configuration, and feature-off

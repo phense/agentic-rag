@@ -1,0 +1,657 @@
+{
+ "summary": {
+  "work": "RAG-064",
+  "probe": "independent-architect",
+  "database": "rag_bench_8a58370d2fcb4756bdcc99d0",
+  "dropped": true,
+  "compared_tables": 36,
+  "checks": 41,
+  "failed": 0,
+  "success_checks": 29,
+  "recovery_checks": 12,
+  "elapsed_seconds": 12.0,
+  "run_id": "15b98b37"
+ },
+ "checks": [
+  {
+   "group": "P-S",
+   "check": "legacy REST 200 with exact legacy envelope",
+   "ok": true,
+   "detail": 200
+  },
+  {
+   "group": "P-S",
+   "check": "legacy visible set is the eligible scoped set",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "asst_only",
+    "in_dst",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "legacy carries no temporal evidence",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "prefer 200 interval exactly the 169h DST week",
+   "ok": true,
+   "detail": {
+    "start": "2026-10-18T22:00:00+00:00",
+    "end": "2026-10-25T23:00:00+00:00",
+    "bounds": "[start, end)"
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "prefer puts exactly the inside set first",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst",
+    "asst_only",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "prefer keeps eligible outside/unknown behind, nothing new",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst",
+    "asst_only",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "prefer ties keep legacy relative order (inside, then rest)",
+   "ok": true,
+   "detail": [
+    [
+     "in_start",
+     "assert_in",
+     "in_dst",
+     "asst_only",
+     "legacy",
+     "out_before",
+     "out_end",
+     "plan_next"
+    ],
+    [
+     "in_start",
+     "assert_in",
+     "asst_only",
+     "in_dst",
+     "legacy",
+     "out_before",
+     "out_end",
+     "plan_next"
+    ]
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "prefer keeps original scores/snippets/citations of retrieval text",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "end boundary is exclusive and start inclusive",
+   "ok": true,
+   "detail": {
+    "in_start": {
+     "basis": "source_event",
+     "match": "inside",
+     "event_at": "2026-10-18T22:00:00+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    },
+    "assert_in": {
+     "basis": "assertion_event",
+     "match": "inside",
+     "event_at": "2026-10-21T10:00:00+00:00",
+     "qualifying_events": 1,
+     "support": []
+    },
+    "in_dst": {
+     "basis": "source_event",
+     "match": "inside",
+     "event_at": "2026-10-25T22:30:00+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    },
+    "asst_only": {
+     "basis": "source_event",
+     "match": "outside",
+     "event_at": "2026-09-01T10:00:00+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    },
+    "legacy": {
+     "basis": "unknown",
+     "match": "unknown",
+     "event_at": null,
+     "qualifying_events": 0,
+     "support": []
+    },
+    "out_before": {
+     "basis": "source_event",
+     "match": "outside",
+     "event_at": "2026-10-18T21:59:59+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    },
+    "out_end": {
+     "basis": "source_event",
+     "match": "outside",
+     "event_at": "2026-10-25T23:00:00+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    },
+    "plan_next": {
+     "basis": "source_event",
+     "match": "outside",
+     "event_at": "2026-11-12T10:00:00+00:00",
+     "qualifying_events": 1,
+     "support": [
+      "user_source_event"
+     ]
+    }
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "assertion uses assertion event time",
+   "ok": true,
+   "detail": {
+    "basis": "assertion_event",
+    "match": "inside",
+    "event_at": "2026-10-21T10:00:00+00:00",
+    "qualifying_events": 1,
+    "support": []
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "assistant-only date never qualifies; user date used",
+   "ok": true,
+   "detail": {
+    "basis": "source_event",
+    "match": "outside",
+    "event_at": "2026-09-01T10:00:00+00:00",
+    "qualifying_events": 1,
+    "support": [
+     "user_source_event"
+    ]
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "legacy document stays unknown, never import time",
+   "ok": true,
+   "detail": {
+    "basis": "unknown",
+    "match": "unknown",
+    "event_at": null,
+    "qualifying_events": 0,
+    "support": []
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "no private source locators in temporal additions",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "effect counts",
+   "ok": true,
+   "detail": {
+    "candidates": 8,
+    "matching": 3,
+    "outside": 4,
+    "unknown": 1,
+    "excluded": 0,
+    "reordered": true,
+    "graph_checked": 0
+   }
+  },
+  {
+   "group": "P-S",
+   "check": "filter returns exactly inside set, all match inside",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "server MCP /mcp/ro/ body identical to REST",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "never ineligible/foreign/future",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "asst_only",
+    "in_dst",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "never ineligible/foreign/future",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst",
+    "asst_only",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "never ineligible/foreign/future",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "next month: stored future plan matches, future assertion stays ineligible",
+   "ok": true,
+   "detail": [
+    200,
+    [
+     "plan_next"
+    ],
+    {
+     "start": "2026-10-31T23:00:00+00:00",
+     "end": "2026-11-30T23:00:00+00:00",
+     "bounds": "[start, end)"
+    }
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "graph filter k=3: matching hits kept, out-of-period neighbour excluded",
+   "ok": true,
+   "detail": [
+    [
+     "in_start",
+     "assert_in",
+     "in_dst"
+    ],
+    {
+     "candidates": 8,
+     "matching": 3,
+     "outside": 4,
+     "unknown": 1,
+     "excluded": 6,
+     "reordered": false,
+     "graph_checked": 1
+    }
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "graph reaches neighbour in legacy (precondition)",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "asst_only",
+    "neighbour",
+    "in_dst",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "graph prefer: neighbour cannot precede matching hits",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst",
+    "neighbour",
+    "asst_only",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "graph prefer k=2: only matching hits at the k boundary",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "enabled auto, no intent == disabled legacy (exact body)",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "explicit off == disabled auto == legacy envelope",
+   "ok": true,
+   "detail": [
+    "{'results', 'warnings'}",
+    "{'results', 'warnings'}"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "enabled auto with period == explicit prefer order",
+   "ok": true,
+   "detail": [
+    "in_start",
+    "assert_in",
+    "in_dst",
+    "asst_only",
+    "legacy",
+    "out_before",
+    "out_end",
+    "plan_next"
+   ]
+  },
+  {
+   "group": "P-S",
+   "check": "no metadata SQL for off/no-intent; exactly one for applied prefer",
+   "ok": true,
+   "detail": {
+    "enabled-auto-nointent": 0,
+    "disabled-auto-period": 0,
+    "enabled-off-period": 0,
+    "enabled-prefer-period": 1
+   }
+  },
+  {
+   "group": "P-R",
+   "check": "injection: reader lost only source_at column privilege",
+   "ok": true,
+   "detail": false
+  },
+  {
+   "group": "P-R",
+   "check": "injection is targeted: legacy REST unchanged",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-R",
+   "check": "soft: 200, warning, applied none, metadata_unavailable",
+   "ok": true,
+   "detail": [
+    200,
+    [
+     "embedding unavailable — full-text search only",
+     "temporal metadata unavailable — original order kept"
+    ],
+    [
+     "metadata_unavailable"
+    ]
+   ]
+  },
+  {
+   "group": "P-R",
+   "check": "soft: original eligible order and fields, no temporal evidence",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-R",
+   "check": "hard: fail closed, no results returned",
+   "ok": true,
+   "detail": [
+    400,
+    {
+     "error": "operation_failed"
+    }
+   ]
+  },
+  {
+   "group": "P-R",
+   "check": "hard via server MCP: tool error, no hits",
+   "ok": true,
+   "detail": "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"Error executing tool memory_search: operation_failed\"}],\"isError\":true}}"
+  },
+  {
+   "group": "P-R",
+   "check": "in-process: soft returns hits, savepoint keeps transaction usable",
+   "ok": true,
+   "detail": [
+    "embedding unavailable — full-text search only",
+    "temporal metadata unavailable — original order kept"
+   ]
+  },
+  {
+   "group": "P-R",
+   "check": "in-process: hard RuntimeError, transaction still usable",
+   "ok": true,
+   "detail": [
+    "temporal_metadata_unavailable: hard filter not applied",
+    "INTRANS"
+   ]
+  },
+  {
+   "group": "P-R",
+   "check": "operator recovery restores the original ACL exactly",
+   "ok": true,
+   "detail": [
+    [
+     "administrator=arwdDxtm/administrator",
+     "rag_admin=arwdDxtm/administrator",
+     "rag_reader=r/administrator",
+     "rag_writer=arw/administrator"
+    ],
+    [
+     "administrator=arwdDxtm/administrator",
+     "rag_admin=arwdDxtm/administrator",
+     "rag_reader=r/administrator",
+     "rag_writer=arw/administrator"
+    ]
+   ]
+  },
+  {
+   "group": "P-R",
+   "check": "after recovery prefer == pre-failure success body",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-R",
+   "check": "after recovery filter == pre-failure success body",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "group": "P-S",
+   "check": "original row hashes unchanged by success reads",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "group": "P-R",
+   "check": "original row hashes unchanged by failure and recovery",
+   "ok": true,
+   "detail": []
+  }
+ ],
+ "observations": [
+  {
+   "observation": "X1 extreme reference 9999-12-31T23:30:00+00:00",
+   "detail": {
+    "interpret": "OverflowError: date value out of range",
+    "rest_status": 400,
+    "rest_body": {
+     "error": "operation_failed"
+    }
+   }
+  },
+  {
+   "observation": "X1 extreme reference 0001-01-01T00:30:00+01:00",
+   "detail": {
+    "interpret": "OverflowError: date value out of range",
+    "rest_status": 400,
+    "rest_body": {
+     "error": "operation_failed"
+    }
+   }
+  },
+  {
+   "observation": "X2 long no-intent query (>1000 chars)",
+   "detail": {
+    "len": 1110,
+    "off_warnings": [
+     "embedding unavailable — full-text search only"
+    ],
+    "on_warnings": [
+     "temporal expression not applied: unsupported",
+     "embedding unavailable — full-text search only"
+    ],
+    "same_hits": true,
+    "on_status": "unsupported",
+    "on_reasons": [
+     "query_too_long"
+    ]
+   }
+  },
+  {
+   "observation": "X3 modal may + number",
+   "detail": {
+    "len": 43,
+    "off_warnings": [
+     "embedding unavailable — full-text search only"
+    ],
+    "on_warnings": [
+     "temporal expression not applied: unsupported",
+     "embedding unavailable — full-text search only"
+    ],
+    "same_hits": true,
+    "on_status": "unsupported",
+    "on_reasons": [
+     "unsupported_expression"
+    ]
+   }
+  },
+  {
+   "observation": "X3b German month name as surname",
+   "detail": {
+    "len": 46,
+    "off_warnings": [
+     "embedding unavailable — full-text search only"
+    ],
+    "on_warnings": [
+     "temporal expression not applied: unsupported",
+     "embedding unavailable — full-text search only"
+    ],
+    "same_hits": true,
+    "on_status": "unsupported",
+    "on_reasons": [
+     "unsupported_expression"
+    ]
+   }
+  },
+  {
+   "observation": "X4 temporal=\"\" via REST",
+   "detail": {
+    "status": 200,
+    "keys": [
+     "results",
+     "warnings"
+    ]
+   }
+  },
+  {
+   "observation": "X5 vergangene Woche",
+   "detail": {
+    "status": "none",
+    "reasons": []
+   }
+  },
+  {
+   "observation": "X5 previous week",
+   "detail": {
+    "status": "none",
+    "reasons": []
+   }
+  },
+  {
+   "observation": "X5 kommenden Monat",
+   "detail": {
+    "status": "none",
+    "reasons": []
+   }
+  },
+  {
+   "observation": "X5 im Oktober 2026",
+   "detail": {
+    "status": "none",
+    "reasons": []
+   }
+  },
+  {
+   "observation": "X5 past week",
+   "detail": {
+    "status": "none",
+    "reasons": []
+   }
+  }
+ ]
+}
