@@ -168,6 +168,10 @@ def _main(argv: list[str] | None = None) -> int:
     p_search.add_argument("--scope", choices=["project", "global", "all"])
     p_search.add_argument("--domain")
     p_search.add_argument("-k", type=int, default=8)
+    p_search.add_argument("--temporal", choices=["auto", "off", "prefer", "filter"],
+                          help="time expressions: auto follows [temporal] enabled (default off)")
+    p_search.add_argument("--reference", help="ISO timestamp with offset for yesterday/last week/next month")
+    p_search.add_argument("--timezone", help="IANA zone for calendar days, e.g. Europe/Berlin")
     p_search.add_argument("--json", action="store_true")
 
     p_research = sub.add_parser("research", help="bounded read-only evidence research; provider calls require --provider")
@@ -721,6 +725,16 @@ def _main(argv: list[str] | None = None) -> int:
                 print(f"missing: facet {missing['question_index']}: {missing['reason']}")
         return 0
 
+    if args.cmd == "search" and cfg.service_mode == "client":
+        from .mcp_server import wire_arguments
+        result = _remote_call(cfg, "memory_search", wire_arguments("memory_search", dict(
+            query=args.query, domain=args.domain, k=args.k, project=args.project, scope=args.scope,
+            as_of=args.as_of, history=args.history, graph_depth=args.graph_depth, strategy=args.strategy,
+            rerank=args.rerank, context=args.context, temporal=args.temporal, reference=args.reference,
+            timezone=args.timezone)))
+        _print_search(result["results"], result["warnings"], result.get("temporal"), args.json)
+        return 0
+
     conn = db.connect(cfg, role="writer")
     try:
         if args.cmd == "domain" and args.domain_cmd == "add":
@@ -807,17 +821,13 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "search":
+            diagnostics = {}
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
-                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context)
-            if args.json:
-                print(json.dumps({"results": hits, "warnings": warnings},
-                                 default=_json_default, indent=1))
-            else:
-                for h in hits:
-                    print(f"{h.score:.4f}  {h.slug:<40} [{h.domain}/{h.dtype}]")
-                for w in warnings:
-                    print(f"WARNING: {w}", file=sys.stderr)
+                project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context,
+                temporal=args.temporal or "auto", reference=args.reference, timezone=args.timezone, diagnostics=diagnostics)
+            _print_search(json.loads(json.dumps(hits, default=_json_default)), warnings,
+                          diagnostics.get("temporal"), args.json)
             return 0
 
         if args.cmd == "status":
@@ -952,16 +962,40 @@ def _main(argv: list[str] | None = None) -> int:
     return 1
 
 
+def _print_search(hits, warnings, temporal, as_json):
+    """Same output locally and through the central service; the temporal
+    envelope appears only when an interpretation was requested or applied."""
+    if as_json:
+        payload = {"results": hits, "warnings": warnings}
+        if temporal is not None:
+            payload["temporal"] = temporal
+        print(json.dumps(payload, default=_json_default, indent=1))
+        return
+    for h in hits:
+        print(f"{h['score']:.4f}  {h['slug']:<40} [{h['domain']}/{h['dtype']}]")
+    for w in warnings:
+        print(f"WARNING: {w}", file=sys.stderr)
+    if temporal is not None:
+        interval = temporal.get("interval") or {}
+        span = f" {interval['start']} .. {interval['end']}" if interval else ""
+        print(f"TEMPORAL: {temporal['status']}{span} ({temporal.get('timezone', '-')}), "
+              f"applied {temporal['applied']}", file=sys.stderr)
+
+
+def _remote_call(cfg,name,arguments):
+    from .service import client as remote
+    with remote.RemoteClient(cfg) as connection:
+        try:result=connection.invoke(name,arguments)
+        except remote.RemoteError as exc:raise ValueError(exc.code) from None
+    if result.get('waiting'):
+        raise RuntimeError('request pending: '+str(result.get('local_request_id') or result.get('request_id')))
+    return result
+
+
 def _evidence_call(cfg,name,arguments):
     """One gateway for local (direct SQL) and central (service client) evidence calls."""
     if cfg.service_mode=='client':
-        from .service import client as remote
-        with remote.RemoteClient(cfg) as connection:
-            try:result=connection.invoke(name,arguments)
-            except remote.RemoteError as exc:raise ValueError(exc.code) from None
-        if result.get('waiting'):
-            raise RuntimeError('request pending: '+str(result.get('local_request_id') or result.get('request_id')))
-        return result
+        return _remote_call(cfg,name,arguments)
     from . import evidence_contract as contract
     args=dict(arguments)
     read=name in ('memory_evidence','memory_evidence_history')
