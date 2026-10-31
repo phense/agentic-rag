@@ -333,6 +333,11 @@ surfaces, scoped history and populated upgrade tests. The source locking gap was
 reproduced against old-style SQL and corrected with a no-data anchored SHARE-lock
 helper; the document lifecycle race and oversized legacy reasons have regression
 tests. Details and rationale are in [source-evidence-63.md](source-evidence-63.md).
-These findings are resolved at the implementation/model boundary; independent
-integration derivation and complete-diff/playbook review remain pending and may
-append new actionable findings. No final readiness or whole-suite pass is claimed.
+These findings are resolved at the implementation/model boundary. Independent
+architecture-derived success26/26 and recovery10/10 checks passed. The complete
+review and correction re-review through `2c92d4d` resolved Medium RV063-M1 and
+Important PB063-R1, with zero open Critical/High/Medium/Important findings. The
+accepted playbook has a populated public-command restoration rehearsal. Final
+whole-suite evidence at that source revision is1,819passed/1skipped/1warning,
+exit0; see [verification](../verification/issue63-source-evidence.md). Low findings
+and their explicit deferrals remain in Issue75; production rollout is separate.

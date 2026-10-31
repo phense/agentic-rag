@@ -4,7 +4,7 @@ title: Source evidence verification
 type: reference
 doc_id: issue63-source-evidence-verification
 readers: [maintainer]
-status: drafted
+status: reviewed
 version: 0.6.16
 depends_on: []
 assets: []
@@ -18,8 +18,9 @@ summary: Measured source-evidence behavior, populated upgrade and recovery check
 contract to local and central CLI, MCP, REST and dashboard clients. The source is
 0.6.15/schema028 at `5390a6f6b4a7cce4b27abc9b51226acf2dac6223`; the corrected
 implementation is `08a75f5d4b832906d72908f5709c694e232476c5`, targeting0.6.16/schema029.
-Independent re-review accepts the corrected code and procedure; the final
-whole-suite run remains a delivery gate at this report's draft revision. No production migration or cutover was performed.
+Independent re-review accepts the corrected code and procedure. The final
+whole-suite run passed on `2c92d4df5510544eb4ae303f095e52304ac3970b`; subsequent
+changes update delivery documentation only. No production migration or cutover was performed.
 
 Terms: an evidence span is one exact stored quotation; a source event can contain
 several spans. An attestation is an operator's manual assertion. Review records
@@ -65,7 +66,13 @@ env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE \
 | Dashboard browser/upgrade/invalidation selection before the review correction |8passed,1existing warning,exit0,71.81s | Real Chromium pagination and decisions; migration and current-read invalidation; final full suite must cover the corrected tree |
 | Wheel build and archive inspection |`uv build --wheel` exit0;179entries inspected | Package0.6.16; migration029, evidence producer and dashboard assets match the source; native prompt assets present |
 | Independent correction edge probe |26/26checks,exit0 | Namespace boundaries, partial/refuted/removed/inferred manual support, mixed sources, unchanged canonical eligibility; separate owned database |
-| Final whole-suite run |Pending on the corrected frozen candidate | Earlier pre-review run deliberately terminated after the review finding,rc-15; it is not a pass |
+| Final whole-suite run |1,819passed,1skipped,1warning,exit0,1,610.26s | Corrected frozen candidate `2c92d4d`; actual result and full-log digest verified |
+
+The final run started2026-10-31T02:44:56Z and completed03:11:48Z. Its full-log
+SHA-256 is `c1e9e90e0f2b38b464959f9fb37e954dd9508216f448a18c62bf8ee237b84cc3`.
+The earlier pre-review run was deliberately terminated for the review correction
+at rc-15 and is not a successful result. The accepted recovery procedure, source,
+tests, schema and assets are byte-identical to the final tested candidate.
 
 The existing warning is Starlette's deprecation of its httpx TestClient
 integration. Provider boundaries use synthetic replacements; scope, gateway,

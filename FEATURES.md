@@ -68,6 +68,26 @@ are plumbing evidence, not real-model quality or deployment approval. See the
 [operator procedure](docs/provider-indexes.md) and
 [verification](docs/verification/issue61-providers.md).
 
+## Source evidence and review state (RAG-063 / issue #63)
+
+🔵 Implemented and independently reviewed in the feature branch; PR integration
+and production rollout remain separate. One versioned, bounded evidence/history
+contract feeds local/central CLI, MCP, REST and dashboard. Exact stored quotes,
+opaque portable source/span references and explicit manual/legacy origins keep
+review, trust, lifecycle and SQL eligibility distinct. Strict decisions bind to
+the whole inspected evidence and commit history/audit atomically; stale decisions
+conflict. Legacy clients remain compatible and invalidate new inspected versions.
+
+Additive schema029 and the populated0.6.15→0.6.16 upgrade/retry/restore preserve
+35original tables/253synthetic rows and their table/sequence grants. Recovery
+uses the retained0.6.15 runtime on restored028 and explicitly loses post-backup
+writes. Full suite:1,819passed/1skipped/1warning,exit0. Three measured examples,
+independent review, tested upgrade boundaries and deferred Low findings are in
+[verification](docs/verification/issue63-source-evidence.md); see the
+[contract](docs/specs/6-5-source-evidence/contracts/evidence-v1.md) and
+[upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md).
+No production migration, cross-host restore or live service restart is claimed.
+
 ## Memory platform
 
 - ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown

@@ -71,7 +71,8 @@ reads/writes and restored portable versions are executable integration fixtures.
 Semantic Mermaid source review: directive, participants, message order and alt/end
 pairs inspected; no renderer is installed or claimed. All design differences
 have explicit implemented dispositions above. Independent architect-derived
-success/recovery tests and complete final review remain delivery gates.
+success/recovery tests and complete final review are satisfied by the evidence
+below and the final verification report.
 
 
 The independent AC-002 probe exposed a presentation mismatch for manual
@@ -82,4 +83,8 @@ when applicable. Canonical SQL eligibility and legacy summary fields are
 unchanged. Independent success/recovery probes re-executed after this correction
 passed26/26 and10/10 checks; manual-attestation checks now pass4/4. The procedure's
 public manifest comparison and0.6.15 recovery launch are additional executable
-upgrade fixtures; independent re-review of these corrections remains required.
+upgrade fixtures. Independent re-review through `2c92d4d` accepts both
+corrections with zero open Critical/High/Medium/Important findings; its own
+manual-support edge probe passed26/26 checks. The final whole suite at that
+revision passed1,819tests with1skip and1existing warning,exit0. Later changes
+record delivery evidence only; Low findings remain in Issue75.

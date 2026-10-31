@@ -73,14 +73,15 @@
   Accepted with minor follow-ups at `2c92d4d`.
 - Agreed validation: populated local upgrade/retry and pre-upgrade recovery
   rehearsal passed; independent architecture success/recovery checks passed.
-- Delivery readiness: the final whole-suite gate is still pending. Production
+- Delivery readiness: the final whole-suite gate passed (1,819passed,1skipped,
+  1warning,exit0,1,610.26s at `2c92d4d`). Production
   authorization, live restart and cross-host/non-superuser recovery are separate.
 - Changes since the original evidence: PB063-R1 recovery instructions and minor
   PB063-R2/R3/R4 guidance were corrected. The revised procedure hash below matches
   the executable rehearsal and the independent re-review. This record's current
   readiness text supersedes the original pending-review description.
-- Next action and owner: coordinator checks the final full-suite result, updates
-  delivery evidence, and hands off the PR only after all required gates pass.
+- Next action and owner: coordinator publishes the verified PR for maintainer
+  merge approval. Production execution remains a separate decision.
 
 
 ### Coordinator candidate recheck (2026-10-31)
@@ -101,7 +102,8 @@ env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 \
 Observed: 8 passed, one existing Starlette warning, exit0,71.81s. Both populated
 upgrade/operator fixtures passed with the additional lock helper present. The
 procedure source hash above is unchanged; coordinator validation is separate
-from the still-pending independent content review. No live rollout was attempted.
+from the independent content review, which was pending at that earlier run and
+is accepted below for the corrected procedure. No live rollout was attempted.
 
 
 ### Coordinator recovery correction (2026-10-31)
