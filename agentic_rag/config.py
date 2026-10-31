@@ -31,6 +31,7 @@ _SECTION_PREFIX = {
     "pg": "pg",
     "continuity": "checkpoint",
     "service": "service",
+    "temporal": "temporal",
 }
 
 
@@ -105,6 +106,9 @@ class Config:
     checkpoint_artifact_max: int = 16
     checkpoint_handoff_max_chars: int = 8000
     context_max_chars: int = 9500
+    # Temporal query interpretation is opt-in; explicit request modes still apply.
+    temporal_enabled: bool = False
+    temporal_timezone: str = "UTC"
 
     def __post_init__(self) -> None:
         if self.rerank_policy not in ('legacy-v1', 'focused-v1'):
@@ -117,6 +121,10 @@ class Config:
         for profile in catalogue():
             if self.rerank_model == profile['alias'] and self.rerank_revision != profile['files']['model.onnx']['sha256']:
                 raise ValueError('rerank preset identity must match pinned SHA256')
+        if type(self.temporal_enabled) is not bool:
+            raise ValueError('temporal enabled must be boolean')
+        from .temporal import parse_zone
+        parse_zone(self.temporal_timezone)
         if type(self.rerank_diagnostics) is not bool:
             raise ValueError('rerank diagnostics must be boolean')
         if (type(self.rerank_timeout_seconds) not in (float,int)

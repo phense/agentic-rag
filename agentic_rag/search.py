@@ -6,6 +6,9 @@ from datetime import datetime
 import re
 import uuid
 
+import psycopg
+
+from . import temporal
 from .config import Config
 from .embed import try_embed_texts, vec_literal
 
@@ -36,7 +39,14 @@ def search(
     query_cache=None,
     rerank_mode: str = "auto",
     context_mode: str = "auto",
+    temporal: str | None = None,
+    reference: str | None = None,
+    timezone: str | None = None,
+    diagnostics: dict | None = None,
 ) -> tuple[list[SearchHit], list[str]]:
+    """temporal=None keeps library callers on the legacy path; client surfaces
+    pass 'auto' (configuration decides), 'off', or explicit 'prefer'/'filter'.
+    diagnostics, when given, receives the additive temporal explanation."""
     validate_strategy(strategy)
     validate_rerank_mode(rerank_mode)
     if context_mode not in ("auto", "off"):
@@ -52,6 +62,13 @@ def search(
     from .validity import selection as time_selection
     at, history = time_selection(as_of, history)
     warnings: list[str] = []
+    interpretation, report = _interpret(cfg, query, temporal, reference, timezone, baseline)
+    if report is not None and diagnostics is not None:
+        diagnostics['temporal'] = report
+    if interpretation is not None and interpretation.status == 'interval' and interpretation.residual:
+        query = interpretation.residual
+    elif interpretation is not None and interpretation.status in ('ambiguous', 'unsupported'):
+        warnings.append('temporal expression not applied: ' + interpretation.status)
     from . import indexes
     selected_space = indexes.active(conn, cfg)
     managed_query = indexes.BoundQuery(selected_space, None) if selected_space is not None else None
@@ -147,10 +164,184 @@ def search(
     if decision:
         from .neural_rerank import diagnostic_text
         warnings.append(diagnostic_text(decision))
+    stage = None
+    if interpretation is not None and interpretation.status == 'interval':
+        stage = _TemporalStage(conn, interpretation, report, at, history)
+        hits = stage.apply(hits, warnings)
     hits=diverse(hits,query,k)
     if graph_depth:
         hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain)
-    return with_evidence([present(h,query) for h in hits]), warnings
+        if stage is not None:
+            hits = stage.apply(hits, warnings, graph=True)
+    final = with_evidence([present(h,query) for h in hits])
+    if stage is not None and stage.available:
+        final = [replace(h, evidence={**h.evidence, 'temporal': stage.explain(h.document_id)}) for h in final]
+    return final, warnings
+
+
+_EVENT_TIME = ('assertion event time, otherwise qualifying active source event time; never document import '
+               'or update time; a known source date is not independent verification')
+_CANDIDATE_LIMIT, _GRAPH_NODE_LIMIT = 150, 20
+_MAX_TEMPORAL_IDS = _CANDIDATE_LIMIT + _GRAPH_NODE_LIMIT
+
+
+def _interpret(cfg, query, requested, reference, zone, baseline):
+    """Resolve the request mode; return (interpretation or None, envelope or None)."""
+    if requested is not None:
+        temporal.validate_mode(requested)
+    if reference is not None:
+        temporal.parse_reference(reference)
+    if zone is not None:
+        temporal.parse_zone(zone)
+    mode = requested if requested in ('prefer', 'filter') else (
+        'prefer' if requested == 'auto' and cfg.temporal_enabled else None)
+    if mode is None:
+        if requested == 'auto' and (reference is not None or zone is not None):
+            return None, {'requested': 'auto', 'mode': 'off', 'applied': 'none', 'status': 'disabled',
+                          'reasons': ['disabled_by_configuration']}
+        return None, None
+    if baseline:
+        raise ValueError('baseline cannot combine with temporal interpretation')
+    interpretation = temporal.interpret(query, reference=reference, timezone=zone or cfg.temporal_timezone)
+    if mode == 'filter' and interpretation.status != 'interval':
+        raise ValueError('temporal_filter_requires_interval: hard filtering needs exactly one supported date, '
+                         'range or calendar period')
+    if interpretation.status == 'none' and requested == 'auto':
+        return None, None  # no temporal intent: the exact legacy path
+    report = {'requested': requested, 'mode': mode, 'applied': 'none', **interpretation.describe(),
+              'retrieval_query': 'without_time_expressions' if interpretation.residual else 'original',
+              'event_time': _EVENT_TIME,
+              'effect': {'candidates': 0, 'matching': 0, 'outside': 0, 'unknown': 0, 'excluded': 0,
+                         'reordered': False, 'graph_checked': 0},
+              'limits': {'candidate_limit': _CANDIDATE_LIMIT, 'graph_node_limit': _GRAPH_NODE_LIMIT,
+                         'recall': 'candidate_limited'}}
+    if interpretation.status == 'current':
+        report['current'] = 'existing current-validity selection applies; no recency interval is invented'
+    return interpretation, report
+
+
+# Canonical event basis for already visible candidates, under the caller's role
+# and RLS. Only finite aggregates leave the database, never quotes or locators.
+_TEMPORAL_SQL = """/* rag-temporal-metadata */
+SELECT d.id::text AS document_id,
+       assertion_eligible(d.id, %(at)s, %(history)s) AS eligible,
+       a.document_id IS NOT NULL AS asserted, a.event_at AS assertion_event_at,
+       q.known, q.inside, q.first_inside, q.earliest, q.reviewed, q.user_event, q.manual
+FROM documents d
+LEFT JOIN fact_assertions a ON a.document_id = d.id
+LEFT JOIN LATERAL (
+    SELECT count(DISTINCT s.source_key) FILTER (WHERE s.source_at IS NOT NULL) AS known,
+           count(DISTINCT s.source_key) FILTER (WHERE s.source_at >= %(start)s AND s.source_at < %(end)s) AS inside,
+           min(s.source_at) FILTER (WHERE s.source_at >= %(start)s AND s.source_at < %(end)s) AS first_inside,
+           min(s.source_at) AS earliest,
+           bool_or(s.reviewed_basis) AS reviewed,
+           bool_or(s.user_basis AND NOT s.manual) AS user_event,
+           bool_or(s.user_basis AND s.manual) AS manual
+    FROM (SELECT k.source_key, k.source_at,
+                 (c.review_state = 'confirmed' AND e.reviewed) AS reviewed_basis,
+                 (c.kind = 'stated' AND k.role = 'user' AND e.complete) AS user_basis,
+                 (k.namespace IN ('operator','manual')
+                  OR (left(k.namespace,5) = 'svc1:' AND position(':manual:' IN k.namespace) > 0)) AS manual
+          FROM claim_records c
+          JOIN claim_evidence e ON e.document_id = c.document_id
+          JOIN knowledge_sources k ON k.source_key = e.source_key
+          WHERE c.document_id = d.id AND a.document_id IS NULL
+            AND c.review_state <> 'refuted' AND k.state = 'active'
+            AND ((c.review_state = 'confirmed' AND e.reviewed)
+                 OR (c.kind = 'stated' AND k.role = 'user' AND e.complete))) s
+) q ON true
+WHERE d.id = ANY(%(ids)s::uuid[])
+"""
+
+
+def _utc(value):
+    from datetime import timezone as tz
+    return None if value is None else value.astimezone(tz.utc).isoformat()
+
+
+def _event_metadata(conn, ids, interpretation, at, history):
+    """Batch event basis for at most candidate+graph budget visible document IDs."""
+    if len(ids) > _MAX_TEMPORAL_IDS:
+        raise ValueError('temporal metadata request must stay bounded')
+    ids = list(dict.fromkeys(ids))
+    if not ids:
+        return {}
+    rows = conn.execute(_TEMPORAL_SQL, {'ids': ids, 'at': at, 'history': history,
+                                        'start': interpretation.start, 'end': interpretation.end}).fetchall()
+    result = {}
+    for r in rows:
+        support = []
+        if r['asserted']:
+            event = r['assertion_event_at']
+            basis, count = ('assertion_event', 1) if event is not None else ('unknown', 0)
+            match = 'unknown' if event is None else 'inside' if interpretation.contains(event) else 'outside'
+        elif r['known']:
+            basis, count, event = 'source_event', r['known'], r['first_inside'] or r['earliest']
+            match = 'inside' if r['inside'] else 'outside'
+            support = [label for label, flag in (('operator_review', r['reviewed']), ('user_source_event', r['user_event']),
+                                                 ('manual_attestation', r['manual'])) if flag]
+        else:
+            basis, count, event, match = 'unknown', 0, None, 'unknown'
+        result[r['document_id']] = {'eligible': bool(r['eligible']), 'basis': basis, 'match': match,
+                                    'event_at': _utc(event), 'qualifying_events': count, 'support': support}
+    return result
+
+
+class _TemporalStage:
+    """Stable matching-first preference or strict subset over already eligible hits."""
+    def __init__(self, conn, interpretation, report, at, history):
+        self.conn, self.interpretation, self.report = conn, interpretation, report
+        self.at, self.history, self.mode = at, history, report['mode']
+        self.metadata, self.available = {}, True
+
+    def _load(self, ids, warnings, graph):
+        missing = [i for i in dict.fromkeys(ids) if i not in self.metadata]
+        if not missing:
+            return True
+        try:
+            # A savepoint keeps the caller's transaction usable after a failure.
+            with self.conn.transaction():
+                self.metadata.update(_event_metadata(self.conn, missing, self.interpretation, self.at, self.history))
+        except psycopg.Error:
+            if self.mode == 'filter':
+                raise RuntimeError('temporal_metadata_unavailable: hard filter not applied') from None
+            warnings.append('temporal metadata unavailable — original order kept')
+            self.report['reasons'] = self.report['reasons'] + ['graph_metadata_unavailable' if graph else 'metadata_unavailable']
+            if not graph:
+                self.available = False
+            return False
+        if graph:
+            self.report['effect']['graph_checked'] += len(missing)
+        return True
+
+    def matches(self, identity):
+        item = self.metadata.get(identity)
+        return item is not None and item['eligible'] and item['match'] == 'inside'
+
+    def explain(self, identity):
+        item = dict(self.metadata.get(identity) or {'basis': 'unknown', 'match': 'unknown', 'event_at': None,
+                                                     'qualifying_events': 0, 'support': [], 'eligible': True})
+        if not item.pop('eligible'):
+            item['match'] = 'unknown'
+        return item
+
+    def apply(self, hits, warnings, *, graph=False):
+        if not self.available or not self._load([h.document_id for h in hits], warnings, graph):
+            return hits
+        ordered = [h for h in hits if self.matches(h.document_id)]
+        if self.mode == 'prefer':
+            ordered += [h for h in hits if not self.matches(h.document_id)]
+        effect = self.report['effect']
+        if not graph:
+            documents = list(dict.fromkeys(h.document_id for h in hits))
+            explained = [self.explain(i)['match'] for i in documents]
+            effect.update(candidates=len(documents), matching=explained.count('inside'),
+                          outside=explained.count('outside'), unknown=explained.count('unknown'))
+            self.report['applied'] = 'filter' if self.mode == 'filter' else 'preference'
+        effect['excluded'] += len({h.document_id for h in hits} - {h.document_id for h in ordered})
+        effect['reordered'] = effect['reordered'] or [h.chunk_id for h in ordered] != [
+            h.chunk_id for h in hits if h in ordered]
+        return ordered
 
 
 def validate_strategy(strategy):
