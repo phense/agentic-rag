@@ -233,3 +233,18 @@ def test_reader_cannot_write_and_missing_decision_is_not_found(conn, cfg, ids):
         assert error(store.correct_lifecycle, w, cfg, decision_id=str(uuid.uuid4()), expected_revision=1,
                      reason='x', actor='cli') == 'not_found'
     assert lifecycle_counts(conn) == {'decisions': 0, 'events': 0, 'audit': 0}
+
+
+def test_autocommit_connection_is_still_all_or_nothing(conn, cfg, ids, monkeypatch):
+    def broken(*args, **kwargs):
+        raise psycopg.errors.InsufficientPrivilege('audit unavailable')
+    monkeypatch.setattr(lifecycle, '_audit', broken)
+    with db.connect(cfg, role='writer') as c:
+        c.autocommit = True
+        seen = lifecycle.preview(c, ids['E1-copy'], ids['E1-keep'])
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            store.apply_lifecycle(c, cfg, member=ids['E1-copy'], target=ids['E1-keep'], operation='exact_duplicate',
+                                  expected_member_version=seen['member']['version'],
+                                  expected_target_version=seen['target']['version'], reason='autocommit', actor='cli')
+        assert c.autocommit
+    assert lifecycle_counts(conn) == {'decisions': 0, 'events': 0, 'audit': 0}

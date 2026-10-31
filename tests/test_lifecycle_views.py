@@ -81,10 +81,12 @@ def test_k1_selection_happens_before_limit_in_every_candidate_family(conn, cfg, 
     merged = lexical(conn, cfg, 'spooler restart', k=1, view='include_merged')
     assert merged[0].document_id in members and merged[0].evidence['lifecycle']['state'] == 'merged'
     scopes = [PROJECT, 'global']
-    for function in ('hybrid_search_candidates', 'hybrid_search_temporal', 'hybrid_search_contextual'):
+    for function in ('hybrid_search_candidates', 'hybrid_search_temporal', 'hybrid_search_contextual',
+                     'hybrid_search_candidates_planned', 'hybrid_search_contextual_planned', 'contextual_search_candidates'):
         rows = conn.execute(f'SELECT document_id::text AS id FROM {function}(%s,NULL,%s,1,%s,now(),false)',
                             ('spooler restart', 'general', scopes)).fetchall()
-        assert [r['id'] for r in rows] == [canonical], function
+        assert [r['id'] for r in rows] in ([canonical], []), function  # contextual has no indexed context here
+        assert function.startswith('contextual') or [r['id'] for r in rows] == [canonical], function
     conn.rollback()
     # Identity shortcut (slug selector) and graph expansion use the same predicate.
     slug = conn.execute('SELECT slug FROM documents WHERE id=%s', (members[0],)).fetchone()['slug']

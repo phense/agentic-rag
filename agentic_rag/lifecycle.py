@@ -432,7 +432,17 @@ def _map(error):
 
 
 def _transaction(conn, work):
-    """One transaction for every effect; any failure rolls back all of it."""
+    """One transaction for every effect; any failure rolls back all of it. An
+    autocommit connection is switched to one explicit transaction for the call."""
+    if conn.autocommit:
+        if conn.info.transaction_status != TransactionStatus.IDLE:
+            raise LifecycleError('busy')
+        conn.autocommit = False
+        try:
+            return _transaction(conn, work)
+        finally:
+            if conn.info.transaction_status == TransactionStatus.IDLE:
+                conn.autocommit = True
     try:
         _timeouts(conn)
         result = work()
