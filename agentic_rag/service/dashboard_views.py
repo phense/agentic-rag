@@ -217,6 +217,10 @@ def setup_action(cfg,path,principal,endpoint,method,data):
     raise ServiceError('not_found',404)
 
 
+DASHBOARD_TOOLS={'memory_get','memory_search','memory_evidence','memory_evidence_history','memory_review_claim','memory_source_state'}
+STRICT_TOOLS={'memory_review_claim','memory_source_state'}
+
+
 async def dispatch(cfg,path,principal,endpoint,method,data,query):
     if endpoint=='/api/settings' and method=='GET':
         from .dashboard_settings import settings
@@ -230,8 +234,15 @@ async def dispatch(cfg,path,principal,endpoint,method,data,query):
     if endpoint.startswith('/api/setup'):
         return await asyncio.to_thread(setup_action,cfg,path,principal,endpoint,method,data)
     if endpoint=='/api/tools' and method=='POST':
-        if not isinstance(data,dict) or data.get('tool') not in {'memory_get','memory_search','memory_review_claim'}:raise ServiceError('dashboard_tool_not_allowed',403)
+        if not isinstance(data,dict) or data.get('tool') not in DASHBOARD_TOOLS:raise ServiceError('dashboard_tool_not_allowed',403)
         if set(data)-{'tool','arguments','idempotency_key','created_at'}:raise ServiceError('invalid_request')
+        # The dashboard is a strict client: every decision cites the evidence
+        # version the person inspected. Read-only users keep the scope denial.
+        arguments=data.get('arguments')
+        if data['tool'] in STRICT_TOOLS and not principal.readonly and (not isinstance(arguments,dict)
+                or not isinstance(arguments.get('expected_version'),str)
+                or (data['tool']=='memory_source_state' and not isinstance(arguments.get('id_or_slug'),str))):
+            raise ServiceError('expected_version_required')
         from .requests import submit
         return await asyncio.to_thread(submit,cfg,principal,data)
     if endpoint.startswith('/api/requests/'):

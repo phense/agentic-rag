@@ -313,3 +313,26 @@ release the native slot after drain even when the caller cancels before start.
 IT062-SUCCESS/RECOVERY connect selection, scoped search, restart and actual old
 code rollback; final review and complete-suite gates are recorded in
 [Settings verification](../verification/issue62-settings.md).
+
+
+## RAG-063 design-time gate — 2026-10-31
+
+Source model: [source-evidence-63.md](source-evidence-63.md). Spec/plan: `docs/specs/6-5-source-evidence/`. Existing semantics were independently inventoried; 38 baseline tests passed at5390a6f. No implementation evidence claimed yet.
+
+- **AF-063-001 (open, concurrency/data integrity)**: current evidence gateways lack CAS and use no portable revision. AC-003/004, evidence.py:attach/source_state/review. T063-001..003 must persist revisions, bind review to the complete inspected set, avoid ABA and match claim→source locking without a source→claim cycle. Verify concurrent attach/withdraw/review and audit failure.
+- **AF-063-002 (open, trust boundary/resources)**: raw source metadata and no scoped history transport. AC-005/006, service scope021/read_limits, dashboard source renderer. T063-002/004..006 must anchor reads to visible documents, enforce existing all-dependent write scope, hide technical host locators, bound quote/history pages and use non-oracular errors. No security-definer history shortcut or audit-table grant.
+- **AF-063-003 (open, lifecycle/invalidation)**: source trust, claim review and fact-time disposition are different gates; derived paths must remain live-qualified. AC-001/002/007, SQL020/023, profiles.py/thematic.py/generated patterns. T063-002/007 must derive explanations from canonical semantics and test withdrawal, correction, expiry, supersession, scope revocation and no resurrection.
+- **AF-063-004 (open, migration/recovery)**: existing populated schema028 data must retain its original fields and unknown provenance. AC-008/009, service/upgrade.py and schema framework. T063-001/008/009 must prove additive029 migration, source0.6.15 support, restored originals/ACLs, portable tokens, retry and old-client reads; PB-063-UPGRADE reviewed/rehearsed before delivery.
+
+Next: tasks before application changes; reconcile this exact sequence and all four findings as-built, then independent strong architect derives success/recovery integration tests. No design waiver.
+
+
+RAG-063 as-built reconciliation, 2026-10-31: AF-063-001..004 have implemented
+responses in migration029, evidence_contract.py/evidence.py, all four client
+surfaces, scoped history and populated upgrade tests. The source locking gap was
+reproduced against old-style SQL and corrected with a no-data anchored SHARE-lock
+helper; the document lifecycle race and oversized legacy reasons have regression
+tests. Details and rationale are in [source-evidence-63.md](source-evidence-63.md).
+These findings are resolved at the implementation/model boundary; independent
+integration derivation and complete-diff/playbook review remain pending and may
+append new actionable findings. No final readiness or whole-suite pass is claimed.

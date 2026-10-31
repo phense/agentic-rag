@@ -5,6 +5,13 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.16] - 2026-10-31
+
+- Add source evidence contract v1 (Issue63): `memory_evidence`/`memory_evidence_history` in local and central MCP/REST, `rag evidence show|history` and a dashboard drilldown with exact stored quotes, opaque source/span references, event time or unknown, separate source trust, claim review, fact lifecycle and exclusion reasons. No host session or file locator is returned.
+- Bind reviews and source-trust changes to the inspected version via optional `expected_version` (required by the dashboard). Stale decisions, including withdraw→reinstate cycles, conflict with no state, history or audit change. Legacy no-token calls keep working and still invalidate inspected versions.
+- Add additive migration029: persisted, restore-stable source/claim revisions and append-only, scoped decision history written by triggers; no original row, grant or audit record is rewritten and no review is backfilled. Upgrade from 0.6.15 rehearsed on populated copies (PB-063-UPGRADE).
+- Fix thematic history labels: a replacement in another domain no longer marks a current value as superseded, matching the canonical domain-isolated predicate.
+
 ## [0.6.15] - 2026-10-30
 
 - Add administrator Settings with MiniLM L6 EN/DE, mMARCO DE/EN (new default) and Jina tiny English-only presets, pinned optional offline CPU runtime and durable revision-checked selection.

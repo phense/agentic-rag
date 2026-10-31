@@ -1,0 +1,48 @@
+{
+  "after": {
+    "cross_domain_history_labels": {
+      "n": 5,
+      "wrongly_superseded": 0
+    },
+    "inspection": {
+      "first_response_bytes": 21973,
+      "host_path_occurrences": 0,
+      "responses_to_see_all": 3,
+      "spans_in_first_response": 20,
+      "spans_seen_across_pages": 48,
+      "spans_total": 48
+    },
+    "mode": "after",
+    "stale_decisions": {
+      "committed": 0,
+      "conflict": 40,
+      "n": 40,
+      "rows_added_by_rejected": 0
+    }
+  },
+  "base_commit": "5390a6f6b4a7cce4b27abc9b51226acf2dac6223",
+  "before": {
+    "cross_domain_history_labels": {
+      "n": 5,
+      "wrongly_superseded": 5
+    },
+    "inspection": {
+      "first_response_bytes": 33984,
+      "host_path_occurrences": 48,
+      "responses_to_see_all": 1,
+      "spans_in_first_response": 48,
+      "spans_total": 48
+    },
+    "mode": "before",
+    "stale_decisions": {
+      "committed": 40,
+      "conflict": 0,
+      "n": 40,
+      "rows_added_by_rejected": 0
+    }
+  },
+  "candidate_head": "5390a6f6b4a7cce4b27abc9b51226acf2dac6223",
+  "candidate_tree_dirty": true,
+  "feature": "RAG-063",
+  "limits": "Synthetic data on owned disposable PostgreSQL17; local SQL gateway, no service/network/provider/model; counts, not latency claims."
+}

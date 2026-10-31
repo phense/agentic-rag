@@ -21,7 +21,7 @@ runs. Standalone CLI/stdio users can keep working locally without it.
 | View | Available to | Contents |
 |---|---|---|
 | Overview | Signed-in humans | Scoped memory/domain/pending-review counts and recent previews |
-| Knowledge | Signed-in humans | Scoped browsing/search, originals, assertions, provenance and review state |
+| Knowledge | Signed-in humans | Scoped browsing/search, originals, assertions, provenance and review state; evidence contract v1 drilldown with source/claim history and version-bound review and source-trust actions ([claim evidence](claim-evidence.md)) |
 | Clients & access | Human administrators | Configured people/VMs, safe credential IDs, effective permissions, queue/provider state and administrative changes |
 | Settings | Human administrators | Server-wide reranker preset, language support, local availability and audited preview/apply |
 | Setup assistant | Human administrators | Four explicit installation paths, saved checks and read-only configuration plan |
@@ -112,6 +112,8 @@ states the measured host, workload, memory/disk observations and limits.
 |403 origin_denied/csrf_denied | Use the original dashboard address and reload the page |
 |403 administrator_required/scope_denied | Request the specific rights needed; no automatic broadening |
 |409 policy_revision_conflict | Reload and preview against the current authoritative file |
+|400 expected_version_required | The dashboard sends review and source-trust changes only with the inspected evidence version; reload the memory |
+|evidence conflict (failed queued request) | The evidence changed after inspection and nothing was saved; select **Reload evidence** and decide again |
 |409 last_administrator_required | Keep a valid enabled human administrator |
 |409 setup_checks_incomplete | Run missing/stale checks before completion |
 |429 capacity/busy | Agent work has priority or a bounded control is busy; retry explicitly |

@@ -37,7 +37,8 @@ SAFE_VERSION=re.compile(r'[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}(?:[a-z][0-9]{1,5})?
 ERRORS={'invalid_credentials','scope_denied','invalid_request','not_found','unsupported_protocol',
         'request_too_large','capacity_exceeded','request_timeout','provider_unavailable',
         'provider_refused','authorization_changed','request_failed','disconnected','http_error',
-        'mcp_error','operation_failed','internal_error','tls_required','tracing_unavailable','origin_denied','csrf_denied'}
+        'mcp_error','operation_failed','internal_error','tls_required','tracing_unavailable','origin_denied','csrf_denied',
+        'evidence_conflict','evidence_unavailable'}
 
 
 def policy_id(cfg):

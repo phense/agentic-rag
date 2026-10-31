@@ -16,7 +16,7 @@ SCOPED_TABLES = (
     'continuation_checkpoints', 'mining_batches', 'mining_queue', 'audit_log',
     'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
     'service_session_access', 'service_requests',
-    'embedding_vectors',
+    'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
 )
 
 
@@ -42,6 +42,51 @@ def origin_columns_valid(conn):
         AND t.tgname='immutable_request_origin' AND t.tgenabled IN ('O','A')
         AND t.tgfoid='public.rag_immutable_request_origin()'::regprocedure""").fetchone()['n']
     return len(rows)==4 and all(r['ok'] for r in rows) and triggers==2
+
+
+EVIDENCE_TRIGGERS = (
+    ('knowledge_sources', 'source_revision', 'rag_source_revision_trigger()'),
+    ('claim_records', 'claim_record_revision', 'rag_claim_revision_trigger()'),
+    ('claim_evidence', 'claim_evidence_revision', 'rag_claim_revision_trigger()'),
+    ('source_history', 'source_history_append_only', 'rag_history_append_only()'),
+    ('claim_history', 'claim_history_append_only', 'rag_history_append_only()'),
+)
+
+
+def evidence_revisions_valid(conn):
+    """Migration029 revisions/history: definer-written only, triggers enabled.
+
+    A limited role able to write a revision could reset it and recreate an
+    already inspected version (ABA); a disabled trigger would let a decision
+    commit without advancing the version or recording its history.
+    """
+    tables = ['source_revisions', 'claim_revisions', 'source_history', 'claim_history']
+    exposed = conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname='public' AND c.relname=ANY(%s) AND (
+          EXISTS(SELECT 1 FROM pg_catalog.pg_roles r WHERE r.rolname IN ('rag_reader','rag_writer','rag_admin')
+            AND pg_catalog.has_table_privilege(r.oid,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+          OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute att CROSS JOIN LATERAL pg_catalog.aclexplode(att.attacl) a
+            WHERE att.attrelid=c.oid AND NOT att.attisdropped AND a.grantee<>c.relowner))) bad""", (tables,)).fetchone()['bad']
+    if exposed:
+        return False
+    helper = conn.execute("""SELECT p.prosecdef
+        AND p.proconfig @> ARRAY['search_path=pg_catalog, public, pg_temp']
+        AND NOT pg_catalog.has_function_privilege('rag_reader',p.oid,'EXECUTE')
+        AND pg_catalog.has_function_privilege('rag_writer',p.oid,'EXECUTE')
+        AND NOT EXISTS(SELECT 1 FROM pg_catalog.aclexplode(p.proacl) a
+                       WHERE a.grantee=0 AND a.privilege_type='EXECUTE') AS ok
+        FROM pg_catalog.pg_proc p
+        WHERE p.oid=pg_catalog.to_regprocedure('public.rag_lock_claim_source(uuid,text)')""").fetchone()
+    if helper is None or not helper['ok']:
+        return False
+    for table, name, function in EVIDENCE_TRIGGERS:
+        ok = conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
+            WHERE t.tgrelid=pg_catalog.to_regclass(%s) AND t.tgname=%s AND t.tgenabled IN ('O','A')
+            AND t.tgfoid=pg_catalog.to_regprocedure(%s)) ok""", ('public.' + table, name, 'public.' + function)).fetchone()['ok']
+        if not ok:
+            return False
+    return True
 
 
 def validate_schema(conn):
@@ -92,7 +137,8 @@ def validate_schema(conn):
             raise ServiceSchemaError()
         # Derived/read-only tables have no write check; remaining mutable tables
         # must enforce the original row's authority in addition to WITH CHECK.
-        read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors'}
+        read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors',
+                   'source_revisions','claim_revisions','source_history','claim_history'}
         if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
             raise ServiceSchemaError()
         roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()
@@ -125,6 +171,7 @@ def validate_schema(conn):
             WHERE n.nspname='public' AND c.relname=ANY(%s)""",
             (['embedding_generations','embedding_selection','embedding_vectors'],)).fetchall()
         if len(managed)!=3 or any(r['exposed'] for r in managed):raise ServiceSchemaError()
+        if not evidence_revisions_valid(conn):raise ServiceSchemaError()
         audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
             WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'
             AND t.tgenabled IN ('O','A') AND t.tgfoid='public.rag_service_audit_actor()'::regprocedure) ok""").fetchone()['ok']

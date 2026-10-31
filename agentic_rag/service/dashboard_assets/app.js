@@ -126,6 +126,84 @@ async function memoryPage(){
   });
   await load();return [header('Knowledge library','Browse memories in your scope, inspect their originals, and review claims with evidence.',badge(me.readonly?'Read-only':'Scoped access',me.readonly?'':'good')),controls,results];
 }
+const ORIGINS={user_source_event:'User source event',assistant_statement:'Assistant statement',manual_attestation:'Operator attestation',unknown_role:'Unknown speaker'};
+const REASONS={claim_refuted:'the claim was refuted',review_required:'it needs an operator review',no_active_support:'no active source supports it',not_current:'it is not current',fact_not_accepted:'the fact awaits review',fact_no_event_time:'the fact has no event time',fact_future:'the fact starts later',fact_expired:'the fact expired',fact_superseded:'a newer value replaced it',document_archived:'the memory is archived',document_refuted:'the memory was refuted'};
+function decisionError(error,doc){
+  const text=String(error.message||error);
+  if(text==='evidence conflict')return el('div',{class:'error',role:'alert'},'This evidence changed after you opened it, so nothing was saved. Reload it and decide on the current version.',el('div',{class:'actions'},button('Reload evidence',()=>showDocument(doc.id),'secondary')));
+  if(text==='evidence unavailable')return el('div',{class:'error',role:'alert'},'Nothing was changed. The evidence is no longer available to you, or the source is shared with knowledge outside your write scope.');
+  return errorBox(error);
+}
+function historyList(page){
+  const list=el('div',{class:'spaced'},el('small',{},'Decisions recorded since the evidence-history upgrade. Earlier changes remain in the audit log; an empty list does not mean never reviewed.'));
+  if(!page.items.length)list.append(el('div',{class:'empty'},'No recorded decisions yet.'));
+  for(const item of page.items)list.append(el('div',{class:'row'},el('div',{class:'row-main'},el('strong',{},item.operation.replaceAll('_',' ')+(item.state?' → '+item.state:'')),el('p',{},item.reason||''),el('div',{class:'row-meta'},el('span',{},'by '+item.actor),el('span',{},date(item.recorded_at)),badge(item.concurrency==='strict'?'Bound to inspected version':item.concurrency==='legacy'?'Without inspected version':'Direct change')))));
+  return list;
+}
+async function showHistory(doc,target,source){
+  target.replaceChildren();
+  const load=async cursor=>{
+    const box=el('div');target.append(box);
+    try{
+      const page=await queueTool('memory_evidence_history',{id_or_slug:doc.id,...(source?{source_key:source}:{}),...(cursor?{cursor}:{})},box);
+      if(!page)return;
+      box.replaceChildren(historyList(page));
+      if(page.next_cursor){
+        const more=button('Load earlier decisions',async()=>{more.remove();await load(page.next_cursor);},'secondary');
+        box.append(more);
+      }
+    }catch(error){box.replaceChildren(errorBox(error));}
+  };
+  await load(null);
+}
+function sourceCard(doc,view,item,writable){
+  const card=el('article',{class:'source'},el('h3',{},'Source '+item.source_key.slice(0,12)+' · span '+item.span_hash.slice(0,8)),
+    el('div',{class:'detail-meta'},badge('Trust: '+item.trust.state,item.trust.state==='active'?'good':'bad'),badge(ORIGINS[item.origin]||item.origin),badge(item.completeness==='complete'?'Complete quote':'Partial quote',item.completeness==='complete'?'':'warn'),item.reviewed?badge('Reviewed span'):null),
+    el('p',{},item.quote),item.quote_truncated?el('small',{},'Quote shortened to 4000 characters.'):null,
+    el('small',{},'Speaker role: '+item.role+' · '+(item.source_event_at?'Event time '+date(item.source_event_at):'Event time unknown')),
+    item.trust.reason?el('p',{class:'muted'},'Trust reason: '+item.trust.reason):null);
+  const history=el('div');
+  card.append(el('div',{class:'actions'},button('Source history',()=>showHistory(doc,history,item.source_key),'quiet')),history);
+  if(writable){
+    const form=el('form',{class:'spaced'},selectField('Source trust','state',[['active','Active'],['refuted','Refuted'],['removed','Withdrawn']],item.trust.state==='active'?'removed':'active'),field('Reason for this source decision','reason'),el('button',{type:'submit',class:'secondary spaced'},'Apply to this source'));
+    form.querySelector('[name=reason]').required=true;
+    form.addEventListener('submit',async event=>{event.preventDefault();const values=dataOf(form);const box=el('div',{class:'spaced'});form.append(box);
+      try{const saved=await queueTool('memory_source_state',{source_key:item.source_key,state:values.state,reason:values.reason,id_or_slug:doc.id,expected_version:item.source_version},box);if(saved){notice('Source decision saved through the audited gateway.');await showDocument(doc.id);}}
+      catch(error){box.replaceChildren(decisionError(error,doc));}});
+    card.append(el('details',{},el('summary',{},'Change this source’s trust'),el('small',{},'Applies to every memory that cites this source. Shared sources need write access to all of them.'),form));
+  }
+  return card;
+}
+async function showEvidence(doc,target,writable){
+  const status=el('div');target.replaceChildren(status);
+  const view=await queueTool('memory_evidence',{id_or_slug:doc.id},status);if(!view)return;
+  const e=view.eligibility,claim=view.claim;
+  const summary=el('div',{class:'detail-meta'},badge('Lifecycle: '+view.lifecycle.document_status+(view.lifecycle.fact?' · fact '+view.lifecycle.fact.state:'')),badge(claim?'Review: '+claim.review_state:'Legacy memory'),badge(e.current?'Current':'Not current',e.current?'good':'warn'));
+  const explain=el('div',{class:'callout'},
+    e.current?'This memory is currently used.':'Not used currently because '+e.reasons.map(r=>REASONS[r]||r.replaceAll('_',' ')).join(', ')+'.',
+    el('br'),'Independent verification: none. “Reviewed” records an operator decision; it does not verify the source.',
+    claim?null:[el('br'),'Its provenance predates claim evidence and is unknown.'],
+    e.notices.includes('source_withdrawn')?[el('br'),'Some sources were refuted or withdrawn; the original evidence stays visible.']:null);
+  const list=el('div');
+  const history=el('div');
+  target.replaceChildren(summary,explain,el('small',{},'Inspected version '+view.version.slice(0,16)+'… · '+view.sources.total+' source spans'),list,
+    el('div',{class:'actions'},button('Decision history',()=>showHistory(doc,history),'quiet')),history);
+  if(!view.sources.items.length)list.append(el('p',{class:'muted'},'No claim-source records. Inspect the recorded metadata below.'));
+  const add=page=>{for(const item of page.sources.items)list.append(sourceCard(doc,view,item,writable));};
+  add(view);
+  let cursor=view.sources.next_cursor;
+  if(cursor){const more=button('Load more sources',async()=>{const box=el('div');more.replaceWith(box);try{const page=await queueTool('memory_evidence',{id_or_slug:doc.id,cursor},box);if(!page)return;
+      if(page.version!==view.version){box.replaceChildren(decisionError(new Error('evidence conflict'),doc));return;}
+      box.remove();add(page);cursor=page.sources.next_cursor;if(cursor)list.after(more);}catch(error){box.replaceChildren(errorBox(error));}},'secondary');list.after(more);}
+  if(writable&&claim){
+    const form=el('form',{class:'spaced'},el('h3',{},'Review this claim'),selectField('Review state','state',[['confirmed','Confirmed'],['unreviewed','Unreviewed'],['refuted','Refuted']],'confirmed'),field('Reason, grounded in the original sources','reason'),el('small',{},'Your decision is bound to the evidence shown above. If anything changed meanwhile, nothing is saved.'),el('button',{type:'submit',class:'primary spaced'},'Apply audited review'));
+    form.querySelector('[name=reason]').required=true;
+    form.addEventListener('submit',async event=>{event.preventDefault();const values=dataOf(form);const box=el('div',{class:'spaced'});form.append(box);
+      try{const saved=await queueTool('memory_review_claim',{id_or_slug:doc.id,state:values.state,reason:values.reason,expected_version:view.version},box);if(saved){notice('Review saved through the audited gateway.');await showDocument(doc.id);}}
+      catch(error){box.replaceChildren(decisionError(error,doc));}});
+    target.append(form);
+  }
+}
 async function showDocument(id){
   const content=root.querySelector('#content');if(!content)return;
   const epoch=++generation;content.replaceChildren(header('Memory details','Loading original-backed knowledge…'),button('← Back to knowledge',()=>navigate('memories'),'quiet'));
@@ -135,18 +213,13 @@ async function showDocument(id){
     if(!result.document){target.replaceChildren(el('div',{class:'empty'},'This memory is unavailable in your current scope.'));return;}
     const doc=result.document;
     content.querySelector('h1').textContent=doc.title;
-    target.replaceChildren(el('div',{class:'detail-meta'},badge(doc.domain),badge(doc.project_scope||'unknown'),badge(doc.claim_evidence?.review_state||doc.status)),el('div',{class:'body-text'},doc.body),el('h2',{class:'spaced'},'Original sources & review'));
-    const sources=doc.claim_sources||[];
-    if(!sources.length)target.append(el('p',{class:'muted'},'No claim-source records. Inspect the original provenance below.'));
-    for(const source of sources)target.append(el('article',{class:'source'},el('h3',{},source.source_id||source.source_key||'Source'),badge(source.state||'active'),el('p',{},source.quote||''),el('small',{},'Role: '+(source.role||'unknown')+' · '+(source.complete?'Complete quote':'Partial or unspecified quote')),source.reason?el('p',{},source.reason):null));
-    target.append(el('details',{},el('summary',{},'Evidence, assertions and provenance'),el('pre',{},JSON.stringify({claim_evidence:doc.claim_evidence,assertion:doc.assertion,provenance:doc.provenance,edges_out:result.edges_out,edges_in:result.edges_in},null,2))));
+    const evidence=el('div');
+    target.replaceChildren(el('div',{class:'detail-meta'},badge(doc.domain),badge(doc.project_scope||'unknown'),badge(doc.claim_evidence?.review_state||doc.status)),el('div',{class:'body-text'},doc.body),el('h2',{class:'spaced'},'Original sources & review'),evidence);
+    // Recorded metadata is shown as text only; it is never source navigation.
+    target.append(el('details',{},el('summary',{},'Evidence, assertions and provenance'),el('small',{},'Recorded metadata, shown as text. Session and file identifiers are not links to sources.'),el('pre',{},JSON.stringify({claim_evidence:doc.claim_evidence,assertion:doc.assertion,provenance:doc.provenance,edges_out:result.edges_out,edges_in:result.edges_in},null,2))));
     const writable=!me.readonly&&(me.permissions.write_domains.includes('*')||me.permissions.write_domains.includes(doc.domain))&&(me.permissions.write_projects.includes('*')||me.permissions.write_projects.includes(doc.project_scope));
-    if(writable&&doc.claim_evidence?.review_state){
-      const form=el('form',{class:'spaced'},el('h3',{},'Review this claim'),selectField('Review state','state',[['confirmed','Confirmed'],['unreviewed','Unreviewed'],['refuted','Refuted']],'confirmed'),field('Reason, grounded in the original sources','reason'),el('button',{type:'submit',class:'primary spaced'},'Apply audited review'));
-      form.querySelector('[name=reason]').required=true;
-      form.addEventListener('submit',async event=>{event.preventDefault();const values=dataOf(form);const box=el('div',{class:'spaced'});form.append(box);try{const saved=await queueTool('memory_review_claim',{id_or_slug:doc.id,state:values.state,reason:values.reason},box);if(saved){notice('Review saved through the audited gateway.');await showDocument(doc.id);}}catch(error){box.replaceChildren(errorBox(error));}});target.append(form);
-    }
-    target.querySelector('h2')?.focus();
+    try{await showEvidence(doc,evidence,writable);}catch(error){if(epoch===generation)evidence.replaceChildren(errorBox(error));}
+    if(epoch===generation)target.querySelector('h2')?.focus();
   }catch(error){if(epoch===generation)target.replaceChildren(errorBox(error));}
 }
 function scopesText(row){return 'Read '+row.read_domains.join(', ')+' / '+row.read_projects.join(', ')+'\nWrite '+row.write_domains.join(', ')+' / '+row.write_projects.join(', ');}
