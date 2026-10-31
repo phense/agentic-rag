@@ -138,6 +138,34 @@ with one provider call.
   after an upgrade; since migration030 there are 30. Found by the S4 serial run of
   affected suites, corrected; the file then passed (2 tests).
 
+## Remaining correction after independent S4 review
+
+The independent review at `39b6bd9` resolved the original High and five Medium
+findings, but exposed a backfill budget defect (N1) and a hardlink-installation
+gate defect (PB065-R07). The coordinator reproduced both before fixing them:
+
+- Three 600-character originals and a 2,100-character input limit used to
+  create a below-floor run and advance the backfill. The corrected scheduler
+  creates no run, preserves the cursor and batch allowance across repeated
+  ticks, and exposes `input_budget_below_floor` in JSON and CLI status. Raising
+  the budget applies the pattern with one call and closes the backfill. All
+  10 forward/backfill tests passed (6.88 s, exit 0).
+- A hardlink installed after a reader started retains the cache file's old
+  modification time. The old playbook gate falsely passed that reader. Using
+  the later modification/change time blocks it; restarting the reader passes.
+  The playbook and local-capture suites passed together (8 tests, one known
+  warning, 29.77 s, exit 0). The RO proxy now checks the four additional pattern
+  reads and rejects the three pattern writes.
+
+Final independent acceptance and the complete suite remain pending. The first
+full run was interrupted (exit 2, 997 passed/9 failed): eight browser launches
+lacked the existing library search path; one RO proxy test still expected 12
+instead of 16 tools. These failures are retained, not counted as acceptance.
+With the existing browser-library path restored, all 98 affected browser,
+synthesis, transport and upgrade tests passed (223.39 s, one known upstream
+warning, exit 0). The six retained Low findings are recorded as
+[LOW-038..043 in Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6548367780).
+
 ## Defects found and fixed during S1
 
 - The central `rag service worker` loop never scheduled pattern runs; only the
@@ -162,6 +190,11 @@ with one provider call.
 - A memory larger than the maximum input limit (24,000 characters) stays
   `oversized` and is never analysed.
 - The curation report (`rag review`) can still list withheld pattern slugs.
+- Widely interleaved excluded documents can prevent a sufficient group from
+  meeting inside one bounded scan. A failed or withheld run is reconsidered
+  only at the next policy interval. A backfill overlapping a parked accepted
+  run can pay for the same originals again (code inspection, not reproduced).
+  These Low findings are tracked with the other deferrals in Issue75.
 - A code-only rollback is supported only before the first pattern; disable every
   policy first, because a 0.6.17 worker cannot process queued pattern jobs.
 

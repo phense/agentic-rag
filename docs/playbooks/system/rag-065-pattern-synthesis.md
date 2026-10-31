@@ -119,12 +119,14 @@ host of the process list, after A7 and immediately before B3.
 
    Expected: `0.6.18` and the path of the installed `METADATA` file. Stop if the
    import fails or the version is lower: reinstall that environment.
-2. With that `METADATA` path, list processes that started before the installation:
+2. For each `ENV`, use its `METADATA` path to list processes that started before
+   the installation. Repeat this check for every environment from step 1:
 
    ```bash
    python3 - METADATA_PATH <<'PYGATE'
    import os, re, subprocess, sys, time
-   installed = os.stat(sys.argv[1]).st_mtime
+   metadata = os.stat(sys.argv[1])
+   installed = max(metadata.st_mtime, metadata.st_ctime)
    pattern = sys.argv[2] if len(sys.argv) > 2 else r'agentic[_-]rag|(^|/)rag( |$)'
    table = subprocess.run(['ps', '-eo', 'pid=,lstart=,args='], capture_output=True, text=True, check=True,
                           env={**os.environ, 'LC_ALL': 'C'}).stdout
@@ -145,7 +147,9 @@ host of the process list, after A7 and immediately before B3.
    time, command) that still runs code loaded before the installation: restart
    it, including agent sessions that host an MCP server, and repeat. The default
    pattern matches `agentic_rag`, `agentic-rag` and a `rag` command; pass a second
-   argument if your process names differ.
+   argument if your process names differ. The later of modification and metadata
+   change time also covers installs hardlinked from an older package cache. A
+   later metadata change can conservatively require another restart.
 3. On the store, list every direct database client:
 
    ```sql
@@ -195,8 +199,8 @@ memories as analysed only when it ends `applied` or `non_conclusion`.
 | C5 | Pause one scope | `rag pattern disable --domain DOMAIN --project PROJECT --reason "<why>"` | Its patterns disappear from `list`; nothing is deleted | |
 | C6 | Pause everything | Set `[synthesis] enabled = false` on the processes from B2 and restart the central API and worker | No new run, provider call or backfill; patterns of enabled policies stay readable | |
 | C7 | Resume | `rag pattern enable …` again (after C5) or set the switch back (after C6) | New forward boundary; the patterns of a re-enabled policy show again | Memories created while disabled are not analysed; use C1 |
-| C8 | `error` with `job_failed`, or `withheld` | Nothing to recover: no answer was accepted, or something it rests on changed. Its memories were not recorded as analysed | The next forward tick plans the still eligible memories again | |
-| C9 | `pending N (input_budget_below_floor)` or `oversized N` | The memories, or one memory alone, do not fit the provider input. Nothing was sent or consumed, and no run retries by itself. Raise `max_input_chars` in `[synthesis]` (at most 24000) on the worker's configuration; the effective limit is the smaller of `[synthesis]` and `[llm]` `max_input_chars`. Restart the worker | After the next tick: a run, and `pending`/`oversized` fall | A memory whose spans exceed 24000 characters stays `oversized`; this release has no route to analyse it |
+| C8 | `error` with `job_failed`, or `withheld` | Nothing to recover: no answer was accepted, or something it rests on changed. Its memories were not recorded as analysed | The next due forward run plans still eligible memories again, after the policy interval (default one day) | |
+| C9 | `pending N (input_budget_below_floor)`, `backfill … pending … (input_budget_below_floor)` or `oversized N` | The memories, or one memory alone, do not fit the provider input. Nothing was sent or consumed, and no run retries by itself. Raise `max_input_chars` in `[synthesis]` (at most 24000) on the worker's configuration; the effective limit is the smaller of `[synthesis]` and `[llm]` `max_input_chars`. Restart the worker | After the next tick: a run, and the waiting note clears. A blocked backfill keeps its cursor and batch allowance until then | A memory whose spans exceed 24000 characters stays `oversized`; this release has no route to analyse it |
 
 ### Integrity check
 

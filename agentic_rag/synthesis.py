@@ -427,7 +427,8 @@ def request_backfill(conn, cfg, *, domain, start, end, reason, project=None, sco
 def _backfill_view(row):
     return {'id': str(row['id']), 'policy_id': str(row['policy_id']), 'window_start': _time(row['window_start']),
             'window_end': _time(row['window_end']), 'max_batches': row['max_batches'], 'batches': row['batches'],
-            'oversized': row['oversized'], 'state': row['state'], 'created_at': _time(row['created_at'])}
+            'oversized': row['oversized'], 'state': row['state'], 'waiting': row['waiting'],
+            'created_at': _time(row['created_at'])}
 
 
 def _run_view(row):
@@ -596,10 +597,14 @@ def _schedule_backfill(conn, cfg, policy):
     selection = candidates(conn, policy['domain'], policy['project_scope'], start=backfill['window_start'],
                            end=backfill['window_end'], after=after)
     if not selection['memories']:
-        conn.execute("UPDATE public.synthesis_backfills SET state='done',finished_at=now() WHERE id=%s", (backfill['id'],))
+        conn.execute("UPDATE public.synthesis_backfills SET state='done',waiting=NULL,finished_at=now() WHERE id=%s", (backfill['id'],))
         return False
     chosen = []
     oversized, cut, index = _fit(selection['memories'], _input_budget(cfg), chosen)
+    if cut == 'budget' and not _selection(chosen)['independence']['sufficient']:
+        conn.execute("UPDATE public.synthesis_backfills SET waiting='input_budget_below_floor' WHERE id=%s",
+                     (backfill['id'],))
+        return False  # no run or cursor movement: retry the complete group after a budget change
     end_at, end_id = selection['last']
     if cut:  # resume at the first original that did not fit; earlier ones were chosen or reported oversized
         previous = selection['memories'][index - 1]
@@ -609,7 +614,7 @@ def _schedule_backfill(conn, cfg, policy):
     if chosen and run is None:
         return False
     exhausted = finished or (run is not None and backfill['batches'] + 1 >= backfill['max_batches'])
-    conn.execute("UPDATE public.synthesis_backfills SET batches=batches+%s,oversized=oversized+%s,cursor_at=%s,"
+    conn.execute("UPDATE public.synthesis_backfills SET waiting=NULL,batches=batches+%s,oversized=oversized+%s,cursor_at=%s,"
                  "cursor_id=%s,state=CASE WHEN %s THEN 'done' ELSE state END,finished_at=CASE WHEN %s THEN now() END"
                  ' WHERE id=%s', (int(run is not None), len(oversized), end_at, end_id, exhausted, exhausted,
                                   backfill['id']))

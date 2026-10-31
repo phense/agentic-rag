@@ -1,10 +1,11 @@
 # PB-065-OPS review and rehearsal evidence
 
 Playbook: [rag-065-pattern-synthesis.md](rag-065-pattern-synthesis.md).
-State: **revised for PB065-R01..R06 and R65-04 (S4) and re-rehearsed by the
-implementer; independent re-review pending.** The earlier independent review
-(`Changes required`) applies to the previous revision. Delivery stays blocked
-until a new review passes.
+State: **independent S4 review found PB065-R07 (Important) and R08 (Minor).
+The coordinator corrected both and repeated the hardlink rehearsal; final
+independent acceptance remains pending.** The original PB065-R01..R06 findings
+were resolved in the S4 independent review. Delivery stays blocked until the
+remaining review and full verification gates pass.
 
 ## Rehearsal
 
@@ -69,6 +70,16 @@ out (`status='error'`). Those are the conditions the existing worker reaches on
 its own after its configured backoff and attempt limit. The B0 gate rehearsal
 uses a temporary installation marker instead of reinstalling the package.
 
+After review at `39b6bd9`, the coordinator changed that marker rehearsal to a
+real hardlink from a cache file created before the old reader started. The
+original `st_mtime` gate incorrectly printed `no_stale_processes` (regression
+exit 1). With `max(st_mtime, st_ctime)`, the same snippet blocked the old reader
+and passed after its restart. The complete playbook and local-capture files
+then passed together: 8 tests, 1 known upstream warning, 29.77 s, exit 0.
+This is a Linux filesystem rehearsal, not a package reinstall or a macOS test.
+Step B0 now requires the timestamp check for every installed environment; C8
+states the next due policy interval rather than the next worker tick.
+
 ## Correction found during rehearsal
 
 The first draft of C1 promised a `backfill` run after every request. An empty
@@ -87,5 +98,7 @@ state this.
 
 ## Independent review
 
-Previous revision: changes required (PB065-R01..R06). Revised revision: pending
-(coordinator-owned).
+Original revision: changes required (PB065-R01..R06). Independent S4 review:
+those findings resolved; new PB065-R07/R08 required correction. Focused
+coordinator correction and hardlink rehearsal passed; independent acceptance
+of the changed procedure is pending.

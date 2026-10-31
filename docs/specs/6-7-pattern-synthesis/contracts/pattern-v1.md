@@ -59,7 +59,7 @@ distinct memories). Below the floor, nothing is sent to a provider.
 | Tool | Level | Arguments | Effect |
 |---|---|---|---|
 | `memory_pattern_preview` | read | `domain, project=None, scope=None, start=None, end=None` | Provider-free, write-free. Policy state, candidate counts, exclusions, independence, budgets and bounded original references (`document_id, version, reference, source_version, event`). No quotes. |
-| `memory_pattern_status` | read | `domain=None, project=None, scope=None, limit=20` | Visible policies with their forward view (`pending_memories`, optional `waiting`, `blocked.oversized`, `held_for_recovery`, `more`), open backfills (with `oversized`) and newest runs: state, code, counts (`candidates`, `new_memories`, `context_memories`), provider calls, timings. No prompts, quotes, raw provider errors or namespaces. |
+| `memory_pattern_status` | read | `domain=None, project=None, scope=None, limit=20` | Visible policies with their forward view (`pending_memories`, optional `waiting`, `blocked.oversized`, `held_for_recovery`, `more`), open backfills (with `oversized` and nullable `waiting`) and newest runs: state, code, counts (`candidates`, `new_memories`, `context_memories`), provider calls, timings. No prompts, quotes, raw provider errors or namespaces. |
 | `memory_patterns` | read | `domain, project=None, scope=None, limit=20, cursor=None` | Current patterns only. Withheld patterns are omitted without a count. |
 | `memory_pattern` | read | `id_or_slug` | One current pattern: `label, statement, confidence, review_state, current, parts[]` with exact citations; otherwise `evidence_unavailable`. |
 | `memory_pattern_policy` | write | `domain, enabled, reason, project=None, scope=None, interval_seconds=86400` | Create/enable/disable. Enabling from disabled records server time as `forward_from`; disabling keeps accepted output and patterns but withholds the patterns. Re-enabling sets a new `forward_from`; nothing between is processed implicitly. |
@@ -122,8 +122,10 @@ from contract evidence-v1. No namespace, source event ID or transcript path.
   were analysed is still found. `withheld` and `error` record nothing.
 - **Bounded scan.** At most 500 unprocessed documents are examined per plan. The
   examination rotates from a stored position (`cursor_at, cursor_id` on the
-  policy, examination only) and wraps once, so eligible originals cannot starve
-  behind excluded ones. Excluded originals are never recorded as processed.
+  policy, examination only) and wraps once, reaching originals behind an excluded
+  prefix. Widely interleaved excluded originals can still prevent a sufficient
+  group from meeting inside one window (Issue 75). Excluded originals are never
+  recorded as processed.
 - **Budget fit.** New originals are added in arrival order while the complete
   provider input (prompt plus system text) stays within the effective
   `max_input_chars` and the run within 12 memories. The first original that no
@@ -147,7 +149,10 @@ from contract evidence-v1. No namespace, source event ID or transcript path.
   planning (`held_for_recovery`) so no second paid call covers them.
 - **Backfill** batches use the same budget fit and resume at the first
   unfitted original; oversized originals in the window are counted on the
-  backfill. Backfill runs carry no context; their originals become context for
+  backfill. If the budget cuts the group below the independence floor, no run
+  is created: the backfill stays pending, reports `waiting: input_budget_below_floor`
+  and retains its cursor and batch allowance until a sufficient group fits.
+  Backfill runs carry no context; their originals become context for
   later forward runs of the same epoch.
 - **Waiting codes** in the forward view: `insufficient_independent_support`,
   `input_budget_below_floor`, `policy_disabled`.

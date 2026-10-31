@@ -131,6 +131,9 @@ Nothing is sent to the model and nothing is marked as read while a note blocks.
 The context window is finite (the 48 most recently read memories of the current
 enable period): two reports far apart in a long history are not guaranteed to
 meet in one call.
+The scan examines at most 500 unprocessed documents at a time. It rotates past
+excluded documents, but eligible reports separated by many excluded documents
+may never meet the three-event floor in one scan (tracked in Issue 75).
 
 ## Older memories: backfill
 
@@ -144,8 +147,12 @@ rag pattern backfill --domain general --project /work/helpdesk \
 ```
 
 The window ends at or before the forward boundary, spans at most 366 days and
-runs at most 10 batches. Below the support floor a backfill ends without a model
-call.
+runs at most 10 batches. If the window has too little independent support, a
+backfill ends without a model call. If a sufficient group exists but does not
+fit the input budget, it stays pending instead. `rag pattern status` prints
+`backfill … pending … (input_budget_below_floor)`. No run is created, and the
+cursor and batch allowance remain unchanged. Raise the worker's effective
+input budget and restart it; the next tick tries the same group again.
 
 ## Read and check a pattern
 

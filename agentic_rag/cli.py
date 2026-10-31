@@ -1165,6 +1165,10 @@ def _pattern(args,cfg):
                       f"{'; oversized '+str(p['forward']['blocked']['oversized']) if p['forward'].get('blocked') else ''}"
                       f"{'; held for recovery '+str(p['forward']['held_for_recovery']) if p['forward'].get('held_for_recovery') else ''}"
                       f"{'; more to scan' if p['forward'].get('more') else ''}")
+            for b in result['backfills']:
+                print(f"backfill {b['id']} {b['state']}: {b['batches']}/{b['max_batches']} batches"
+                      f"{' ('+b['waiting']+')' if b.get('waiting') else ''}"
+                      f"{'; oversized '+str(b['oversized']) if b.get('oversized') else ''}")
             for r in result['runs']:
                 print(f"run {r['id']} {r['kind']} {r['state']}{' '+r['code'] if r['code'] else ''}: "
                       f"{r['candidates']} memories ({r.get('new_memories',r['candidates'])} new, "

@@ -49,6 +49,7 @@ CREATE TABLE public.synthesis_backfills (
     cursor_at timestamptz,
     cursor_id uuid,
     state text NOT NULL DEFAULT 'pending' CHECK (state IN ('pending','done','cancelled')),
+    waiting text CHECK (waiting IS NULL OR waiting = 'input_budget_below_floor'),
     reason text NOT NULL CHECK (length(reason) BETWEEN 1 AND 1000),
     owner jsonb,
     requested_by text NOT NULL,

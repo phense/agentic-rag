@@ -11,6 +11,7 @@ rehearsed by test_synthesis_upgrade.py.
 """
 from datetime import datetime, timedelta
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -63,11 +64,16 @@ def gate_rehearsal(tmp_path):
     assert version == expected and Path(metadata).name == 'METADATA' and Path(metadata).exists()
     token = 'pb065-gate-' + uuid.uuid4().hex
     reader = [sys.executable, '-c', f'import agentic_rag.store, time; time.sleep(120)  # {token}']
+    cached = tmp_path / 'cached-METADATA'
+    cached.write_text('cached package metadata predating the reader')
+    time.sleep(1.2)
     stale = subprocess.Popen(reader)
     try:
         time.sleep(1.2)
         marker = tmp_path / 'installed-METADATA'
-        marker.write_text('installation marker for the rehearsal')
+        os.link(cached, marker)  # uv's install preserves the old cache mtime
+        assert marker.stat().st_nlink == 2
+        assert marker.stat().st_ctime > marker.stat().st_mtime + 2
         blocked = subprocess.run([sys.executable, '-c', snippet('PYGATE'), str(marker), token],
                                  text=True, capture_output=True, timeout=60)
         assert blocked.returncode == 1 and blocked.stdout.split()[0] == str(stale.pid), blocked
@@ -83,7 +89,8 @@ def gate_rehearsal(tmp_path):
     finally:
         restarted.kill()
         restarted.wait()
-    return {'fresh_version': version, 'stale_process_blocked': True, 'restarted_process_passes': True}
+    return {'fresh_version': version, 'hardlinked_install_blocks_stale': True,
+            'stale_process_blocked': True, 'restarted_process_passes': True}
 
 
 def clients_sql():

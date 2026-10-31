@@ -287,3 +287,39 @@ def test_backfill_batches_fit_the_budget_and_resume_at_the_first_unfitted_origin
     assert all(call['chars'] <= env.synthesis_max_input_chars for call in provider.calls)
     from agentic_rag import synthesis
     assert synthesis.status(conn, env, domain='general', project=PROJECT)['backfills'] == []  # done
+
+
+def test_backfill_minimum_group_over_budget_waits_without_advancing_and_resumes(conn, env, monkeypatch, capsys):
+    """N1: splitting a minimum group into budget-sized non-conclusions must
+    neither consume its backfill window nor hide the operator's budget action."""
+    from datetime import datetime, timedelta
+    from agentic_rag import cli, synthesis
+
+    provider = Recorder()
+    monkeypatch.setattr(llm, 'run_structured', provider)
+    for n in range(3):
+        original(conn, env, n, (f'Report {n}: the {MARK} vanished. ' + f'Detail {n} ' * 100)[:600])
+    policy = enable(conn, env)
+    end = datetime.fromisoformat(policy['forward_from'])
+    backfill = store.request_synthesis_backfill(
+        conn, env, domain='general', project=PROJECT, reason='history',
+        start=(end - timedelta(days=1)).isoformat(), end=policy['forward_from'], max_batches=5)
+    small = replace(env, synthesis_max_input_chars=2100)
+    before = conn.execute('SELECT * FROM synthesis_backfills WHERE id=%s', (backfill['id'],)).fetchone()
+    conn.commit()
+    for _ in range(2):
+        assert tick(conn, small) == 0
+        view = synthesis.status(conn, small, domain='general', project=PROJECT)['backfills'][0]
+        assert (view['state'], view['batches'], view['waiting']) == ('pending', 0, 'input_budget_below_floor')
+        row = conn.execute('SELECT * FROM synthesis_backfills WHERE id=%s', (backfill['id'],)).fetchone()
+        assert (row['cursor_at'], row['cursor_id']) == (before['cursor_at'], before['cursor_id'])
+        assert runs(conn) == [] and provider.calls == []
+    monkeypatch.setattr(cli, 'load_config', lambda: small)
+    assert cli.main(['pattern', 'status', '--domain', 'general', '--project', PROJECT]) == 0
+    output = capsys.readouterr().out
+    assert f"backfill {backfill['id']} pending" in output and 'input_budget_below_floor' in output
+    assert tick(conn, env) == 1
+    assert len(provider.calls) == 1 and runs(conn)[0]['state'] == 'applied'
+    assert synthesis.status(conn, env, domain='general', project=PROJECT)['backfills'] == []
+    row = conn.execute('SELECT * FROM synthesis_backfills WHERE id=%s', (backfill['id'],)).fetchone()
+    assert (row['state'], row['batches'], row['waiting']) == ('done', 1, None)
