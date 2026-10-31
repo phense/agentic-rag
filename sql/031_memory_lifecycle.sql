@@ -77,15 +77,34 @@ $$;
 
 -- Immutable base snapshot: ev1 (claim/evidence/source revisions/state/scope/assertion)
 -- plus title/body, dtype, status, domain, scope and updated_at. No lifecycle counts,
--- so applying or correcting never stales a relationship. Invoker rights.
+-- so applying or correcting never stales a relationship. One definition as an
+-- invoker-rights view, because PostgreSQL 17 re-plans an SQL function nested in a
+-- non-inlined one on every call: the per-row hidden check joins this view instead
+-- of calling rag_document_version. Its ev1 column repeats migration030 exactly.
+CREATE VIEW public.rag_lifecycle_snapshots WITH (security_invoker = true) AS
+SELECT v.id, v.ev1, 'ls1:'||encode(sha256(convert_to(jsonb_build_array(
+    v.ev1, encode(sha256(convert_to(jsonb_build_array(v.title,v.body)::text,'UTF8')),'hex'),
+    v.dtype,v.status,v.domain,v.project_scope,extract(epoch FROM v.updated_at)
+  )::text,'UTF8')),'hex') AS snapshot
+  FROM (SELECT d.id,d.title,d.body,d.dtype,d.status,d.domain,d.project_scope,d.updated_at,
+    'ev1:'||encode(sha256(convert_to(jsonb_build_array(
+      d.id::text,d.domain,d.project_scope,d.status,extract(epoch FROM d.refuted_at),
+      c.kind,c.review_state,c.content_hash,COALESCE(cr.revision,1),
+      (SELECT COALESCE(jsonb_agg(jsonb_build_array(e.source_key,e.span_hash,
+              encode(sha256(convert_to(e.quote,'UTF8')),'hex'),e.complete,e.reviewed,
+              s.state,s.role,extract(epoch FROM s.source_at),COALESCE(sr.revision,1))
+              ORDER BY e.source_key,e.span_hash),'[]'::jsonb)
+         FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
+         LEFT JOIN public.source_revisions sr USING(source_key) WHERE e.document_id=d.id),
+      (SELECT jsonb_build_array(a.disposition,extract(epoch FROM a.event_at),extract(epoch FROM a.expires_at),a.relation)
+         FROM public.fact_assertions a WHERE a.document_id=d.id)
+    )::text,'UTF8')),'hex') AS ev1
+    FROM public.documents d LEFT JOIN public.claim_records c ON c.document_id=d.id
+    LEFT JOIN public.claim_revisions cr ON cr.document_id=d.id) v;
+
 CREATE FUNCTION public.rag_lifecycle_snapshot(p_id uuid) RETURNS text
 LANGUAGE sql STABLE AS $$
-SELECT 'ls1:'||encode(sha256(convert_to(jsonb_build_array(
-    public.rag_document_version(d.id),
-    encode(sha256(convert_to(jsonb_build_array(d.title,d.body)::text,'UTF8')),'hex'),
-    d.dtype,d.status,d.domain,d.project_scope,extract(epoch FROM d.updated_at)
-  )::text,'UTF8')),'hex')
-  FROM public.documents d WHERE d.id=p_id
+SELECT s.snapshot FROM public.rag_lifecycle_snapshots s WHERE s.id=p_id
 $$;
 
 -- Optimistic action version: the base snapshot plus the monotonic count of
@@ -110,20 +129,33 @@ SELECT min(k.source_at) FROM public.claim_records c
    AND ((c.review_state='confirmed' AND e.reviewed) OR (c.kind='stated' AND k.role='user' AND e.complete))
 $$;
 
+-- Whether a duplicate/extension still hides its member: both base snapshots are
+-- unchanged and the target is base-eligible at the selected time. PL/pgSQL so the
+-- snapshot plans are cached per session and the base check per transaction; it
+-- runs only for members of an active duplicate/extension decision.
+CREATE FUNCTION public.rag_lifecycle_merge_holds(p_member uuid, p_target uuid, p_member_snapshot text,
+    p_target_snapshot text, p_at timestamptz) RETURNS boolean
+LANGUAGE plpgsql STABLE AS $$
+BEGIN
+  IF (SELECT s.snapshot FROM public.rag_lifecycle_snapshots s WHERE s.id=p_member) IS DISTINCT FROM p_member_snapshot
+     OR (SELECT s.snapshot FROM public.rag_lifecycle_snapshots s WHERE s.id=p_target) IS DISTINCT FROM p_target_snapshot THEN
+    RETURN false;
+  END IF;
+  RETURN public.rag_assertion_eligible_base(p_target, p_at, false);
+END $$;
+
 -- D7: replacement hides from its effective event until correction, whatever
--- happens to the target. Duplicate/extension hide only while both base snapshots
--- are unchanged and the target is base-eligible at the selected time; otherwise the
--- member answers through its own truth gates. p_merged_visible bypasses only
--- duplicate/extension hiding (include_merged), never replacement.
+-- happens to the target. Duplicate/extension hide only while rag_lifecycle_merge_holds;
+-- otherwise the member answers through its own truth gates. p_merged_visible
+-- bypasses only duplicate/extension hiding (include_merged), never replacement.
+-- Documents that are no member of an active decision pay one index probe.
 CREATE FUNCTION public.rag_lifecycle_hidden(p_id uuid, p_at timestamptz DEFAULT now(), p_merged_visible boolean DEFAULT false)
 RETURNS boolean LANGUAGE sql STABLE AS $$
 SELECT EXISTS (SELECT 1 FROM public.lifecycle_decisions ld
   WHERE ld.member_id=p_id AND ld.state='active' AND (
     (ld.operation='replacement' AND ld.effective_at <= p_at)
     OR (ld.operation<>'replacement' AND NOT p_merged_visible
-        AND public.rag_lifecycle_snapshot(ld.member_id) = ld.member_snapshot
-        AND public.rag_lifecycle_snapshot(ld.target_id) = ld.target_snapshot
-        AND public.rag_assertion_eligible_base(ld.target_id, p_at, false))))
+        AND public.rag_lifecycle_merge_holds(ld.member_id, ld.target_id, ld.member_snapshot, ld.target_snapshot, p_at))))
 $$;
 
 -- Explicit historical view: qualified accepted past observations, including
@@ -283,10 +315,12 @@ REVOKE ALL ON FUNCTION public.rag_lifecycle_guard(), public.rag_lifecycle_event_
 REVOKE ALL ON FUNCTION public.rag_assertion_eligible_base(uuid, timestamptz, boolean),
     public.rag_lifecycle_snapshot(uuid), public.rag_lifecycle_version(uuid),
     public.rag_lifecycle_event_basis(uuid), public.rag_lifecycle_hidden(uuid, timestamptz, boolean),
+    public.rag_lifecycle_merge_holds(uuid, uuid, text, text, timestamptz),
     public.rag_lifecycle_historical(uuid, timestamptz) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.rag_assertion_eligible_base(uuid, timestamptz, boolean),
     public.rag_lifecycle_snapshot(uuid), public.rag_lifecycle_version(uuid),
     public.rag_lifecycle_event_basis(uuid), public.rag_lifecycle_hidden(uuid, timestamptz, boolean),
+    public.rag_lifecycle_merge_holds(uuid, uuid, text, text, timestamptz),
     public.rag_lifecycle_historical(uuid, timestamptz) TO rag_reader, rag_writer, rag_admin;
 
 -- Strip inherited default privileges from only these relations, then grant.
@@ -297,7 +331,8 @@ BEGIN
   FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl,acldefault('r',c.relowner))) a
   LEFT JOIN pg_roles r ON r.oid=a.grantee
-  WHERE n.nspname='public' AND c.relname IN ('lifecycle_decisions','lifecycle_events') AND a.grantee<>c.relowner LOOP
+  WHERE n.nspname='public' AND c.relname IN ('lifecycle_decisions','lifecycle_events','rag_lifecycle_snapshots')
+    AND a.grantee<>c.relowner LOOP
   EXECUTE format('REVOKE ALL ON TABLE %s FROM %s CASCADE',item.relation,
    CASE WHEN item.grantee=0 THEN 'PUBLIC' ELSE quote_ident(item.rolname) END);
  END LOOP;
@@ -306,6 +341,7 @@ GRANT SELECT ON public.lifecycle_decisions, public.lifecycle_events TO rag_reade
 GRANT SELECT, INSERT ON public.lifecycle_decisions, public.lifecycle_events TO rag_writer;
 GRANT UPDATE (state) ON public.lifecycle_decisions TO rag_writer;
 GRANT ALL ON public.lifecycle_decisions, public.lifecycle_events TO rag_admin;
+GRANT SELECT ON public.rag_lifecycle_snapshots TO rag_reader, rag_writer, rag_admin;
 
 -- Service scope: a decision follows its anchors' domain/project. A caller who can
 -- read the member also reads its decision (and so stays hidden from a replaced value

@@ -250,3 +250,27 @@ def test_research_accepts_view_and_rejects_invalid_combinations(conn, cfg, ids):
     assert ids['E1-copy'] not in cited and result['lifecycle'] == {'view': 'current'}
     with pytest.raises(lifecycle.LifecycleError, match='invalid_view'):
         research(offline, 'flush the DNS cache', view='historical', as_of='2026-01-01T00:00:00Z')
+
+
+def test_hidden_check_is_flat_and_snapshot_matches_document_version(conn, cfg, ids):
+    # PostgreSQL 17 re-plans an SQL function nested in another non-inlined one on
+    # every call; a per-row ls1/ev1 call made every hidden candidate cost about 2 ms.
+    for member, target, operation in (('E1-copy', 'E1-keep', 'exact_duplicate'), ('R1-short', 'R1-rich', 'extension'),
+                                      ('X1-short', 'X1-rich', 'extension')):
+        apply(conn, cfg, ids[member], ids[target], operation)
+    if not conn.execute('SELECT rolsuper FROM pg_roles WHERE rolname=current_user').fetchone()['rolsuper']:
+        pytest.skip('track_functions needs a superuser test owner')
+    conn.execute("SET LOCAL track_functions = 'all'")
+    hidden = conn.execute('SELECT count(*) n FROM documents WHERE rag_lifecycle_hidden(id)').fetchone()['n']
+    calls = {name: conn.execute('SELECT COALESCE(pg_stat_get_xact_function_calls(%s::regprocedure), 0) n',
+                                (name,)).fetchone()['n']
+             for name in ('rag_lifecycle_snapshot(uuid)', 'rag_document_version(uuid)',
+                          'rag_lifecycle_merge_holds(uuid,uuid,text,text,timestamptz)')}
+    conn.rollback()
+    # Only the three members reach the snapshot comparison; nothing nested per row.
+    assert hidden == 3 and calls == {'rag_lifecycle_snapshot(uuid)': 0, 'rag_document_version(uuid)': 0,
+                                     'rag_lifecycle_merge_holds(uuid,uuid,text,text,timestamptz)': 3}
+    # One ls1 definition; its embedded ev1 is the migration030 version, row for row.
+    rows = conn.execute('SELECT s.ev1 = rag_document_version(s.id) AND s.snapshot = rag_lifecycle_snapshot(s.id) ok'
+                        ' FROM rag_lifecycle_snapshots s').fetchall()
+    assert len(rows) == len(set(ids.values())) and all(r['ok'] for r in rows)
