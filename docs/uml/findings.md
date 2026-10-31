@@ -376,10 +376,39 @@ and the wheel has181entries with176matching source/SQL/assets files. Final
 convergence checks and PR handoff remain separate gates. Public evidence: docs/verification/issue64/.
 
 
-## RAG-065 design-time findings (2026-10-31)
+## RAG-065 design-time findings and as-built reconciliation (2026-10-31)
 
 - **AF-065-001 — Open, evidence identity and anti-recursion.** Question: what counts as independent original support, and can later-confirmed generated content bypass it? AC-002/003/004/006; sequence `pattern-synthesis-65.md`; evidence `evidence_contract.py`, `evidence.py`, `thematic.py`, `sql/012_claim_evidence.sql`. Impact: assistant/manual/duplicate/derived evidence can manufacture certainty or stale disclosure. Required response: T065-001/003/004 original-event/content deduplication, ev1/src1 identity, exact part citations and complete current dependency/read guard; independently verify later confirmation and graph/direct reads.
 - **AF-065-002 — Open, acceptance/application ordering.** Question: how does a crash after a paid inference avoid repeated output or half-application? AC-005/007; same sequence; evidence `worker.py`, `jobs.py`, `store.save_claim(commit=False)`, `service/fence.py`. Impact: duplicate provider calls/documents and partial audits. Required response: T065-002/003 persistent accepted results and unique application identity under existing worker authority, atomic gateway/dependency/audit; test post-accept failure and retry.
 - **AF-065-003 — Open, deferred authority and scope.** Question: who may enable, backfill, read and commit after credentials/policy change? AC-001/006/008/009; same sequence; evidence `service/context.py`, `service/worker.py`, `service/schema.py`, migration021/029. Impact: cross-scope joins, stale accepted work and implicit historical processing. Required response: T065-002/004/005 concrete scoped policy, forward boundary, RLS/commit revalidation and schema/startup/old-client upgrade evidence.
 
 All three are analyzed, task-mapped design obligations, not unresolved product ambiguities. Coordinator will reconcile as-built before independent success/recovery integration gate T065-009. Mermaid source semantically inspected; no render claimed.
+
+As-built disposition at `a44c0a1` (runtime `8f0911a`), superseding the design-time
+Open statuses above: **implementation reconciled; independent acceptance pending**.
+AF-065-001 maps to the exact-span/version gate, dependency trigger and SQL/Python
+read guards, with a disclosed semantic limit (a model can lie about a citation's
+meaning). AF-065-002 maps to accepted-before-apply persistence, unique semantic
+application identity, scoped queue recovery corrected in `85af27d`, and atomic
+inference/dependency/audit/processed-member writes. AF-065-003 maps to scoped
+RLS/commit checks and the corrected all-reader upgrade gate: old direct readers
+are unsupported after a pattern exists; disabling on new code is not an old-code
+rollback. Exact source/test pointers are in `pattern-synthesis-65.md` and the
+R65-01..06 correction evidence in `docs/verification/issue65-pattern-synthesis.md`.
+
+- **AF-065-004 — Implementation reconciled; integration acceptance pending,
+  lossless bounded selection.** AC-001/007, US-002, R65-02/03/06; question: can a
+  finite scan and prompt budget silently lose late commits or cross-run support?
+  Evidence: `synthesis._pending/_plan/_context/_finish`, migration030
+  `synthesis_processed`, and `tests/test_synthesis_forward.py`. The rotating scan
+  position is only an examination cursor; epoch membership records actual
+  consumption. Pending originals must fit before a run is created; oversized
+  support stays visible, and recent processed originals can supply bounded
+  context without causing context-only paid work. T065-012 implements the
+  correction; T065-009 must independently probe late commits, budget continuation,
+  cross-run recurrence and failure/accepted-recovery atomicity.
+
+The corrected architecture requires fresh success and recovery probes, independent
+SQL/authorization/playbook review and the final full suite. The earlier review's
+probe exit0 means execution completed and includes a failed product recovery gate;
+it is not acceptance evidence for the corrected source. No gate is waived here.
