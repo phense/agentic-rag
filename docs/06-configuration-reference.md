@@ -18,7 +18,7 @@ agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[rerank]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
-`[curation]`, `[worker]`, `[continuity]`, `[service]`. Unknown sections and unknown keys inside a known
+`[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -268,6 +268,19 @@ Claude or Codex model-context settings.
 | `artifact_max` | `checkpoint_artifact_max` | `16` | Maximum approved root/spec/plan artifact paths captured; file bodies are never stored in the checkpoint. |
 | `handoff_max_chars` | `checkpoint_handoff_max_chars` | `8000` | Maximum characters of Claude's `compact_summary` stored as the checkpoint handoff by `PostCompact`. Only the `<summary>` block of Claude's raw compaction output is kept (the `<analysis>` scratch block is discarded; block boundaries are tags on lines of their own, so tags quoted inline are content), then the text is secret-stripped and bounded by cutting out its middle — head and tail survive around a `…[truncated]` marker line. Minimum 400; lower values are rejected at load time. |
 | `context_max_chars` | `context_max_chars` | `9500` | Cap on the whole `additionalContext` that SessionStart emits (1000–10000). Claude drops per-hook context above 10,000 characters; agentic-rag first shortens the checkpoint into the remaining budget (its handoff is truncated with a `…[truncated]` marker), then trims knowledge, domains, checkpoint, then pins, and says so with a visible warning. |
+
+## `[temporal]`
+
+Opt-in interpretation of yesterday/gestern, last week/letzte Woche, next
+month/nächsten Monat and explicit dates in searches. Details, failure behavior and
+rollback: [temporal search](temporal-query.md).
+
+| Key | Field | Default | What it does |
+|---|---|---|---|
+| `enabled` | `temporal_enabled` | `false` | When `true`, `temporal=auto` (the default request mode) orders hits whose known event time falls in a recognized period first. It never filters; explicit `prefer`/`filter` requests work regardless of this key. Must be a boolean. |
+| `timezone` | `temporal_timezone` | `"UTC"` | IANA zone where calendar days start, for example `"Europe/Berlin"`. An invalid name stops loading with `invalid_timezone`. A request's `timezone` argument overrides it. |
+
+On a central service the server's section decides `auto`; clients need no entry.
 
 ## Managed Claude configuration
 

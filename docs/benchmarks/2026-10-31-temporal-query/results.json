@@ -1,0 +1,1549 @@
+{
+ "work": "RAG-064",
+ "revision": "fd2b8947386d02fbd0950dd64a7c035069c135ee",
+ "tree_dirty": false,
+ "fixtures": {
+  "parser-cases.json": "9528011b73dbbc23c91f5e0eb5b44db7a4bde348c2b09fcfb397a4f389d5613f",
+  "ranking-corpus.json": "824bdcc2c5c108c03477e38b830538e5a539fc9cade1c7daf158e9efe4743050",
+  "ranking-cases.json": "7cd9a2c81ac368c57f1c7ee611627d1f3e7023efcff856605529355a44038b9f"
+ },
+ "python": "3.13.13",
+ "postgresql": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+ "schema_head": "029_source_evidence.sql",
+ "parameters": {
+  "domain": "general",
+  "k": 5,
+  "strategy": "auto",
+  "rerank": "off",
+  "context": "off",
+  "embedding": "unavailable (lexical full-text only)"
+ },
+ "repeats": 15,
+ "warmup": 3,
+ "parser": {
+  "dev": {
+   "cases": 24,
+   "correct": 24,
+   "accuracy": 1.0,
+   "failures": []
+  },
+  "heldout": {
+   "cases": 24,
+   "correct": 24,
+   "accuracy": 1.0,
+   "failures": []
+  }
+ },
+ "ranking": {
+  "dev": {
+   "quality_cases": 10,
+   "feature_off": {
+    "top1": 0.1,
+    "mrr": 0.1,
+    "recall": 0.1
+   },
+   "feature_off_time_words_removed": {
+    "top1": 0.3,
+    "mrr": 0.49,
+    "recall": 0.9
+   },
+   "feature_on": {
+    "top1": 0.9,
+    "mrr": 0.9,
+    "recall": 0.9
+   },
+   "improved_top1": 8,
+   "worse_top1": 0,
+   "unchanged_top1": 2,
+   "ordering_only_improved_top1": 6,
+   "ordering_only_worse_top1": 0,
+   "zero_candidate_cases": [
+    "RD07"
+   ],
+   "filter_cases": 2,
+   "filter_exact": 2,
+   "filter_precision_mean": 1.0,
+   "ambiguous_soft_unchanged": "1/1",
+   "hard_failed_closed": "1/1",
+   "no_intent_controls_identical": "3/3",
+   "forbidden_returned": {
+    "off": 0,
+    "on": 0
+   },
+   "unknown_basis_hits_returned_on": 2,
+   "latency_temporal_cases": {
+    "off": {
+     "samples": 165,
+     "median_ms": 66.024,
+     "p95_ms": 81.241
+    },
+    "on": {
+     "samples": 165,
+     "median_ms": 95.704,
+     "p95_ms": 124.258
+    },
+    "paired_delta": {
+     "samples": 165,
+     "median_ms": 27.744,
+     "p95_ms": 54.472
+    }
+   },
+   "latency_no_intent_controls": {
+    "off": {
+     "samples": 45,
+     "median_ms": 90.875,
+     "p95_ms": 113.087
+    },
+    "on": {
+     "samples": 45,
+     "median_ms": 89.639,
+     "p95_ms": 114.059
+    },
+    "paired_delta": {
+     "samples": 45,
+     "median_ms": -0.111,
+     "p95_ms": 16.177
+    }
+   },
+   "per_case_quality": [
+    {
+     "id": "RD01",
+     "off": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.2,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD02",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.3333333333333333,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD03",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.2,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD04",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.3333333333333333,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD05",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.3333333333333333,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD06",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.5,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD07",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "on": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     }
+    },
+    {
+     "id": "RD08",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD09",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "RD10",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    }
+   ],
+   "cases": [
+    {
+     "id": "RD01",
+     "query": "nightly backup job failed yesterday",
+     "mode": "prefer",
+     "expected": [
+      "dev-backup-yesterday"
+     ],
+     "off": [
+      "dev-backup-yesterday"
+     ],
+     "on": [
+      "dev-backup-yesterday",
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-28T23:00:00+00:00",
+      "end": "2026-10-29T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 5,
+      "matching": 1,
+      "outside": 3,
+      "unknown": 1,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ]
+    },
+    {
+     "id": "RD02",
+     "query": "nightly backup job failed last week",
+     "mode": "prefer",
+     "expected": [
+      "dev-backup-lastweek"
+     ],
+     "off": [],
+     "on": [
+      "dev-backup-lastweek",
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-18T22:00:00+00:00",
+      "end": "2026-10-25T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 5,
+      "matching": 1,
+      "outside": 3,
+      "unknown": 1,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ]
+    },
+    {
+     "id": "RD03",
+     "query": "nightly backup job failed gestern",
+     "mode": "filter",
+     "expected": [
+      "dev-backup-yesterday"
+     ],
+     "off": [],
+     "on": [
+      "dev-backup-yesterday"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-28T23:00:00+00:00",
+      "end": "2026-10-29T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 5,
+      "matching": 1,
+      "outside": 3,
+      "unknown": 1,
+      "excluded": 4,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ],
+     "exact": true
+    },
+    {
+     "id": "RD04",
+     "query": "VPN tunnel dropped on 2026-10-14",
+     "mode": "prefer",
+     "expected": [
+      "dev-vpn-1014"
+     ],
+     "off": [],
+     "on": [
+      "dev-vpn-1014",
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-range"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-13T22:00:00+00:00",
+      "end": "2026-10-14T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 1,
+      "outside": 3,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-1014",
+      "dev-vpn-range"
+     ]
+    },
+    {
+     "id": "RD05",
+     "query": "VPN tunnel dropped 14.10.2026",
+     "mode": "filter",
+     "expected": [
+      "dev-vpn-1014"
+     ],
+     "off": [],
+     "on": [
+      "dev-vpn-1014"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-13T22:00:00+00:00",
+      "end": "2026-10-14T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 1,
+      "outside": 3,
+      "unknown": 0,
+      "excluded": 3,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-1014",
+      "dev-vpn-range"
+     ],
+     "exact": true
+    },
+    {
+     "id": "RD06",
+     "query": "VPN tunnel dropped from 2026-10-01 to 2026-10-03",
+     "mode": "prefer",
+     "expected": [
+      "dev-vpn-1002",
+      "dev-vpn-range"
+     ],
+     "off": [],
+     "on": [
+      "dev-vpn-1002",
+      "dev-vpn-range",
+      "dev-vpn-0920",
+      "dev-vpn-1014"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-01T00:00:00+00:00",
+      "end": "2026-10-04T00:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 2,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-1014",
+      "dev-vpn-range"
+     ]
+    },
+    {
+     "id": "RD07",
+     "query": "mail relay port changed yesterday",
+     "mode": "prefer",
+     "expected": [
+      "dev-relay-new"
+     ],
+     "off": [],
+     "on": [],
+     "error": null,
+     "interval": {
+      "start": "2026-10-28T23:00:00+00:00",
+      "end": "2026-10-29T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 0,
+      "matching": 0,
+      "outside": 0,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": []
+    },
+    {
+     "id": "RD08",
+     "query": "mail relay port next month",
+     "mode": "prefer",
+     "expected": [
+      "dev-relay-new"
+     ],
+     "off": [],
+     "on": [
+      "dev-relay-new"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-31T23:00:00+00:00",
+      "end": "2026-11-30T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 1,
+      "matching": 0,
+      "outside": 1,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-relay-new"
+     ]
+    },
+    {
+     "id": "RD09",
+     "query": "mail relay port last week",
+     "mode": "prefer",
+     "expected": [
+      "dev-relay-new"
+     ],
+     "off": [],
+     "on": [
+      "dev-relay-new"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-18T22:00:00+00:00",
+      "end": "2026-10-25T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 1,
+      "matching": 0,
+      "outside": 1,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-relay-new"
+     ]
+    },
+    {
+     "id": "RD10",
+     "query": "quarterly maintenance window planned next month",
+     "mode": "prefer",
+     "expected": [
+      "dev-plan-nov"
+     ],
+     "off": [],
+     "on": [
+      "dev-plan-nov",
+      "dev-plan-oct",
+      "dev-plan-sep"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-10-31T23:00:00+00:00",
+      "end": "2026-11-30T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 3,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "dev-plan-nov",
+      "dev-plan-oct",
+      "dev-plan-sep"
+     ]
+    },
+    {
+     "id": "RD11",
+     "query": "nightly backup job failed gestern und letzte Woche",
+     "mode": "prefer",
+     "expected": [],
+     "off": [],
+     "on": [],
+     "error": null,
+     "interval": null,
+     "status": "ambiguous",
+     "effect": {
+      "candidates": 0,
+      "matching": 0,
+      "outside": 0,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "unchanged": true
+    },
+    {
+     "id": "RD12",
+     "query": "nightly backup job failed gestern und letzte Woche",
+     "mode": "filter",
+     "expected": [],
+     "off": [],
+     "on": [],
+     "error": "temporal_filter_requires_interval",
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "failed_closed": true
+    },
+    {
+     "id": "RC01",
+     "query": "nightly backup job failed",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ],
+     "on": [
+      "dev-backup-legacy",
+      "dev-backup-old",
+      "dev-backup-lastweek",
+      "dev-backup-assistant",
+      "dev-backup-yesterday"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    },
+    {
+     "id": "RC02",
+     "query": "VPN tunnel dropped",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-1014",
+      "dev-vpn-range"
+     ],
+     "on": [
+      "dev-vpn-0920",
+      "dev-vpn-1002",
+      "dev-vpn-1014",
+      "dev-vpn-range"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    },
+    {
+     "id": "RC03",
+     "query": "mail relay port",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "dev-relay-new"
+     ],
+     "on": [
+      "dev-relay-new"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    }
+   ]
+  },
+  "heldout": {
+   "quality_cases": 11,
+   "feature_off": {
+    "top1": 0.0909,
+    "mrr": 0.0909,
+    "recall": 0.0455
+   },
+   "feature_off_time_words_removed": {
+    "top1": 0.2727,
+    "mrr": 0.5061,
+    "recall": 0.8788
+   },
+   "feature_on": {
+    "top1": 1,
+    "mrr": 1.0,
+    "recall": 1.0
+   },
+   "improved_top1": 10,
+   "worse_top1": 0,
+   "unchanged_top1": 1,
+   "ordering_only_improved_top1": 8,
+   "ordering_only_worse_top1": 0,
+   "zero_candidate_cases": [],
+   "filter_cases": 3,
+   "filter_exact": 3,
+   "filter_precision_mean": 1.0,
+   "ambiguous_soft_unchanged": "1/1",
+   "hard_failed_closed": "1/1",
+   "no_intent_controls_identical": "3/3",
+   "forbidden_returned": {
+    "off": 0,
+    "on": 0
+   },
+   "unknown_basis_hits_returned_on": 2,
+   "latency_temporal_cases": {
+    "off": {
+     "samples": 195,
+     "median_ms": 56.342,
+     "p95_ms": 72.421
+    },
+    "on": {
+     "samples": 195,
+     "median_ms": 80.264,
+     "p95_ms": 120.816
+    },
+    "paired_delta": {
+     "samples": 195,
+     "median_ms": 27.545,
+     "p95_ms": 55.207
+    }
+   },
+   "latency_no_intent_controls": {
+    "off": {
+     "samples": 45,
+     "median_ms": 92.205,
+     "p95_ms": 104.344
+    },
+    "on": {
+     "samples": 45,
+     "median_ms": 92.017,
+     "p95_ms": 110.576
+    },
+    "paired_delta": {
+     "samples": 45,
+     "median_ms": 0.076,
+     "p95_ms": 15.135
+    }
+   },
+   "per_case_quality": [
+    {
+     "id": "HD01",
+     "off": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 0.5
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.2,
+      "recall": 0.5
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD02",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.5,
+      "recall": 0.6666666666666666
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD03",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.2,
+      "recall": 0.5
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD04",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.25,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD05",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.3333333333333333,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD06",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.25,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD07",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.5,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD08",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD09",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD11",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 0,
+      "mrr": 0.3333333333333333,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    },
+    {
+     "id": "HD12",
+     "off": {
+      "top1": 0,
+      "mrr": 0,
+      "recall": 0.0
+     },
+     "off_stripped": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     },
+     "on": {
+      "top1": 1,
+      "mrr": 1.0,
+      "recall": 1.0
+     }
+    }
+   ],
+   "cases": [
+    {
+     "id": "HD01",
+     "query": "certificate renewal failed yesterday",
+     "mode": "prefer",
+     "expected": [
+      "ho-cert-yesterday",
+      "ho-cert-boundary"
+     ],
+     "off": [
+      "ho-cert-yesterday"
+     ],
+     "on": [
+      "ho-cert-boundary",
+      "ho-cert-yesterday",
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-28T23:00:00+00:00",
+      "end": "2026-03-29T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 6,
+      "matching": 2,
+      "outside": 4,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday",
+      "ho-cert-assistant",
+      "ho-cert-boundary"
+     ]
+    },
+    {
+     "id": "HD02",
+     "query": "certificate renewal failed letzte Woche",
+     "mode": "prefer",
+     "expected": [
+      "ho-cert-lastweek",
+      "ho-cert-yesterday",
+      "ho-cert-boundary"
+     ],
+     "off": [],
+     "on": [
+      "ho-cert-lastweek",
+      "ho-cert-boundary",
+      "ho-cert-yesterday",
+      "ho-cert-feb",
+      "ho-cert-nextday"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-22T23:00:00+00:00",
+      "end": "2026-03-29T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 6,
+      "matching": 3,
+      "outside": 3,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday",
+      "ho-cert-assistant",
+      "ho-cert-boundary"
+     ]
+    },
+    {
+     "id": "HD03",
+     "query": "certificate renewal failed gestern",
+     "mode": "filter",
+     "expected": [
+      "ho-cert-yesterday",
+      "ho-cert-boundary"
+     ],
+     "off": [],
+     "on": [
+      "ho-cert-boundary",
+      "ho-cert-yesterday"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-28T23:00:00+00:00",
+      "end": "2026-03-29T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 6,
+      "matching": 2,
+      "outside": 4,
+      "unknown": 0,
+      "excluded": 4,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday",
+      "ho-cert-assistant",
+      "ho-cert-boundary"
+     ],
+     "exact": true
+    },
+    {
+     "id": "HD04",
+     "query": "Druckerwartung nächsten Monat",
+     "mode": "prefer",
+     "expected": [
+      "ho-print-apr"
+     ],
+     "off": [],
+     "on": [
+      "ho-print-apr",
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-31T22:00:00+00:00",
+      "end": "2026-04-30T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 1,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar",
+      "ho-print-apr"
+     ]
+    },
+    {
+     "id": "HD05",
+     "query": "Druckerwartung am 11.03.2026",
+     "mode": "prefer",
+     "expected": [
+      "ho-print-mar"
+     ],
+     "off": [],
+     "on": [
+      "ho-print-mar",
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-apr"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-10T23:00:00+00:00",
+      "end": "2026-03-11T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 1,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar",
+      "ho-print-apr"
+     ]
+    },
+    {
+     "id": "HD06",
+     "query": "Druckerwartung nächsten Monat",
+     "mode": "filter",
+     "expected": [
+      "ho-print-apr"
+     ],
+     "off": [],
+     "on": [
+      "ho-print-apr"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-31T22:00:00+00:00",
+      "end": "2026-04-30T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 4,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 1,
+      "excluded": 3,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar",
+      "ho-print-apr"
+     ],
+     "exact": true
+    },
+    {
+     "id": "HD07",
+     "query": "edge firewall rule count gestern",
+     "mode": "prefer",
+     "expected": [
+      "ho-fw-new"
+     ],
+     "off": [],
+     "on": [
+      "ho-fw-new",
+      "ho-fw-old",
+      "ho-fw-review"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-28T23:00:00+00:00",
+      "end": "2026-03-29T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 3,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-fw-old",
+      "ho-fw-new",
+      "ho-fw-review"
+     ]
+    },
+    {
+     "id": "HD08",
+     "query": "edge firewall rule count last week",
+     "mode": "prefer",
+     "expected": [
+      "ho-fw-new",
+      "ho-fw-review"
+     ],
+     "off": [],
+     "on": [
+      "ho-fw-new",
+      "ho-fw-review"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-22T23:00:00+00:00",
+      "end": "2026-03-29T22:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 2,
+      "matching": 2,
+      "outside": 0,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-fw-new",
+      "ho-fw-review"
+     ]
+    },
+    {
+     "id": "HD09",
+     "query": "edge firewall rule count 2026-03-10",
+     "mode": "prefer",
+     "expected": [
+      "ho-fw-old"
+     ],
+     "off": [],
+     "on": [
+      "ho-fw-old",
+      "ho-fw-new",
+      "ho-fw-review"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-09T23:00:00+00:00",
+      "end": "2026-03-10T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 3,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-fw-old",
+      "ho-fw-new",
+      "ho-fw-review"
+     ]
+    },
+    {
+     "id": "HD10",
+     "query": "edge firewall rule count 2026-03-10",
+     "mode": "filter",
+     "expected": [],
+     "off": [],
+     "on": [],
+     "error": null,
+     "interval": {
+      "start": "2026-03-09T23:00:00+00:00",
+      "end": "2026-03-10T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 2,
+      "matching": 0,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 2,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "empty": true
+    },
+    {
+     "id": "HD11",
+     "query": "restore test completed on 2026-03-03",
+     "mode": "prefer",
+     "expected": [
+      "ho-restore-0303"
+     ],
+     "off": [],
+     "on": [
+      "ho-restore-0303",
+      "ho-restore-0310",
+      "ho-restore-0324"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-02T23:00:00+00:00",
+      "end": "2026-03-03T23:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 3,
+      "matching": 1,
+      "outside": 2,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-restore-0310",
+      "ho-restore-0324",
+      "ho-restore-0303"
+     ]
+    },
+    {
+     "id": "HD12",
+     "query": "Restore test completed zwischen 2026-03-01 und 2026-03-12",
+     "mode": "prefer",
+     "expected": [
+      "ho-restore-0303",
+      "ho-restore-0310"
+     ],
+     "off": [],
+     "on": [
+      "ho-restore-0310",
+      "ho-restore-0303",
+      "ho-restore-0324"
+     ],
+     "error": null,
+     "interval": {
+      "start": "2026-03-01T00:00:00+00:00",
+      "end": "2026-03-13T00:00:00+00:00",
+      "bounds": "[start, end)"
+     },
+     "status": "interval",
+     "effect": {
+      "candidates": 3,
+      "matching": 2,
+      "outside": 1,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": true,
+      "graph_checked": 0
+     },
+     "off_stripped": [
+      "ho-restore-0310",
+      "ho-restore-0324",
+      "ho-restore-0303"
+     ]
+    },
+    {
+     "id": "HD13",
+     "query": "certificate renewal failed 03/29/2026",
+     "mode": "prefer",
+     "expected": [],
+     "off": [],
+     "on": [],
+     "error": null,
+     "interval": null,
+     "status": "unsupported",
+     "effect": {
+      "candidates": 0,
+      "matching": 0,
+      "outside": 0,
+      "unknown": 0,
+      "excluded": 0,
+      "reordered": false,
+      "graph_checked": 0
+     },
+     "unchanged": true
+    },
+    {
+     "id": "HD14",
+     "query": "certificate renewal failed 03/29/2026",
+     "mode": "filter",
+     "expected": [],
+     "off": [],
+     "on": [],
+     "error": "temporal_filter_requires_interval",
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "failed_closed": true
+    },
+    {
+     "id": "HC01",
+     "query": "certificate renewal failed",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday",
+      "ho-cert-assistant",
+      "ho-cert-boundary"
+     ],
+     "on": [
+      "ho-cert-feb",
+      "ho-cert-lastweek",
+      "ho-cert-nextday",
+      "ho-cert-assistant",
+      "ho-cert-boundary"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    },
+    {
+     "id": "HC02",
+     "query": "Druckerwartung",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar",
+      "ho-print-apr"
+     ],
+     "on": [
+      "ho-print-jan",
+      "ho-print-legacy",
+      "ho-print-mar",
+      "ho-print-apr"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    },
+    {
+     "id": "HC03",
+     "query": "restore test completed",
+     "mode": "auto",
+     "expected": [],
+     "off": [
+      "ho-restore-0310",
+      "ho-restore-0324",
+      "ho-restore-0303"
+     ],
+     "on": [
+      "ho-restore-0310",
+      "ho-restore-0324",
+      "ho-restore-0303"
+     ],
+     "error": null,
+     "interval": null,
+     "status": null,
+     "effect": null,
+     "identical": true
+    }
+   ]
+  }
+ },
+ "elapsed_seconds": 91.1,
+ "limits": "Synthetic 36-document corpus, lexical full-text retrieval only (no embeddings, no neural reranker, no provider call); candidate-limited preference/filter over at most 150 retrieval candidates; single local PostgreSQL in-process reader; not a production or private-corpus quality claim."
+}
