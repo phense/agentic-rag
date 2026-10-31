@@ -1,6 +1,6 @@
 {
  "work": "RAG-064",
- "revision": "fd2b8947386d02fbd0950dd64a7c035069c135ee",
+ "revision": "62916857cd925dcf0abb64495d51e3f86c87f9e0",
  "tree_dirty": false,
  "fixtures": {
   "parser-cases.json": "9528011b73dbbc23c91f5e0eb5b44db7a4bde348c2b09fcfb397a4f389d5613f",
@@ -74,35 +74,35 @@
    "latency_temporal_cases": {
     "off": {
      "samples": 165,
-     "median_ms": 66.024,
-     "p95_ms": 81.241
+     "median_ms": 36.971,
+     "p95_ms": 72.34
     },
     "on": {
      "samples": 165,
-     "median_ms": 95.704,
-     "p95_ms": 124.258
+     "median_ms": 58.883,
+     "p95_ms": 99.7
     },
     "paired_delta": {
      "samples": 165,
-     "median_ms": 27.744,
-     "p95_ms": 54.472
+     "median_ms": 18.324,
+     "p95_ms": 40.093
     }
    },
    "latency_no_intent_controls": {
     "off": {
      "samples": 45,
-     "median_ms": 90.875,
-     "p95_ms": 113.087
+     "median_ms": 75.786,
+     "p95_ms": 95.765
     },
     "on": {
      "samples": 45,
-     "median_ms": 89.639,
-     "p95_ms": 114.059
+     "median_ms": 73.77,
+     "p95_ms": 97.28
     },
     "paired_delta": {
      "samples": 45,
-     "median_ms": -0.111,
-     "p95_ms": 16.177
+     "median_ms": 0.241,
+     "p95_ms": 16.614
     }
    },
    "per_case_quality": [
@@ -776,35 +776,35 @@
    "latency_temporal_cases": {
     "off": {
      "samples": 195,
-     "median_ms": 56.342,
-     "p95_ms": 72.421
+     "median_ms": 46.348,
+     "p95_ms": 62.226
     },
     "on": {
      "samples": 195,
-     "median_ms": 80.264,
-     "p95_ms": 120.816
+     "median_ms": 66.784,
+     "p95_ms": 96.169
     },
     "paired_delta": {
      "samples": 195,
-     "median_ms": 27.545,
-     "p95_ms": 55.207
+     "median_ms": 24.352,
+     "p95_ms": 39.709
     }
    },
    "latency_no_intent_controls": {
     "off": {
      "samples": 45,
-     "median_ms": 92.205,
-     "p95_ms": 104.344
+     "median_ms": 67.71,
+     "p95_ms": 76.816
     },
     "on": {
      "samples": 45,
-     "median_ms": 92.017,
-     "p95_ms": 110.576
+     "median_ms": 66.874,
+     "p95_ms": 78.674
     },
     "paired_delta": {
      "samples": 45,
-     "median_ms": 0.076,
-     "p95_ms": 15.135
+     "median_ms": 0.034,
+     "p95_ms": 18.9
     }
    },
    "per_case_quality": [
@@ -1544,6 +1544,6 @@
    ]
   }
  },
- "elapsed_seconds": 91.1,
+ "elapsed_seconds": 68.6,
  "limits": "Synthetic 36-document corpus, lexical full-text retrieval only (no embeddings, no neural reranker, no provider call); candidate-limited preference/filter over at most 150 retrieval candidates; single local PostgreSQL in-process reader; not a production or private-corpus quality claim."
 }

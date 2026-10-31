@@ -1,6 +1,6 @@
 # Temporal search measurement (RAG-064)
 
-Feature off versus on over one frozen synthetic corpus, revision `fd2b894`
+Feature off versus on over one frozen synthetic corpus, revision `6291685`
 (harness committed, product tree clean), PostgreSQL 17.10, schema029, Python
 3.13.13. Results: [`results.json`](results.json). Behavior: [temporal search](../../temporal-query.md).
 
@@ -45,8 +45,8 @@ in-process reader:
 
 | Paired difference on − off | Development | Held-out |
 |---|---:|---:|
-| Cases with a period: median / p95 | +27.7 / +54.5 ms (165 pairs) | +27.5 / +55.2 ms (195 pairs) |
-| No-period controls: median / p95 | −0.1 / +16.2 ms (45 pairs) | +0.1 / +15.1 ms (45 pairs) |
+| Cases with a period: median / p95 | +18.3 / +40.1 ms (165 pairs) | +24.4 / +39.7 ms (195 pairs) |
+| No-period controls: median / p95 | +0.2 / +16.6 ms (45 pairs) | +0.0 / +18.9 ms (45 pairs) |
 
 ## How to read the numbers
 
@@ -91,7 +91,10 @@ env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 \
 
 The harness refuses a non-local database host and cleans up only the database it
 created. Database IDs differ per run; quality numbers are deterministic, latency
-varies with the machine.
+varies with the machine. The published results were re-measured after the
+coordinator corrected graph-limit/withdrawal edge cases; frozen cases and quality
+labels were unchanged. All source-quality and parser outcomes matched the prior
+run, while latency varied with host load.
 
 ## Compatibility evidence
 
