@@ -53,12 +53,13 @@ def test_pass_resolves_dangling_edges(conn, cfg):
 
 def test_pass_merges_exact_duplicates_keeps_oldest(conn, cfg):
     _seed(conn)
-    _doc(conn, "orig", body="identical text")
+    # RAG-066: an automatic exact merge needs identical title, body and dtype
+    _doc(conn, "orig", title="Same note", body="identical text")
     # both INSERTs share the transaction timestamp — backdate the original
     # so "keep the oldest" is deterministic, not a uuid tiebreak
     conn.execute("UPDATE documents SET created_at = created_at"
                  " - interval '1 hour' WHERE slug = 'orig'")
-    _doc(conn, "copy", body="identical text")
+    _doc(conn, "copy", title="Same note", body="identical text")
     rep = curation.run_pass(conn, cfg, runner=_refuse_runner)
     assert rep.merged == 1
     st = {r["slug"]: r["status"] for r in conn.execute(
@@ -121,8 +122,8 @@ def test_pass_keeps_doc_when_llm_says_no_and_never_rereviews(conn, cfg):
 def test_pass_respects_budget(conn, cfg):
     _seed(conn)
     for i in range(4):
-        _doc(conn, f"dup-{i}-a", body=f"same {i}")
-        _doc(conn, f"dup-{i}-b", body=f"same {i}")
+        _doc(conn, f"dup-{i}-a", title=f"same {i}", body=f"same {i}")
+        _doc(conn, f"dup-{i}-b", title=f"same {i}", body=f"same {i}")
     rep = curation.run_pass(conn, cfg, budget=2, runner=_refuse_runner)
     assert rep.merged == 2                      # budget caps the pass
     rep2 = curation.run_pass(conn, cfg, budget=10, runner=_refuse_runner)

@@ -29,7 +29,7 @@ def test_control_state_strips_default_grants_and_rejects_later_exposure(tmp_path
                     before=conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']
                     conn.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT,INSERT,UPDATE ON TABLES TO {}').format(sql.Identifier(group)))
                     conn.commit()
-                    assert db.apply_migrations(conn,db.SQL_DIR)==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql']
+                    assert db.apply_migrations(conn,db.SQL_DIR)==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
                     assert conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']==before
                     assert conn.execute('SELECT body FROM documents WHERE id=%s',(doc.doc_id,)).fetchone()['body']=='Synthetic retained knowledge'
                     for table in ('dashboard_changes','dashboard_setup','dashboard_presence','request_traces'):
