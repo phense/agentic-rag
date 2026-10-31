@@ -18,8 +18,8 @@ summary: Measured source-evidence behavior, populated upgrade and recovery check
 contract to local and central CLI, MCP, REST and dashboard clients. The source is
 0.6.15/schema028 at `5390a6f6b4a7cce4b27abc9b51226acf2dac6223`; the corrected
 implementation is `08a75f5d4b832906d72908f5709c694e232476c5`, targeting0.6.16/schema029.
-Independent re-review and the final whole-suite run remain delivery gates at this
-report's draft revision. No production migration or cutover was performed.
+Independent re-review accepts the corrected code and procedure; the final
+whole-suite run remains a delivery gate at this report's draft revision. No production migration or cutover was performed.
 
 Terms: an evidence span is one exact stored quotation; a source event can contain
 several spans. An attestation is an operator's manual assertion. Review records
@@ -63,7 +63,8 @@ env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE \
 | Populated upgrade and public recovery fixtures |2passed,exit0,30.51s |35original tables/253rows,16claims,28spans,20sources,77audit rows;4sources shared across domains |
 | Independent architecture probes rerun after correction |All5units passed,exit0 | Success26/26; audit rollback/retry10/10; old-writer race3/3; manual attestation4/4; old service gate on029,1/1 |
 | Dashboard browser/upgrade/invalidation selection before the review correction |8passed,1existing warning,exit0,71.81s | Real Chromium pagination and decisions; migration and current-read invalidation; final full suite must cover the corrected tree |
-| Wheel build |`uv build --wheel` exit0 | Package0.6.16; archive membership/hash inspection is a final gate |
+| Wheel build and archive inspection |`uv build --wheel` exit0;179entries inspected | Package0.6.16; migration029, evidence producer and dashboard assets match the source; native prompt assets present |
+| Independent correction edge probe |26/26checks,exit0 | Namespace boundaries, partial/refuted/removed/inferred manual support, mixed sources, unchanged canonical eligibility; separate owned database |
 | Final whole-suite run |Pending on the corrected frozen candidate | Earlier pre-review run deliberately terminated after the review finding,rc-15; it is not a pass |
 
 The existing warning is Starlette's deprecation of its httpx TestClient
@@ -109,14 +110,23 @@ The independent complete review inspected all51changed files at `96edf09`,
 verified their hashes and executed collaborating-component success/recovery and
 old-writer probes. It reported Medium RV063-M1 (manual attestations counted as
 independent user events) and Important PB063-R1 (incomplete recovery procedure).
-Both have corrective code/procedure and fresh regression evidence above; an
-independent re-review of the correction is pending.
+Both are independently confirmed fixed at `2c92d4d`. The re-review verified
+52/52hashes, reused the41unchanged files from the first review, and inspected
+all11changed/new files. No open Critical/High/Medium/Important finding remains.
+The reviewer independently executed26edge checks and supplementary negative
+probes of the playbook snippets.
 
 The Low findings are retained in
 [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6537927613):
 RV063-L1 derived-reader test naming/coverage; L2 terminal controls in plain-text
 rendering; L3 retained history after deletion; L4 rare lock-helper error mapping.
-Playbook minor findings PB063-R2/R3/R4 have corrected guidance pending re-review.
+Playbook minor findings PB063-R2/R3/R4 are independently confirmed fixed.
+Additional minor findings PB063-N1/N2/N3 remain in
+[Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6538060126):
+system Python version, permission scope and the empty-target precondition.
+PB063-N4 stale review-record wording is corrected. The restore manifest checks
+table/sequence grants and owners; database CONNECT privileges, database/role
+settings and function privileges need separate inspection for hardened stores.
 The full history remains append-only, and legacy `get` provenance metadata
 retains its previous shape. New opaque navigation does not promise global path
 redaction from arbitrary memory content.

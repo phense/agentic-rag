@@ -45,8 +45,8 @@ S1→S2→S3→S4; T063-005/006 are conceptually separate but executed sequentia
 
 ### S5: Coordinator-owned reconciliation and independent review
 
-- [ ] T063-010 Reconcile as-built `docs/uml/source-evidence-63.md` and findings with code/tests; disposition every difference. After reconciliation, a separate strong architect derives at least one collaborating-component success and one rollback/recovery test; execute both and record actual exits. Independent PB-063-UPGRADE content review plus required rehearsal must pass. Depends T063-009.
-- [ ] T063-011 Independent complete bounded base5390a6f→final diff review, including security/concurrency/upgrades and interface semantics. Verify/fix all C/H/M; re-review each changed range. Any nonblocking Low goes to Issue75. Depends T063-010.
+- [x] T063-010 Reconcile as-built `docs/uml/source-evidence-63.md` and findings with code/tests; disposition every difference. After reconciliation, a separate strong architect derives at least one collaborating-component success and one rollback/recovery test; execute both and record actual exits. Independent PB-063-UPGRADE content review plus required rehearsal must pass. Depends T063-009.
+- [x] T063-011 Independent complete bounded base5390a6f→final diff review, including security/concurrency/upgrades and interface semantics. Verify/fix all C/H/M; re-review each changed range. Any nonblocking Low goes to Issue75. Depends T063-010.
 
 ### S6: Convergence and handoff
 

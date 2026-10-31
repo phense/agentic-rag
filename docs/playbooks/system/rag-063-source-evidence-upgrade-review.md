@@ -3,9 +3,10 @@
 ## Scope
 
 - Playbook path and artifact revision/hash: `docs/playbooks/system/rag-063-source-evidence-upgrade.md`,
-  uncommitted draft on branch `feat/source-evidence-63` (base `5390a6f`), sha256
+  original candidate committed as `96edf09` on `feat/source-evidence-63`
+  (base `5390a6f`), sha256
   `20b4f39d3418838f3935f7b96bb471c04992b6859f536f05dde6002bd521e7cd`.
-- System/interface revision and environment: uncommitted 0.6.16 candidate with
+- System/interface revision and environment: original 0.6.16 candidate with
   `sql/029_source_evidence.sql`; owned disposable PostgreSQL 17.10 on 127.0.0.1:55460.
 - Owning requirement/task and acceptance criteria: RAG-063 FR-005, US-004, AC-008/009; T063-008/009.
 - Required validation level and branches: isolated rehearsal on a populated
@@ -68,13 +69,18 @@
 
 ## Acceptance and freshness
 
-- Draft status: drafted; no unresolved required fact for the local path.
-- Content-review readiness: pending independent review.
-- Agreed validation criteria met: implementer rehearsal passed; independent review outstanding.
-- Operation/delivery readiness: blocked until the coordinator's independent review.
-- Changes since evidence: none.
-- Next action and owner: coordinator arranges `playbook-review` and accepts or
-  repeats the rehearsal at the final candidate revision.
+- Document status: corrected procedure reviewed; independent content verdict is
+  Accepted with minor follow-ups at `2c92d4d`.
+- Agreed validation: populated local upgrade/retry and pre-upgrade recovery
+  rehearsal passed; independent architecture success/recovery checks passed.
+- Delivery readiness: the final whole-suite gate is still pending. Production
+  authorization, live restart and cross-host/non-superuser recovery are separate.
+- Changes since the original evidence: PB063-R1 recovery instructions and minor
+  PB063-R2/R3/R4 guidance were corrected. The revised procedure hash below matches
+  the executable rehearsal and the independent re-review. This record's current
+  readiness text supersedes the original pending-review description.
+- Next action and owner: coordinator checks the final full-suite result, updates
+  delivery evidence, and hands off the PR only after all required gates pass.
 
 
 ### Coordinator candidate recheck (2026-10-31)
@@ -133,10 +139,32 @@ only for read-only inventory of schema028.
   was executed. Those deployment-specific U3 commands remain operator inputs.
 - Two initial runs exposed recovery-fixture setup errors (policy permissions and
   REST result envelope); both were corrected before the successful full-file run.
-- Content review status of this revised procedure: pending fresh independent
-  review. No production readiness or rollout authorization is implied.
+- Content review of this revised procedure: accepted independently at `2c92d4d`,
+  with no open Critical/High/Medium/Important finding. No production readiness or
+  rollout authorization is implied.
 
 Focused writing self-check: Small correction to an existing procedure. Commands
 were checked against the public CLI and executed above; placeholders are declared
 operator inputs, outcomes and failure stops are explicit, and original numerical
 facts remain unchanged.
+
+
+### Independent correction acceptance (2026-10-31)
+
+The second independent reviewer verified52/52complete-feature hashes, reused the
+41byte-identical files from the original complete review, and read all11changed
+or new files through `2c92d4d`. The corrected procedure SHA-256
+`4d45513fbeb2b2fcd5175d67d99d0a4e9a74cf48619ce73e720099b4c6af8d95`
+matches the rehearsal. PB063-R1 and minor R2/R3/R4 are accepted as fixed.
+Independent snippet probes also reject altered migration lists/timestamps,
+collation, vector version, login owner, PostgreSQL major, unsupported inventory,
+dump digest and manifest format. That review did not repeat the coordinator's
+full populated recovery rehearsal; its fresh execution was the snippet probe.
+
+Minor follow-ups are recorded in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6538060126):
+N1 system `python3` needs3.11+; N2 inventory permissions cover table/sequence ACLs
+and owners, excluding database CONNECT/role settings and function privileges;
+N3 the empty-target/database-owner precondition has no executable inspection
+command. These are unverified deployment details for hardened or non-superuser
+installations. N4 (stale acceptance wording in this record) is corrected above.
+No procedure or product code changed after the accepted review.
