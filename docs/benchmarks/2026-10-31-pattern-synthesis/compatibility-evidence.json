@@ -1,0 +1,41 @@
+{
+ "audit_log": 74,
+ "claim_evidence": 26,
+ "claim_history": 28,
+ "claim_records": 17,
+ "documents": 18,
+ "knowledge_sources": 20,
+ "old_code_get_returns_pattern_body": true,
+ "old_reads_identical": true,
+ "original_rows": 302,
+ "original_tables": 39,
+ "pins": 2,
+ "post_upgrade_writes_lost_on_pre_upgrade_restore": true,
+ "preview": {
+  "independent_events": 8,
+  "memories": 7,
+  "sufficient": true
+ },
+ "preview_excluded": {
+  "legacy_unmanaged": 1,
+  "no_qualifying_span": 2
+ },
+ "provider_calls_total": 1,
+ "restored_recovery_patterns": 1,
+ "service_streams": 2,
+ "source_commit": "81beaf6",
+ "source_history": 2,
+ "source_schema": 29,
+ "source_version": "0.6.17",
+ "synthesis_after_upgrade": {
+  "audits": 0,
+  "backfills": 0,
+  "deps": 0,
+  "jobs": 0,
+  "patterns": 0,
+  "policies": 0,
+  "runs": 0
+ },
+ "target_schema": 30,
+ "upgrade_seconds": 2.22
+}
