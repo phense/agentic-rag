@@ -146,3 +146,11 @@ is additive; a schema downgrade is not supported. Follow
 The [synthetic semantic check](benchmarks/2026-09-06-claim-evidence/README.md) separates
 semantic support from structural membership and retains its classification discrepancy.
 It is not a production promotion model or a general accuracy claim.
+
+
+Manual attestations keep `origin: manual_attestation` and, without other complete
+user support or an operator review, `claim.support_basis: manual_attestation`.
+`provenance.independent_user_events` counts distinct active user source events,
+including partial events, and excludes manual attestations even when their
+stored role is `user`. The legacy `get`/summary fields retain their existing
+shape and counting semantics; canonical eligibility is unchanged.

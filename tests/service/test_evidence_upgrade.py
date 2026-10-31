@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import textwrap
 import sys
 import tarfile
 import time
@@ -251,4 +252,82 @@ def test_operator_cli_preflight_upgrade_retry_on_populated028(tmp_path, monkeypa
         monkeypatch.setenv('AGENTIC_RAG_CONFIG', str(evidence_config))
         assert cli.main(['evidence', 'show', ids['claim0'], '--json']) == 0
         assert json.loads(capsys.readouterr().out)['contract_version'] == 1
+
+
+        # PB063-R1: execute the public rollback path as documented, including its
+        # digest/manifest snippets. A private _verify call cannot prove this path.
+        playbook = Path(__file__).resolve().parents[2] / 'docs/playbooks/system/rag-063-source-evidence-upgrade.md'
+        snippets = [textwrap.dedent(part.split('\n   PYVERIFY', 1)[0])
+                    for part in playbook.read_text().split("<<'PYVERIFY'\n")[1:]]
+        assert len(snippets) == 2
+        dump = tmp_path / 'upgrade' / 'evidence029.dump'
+        manifest = dump.with_name(dump.name + '.manifest.json')
+        def check_snippet(index, *paths):
+            return subprocess.run([sys.executable, '-c', snippets[index], *map(str, paths)],
+                                  text=True, capture_output=True, timeout=30)
+        digest = check_snippet(0, dump, manifest)
+        assert digest.returncode == 0 and digest.stdout.strip() == 'dump_digest_verified', digest.stderr
+        with isolated_database(cfg, initialize=False) as target:
+            backup._run_pg([backup._pg_bin('pg_restore', cfg), '--single-transaction', '--exit-on-error',
+                            '-d', db.dsn(target), str(dump)])
+            # Switch only db.name, preserving the rest of the operator config.
+            import tomlkit
+            restored = tomlkit.parse(config.read_text())
+            restored['db']['name'] = target.db_name
+            restored_config = tmp_path / 'restored.toml'
+            restored_config.write_text(tomlkit.dumps(restored))
+            inventory_path = tmp_path / 'upgrade' / 'restored-inventory.json'
+            assert cli.main(['service', '--config', str(restored_config), 'inventory', '--source-version', '0.6.15',
+                             '--output', str(inventory_path)]) == 0, capsys.readouterr().err
+            capsys.readouterr()
+            checked = check_snippet(1, manifest, inventory_path)
+            assert checked.returncode == 0 and checked.stdout.strip() == 'restore_manifest_verified', checked.stderr
+            # A changed grant or row must block cutover, not merely print success.
+            actual = json.loads(inventory_path.read_text())
+            altered = tmp_path / 'altered.json'
+            for field, value in [('grants', []), ('tables', {}), ('owners', {}), ('sequences', {})]:
+                altered.write_text(json.dumps({**actual, field: value}))
+                rejected = check_snippet(1, manifest, altered)
+                assert rejected.returncode != 0 and 'restore_mismatch_' + field in rejected.stderr
+            # A new service must reject028; archived 0.6.15 with the new launch
+            # environment must accept it and read the original memory.
+            from agentic_rag.service.schema import ServiceSchemaError
+            with db.connect(target) as conn:
+                with pytest.raises(ServiceSchemaError):
+                    validate_schema(conn)
+            env = {**os.environ, 'PYTHONPATH': str(old), 'AGENTIC_RAG_CONFIG': str(restored_config),
+                   'PYTHONDONTWRITEBYTECODE': '1'}
+            status = subprocess.run([sys.executable, '-m', 'agentic_rag.cli', 'service', 'status'],
+                                    cwd=old, env=env, text=True, capture_output=True, timeout=60)
+            assert status.returncode == 0, status.stderr
+            assert json.loads(status.stdout)['database']['service_ready'] is True
+            read = subprocess.run([sys.executable, '-m', 'agentic_rag.cli', 'get', ids['claim0'], '--json'],
+                                  cwd=old, env=env, text=True, capture_output=True, timeout=60)
+            assert read.returncode == 0 and json.loads(read.stdout)['body'] == 'Legacy claim body 0 ünïcödé', read.stderr
+            # Central API launches from the same restored config with old code;
+            # authenticate a real scoped read without starting workers/timers.
+            central_code = r"""
+import json, os
+from pathlib import Path
+from starlette.testclient import TestClient
+from agentic_rag.config import load_config
+from agentic_rag.service.api import create_app
+from agentic_rag.service.auth import hash_key
+assert __import__('agentic_rag').__file__.startswith(os.getcwd())
+p = Path(os.environ['AGENTIC_RAG_CONFIG']).with_name('restore-policy.toml')
+p.write_text('version=1\n[users.operator]\nread_domains=["general"]\nwrite_domains=[]\nread_projects=["/synthetic/team-a"]\nwrite_projects=[]\n[machines.vm]\nuser="operator"\nread_domains=["general"]\nwrite_domains=[]\nread_projects=["/synthetic/team-a"]\nwrite_projects=[]\nkeys={recovery="' + hash_key('recovery.synthetic-recovery-key') + '"}\n')
+p.chmod(0o600)
+app = create_app(load_config(), p, allowed_hosts=['testserver'])
+with TestClient(app, base_url='https://testserver') as client:
+    response = client.post('/v1/tools/memory_get', headers={'authorization':'Bearer recovery.synthetic-recovery-key','x-rag-protocol':'1'}, json={'id_or_slug':__import__('sys').argv[1]})
+    assert response.status_code == 200, response.text
+    assert response.json()['document']['body'] == 'Legacy claim body 0 ünïcödé', response.text
+print(json.dumps({'restored_old_service_read': True}))
+"""
+            central = subprocess.run([sys.executable, '-c', central_code, ids['claim0']], cwd=old, env=env,
+                                     text=True, capture_output=True, timeout=60)
+            assert central.returncode == 0, central.stderr
+            assert json.loads(central.stdout)['restored_old_service_read'] is True
+        print('EVIDENCE_PUBLIC_RECOVERY', json.dumps({'digest': True, 'manifest': True,
+              'mismatch_rejected': ['grants', 'tables', 'owners', 'sequences'], 'old_cli': True, 'old_api': True}))
     print('EVIDENCE_OPERATOR_CLI', json.dumps({k: v.get('migrations_applied') for k, v in outputs.items()}, sort_keys=True))

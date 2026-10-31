@@ -39,7 +39,11 @@ Source item: `source_key`, `span_hash`, `reference` (`<source_key>#<span_hash>`)
 `trust` `{state, reason, reason_truncated, changed_at}`. No namespace, source event ID, transcript
 path or URI is returned.
 
-- `support_basis`: `operator_review`, `complete_user_statement`, `none` or `legacy_unmanaged`.
+- `support_basis`: `operator_review`, `complete_user_statement`, `manual_attestation`, `none` or
+  `legacy_unmanaged`. Manual attestations retain canonical eligibility but never
+  count as independent user events. The counter counts distinct active user
+  source events, including partial ones, excluding local `operator`/`manual`
+  namespaces and service `svc1:…:manual:…` namespaces. Repeated spans count once.
 - `fact.state`: `current|future|expired|superseded|not_accepted|no_event_time`.
 - `reasons` (exclusion, empty when current): `document_archived|document_refuted`,
   `claim_refuted`, `review_required`, `no_active_support`, `fact_<state>`, `not_current`.

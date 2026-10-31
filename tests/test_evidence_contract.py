@@ -67,6 +67,8 @@ def test_legacy_manual_assistant_and_partial_are_labeled_not_verified(conn, cfg)
                                   evidence={'source_id': 'op-1', 'role': 'user', 'quote': 'port 443'})
     attested = contract.inspect(conn, manual.doc_id)
     assert attested['sources']['items'][0]['origin'] == 'manual_attestation'
+    assert attested['claim']['support_basis'] == 'manual_attestation'
+    assert attested['provenance']['independent_user_events'] == 0
     assert attested['verification']['independent'] is False
     assert attested['lifecycle']['fact']['state'] == 'current'
     inference = claim(conn, cfg, source('a1', 'assistant', 'TLS maybe', complete=False), kind='inference', body='TLS inferred')
@@ -78,6 +80,36 @@ def test_legacy_manual_assistant_and_partial_are_labeled_not_verified(conn, cfg)
     view = contract.inspect(conn, inference.doc_id)
     assert view['verification'] == {'independent': False, 'origin': 'operator_review'}
     assert view['claim']['support_basis'] == 'operator_review' and view['eligibility']['current'] is True
+
+
+
+@pytest.mark.parametrize('namespace', ['operator', 'manual', 'svc1:alice:manual:abcd'])
+def test_manual_support_is_distinct_from_user_events_and_operator_review(conn, cfg, namespace):
+    """Counting role=user alone falsely promotes an attestation to a source event."""
+    one = claim(conn, cfg, source(namespace=namespace))
+    view = contract.inspect(conn, one.doc_id)
+    assert view['claim']['support_basis'] == 'manual_attestation'
+    assert view['provenance']['independent_user_events'] == 0
+    assert view['eligibility']['current'] is True  # Eligibility remains canonical.
+    assert evidence.summary(conn, one.doc_id)['independent_source_count'] == 1  # Legacy IC-004.
+    store.review_claim(conn, one.doc_id, state='confirmed', reason='operator checked')
+    reviewed = contract.inspect(conn, one.doc_id)
+    assert reviewed['claim']['support_basis'] == 'operator_review'
+    assert reviewed['provenance']['independent_user_events'] == 0
+    assert reviewed['verification'] == {'independent': False, 'origin': 'operator_review'}
+    # Repeated spans from a real user event count once; manual support adds none.
+    claim(conn, cfg, source('real-event', quote='TLS statement'),
+          source('real-event', quote='Another span of the same statement'),
+          source('partial-event', quote='TLS partial', complete=False))
+    mixed = contract.inspect(conn, one.doc_id)
+    assert mixed['provenance']['independent_user_events'] == 2
+    store.review_claim(conn, one.doc_id, state='unreviewed', reason='new inspection')
+    assert contract.inspect(conn, one.doc_id)['claim']['support_basis'] == 'complete_user_statement'
+    real_key = next(i['source_key'] for i in mixed['sources']['items'] if i['quote'] == 'TLS statement')
+    store.set_source_state(conn, real_key, state='removed', reason='event withdrawn')
+    withdrawn = contract.inspect(conn, one.doc_id)
+    assert withdrawn['claim']['support_basis'] == 'manual_attestation'
+    assert withdrawn['provenance']['independent_user_events'] == 1  # The real partial event remains.
 
 
 def test_exclusion_reasons_follow_canonical_predicates(conn, cfg):

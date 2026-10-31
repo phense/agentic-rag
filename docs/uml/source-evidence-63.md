@@ -72,3 +72,14 @@ Semantic Mermaid source review: directive, participants, message order and alt/e
 pairs inspected; no renderer is installed or claimed. All design differences
 have explicit implemented dispositions above. Independent architect-derived
 success/recovery tests and complete final review remain delivery gates.
+
+
+The independent AC-002 probe exposed a presentation mismatch for manual
+attestations: the source origin was manual but aggregate support/counts treated
+it as a user event. The corrected producer excludes local and service manual
+namespaces from independent event counts and uses `manual_attestation` support
+when applicable. Canonical SQL eligibility and legacy summary fields are
+unchanged. Independent success/recovery probes re-executed after this correction
+passed26/26 and10/10 checks; manual-attestation checks now pass4/4. The procedure's
+public manifest comparison and0.6.15 recovery launch are additional executable
+upgrade fixtures; independent re-review of these corrections remains required.

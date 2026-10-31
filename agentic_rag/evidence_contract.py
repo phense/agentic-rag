@@ -187,14 +187,26 @@ def _fact(conn, doc_id):
             'event_at': _time(row['event_at']), 'expires_at': _time(row['expires_at'])}
 
 
+# Same namespace classification as _manual; role=user alone also includes an
+# operator's assertion. This affects contract explanations, never eligibility.
+_MANUAL_SOURCE_SQL = "(s.namespace IN ('operator','manual') OR (left(s.namespace,5)='svc1:' AND position(':manual:' IN s.namespace)>0))"
+
+
 def _claim(conn, doc_id):
-    row = conn.execute("""SELECT c.kind,c.review_state,left(c.reason,1000) reason,
+    row = conn.execute(f"""SELECT c.kind,c.review_state,left(c.reason,1000) reason,
         length(c.reason)>1000 reason_truncated,COALESCE(cr.revision,1) revision,
         claim_eligible(c.document_id) eligible,
         EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
                WHERE e.document_id=c.document_id AND s.state='active' AND e.reviewed) reviewed_support,
         EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
-               WHERE e.document_id=c.document_id AND s.state='active' AND s.role='user' AND e.complete) user_support,
+               WHERE e.document_id=c.document_id AND s.state='active' AND s.role='user' AND e.complete
+                 AND NOT {_MANUAL_SOURCE_SQL}) user_support,
+        EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
+               WHERE e.document_id=c.document_id AND s.state='active' AND s.role='user' AND e.complete
+                 AND {_MANUAL_SOURCE_SQL}) manual_support,
+        (SELECT count(DISTINCT e.source_key) FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
+         WHERE e.document_id=c.document_id AND s.state='active' AND s.role='user'
+           AND NOT {_MANUAL_SOURCE_SQL}) independent_user_events,
         EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
                WHERE e.document_id=c.document_id AND s.state<>'active') withdrawn,
         EXISTS(SELECT 1 FROM public.claim_evidence e WHERE e.document_id=c.document_id AND NOT e.complete) partial
@@ -282,6 +294,8 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
             basis = 'operator_review'
         elif claim['kind'] == 'stated' and claim['user_support'] and claim['review_state'] != 'refuted':
             basis = 'complete_user_statement'
+        elif claim['kind'] == 'stated' and claim['manual_support'] and claim['review_state'] != 'refuted':
+            basis = 'manual_attestation'
         else:
             basis = 'none'
         verification = 'operator_review' if claim['review_state'] == 'confirmed' else 'none'
@@ -305,7 +319,7 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
                         'reasons': reasons, 'notices': notices},
         'provenance': {'registry': 'legacy_unmanaged' if claim is None else 'claim',
                        'status': compact['provenance_status'],
-                       'independent_user_events': compact['independent_source_count']},
+                       'independent_user_events': claim['independent_user_events'] if claim else 0},
         'verification': {'independent': False, 'origin': verification},
         'sources': {'items': items, 'total': total['spans'], 'distinct_sources': total['sources'], 'limit': limit,
                     'truncated': budget_cut, 'next_cursor': f"{last['source_key']}.{last['span_hash']}" if more and last else None},

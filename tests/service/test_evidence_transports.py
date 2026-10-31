@@ -169,3 +169,24 @@ def test_local_mcp_matches_contract_and_maps_errors(evidence_store, monkeypatch,
     assert mcp_server.memory_review_claim('missing', 'unreviewed', 'legacy') == {'error': 'document not found'}
     page = mcp_server.memory_evidence_history(own, limit=2)
     assert len(page['items']) == 2 and page['next_cursor']
+
+
+def test_rest_assertion_does_not_become_an_independent_user_event(evidence_store, tmp_path):
+    """The service's rewritten manual namespace must retain its attestation origin."""
+    cfg, *_ = evidence_store
+    app, _ = app_fixture(tmp_path, cfg)
+    with TestClient(app, base_url='https://testserver') as client:
+        result = client.post('/v1/tools/memory_assert', headers=headers(KEYS[0]), json={
+            'entity': 'service', 'attribute': 'port', 'value': '8443', 'domain': 'alpha', 'project': '/projects/a',
+            'event_at': '2026-01-03T00:00:00Z',
+            'evidence': {'source_id': 'operator-note', 'role': 'user', 'quote': 'service port 8443'}})
+        assert result.status_code == 200 and result.json()['disposition'] == 'accepted', result.text
+        viewed = client.post('/v1/tools/memory_evidence', headers=headers(KEYS[0]),
+                             json={'id_or_slug': result.json()['doc_id']})
+        assert viewed.status_code == 200, viewed.text
+        view = viewed.json()
+        assert view['sources']['items'][0]['origin'] == 'manual_attestation'
+        assert view['claim']['support_basis'] == 'manual_attestation'
+        assert view['provenance']['independent_user_events'] == 0
+        assert view['eligibility']['current'] is True
+        assert view['verification'] == {'independent': False, 'origin': 'none'}
