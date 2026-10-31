@@ -99,6 +99,7 @@ def _state(conn, topic, scopes, domain, history, key):
             FROM assertion_sources z WHERE z.document_id=d.id) assertion_sources_version,
           EXISTS(SELECT 1 FROM fact_assertions newer JOIN documents nd ON nd.id=newer.document_id
             WHERE newer.entity=a.entity AND newer.attribute=a.attribute AND nd.project_scope=d.project_scope
+              AND nd.domain=d.domain -- same domain isolation as assertion_eligible (migration020)
               AND newer.disposition='accepted' AND newer.relation='replacement'
               AND newer.event_at>a.event_at AND newer.event_at<=statement_timestamp()) superseded,
           COALESCE((SELECT jsonb_agg(to_jsonb(x)) FROM (

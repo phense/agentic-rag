@@ -266,8 +266,14 @@ def _main(argv: list[str] | None = None) -> int:
     es=p_evidence.add_subparsers(dest='evidence_cmd',required=True)
     ps=es.add_parser('source-state');ps.add_argument('source_key')
     ps.add_argument('--state',required=True,choices=['active','refuted','removed']);ps.add_argument('--reason',required=True)
+    ps.add_argument('--document',help='strict: memory through which the source was inspected')
+    ps.add_argument('--expected-version',help='strict: inspected source_version; a changed source is refused')
     pr=es.add_parser('review');pr.add_argument('id_or_slug')
     pr.add_argument('--state',required=True,choices=['confirmed','unreviewed','refuted']);pr.add_argument('--reason',required=True)
+    pr.add_argument('--expected-version',help='strict: inspected evidence version; any change is refused')
+    for name,text in (('show','inspect evidence (contract v1)'),('history','decision history since the evidence upgrade')):
+        pe=es.add_parser(name,help=text);pe.add_argument('id_or_slug');pe.add_argument('--source',dest='source_key')
+        pe.add_argument('--cursor');pe.add_argument('--limit',type=int,default=20);pe.add_argument('--json',action='store_true')
 
     p_scope = sub.add_parser("scope", help="inspect or repair document applicability")
     ss = p_scope.add_subparsers(dest="scope_cmd", required=True)
@@ -434,15 +440,7 @@ def _main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == 'evidence':
-        with db.connect(cfg,role='writer') as connection:
-            if args.evidence_cmd=='source-state':
-                store.set_source_state(connection,args.source_key,state=args.state,reason=args.reason)
-            else:
-                doc=store.get_document(connection,args.id_or_slug)
-                if not doc:raise ValueError('document not found')
-                store.review_claim(connection,str(doc['id']),state=args.state,reason=args.reason)
-        print('evidence state saved')
-        return 0
+        return _evidence(args,cfg)
 
     if args.cmd == "scope":
         from .scope import backfill
@@ -952,6 +950,90 @@ def _main(argv: list[str] | None = None) -> int:
     finally:
         conn.close()
     return 1
+
+
+def _evidence_call(cfg,name,arguments):
+    """One gateway for local (direct SQL) and central (service client) evidence calls."""
+    if cfg.service_mode=='client':
+        from .service import client as remote
+        with remote.RemoteClient(cfg) as connection:
+            try:result=connection.invoke(name,arguments)
+            except remote.RemoteError as exc:raise ValueError(exc.code) from None
+        if result.get('waiting'):
+            raise RuntimeError('request pending: '+str(result.get('local_request_id') or result.get('request_id')))
+        return result
+    from . import evidence_contract as contract
+    args=dict(arguments)
+    read=name in ('memory_evidence','memory_evidence_history')
+    with db.connect(cfg,role='reader' if read else 'writer') as connection:
+        if read:
+            # One snapshot: the version and the page describe the same evidence.
+            connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+            producer=contract.inspect if name=='memory_evidence' else contract.history
+            return producer(connection,args.pop('id_or_slug'),**args)
+        if name=='memory_source_state':
+            # Audit actor stays 'cli', as before this contract existed.
+            return store.set_source_state(connection,args['source_key'],state=args['state'],reason=args['reason'],
+                                          expected_version=args.get('expected_version'),anchor=args.get('id_or_slug'))
+        doc=store.get_document(connection,args['id_or_slug'])
+        if not doc:
+            if args.get('expected_version'):raise contract.EvidenceUnavailable()
+            raise ValueError('document not found')
+        return store.review_claim(connection,str(doc['id']),state=args['state'],reason=args['reason'],
+                                  expected_version=args.get('expected_version'))
+
+
+def _print_evidence(view):
+    doc=view['document'];claim=view['claim'];eligibility=view['eligibility']
+    print(f"{doc['title']} ({doc['slug']}) [{doc['domain']} · {doc['project_scope']}]")
+    print('Version: '+view['version'])
+    print('Lifecycle: '+view['lifecycle']['document_status']+
+          (f", fact {view['lifecycle']['fact']['state']}" if view['lifecycle']['fact'] else ''))
+    print('Claim: '+('legacy, unmanaged provenance' if claim is None else
+                     f"{claim['kind']}, review {claim['review_state']}, support {claim['support_basis']}"))
+    print('Current: '+('yes' if eligibility['current'] else 'no ('+', '.join(eligibility['reasons'])+')')+
+          ('; notices: '+', '.join(eligibility['notices']) if eligibility['notices'] else ''))
+    print('Independent verification: no (reviewed means an operator decision)')
+    sources=view['sources']
+    print(f"Sources: {len(sources['items'])} of {sources['total']} spans")
+    for item in sources['items']:
+        print(f"\n- {item['reference']}")
+        print(f"  Trust: {item['trust']['state']} · {item['origin']} · role {item['role']} · {item['completeness']}"
+              f"{' · reviewed' if item['reviewed'] else ''} · event {item['source_event_at'] or 'unknown'}")
+        print(f"  Source version: {item['source_version']}")
+        for line in item['quote'].splitlines() or ['']:print('  > '+line)
+    if sources['next_cursor']:print('\nNext page: --cursor '+sources['next_cursor'])
+
+
+def _evidence(args,cfg):
+    command=args.evidence_cmd
+    if command in ('show','history'):
+        arguments={'id_or_slug':args.id_or_slug,'limit':args.limit,
+                   **({'source_key':args.source_key} if args.source_key else {}),**({'cursor':args.cursor} if args.cursor else {})}
+        result=_evidence_call(cfg,'memory_evidence' if command=='show' else 'memory_evidence_history',arguments)
+        if args.json:print(json.dumps(result,default=_json_default,indent=1,ensure_ascii=False))
+        elif command=='show':_print_evidence(result)
+        else:
+            print(f"History ({result['scope']}); events before the evidence upgrade were not captured")
+            for item in result['items']:
+                print(f"r{item['revision']} {item['recorded_at']} {item['operation']} {item['state'] or ''}"
+                      f" by {item['actor']} [{item['concurrency']}] {item['reason'] or ''}".rstrip())
+            if result['next_cursor']:print('Next page: --cursor '+result['next_cursor'])
+        return 0
+    if command=='source-state':
+        if (args.document is None)!=(args.expected_version is None):
+            raise ValueError('strict source state requires both --document and --expected-version')
+        arguments={'source_key':args.source_key,'state':args.state,'reason':args.reason,
+                   **({'expected_version':args.expected_version,'id_or_slug':args.document} if args.expected_version else {})}
+        result=_evidence_call(cfg,'memory_source_state',arguments)
+        if args.expected_version:print('New source version: '+result['source_version']);return 0
+    else:
+        arguments={'id_or_slug':args.id_or_slug,'state':args.state,'reason':args.reason,
+                   **({'expected_version':args.expected_version} if args.expected_version else {})}
+        result=_evidence_call(cfg,'memory_review_claim',arguments)
+        if args.expected_version:print('New version: '+result['version']);return 0
+    print('evidence state saved')
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

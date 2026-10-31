@@ -11,6 +11,21 @@ KINDS={'stated','proposal','hypothetical','inference'}
 def _hash(value):
     return hashlib.sha256(value.encode()).hexdigest()
 
+
+def _lock_key(key):
+    return int.from_bytes(bytes.fromhex(key[:16]),signed=True)
+
+
+def _context(conn,actor,operation,*,inspected=None):
+    """Transaction-local decision context read by the migration029 history triggers.
+
+    Only a strict call records an inspected version; legacy no-token calls are
+    recorded truthfully as legacy, and changes outside a gateway as direct.
+    """
+    value={'actor':str(actor),'operation':operation,'mode':'strict' if inspected else 'legacy'}
+    if inspected:value['inspected']=inspected
+    conn.execute("SELECT set_config('rag_evidence.context',%s,true)",(json.dumps(value),))
+
 @dataclass(frozen=True)
 class ClaimResult:
     doc_id: str
@@ -22,6 +37,7 @@ def attach(conn,doc_id,items,actor):
     if not isinstance(items,list) or len(items)>8:
         raise ValueError('claim evidence requires at most eight source spans')
     conn.execute("SELECT document_id FROM claim_records WHERE document_id=%s FOR UPDATE",(doc_id,))
+    _context(conn,actor,'attach')
     prepared=[]
     for item in items:
         clean,_=strip_secrets_json(item)
@@ -33,7 +49,7 @@ def attach(conn,doc_id,items,actor):
         prepared.append((key,clean))
     # Deterministic order for shared source locks; attachment never resets trust.
     for key,item in sorted(prepared,key=lambda p:p[0]):
-        conn.execute('SELECT pg_advisory_xact_lock(%s)',(int.from_bytes(bytes.fromhex(key[:16]),signed=True),))
+        conn.execute('SELECT pg_advisory_xact_lock(%s)',(_lock_key(key),))
         at=parse_time(item.get('timestamp'))
         conn.execute('INSERT INTO knowledge_sources(source_key,namespace,source_id,role,source_at) VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
                      (key,item['namespace'],item['source_id'],item['role'],at))
@@ -80,26 +96,88 @@ def save(conn,cfg,*,title,body,domain,dtype,claim_kind,evidence,project=None,sco
         raise
 
 
-def source_state(conn,key,*,state,reason,actor='cli',commit=True):
+def source_state(conn,key,*,state,reason,actor='cli',commit=True,expected_version=None,anchor=None):
+    """Audited source trust change. Strict callers bind it to the inspected source
+    version through a readable anchor document; legacy no-token calls remain.
+
+    Locks only the source (never dependent claims). Under the service the
+    existing all-dependent-document write policy still decides the update.
+    """
+    from . import evidence_contract as contract
     if state not in ('active','refuted','removed') or not isinstance(reason,str) or not reason.strip():
         raise ValueError('source state change requires valid state and reason')
+    strict=expected_version is not None
+    if strict:
+        contract.check_version(expected_version,contract.SOURCE_VERSION);contract.check_reason(reason)
+        if anchor is None:raise ValueError('strict source state requires an anchor document')
+        if not isinstance(key,str) or not contract._HEX.fullmatch(key):raise contract.EvidenceUnavailable()
+    elif anchor is not None:
+        raise ValueError('an anchor document requires expected_version')
     try:
+        # Same per-source lock as attachment and strict claim review, so a
+        # concurrent review cannot commit against a source state it no longer sees.
+        if isinstance(key,str) and len(key)==64:conn.execute('SELECT pg_advisory_xact_lock(%s)',(_lock_key(key),))
+        if strict:
+            contract.require(conn)
+            doc=contract.resolve(conn,anchor)
+            contract.linked(conn,doc['id'],key)
+            # FOR UPDATE also applies the service UPDATE policies: a source with
+            # any unwritable dependent is unavailable rather than reported stale.
+            if contract.source_version(conn,key,lock=True)['version']!=expected_version:
+                raise contract.EvidenceConflict()
+        _context(conn,actor,'source_state',inspected=expected_version)
         row=conn.execute('UPDATE knowledge_sources SET state=%s,reason=%s,changed_at=now() WHERE source_key=%s RETURNING source_key',
                          (state,strip_secrets(reason)[0],key)).fetchone()
-        if not row:raise ValueError('source not found')
+        if not row:
+            if strict:raise contract.EvidenceUnavailable()
+            raise ValueError('source not found')
         _audit(conn,actor,'source_state',None,f'{key}: {state}; {reason}')
+        result={'source_key':key,'state':state}
+        if strict or contract.installed(conn):
+            current=contract.source_version(conn,key)
+            result.update(source_version=current['version'],revision=current['revision'])
+        if strict:result['version']=contract.document_version(conn,doc['id'])
         if commit:conn.commit()
+        return result
     except BaseException:
         if commit:conn.rollback()
         raise
 
 
-def review(conn,doc_id,*,state,reason,actor='cli',commit=True):
+def review(conn,doc_id,*,state,reason,actor='cli',commit=True,expected_version=None):
+    """Audited claim review. Strict callers pass the inspected whole-document
+    version; it is compared after locking document lifecycle, then the claim
+    and every linked source in key order, so no stale decision can commit.
+    """
+    from . import evidence_contract as contract
     if state not in ('confirmed','unreviewed','refuted') or not isinstance(reason,str) or not reason.strip():
         raise ValueError('claim review requires valid state and reason')
+    strict=expected_version is not None
+    if strict:contract.check_version(expected_version);contract.check_reason(reason)
     try:
+        if strict:
+            # Lifecycle and scope participate in the inspected version. Protect
+            # them until commit, including changes by a pre-029 client.
+            if not conn.execute('SELECT id FROM documents WHERE id=%s FOR SHARE',(doc_id,)).fetchone():
+                raise contract.EvidenceUnavailable()
         row=conn.execute('SELECT document_id FROM claim_records WHERE document_id=%s FOR UPDATE',(doc_id,)).fetchone()
-        if not row:raise ValueError('managed claim not found')
+        if not row:
+            if strict:raise contract.EvidenceUnavailable()
+            raise ValueError('managed claim not found')
+        if strict:
+            contract.require(conn)
+            linked=[r['source_key'] for r in conn.execute('SELECT DISTINCT source_key FROM claim_evidence WHERE document_id=%s ORDER BY source_key LIMIT %s',
+                                                          (doc_id,contract.MAX_STRICT_SOURCES+1))]
+            if len(linked)>contract.MAX_STRICT_SOURCES:raise ValueError('evidence_too_large')
+            for key in linked:
+                conn.execute('SELECT pg_advisory_xact_lock(%s)',(_lock_key(key),))
+                # Old source-state clients do not take advisory locks. A row
+                # SHARE lock also fences their UPDATE before the comparison.
+                # The helper checks the writable anchor explicitly, avoiding
+                # the source-wide UPDATE RLS required by a direct FOR SHARE.
+                conn.execute('SELECT public.rag_lock_claim_source(%s,%s)',(doc_id,key))
+            if contract.document_version(conn,doc_id)!=expected_version:raise contract.EvidenceConflict()
+        _context(conn,actor,'claim_review',inspected=expected_version)
         if state=='confirmed' and not conn.execute("SELECT 1 FROM claim_evidence e JOIN knowledge_sources s USING(source_key) WHERE e.document_id=%s AND s.state='active' LIMIT 1",(doc_id,)).fetchone():
             raise ValueError('confirmation requires active source evidence')
         if state=='confirmed':
@@ -108,7 +186,12 @@ def review(conn,doc_id,*,state,reason,actor='cli',commit=True):
             conn.execute('UPDATE claim_evidence SET reviewed=false WHERE document_id=%s',(doc_id,))
         conn.execute('UPDATE claim_records SET review_state=%s,reason=%s WHERE document_id=%s',(state,strip_secrets(reason)[0],doc_id))
         _audit(conn,actor,'claim_review',doc_id,f'{state}; {reason}')
+        result={'document_id':str(doc_id),'review_state':state}
+        if strict or contract.installed(conn):
+            result['revision']=conn.execute('SELECT revision FROM claim_revisions WHERE document_id=%s',(doc_id,)).fetchone()['revision']
+            result['version']=contract.document_version(conn,doc_id)
         if commit:conn.commit()
+        return result
     except BaseException:
         if commit:conn.rollback()
         raise

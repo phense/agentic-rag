@@ -233,25 +233,62 @@ def memory_assert(entity: str, attribute: str, value: str, domain: str,
             relation=relation,project=project,scope=scope,actor=_actor()))
 
 
-def memory_source_state(source_key: str, state: str, reason: str) -> dict:
+def memory_source_state(source_key: str, state: str, reason: str,
+                        expected_version: str | None = None, id_or_slug: str | None = None) -> dict:
     """Explicit operator source trust change: active/refuted/removed, with reason.
-    Retains all evidence; dependent current claims use surviving active support."""
+    Retains all evidence; dependent current claims use surviving active support.
+    Strict: pass the inspected source_version from memory_evidence as expected_version
+    and that document as id_or_slug; a changed source is a conflict, never applied."""
     from .store import set_source_state
     cfg,conn=_connect()
-    with conn:set_source_state(conn,source_key,state=state,reason=reason,actor=_actor())
-    return {'source_key':source_key,'state':state}
+    with conn:
+        result=set_source_state(conn,source_key,state=state,reason=reason,actor=_actor(),
+                                expected_version=expected_version,anchor=id_or_slug)
+    return _plain(result)
 
 
-def memory_review_claim(id_or_slug: str, state: str, reason: str) -> dict:
+def memory_review_claim(id_or_slug: str, state: str, reason: str, expected_version: str | None = None) -> dict:
     """Explicit operator review: confirmed/unreviewed/refuted, with reason.
-    Confirm only after checking meaning and source support; this preserves inference kind."""
+    Confirm only after checking meaning and source support; this preserves inference kind.
+    Strict: pass the inspected memory_evidence version as expected_version; any change
+    to the claim, its spans or linked sources since then is a conflict."""
     from .store import review_claim
+    from .evidence_contract import EvidenceUnavailable
     cfg,conn=_connect()
     with conn:
         doc_id=_resolve_id(conn,id_or_slug)
-        if doc_id is None:return {'error':'document not found'}
-        review_claim(conn,doc_id,state=state,reason=reason,actor=_actor())
-    return {'document_id':doc_id,'review_state':state}
+        if doc_id is None:
+            if expected_version is not None:raise EvidenceUnavailable()
+            return {'error':'document not found'}
+        result=review_claim(conn,doc_id,state=state,reason=reason,actor=_actor(),expected_version=expected_version)
+    return _plain(result)
+
+
+def memory_evidence(id_or_slug: str, source_key: str | None = None, cursor: str | None = None,
+                    limit: StrictInt = 20) -> dict:
+    """Inspect a memory's evidence (contract v1): exact stored quotes, opaque source/span
+    references, event time or unknown, role, completeness, source trust, claim review,
+    fact lifecycle and exclusion reasons, plus the version a strict review must cite.
+    Reviewed means an operator decision, never independent verification. Finite pages
+    (limit<=20, next_cursor); source_key narrows to one source linked to this memory."""
+    from .evidence_contract import inspect
+    cfg,conn=_connect()
+    with conn:
+        # One snapshot: the version and the page describe the same evidence.
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(inspect(conn,id_or_slug,source_key=source_key,cursor=cursor,limit=limit))
+
+
+def memory_evidence_history(id_or_slug: str, source_key: str | None = None, cursor: str | None = None,
+                            limit: StrictInt = 20) -> dict:
+    """Newest-first review/source decisions recorded since the evidence-history upgrade,
+    for this memory or one source linked to it. Earlier changes remain in the audit log;
+    an empty history does not mean never reviewed. Finite pages (limit<=20)."""
+    from .evidence_contract import history
+    cfg,conn=_connect()
+    with conn:
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(history(conn,id_or_slug,source_key=source_key,cursor=cursor,limit=limit))
 
 
 def memory_pin(body: str | None = None, document_id: str | None = None,
@@ -346,7 +383,7 @@ def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dic
 
 
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
-              memory_path, memory_timeline)
+              memory_path, memory_timeline, memory_evidence, memory_evidence_history)
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 
 

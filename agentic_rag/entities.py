@@ -143,6 +143,11 @@ def _accept(conn, row, actor, reason):
         return 'original complete active user evidence and unchanged scope/domain are required'
     if _conflict(conn, row):
         return 'competing anchor or transitive alias chain requires review/revocation'
+    # Claim-first lock order, as attachment/review: the span flag advances the
+    # claim's evidence revision, so no strict review may decide concurrently.
+    from .evidence import _context
+    conn.execute('SELECT 1 FROM claim_records WHERE document_id=%s FOR UPDATE', (row['document_id'],))
+    _context(conn, actor, 'entity_alias_review')
     conn.execute('UPDATE claim_evidence SET reviewed=true WHERE document_id=%s AND source_key=%s AND span_hash=%s',
                  (row['document_id'], row['source_key'], row['span_hash']))
     conn.execute("UPDATE entity_aliases SET state='accepted',reason=%s,changed_at=now() WHERE document_id=%s", (reason,row['document_id']))
