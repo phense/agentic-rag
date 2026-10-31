@@ -88,6 +88,26 @@ independent review, tested upgrade boundaries and deferred Low findings are in
 [upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md).
 No production migration, cross-host restore or live service restart is claimed.
 
+## Source-linked pattern suggestions (RAG-065 / issue #65)
+
+🔵 Implemented at `ea6697b`; independent feature/restore reviews and coordinator correction checks are recorded. Full suite: 1,974 passed, 1 skipped, 1 known warning, exit 0. [PR88](https://github.com/phense/agentic-rag/pull/88) awaits specific merge approval. Default-off scoped policies schedule bounded
+inference suggestions through the existing local or central worker. Three
+independent original user events across three memories form the support floor;
+each part retains exact source/version links. Patterns remain reviewable
+inferences, are excluded from recursive synthesis, and are withheld after
+required source or policy changes. Accepted output survives apply failure
+without a second provider call. Historical backfill is explicit.
+
+Additive schema030 preserves a populated0.6.17 source with verified restore and
+retry. Upgrade and restart every direct reader before generating patterns;
+code-only rollback is unsupported after the first pattern. Scripted fixtures
+produce 8 cited parts, 7 semantically supported and 1 disclosed false part;
+this is pipeline evidence, not model accuracy. All 34 fresh final integration
+assertions pass; Low limitations stay in Issue75. See the
+[guide](docs/pattern-synthesis.md), [verification](docs/verification/issue65-pattern-synthesis.md)
+and [operator procedure](docs/playbooks/system/rag-065-pattern-synthesis.md).
+No production activation is included.
+
 ## Memory platform
 
 - ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown

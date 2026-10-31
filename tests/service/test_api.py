@@ -97,7 +97,9 @@ def test_remote_mcp_ro_surface_and_request_identity(service_store,tmp_path):
         def rpc(token,path,method,params=None):
             return client.post(path,headers={**headers(token),'accept':'application/json, text/event-stream'},json={'jsonrpc':'2.0','id':1,'method':method,**({'params':params} if params is not None else {})})
         names={t['name'] for t in rpc(KEYS[3],'/mcp/ro/','tools/list').json()['result']['tools']}
-        assert len(names)==12 and 'memory_save' not in names and {'memory_evidence','memory_evidence_history'}<=names
+        assert len(names)==16 and 'memory_save' not in names and {'memory_evidence','memory_evidence_history'}<=names
+        assert {'memory_pattern_preview','memory_pattern_status','memory_patterns','memory_pattern'}<=names
+        assert not {'memory_pattern_policy','memory_pattern_backfill','memory_pattern_recover'}&names
         assert rpc(KEYS[3],'/mcp/rw/','tools/list').status_code==403
         first=rpc(KEYS[0],'/mcp/rw/','tools/call',{'name':'memory_domains','arguments':{}}).json()['result']
         second=rpc(KEYS[2],'/mcp/ro/','tools/call',{'name':'memory_domains','arguments':{}}).json()['result']

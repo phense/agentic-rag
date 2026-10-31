@@ -12,6 +12,7 @@ from pydantic import validate_call, ValidationError
 from .context import request_scope
 from .schema import ServiceSchemaError
 from ..evidence_contract import EvidenceConflict, EvidenceUnavailable
+from ..synthesis import SynthesisUnavailable
 
 
 class JobBlocked(Exception):
@@ -98,6 +99,8 @@ async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False
             raise ServiceError('authorization_changed',403) from None
         except ServiceSchemaError:
             raise ServiceError('incompatible_service_schema',503) from None
+        except SynthesisUnavailable:
+            raise ServiceError('synthesis_disabled',409) from None
         except EvidenceConflict:
             raise ServiceError('evidence_conflict',409) from None
         except EvidenceUnavailable:

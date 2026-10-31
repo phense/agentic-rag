@@ -32,6 +32,7 @@ _SECTION_PREFIX = {
     "continuity": "checkpoint",
     "service": "service",
     "temporal": "temporal",
+    "synthesis": "synthesis",
 }
 
 
@@ -109,6 +110,14 @@ class Config:
     # Temporal query interpretation is opt-in; explicit request modes still apply.
     temporal_enabled: bool = False
     temporal_timezone: str = "UTC"
+    # Pattern synthesis is off globally; a scoped policy is also required.
+    synthesis_enabled: bool = False
+    synthesis_provider: str = ""
+    synthesis_model: str = ""
+    synthesis_timeout_seconds: int = 30
+    synthesis_max_input_chars: int = 12000
+    synthesis_max_output_tokens: int = 1024
+    synthesis_max_runs_per_tick: int = 2
 
     def __post_init__(self) -> None:
         if self.rerank_policy not in ('legacy-v1', 'focused-v1'):
@@ -123,6 +132,16 @@ class Config:
                 raise ValueError('rerank preset identity must match pinned SHA256')
         if type(self.temporal_enabled) is not bool:
             raise ValueError('temporal enabled must be boolean')
+        if type(self.synthesis_enabled) is not bool:
+            raise ValueError('synthesis enabled must be boolean')
+        if self.synthesis_provider not in ('', 'claude', 'codex', 'openai-compatible'):
+            raise ValueError('invalid synthesis provider')
+        if not isinstance(self.synthesis_model, str) or len(self.synthesis_model) > 200:
+            raise ValueError('synthesis model must be at most 200 characters')
+        for name, low, high in [('synthesis_timeout_seconds', 1, 300), ('synthesis_max_input_chars', 1000, 24000),
+                                ('synthesis_max_output_tokens', 128, 4096), ('synthesis_max_runs_per_tick', 1, 10)]:
+            if type(getattr(self, name)) is not int or not low <= getattr(self, name) <= high:
+                raise ValueError(f'{name} must be an integer between {low} and {high}')
         from .temporal import parse_zone
         parse_zone(self.temporal_timezone)
         if type(self.rerank_diagnostics) is not bool:

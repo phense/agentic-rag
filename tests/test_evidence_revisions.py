@@ -121,4 +121,6 @@ def test_supported_source_version_includes_current_release():
     from agentic_rag.service import upgrade
     assert '0.6.15' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.16' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.17' not in upgrade.SUPPORTED_VERSIONS
+    # RAG-065: the actual 0.6.17 release is an accepted source for 0.6.18.
+    assert '0.6.17' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.18' not in upgrade.SUPPORTED_VERSIONS

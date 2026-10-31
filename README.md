@@ -9,9 +9,16 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.17-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.18-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.18 pattern synthesis:** an operator can let a model suggest recurring
+patterns across at least three independent user reports in one domain and project.
+Each suggestion is stored as a reviewable inference with exact citations and
+disappears from every read as soon as a cited source changes. It is off by default;
+upgrade with the [operations playbook](docs/playbooks/system/rag-065-pattern-synthesis.md)
+and read [pattern synthesis](docs/pattern-synthesis.md).
 
 **0.6.17 temporal search:** searches can recognize yesterday/gestern, last
 week/letzte Woche, next month/nächsten Monat and explicit dates, then order or
@@ -20,8 +27,8 @@ It is off by default and needs no migration; read [temporal search](docs/tempora
 
 **0.6.16 source evidence:** every client can inspect the exact stored quotes,
 source trust, claim review and fact lifecycle behind a memory, and reviews are
-bound to the evidence version that was inspected. Current service startup requires
-schema029; follow the verified [upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md)
+bound to the evidence version that was inspected. That release introduced
+schema029; follow its verified [upgrade playbook](docs/playbooks/system/rag-063-source-evidence-upgrade.md)
 and read [claim evidence](docs/claim-evidence.md).
 
 **0.6.15 reranker Settings:** administrators can select MiniLM L6 EN/DE,
@@ -32,7 +39,7 @@ Knowledge and existing embeddings are preserved.
 **0.6.13 request tracing:** metadata-only request IDs and authorized job diagnostics
 are available through the dashboard, REST and CLI. Read the
 [tracing operations guide](docs/16-request-tracing.md). Existing service stores
-introduced additive schema026; current startup requires029 as described above.
+introduced additive schema026; current startup requires030 as described above.
 
 **0.6.12 dashboard:** authenticated setup, enrolled-client administration and scoped
 knowledge/source browsing, served by the same engine. Read the

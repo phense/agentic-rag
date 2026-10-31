@@ -21,6 +21,7 @@ def run(cfg,*,stop=None,interval=5):
                 worker.requeue_orphans(conn,cfg)
                 while not stop.is_set():
                     assert_authority()
+                    worker._schedule_synthesis(conn,cfg)
                     worker.drain(conn,cfg,max_jobs=8,stop=stop)
                     assert_authority()
                     stop.wait(interval)

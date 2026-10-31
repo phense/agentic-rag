@@ -93,7 +93,10 @@ def test_stdio_proxy_exposes_only_ro_tools_and_forwards_without_database(tmp_pat
     server=mcp_server.build_server(True)
     async def probe():
         tools=await server.list_tools()
-        assert len(tools)==12 and 'memory_save' not in {t.name for t in tools}
+        names={t.name for t in tools}
+        assert len(tools)==16 and 'memory_save' not in names
+        assert {'memory_pattern_preview','memory_pattern_status','memory_patterns','memory_pattern'} <= names
+        assert not {'memory_pattern_policy','memory_pattern_backfill','memory_pattern_recover'} & names
         result=await server.call_tool('memory_domains',{})
         assert 'true' in str(result).lower()
     asyncio.run(probe())

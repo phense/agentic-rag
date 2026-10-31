@@ -285,6 +285,9 @@ def get_document(conn, id_or_slug: str) -> dict | None:
     ).fetchone()
     if doc is None:
         return None
+    from .synthesis import withheld
+    if withheld(conn, doc["id"], doc["dtype"]):
+        return None  # RAG-065: stale or unauthorized derived pattern
     out = [
         EdgeInfo(r["predicate"], r["dst_slug"], _s(r["dst_id"]), "out",
                  r["evidence"], r["confidence"])
@@ -450,3 +453,21 @@ def select_embedding_index(conn, cfg, name, *, rollback=False, **kwargs):
     from . import indexes
     operation = indexes.rollback if rollback else indexes.activate
     return operation(conn, cfg, name, **kwargs)
+
+
+def set_synthesis_policy(conn, cfg, **kwargs):
+    """Audited scoped pattern-synthesis opt-in/opt-out; no provider call."""
+    from .synthesis import set_policy
+    return set_policy(conn, cfg, **kwargs)
+
+
+def request_synthesis_backfill(conn, cfg, **kwargs):
+    """Audited explicit finite history window for an enabled policy."""
+    from .synthesis import request_backfill
+    return request_backfill(conn, cfg, **kwargs)
+
+
+def recover_synthesis_run(conn, cfg, run_id, **kwargs):
+    """Audited re-queue of parked accepted pattern work; no new provider call."""
+    from .synthesis import recover
+    return recover(conn, cfg, run_id, **kwargs)

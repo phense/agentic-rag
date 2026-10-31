@@ -279,6 +279,29 @@ def _main(argv: list[str] | None = None) -> int:
         pe=es.add_parser(name,help=text);pe.add_argument('id_or_slug');pe.add_argument('--source',dest='source_key')
         pe.add_argument('--cursor');pe.add_argument('--limit',type=int,default=20);pe.add_argument('--json',action='store_true')
 
+    p_pattern=sub.add_parser('pattern',help='opt-in source-linked pattern suggestions (inferred, reviewable)')
+    pt=p_pattern.add_subparsers(dest='pattern_cmd',required=True)
+    def pattern_scope(parser,required=True):
+        parser.add_argument('--domain',required=required)
+        group=parser.add_mutually_exclusive_group(required=required)
+        group.add_argument('--project');group.add_argument('--scope',choices=['global'])
+    pp=pt.add_parser('preview',help='eligible originals and independence; no provider call, no write')
+    pattern_scope(pp);pp.add_argument('--start');pp.add_argument('--end');pp.add_argument('--json',action='store_true')
+    pst=pt.add_parser('status',help='policies, backfills and recent runs');pattern_scope(pst,required=False)
+    pst.add_argument('--limit',type=int,default=20);pst.add_argument('--json',action='store_true')
+    pl=pt.add_parser('list',help='current patterns of one scope');pattern_scope(pl)
+    pl.add_argument('--limit',type=int,default=20);pl.add_argument('--cursor');pl.add_argument('--json',action='store_true')
+    psh=pt.add_parser('show',help='one current pattern with exact original citations')
+    psh.add_argument('id_or_slug');psh.add_argument('--json',action='store_true')
+    for name,text in (('enable','opt in; records the forward boundary'),('disable','opt out; withholds existing patterns')):
+        pe=pt.add_parser(name,help=text);pattern_scope(pe);pe.add_argument('--reason',required=True)
+        pe.add_argument('--interval-seconds',type=int,default=86400)
+    pb=pt.add_parser('backfill',help='explicit finite history window before the forward boundary')
+    pattern_scope(pb);pb.add_argument('--start',required=True);pb.add_argument('--end',required=True)
+    pb.add_argument('--reason',required=True);pb.add_argument('--max-batches',type=int,default=1)
+    prc=pt.add_parser('recover',help='re-queue parked accepted work; no new provider call')
+    prc.add_argument('run_id');prc.add_argument('--reason',required=True)
+
     p_scope = sub.add_parser("scope", help="inspect or repair document applicability")
     ss = p_scope.add_subparsers(dest="scope_cmd", required=True)
     ss.add_parser("backfill", help="audit-map unambiguous legacy paths, retain unknowns")
@@ -445,6 +468,8 @@ def _main(argv: list[str] | None = None) -> int:
 
     if args.cmd == 'evidence':
         return _evidence(args,cfg)
+    if args.cmd == 'pattern':
+        return _pattern(args,cfg)
 
     if args.cmd == "scope":
         from .scope import backfill
@@ -1067,6 +1092,112 @@ def _evidence(args,cfg):
         result=_evidence_call(cfg,'memory_review_claim',arguments)
         if args.expected_version:print('New version: '+result['version']);return 0
     print('evidence state saved')
+    return 0
+
+
+def _pattern_call(cfg,name,arguments):
+    """One gateway for local (direct SQL) and central (service client) pattern calls."""
+    if cfg.service_mode=='client':
+        return _remote_call(cfg,name,arguments)
+    from . import synthesis
+    args=dict(arguments)
+    if name=='memory_pattern':
+        with db.connect(cfg,role='reader') as connection:
+            connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+            return synthesis.inspect(connection,args['id_or_slug'])
+    reads={'memory_pattern_preview':synthesis.preview,'memory_pattern_status':synthesis.status,
+           'memory_patterns':synthesis.patterns}
+    if name in reads:
+        with db.connect(cfg,role='reader') as connection:
+            connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+            return reads[name](connection,cfg,**args)
+    with db.connect(cfg,role='writer') as connection:
+        if name=='memory_pattern_policy':return store.set_synthesis_policy(connection,cfg,**args)
+        if name=='memory_pattern_backfill':return store.request_synthesis_backfill(connection,cfg,**args)
+        return store.recover_synthesis_run(connection,cfg,args.pop('run_id'),**args)
+
+
+def _pattern_scope(args):
+    return {'domain':args.domain,**({'project':args.project} if args.project else {}),
+            **({'scope':args.scope} if args.scope else {})}
+
+
+def _print_pattern(view):
+    p=view['pattern']
+    print(f"Inferred pattern: {p['label']} ({p['slug']}) [{p['domain']} · {p['project_scope']}]")
+    print('A reviewable hypothesis, not a user statement or verified fact.')
+    print(f"Model confidence: {view['confidence']} · review: {view['review_state']} · "
+          f"support: {view['support']['events']} independent events in {view['support']['memories']} memories")
+    print('\n'+p['statement'])
+    for part in view['parts']:
+        print('\n- '+part['text'])
+        for c in part['citations']:
+            print(f"  {c['reference']} · {c['source_version']} · original {c['original']['slug']} ({c['original']['version']})")
+    print('\nDrill down: rag evidence show <original> --source <source_key>')
+
+
+def _pattern(args,cfg):
+    command=args.pattern_cmd
+    if command=='preview':
+        result=_pattern_call(cfg,'memory_pattern_preview',{**_pattern_scope(args),
+            **({'start':args.start} if args.start else {}),**({'end':args.end} if args.end else {})})
+        if args.json:print(json.dumps(result,default=_json_default,indent=1,ensure_ascii=False));return 0
+        c=result['candidates']
+        print(f"Preview {result['scope']['domain']} · {result['scope']['project_scope']} (no provider call, no write)")
+        print(f"Policy: {'enabled' if result['policy']['enabled'] else 'not enabled'}")
+        print(f"Eligible memories: {c['memories']} · spans: {c['spans']}")
+        print(f"Independent events: {c['independent_events']} (floor {result['floor']['independent_events']}) · "
+              f"{'sufficient' if c['sufficient'] else 'insufficient'}")
+        excluded={k:v for k,v in result['excluded'].items() if v}
+        if excluded:print('Excluded: '+', '.join(f'{k} {v}' for k,v in excluded.items()))
+        return 0
+    if command in ('status','list'):
+        arguments={'limit':args.limit,**({'domain':args.domain} if args.domain else {}),
+                   **({'project':args.project} if args.project else {}),**({'scope':args.scope} if args.scope else {})}
+        if command=='list' and args.cursor:arguments['cursor']=args.cursor
+        result=_pattern_call(cfg,'memory_pattern_status' if command=='status' else 'memory_patterns',arguments)
+        if args.json:print(json.dumps(result,default=_json_default,indent=1,ensure_ascii=False));return 0
+        if command=='status':
+            for p in result['policies']:
+                print(f"{p['domain']} {p['project_scope']}: {'enabled' if p['enabled'] else 'disabled'} v{p['version']}"
+                      f" since {p['forward_from'] or '-'}; pending {p['forward']['pending_memories']}"
+                      f"{' ('+p['forward']['waiting']+')' if p['forward'].get('waiting') else ''}"
+                      f"{'; oversized '+str(p['forward']['blocked']['oversized']) if p['forward'].get('blocked') else ''}"
+                      f"{'; held for recovery '+str(p['forward']['held_for_recovery']) if p['forward'].get('held_for_recovery') else ''}"
+                      f"{'; more to scan' if p['forward'].get('more') else ''}")
+            for b in result['backfills']:
+                print(f"backfill {b['id']} {b['state']}: {b['batches']}/{b['max_batches']} batches"
+                      f"{' ('+b['waiting']+')' if b.get('waiting') else ''}"
+                      f"{'; oversized '+str(b['oversized']) if b.get('oversized') else ''}")
+            for r in result['runs']:
+                print(f"run {r['id']} {r['kind']} {r['state']}{' '+r['code'] if r['code'] else ''}: "
+                      f"{r['candidates']} memories ({r.get('new_memories',r['candidates'])} new, "
+                      f"{r.get('context_memories',0)} context), {r['provider_calls']} provider calls, {r['applied']} applied"
+                      f"{' (recoverable)' if r['recoverable'] else ''}")
+        else:
+            for item in result['items']:
+                print(f"{item['id']} {item['label']} [{item['review_state']}, {item['confidence']}]")
+            if result['next_cursor']:print('Next page: --cursor '+result['next_cursor'])
+        return 0
+    if command=='show':
+        result=_pattern_call(cfg,'memory_pattern',{'id_or_slug':args.id_or_slug})
+        if args.json:print(json.dumps(result,default=_json_default,indent=1,ensure_ascii=False))
+        else:_print_pattern(result)
+        return 0
+    if command in ('enable','disable'):
+        result=_pattern_call(cfg,'memory_pattern_policy',{**_pattern_scope(args),'enabled':command=='enable',
+                             'reason':args.reason,'interval_seconds':args.interval_seconds})
+        print(f"pattern policy {'enabled' if result['enabled'] else 'disabled'} (v{result['version']}); "
+              f"forward boundary {result['forward_from'] or '-'}")
+        return 0
+    if command=='backfill':
+        result=_pattern_call(cfg,'memory_pattern_backfill',{**_pattern_scope(args),'start':args.start,'end':args.end,
+                             'reason':args.reason,'max_batches':args.max_batches})
+        print(f"backfill {result['id']} requested: {result['window_start']} .. {result['window_end']},"
+              f" at most {result['max_batches']} batches")
+        return 0
+    result=_pattern_call(cfg,'memory_pattern_recover',{'run_id':args.run_id,'reason':args.reason})
+    print(f"run {result['id']} re-queued ({result['state']})")
     return 0
 
 

@@ -75,6 +75,9 @@ def test_restore_roundtrip(tmp_path, cfg, dbinit, conn, monkeypatch):
     monkeypatch.setattr(backup, "WARNING_STATE", tmp_path / "state" / "warn")
     conn.execute("INSERT INTO domains(name) VALUES ('probe')")
     conn.commit()
+    before_acl = _relation_acl(conn)
+    before_defaults = _default_acl(conn)
+    conn.rollback()
     c = Config(db_name=cfg.db_name, backup_local_dir=tmp_path,
                backup_cloud_dir=tmp_path / "no-cloud")
     res = backup.run_backup(c)
@@ -86,6 +89,104 @@ def test_restore_roundtrip(tmp_path, cfg, dbinit, conn, monkeypatch):
     assert check.execute(
         "SELECT 1 FROM domains WHERE name = 'probe'").fetchone()
     check.close()
+    # CREATE during an in-place restore must not inherit extra default grants.
+    assert _relation_acl(conn) == before_acl
+    assert _default_acl(conn) == before_defaults
+    from agentic_rag.service.schema import validate_schema
+    validate_schema(conn)
+
+
+def _relation_acl(conn):
+    return conn.execute("""SELECT c.relname, a.grantor::regrole::text grantor,
+        a.grantee, a.privilege_type, a.is_grantable
+        FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+        CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,
+            acldefault(CASE WHEN c.relkind='S' THEN 'S'::\"char\" ELSE 'r'::\"char\" END,c.relowner))) a
+        WHERE n.nspname='public' AND c.relkind IN ('r','S')
+        ORDER BY c.relname,grantor,a.grantee,a.privilege_type""").fetchall()
+
+
+def _default_acl(conn):
+    return conn.execute("""SELECT defaclrole, defaclnamespace, defaclobjtype, defaclacl::text
+        FROM pg_default_acl ORDER BY defaclrole,defaclnamespace,defaclobjtype""").fetchall()
+
+
+@pytest.mark.parametrize('failure', ['producer_exit', 'producer_mid', 'sql_error', 'sql_mid'])
+def test_failed_restore_rolls_back_rows_and_default_privileges(tmp_path, cfg, conn, monkeypatch, failure):
+    # A complete-looking stream from a failed producer must never be committed.
+    c = Config(db_name=cfg.db_name, backup_local_dir=tmp_path, backup_cloud_dir=None)
+    archive = backup.run_backup(c).local_path
+    conn.execute("INSERT INTO domains(name) VALUES ('after-backup')")
+    conn.commit()
+    before_acl, before_defaults = _relation_acl(conn), _default_acl(conn)
+    conn.rollback()
+    real_bin = backup._pg_bin
+    wrapper = tmp_path / 'pg-restore-failure'
+    wrapper.write_text('#!/usr/bin/python3\nimport subprocess,sys\n'
+                       f'p=subprocess.run([{real_bin("pg_restore", c)!r},*sys.argv[1:]],stdout=subprocess.PIPE)\n'
+                       'if p.returncode: sys.exit(p.returncode)\n'
+                       'out=p.stdout\n'
+                       'if "--list" in sys.argv:\n sys.stdout.buffer.write(out); sys.exit(0)\n'
+                       f'mode={failure!r}\n'
+                       'if mode=="producer_mid":\n sys.stdout.buffer.write(out[:len(out)//2]); sys.exit(19)\n'
+                       'if mode=="sql_mid":\n i=out.index(b"\\nCOPY "); out=out[:i]+b"\\nSELECT 1/0;\\n"+out[i:]\n'
+                       'sys.stdout.buffer.write(out); sys.stdout.flush()\n'
+                       'if mode=="producer_exit": sys.exit(19)\n'
+                       'if mode=="sql_error": print("SELECT 1/0;",flush=True)\n')
+    wrapper.chmod(0o700)
+    monkeypatch.setattr(backup, '_pg_bin', lambda name, config=None:
+                        str(wrapper) if name == 'pg_restore' else real_bin(name, config))
+    with pytest.raises(RuntimeError, match='restore failed'):
+        backup.restore(c, archive, assume_yes=True)
+    assert conn.execute("SELECT 1 FROM domains WHERE name='after-backup'").fetchone()
+    assert _relation_acl(conn) == before_acl
+    assert _default_acl(conn) == before_defaults
+
+
+def test_restore_rejects_large_objects_before_changing_target(tmp_path, cfg, conn):
+    oid = conn.execute("SELECT lo_from_bytea(0,'synthetic-large-object'::bytea) oid").fetchone()['oid']
+    conn.commit()
+    try:
+        archive = backup.run_backup(Config(db_name=cfg.db_name, backup_local_dir=tmp_path,
+                                           backup_cloud_dir=None)).local_path
+        conn.execute("INSERT INTO domains(name) VALUES ('after-large-object-backup')")
+        conn.commit()
+        before_acl, before_defaults = _relation_acl(conn), _default_acl(conn)
+        conn.rollback()
+        with pytest.raises(RuntimeError, match='large objects require an empty restore target'):
+            backup.restore(cfg, archive, assume_yes=True)
+        assert conn.execute("SELECT 1 FROM domains WHERE name='after-large-object-backup'").fetchone()
+        assert bytes(conn.execute('SELECT lo_get(%s) value', (oid,)).fetchone()['value']) == b'synthetic-large-object'
+        assert _relation_acl(conn) == before_acl
+        assert _default_acl(conn) == before_defaults
+    finally:
+        conn.rollback()
+        conn.execute('SELECT lo_unlink(%s)', (oid,))
+        conn.commit()
+
+
+def _function_acl(conn):
+    return conn.execute("""SELECT p.oid::regprocedure::text name, a.grantee, a.privilege_type,
+        a.is_grantable FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+        CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
+        WHERE n.nspname='public' ORDER BY name,a.grantee,a.privilege_type""").fetchall()
+
+
+def test_restore_preserves_function_acl_with_custom_operator_defaults(tmp_path, cfg, conn):
+    conn.execute('ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO rag_reader')
+    conn.commit()
+    try:
+        before_functions, before_defaults = _function_acl(conn), _default_acl(conn)
+        conn.rollback()
+        archive = backup.run_backup(Config(db_name=cfg.db_name, backup_local_dir=tmp_path,
+                                           backup_cloud_dir=None)).local_path
+        backup.restore(cfg, archive, assume_yes=True)
+        assert _function_acl(conn) == before_functions
+        assert _default_acl(conn) == before_defaults
+    finally:
+        conn.rollback()
+        conn.execute('ALTER DEFAULT PRIVILEGES REVOKE EXECUTE ON FUNCTIONS FROM rag_reader')
+        conn.commit()
 
 
 def test_pg_bin_prefers_path(monkeypatch):

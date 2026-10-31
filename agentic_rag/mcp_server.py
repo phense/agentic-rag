@@ -55,6 +55,17 @@ def _plain(obj):
     return json.loads(json.dumps(obj, default=_default))
 
 
+def _readable_id(conn, id_or_slug: str) -> str | None:
+    """Graph anchors: a withheld derived pattern is reported as not found."""
+    doc_id = _resolve_id(conn, id_or_slug)
+    if doc_id is not None:
+        from .synthesis import withheld
+        dtype = conn.execute("SELECT dtype FROM documents WHERE id=%s", (doc_id,)).fetchone()["dtype"]
+        if withheld(conn, doc_id, dtype):
+            return None
+    return doc_id
+
+
 def _resolve_id(conn, id_or_slug: str) -> str | None:
     """Resolve slug OR uuid to an EXISTING document id. The uuid branch
     must also hit the table: a well-formed-but-nonexistent uuid otherwise
@@ -162,7 +173,7 @@ def memory_neighbors(id_or_slug: str, depth: int = 1,
     (undirected), optionally filtered to specific predicates."""
     cfg, conn = _connect()
     with conn:
-        doc_id = _resolve_id(conn, id_or_slug)
+        doc_id = _readable_id(conn, id_or_slug)
         if doc_id is None:
             return {"error": f"not found: {id_or_slug}"}
         return {"edges": _plain(graph.neighbors(conn, doc_id,
@@ -177,8 +188,8 @@ def memory_path(from_id_or_slug: str, to_id_or_slug: str,
     (empty steps = no connection within max_depth)."""
     cfg, conn = _connect()
     with conn:
-        a = _resolve_id(conn, from_id_or_slug)
-        b = _resolve_id(conn, to_id_or_slug)
+        a = _readable_id(conn, from_id_or_slug)
+        b = _readable_id(conn, to_id_or_slug)
         if a is None or b is None:
             missing = from_id_or_slug if a is None else to_id_or_slug
             return {"error": f"not found: {missing}"}
@@ -190,7 +201,7 @@ def memory_timeline(id_or_slug: str) -> dict:
     (valid_from/valid_to) — what held when."""
     cfg, conn = _connect()
     with conn:
-        doc_id = _resolve_id(conn, id_or_slug)
+        doc_id = _readable_id(conn, id_or_slug)
         if doc_id is None:
             return {"error": f"not found: {id_or_slug}"}
         return {"edges": _plain(graph.timeline(conn, doc_id))}
@@ -395,9 +406,86 @@ def memory_entity_alias_review(document_id: str, state: str, reason: str) -> dic
         return _plain(review_entity_alias(conn,document_id,state=state,reason=reason,actor=_actor()))
 
 
+def _pattern_read(producer, **kwargs):
+    cfg, conn = _connect()
+    with conn:
+        # One snapshot: guard, versions and citations describe the same state.
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(producer(conn, cfg, **kwargs))
+
+
+def memory_pattern_preview(domain: str, project: str | None = None, scope: str | None = None,
+                           start: str | None = None, end: str | None = None) -> dict:
+    """Preview opt-in pattern synthesis for one concrete domain and project (or scope=global):
+    eligible original memories, independent user events, exclusions and budgets. No provider
+    call and no write. start/end bound document arrival time (ISO-8601 with timezone)."""
+    from .synthesis import preview
+    return _pattern_read(preview, domain=domain, project=project, scope=scope, start=start, end=end)
+
+
+def memory_pattern_status(domain: str | None = None, project: str | None = None, scope: str | None = None,
+                          limit: StrictInt = 20) -> dict:
+    """Visible pattern policies, open backfills and newest runs (state, code, counts, provider
+    calls). No prompts, quotes or raw provider errors."""
+    from .synthesis import status
+    return _pattern_read(status, domain=domain, project=project, scope=scope, limit=limit)
+
+
+def memory_patterns(domain: str, project: str | None = None, scope: str | None = None,
+                    limit: StrictInt = 20, cursor: str | None = None) -> dict:
+    """List current pattern suggestions of one concrete scope. Patterns are reviewable
+    inferences, not user statements; stale or inaccessible ones are omitted."""
+    from .synthesis import patterns
+    return _pattern_read(patterns, domain=domain, project=project, scope=scope, limit=limit, cursor=cursor)
+
+
+def memory_pattern(id_or_slug: str) -> dict:
+    """Inspect one current pattern: label, statement, model confidence, review state and
+    exact original citations (reference, source_version, original id/version). Drill down
+    with memory_evidence(original id, source_key). Withheld patterns are unavailable."""
+    from .synthesis import inspect
+    cfg, conn = _connect()
+    with conn:
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(inspect(conn, id_or_slug))
+
+
+def memory_pattern_policy(domain: str, enabled: StrictBool, reason: str, project: str | None = None,
+                          scope: str | None = None, interval_seconds: StrictInt = 86400) -> dict:
+    """Operator opt-in/opt-out of pattern synthesis for one concrete domain and project (or
+    scope=global). Enabling records the server time as forward boundary; earlier memories
+    need an explicit backfill. Disabling withholds existing patterns, never deletes."""
+    from .store import set_synthesis_policy
+    cfg, conn = _connect()
+    with conn:
+        return _plain(set_synthesis_policy(conn, cfg, domain=domain, enabled=enabled, reason=reason, project=project,
+                                           scope=scope, interval_seconds=interval_seconds, actor=_actor()))
+
+
+def memory_pattern_backfill(domain: str, start: str, end: str, reason: str, project: str | None = None,
+                            scope: str | None = None, max_batches: StrictInt = 1) -> dict:
+    """Request explicit bounded history analysis for an enabled policy: arrival window
+    [start,end) before its forward boundary, at most 366 days and 1-10 batches."""
+    from .store import request_synthesis_backfill
+    cfg, conn = _connect()
+    with conn:
+        return _plain(request_synthesis_backfill(conn, cfg, domain=domain, start=start, end=end, reason=reason,
+                                                 project=project, scope=scope, max_batches=max_batches, actor=_actor()))
+
+
+def memory_pattern_recover(run_id: str, reason: str) -> dict:
+    """Re-queue a parked accepted pattern run; reuses its stored output (no provider call)."""
+    from .store import recover_synthesis_run
+    cfg, conn = _connect()
+    with conn:
+        return _plain(recover_synthesis_run(conn, cfg, run_id, reason=reason, actor=_actor()))
+
+
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
-              memory_path, memory_timeline, memory_evidence, memory_evidence_history)
-WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
+              memory_path, memory_timeline, memory_evidence, memory_evidence_history,
+              memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern)
+WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin,
+               memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover)
 
 
 # Optional arguments added after protocol1. A client omits them unless the caller

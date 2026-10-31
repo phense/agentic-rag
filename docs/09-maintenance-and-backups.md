@@ -75,20 +75,35 @@ immediately either way.
 rag restore ~/.agentic-rag/backups/agentic_rag-20250101-033000.dump --yes
 ```
 
-restores a dump straight into your **live**, configured database, via
-`pg_restore --clean --if-exists --single-transaction`. Every piece of that
-is deliberate:
+restores a dump straight into your **live**, configured database. It streams
+`pg_restore --clean --if-exists` through `psql -X` in one explicit transaction:
 
 - **`--yes` is mandatory.** Without it the command refuses outright — there
   is no interactive confirmation prompt to fat-finger past.
-- **`--single-transaction`** makes the restore all-or-nothing: if it fails
+- **One transaction** makes the restore all-or-nothing: if it fails
   partway through, Postgres rolls the whole thing back rather than leaving
   the database half-dropped.
 - **`--clean --if-exists`** drops existing objects before recreating them
-  from the dump. `pg_restore` connects to a database that already exists —
+  from the dump. `psql` connects to a database that already exists —
   it doesn't create one — so point `config.toml` at the right `db_name`
   (run `rag init-db` first if you're restoring onto a fresh install) before
   restoring.
+- **The creating operator's default grants are reset inside that transaction
+  for tables, sequences, functions, types and schemas.** PostgreSQL's built-in
+  defaults apply during creation; the archive restores its own defaults afterwards.
+  This prevents an existing installation's defaults from adding access to
+  owner-only dashboard/tracing state or protected knowledge history. A failed
+  SQL statement or nonzero `pg_restore` exit rolls back both data and grants.
+  If the connection is lost during commit, inspect the database before retrying;
+  the client cannot prove whether the commit reached the server.
+- **Archives with PostgreSQL large objects are refused before connecting to
+  the target.** Large-object sections contain their own transaction boundary.
+  Nothing is skipped or changed on refusal. These objects are not used by
+  agentic-rag's schema. If another application added them, recover with
+  `pg_restore --single-transaction` into a confirmed empty database, following
+  the [move/recovery playbook](13-central-service.md#pb-058-02-move-restore-and-recover).
+  Verify the large objects and their ACLs separately before switching clients;
+  the application inventory does not cover them.
 
 This is the command you reach for in an actual incident. It is intentionally
 separate from — and touches nothing in common with — the automatic
@@ -157,7 +172,7 @@ maintenance` (04:00) — the same schedule the macOS launchd jobs use.
 ## `pg_dump` / `pg_restore` binary resolution
 
 Both `rag backup` and `rag maintenance`'s restore-test need `pg_dump` and
-`pg_restore`. They're resolved in this order:
+`pg_restore`; `rag restore` also needs the matching `psql`. They're resolved in this order:
 
 1. **`PATH`** — if the binary is already on your `PATH`, that wins.
 2. **`[pg] bin_dir`** in `config.toml`, if you've set it.
@@ -167,9 +182,11 @@ Both `rag backup` and `rag maintenance`'s restore-test need `pg_dump` and
 
 If none of those resolve, the command fails with an explicit error telling
 you to set `[pg] bin_dir` or fix your `PATH` — never a silent skip. If a
-`pg_dump`/`pg_restore` invocation itself fails (bad auth, disk full), the
+backup or maintenance `pg_dump`/`pg_restore` invocation itself fails (bad auth, disk full), the
 real stderr from the tool is surfaced in the error, not just an exit code —
 important for a job that mostly runs unattended.
+The live restore reports the failed stage and tool exit codes without printing
+SQL or stored content from subprocess diagnostics.
 
 ## Checking backup health from `rag status`
 

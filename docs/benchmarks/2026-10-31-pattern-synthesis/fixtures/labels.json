@@ -1,0 +1,212 @@
+{
+ "format": 1,
+ "floor": {
+  "independent_events": 3,
+  "memories": 3
+ },
+ "normalization": "NFKC, casefold, collapse whitespace runs to one space, strip; independence key only, stored quote bytes unchanged",
+ "exclusion_order": [
+  "derived",
+  "legacy_unmanaged",
+  "not_stated",
+  "no_qualifying_span",
+  "not_current"
+ ],
+ "cases": {
+  "K1": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 4,
+    "independent_events": 4,
+    "sufficient": true,
+    "excluded": {}
+   },
+   "oracle": {
+    "outcome": "applied",
+    "applied": 1,
+    "provider_calls": 1,
+    "supported_parts": 3,
+    "cited_events": 4,
+    "cited_memories": 4
+   },
+   "adversarial": {
+    "outcome": "non_conclusion",
+    "reason": "unknown_citation",
+    "applied": 0,
+    "provider_calls": 1
+   }
+  },
+  "F1": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 1,
+    "sufficient": false,
+    "excluded": {}
+   },
+   "worker": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 0
+   },
+   "adversarial": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 1
+   }
+  },
+  "F2": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 1,
+    "independent_events": 1,
+    "sufficient": false,
+    "excluded": {
+     "no_qualifying_span": 2,
+     "not_stated": 1
+    }
+   },
+   "worker": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 0
+   }
+  },
+  "F3": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 1,
+    "independent_events": 1,
+    "sufficient": false,
+    "excluded": {
+     "no_qualifying_span": 3
+    }
+   },
+   "worker": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 0
+   }
+  },
+  "F4": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 2,
+    "independent_events": 2,
+    "sufficient": false,
+    "excluded": {
+     "derived": 1,
+     "legacy_unmanaged": 1,
+     "no_qualifying_span": 1
+    }
+   },
+   "worker": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 0
+   }
+  },
+  "C1": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 3,
+    "sufficient": true,
+    "excluded": {}
+   },
+   "oracle": {
+    "outcome": "non_conclusion",
+    "reason": "conflicting_sources",
+    "applied": 0,
+    "provider_calls": 1
+   },
+   "adversarial": {
+    "outcome": "non_conclusion",
+    "reason": "conflicting_support",
+    "applied": 0,
+    "provider_calls": 1
+   }
+  },
+  "I1": {
+   "split": "dev",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 3,
+    "sufficient": true,
+    "excluded": {}
+   },
+   "oracle": {
+    "outcome": "applied",
+    "applied": 1,
+    "provider_calls": 1,
+    "supported_parts": 2,
+    "cited_events": 3,
+    "cited_memories": 3
+   },
+   "adversarial": {
+    "outcome": "non_conclusion",
+    "reason": "invalid_output",
+    "applied": 0,
+    "provider_calls": 1
+   }
+  },
+  "K2": {
+   "split": "held_out",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 3,
+    "sufficient": true,
+    "excluded": {}
+   },
+   "oracle": {
+    "outcome": "applied",
+    "applied": 1,
+    "provider_calls": 1,
+    "supported_parts": 2,
+    "cited_events": 3,
+    "cited_memories": 3
+   }
+  },
+  "F5": {
+   "split": "held_out",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 2,
+    "sufficient": false,
+    "excluded": {}
+   },
+   "worker": {
+    "outcome": "non_conclusion",
+    "reason": "insufficient_independent_support",
+    "applied": 0,
+    "provider_calls": 0
+   }
+  },
+  "C2": {
+   "split": "held_out",
+   "preview": {
+    "eligible_memories": 3,
+    "independent_events": 3,
+    "sufficient": true,
+    "excluded": {}
+   },
+   "oracle": {
+    "outcome": "non_conclusion",
+    "reason": "conflicting_sources",
+    "applied": 0,
+    "provider_calls": 1
+   },
+   "adversarial": {
+    "outcome": "applied",
+    "applied": 1,
+    "provider_calls": 1,
+    "known_limit": "a dishonest model that marks contradicting spans as supporting is not detectable structurally; the result stays an unreviewed inference"
+   }
+  }
+ }
+}

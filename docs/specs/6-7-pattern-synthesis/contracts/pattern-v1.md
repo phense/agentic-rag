@@ -1,0 +1,234 @@
+# Pattern suggestion contract v1
+
+Work: RAG-065 / Issue65. Status: settled before implementation (T065-001); any
+as-built refinement is recorded at the end of this file.
+
+## Purpose and boundary
+
+A pattern is a derived, explicitly inferred suggestion over several eligible
+original memories in one concrete domain and project/global scope. It is stored
+as a `dtype=synthesis` document with a `claim_records.kind='inference'` claim,
+written only through the audited gateway (`store.save_claim`). It never becomes a
+user statement, never counts as support for another pattern and never confirms
+itself. Inference confidence, operator review (`review_state`) and current
+factual status (`claim_eligible`/`assertion_eligible`) are separate fields.
+
+## Configuration
+
+`[synthesis]` in `config.toml` (all optional):
+
+| Key | Default | Bound | Meaning |
+|---|---|---|---|
+| `enabled` | `false` | bool | Global safety switch. Off: no scheduling, no provider call, no backfill. |
+| `provider` | `""` | `""`, `claude`, `codex`, `openai-compatible` | Empty reuses `[llm] provider`. |
+| `model` | `""` | ≤ 200 chars | Empty reuses `[llm] model`. |
+| `timeout_seconds` | `30` | 1–300 | One provider call. |
+| `max_input_chars` | `12000` | 1000–24000 | Complete provider input: prompt plus system text. The effective limit is the smaller of this and `[llm] max_input_chars`. |
+| `max_output_tokens` | `1024` | 128–4096 | Provider output. |
+| `max_runs_per_tick` | `2` | 1–10 | New runs scheduled per worker tick. |
+
+A scoped policy (below) is additionally required. Fresh and upgraded stores
+contain no policy.
+
+## Eligible original support
+
+A candidate memory is in the policy's exact domain and `project_scope`; no global
+or cross-scope join happens implicitly. Documents are excluded at document level
+in this order (first match is the reported reason):
+
+1. `derived` — registered pattern or `dtype=synthesis`;
+2. `legacy_unmanaged` — no claim record;
+3. `not_stated` — claim kind other than `stated`;
+4. `no_qualifying_span` — no span that is complete, `role=user`, from an active
+   source and not a manual attestation (namespaces `operator`, `manual`,
+   `svc1:*:manual:*`);
+5. `not_current` — `status<>'active'` or not `assertion_eligible(id, now())`.
+
+Qualifying spans: complete, user role, active source, not manual, quote ≤ 4000
+characters. Per memory at most 8 spans; per run at most 12 memories (new plus context).
+
+Independence. Spans form one event when they share a `source_key` or the same
+normalized quote (NFKC, casefold, whitespace runs collapsed, stripped). The
+stored quote bytes are never changed; normalization is only an independence key.
+A set of spans is sufficient when a maximum matching between event groups and
+distinct memories has size ≥ 3 (minimum three distinct user events across three
+distinct memories). Below the floor, nothing is sent to a provider.
+
+## Tool surface (MCP, REST `POST /v1/tools/<name>`, remote MCP)
+
+| Tool | Level | Arguments | Effect |
+|---|---|---|---|
+| `memory_pattern_preview` | read | `domain, project=None, scope=None, start=None, end=None` | Provider-free, write-free. Policy state, candidate counts, exclusions, independence, budgets and bounded original references (`document_id, version, reference, source_version, event`). No quotes. |
+| `memory_pattern_status` | read | `domain=None, project=None, scope=None, limit=20` | Visible policies with their forward view (`pending_memories`, optional `waiting`, `blocked.oversized`, `held_for_recovery`, `more`), open backfills (with `oversized` and nullable `waiting`) and newest runs: state, code, counts (`candidates`, `new_memories`, `context_memories`), provider calls, timings. No prompts, quotes, raw provider errors or namespaces. |
+| `memory_patterns` | read | `domain, project=None, scope=None, limit=20, cursor=None` | Current patterns only. Withheld patterns are omitted without a count. |
+| `memory_pattern` | read | `id_or_slug` | One current pattern: `label, statement, confidence, review_state, current, parts[]` with exact citations; otherwise `evidence_unavailable`. |
+| `memory_pattern_policy` | write | `domain, enabled, reason, project=None, scope=None, interval_seconds=86400` | Create/enable/disable. Enabling from disabled records server time as `forward_from`; disabling keeps accepted output and patterns but withholds the patterns. Re-enabling sets a new `forward_from`; nothing between is processed implicitly. |
+| `memory_pattern_backfill` | write | `domain, start, end, reason, project=None, scope=None, max_batches=1` | Explicit finite history window `[start,end)` of document arrival time, `end ≤ forward_from`, ≤ 366 days, `max_batches` 1–10. Requires an enabled policy. |
+
+Read-only principals and `agentic-rag-ro` may call the read tools only. Write
+tools require write scope for the policy's domain and project.
+
+CLI (local SQL or, in client mode, the service): `rag pattern preview|status|list|show|enable|disable|backfill`.
+
+Errors: `invalid_arguments` (400), `scope_denied` (403), `evidence_unavailable`
+(404, shared for missing, inaccessible and withheld), `synthesis_disabled` (409,
+global switch off for write tools), `incompatible_service_schema` (503).
+
+## Pattern inspection (`memory_pattern`)
+
+```text
+contract_version: 1
+pattern: {id, slug, label, statement, domain, project_scope}
+kind: "inference"            # never "stated"
+confidence: low|medium|high  # the model's own, not verification
+review_state: unreviewed|confirmed|refuted
+current: true                # withheld patterns are not returned
+verification: {independent: false}
+support: {events, memories}
+parts: [{text, citations: [{reference, source_version, original: {id, slug, version}}]}]
+```
+
+`reference` is `<source_key>#<span_hash>`; drill-down is `memory_evidence(original.id, source_key=…)`
+from contract evidence-v1. No namespace, source event ID or transcript path.
+
+## Durable work
+
+- Policy `(domain, project_scope)` unique, `version` increments on every change.
+- Scheduling happens only inside the existing singleton worker tick; at most one
+  open run per policy, `max_runs_per_tick` per tick, one provider call per run.
+- Run states: `pending → accepted → applied`, or `non_conclusion`, `withheld`
+  (policy/authority/source changed), `error`.
+- The snapshot records sorted `(document_id, ev1, source_key, span_hash, src1)`.
+- Accepted provider output is validated and committed before application.
+  A retry of an accepted run never calls the provider again.
+- Application key: `sha256(["pattern-v1", policy_id, generation_parameters, domain,
+  project_scope, sorted cited (document_id, ev1, source_key, span_hash, src1)])`,
+  unique. One pattern document, its dependencies, its claim spans and one
+  `synthesis_apply` audit row commit atomically.
+  `generation_parameters` binds the semantic floor/candidate/span limits listed
+  below; the enable/disable version counter is excluded.
+- Forward processing (S4 correction, R65-02/03/06) is described under
+  *Forward processing* below; there is no forward consumption cursor.
+
+## Forward processing
+
+- **Processed membership.** `synthesis_processed(policy_id, epoch_from,
+  document_id, run_id)` records the *new* originals of a run when the run ends
+  `applied` or `non_conclusion`, in the same transaction and only after the gate
+  re-checked policy version, snapshot versions and scope. `epoch_from` is the
+  policy's `forward_from`; re-enabling starts a new epoch. Pending originals are
+  the eligible originals with `created_at ≥ forward_from` that are not members of
+  the current epoch, so a writer transaction that commits after later originals
+  were analysed is still found. `withheld` and `error` record nothing.
+- **Bounded scan.** At most 500 unprocessed documents are examined per plan. The
+  examination rotates from a stored position (`cursor_at, cursor_id` on the
+  policy, examination only) and wraps once, reaching originals behind an excluded
+  prefix. Widely interleaved excluded originals can still prevent a sufficient
+  group from meeting inside one window (Issue 75). Excluded originals are never
+  recorded as processed.
+- **Budget fit.** New originals are added in arrival order while the complete
+  provider input (prompt plus system text) stays within the effective
+  `max_input_chars` and the run within 12 memories. The first original that no
+  longer fits ends the fill and stays pending; the policy is then due again at
+  once. An original that cannot fit even alone is skipped and reported as
+  `blocked.oversized`; it is never consumed. If the fitted group is below the
+  independence floor because the next original did not fit, no run is created
+  and status shows `waiting: input_budget_below_floor`. Raising the budget is the
+  operator action; there is no automatic retry. If the budget is lowered after
+  scheduling, the run ends `withheld input_budget_exceeded` and nothing is
+  consumed.
+- **Recent context.** A forward run with at least one new original fills the
+  remaining capacity (within the same 12-memory and input limits) with up to 48
+  most recently processed, still eligible originals of the epoch, those not
+  cited by a current pattern first. The snapshot marks each memory `new` or
+  `context`; context is never recorded as processed again and never triggers a
+  run on its own. This lets recurrence span adjacent runs; it does not compare
+  every pair of an arbitrarily large history.
+- **Held originals.** New originals of an open run, and of a parked accepted run
+  (`error apply_failed`) of the current policy version, are excluded from
+  planning (`held_for_recovery`) so no second paid call covers them.
+- **Backfill** batches use the same budget fit and resume at the first
+  unfitted original; oversized originals in the window are counted on the
+  backfill. If the budget cuts the group below the independence floor, no run
+  is created: the backfill stays pending, reports `waiting: input_budget_below_floor`
+  and retains its cursor and batch allowance until a sufficient group fits.
+  Backfill runs carry no context; their originals become context for
+  later forward runs of the same epoch.
+- **Waiting codes** in the forward view: `insufficient_independent_support`,
+  `input_budget_below_floor`, `policy_disabled`.
+
+## Provider output (strict JSON schema)
+
+```text
+{suggestions: [≤3 {label ≤120, statement ≤600, confidence: low|medium|high,
+                   parts: [1..6 {text ≤400, citations: [1..8 {id: "C<n>", stance: supports|contradicts}]}]}],
+ non_conclusions: [≤3 {reason: insufficient_evidence|conflicting_sources|ambiguous, citations: [≤8 {id, stance}]}]}
+```
+
+No additional properties. Validation outcomes per suggestion: `unknown_citation`
+(an id not offered), `conflicting_support` (any `contradicts` stance),
+`insufficient_independent_support` (cited spans below the floor), more than 8
+distinct cited spans (`too_many_citations`). A schema violation rejects the whole
+response as `invalid_output`. Provider text never selects scope, domain, kind or
+sources.
+
+## Read guard
+
+`claim_eligible(id)` and the history branch of `assertion_eligible` call
+`rag_pattern_current(id)` for registered patterns: the policy is enabled, the
+pattern document is active, and every dependency is visible, active, currently
+`assertion_eligible`, has the recorded `ev1` version, and every cited source
+still has the recorded `src1` version and is active. `memory_get`,
+`memory_evidence`, `memory_evidence_history`, graph tools and pattern tools apply
+the same check. An unreviewed pattern stays out of ordinary retrieval even when
+current, as every unreviewed inference does.
+
+## As-built refinements (T065-002..007)
+
+Recorded by the S1 implementation; each stays within the accepted outcomes.
+
+- **Application key.** The key binds `pattern-v1`, the policy id, the
+  generation tuple (floor 3, 12 memories, 8 spans per memory, 8 spans per
+  suggestion), domain, `project_scope` and the sorted cited
+  `(document_id, ev1, source_key, span_hash, src1)`. It deliberately omits the
+  policy `version`, which changes on every enable/disable: with it, a re-enable
+  followed by a backfill over the same unchanged originals would write a
+  duplicate pattern. Any change of the generation parameters still yields a new
+  key. The key is also part of the pattern body, so the content-hash
+  deduplication of `save_claim` never reuses another document.
+- **Recovery tool.** `memory_pattern_recover(run_id, reason)` (write) and
+  `rag pattern recover <run_id> --reason …` re-queue a parked accepted run
+  (`state=error`, `code=apply_failed`) and reuse its stored output without a
+  provider call. They refuse when the policy is disabled or another run of the
+  policy is open.
+- **Run codes.** In addition to the validation codes above:
+  `withheld input_budget_exceeded` (budget lowered after scheduling, no call,
+  nothing consumed),
+  `duplicate_application`, `withheld` with `policy_changed`, `source_changed` or
+  `authorization_changed`, and `error` with `job_failed` (open run without a live
+  queue job) or `apply_failed` (accepted output kept, recoverable). An unusable
+  provider answer is a terminal `invalid_output`; an unreachable provider keeps
+  the run `pending` under the existing worker backoff.
+- **Withholding on policy change.** Any policy version change between scheduling
+  and processing, including during the provider call, withholds the run with
+  `policy_changed` (paid usage is recorded, nothing is consumed); re-enabling a
+  policy shows its unchanged patterns again.
+- **No settle window.** The S1 heuristic (only documents older than 60 seconds,
+  then an advancing cursor) lost originals of longer writer transactions
+  (review R65-02). It is replaced by processed membership above.
+- **Backfill runs** are created whenever the window holds at least one candidate
+  memory; below the floor they end as `insufficient_independent_support` without
+  a provider call. A window without candidates closes (`done`) without a run.
+- **Scheduling** runs in the hook-started local worker tick and in the central
+  `rag service worker` loop, before each drain.
+- **Old clients.** Actual 0.6.17 code on schema030 is supported only while no
+  pattern exists. Afterwards it is a forbidden boundary: its `memory_get`,
+  `memory_evidence` and `memory_evidence_history` return a disabled or stale
+  pattern (rehearsed), and its graph lookups by id (`memory_neighbors`,
+  `memory_path`) lack the guard as well; only its ordinary search stays guarded
+  by the redefined SQL functions. Every process with direct database access must
+  run 0.6.18 before the first enable (PB-065-OPS B0). A code-only rollback after
+  the first pattern is unsupported; the way back is the verified pre-upgrade
+  dump with explicit handling of later writes. Client-mode clients are served by
+  the 0.6.18 API and need no own guard.
+- **CLI.** `rag pattern preview|status|list|show|enable|disable|backfill|recover`.
