@@ -1,0 +1,114 @@
+# RAG-062 independent measured-evidence review
+
+Reviewed 2026-10-30. Primary measured revision:
+`4ac82cdf2aca20b54d7071eb59ac0437cfdcd550`; baseline:
+`7a61955446119df522a34967273d8dacae56108b`.
+Reviewer did not implement product/docs and made no model, service, database or
+test calls. Inspection and independent arithmetic/checksums used published files.
+
+## Primary measurement: accepted within its stated limits
+
+Inspected evaluation candidate/results/dev/held-out/runtime/exit/systemd and
+external-cleanup artifacts, current measurement/verification reports, PB062-OPS
+tiny-adoption addition and the supplemental process-cold helper source.
+No new C/H/M finding identified in these inspected artifacts/helper code.
+
+Independent reconstruction from raw rows confirms:
+
+- 43 development plus 27 held-out sources indexed, no indexing failures.
+  Development has 23 unique requests and 138 observations across three policies;
+  held-out has 21 requests and 189 observations. Total is **327**, not 319.
+- Held-out quality uses 18 answerable requests and three unsupported requests,
+  with 24 expected source occurrences. Legacy/focused Qwen finds six; selected
+  Jina finds 16. Macro recall .333333→.694444, precision .25→.435185 and
+  nDCG .271822→.598869 match the raw source identities and binary labels.
+- All published first/warm/all medians and nearest-rank p95 values reconstruct
+  exactly, including all-search p95 1585.791→470.492ms. Drain-inclusive serial
+  rates reconstruct to .275655/.269318/3.459829 q/s. They describe attributed
+  occupancy in this paired run, not sustained service capacity.
+- Each held-out policy has 63 timing observations: 27 bypasses, then 36 Qwen
+  timeouts or 36 Jina ranked observations. No query/trial/citation errors; native
+  idle verification is retained. All three unsupported requests return empty.
+  Six English delivery/multi-source misses remain explicitly disclosed. Language
+  and family uncertainty limits are appropriately narrow.
+- All **159** sealed source-file hashes match current files. Runtime manifest
+  SHA256 `5308b7164a84ee6fdd538a790b6719babaae1ecf2d6e70473bbdfe51a0ba1420`
+  and v2 corpus SHA256 `f3a75e1520389903118ef2b072b78c469c6553b4e9393e8e5c012c9d9b8b9171`
+  match the seal. Candidate file SHA256 is
+  `c816a272773012e841c4f8487b7f622bc4740cf1a0b6a21c7ed2e14e065e1e00`;
+  its canonical payload seal is separately labelled `fb917330…e47a12fa`.
+- Runtime/exit records show four-CPU quota, actual evaluator/PG/model affinity
+  0–3, 8GiB memory, zero swap, peak 1,633,099,776 bytes and zero OOM/max events.
+  Exit0 has no cleanup errors or remaining members. The independent external
+  record reports inactive collected unit, absent cgroup and ECONNREFUSED on the
+  three owned ports. Shared-host and warm-page-cache limitations remain visible.
+
+Before/after examples and retained unsuccessful cases match raw ranked identities
+and median samples. Fresh baseline reproduction retains all six attributed prior
+failure cases: four still fail and two independent-domain cases are already fixed.
+Rejected attempts and rejected v1 remain separately marked invalid. They are not
+credited as successful experiments or silently omitted from provenance.
+
+The corrected first-observation wording now acknowledges one shared connection
+per phase. It does not claim 21 new connections or full-search cold starts. PB062-OPS
+now gives the pinned tiny alias/revision and separate local acceptance; defaults
+remain unchanged and no production adoption follows from the selected profile.
+
+## Supplemental process-cold evidence: accepted within its stated limits
+
+The helper makes three fresh owned native processes per model, checks the fixed
+synthetic pair plus two warm requests each, records startup/first/warm timing,
+runtime/libraries/model hashes, actual affinity and RSS, and uses independently
+verified ownership/cleanup in the same bounded resource envelope. No selection or
+held-out retuning is present. Static inspection found no C/H/M bug.
+
+Completed real results supply a small-sample **process-cold functional-payload**
+distribution. It remains explicitly distinct from full-search cold latency,
+the representative 6-passage comparison and cold filesystem boots. Report n=3
+process starts per model, n=6 warm calls, nearest-rank p95=max, warm OS/filesystem
+caches and shared-host contention. It does not support a stable tail-latency or
+capacity claim.
+
+Independently reconstructed all published quantiles from six raw process trials:
+
+| Model | Startup p50/p95 ms, n=3 | First score p50/p95 ms, n=3 | Start through first result p50/p95 ms, n=3 | Warm p50/p95 ms, n=6 |
+|---|---|---|---|---|
+| Qwen | 4189.127/5102.599 | 7886.408/8087.013 | 12276.140/12507.830 | 6917.549/8220.312 |
+| Jina tiny | 2911.241/4385.463 | 76.246/103.476 | 3014.717/4461.709 | 77.235/96.670 |
+
+All exact raw values match their stored summaries and rounded publication tables.
+There are three fresh processes and nine requests per model, six processes and
+18 requests total. Helper SHA256
+`92c724fd143438b4b5d36188c43752ab8fdde5e3c1db1b91042ca1b196eb1a89`
+matches the actual published helper. Runtime executable and every recorded native
+library hash exactly match the primary experiment's manifest. Every trial records
+the pinned model, same cgroup and affinity0–3. Exit0 contains no cleanup errors or
+members; four-CPU/8GiB/zero-swap limits and zero OOM events remain effective.
+Peak memory is 1,345,077,248 bytes. Actual systemd completion is success, and the
+external record shows the collected unit inactive and cgroup absent.
+
+PB062-OPS's explicit tiny model/alias/revision/configuration and separate local
+acceptance addition is coherent. The independently reviewed playbook SHA256 is
+`49d76277cff9f266484e5d8d75a0a655ba4235b7ac2983739e0e8ed2925478ea`.
+Content, native resource evidence, bounded local/central recovery and published
+measurement arithmetic are now reviewed; no unresolved C/H/M remains in these
+subjects. Two small publication labels were returned and independently verified
+corrected: supplement starts are per model, and complete systemd CPU is 3097.934s
+(the primary exit's final internal cgroup sample is 3097.734s).
+
+## Delivery/acceptance verdict: pending
+
+The primary reference-c results are valid within the stated synthetic/lexical
+and hardware limits. Static complete-slice review already passed at 4ac82cd.
+Full Issue62 acceptance still requires inspection of the fresh complete Python
+suite exit, followed by final published
+verification/playbook evidence, source/links/render/release checks and requirement
+synchronization. The initial complete-suite attempt was interrupted after browser
+library failures; five repaired-environment browser tests are reported passing,
+but a running replacement suite cannot satisfy the full-suite gate.
+
+No production, external TLS, private-source or fleet-capacity acceptance is granted.
+The coordinator must request the final artifact recheck after the suite actually
+finishes and final release/links/render/verification metadata are updated. No
+additional model measurement is required by this review. This report must not be
+cited as full delivery completion before those gates pass.

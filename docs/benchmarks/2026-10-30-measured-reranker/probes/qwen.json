@@ -1,0 +1,32 @@
+{
+  "startup_ms": 3587.403532997996,
+  "first_ms": 4468.026349000866,
+  "response": {
+    "model": "agentic-rag-qwen3-reranker-0.6b-q8",
+    "object": "list",
+    "usage": {
+      "prompt_tokens": 172,
+      "total_tokens": 172
+    },
+    "results": [
+      {
+        "index": 0,
+        "relevance_score": 0.9964497685432434
+      },
+      {
+        "index": 1,
+        "relevance_score": 3.411628131289035e-05
+      }
+    ]
+  },
+  "binary_sha256": "dbfeea380cdc1de9bbfe32399befbcd8381a3c5ac83e573d79d0fa41bdc40037",
+  "version": "version: 1 (cb295bf59)\nbuilt with GNU 11.2.1 for Linux x86_64",
+  "model_sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+  "warm_ms": [
+    3941.7134420000366,
+    4100.800144995446,
+    3946.824700993602
+  ],
+  "threads": 4,
+  "public_synthetic_only": true
+}

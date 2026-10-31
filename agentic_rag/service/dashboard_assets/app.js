@@ -2,8 +2,8 @@
 'use strict';
 const root=document.getElementById('app');
 let me=null,page='overview',generation=0,activeRequest=null;
-const labels={overview:'Overview',memories:'Knowledge',clients:'Clients & access',setup:'Setup assistant',traces:'Request tracing'};
-const icons={overview:'▦',memories:'▤',clients:'◇',setup:'⚙',traces:'◎'};
+const labels={overview:'Overview',memories:'Knowledge',clients:'Clients & access',setup:'Setup assistant',traces:'Request tracing',settings:'Settings'};
+const icons={overview:'▦',memories:'▤',clients:'◇',setup:'⚙',traces:'◎',settings:'⚙'};
 function el(tag,attrs={},...children){
   const node=document.createElement(tag);
   for(const [key,value] of Object.entries(attrs)){
@@ -34,7 +34,7 @@ async function api(path,body,method=body===undefined?'GET':'POST'){
   const data=await response.json();
   if(!response.ok){
     if(response.status===401&&me){me=null;generation++;renderLogin(false,'Your session expired or access changed. Sign in again.');}
-    const messages={invalid_credentials:'Sign-in failed or your session expired.',origin_denied:'This action requires the original dashboard address.',csrf_denied:'This page is out of date. Reload before trying again.',policy_revision_conflict:'Configuration changed. Reload and preview your change again.',last_administrator_required:'Keep at least one enabled administrator with a password.',policy_busy:'Another administrator is applying a change. Try again shortly.',setup_checks_incomplete:'Run all required checks successfully before completing setup.',existing_store_requires_upgrade:'Existing data was found. Choose the upgrade path to preserve it.',foreground_busy:'Current agent work has priority. Run this check again when the queue is quiet.',setup_probe_busy:'Another connectivity check is running. Wait before retrying.',administrator_required:'Your account cannot administer this service.',dashboard_capacity:'The dashboard is busy. Your data is safe; try again shortly.',policy_recovery_required:'An interrupted policy change conflicts with the current file. Ask the file owner to reconcile its audit before applying more changes.'};
+    const messages={reranker_not_ready:'The selected local model is unavailable or failed its synthetic check. Your current setting was kept.',invalid_credentials:'Sign-in failed or your session expired.',origin_denied:'This action requires the original dashboard address.',csrf_denied:'This page is out of date. Reload before trying again.',policy_revision_conflict:'Configuration changed. Reload and preview your change again.',last_administrator_required:'Keep at least one enabled administrator with a password.',policy_busy:'Another administrator is applying a change. Try again shortly.',setup_checks_incomplete:'Run all required checks successfully before completing setup.',existing_store_requires_upgrade:'Existing data was found. Choose the upgrade path to preserve it.',foreground_busy:'Current agent work has priority. Run this check again when the queue is quiet.',setup_probe_busy:'Another connectivity check is running. Wait before retrying.',administrator_required:'Your account cannot administer this service.',dashboard_capacity:'The dashboard is busy. Your data is safe; try again shortly.',policy_recovery_required:'An interrupted policy change conflicts with the current file. Ask the file owner to reconcile its audit before applying more changes.'};
     throw new Error(messages[data.error]||String(data.error||'Request failed').replaceAll('_',' '));
   }
   return data;
@@ -61,7 +61,7 @@ function renderLogin(bootstrap=false,message=''){
 }
 function shell(){
   const nav=el('nav',{class:'nav','aria-label':'Main navigation'});
-  for(const name of ['overview','memories','traces',...(me.admin?['clients','setup']:[])])nav.append(button([icons[name]+'  ',labels[name]].join(''),()=>navigate(name),'',{'aria-current':page===name?'page':'false'}));
+  for(const name of ['overview','memories','traces',...(me.admin?['clients','settings','setup']:[])])nav.append(button([icons[name]+'  ',labels[name]].join(''),()=>navigate(name),'',{'aria-current':page===name?'page':'false'}));
   const side=el('aside',{class:'sidebar'},brand(),el('div',{class:'eyebrow'},'Workspace'),nav,el('div',{class:'side-foot'},el('strong',{},me.admin?'Service administrator':'Knowledge member'),me.readonly?'Read-only knowledge access':'Scoped knowledge access',el('br'),el('small',{},'File-owned configuration · protocol 1')));
   const content=el('main',{id:'content',class:'content'});
   const wrap=el('div',{class:'shell'},side,el('div',{class:'workarea'},el('header',{class:'topbar'},button('☰',()=>{wrap.classList.toggle('menu-open');wrap.querySelector('.menu-toggle').setAttribute('aria-expanded',String(wrap.classList.contains('menu-open')));},'menu-toggle',{'aria-label':'Toggle navigation','aria-expanded':'false'}),el('div',{class:'breadcrumbs'},'Workspace  /  ',el('span',{},labels[page])),el('div',{class:'user'},el('span',{class:'avatar','aria-hidden':'true'},me.user.slice(0,2).toUpperCase()),el('span',{},me.user),button('Sign out',async()=>{try{await api('logout',{});me=null;generation++;renderLogin();}catch(e){notice(e.message);}},'quiet'))),content));
@@ -70,7 +70,7 @@ function shell(){
 async function navigate(next){
   page=next;const epoch=++generation;activeRequest=null;notice('');const content=shell();
   content.append(header(labels[page],'Loading your workspace…'),el('div',{class:'pending',role:'status'},el('span',{class:'spinner','aria-hidden':'true'}),'Loading…'));
-  try{const view=await ({overview:overviewPage,memories:memoryPage,clients:clientsPage,setup:setupPage,traces:tracesPage}[page])();if(epoch!==generation)return;content.replaceChildren(...view);content.querySelector('h1')?.focus({preventScroll:true});}
+  try{const view=await ({overview:overviewPage,memories:memoryPage,clients:clientsPage,setup:setupPage,traces:tracesPage,settings:settingsPage}[page])();if(epoch!==generation)return;content.replaceChildren(...view);content.querySelector('h1')?.focus({preventScroll:true});}
   catch(error){if(epoch===generation)content.replaceChildren(header(labels[page],'The service could not complete this view.'),errorBox(error),button('Try again',()=>navigate(page)));}
 }
 function stat(label,value,note){return el('section',{class:'card'},el('div',{class:'stat-label'},label),el('div',{class:'stat-value'},value),el('div',{class:'stat-note'},note));}
@@ -265,4 +265,39 @@ async function showTrace(identity){
     content.append(el('section',{class:'card spaced'},el('h2',{},'Request metadata'),el('dl',{class:'trace-details'},Object.entries(row).map(([key,value])=>[el('dt',{},key.replaceAll('_',' ')),el('dd',{},value===null?'Unreported':String(value))]))));
     content.append(el('section',{class:'card spaced'},el('h2',{},'Current job outcome'),found.job?el('pre',{},JSON.stringify(found.job,null,2)):el('p',{},'No current job is available within your permissions.')));
   }catch(error){if(epoch===generation)content.append(errorBox(error));}
+}
+
+async function settingsPage(){
+  const state=await api('settings');
+  const form=el('form',{class:'card'});
+  const choice=selectField('Reranker model','profile',state.options.map(row=>[row.id,row.label+(row.id===state.default?' · Default':'')+(row.available?'':' · Unavailable')]),state.selected||state.default);
+  const details=el('div',{class:'callout spaced'}),preview=el('div',{class:'spaced','aria-live':'polite'});
+  const select=choice.querySelector('select');
+  const render=()=>{
+    preview.replaceChildren();
+    const row=state.options.find(row=>row.id===select.value);
+    details.replaceChildren(el('strong',{},row.label),el('p',{},row.id==='jina-tiny'?'English only. This model is not recommended for German or mixed-language knowledge.':'Supports German and English.'),el('p',{},row.available?'Local model files are loaded and match the required version.':'Unavailable. Ask the server operator to prepare and start this local model.'),el('small',{},'Applies to subsequent server searches. Existing documents and embeddings stay intact. A busy or unavailable model keeps the original search order.'));
+    submit.disabled=!row.available;
+  };
+  const submit=el('button',{class:'primary',type:'submit'},'Preview model change');
+  select.addEventListener('change',render);
+  form.append(el('h2',{},'Search reranker'),el('p',{class:'muted'},'Choose how ambiguous search results are reordered. mMARCO is the default; MiniLM L6 is the smaller alternative. Model scores are not answer-confidence values.'),choice,details,el('div',{class:'actions spaced'},submit),preview);
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();submit.disabled=true;preview.replaceChildren();
+    const epoch=generation;
+    const data={revision:state.revision,profile:select.value,operation_id:crypto.randomUUID()};
+    try{
+      await api('settings/preview',data);if(epoch!==generation)return;
+      const label=state.options.find(row=>row.id===data.profile).label;
+      const apply=button('Apply model change',async()=>{
+        apply.disabled=true;
+        try{await api('settings/apply',data);if(epoch!==generation)return;await navigate('settings');notice('Reranker saved. Subsequent searches use '+label+'.');}
+        catch(error){if(epoch===generation)preview.replaceChildren(errorBox(error));}
+      },'primary');
+      preview.replaceChildren(el('p',{},'Ready to select '+label+' for server searches. The synthetic model check passed. No stored knowledge will be migrated.'),apply);
+    }catch(error){if(epoch===generation)preview.replaceChildren(errorBox(error));}
+    finally{if(epoch===generation)submit.disabled=!state.options.find(row=>row.id===select.value).available;}
+  });
+  render();
+  return [header('Settings','Manage the local search model for this server.'),el('section',{class:'card spaced'},el('h2',{},'Current selection'),el('p',{},state.selected?state.options.find(row=>row.id===state.selected).label:'Custom model: '+state.model),el('small',{},'Saved selections survive restarts. Other provider and embedding settings remain managed by the server operator.')),form];
 }

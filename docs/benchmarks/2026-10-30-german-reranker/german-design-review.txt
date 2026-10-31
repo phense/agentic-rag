@@ -1,0 +1,102 @@
+# RAG-062 German diagnostic premeasurement review
+
+Reviewed 2026-10-30 against delivery base
+`8e823f8238f14554d9af1484185f20961518efe6`.
+Scope: new public `docs/benchmarks/2026-10-30-german-reranker/corpus.json`
+and `evaluate.py`, plus the reused native ownership, drain and resource helpers.
+Reviewer did not implement the reviewed files and made no database, model,
+provider or test calls. JSON/count/hash inspection only. Product runtime, SQL,
+configuration and existing sealed evaluation source are unchanged in this delta.
+
+## Verdict
+
+Ready to freeze and run the bounded diagnostic. No unresolved Critical, High,
+Medium or actionable Low finding remains in the current inspected bytes.
+This is approval of the experimental design/helper, not a German-quality,
+production-latency or deployment verdict. Actual exits, raw observations,
+resource/drift/cleanup evidence and final interpretation still need review.
+
+Exact premeasurement SHA-256 values:
+
+- Corpus: `2f018b5b7b4bd03a128942fa7aadaf1139f55d41702dc0fd95f4b06e3331aa84`.
+- Helper: `6a045586906da142c693c41bb3a263f8692efd779cd62777862dcd480640ac12`.
+
+## Corpus and denominator review
+
+Read all 32 case definitions and their labels: 16 German questions and 16
+faithful English counterparts, eight authored problem families, two question
+pairs per family. Each case has six public invented candidate passages; the
+maximum passage length is 138 characters. The positive labels are unambiguous
+in the final corpus. Translated names and monetary formatting preserve the
+relationships and relevance targets. Questions cover explicit denial, compounds,
+inflection, amount thresholds, approved periods, paraphrases, grammatical roles,
+two-source conditions and domain ambiguity. These are short controlled probes,
+not representative natural-language traffic or an established German benchmark.
+
+Primary quality uses only permutation zero: n=16 questions per language/model,
+17 expected source occurrences per language, and eight related families. The
+second permutation reverses the same deterministic seeded candidate order and
+is a position-robustness check; it must not double the independent denominator.
+Corresponding German/English pairs receive identical positional permutations.
+Binary top1, macro recall@3, complete-source coverage@3 and nDCG@3 formulas
+match these labels. Scores do not become probabilities of truth.
+
+The loop produces 128 semantic observations
+(32 questions × two permutations × two models), plus 32 actual adapter probes
+(16 German questions × two models), exactly 160 retained rows. Raw inference
+errors remain in rows and fail the run; adapter failures retain the original
+order and their fixed diagnostic/error evidence. Reporting must distinguish
+ranked outcomes from fallback quality. All cases are answerable, so this
+experiment does not establish unsupported-query abstention.
+
+## Finding resolved before any inference
+
+**Medium, label ambiguity:** `multi-condition-1-de/en` required passages 0 and 1,
+but passage 3 initially named both approval and handover report in its statement
+that a viewing replaces neither. It could therefore answer the required-document
+question despite being labelled irrelevant. The coordinator removed that clause
+in both languages and both sibling case copies. Passage 3 now only states that
+a viewing may be arranged in advance; this still uniquely answers question 2.
+The final corpus no longer contains the ambiguous clause. No model results
+preceded this correction; it is not post-result label adjustment.
+
+Three method clarifications are also resolved in the frozen definitions:
+
+- The raw `httpx` value 30 is a per-operation HTTP timeout for measurement,
+  rather than a strict total-wall deadline. The unchanged production adapter
+  retains its real 1.5-second total deadline.
+- Adapter probes immediately follow a raw call for the same case and use short
+  passages. They are warm repeated-case probes, not evidence for cold or
+  representative six-by-600-character production latency.
+- The conservative decision rule now explicitly rejects a blanket German
+  recommendation on any first-permutation German top1 miss in the
+  `access-negation` or `subject-object` families. This avoids a subjective later
+  distinction between wrong-topic results and semantic contradictions. Two
+  overall German misses or a German/English gap above ten percentage points
+  are additional stated rejection rules. Passing only supports a larger local
+  acceptance trial; it cannot establish general suitability.
+
+## Helper and ownership review
+
+The helper validates its fixed corpus and query eligibility, freezes its own
+bytes/corpus plus original source hashes before calls, checks both pinned GGUF
+checksums and the previously measured native runtime checksum, records native
+version/libraries, and checks those identities again after measurement. Labels
+and expected IDs enter only local scoring, not the native request payload.
+Raw responses require the advertised alias, all six distinct indexes and finite
+scores in [0,1]; original adapter objects remain the source of returned ordering.
+
+The required combined unit verifies four-CPU quota/affinity, 8 GiB memory and
+zero swap. Model copies are created within that unit. Only fresh output/work
+paths are accepted; model child handles are recorded immediately on startup.
+The helper checks model health/alias, actual child affinity and same-cgroup
+membership. It uses literal owned loopback ports 8772/8773, no database and no
+hosted provider. Reused `/slots` draining waits for native idle between calls,
+including after timeout. Cleanup verifies ownership, independently stops every
+tracked child, treats forced termination as failure, checks all remaining cgroup
+members and writes an explicit exit artifact. External collected-unit/port
+cleanup inspection remains required after the actual run.
+
+No additional model, alternate provider, production configuration or migration
+is introduced. Shared-host and tiny authored-sample limits must remain visible
+in the final report. No production adoption or PR merge is authorized here.

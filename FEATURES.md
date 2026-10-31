@@ -458,3 +458,25 @@ authenticated negotiation and crash/recovery integrations pass. The final whole-
 review reports0 C/H/M/feature Low with158 passing targeted checks; the final
 full suite passes 1,569 tests (1 intentional Linux skip). This is not a canonical rollout claim. See [operations](docs/15-dashboard.md),
 [reference](docs/dashboard-reference.md) and [verification](docs/verification/issue59-dashboard.md).
+
+
+## Measured local reranker configurations (issue #62)
+
+Version0.6.15 adds explicit loopback model/revision selection, bounded
+`legacy-v1`/`focused-v1` policies and opt-in fixed safe diagnostics. Defaults keep
+Qwen12×1200/1500ms. The public EN/DE experiment freezes development choice before
+held-out families, compares a small local English-trained Jina challenger, and
+retains every failure. Reordering preserves original citations and scope/time
+eligibility. [Operator procedure](docs/local-reranker.md); measured evidence is
+published with the completed comparison. Adoption remains separately authorized.
+
+## Dashboard reranker presets (Issue62, PR82)
+
+Implemented for review in0.6.15/schema028: administrator-only Settings selects
+MiniLM L6 EN/DE, mMARCO DE/EN (new default) or Jina tiny (English only). Pinned
+INT8 ONNX preparation and offline loopback inference preserve original search
+payloads and deterministic fallback. Existing explicit model settings remain
+supported. Migration028 expands the administrative audit-kind constraint only;
+knowledge and embeddings stay intact. Merge and production adoption are pending.
+[Operator procedure](docs/reranker-settings.md);
+[verification and limits](docs/verification/issue62-settings.md).

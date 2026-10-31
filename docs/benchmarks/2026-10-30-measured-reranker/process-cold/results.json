@@ -1,0 +1,232 @@
+{
+  "source_script_sha256": "92c724fd143438b4b5d36188c43752ab8fdde5e3c1db1b91042ca1b196eb1a89",
+  "runtime": {
+    "runtime": "dbfeea380cdc1de9bbfe32399befbcd8381a3c5ac83e573d79d0fa41bdc40037",
+    "libraries": {
+      "libggml.so.0.15.3": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libmtmd.so": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+      "libggml-cpu-sse42.so": "d7e26d057a2b2b9c71a1456b14a491db40866d816d482d07e21ac8d9542b0178",
+      "libllama-server-impl.so": "ad64929e139fd7054ec649d02633fea41e72c6c7ec04d621d0dbe3f8efc16ec2",
+      "libmtmd.so.0": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+      "libggml-base.so.0": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-cascadelake.so": "60a8910833dfcd9a83cb831b13559472ae0e5c7a01fc929cae57d8efcb547348",
+      "libggml-cpu-piledriver.so": "460930881b89f4d475d68e5740d1d472a5129c9ee447a4102eeca682e5cf4cd7",
+      "libggml-cpu-icelake.so": "8bdbcabf5aaab461e660f4a3a96958edd7ee863af3902275c42001327e605391",
+      "libggml-cpu-haswell.so": "46286721d8ff20a6f9efcdea0a58a0ab443b0ed8df54f5004965990975282659",
+      "libggml-cpu-x64.so": "7010432f10660c8a6af29d25e2f9b7774c0731eae0b09a26a7808ff22d33b9bb",
+      "libllama-common.so.0": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libggml-base.so.0.15.3": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-sapphirerapids.so": "3c91d160674e345f4ab6a76723eecfb81bd24f9b314af15cb7bfcdc0568056ce",
+      "libggml-cpu-skylakex.so": "dd734564cc3c4ec3fee15d13c4e5c3a17c7a25fb7f1f5e00d74cbe61a92cbad3",
+      "libgomp.so.1.0.0": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+      "libllama.so.0": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libllama-common.so": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libggml.so.0": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libggml-cpu-cannonlake.so": "4758e90f465c822732a06ed472ce0fbb58d697b536e48b7573cd831e3e7c4b30",
+      "libggml-cpu-cooperlake.so": "3c4f08d3898d61830912d74ec622e4474a62748d9d2aaa6dca0ba95816eef170",
+      "libggml.so": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libggml-base.so": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-alderlake.so": "0d61e463591ac8f7fb984afeb473f1c75e4c5e0a08377a0b84de5085850360e8",
+      "libggml-cpu-ivybridge.so": "3e0c7a4cbf80413c696a1cc81e6c44968a6be9d5546c70ca4cec0a562e906614",
+      "libggml-cpu-sandybridge.so": "13e01306a3bb0bc0008e09079c9f4fb963e8d8d8bf27ac2d264348e270da62e3",
+      "libllama-quantize-impl.so": "8ba8c50f0c7fa155055e4e7e65a8c19364178c80f7e3b656d1733b180909aa3d",
+      "libggml-cpu-zen4.so": "f8f4250e5e2934621958ec852710bb510faaf6ef15ed2968323668cd077089f8",
+      "libgomp.so.1": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+      "libllama.so.0.0.1": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libllama-common.so.0.0.1": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libllama.so": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libmtmd.so.0.0.1": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4"
+    }
+  },
+  "reference_before": {
+    "cpu.max": "400000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.current": "27496448",
+    "memory.peak": "27496448",
+    "cpu.stat": "usage_usec 874184\nuser_usec 766546\nsystem_usec 107638\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 9\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+    "cpuset.cpus.effective": "not delegated",
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "member_count": 1
+  },
+  "trials": [
+    {
+      "model": "agentic-rag-qwen3-reranker-0.6b-q8",
+      "sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+      "process_start": 1,
+      "startup_ms": 5102.598903002217,
+      "first_ms": 7405.230850003136,
+      "warm_ms": [
+        6831.479073000082,
+        7174.608248998993
+      ],
+      "ready_and_first_ms": 12507.829753005353,
+      "peak_rss_kib": 1249288,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    },
+    {
+      "model": "agentic-rag-qwen3-reranker-0.6b-q8",
+      "sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+      "process_start": 2,
+      "startup_ms": 3325.4638290018192,
+      "first_ms": 7886.407591002353,
+      "warm_ms": [
+        6863.228310998238,
+        6971.869117995084
+      ],
+      "ready_and_first_ms": 11211.871420004172,
+      "peak_rss_kib": 1249308,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    },
+    {
+      "model": "agentic-rag-qwen3-reranker-0.6b-q8",
+      "sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+      "process_start": 3,
+      "startup_ms": 4189.126821001992,
+      "first_ms": 8087.013239994121,
+      "warm_ms": [
+        8220.311741999467,
+        6836.326233002183
+      ],
+      "ready_and_first_ms": 12276.140060996113,
+      "peak_rss_kib": 1249288,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    },
+    {
+      "model": "agentic-rag-jina-tiny-en-q8",
+      "sha256": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+      "process_start": 1,
+      "startup_ms": 4385.46320500609,
+      "first_ms": 76.24577300157398,
+      "warm_ms": [
+        91.2381490052212,
+        74.36628799769096
+      ],
+      "ready_and_first_ms": 4461.708978007664,
+      "peak_rss_kib": 78164,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    },
+    {
+      "model": "agentic-rag-jina-tiny-en-q8",
+      "sha256": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+      "process_start": 2,
+      "startup_ms": 2911.109540000325,
+      "first_ms": 56.88593100057915,
+      "warm_ms": [
+        52.637766995758284,
+        39.62627399596386
+      ],
+      "ready_and_first_ms": 2967.995471000904,
+      "peak_rss_kib": 78156,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    },
+    {
+      "model": "agentic-rag-jina-tiny-en-q8",
+      "sha256": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+      "process_start": 3,
+      "startup_ms": 2911.2414379997062,
+      "first_ms": 103.47574899788015,
+      "warm_ms": [
+        80.10304100025678,
+        96.66990400000941
+      ],
+      "ready_and_first_ms": 3014.7171869975864,
+      "peak_rss_kib": 78180,
+      "child_affinity": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "same_cgroup": true
+    }
+  ],
+  "summary": {
+    "agentic-rag-qwen3-reranker-0.6b-q8": {
+      "startup_ms": {
+        "n": 3,
+        "p50_ms": 4189.126821001992,
+        "p95_ms": 5102.598903002217
+      },
+      "first_ms": {
+        "n": 3,
+        "p50_ms": 7886.407591002353,
+        "p95_ms": 8087.013239994121
+      },
+      "ready_and_first_ms": {
+        "n": 3,
+        "p50_ms": 12276.140060996113,
+        "p95_ms": 12507.829753005353
+      },
+      "warm_ms": {
+        "n": 6,
+        "p50_ms": 6917.548714496661,
+        "p95_ms": 8220.311741999467
+      }
+    },
+    "agentic-rag-jina-tiny-en-q8": {
+      "startup_ms": {
+        "n": 3,
+        "p50_ms": 2911.2414379997062,
+        "p95_ms": 4385.46320500609
+      },
+      "first_ms": {
+        "n": 3,
+        "p50_ms": 76.24577300157398,
+        "p95_ms": 103.47574899788015
+      },
+      "ready_and_first_ms": {
+        "n": 3,
+        "p50_ms": 3014.7171869975864,
+        "p95_ms": 4461.708978007664
+      },
+      "warm_ms": {
+        "n": 6,
+        "p50_ms": 77.23466449897387,
+        "p95_ms": 96.66990400000941
+      }
+    }
+  },
+  "limits": [
+    "Three fresh model processes each; warm filesystem/OS cache.",
+    "Fixed public functional payload, not full-search latency or answer accuracy.",
+    "Independent supplemental experiment; no candidate selection or heldout retuning.",
+    "Shared host with separate verification tests running; no dedicated CPU proof."
+  ]
+}

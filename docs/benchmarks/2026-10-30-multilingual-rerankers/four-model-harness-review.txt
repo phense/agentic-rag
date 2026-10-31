@@ -1,0 +1,127 @@
+---
+id: RAG-062-four-model-harness-review
+title: Four-model harness review
+type: reference
+doc_id: standalone
+readers: [maintainer]
+status: reviewed
+version: e81b21ffc907218800e1fa9646abf74d0c81b7e7 plus bounded untracked helpers
+depends_on: []
+assets: []
+last_reviewed: 2026-10-30
+summary: Independent pre-inference review of the bounded four-model comparison and its corrected helpers.
+---
+
+# Four-model harness review
+
+## Verdict and scope
+
+Ready to freeze and execute the declared bounded comparison. No open Critical, High, Medium or actionable Low defect remains in the inspected scope. This verdict covers the protocol and helper code; model results, actual cgroup enforcement, native draining under real inference, measurement completion, and adoption remain unproven.
+
+The review started with PLAN.md, server.py, benchmark.py and corpus.json, then included build_corpus.py, analyze.py and run_matrix.py as the coordinator added the executable analysis and launcher. All paths below are relative to docs/benchmarks/2026-10-30-multilingual-rerankers/. Base HEAD is e81b21ffc907218800e1fa9646abf74d0c81b7e7. Helpers were untracked and changed during review; the final hashes below identify the accepted code. The reviewer changed only this report. No model weights were loaded, no model inference ran, and no private corpus, database, GitHub or production service was accessed.
+
+Writing depth: medium standalone reference for the maintainer. Prose, terminology, exact paths, facts and evidence limits were checked.
+
+## Findings and disposition
+
+| ID | Original severity and location | Evidence and effect | Disposition |
+|---|---|---|---|
+| H1 | High; original server.py:43–48, with two-slot gate at :25 | Jina v3.5 shares a Transformers fast tokenizer across calls that change truncation/padding. A two-thread tokenizer-only probe produced 100 RuntimeError: Already borrowed errors in the truncating worker over 100 iterations. These would be helper failures attributed to model behavior. | Resolved. Current server.py:43–55 serializes the complete mutable tokenizer/model call, including upstream forward mutation. Wait remains inside the accepted request and product deadline. Matching locked tokenizer-only probe: 40 calls, zero errors and zero over-cap outputs, actual exit 0. |
+| M1 | Medium; original benchmark.py:225–226 and PLAN.md:52 | Original 2,400-character long controls were only 390–432 pair tokens for all three ONNX tokenizers. They did not test the declared 512-token truncation boundary. | Resolved before inference. Current benchmark.py:225–226 uses 6,000 characters. Independent tokenizer-only counts put every reviewed end-position passage above 512 tokens for every candidate and language. Metadata updated; case fields preserved. Full advertised context capability remains outside scope. |
+| M2 | Medium; original server.py:58 and PLAN.md:77–78 | v3.5 prepare_ms counted only external truncation, while ONNX counted complete tokenization/tensor preparation. Server elapsed time also includes preparation and response write. Treating these as equivalent token preparation or pure neural inference would misstate timing. | Resolved by explicit scope. Current server.py:65–69 and :109, analyze.py:121–122, PLAN.md:78–82 identify incomparable preparation subtotals and total request-handling duration. |
+| M3 | Medium; earlier analyze.py:38 and final print | Local variable round shadowed the built-in rounding function. A full mocked analysis raised TypeError: 'int' object is not callable after constructing the summary. | Resolved. Current analyze.py:38–42 uses round_index. Both full mocked scenarios below now finish with actual exit 0. |
+
+Two earlier minor evidence gaps were also closed: analysis prints scored/unavailable counts, and the launcher seals CPU identity/flags and host metadata. Unsupported top-two margins and complete ranking changes for perturbations are now retained. There is no remaining Low item to defer.
+
+## Verified methodology
+
+| Area | Independent check |
+|---|---|
+| Denominators | 96 primary cases: 48 DE, 48 EN, 24 related families. Primary uses permutation zero; reverse order is separate. Round zero has 520 observations; rounds one and two each have 76. Four models total 2,688 observations. |
+| Diagnostic counts | 32 cross-language, 48 long-context, 24 perturbation and 16 unsupported observations per model. Concurrency contributes 35 requests in 15 bursts. Each performance cell has 15 requests per start, 45 across three starts. |
+| Gold preservation | Approved original corpus SHA-256 was 653793215e741e74877a53dde961f8ffa4fca5c172039a22904800201ca972bf. Coordinator changed only long_context metadata. The first 32 case fields still match the prior corpus except the split tag. The 96-case gold review remains applicable. |
+| Long input | At 6,000 characters, end-position input lengths: ONNX DE 946–962 and EN 1,026–1,038 pair tokens; v3.5 DE 1,257–1,267 and EN 946–958 document tokens. All 48 passages per language/candidate exceed 512. Architectures still receive different effective budgets. |
+| Perturbations | Whitespace changes 8/8 queries; ASCII umlauts and Unicode NFD each change 7/8. No-op cases must stay disclosed. They are paired controls, not independent observations. |
+| Semantic/product split | Raw scoring preserves native and bridge scores. The fixed sigmoid and cosine mapping preserve order except floating-point ties, which analysis counts. Actual unchanged product order() uses the 1.5-second deadline, original hit objects and separate outcomes; fallback quality is separated from ranked-only quality. |
+| Censoring | A drained 30-second raw timeout has unavailable semantic metrics. Analysis reports attempted/scored/unavailable counts and both-scored paired denominators. Performance includes timeout counts and successful-call timings; censored elapsed quantiles cannot support uncensored tail claims. |
+| Isolation and cleanup | Launcher explicitly sets repository working directory, rotates 12 serial units, and requests four CPUs, affinity 0–3, 8 GiB and zero swap. Driver checks actual inherited limits, copies and verifies local artifacts, seals source hashes, records counters, checks remaining process members and temporary-copy removal. Launcher records actual exit and post-exit port status. These are code checks; live execution evidence is still required. |
+| Offline execution | Declared model files are copied and SHA-verified, including local v3.5 modeling.py. Offline environment is set and model loading uses local_files_only. The inspected local upstream modeling.py hash matches ec6612461b4307eb3bab089e6916c00881b7e6b2e8edfbd56a9ace4560244837. No unpinned download path was introduced. |
+
+## Fresh verification
+
+All five helper Python sources compiled in memory. The project's benchmark.py --validate-only command passed: 96 questions, 48 DE/48 EN, 24 families, all eligible for the actual adapter. Actual exit 0.
+
+Full analyze.py was executed with in-memory files for all four models and all three rounds. One scenario censored one raw observation per mode; another censored every raw observation. Both processed 2,688 mocked rows, kept zero-scored quality null, retained 45 performance timeouts per cell in the fully censored scenario, and exited 0. No mock files were written. These numbers validate analysis mechanics and are not model measurements.
+
+The tokenizer-only probes loaded tokenizer files, not neural models. The original race probe exited 0 after recording its errors; the corrected locked probe asserted zero errors and exited 0. The original analyzer failure and its corrected complete runs are distinguished above.
+
+## Final accepted hashes
+
+| File | SHA-256 |
+|---|---|
+| PLAN.md | e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce |
+| server.py | 12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962 |
+| benchmark.py | 0e98795c64f6370ab95365d70e2c9bfc9af00926b6a7b885b334c8420a2303cd |
+| corpus.json | ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36 |
+| build_corpus.py | 88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1 |
+| analyze.py | e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700 |
+| run_matrix.py | a7f6bc493ccfcb88af66e9e94d35419c768cc90da00c5a0fae27cc747f8db90b |
+
+The final server.py hash includes the comment correction describing its shared immutable ONNX tokenizer.
+
+## Replayable in-memory analysis probe
+
+Run from the reviewed repository. This script uses synthetic rows and replaces file access with memory-backed paths; it writes no files and executes no inference.
+
+```sh
+python3 -B - <<'PY'
+import json,sys
+from pathlib import Path
+source=Path('docs/benchmarks/2026-10-30-multilingual-rerankers/analyze.py').read_text()
+for scenario in ('one-censored-per-mode','all-raw-censored'):
+ fs={};written={};goldmetric=dict(top1=True,recall3=1.0,all_sources3=True,mrr=1.0,ndcg3=1.0)
+ class MemoryPath:
+  def __init__(self,s):self.s=str(s)
+  def __truediv__(self,x):return MemoryPath(self.s+'/'+str(x))
+  def read_text(self):return fs[self.s]
+  def write_text(self,x):written[self.s]=x
+ for name in ('minilm-l6','mmarco','jina-v2','jina-v3.5'):
+  for rnd in range(3):
+   rows=[];seen=set()
+   def row(i,mode,**extra):
+    ids=[str(j) for j in range(extra.get('candidates',6))];expected=[] if mode in ('performance','unsupported') else ['0'];scores=[1-j/(len(ids)+1) for j in range(len(ids))]
+    raw=mode not in ('adapter','concurrency','exact-symbol-bypass');censored=raw and (scenario=='all-raw-censored' or mode not in seen);seen.add(mode)
+    v=dict(model=name,round=rnd,mode=mode,case_id=str(i),family='f'+str(i//4),language='de' if i%2==0 else 'en',split='prior-diagnostic' if i<32 else 'new-unseen',input=ids,order=ids,expected=expected,metrics=None if censored or not expected else goldmetric,elapsed_ms=30000 if censored else 1,error='ReadTimeout' if censored else None,response=None if censored or not raw else dict(results=[dict(index=j,relevance_score=s) for j,s in enumerate(scores)],measurement=dict(native_scores=scores,prepare_ms=.1)),**extra)
+    if not raw:v['diagnostics']={'outcome':'bypass' if mode=='exact-symbol-bypass' else 'ranked'}
+    if mode=='concurrency':v.update(makespan_ms=1,drain_ms=1)
+    rows.append(v)
+   row(0,'cold-first')
+   if rnd==0:
+    for i in range(96):
+     row(i,'quality',permutation=0);row(i,'quality',permutation=1);row(i,'adapter')
+    for i in range(32):row(i,'cross-language')
+    for i in range(16):
+     for pos in ('beginning','middle','end'):row(i,'long-context',position=pos)
+    for i in range(0,16,2):
+     for variant in ('whitespace','umlaut-ascii','unicode-nfd'):row(i,'perturbation',variant=variant)
+    for i in range(16):row(i,'unsupported')
+   for n,chars in ((6,120),(6,600),(6,1200),(12,600),(12,1200)):
+    for rep in range(15):row(0,'performance',candidates=n,target_chars=chars,repeat=rep)
+   if rnd==0:
+    for n in (1,2,4):
+     for rep in range(5):
+      for i in range(n):row(0,'concurrency',concurrency=n,repeat=rep)
+    row(0,'exact-symbol-bypass')
+   assert len(rows)==(520 if rnd==0 else 76)
+   d='runs/'+name+'-r'+str(rnd);fs[d+'/exit.json']=json.dumps(dict(exit=0,child_stopped=True,envelope_after={}));fs[d+'/observations.jsonl']='\n'.join(json.dumps(v) for v in rows);fs[d+'/startup.json']=json.dumps(dict(process_to_ready_ms=1));fs[d+'/server-events.jsonl']=json.dumps(dict(kind='loaded',rss_peak_kib=1024))
+ module={'__name__':'review_analyze'};exec(compile(source,'analyze.py','exec'),module);module['Path']=MemoryPath
+ oldargs=sys.argv;sys.argv=['analyze.py','runs','--output','summary']
+ try:module['main']()
+ finally:sys.argv=oldargs
+ summary=json.loads(written['summary']);assert summary['total_observations']==2688
+ if scenario=='all-raw-censored':
+  assert summary['models']['jina-v3.5']['primary']['de']['scored_n']==0 and summary['models']['jina-v3.5']['primary']['de']['top1'] is None
+  assert summary['models']['jina-v3.5']['performance']['6x600']['timeouts']==45
+ print('Mock-only full analyzer PASS:',scenario,'2688 observations;no files written,no inference')
+PY
+```

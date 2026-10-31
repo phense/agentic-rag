@@ -1,0 +1,15 @@
+✔ projection omits reasoning, arguments, outputs, synthetic and partial messages (4.010267ms)
+✔ main context transient, prompt invalidation and additive RO MCP (39.571479ms)
+✔ child sessions never read transcript, inject or enqueue (1.132591ms)
+✔ compaction reconciled before next context even without bus event (2.238082ms)
+✔ SDK failure visible and fail-open (2.731078ms)
+✔ concurrent idle callbacks serialize and unchanged projection is not enqueued twice (15.186077ms)
+✔ real child-process failure is visible and existing RO MCP stays unchanged (17.116962ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236.908982

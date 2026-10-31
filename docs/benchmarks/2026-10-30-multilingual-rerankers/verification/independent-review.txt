@@ -1,0 +1,192 @@
+---
+id: RAG-062-four-model-final-bounded-review
+title: Final bounded four-model evidence review
+type: reference
+doc_id: standalone
+readers: [maintainer]
+status: reviewed
+version: e81b21ffc907218800e1fa9646abf74d0c81b7e7 plus sealed benchmark helpers
+depends_on: []
+assets: []
+last_reviewed: 2026-10-30T22:57:31.728662+00:00
+summary: Independent bounded code and evidence review; original protocol failed, 2338 actual rows and 350 unattempted rows.
+---
+
+# Final bounded four-model evidence review
+
+## Verdict and scope
+
+Bounded code/evidence clear: **Critical 0, High 0, Medium 0, actionable deferred Low 0**. The bounded supervisor exited 0 after the six remaining INT8 units; the **original four-model/three-start protocol FAILED**. Its terminal status is `original-protocol-incomplete-model-runtime-failure`. There are nine successful units and one failed v3.5 R0 unit, **2,338 actual observation rows**, and **350 unattempted v3.5 rows**. Neither 12 successful units nor 2,688 measured rows is supported.
+
+This medium English standalone reference is for the Issue62 step4/15 maintainer. Review scope is routine arithmetic, helper reliability, source/input identities, raw native/adapter evidence and cleanup. The reviewer did not implement the measured helpers, launch agents or model inference, or change protocol, corpus, model, product, reader-facing documentation, production or GitHub state. Writes are this report and small offline scratch outputs. The reader-facing README remains a draft for the parent to finish and check; this review makes no final-document acceptance claim.
+
+Absolute checkout: `/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030`. Confirmed HEAD: `e81b21ffc907218800e1fa9646abf74d0c81b7e7`; source 0.6.14/schema027, target 0.6.15/schema027. Existing product-source hashes remain unchanged. The prior runs-d and runs-e checkpoint reports were read and their verified work retained. The source-of-truth terminal artifact is `/home/administrator/Claude/.scratch/rag62-three-models-20261030/runs-f/matrix-exit.json`.
+
+## Failure and helper disposition
+
+M1 is resolved in `benchmark.py:29` (`persist_after_drain`) and raw/adapter/concurrency/bypass call sites. The old implementation evaluated drain before save and could lose a completed attempt. The new implementation saves every attempted row with `drain_ms=None` and the exception type before re-raising. Successful measured values and timing boundaries are unchanged. The fresh model-free regression command exited 0: five tests passed, covering HTTP success or timeout followed by failed drain, normal drain, and failed/normal four-row batches. The real failed v3.5 row now retained is additional evidence that M1 is fixed; it does not make the failed unit successful.
+
+`finish_bounded_matrix.py` was reviewed against the sealed predecessor and `resume_matrix.py`. It requires the exact three-success/one-failure predecessor, checks frozen sources and the unchanged model manifest, and copies all four R0 trees including failed v3.5 byte-for-byte. Only the remaining units run, in original relative order: R1 mMARCO/v2/L6, R2 v2/L6/mMARCO. Command envelopes stay 4 CPU quota, affinity 0–3, 8 GiB, zero swap, loopback 8782 and one model process at a time. No v3.5 restart, timeout increase or tuning occurred. The terminal exit 0 is explicitly separated from original protocol failure.
+
+`analyze_bounded.py` differs from sealed `analyze.py` only in the declared failed-model startup/count expectations, empty performance/bypass handling, cleanup assertions, explicit protocol/unattempted metadata, primary timing and printing of missing cells. Metrics, quantiles, paired comparisons and ordinary-model denominators remain unchanged. The independent auditor imports no measured helper; its full summary matches every key and value of the bounded analyzer (numeric comparison tolerance 2e-12). The scratch `mock-bounded-analysis` repetitions are synthetic postprocessing fixtures and are excluded from every actual count, timing and hash evidence set here.
+
+v3.5 R0 exited 1 after **4208.788 s**. At its first long case, `access-negation-1-de/beginning`, HTTP timed out after **30042.710 ms**, then native drain reached the unchanged 120 s limit. The final row retains `error=ReadTimeout`, `response=None`, `metrics=None`, `drain_ms=None`, `drain_error=TimeoutError`; it is unavailable semantic evidence. There is no native completion event for this killed request and no drain-finish claim. Its 322 durable rows comprise cold 1, primary+reverse 192, actual adapter 96, cross-language 32 and long 1. There are 321 successful native events, including all 96 native answers after product-client deadlines. No OOM event occurred; the whole-cgroup peak was 4481.711 MiB.
+
+The 350 unattempted rows comprise 47 remaining long cases, 24 perturbations, 16 unsupported cases, 225 performance controls, 35 concurrency requests, 1 exact bypass and 2 further cold-first requests. They are not zero accuracy or zero latency.
+
+## Reconstruction and quality
+
+The independent auditor reconstructs every expected query/document payload from the frozen corpus, all row identities and input hashes, every native event, fixed score mapping, stable index tie ordering, responses, all five semantic metrics and all misses. It also reconciles product-adapter leading-newline/truncation payloads, concurrency accepted-event counts, timeouts and fallback orders. Primary is the first seeded permutation only: 48 DE and 48 EN questions across 24 related families; each language has 53 required-source occurrences and five two-source questions. The first 32 prior case fields are unchanged; 64 new questions remain a separate split. Reverse order supplies another 96 checks and never doubles the primary denominator.
+
+
+| Configuration/language | First source /48 | All sources@3 /48 | Macro Recall@3 | MRR | nDCG@3 |
+| --- | --- | --- | --- | --- | --- |
+| minilm-l6/de | 38 | 48 | 1.000 | 0.885 | 0.915 |
+| minilm-l6/en | 38 | 45 | 0.938 | 0.877 | 0.879 |
+| mmarco/de | 41 | 48 | 1.000 | 0.920 | 0.941 |
+| mmarco/en | 41 | 47 | 0.979 | 0.911 | 0.925 |
+| jina-v2/de | 46 | 48 | 1.000 | 0.979 | 0.985 |
+| jina-v2/en | 41 | 48 | 1.000 | 0.924 | 0.943 |
+| jina-v3.5/de | 44 | 48 | 1.000 | 0.958 | 0.969 |
+| jina-v3.5/en | 44 | 48 | 1.000 | 0.958 | 0.969 |
+
+[Bounded analyzer summary](/home/administrator/Claude/.scratch/rag62-three-models-20261030/summary-final-audited.json), [independent reconstruction](/home/administrator/Claude/.scratch/rag62-three-models-20261030/audit-final-bounded-reconstruction.json), [counts and cleanup supplement](/home/administrator/Claude/.scratch/rag62-three-models-20261030/audit-final-bounded-supplement.json), [actual matrix terminal](/home/administrator/Claude/.scratch/rag62-three-models-20261030/runs-f/matrix-exit.json).
+
+2304 completed native inference events were reconciled. All 384 primary model/question responses are available. Full per-family metrics, all 51 primary misses with query/required/selected text and native/bridge scores, reverse metrics and unsupported margins are in `audit-final-bounded-reconstruction.json` (`independent_summary` and `additional`), not inferred from aggregate scores. Miss counts are L6:20, mMARCO:14, v2:9, v3.5:8. Role direction, decimals, negation and similar names remain material model limitations.
+
+| Configuration | Prior DE /16 | New DE /32 | Prior EN /16 | New EN /32 | Cross DE /16 | Cross EN /16 | Reverse first changes DE/EN |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| minilm-l6 | 15 | 23 | 14 | 24 | 13 | 13 | 0/0 |
+| mmarco | 13 | 28 | 12 | 29 | 13 | 11 | 0/0 |
+| jina-v2 | 16 | 30 | 14 | 27 | 16 | 14 | 0/0 |
+| jina-v3.5 | 15 | 29 | 15 | 29 | 15 | 12 | 5/6 |
+
+| Paired first-source comparison | DE left-only/right-only | EN left-only/right-only |
+| --- | --- | --- |
+| minilm-l6 vs mmarco | 2/5 | 2/5 |
+| minilm-l6 vs jina-v2 | 0/8 | 3/6 |
+| minilm-l6 vs jina-v3.5 | 2/8 | 2/8 |
+| mmarco vs jina-v2 | 1/6 | 5/5 |
+| mmarco vs jina-v3.5 | 2/5 | 3/6 |
+| jina-v2 vs jina-v3.5 | 4/2 | 3/6 |
+
+All paired denominators are 48 per language; both-correct/both-wrong counts are retained in the audit. ONNX reverse full-order changes are 0; v3.5 changes 40/48 full orders in each language, with reverse all-sources@3 DE 46/48 and EN 48/48. Native-to-bridge order changes and newly introduced bridge ties are 0 in every event; existing ties are retained (114 native/114 bridge tied responses per ONNX configuration, 0/0 for v3.5, including load controls).
+
+| Completed configuration | Long first-source beginning/middle/end /16 | Long all-sources@3 beginning/middle/end /16 | Perturb first whitespace/ASCII/NFD /8 |
+| --- | --- | --- | --- |
+| minilm-l6 | 13/7/0 | 16/13/6 | 7/6/7 |
+| mmarco | 12/8/0 | 16/12/6 | 7/6/7 |
+| jina-v2 | 16/10/0 | 16/13/6 | 8/8/8 |
+
+Long passages are approximately 6000 characters; ONNX truncates query/document pairs to 512 tokens. End evidence is clipped, so this is a bounded-input result rather than full-context semantic failure. v3.5 uses 512 tokens/document before its joint prompt, a distinct budget; its one attempted long case is unavailable and 47 are unattempted. Its perturbation and unsupported tests are wholly unattempted. For each completed model, ASCII and NFD each contain one no-op out of 8; whitespace has 0. All 16 unsupported responses/model retain uncalibrated top scores and top-two margins; no rejection threshold or answerability claim is supported.
+
+## Latency, resources and actual product client
+
+Performance controls are 225/model for the three completed configurations: five cells × 15 requests × 3 starts, 45/cell. The table gives successful HTTP p50/p95/p99 in milliseconds, with explicit successful/censored counts. Quantiles interpolate at `(n-1)*p`; p99 of 45 is descriptive. v3.5 has no performance observations; every empty timing cell is `None`. Primary-query timing is a separate 96-query distribution, never substituted for the performance grid.
+
+| Configuration | Cell | Success/censored | p50 ms | p95 ms | p99 ms |
+| --- | --- | --- | --- | --- | --- |
+| minilm-l6 | 6x120 | 45/0 | 185.861 | 349.984 | 397.343 |
+| minilm-l6 | 6x600 | 45/0 | 461.280 | 508.722 | 513.767 |
+| minilm-l6 | 6x1200 | 45/0 | 875.915 | 1392.631 | 1531.162 |
+| minilm-l6 | 12x600 | 45/0 | 901.360 | 1359.389 | 1709.644 |
+| minilm-l6 | 12x1200 | 45/0 | 1742.408 | 2437.734 | 2635.627 |
+| mmarco | 6x120 | 45/0 | 346.151 | 579.619 | 627.380 |
+| mmarco | 6x600 | 45/0 | 899.102 | 1093.820 | 1295.677 |
+| mmarco | 6x1200 | 45/0 | 1769.744 | 2540.834 | 2821.312 |
+| mmarco | 12x600 | 45/0 | 1848.425 | 2659.374 | 2898.405 |
+| mmarco | 12x1200 | 45/0 | 3515.475 | 4434.408 | 4711.042 |
+| jina-v2 | 6x120 | 45/0 | 1182.180 | 1490.238 | 1712.227 |
+| jina-v2 | 6x600 | 45/0 | 3230.952 | 3843.178 | 4462.022 |
+| jina-v2 | 6x1200 | 45/0 | 6125.152 | 7576.315 | 8947.180 |
+| jina-v2 | 12x600 | 45/0 | 6581.525 | 8071.371 | 10005.512 |
+| jina-v2 | 12x1200 | 44/1 | 12463.736 | 23691.657 | 28041.711 |
+
+One Jina v2 R0 performance request (12x1200, repeat 1, `new-decimal-invoice-2-en`) timed out at 30088.058 ms. Native work finished at 36971.831 ms and drained successfully in 6950.482 ms; this unit legitimately exited 0 under the prescribed censoring rule. This cell has 44 successes and 1 censored request. Its all-attempt client-duration p50/p95/p99 are 12517.226/26434.738/29615.289 ms (n=45, including the deadline observation); these are not uncensored inference quantiles. The table above uses successful-only latency (n=44 for this cell).
+
+| Configuration | Starts | Ready p50/max ms | First request p50/max ms | Server peak RSS MiB | Whole-cgroup maximum MiB | Cgroup CPU total seconds |
+| --- | --- | --- | --- | --- | --- | --- |
+| minilm-l6 | 3 | 2714.372/2783.823 | 168.501/379.684 | 835.172 | 1012.363 | 1672.447 |
+| mmarco | 3 | 3323.339/4403.199 | 321.525/568.556 | 697.879 | 853.836 | 3194.071 |
+| jina-v2 | 3 | 3627.444/4330.814 | 2040.933/2241.478 | 1170.777 | 1520.492 | 10677.964 |
+| jina-v3.5 | 1 | 22887.917/22887.917 | 20226.555/20226.555 | 3756.918 | 4481.711 | 16179.523 |
+
+Process-cold starts retain OS caches and shared-host effects. Ready time runs from server launch to health readiness after the model copy; cgroup counters also include the charged copy and cleanup. CPU is the charged process-tree counter captured after termination/temporary-copy cleanup. Whole-cgroup memory includes the temporary model copy and differs from server RSS. systemd aggregate CPU/MemoryPeak values marked `[not set]` remain unavailable; retained cgroup counters provide the table. Complete native request handling, queue wait and preparation distributions are reconstructed separately. ONNX preparation covers complete input preparation; v3.5 preparation is only external pretruncation, so those subtotals are not directly comparable.
+
+| Configuration/language | Ranked/timeout/pressure/invalid | Ranked first /ranked n | Fallback first /fallback n |
+| --- | --- | --- | --- |
+| minilm-l6/de | 48/0/0/0 | 38/48 | unavailable (n=0) |
+| minilm-l6/en | 48/0/0/0 | 38/48 | unavailable (n=0) |
+| mmarco/de | 48/0/0/0 | 41/48 | unavailable (n=0) |
+| mmarco/en | 48/0/0/0 | 41/48 | unavailable (n=0) |
+| jina-v2/de | 46/2/0/0 | 44/46 | 0/2 |
+| jina-v2/en | 43/5/0/0 | 36/43 | 0/5 |
+| jina-v3.5/de | 0/48/0/0 | unavailable (n=0) | 4/48 |
+| jina-v3.5/en | 0/48/0/0 | unavailable (n=0) | 4/48 |
+
+The actual focused product policy remains 1.5 s and 600 characters with original hit objects. Fallback-only scores describe original ordering after deadline/pressure, never native model quality. v3.5 therefore supplies 0 accepted rankings despite 96 completed native answers. All outcome categories, including zero invalid/unavailable counts, are retained in the supplement.
+
+| Configuration | Clients /requests | Ranked/timeout/pressure/invalid | Ranked p50/p95 ms |
+| --- | --- | --- | --- |
+| minilm-l6 | 1/5 | 5/0/0/0 | 478.544/483.717 |
+| minilm-l6 | 2/10 | 10/0/0/0 | 1063.577/1226.440 |
+| minilm-l6 | 4/20 | 8/2/10/0 | 1083.568/1380.263 |
+| mmarco | 1/5 | 4/1/0/0 | 905.609/938.847 |
+| mmarco | 2/10 | 0/10/0/0 | unavailable/unavailable |
+| mmarco | 4/20 | 0/10/10/0 | unavailable/unavailable |
+| jina-v2 | 1/5 | 0/5/0/0 | unavailable/unavailable |
+| jina-v2 | 2/10 | 0/10/0/0 | unavailable/unavailable |
+| jina-v2 | 4/20 | 0/10/10/0 | unavailable/unavailable |
+
+Concurrency has five bursts at each 1/2/4-client setting, 35 requests/configuration. Batch makespan and native drain remain separately available. Fast guard-pressure replies are not inference throughput. Each completed configuration has one verified exact-symbol bypass with no native event. v3.5 concurrency and bypass are unattempted.
+
+## Provenance, cleanup and reproduction
+
+All 11 current matrix-frozen files, all 7 runs-d executed snapshots, all 9 runs-e snapshots, all 29 model/tokenizer/config files (bytes and SHA-256), all per-unit product sources and payload hashes verified. The four copied R0 trees and console logs match runs-e byte-for-byte, including failed v3.5. L6/mMARCO/v2 R0 executed the preserved pre-M1 benchmark SHA-256 `4f0fb69842e4dde808795825b4e5bb609736d50970f82a1e6d65198bf917a147`; v3.5 R0 and the six remaining units executed `cf90803200011b86bcc4a96e3d4fcbf1458b565c83712e4e1dfd6c0505e77a7d`. Public `aborted-e` and `rejected-d` files match their original raw artifacts. Earlier verified a/b/c startup-only and d quota failures remain preserved and excluded, as does the documented SHA-identical hardlink deduplication recovery; no new inference is attributed to them.
+
+Both historical source manifests remain zero-drift: 343/343 original suite files and 159/159 German-evaluation files. The original 1,735-pass suite is historical same-source evidence; this review did not rerun it. The retained Transformers 4.57.3 warning disposition and extracted-method mock remain valid (installed source hash rechecked): the Qwen3 saved-version branch warns/sets False without regex mutation. `torch_dtype` deprecation does not change the requested FP32 load. No tokenizer/library patch is justified.
+
+| Frozen source | SHA-256 |
+| --- | --- |
+| analyze_bounded.py | 708f573d36b59c0bd68c0cf4ef802ce57e5cf9194394bc79bec8ceb5a950c259 |
+| benchmark.py | cf90803200011b86bcc4a96e3d4fcbf1458b565c83712e4e1dfd6c0505e77a7d |
+| check_failure_persistence.py | b2acc7daf2d2b536c80ac494d18a6b7c55c43247b54670f9d5514139e48b88a3 |
+| build_corpus.py | 88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1 |
+| finish_bounded_matrix.py | 97c19afe509874fae3a32c745d9fbc75cb1565e7be01e16ddba3195b68ded3a6 |
+| run_matrix.py | b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db |
+| server.py | 12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962 |
+| analyze.py | e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700 |
+| resume_matrix.py | 94535392fd77bb5e34cfcfee8000e0e062905f23d41c7d4338d7c61ca67576cf |
+| corpus.json | ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36 |
+| PLAN.md | e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce |
+
+All 10 measured children stopped; no remaining cgroup members or temporary `rag62-four-*` copies remain. Each historical unit has MainPID 0 and empty ControlGroup; the v3.5 unit retains its failed result. All measured cgroup directories are gone, port 8782 refuses with errno 111, and an independent `/proc` scan finds no owned benchmark/server/supervisor process. Original source weights remain retained. No production service or database was used or altered.
+
+| Evidence artifact under scratch root | SHA-256 |
+| --- | --- |
+| runs-f/matrix-exit.json | 050745b459fcf6b1a353a110c30e65764e23d5dc6fe4eb70e360d44f82e524da |
+| runs-f/matrix-seal.json | 155ee2a636f118c35e319440f58920208174565d8f2ebd835bfcffa13d54d849 |
+| summary-final-audited.json | b1bfb76ef4ccc40e23fdc30aa6c0393117d4c30c17e6c137d3e2213452005f04 |
+| audit-final-bounded-reconstruction.json | 2d2d3e4a1f584d56d437ae3dba6e92ae9a7b251b38b7a22f6e9e408a12f5416a |
+| final_bounded_audit.py | 3be410a5176a48b5337c3c7509f4cb3086e12a0791a2e34c5801a41e5ad443c6 |
+| final_bounded_supplement.py | b275e9d82eff1430629fd8c50fef28d7d4b0ba1cc1f4f5c11fb4462c14df782b |
+| audit-final-bounded-supplement.json | 4d951345ba20b185baeab8d6677fff3ac0d2c4651f8a009dbd029f283b7a82f7 |
+
+Run these offline commands with working directory `/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030` (no model calls):
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. .venv/bin/python docs/benchmarks/2026-10-30-multilingual-rerankers/check_failure_persistence.py
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python docs/benchmarks/2026-10-30-multilingual-rerankers/analyze_bounded.py /home/administrator/Claude/.scratch/rag62-three-models-20261030/runs-f --output /home/administrator/Claude/.scratch/rag62-three-models-20261030/summary-final-audited.json
+PYTHONDONTWRITEBYTECODE=1 python3 /home/administrator/Claude/.scratch/rag62-three-models-20261030/final_bounded_audit.py --model-files
+PYTHONDONTWRITEBYTECODE=1 python3 /home/administrator/Claude/.scratch/rag62-three-models-20261030/final_bounded_supplement.py
+```
+
+Observed: regression exit 0/five passed; bounded analyzer exit 0; independent reconstruction exit 0/2338 rows/10 units/full-summary equality/29 artifacts; supplement exit 0/counts/provenance/cleanup. Exact per-unit inference command arrays, actual exits, systemd envelopes and finish timestamps are retained in `runs-f/matrix-exit.json`; those commands reproduce measurement execution and are not part of the model-free audit above. Scratch audit outputs are offline reconstructions, not additional measurements.
+
+## Terms and limits
+
+Primary: first seeded permutation. Scored: diagnostic native response available. Censored: attempted raw request without usable response; metrics unavailable. Unattempted: no request. Ranked: product accepted ranking within its deadline. Fallback: product retains original order. Macro Recall@3: per-question fraction of required sources in the first 3, averaged. All-sources@3: every required source is in the first 3. MRR: reciprocal rank of the first required source. nDCG@3: discounted required-source ranking normalized by the ideal first 3. Server RSS and whole-cgroup peak cover different memory scopes.
+
+The sigmoid(logit) and fixed cosine-affine bridges preserve observed native order and are uncalibrated transport scores. v3.5 FP32/Transformers versus published INT8 ONNX are distinct deployable configurations; results are not precision-equivalent or architecture-only comparisons. v2 and v3.5 CC BY-NC weights require separate commercial-license consideration; L6/mMARCO Apache-2.0 does not preapprove adoption. Related synthetic controls support no population accuracy, retrieval recall, answer accuracy, private-corpus, GPU/Mac, full advertised-context or production-readiness claim. v3.5 measured infeasibility under this declared envelope is a result, not an application defect to tune away.
+
+Self-review: English medium reference, local terminology, source/number checks, prose checks and report-link rendering passed. Parent still owns final reader-facing writing/charts, fresh documentation checks and PR delivery. This report authorizes no merge or deployment.

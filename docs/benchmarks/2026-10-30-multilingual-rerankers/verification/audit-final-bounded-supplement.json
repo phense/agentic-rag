@@ -1,0 +1,1119 @@
+{
+  "utc": "2026-10-30T22:56:36.883757+00:00",
+  "models": {
+    "minilm-l6": {
+      "counts": {
+        "cold-first": 3,
+        "quality": 192,
+        "adapter": 96,
+        "cross-language": 32,
+        "long-context": 48,
+        "perturbation": 24,
+        "unsupported": 16,
+        "performance": 225,
+        "concurrency": 35,
+        "exact-symbol-bypass": 1
+      },
+      "raw_censoring": {
+        "cold-first": {
+          "attempted": 3,
+          "successful": 3,
+          "censored": 0
+        },
+        "quality": {
+          "attempted": 192,
+          "successful": 192,
+          "censored": 0
+        },
+        "adapter": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "cross-language": {
+          "attempted": 32,
+          "successful": 32,
+          "censored": 0
+        },
+        "long-context": {
+          "attempted": 48,
+          "successful": 48,
+          "censored": 0
+        },
+        "perturbation": {
+          "attempted": 24,
+          "successful": 24,
+          "censored": 0
+        },
+        "unsupported": {
+          "attempted": 16,
+          "successful": 16,
+          "censored": 0
+        },
+        "performance": {
+          "attempted": 225,
+          "successful": 225,
+          "censored": 0
+        },
+        "concurrency": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "exact-symbol-bypass": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        }
+      },
+      "performance": {
+        "6x120": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x1200": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x1200": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        }
+      },
+      "adapter": {
+        "de": {
+          "outcomes": {
+            "ranked": 48,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 38,
+            "all_sources3_count": 48
+          },
+          "fallback_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          }
+        },
+        "en": {
+          "outcomes": {
+            "ranked": 48,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 38,
+            "all_sources3_count": 45
+          },
+          "fallback_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          }
+        }
+      },
+      "concurrency": {
+        "1": {
+          "outcomes": {
+            "ranked": 5,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 5,
+            "p50_ms": 478.54352399735944,
+            "p95_ms": 483.71728059864836,
+            "p99_ms": 484.0436777184368,
+            "max_ms": 484.1252769983839
+          }
+        },
+        "2": {
+          "outcomes": {
+            "ranked": 10,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 10,
+            "p50_ms": 1063.5768424981507,
+            "p95_ms": 1226.4396556503925,
+            "p99_ms": 1232.1765663293627,
+            "max_ms": 1233.6107939991052
+          }
+        },
+        "4": {
+          "outcomes": {
+            "ranked": 8,
+            "timeout": 2,
+            "pressure": 10,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 8,
+            "p50_ms": 1083.5681719981949,
+            "p95_ms": 1380.2628108991485,
+            "p99_ms": 1385.9579901768302,
+            "max_ms": 1387.3817849962506
+          }
+        }
+      },
+      "perturbation_noops": {
+        "whitespace": {
+          "attempted": 8,
+          "planned_noop_cases": []
+        },
+        "umlaut-ascii": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        },
+        "unicode-nfd": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        }
+      }
+    },
+    "mmarco": {
+      "counts": {
+        "cold-first": 3,
+        "quality": 192,
+        "adapter": 96,
+        "cross-language": 32,
+        "long-context": 48,
+        "perturbation": 24,
+        "unsupported": 16,
+        "performance": 225,
+        "concurrency": 35,
+        "exact-symbol-bypass": 1
+      },
+      "raw_censoring": {
+        "cold-first": {
+          "attempted": 3,
+          "successful": 3,
+          "censored": 0
+        },
+        "quality": {
+          "attempted": 192,
+          "successful": 192,
+          "censored": 0
+        },
+        "adapter": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "cross-language": {
+          "attempted": 32,
+          "successful": 32,
+          "censored": 0
+        },
+        "long-context": {
+          "attempted": 48,
+          "successful": 48,
+          "censored": 0
+        },
+        "perturbation": {
+          "attempted": 24,
+          "successful": 24,
+          "censored": 0
+        },
+        "unsupported": {
+          "attempted": 16,
+          "successful": 16,
+          "censored": 0
+        },
+        "performance": {
+          "attempted": 225,
+          "successful": 225,
+          "censored": 0
+        },
+        "concurrency": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "exact-symbol-bypass": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        }
+      },
+      "performance": {
+        "6x120": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x1200": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x1200": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        }
+      },
+      "adapter": {
+        "de": {
+          "outcomes": {
+            "ranked": 48,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 41,
+            "all_sources3_count": 48
+          },
+          "fallback_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          }
+        },
+        "en": {
+          "outcomes": {
+            "ranked": 48,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 41,
+            "all_sources3_count": 47
+          },
+          "fallback_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          }
+        }
+      },
+      "concurrency": {
+        "1": {
+          "outcomes": {
+            "ranked": 4,
+            "timeout": 1,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 4,
+            "p50_ms": 905.6092879982316,
+            "p95_ms": 938.8465795473167,
+            "p99_ms": 942.1846511071635,
+            "max_ms": 943.0191689971252
+          }
+        },
+        "2": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 10,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        },
+        "4": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 10,
+            "pressure": 10,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        }
+      },
+      "perturbation_noops": {
+        "whitespace": {
+          "attempted": 8,
+          "planned_noop_cases": []
+        },
+        "umlaut-ascii": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        },
+        "unicode-nfd": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        }
+      }
+    },
+    "jina-v2": {
+      "counts": {
+        "cold-first": 3,
+        "quality": 192,
+        "adapter": 96,
+        "cross-language": 32,
+        "long-context": 48,
+        "perturbation": 24,
+        "unsupported": 16,
+        "performance": 225,
+        "concurrency": 35,
+        "exact-symbol-bypass": 1
+      },
+      "raw_censoring": {
+        "cold-first": {
+          "attempted": 3,
+          "successful": 3,
+          "censored": 0
+        },
+        "quality": {
+          "attempted": 192,
+          "successful": 192,
+          "censored": 0
+        },
+        "adapter": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "cross-language": {
+          "attempted": 32,
+          "successful": 32,
+          "censored": 0
+        },
+        "long-context": {
+          "attempted": 48,
+          "successful": 48,
+          "censored": 0
+        },
+        "perturbation": {
+          "attempted": 24,
+          "successful": 24,
+          "censored": 0
+        },
+        "unsupported": {
+          "attempted": 16,
+          "successful": 16,
+          "censored": 0
+        },
+        "performance": {
+          "attempted": 225,
+          "successful": 224,
+          "censored": 1
+        },
+        "concurrency": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "exact-symbol-bypass": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        }
+      },
+      "performance": {
+        "6x120": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "6x1200": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x600": {
+          "attempted": 45,
+          "successful": 45,
+          "censored": 0
+        },
+        "12x1200": {
+          "attempted": 45,
+          "successful": 44,
+          "censored": 1
+        }
+      },
+      "adapter": {
+        "de": {
+          "outcomes": {
+            "ranked": 46,
+            "timeout": 2,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 46,
+            "scored_n": 46,
+            "top1_count": 44,
+            "all_sources3_count": 46
+          },
+          "fallback_only_quality": {
+            "n": 2,
+            "scored_n": 2,
+            "top1_count": 0,
+            "all_sources3_count": 1
+          }
+        },
+        "en": {
+          "outcomes": {
+            "ranked": 43,
+            "timeout": 5,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 43,
+            "scored_n": 43,
+            "top1_count": 36,
+            "all_sources3_count": 43
+          },
+          "fallback_only_quality": {
+            "n": 5,
+            "scored_n": 5,
+            "top1_count": 0,
+            "all_sources3_count": 1
+          }
+        }
+      },
+      "concurrency": {
+        "1": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 5,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        },
+        "2": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 10,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        },
+        "4": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 10,
+            "pressure": 10,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        }
+      },
+      "perturbation_noops": {
+        "whitespace": {
+          "attempted": 8,
+          "planned_noop_cases": []
+        },
+        "umlaut-ascii": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        },
+        "unicode-nfd": {
+          "attempted": 8,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        }
+      }
+    },
+    "jina-v3.5": {
+      "counts": {
+        "cold-first": 1,
+        "quality": 192,
+        "adapter": 96,
+        "cross-language": 32,
+        "long-context": 1
+      },
+      "raw_censoring": {
+        "cold-first": {
+          "attempted": 1,
+          "successful": 1,
+          "censored": 0
+        },
+        "quality": {
+          "attempted": 192,
+          "successful": 192,
+          "censored": 0
+        },
+        "adapter": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "cross-language": {
+          "attempted": 32,
+          "successful": 32,
+          "censored": 0
+        },
+        "long-context": {
+          "attempted": 1,
+          "successful": 0,
+          "censored": 1
+        }
+      },
+      "performance": {
+        "6x120": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "6x600": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "6x1200": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "12x600": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        },
+        "12x1200": {
+          "attempted": 0,
+          "successful": 0,
+          "censored": 0
+        }
+      },
+      "adapter": {
+        "de": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 48,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          },
+          "fallback_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 4,
+            "all_sources3_count": 26
+          }
+        },
+        "en": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 48,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_quality": {
+            "n": 0,
+            "scored_n": 0,
+            "top1_count": 0,
+            "all_sources3_count": 0
+          },
+          "fallback_only_quality": {
+            "n": 48,
+            "scored_n": 48,
+            "top1_count": 4,
+            "all_sources3_count": 26
+          }
+        }
+      },
+      "concurrency": {
+        "1": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        },
+        "2": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        },
+        "4": {
+          "outcomes": {
+            "ranked": 0,
+            "timeout": 0,
+            "pressure": 0,
+            "invalid": 0,
+            "unavailable": 0
+          },
+          "ranked_only_timing": {
+            "n": 0,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null,
+            "max_ms": null
+          }
+        }
+      },
+      "perturbation_noops": {
+        "whitespace": {
+          "attempted": 0,
+          "planned_noop_cases": []
+        },
+        "umlaut-ascii": {
+          "attempted": 0,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        },
+        "unicode-nfd": {
+          "attempted": 0,
+          "planned_noop_cases": [
+            "temporal-approval-1-de"
+          ]
+        }
+      },
+      "fatal_row": {
+        "model": "jina-v3.5",
+        "round": 0,
+        "mode": "long-context",
+        "case_id": "access-negation-1-de",
+        "family": "access-negation",
+        "language": "de",
+        "split": "prior-diagnostic",
+        "permutation": 0,
+        "input": [
+          "1",
+          "0",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "expected": [
+          "0"
+        ],
+        "position": "beginning",
+        "target_chars": 6000,
+        "elapsed_ms": 30042.710342997452,
+        "error": "ReadTimeout",
+        "order": [
+          "1",
+          "0",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "metrics": null,
+        "response": null,
+        "input_chars": 35994,
+        "drain_ms": null,
+        "drain_error": "TimeoutError"
+      }
+    }
+  },
+  "systemd": [
+    {
+      "unit": "rag62-four-runs-d-minilm-l6-r0",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-d-mmarco-r0",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-d-jina-v2-r0",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-e-jina-v35-r0",
+      "properties": {
+        "LoadState": "loaded",
+        "ActiveState": "failed",
+        "SubState": "failed",
+        "MainPID": "0",
+        "Result": "exit-code",
+        "ExecMainStatus": "1",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-mmarco-r1",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-jina-v2-r1",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-minilm-l6-r1",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-jina-v2-r2",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-minilm-l6-r2",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    },
+    {
+      "unit": "rag62-four-runs-f-mmarco-r2",
+      "properties": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      },
+      "cgroup_exists": false,
+      "query_exit": 0
+    }
+  ],
+  "servers": [
+    {
+      "model": "minilm-l6",
+      "round": 0,
+      "pid": 1109175,
+      "current_command": null
+    },
+    {
+      "model": "minilm-l6",
+      "round": 1,
+      "pid": 1216927,
+      "current_command": null
+    },
+    {
+      "model": "minilm-l6",
+      "round": 2,
+      "pid": 1220552,
+      "current_command": null
+    },
+    {
+      "model": "mmarco",
+      "round": 0,
+      "pid": 1112428,
+      "current_command": null
+    },
+    {
+      "model": "mmarco",
+      "round": 1,
+      "pid": 1212399,
+      "current_command": null
+    },
+    {
+      "model": "mmarco",
+      "round": 2,
+      "pid": 1221183,
+      "current_command": null
+    },
+    {
+      "model": "jina-v2",
+      "round": 0,
+      "pid": 1117203,
+      "current_command": null
+    },
+    {
+      "model": "jina-v2",
+      "round": 1,
+      "pid": 1213458,
+      "current_command": null
+    },
+    {
+      "model": "jina-v2",
+      "round": 2,
+      "pid": 1217552,
+      "current_command": null
+    },
+    {
+      "model": "jina-v3.5",
+      "round": 0,
+      "pid": 1134944,
+      "current_command": null
+    }
+  ],
+  "public_preserved": {
+    "rejected-a": {
+      "source/benchmark.py": "0e98795c64f6370ab95365d70e2c9bfc9af00926b6a7b885b334c8420a2303cd",
+      "source/build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+      "source/run_matrix.py": "a7f6bc493ccfcb88af66e9e94d35419c768cc90da00c5a0fae27cc747f8db90b",
+      "source/server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+      "source/analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+      "source/corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36",
+      "source/PLAN.md": "e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce",
+      "run/matrix-seal.json": "1746e4ba5f55175bcd72db2ec660cd8551a13c5952c9548598ec9128b17e5c19",
+      "run/matrix-progress.json": "9478c260ecca56444f32cced4137fa332def17f25e15a19ed5637420912b0887",
+      "run/minilm-l6-r0-console.log": "4b245a11a412c36476cea5206592cb0779d2547e844b52a3374e4ce38838a8c1",
+      "run/matrix-exit.json": "9850c074c44cc579dcb62cc3b6d1f0ac3e46451caaa952e7bcc5b2bb15bac127",
+      "run/minilm-l6-r0/server-console.log": "04a64ddca75be81d993f38ec91ec3e2bc84d99529c526d8addb45a8e56c704e3",
+      "run/minilm-l6-r0/exit.json": "906199b854349243094c3685d97c5cf18df2fdbddb4774f21512735914a93465",
+      "run/minilm-l6-r0/observations.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run/minilm-l6-r0/startup.json": "9b2ba11295cc766b257779851f9d73b7d6bab4811b6d69cd24ffdb227c356ee5",
+      "run/minilm-l6-r0/server-events.jsonl": "af92dd789238145196408425c6f0ea7ef89edbb3457f43ca42de0fe1647e013b",
+      "run/minilm-l6-r0/seal.json": "25810a8baed7907818f867513a22be5701a734f94847487efe1b6584ad40ef41"
+    },
+    "rejected-b": {
+      "source/benchmark.py": "642a2e4c3fa8eee4b64349e6a6dd9a1a6d93b924c50ec0726531b1f7e7e2a96e",
+      "source/build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+      "source/run_matrix.py": "a7f6bc493ccfcb88af66e9e94d35419c768cc90da00c5a0fae27cc747f8db90b",
+      "source/server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+      "source/analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+      "source/corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36",
+      "source/PLAN.md": "e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce",
+      "run/matrix-seal.json": "9cad6d6a5b3e42503b5d52abdf699ebc5476d807a887ddf8f069ff07869d8a29",
+      "run/matrix-progress.json": "f0e6de06dbbcb66ada393f74ca4f8cc279926b3be1dad81d9ef924f392876ef1",
+      "run/minilm-l6-r0-console.log": "5c5532efeb5cbdcff571290b74869e44f23c727b573be52565d0ea56ca2695de",
+      "run/matrix-exit.json": "bcf605db6cae55350c5c0c4cd100907c6431bbd6c71476c7abb9cd9dceafdcc8"
+    },
+    "rejected-c": {
+      "source/benchmark.py": "642a2e4c3fa8eee4b64349e6a6dd9a1a6d93b924c50ec0726531b1f7e7e2a96e",
+      "source/build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+      "source/run_matrix.py": "b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db",
+      "source/server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+      "source/analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+      "source/corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36",
+      "source/PLAN.md": "e35dd579140ccc81bae2abe9fc888b00f54122d3b41dfd92719a2d31d67686ce",
+      "run/matrix-seal.json": "937d09a69800e19a18685b78f8650a862573d8229d04928f122e8bf5ebd31a9e",
+      "run/matrix-progress.json": "cc704cc7384406ce9fd48b4baf13d7d74901f82face98b3364a0ac7ab17938d4",
+      "run/minilm-l6-r0-console.log": "0b39ad3eb0ce9158453092b278518a210b135a2aa754bc70e428f91f823d31be",
+      "run/matrix-exit.json": "c32a8de7b1fcb2a9a8e518f1c8fd71b537b09c2062ff7d0568a8858d1d112ce4",
+      "run/minilm-l6-r0/exit.json": "cead0ee0197301ff769a635315becfedde553a4aa77fd53a4a23edce1fb71e51",
+      "run/minilm-l6-r0/observations.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run/minilm-l6-r0/seal.json": "ee00bd29eeec7f1286b630c952e691af8f7b54b391f20a99cb768e209a7ab320"
+    },
+    "aborted-e": {
+      "matrix-seal.json": "ec2f521d264e949323adb39c663e23ce06c6ad7897f4faa8273fbf59c22900d1",
+      "jina-v3.5-r0-console.log": "54fff80636ae7763df4d83793ac89ad62dfa14b971e7c7101a3ad52ffc44eb06",
+      "matrix-exit.json": "0362ecfd6c61d30de6dfc863bfa4b25ac36241a034f6af67631098b8a5ee4e62",
+      "jina-v3.5-r0/server-console.log": "394fef3642514c0272b87c7100386f9672c8dac55597e2dcce0ee3264843339b",
+      "jina-v3.5-r0/exit.json": "f7efa99158cf2b68f02601f445fc3509798d5d67b99bfa1199190b331a6e84df",
+      "jina-v3.5-r0/observations.jsonl": "e220d94b4dc2be05b0f399dc2bbdcd6a6b3b103d59aa0d2dd6aa26cff5532204",
+      "jina-v3.5-r0/startup.json": "1332475b1965da9c6c373fb3e402d14fa79aef7355e58f635799c6aefd7c4b60",
+      "jina-v3.5-r0/server-events.jsonl": "e33c1e73be40324b6b2b4fa8b1f719c5d681c002390f64db9473de3022390587",
+      "jina-v3.5-r0/seal.json": "5c96aaefd7f94bcc02af4a4395405def9bb5d0d88da171270fbe6c7cb51c0dd6"
+    },
+    "rejected-d": {
+      "matrix-seal.json": "67b1bdec1d65950db2064babb7209752f68172714cde9b22c761fae274f55aae",
+      "jina-v3.5-r0-console.log": "426e91cd358538ba0423963d27639bad9ab1bfd7dce151632a0b06768f5694dd",
+      "matrix-exit.json": "4cb2883b802cfc700bfd613711897e7db9344bdd191e8233b187e6f260cdb4ce",
+      "jina-v3.5-r0/exit.json": "b08d72b09bac83a872541262c9a01cd1168513f6d5657975a2453430e89c5058",
+      "jina-v3.5-r0/observations.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "jina-v3.5-r0/seal.json": "56396168da2c03bbc685935b22f1731f1c8a2b2552b61815563a22489587d7e7"
+    }
+  },
+  "hashes": {
+    "runs-f/matrix-exit.json": "050745b459fcf6b1a353a110c30e65764e23d5dc6fe4eb70e360d44f82e524da",
+    "runs-f/matrix-seal.json": "155ee2a636f118c35e319440f58920208174565d8f2ebd835bfcffa13d54d849",
+    "summary-final-audited.json": "b1bfb76ef4ccc40e23fdc30aa6c0393117d4c30c17e6c137d3e2213452005f04",
+    "audit-final-bounded-reconstruction.json": "2d2d3e4a1f584d56d437ae3dba6e92ae9a7b251b38b7a22f6e9e408a12f5416a",
+    "final_bounded_audit.py": "3be410a5176a48b5337c3c7509f4cb3086e12a0791a2e34c5801a41e5ad443c6",
+    "final_bounded_supplement.py": "b275e9d82eff1430629fd8c50fef28d7d4b0ba1cc1f4f5c11fb4462c14df782b"
+  },
+  "port_8782_connect_errno": 111,
+  "temporary_model_directories": [],
+  "relevant_processes": [],
+  "retained_warning_library_sha256": "d9d46a3012baf4636dd5213043a5b983d975cac3cd99dc8cee074b8a9fee2b91",
+  "checks_passed": true
+}

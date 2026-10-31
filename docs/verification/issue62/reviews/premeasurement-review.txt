@@ -1,0 +1,87 @@
+# RAG-062 independent premeasurement recheck
+
+Reviewed 2026-10-30 against base
+`7a61955446119df522a34967273d8dacae56108b`. Read the four prior implementation
+findings, current config/neural/search diff, evaluation/corpus/rehearsal/CLI
+files, expanded evaluation regressions and populated compatibility test.
+No model, service, database or test calls; no product edits or child agents.
+The coordinator reports 28 new tests passing; this reviewer did not execute them.
+
+## Prior findings
+
+- Repeated failures now aggregate into row and summary failures, while unique-query
+  quality denominators remain fixed. The actual citation-verification error path
+  now preserves only fixed approved error codes, and its new _one-to-summary
+  regression covers the earlier exception-type mismatch.
+- Selection counts timeout/invalid/unavailable/pressure observations and rejects
+  additional failures; regressions cover the exact counterexample and reject
+  all-bypass/all-timeout faster candidates.
+- The source inventory includes the wrapper, dependency manifests and corpus.
+  Complete per-profile model/revision/bounds/endpoint hashes, runtime-manifest
+  hash and budgets enter the seal. Unsupported baseline model/revision/deadline
+  is rejected before database access. Runtime manifest and source/corpus drift
+  are checked at completion.
+- PostgreSQL now runs as a directly tracked Popen child registered before readiness.
+  Cleanup iterates independently over tracked children and captures errors; the
+  regression covers partial startup and an already-crashed child. This resolves
+  the original pg_ctl startup/PID-file finalizer defects. One further shutdown
+  issue remains below.
+
+## Additional shutdown finding, fixed during recheck
+
+The intermediate `scripts/rehearse_reranker.py:49-50` killed only the tracked
+parent after timeout and could claim successful cleanup while PostgreSQL
+backends survived. The current fix records `forced_shutdown` as a cleanup error,
+checks the dedicated cgroup for all remaining members except the evaluator, and
+requires both no members and exited tracked parents for the success flag.
+The added timeout/forced-parent regression checks that the forced path remains
+an error even after the parent exits. This resolves the additional Medium finding
+in the code reviewed; actual external unit cleanup remains an evidence gate.
+
+## Measurement controls
+
+The native /slots idle gate now drains each observation outside stage latency;
+raw drain durations and wall-clock throughput are retained. Its mock regression
+checks a processing-to-idle transition. Actual native slot behavior, live cgroup
+membership, resource counters and runtime model identity still need real evidence.
+The wrapper verifies pinned originals, copies model pages into the measured cgroup,
+records process membership, and rechecks copied model hashes before success.
+
+Runtime options remain opt-in and preserve loopback privacy, bounded prefixes,
+original payloads and deterministic fallback. The populated integration test
+exercises current local/HTTP reads, withdrawal, exact selectors and an actual
+archived 0.6.14 subprocess against retained data. These are code observations,
+not independently rerun integration results.
+
+## Verdict
+
+**Ready for bounded resource measurement.** No unresolved Critical, High or Medium
+finding identified in this code snapshot. Final complete-diff/evidence review, full-suite exit,
+held-out outputs, actual resource/cleanup evidence, operator documentation and
+release consistency remain pending. This is not Issue62 acceptance or rollout
+approval.
+
+Reviewed SHA256: evaluation module
+`88d41e822d12f0b9efd915910e230ddaa5c95eb437e3e4da0bb9c501357ef967`;
+rehearsal wrapper
+`ad33c2065c9a45a1e9f8cebbd36a4840f985d404a986910ee305a535b0bf7e2b`;
+evaluation tests
+`6d0fda7a54abf43534c7774ca26ccccf5125ce51a8d0d94f68230147c734f78c`.
+
+## Resource-controller adaptation recheck
+
+The host delegates cpu/memory/pids but no cpuset controller. Reviewed the bounded
+adjustment to require actual evaluator affinity `[0,1,2,3]` plus unchanged
+`cpu.max=400000 100000`, `memory.max=8589934592`, and zero swap; absent cpuset
+is explicitly recorded as `not delegated`. The wrapper also records and requires
+the same actual affinity for PostgreSQL and both native runtimes in the shared
+cgroup. The new regression accepts missing cpuset only with the required actual
+affinity and rejects a wider affinity. The documented systemd command now uses
+CPUAffinity. CPU quota continues to enforce the combined four-CPU budget.
+
+**Ready for bounded measurement; no new C/H/M finding in this adjustment.**
+This establishes a constrained shared-host measurement contract, not dedicated
+hardware equivalence. Actual artifacts must show these effective settings and
+child membership; final full evidence review remains pending. No runtime or test
+calls were performed by this reviewer. The earlier pre-process attempt is not
+measurement evidence and must remain disclosed as an aborted attempt.

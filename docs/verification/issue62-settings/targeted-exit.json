@@ -1,0 +1,9 @@
+{
+  "command": "env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 TMPDIR=/dev/shm RAG_SETTINGS_EVIDENCE_DIR=/home/administrator/Claude/.scratch/rag62-settings-20261030 .venv/bin/python -m pytest tests/service/test_reranker_upgrade.py tests/service/test_reranker_settings.py -q --tb=short",
+  "exit": 0,
+  "passed": 8,
+  "warnings": 1,
+  "seconds": 32.15,
+  "record_method": "coordinator transcribed completed tool result for session88034; full-suite runner separately retains machine exit and source digest",
+  "recorded_at": "2026-10-30T23:42:00.475074+00:00"
+}

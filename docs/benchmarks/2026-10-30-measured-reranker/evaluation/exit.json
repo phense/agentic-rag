@@ -1,0 +1,26 @@
+{
+  "exit": 0,
+  "cleanup_errors": [],
+  "owned_processes_stopped": true,
+  "remaining_group_members": [],
+  "owned_postgres_stopped": true,
+  "data_retained": true,
+  "reference_after": {
+    "cpu.max": "400000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.current": "797372416",
+    "memory.peak": "1633099776",
+    "cpu.stat": "usage_usec 3097734069\nuser_usec 3084620531\nsystem_usec 13113537\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 8193\nnr_throttled 2713\nthrottled_usec 3664097\nnr_bursts 0\nburst_usec 0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+    "cpuset.cpus.effective": "not delegated",
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "member_count": 1
+  },
+  "finished_at": "2026-10-30T16:45:42.085919+00:00"
+}

@@ -5,7 +5,7 @@ type: reference
 doc_id: dashboard-reference
 readers: [operator, knowledge-user]
 status: reviewed
-version: 0.6.12
+version: 0.6.15
 depends_on: [C-059]
 assets: []
 last_reviewed: 2026-10-30
@@ -23,6 +23,7 @@ runs. Standalone CLI/stdio users can keep working locally without it.
 | Overview | Signed-in humans | Scoped memory/domain/pending-review counts and recent previews |
 | Knowledge | Signed-in humans | Scoped browsing/search, originals, assertions, provenance and review state |
 | Clients & access | Human administrators | Configured people/VMs, safe credential IDs, effective permissions, queue/provider state and administrative changes |
+| Settings | Human administrators | Server-wide reranker preset, language support, local availability and audited preview/apply |
 | Setup assistant | Human administrators | Four explicit installation paths, saved checks and read-only configuration plan |
 
 ## Access and configuration
@@ -41,7 +42,9 @@ invalidates its old revision. Revoke removes that ID. A disabled machine or a
 machine with no active key cannot authenticate. **Stale** means no observed
 authenticated activity in five minutes; it does not revoke access.
 
-Runtime and model configuration are file-owned and read-only in this release.
+The reranker preset is editable through **Settings**, using the same protected
+policy file and administrative journal. Other runtime and model configuration
+remains file-owned and read-only. See [the selection and upgrade procedure](reranker-settings.md).
 The setup export is a credential-free template and operator instruction plan.
 The browser does not run DDL, reinitialize a database, merge stores, move data or
 restart services. Follow [the operations guide](15-dashboard.md) for prerequisites.
@@ -89,7 +92,8 @@ uses a separate cookie and is intended for private local access/testing.
 | Human sessions | 16 per user,10000 total; expired records swept at login |
 | Knowledge page | 25 default,50 maximum; SQL bounds previews before transfer |
 | Dashboard response |512 KiB; queued tool results retain the existing120 KiB limit |
-| Explicit model checks |1 globally; foreground work defers them with 429 |
+| Setup model checks |1 globally; foreground work defers them with 429 |
+| Reranker selection checks | Fixed synthetic query, total1500ms per check; shared native runtime rejects concurrent inference |
 | Policy-managed principals | 256 people and256 machines;8 active keys per machine |
 | Administrative journal | 10000 rows; reaching capacity refuses further changes instead of evicting audit |
 | Freshness observations |Configured IDs only,60-second write throttle,1,024 process cache entries |

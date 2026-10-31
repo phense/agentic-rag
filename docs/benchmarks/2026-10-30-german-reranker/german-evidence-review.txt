@@ -1,0 +1,160 @@
+# RAG-062 German diagnostic evidence review
+
+Independent read-only review, 2026-10-30. Scope: current supplementary evaluator,
+analysis script, corpus, failed diagnostic artifacts, run-d native raw responses,
+observations, seal, completed results/exit and generated summary. No model,
+provider, database or test execution by the reviewer; read/diff/checksum and
+independent arithmetic only. Product/runtime changes are outside this supplement.
+
+## Verdict and remaining gate
+
+The finite-native-score semantic diagnostic is valid within its explicit limits.
+Its results reject a blanket German recommendation for the pinned Jina tiny
+conversion. No unresolved C/H/M finding was identified in the inspected
+supplementary evaluator or computed measurements. Generic Tiny production
+adoption is not accepted: the strict existing product score-range guard causes
+six English adapter fallbacks. That integration limitation is separate from
+model semantic ranking and must remain explicit in the report/PR.
+
+Actual run-d helper exit is 0, with 96 complete retained observations, empty
+cleanup errors/remaining members and owned processes stopped. Final public
+README, systemd completion and external cleanup have now also been inspected.
+The bounded supplement is ready for publication, subject to the stated
+experimental/unsupported-adoption boundaries. Earlier premeasurement and scope
+reviews remain part of the review history.
+
+Exact measured evaluator SHA-256:
+`3739c3546ef5eedfebce7eab75d4c9e8cd398d9ab2f68a6c7cfc3ce2d318f681`.
+Unchanged corpus SHA-256:
+`2f018b5b7b4bd03a128942fa7aadaf1139f55d41702dc0fd95f4b06e3331aa84`.
+Final analysis script inspected SHA-256:
+`21b320a001d207760052bb5986c6bc4ff7d0b92e136b2de8590d64958ed61944`.
+Final README inspected SHA-256:
+`9373eeed83a1dd4eec4d45489cca80af33ac6373ebc3dc13459ca46aa072be8e`.
+The analysis count assertion now supports `96 * len(evaluated_models)`; this
+one-line consistency correction does not change any Tiny metric or frozen
+inference input.
+
+## Corrected raw-score assumption
+
+The previous Tiny-only attempts retained 12 raw English ValueErrors, covering
+six questions in both permutations. Exact native JSON in rejected-c shows
+finite negative relevance scores, for example -0.01824083924293518. Their
+old 0..1 validation therefore rejected otherwise structurally complete native
+ordering output. Both old helper exits are 1; those attempts cannot satisfy
+successful comparison gates.
+
+Current raw semantic scoring accepts any finite scalar score while preserving
+alias, size, complete distinct index, type and finiteness validation. It does
+not normalize, clamp or interpret scores as probabilities. Exact response bytes
+are retained before validation. A separate per-row range-compatibility flag
+reports whether the unchanged product adapter could accept these raw scores.
+All first-permutation English cases now also call the actual product adapter;
+no production guard or deadline was relaxed.
+
+This correction changes the diagnostic's measurement contract, not its corpus,
+labels, candidate model, rejection threshold or target outcomes. All questions
+and the conservative German recommendation rule remain byte-identical to the
+premeasurement corpus, so the negative-score discovery is not held-out retuning.
+
+## Raw-body and metric reconstruction
+
+Independently inspected all 96 rows and their correspondence with JSONL. Each
+row retains all six original source IDs in a complete permutation, matching
+corpus language/family/labels. All native drains are verified. Every one of the
+64 raw-body files matches its recorded score map, complete six indexes and
+finite values. Descending score plus stable input-index tie sorting exactly
+reconstructs every native source order and range-compatibility flag. Expected
+binary top1, recall@3, complete-source coverage@3 and nDCG@3 reconstruct exactly
+for all raw and actual adapter rows. No raw scoring errors remain.
+
+Counts are exactly 16 per language for raw first permutation, raw reversed
+permutation and actual adapter: 64 raw plus 32 adapter = 96 observations.
+Primary quality has 16 questions, 17 expected source occurrences and eight
+related authored families per language. Repetitions do not double that denominator.
+
+| Primary raw semantic result | German | English |
+|---|---:|---:|
+| Required source first | 10/16 | 12/16 |
+| All required sources within first three | 15/16 | 16/16 |
+| Macro source recall@3 | 0.9375 | 1.0000 |
+| nDCG@3 | 0.8057993287946483 | 0.9077324383928644 |
+| Reversed-permutation required source first | 10/16 | 12/16 |
+| Cases whose first source changes across permutations | 0 | 0 |
+| Raw errors | 0 | 0 |
+| Raw observations incompatible with product 0..1 score range | 0/32 | 12/32 |
+
+The English incompatibilities are the same six unique cases in both permutations:
+paraphrase-recovery-2, subject-object-1/2, multi-condition-1/2 and domain-ambiguity-2.
+Their minimum scores range from -0.01824083924293518 to -0.0025898923631757498.
+The model can thus produce useful ordinal information outside the current
+product's accepted score contract; the semantic experiment must not silently
+credit it as production ranking.
+
+Actual adapter results independently match those limits:
+
+- German: 16 ranked, zero errors/fallbacks; 10/16 required source first,
+  15/16 all-required-in-top3; p50 354.48191950126784 ms,
+  nearest-rank p95 853.9269980028621 ms.
+- English: 10 ranked plus six invalid/ValueError fallbacks to original input
+  order; 11/16 required source first and 13/16 all-required-in-top3. These counts
+  include deterministic fallback and are not a pure model-quality figure.
+  p50 195.9719744991162 ms, p95 359.7488239975064 ms.
+
+These are warm repeated-case probes immediately after raw scoring of short
+passages (maximum 138 characters). They do not establish cold-start or
+representative six-by-600-character production latency, full retrieval quality,
+answer correctness, access/source eligibility, calibration or abstention.
+
+## Frozen decision and concrete failures
+
+All three rejection predicates hold: six German primary top1 misses; misses
+in both critical families; German top1 trails English by 12.5 percentage points.
+The critical cases are access-negation-2-de and subject-object-2-de. The first
+selects a pending photo-archive request instead of the explicitly denied invoice
+archive access; it is a wrong-topic result, not evidence that authorization
+was changed. The second reverses the requested grammatical relationship:
+it selects Mara reviewing Levin's expenses when asked whose expenses Levin
+reviews (correct evidence: Levin reviewing Nora).
+
+Other German first-place failures are exact amount threshold, October-only
+approval, arranging a viewing and database-recovery paraphrase. The database
+case ranks password recovery first and the required database evidence fifth,
+outside top3. Source-ranking quality, including these failures, is consistently
+retained. A small hand-authored paired sample cannot establish population
+language accuracy or prove English training as the cause of any particular miss.
+
+## Source and resource evidence
+
+The run-d result frozen fields exactly match its seal. Current evaluator and
+corpus hashes match their frozen records. All 159 original source-file hashes
+independently match current bytes. The selected model set is exactly Tiny;
+there is no complete new Qwen semantic result to compare.
+
+The internal completion record enforces cpu.max=400000/100000, evaluator and
+native affinity 0–3, memory.max=8589934592, memory.swap.max=0. Tiny membership
+is verified in the same group. Peak cgroup memory is 137605120 bytes and CPU
+usage at the final internal snapshot is 123.201880 seconds; these are internal
+samples rather than a final systemd total. No OOM/max events are recorded.
+Child cleanup returns no errors or remaining group members and records all
+owned processes stopped. Final systemd completion is status 0/SUCCESS,
+37.656 seconds and 123.264 CPU seconds; its 131.2 MiB peak agrees with the exact
+137605120-byte (131.23046875 MiB) internal peak. The report correctly uses the
+final systemd CPU total rather than its slightly earlier internal snapshot.
+External cleanup records the collected unit not-found/inactive, absent cgroup
+and both owned ports refused (111). These cleanup gates pass.
+
+All 70 files present in the actual run-d output are byte-identical to the
+corresponding public evaluation files, including all 64 exact native raw bodies.
+The public summary arithmetic and README tables/failure descriptions match the
+independent reconstruction. Local README links resolve. The two rejected
+Tiny-only attempts each retain all 80 rows and 12 raw errors; their helper
+copies match their own seals and both explicit exits are 1 with clean shutdown.
+All 343 original successful full-suite manifest files still match current bytes.
+No fresh unchanged-runtime test suite or model comparison is needed to validate
+these diagnostic-only report/artifact additions.
+
+The known product range limitation is not hidden by this raw-score relaxation.
+Adoption remains blocked by the observed semantic and integration limitations;
+no model/default, original canonical data, production service or PR merge is
+changed by this diagnostic.

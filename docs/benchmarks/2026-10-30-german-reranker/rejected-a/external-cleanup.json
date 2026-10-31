@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-30T19:33:06.763808+00:00",
+  "unit_query_exit": 0,
+  "unit_state": "ActiveState=inactive\nControlGroup=\n",
+  "port_connection_errors": {
+    "8772": 111,
+    "8773": 111
+  },
+  "invalid_attempt": true,
+  "helper_exit": 1,
+  "note": "Interrupted after raw Qwen ReadTimeout; systemd marks SIGINT success but helper exit1 and partial data are not a passing gate."
+}

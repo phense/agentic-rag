@@ -1,0 +1,63 @@
+# PB062-OPS: Independent content review and rehearsal boundary
+
+## Scope
+
+- Playbook: `docs/local-reranker.md`, SHA256
+  `49e2159779e67e4d22b82d8f3ce8eb53ce5a67d381d37ab40a865f01d056c362`
+  initially; central rollback correction independently rechecked below.
+- Linked evidence: `docs/playbooks/evidence/measured-reranker.md`, SHA256
+  `0c437c8f1ad1175d4fb4da7fa635844c49c376ea3787ed50572f1df027c7d6e4`.
+- System revision: `b16ee74a1c7f0ba7fae305b01a9b3ee67e07cbde`, target
+  0.6.15/schema027 from supported 0.6.14/schema027.
+- Requirements: C062-005, AC062-003–007, PB062-OPS adoption/recovery obligation.
+- Reader/owner: capable deployment administrator; review and required synthetic
+  local/central recovery plus combined-resource rehearsal precede delivery.
+
+## Content review
+
+- Reviewer: independent contract/code reviewer; did not implement product or docs.
+- Date/method: 2026-10-30, read-only content/interface inspection using
+  engineering-method playbook-review. No procedure commands were executed.
+- Verdict: **Ready** after independently rechecking PB062-CONTENT-001's correction.
+
+| Finding ID | Severity | Evidence | Required change | Disposition |
+|---|---|---|---|---|
+| PB062-CONTENT-001 | Important | Original `docs/local-reranker.md:225-233` assigned central policy to the server, but rollback restored/restarted only affected clients. | Explicitly restore the central server's saved code/configuration and restart that approved server when its adoption fails; verify recovery through the same authenticated memory_search path. | Verified resolved: revised step4 distinguishes local Python/MCP rollback from approved central server code/config restart and authenticated recovery verification; client-only rollback is explicitly insufficient. |
+
+The procedure identifies supported versions, retained knowledge, model checksum
+and alias limits, fixed input/deadline/concurrency budgets, private configuration,
+safe diagnostics, source/citation checks and separate production authority.
+Executable/config options match the inspected interfaces. The resource command
+uses CPUAffinity plus cgroup quota/memory/swap, fixed owned ports, fresh paths and
+explicit independent file inputs. Failure/interruption instructions preserve all
+attempts, prohibit treating a resumed run as the same sealed experiment, require
+external unit/cgroup cleanup and avoid changing production daemons. These content
+checks support the otherwise coherent operator flow; they are not command replay.
+
+## Rehearsal
+
+- Status: **not completed / pending independent evidence inspection**.
+- Last validated by this reviewer: not validated.
+- The evidence page reports populated synthetic local/authenticated HTTP reads,
+  exact bypass, source withdrawal and actual archived 0.6.14 code rollback tests;
+  this reviewer read the tests but did not rerun them.
+- The current native resource run is reported running at b16ee74; no successful
+  result is inferred. The earlier attempt aborted before process startup because
+  cpuset was not delegated; preserve that failed-attempt journal.
+- Required unresolved evidence: actual runtime/PG/evaluator shared envelope,
+  first/warm outputs, retained failures, zero OOM/cleanup errors, empty external
+  unit/cgroup, final complete-suite exit, and required local/central recovery.
+- Limits: synthetic public data and constrained shared host; no production,
+  private-source, dedicated-hardware, fleet-capacity or answer-accuracy validation.
+
+## Acceptance and freshness
+
+Content is Ready with no open Critical or Important findings after the central
+rollback correction.
+Delivery remains blocked independently on required rehearsal/full-suite evidence.
+Do not stamp a validation date from this review.
+
+Final independently reviewed playbook SHA256:
+`408f918ed6a9789ae58c1b972650bb630d62140617f49c1170fac77c5f9238e6`.
+Only the reviewed central rollback paragraph changed from the initial content
+snapshot; the evidence-page hash above remains unchanged.

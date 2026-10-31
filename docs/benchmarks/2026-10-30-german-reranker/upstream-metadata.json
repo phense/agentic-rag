@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-30T19:26:29.407462+00:00",
+  "sources": [
+    {
+      "model": "jinaai/jina-reranker-v1-tiny-en",
+      "upstream_revision": "aca45de6945b5dc6399abcd2a9c55ded5dc9111f",
+      "upstream_language": [
+        "en"
+      ],
+      "license": "apache-2.0",
+      "url": "https://huggingface.co/jinaai/jina-reranker-v1-tiny-en"
+    },
+    {
+      "model": "Qwen/Qwen3-Reranker-0.6B",
+      "upstream_revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+      "upstream_language": null,
+      "license": "apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B"
+    }
+  ]
+}

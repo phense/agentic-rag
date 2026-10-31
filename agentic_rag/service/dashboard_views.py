@@ -218,6 +218,12 @@ def setup_action(cfg,path,principal,endpoint,method,data):
 
 
 async def dispatch(cfg,path,principal,endpoint,method,data,query):
+    if endpoint=='/api/settings' and method=='GET':
+        from .dashboard_settings import settings
+        return await asyncio.to_thread(settings,cfg,path,principal)
+    if endpoint in {'/api/settings/preview','/api/settings/apply'} and method=='POST':
+        from .dashboard_settings import change
+        return await asyncio.to_thread(change,cfg,path,principal,data,apply=endpoint.endswith('/apply'))
     if endpoint=='/api/memories' and method=='GET':return await asyncio.to_thread(browse,cfg,principal,query)
     if endpoint=='/api/overview' and method=='GET':return await asyncio.to_thread(overview,cfg,principal)
     if endpoint=='/api/admin' and method=='GET':return await asyncio.to_thread(admin_overview,cfg,path,principal)

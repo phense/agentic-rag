@@ -1,0 +1,5001 @@
+{
+  "frozen": {
+    "source": {
+      "agentic_rag/__init__.py": "660d353036e5fdfe508cd93a4bc49a6c58b7e250b922b7730dcaaf4708b13e37",
+      "agentic_rag/backup.py": "b31a7645a123d1952601f9913cebe48df961944a956230728f3892ce00fdc7f1",
+      "agentic_rag/benchmark/__init__.py": "d664049a44260d79717ff45bc8bd17260eeefe38cc300ad48a05877491a2cbb2",
+      "agentic_rag/benchmark/corpus-reranker-v2.json": "f3a75e1520389903118ef2b072b78c469c6553b4e9393e8e5c012c9d9b8b9171",
+      "agentic_rag/benchmark/corpus.py": "cf0087e1353b628b27f4c3247483818244bda57defdf3eb93870638a8bb10089",
+      "agentic_rag/benchmark/corrections.py": "93d66175b3c1625421a9fa1c22ae52c6b4ce4c219fc3326e101fac1f4011a39a",
+      "agentic_rag/benchmark/database.py": "0e0786d5001e75893a3789ca7a7d31108d6d46a42cef3917762f31b8f45a6393",
+      "agentic_rag/benchmark/identity.py": "82d3876aeed442ddc2742a5d5b3d7e46ebc384093b9577e7d74e15c9b1132f5b",
+      "agentic_rag/benchmark/metrics.py": "d848e17a288080e25ffcd7d36999984ab67f6dbc46be42b588d6a156be2f10ad",
+      "agentic_rag/benchmark/mining_optimization.py": "c1a4e49d7e4628a58ce40f6139994e57f25cfd00e5c71dca7e93963ad627879f",
+      "agentic_rag/benchmark/optimization.py": "7400d5c7053b584cbdc0b10430bb50628e75e4e07d92ed9028fadbd0b2cb1484",
+      "agentic_rag/benchmark/rerank_evaluation.py": "50ac0eea92298333a10c232a932f9e33404ab0a7bc53be4839b0d1c91c4a115b",
+      "agentic_rag/benchmark/runner.py": "76ea08bc012680c9824b0308b63fcaf9febaa42a322b61eebc47795596fbcd8a",
+      "agentic_rag/bounded_log.py": "991ed68fe925417ad3c4bff2fcadcf39ab8264cf64ab30fcf4a0397d7ca5c354",
+      "agentic_rag/chunker.py": "d0d45b85e8f801febbb8747049b14cccbb00fe5e9ade8d1502b2d1868c475683",
+      "agentic_rag/cli.py": "790232037e140b831ff161e0304df056d973eaeccaf247512d18bc5f5b6d685e",
+      "agentic_rag/config.py": "6ed392ba9c9cdb8873ce140140395d57562b9a767d396e1b5644b42885407efa",
+      "agentic_rag/context.py": "e5fdc94ac45f70a99ad8ec5a2766db8a673bcbe0a14e6d4babe090a8433f470a",
+      "agentic_rag/context_gate.py": "78fd2194511764a49a3fdeb38275ea12445e2eab4d3d9819b88184d3215d7712",
+      "agentic_rag/contextual.py": "dc9f3e97818421527d8d5c9a302cf281902fe578e0ed6b9d18da78aa3a51edbc",
+      "agentic_rag/continuity/__init__.py": "7ef222acc44e0e3f5233ea3a70c95ac3b990094968f2b1460e112b49598d2d5e",
+      "agentic_rag/continuity/capture.py": "e733f1797c9b0887dfa987a3777726614327101578ef1881044827f438e31dfb",
+      "agentic_rag/continuity/enrich.py": "4e4d12b6d1a14827b70ff395598d58577f8715ad122074669a0f53b633713e12",
+      "agentic_rag/continuity/model.py": "5226bc4be5eee31089eb3cb1fed858169bf6b0a870e7abdb02d48fbfd068c593",
+      "agentic_rag/continuity/render.py": "7ec8cb429c614dc554c394b412119a4e62961d244ed85ca9c75c7843d86b1298",
+      "agentic_rag/continuity/store.py": "18a4b3fe7e535ab05531725558db93d4d7d98578453a7cb14510f53170e44022",
+      "agentic_rag/curation.py": "aa47b6b6f46e8c6a246a2360255eb353bcc803f55be75cd8002ca8c34f8a3f4b",
+      "agentic_rag/db.py": "c0fb27cc54094c923d65d9ac2c4408089f27e61426462af22df18ddc34ff2993",
+      "agentic_rag/domains.py": "b856468b90998ac3169a583514b82bd5e1fb3a5c724ad090c1445e31b316dd19",
+      "agentic_rag/embed.py": "af169494a2c8fcf81c8eed471442dabca6402e76de90fa19a3df02cb048846d4",
+      "agentic_rag/embedding_reuse.py": "7135491b1b9b0fb8890e6d182e4fba8e7e550d5b51025d9d92623278b3c20642",
+      "agentic_rag/entities.py": "b155b08dee2e29c6eb29557d9e477fa6535929d86c60dddc0a16941ccec9876f",
+      "agentic_rag/evidence.py": "d0d130965932339a7bf67e268ea8f5954f56a97e0e0bb8a204554f25d0060d80",
+      "agentic_rag/graph.py": "0fddbca88ae1611a53a11ad4708109d13b683aa683081cb19eeda047a12b5054",
+      "agentic_rag/hooks/__init__.py": "aaa3ed3fe1069f1a4fc78840413e90f0bf1007569e0b73047a48bc37eb118c99",
+      "agentic_rag/hooks/agy.py": "25a56138561fb7cc85a0bf9448b67d73c7588cf1f438142b4c0db75b8f011dc7",
+      "agentic_rag/hooks/common.py": "a996a8a23f0bb65f4d676fb552d06a0c58bc46d8f0b12ae6e515d3d009c11513",
+      "agentic_rag/hooks/post_compact.py": "cf1b41bc4a179a76ccc7c53ec360cdd608bdfae9f34f563f59e8afc066fbd215",
+      "agentic_rag/hooks/pre_compact.py": "5a67b13f5ab70b51f1190938453ad27fa1f1e809fa249e36bfcae258eb5aad48",
+      "agentic_rag/hooks/prompt_recall.py": "9f6557ba9d978bf22bc31d3868fafccb5a9d91fe79721bac06f1d8da734c456a",
+      "agentic_rag/hooks/session_end.py": "01f3b3ab65d142a6aa712dae5e568a0c9ff4fd08d64935bf75a19b2ac206a858",
+      "agentic_rag/hooks/session_start.py": "e05c90630bba2ccb84276b24702b53b2b0119cf4fd5dc19b591efebbad797832",
+      "agentic_rag/hooks/stop_enqueue.py": "06963f9ac1fe2e3ca168708cd051e5648e2d9d2542609aaebc70efda3b6ac825",
+      "agentic_rag/hooks/transcript_delta.py": "316033cd50fd45637fa60721935a3c7b0d405c8ab8852783e8b8c57e8676259a",
+      "agentic_rag/indexes.py": "956228598d4cd1a3bb0a55997c92a6b5e12ae20314dfac87af66b270ba3014f4",
+      "agentic_rag/install.py": "d5cd1f41e315d8e8812c196b9ed2fd7b016cd3daea36fa6e7cfd057f2f75f3c8",
+      "agentic_rag/integrations/__init__.py": "3041c9f0a3fe88d7cf68c8bf9827aceb29133c474586697b4bdbe53c0d93d6f9",
+      "agentic_rag/integrations/agy/__init__.py": "737ea9873c123ddf2128c856fc7d3a049f6835fca921b66fa32e821884d505b4",
+      "agentic_rag/integrations/agy/hooks.py": "8cc1b2a83ac14e797d6d4e499674083f07913a089bd59e2653beb022178d5097",
+      "agentic_rag/integrations/agy/install.py": "1154eec2f6e2f8a33d5e645515be0544d91abe8f168bb42d4aa2366b0e3ee97b",
+      "agentic_rag/integrations/agy/prompt.py": "7880d45609085eb283985d360bd26ba3761263829bce2dfd8f8b54784f3d3a6a",
+      "agentic_rag/integrations/claude/__init__.py": "10afea7c13a3dca1cf9563e3d872910b9162b93a85595be8f2ccebcf06109824",
+      "agentic_rag/integrations/claude/install.py": "e2c2f46adfef8a0cd5c0c71f058a5677af4ab54e61231530a122ce76afcbdd7f",
+      "agentic_rag/integrations/claude/prompt.py": "887670c43640d4c3e45950125545e11d0e6458fc6ba33da97c29edbf98b41910",
+      "agentic_rag/integrations/claude/settings.py": "2ff693c27afde87e7193b1c3bf497acb468132e4c61db92eac3201a1e8ae9ead",
+      "agentic_rag/integrations/codex/__init__.py": "88e904c1d65769e466f39fd667c22a390002624a8219aaa17c51312029989213",
+      "agentic_rag/integrations/codex/config.py": "eb317debc846947716d429c5abc2792802d8c420b6c36aaa5accf3be24713d71",
+      "agentic_rag/integrations/codex/hooks.py": "a0bece6d96a38de12a4e2c2e7f8769ec6e32702be979b079ed089a2d2d5982d9",
+      "agentic_rag/integrations/codex/install.py": "8737cf59a41f66a80e149be92fa2633ef08e8017dd881811ce2fe7c804040385",
+      "agentic_rag/integrations/opencode/__init__.py": "f2db946d0b64a10bb3f757124ebb8195f33e4e5f4e093157e0cb513c5c3c5e2f",
+      "agentic_rag/integrations/opencode/hooks.py": "39f2d018a92b15ada8e1f12d39853a9c54ef9d37cd9fe499e246adbb60264e19",
+      "agentic_rag/integrations/opencode/install.py": "2db2d43c55a9eefa0d65a303f4ca398dde8fba901b4489f38dabdfdbce263542",
+      "agentic_rag/jobs.py": "8c7a5a938f2da751b1d0f6964f349c5f083ac87490685186315e128b99e37d06",
+      "agentic_rag/llm.py": "dcbe4d1487ba81eaeabfb02f0cf601fb6be34f4ca5828584f0f7f9553d0d955d",
+      "agentic_rag/maintenance.py": "e147f1826c7f9e941d13ea4a52a28dd0926d5c1351c232e81faf33647ccf82df",
+      "agentic_rag/mcp_server.py": "9ba80e173db49a004a1261f22f59e2187724a3f417b02d46cf1414362752eb24",
+      "agentic_rag/migration.py": "39dca3776a3f65b88e601499f4eb6605d269e8b2db7ee52c656a2c49c214242e",
+      "agentic_rag/mining.py": "043dadfac6005a327f56bf4b193e11fa61a5c0212231e8fe586a4301e47cdd70",
+      "agentic_rag/mining_window.py": "aa15098167ebcd8e1de215c7e14155e381ac36b54f3f9ee708108d75edd33609",
+      "agentic_rag/neural_rerank.py": "5300d78b87ae0b5a9985b5f5a9aba7bdd35245c88da9674cca5eaca7eee149f7",
+      "agentic_rag/pins.py": "985af28a6d7ca060204f5376838301c57aeb666d25f2e29cef3fdc1e16ea4c3d",
+      "agentic_rag/plugins/__init__.py": "3ea322aa18ee243b5243e978aef3dc84fabe3d80b9b90994f83d6070d67dea2f",
+      "agentic_rag/plugins/gemini.py": "5e72e8c86d8cbbf7f9b25679a53e3a304602e559696e4090c97feb6e7edd3b8b",
+      "agentic_rag/plugins/lifecycle.py": "f1d51f8edb321fbdec880cb453b270fb5f67b33ee86d1a0665594d9825e4df57",
+      "agentic_rag/plugins/mcp.py": "6e2390d480b98cc1ff6cbbf637a8022d82e3ee6cdf633d49b45b11c4dc7b9867",
+      "agentic_rag/plugins/package.py": "d21234b8e306d9272540a769dc5647ccbcd2a43ae02d827e1f77ea6c89b9eefd",
+      "agentic_rag/profiles.py": "1af091213d01cabf863f24db8732e50f462abd5919a431b408a317b5ee18986f",
+      "agentic_rag/provider_cli.py": "bb8f74da83b85a74558cecc1ce911bd7794ffb8221207ee50a8f9b9e25698156",
+      "agentic_rag/provider_health.py": "d84c7a99a9e47b3e2febe8f7da34e19eed35dcbb091599a773eb11c22c91be2c",
+      "agentic_rag/providers.py": "93c74b25531245ca5f5428c9d7071d41726505588d129a60011514e9bbc15fd6",
+      "agentic_rag/query_cache.py": "b242ccaec265a0918523ca2e7b90939629db322655a56dd26b87332b73545440",
+      "agentic_rag/research.py": "5c6e7b1480fbfa8e8ef6f4429b93b9caef5290212f3c1b865d23b8ad32776436",
+      "agentic_rag/research_worker.py": "fce0c6c840d2d6652bdb7b1015d4beeddf3b435345dfc1fc12009c4b1f146ebd",
+      "agentic_rag/retrieval.py": "0476b66af0af4b8d923ff6b1de9fc1b723f59917baec06a2f79c80eeb6069490",
+      "agentic_rag/scope.py": "1e73938ddd3e158e178c97f9aad9883ab45b6ec2bfb080bd219f4a2ef05a043a",
+      "agentic_rag/search.py": "d79a46b23b24b0ed5228d7c041aea110d72da51ca8a49a9abe4d33871887737f",
+      "agentic_rag/secrets.py": "3954c8f523432d8e8b6cd4a6eb5555891cbe3805e3dc4b6fdc509be51ace65a6",
+      "agentic_rag/service/__init__.py": "07f282fbd4c1e651898c1522151206888348d3da0f777db8d7b013bf8c9ca1af",
+      "agentic_rag/service/api.py": "c539e3b65d72aa728b22cc2c97bdc8ec48cc1a3040bf667806c5f2f9b0575330",
+      "agentic_rag/service/auth.py": "54382c258f7a531d8f749970eeb82440741f884ef54ef7fca21c98588f4ee396",
+      "agentic_rag/service/checkpoints.py": "98b128ef595e4281f0d6e2b3a40b286bc98d41ae7891e6ea792f225655ee6f8c",
+      "agentic_rag/service/client.py": "db74b87058ec60ae812aae2e86c55834264218d3fdc3622252205a70b4187d71",
+      "agentic_rag/service/context.py": "fc8df8bfa4ec37efa112992f32055fe7221ea5c02c32f779261725d051ff17ea",
+      "agentic_rag/service/dashboard.py": "b62fbe29f7b66d3786aab84b294a005e4542e18ed0a43fcb6df70d179d9f3335",
+      "agentic_rag/service/dashboard_policy.py": "8c00d16909447557f1ad41d8d63ddc22773dda22b244ce6efb2f76cc18ccedd2",
+      "agentic_rag/service/dashboard_presence.py": "7f8ef56f6c9a1f3e1d4df1b3c42be9109252e09f684ddb6e9353b57376a461f6",
+      "agentic_rag/service/dashboard_views.py": "c1205392411e2bcf015cbdfbd88aee21a4123cec5a104922b6672bc43b7c0dca",
+      "agentic_rag/service/engine.py": "6a9f75182c0511ba34900a26aeed579769594958446a526d159b7e3a5278ab71",
+      "agentic_rag/service/fence.py": "b2545246d58461e19a9da2ac13a5898724c8857afa5b7012faf576eb93f75422",
+      "agentic_rag/service/ingest.py": "33cca410ad4ac2eedbc6c993cb8da1815e22abd11cec3e5c81a3a730159b9128",
+      "agentic_rag/service/local.py": "1aa8ff7b46efa7fa76b107f13c11ff3da404f27b2b486e94e842282e732e39f3",
+      "agentic_rag/service/openapi.py": "262ddca4f203781f709eb531b7b756fb94044ab025c28ce51a0449004930abf7",
+      "agentic_rag/service/operator.py": "4e0ef310fe94e34684681bc4e6b6f78745cd47110da341fdc3fb30e482d081e9",
+      "agentic_rag/service/priority.py": "d81394a9d2fb738bd73b8245765f0f6961d61ce7e0bdf412b986555efc3d88c9",
+      "agentic_rag/service/provider_status.py": "f5d521d8645ba0f61cbf99d8be619db5818002f8f9af4d14058242b9b1797ed1",
+      "agentic_rag/service/queued_transaction.py": "1f3adcfe7b93f29b9b8fb9a87ced19aa37355492286dc237ee35116f540be0e1",
+      "agentic_rag/service/read_limits.py": "2c20b31a47a175eb9f617c7e5a6ee18c62205a1c8dc2a58b1ec5dee083ae0ed8",
+      "agentic_rag/service/requests.py": "93089db52a96f5b1f376e8fca5cd37ca1dab9c67af4861ae7458d657e7b6d86d",
+      "agentic_rag/service/resources.py": "25c3c687d5cdf44dd64d6cffd051d2ba08943510b539e93ab7d2cc88223d1040",
+      "agentic_rag/service/runner.py": "3ca21a8f6f9c809cdd6171a10b6c34c74c9bc54e557e0f606cf9da16bf319bc4",
+      "agentic_rag/service/schema.py": "848eceb6e5dc8459b9cbdf46f18ff028c3af5fd141d3a283aa747d24eb8451b4",
+      "agentic_rag/service/session_logs.py": "851147403168077a55e5d2a675629a7ada1986879bd9cda4782776e3c87b1b12",
+      "agentic_rag/service/spool.py": "0fad4e22f1a63d163cb54c63d5e08c0a6efabd7ea8ba70630497f04c81864748",
+      "agentic_rag/service/tracing.py": "5b9d23f9abbe5cdc467099ca77d840d93b898ad916353a4b9ba9e9dd0d518900",
+      "agentic_rag/service/upgrade.py": "7faea8e676691845258c3966cb94d965600a42a28fdd7fd133c558c08deb8c19",
+      "agentic_rag/service/uploader.py": "b24e48a2719c0f2de438c6477224285f07521c39f0a147d9e4c31ab8716cad64",
+      "agentic_rag/service/worker.py": "c3b717726809a0054210cdefc7d03d547b28e13d908de477bbacd2359a794248",
+      "agentic_rag/status.py": "818baf9b9f2a403f2a2fb369bc954d99e706a9512a000220d8f0514eab27f191",
+      "agentic_rag/store.py": "f82467864410e535935e12dcbc416be8ba859b16e2c50ec555be596e41ac5b8f",
+      "agentic_rag/thematic.py": "01ef9158dc070d88866c5c868c357890c9ae239e47f2f492883d02fbb3a820b4",
+      "agentic_rag/transcript.py": "804bf35d3d8eeef4f8162e3626496aa3fcb9e0c0585acef8f0063fe1db5e877d",
+      "agentic_rag/transcript_agy.py": "ec14715dc43a5becc036e0a9681863c06006e0a5337302e512b99af0c4907227",
+      "agentic_rag/transcript_codex.py": "43ad6236bbcf591a97ae0ecdaad942f327374d27922692c69964e324455efb09",
+      "agentic_rag/ultra_source.py": "dfd5bd724579e7c5d5cebb28796692ebfe2523a12e562c9b7cf86a8b6e50e359",
+      "agentic_rag/validity.py": "0eafcfcab7f72c101c8fb6b2e498c3e35525b006343964bbfec2aefd27de36da",
+      "agentic_rag/vector_plan.py": "82ffb6a0d748d3112f799d76995d512ddec85da897bf6f0e9621e9a69ee65c53",
+      "agentic_rag/worker.py": "16dc023bf6570b5807842b4ab2c42aa195bae8d7ff66b895b08412133b324fe5",
+      "pyproject.toml": "78003ae61dcb4f4c3d45af7966710debab6fd5b15eb359623d6906f2143ccaa3",
+      "scripts/build_reranker_corpus.py": "8ed2e39089bc60c83e061ad26dabe4dafff5d7b1240e502abf904d1045533a30",
+      "scripts/evaluate_reranker.py": "944dd65c227afe43402ec4c3ca1eea50af14e13f63dd728cefa86449f5f9f18f",
+      "scripts/rehearse_reranker.py": "3f13015439b3cdb3081543aa2b9bdbae931d2474b175cbb5891ca56055c2b16e",
+      "sql/001_init.sql": "90c7f889acb96abcc11c9bff415ee3403f256a040cbdf5f86f21f1d617272bfa",
+      "sql/002_roles.sql": "47eeb273b9cfdb25b50cf0f7fd764626f2d213140725fc0263741ca0d420a547",
+      "sql/003_search.sql": "2810184481ea134bf8591d62929d1cb18ac74905570b18ea8076f8cbbe4e89f7",
+      "sql/004_graph.sql": "bd86e55420145def5edc86c02ddc21b7a85980f2955cb17a5d2e97bdc8782539",
+      "sql/005_plan2.sql": "8c41ddd279b024a593d7f745b84354a5b6d936c74ea3a35d98dd98574d7e28b5",
+      "sql/006_continuity.sql": "b6a34981f00c87d2652285edf0144f68afb96358bc6ce7308a695c0c286fff42",
+      "sql/007_checkpoint_predecessor.sql": "1183fa7a6b069a92d20133cb100693fc68bc1b55f3a66535c0f38b4aa92ecda2",
+      "sql/008_checkpoint_handoff.sql": "6e71d7902a813e71129a3ef9f6fed2fdfa6d9dcc881bf8f7a1024cb8e2c5504c",
+      "sql/009_mining_batches.sql": "5adb455667383b6ce08b70ad48ac7f862665d4b6d6cfc6a297feb1bd2501ab99",
+      "sql/010_project_scope.sql": "9a33fcacb9ea98008bba372c2ff905d68fedf83ade3e80f03a2833ff78e08086",
+      "sql/011_fact_validity.sql": "7f17d3b6b030c3667eeda874b6ce797fb3d9619d253c3154c3a5145b589cde4e",
+      "sql/012_claim_evidence.sql": "079cbb9d89f3f40b300da9f64094eae94bb4e453212c75a9529100e88b2b58e1",
+      "sql/013_retrieval_quality.sql": "bb8e30c198cc2488c96290e6a44b6e1fde97c36fa57e350a64187dca568e650f",
+      "sql/014_project_profiles.sql": "3a56229f48d5e9e9b4128b4bf2e98c868e49b9b360c423f81a2e9bff13e921f5",
+      "sql/015_contextual_chunks.sql": "93779caa4fd49e2f70379a78d13f3ce3941d5db942bfca5fbad857a65ef12ef3",
+      "sql/016_filter_aware_search.sql": "0baa58591d91036c1f4bd90d79fa1e051429198cfd65e5454f35e437ccd651f5",
+      "sql/017_thematic_summaries.sql": "67e4cab605c0b1c5039db0c579ab93d26972a321b1898a8ae52426001dac42de",
+      "sql/018_entity_identities.sql": "906c1ddb3f5091b9e139122cf7ab360ffbd5eafee9600088c6d551c0fec5668b",
+      "sql/019_embedding_reuse.sql": "7507dc46e6950850cd7736b158f99b1520edafff6b2ec3622ec45de58a917cea",
+      "sql/020_domain_assertions.sql": "0d9508679d5139825fdebd1fd4561c823f7debaec9769083d4435970a4c80c90",
+      "sql/021_service_scope.sql": "3e9efa879df921f7df74d248ca53be7888b487ec913b3dbd5e16a46d7f044cbc",
+      "sql/022_service_state.sql": "77bc7cdf6ae0bd88d8484bcfffb29b2c0d82fa576718cce28bc5ca013bf61339",
+      "sql/023_claim_lookup.sql": "2078e2f3956ea83e2cdd5e0cc2731bf0fc92513f73ea0a2caf9188f8af63f220",
+      "sql/024_request_queue.sql": "5846a73336d1216555afe9eb41183ca455cd7b1d5967e739f248af5a1a1d6daa",
+      "sql/025_dashboard.sql": "2c5941448fe8ec1f157ea56df07b11fc79c5d4253dff305c39697b49d75cc3a5",
+      "sql/026_request_tracing.sql": "7ede1b4e7bb9b5a0fb4ebbb67e5694e6402fab5cdbdc15f731166c3a42eb7379",
+      "sql/027_provider_indexes.sql": "2ad661e8bd1f4e9e7f9383cca4880edb25584c45898bc79e277d42790c64eb21",
+      "uv.lock": "78f77e5534a8c1b2760781ff06a3d2c922bccf3392aaeef4aaf72da5bf6ee9d1"
+    },
+    "helper": "3739c3546ef5eedfebce7eab75d4c9e8cd398d9ab2f68a6c7cfc3ce2d318f681",
+    "corpus": "2f018b5b7b4bd03a128942fa7aadaf1139f55d41702dc0fd95f4b06e3331aa84",
+    "runtime": "dbfeea380cdc1de9bbfe32399befbcd8381a3c5ac83e573d79d0fa41bdc40037",
+    "libraries": {
+      "libggml.so.0.15.3": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libmtmd.so": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+      "libggml-cpu-sse42.so": "d7e26d057a2b2b9c71a1456b14a491db40866d816d482d07e21ac8d9542b0178",
+      "libllama-server-impl.so": "ad64929e139fd7054ec649d02633fea41e72c6c7ec04d621d0dbe3f8efc16ec2",
+      "libmtmd.so.0": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4",
+      "libggml-base.so.0": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-cascadelake.so": "60a8910833dfcd9a83cb831b13559472ae0e5c7a01fc929cae57d8efcb547348",
+      "libggml-cpu-piledriver.so": "460930881b89f4d475d68e5740d1d472a5129c9ee447a4102eeca682e5cf4cd7",
+      "libggml-cpu-icelake.so": "8bdbcabf5aaab461e660f4a3a96958edd7ee863af3902275c42001327e605391",
+      "libggml-cpu-haswell.so": "46286721d8ff20a6f9efcdea0a58a0ab443b0ed8df54f5004965990975282659",
+      "libggml-cpu-x64.so": "7010432f10660c8a6af29d25e2f9b7774c0731eae0b09a26a7808ff22d33b9bb",
+      "libllama-common.so.0": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libggml-base.so.0.15.3": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-sapphirerapids.so": "3c91d160674e345f4ab6a76723eecfb81bd24f9b314af15cb7bfcdc0568056ce",
+      "libggml-cpu-skylakex.so": "dd734564cc3c4ec3fee15d13c4e5c3a17c7a25fb7f1f5e00d74cbe61a92cbad3",
+      "libgomp.so.1.0.0": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+      "libllama.so.0": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libllama-common.so": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libggml.so.0": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libggml-cpu-cannonlake.so": "4758e90f465c822732a06ed472ce0fbb58d697b536e48b7573cd831e3e7c4b30",
+      "libggml-cpu-cooperlake.so": "3c4f08d3898d61830912d74ec622e4474a62748d9d2aaa6dca0ba95816eef170",
+      "libggml.so": "40e1f9070eee43ad95a8f3151b691368ac64db9f826fc5796d5ba84836a1305f",
+      "libggml-base.so": "3b5e61bbb1e0c0d2b0ca001b7014d6f572367b312f24defb43f0869694ff3249",
+      "libggml-cpu-alderlake.so": "0d61e463591ac8f7fb984afeb473f1c75e4c5e0a08377a0b84de5085850360e8",
+      "libggml-cpu-ivybridge.so": "3e0c7a4cbf80413c696a1cc81e6c44968a6be9d5546c70ca4cec0a562e906614",
+      "libggml-cpu-sandybridge.so": "13e01306a3bb0bc0008e09079c9f4fb963e8d8d8bf27ac2d264348e270da62e3",
+      "libllama-quantize-impl.so": "8ba8c50f0c7fa155055e4e7e65a8c19364178c80f7e3b656d1733b180909aa3d",
+      "libggml-cpu-zen4.so": "f8f4250e5e2934621958ec852710bb510faaf6ef15ed2968323668cd077089f8",
+      "libgomp.so.1": "e985bcbb6b444c2c472de70c331ab101e6de860affa3a20d1d1aecd06d9242e8",
+      "libllama.so.0.0.1": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libllama-common.so.0.0.1": "88cda65aa5f78dd621b0c468659a436d73722e0094772977679f6f81d2d52729",
+      "libllama.so": "1b7e94d1c4661671d82cd4a8a40d1734d93b333e1e337e262f9a1ac223fecd5b",
+      "libmtmd.so.0.0.1": "3c8ccb5bd3826df3558499db744911195ae6a437f2d4194da228d811008b0ea4"
+    },
+    "runtime_version": "version: 1 (cb295bf59)\nbuilt with GNU 11.2.1 for Linux x86_64"
+  },
+  "evaluated_models": [
+    "tiny"
+  ],
+  "membership": {
+    "tiny": {
+      "same_cgroup": true,
+      "affinity": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "rows": [
+    {
+      "case_id": "access-negation-1-de",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "0",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "2",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "1": 0.10581755638122559,
+        "0": 0.09332726150751114,
+        "5": 0.08252272009849548,
+        "2": 0.07583332061767578,
+        "3": 0.07440819591283798,
+        "4": 0.07072383165359497
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 697.0240399969043,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 28.06
+      }
+    },
+    {
+      "case_id": "access-negation-1-de",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "1",
+        "0",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "2",
+        "3",
+        "4"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 739.3703780035139,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 539
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 16.041
+      }
+    },
+    {
+      "case_id": "access-negation-1-de",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "3",
+        "2",
+        "0",
+        "1"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "2",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "4": 0.10581755638122559,
+        "5": 0.09332726150751114,
+        "0": 0.08252272009849548,
+        "3": 0.07583332061767578,
+        "2": 0.07440819591283798,
+        "1": 0.07072383165359497
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 317.3848860024009,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.867
+      }
+    },
+    {
+      "case_id": "access-negation-1-en",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "0",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "1": 0.13010159134864807,
+        "0": 0.11055333912372589,
+        "2": 0.09043547511100769,
+        "5": 0.0842232033610344,
+        "4": 0.07128864526748657,
+        "3": 0.05080587789416313
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 146.7851449997397,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.006
+      }
+    },
+    {
+      "case_id": "access-negation-1-en",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "1",
+        "0",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 359.7488239975064,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 470
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 30.358
+      }
+    },
+    {
+      "case_id": "access-negation-1-en",
+      "pair": "access-negation-1",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "3",
+        "2",
+        "0",
+        "1"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "4": 0.13010159134864807,
+        "5": 0.11055333912372589,
+        "3": 0.09043547511100769,
+        "0": 0.0842232033610344,
+        "1": 0.07128864526748657,
+        "2": 0.05080587789416313
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 284.47466799843824,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 23.778
+      }
+    },
+    {
+      "case_id": "access-negation-2-de",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "4",
+        "1",
+        "2",
+        "0",
+        "5",
+        "3"
+      ],
+      "scores": {
+        "2": 0.11585652083158493,
+        "5": 0.0936376303434372,
+        "1": 0.07973991334438324,
+        "0": 0.07320857793092728,
+        "4": 0.07220058888196945,
+        "3": 0.05483441799879074
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 673.701740000979,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 23.462
+      }
+    },
+    {
+      "case_id": "access-negation-2-de",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "4",
+        "1",
+        "2",
+        "0",
+        "5",
+        "3"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 652.4132220001775,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 539
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.586
+      }
+    },
+    {
+      "case_id": "access-negation-2-de",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "4",
+        "1",
+        "2",
+        "0",
+        "5",
+        "3"
+      ],
+      "scores": {
+        "3": 0.11585652083158493,
+        "0": 0.0936376303434372,
+        "4": 0.07973991334438324,
+        "5": 0.07320857793092728,
+        "1": 0.07220058888196945,
+        "2": 0.05483441799879074
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 372.0475189984427,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.019
+      }
+    },
+    {
+      "case_id": "access-negation-2-en",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "4",
+        "5",
+        "3"
+      ],
+      "scores": {
+        "5": 0.13022901117801666,
+        "0": 0.10499391704797745,
+        "1": 0.08805953711271286,
+        "2": 0.08120160549879074,
+        "4": 0.06630097329616547,
+        "3": 0.04359818622469902
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 172.7405230049044,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 15.603
+      }
+    },
+    {
+      "case_id": "access-negation-2-en",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "4",
+        "5",
+        "3"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 186.75730300310533,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 470
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.995
+      }
+    },
+    {
+      "case_id": "access-negation-2-en",
+      "pair": "access-negation-2",
+      "family": "access-negation",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "4",
+        "5",
+        "3"
+      ],
+      "scores": {
+        "0": 0.13022901117801666,
+        "5": 0.10499391704797745,
+        "4": 0.08805953711271286,
+        "3": 0.08120160549879074,
+        "1": 0.06630097329616547,
+        "2": 0.04359818622469902
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 169.58235000493005,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.964
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-de",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "0",
+        "2",
+        "1",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "3",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "1": 0.0696185976266861,
+        "3": 0.06426361948251724,
+        "5": 0.0627945065498352,
+        "0": 0.0616626963019371,
+        "2": 0.04106243699789047,
+        "4": 0.033936768770217896
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 357.46934299822897,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.128
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-de",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "0",
+        "2",
+        "1",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "3",
+        "2",
+        "4"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 356.0459560030722,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 519
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 11.987
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-de",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "1",
+        "2",
+        "0",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "5",
+        "3",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "4": 0.0696185976266861,
+        "2": 0.06426361948251724,
+        "0": 0.0627945065498352,
+        "5": 0.0616626963019371,
+        "3": 0.04106243699789047,
+        "1": 0.033936768770217896
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 333.4317490007379,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.538
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-en",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "0",
+        "2",
+        "1",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "5",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "1": 0.05129269137978554,
+        "3": 0.04082908853888512,
+        "4": 0.030882403254508972,
+        "5": 0.02998812310397625,
+        "0": 0.029240421950817108,
+        "2": 0.027392860502004623
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 171.80443099641707,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.868
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-en",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "0",
+        "2",
+        "1",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "5",
+        "3",
+        "2"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 193.97184200352058,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 459
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.641
+      }
+    },
+    {
+      "case_id": "compounds-inflection-1-en",
+      "pair": "compounds-inflection-1",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "1",
+        "2",
+        "0",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "5",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "4": 0.05129269137978554,
+        "2": 0.04082908853888512,
+        "1": 0.030882403254508972,
+        "0": 0.02998812310397625,
+        "5": 0.029240421950817108,
+        "3": 0.027392860502004623
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 187.04670100123622,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.792
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-de",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "3",
+        "0",
+        "5",
+        "4",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "4",
+        "3",
+        "5",
+        "2"
+      ],
+      "scores": {
+        "5": 0.13318203389644623,
+        "2": 0.11965881288051605,
+        "4": 0.11428172886371613,
+        "1": 0.10564316809177399,
+        "3": 0.0972394123673439,
+        "0": 0.057530730962753296
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 317.9843809994054,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.073
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-de",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "3",
+        "0",
+        "5",
+        "4",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "4",
+        "3",
+        "5",
+        "2"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 330.0924780050991,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 519
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.617
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-de",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "4",
+        "5",
+        "0",
+        "3",
+        "2"
+      ],
+      "order": [
+        "1",
+        "0",
+        "4",
+        "3",
+        "5",
+        "2"
+      ],
+      "scores": {
+        "0": 0.13318203389644623,
+        "3": 0.11965881288051605,
+        "1": 0.11428172886371613,
+        "4": 0.10564316809177399,
+        "2": 0.0972394123673439,
+        "5": 0.057530730962753296
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 324.99292099964805,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.643
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-en",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "3",
+        "0",
+        "5",
+        "4",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "5",
+        "4",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "5": 0.1393422931432724,
+        "2": 0.12000979483127594,
+        "3": 0.09374760091304779,
+        "4": 0.04153813049197197,
+        "1": 0.035177018493413925,
+        "0": 0.017915846779942513
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 192.29625599837163,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.014
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-en",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "3",
+        "0",
+        "5",
+        "4",
+        "1"
+      ],
+      "order": [
+        "1",
+        "0",
+        "5",
+        "4",
+        "3",
+        "2"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 214.76686399546452,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 459
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.68
+      }
+    },
+    {
+      "case_id": "compounds-inflection-2-en",
+      "pair": "compounds-inflection-2",
+      "family": "compounds-inflection",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "4",
+        "5",
+        "0",
+        "3",
+        "2"
+      ],
+      "order": [
+        "1",
+        "0",
+        "5",
+        "4",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "0": 0.1393422931432724,
+        "3": 0.12000979483127594,
+        "2": 0.09374760091304779,
+        "1": 0.04153813049197197,
+        "4": 0.035177018493413925,
+        "5": 0.017915846779942513
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 209.5584080016124,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 15.577
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-de",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "2",
+        "3",
+        "1",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "5": 0.1307428628206253,
+        "3": 0.12108461558818817,
+        "1": 0.0795043557882309,
+        "4": 0.06914187222719193,
+        "0": 0.0666869729757309,
+        "2": 0.06405423581600189
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 704.5005769978161,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 27.259
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-de",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "2",
+        "3",
+        "1",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 853.9269980028621,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 517
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 33.25
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-de",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "5",
+        "1",
+        "3",
+        "2",
+        "4"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "0": 0.1307428628206253,
+        "2": 0.12108461558818817,
+        "4": 0.0795043557882309,
+        "1": 0.06914187222719193,
+        "5": 0.0666869729757309,
+        "3": 0.06405423581600189
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 719.0078519997769,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 27.282
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-en",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "2",
+        "3",
+        "1",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "4",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "5": 0.13582293689250946,
+        "3": 0.1182393729686737,
+        "1": 0.10394135862588882,
+        "0": 0.07189375907182693,
+        "2": 0.056167121976614,
+        "4": 0.04392881691455841
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 330.97186999657424,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 26.296
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-en",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "2",
+        "3",
+        "1",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "4",
+        "3",
+        "5"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 359.0536300034728,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 506
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 22.308
+      }
+    },
+    {
+      "case_id": "amount-threshold-1-en",
+      "pair": "amount-threshold-1",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "5",
+        "1",
+        "3",
+        "2",
+        "4"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "4",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "0": 0.13582293689250946,
+        "2": 0.1182393729686737,
+        "4": 0.10394135862588882,
+        "5": 0.07189375907182693,
+        "3": 0.056167121976614,
+        "1": 0.04392881691455841
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 327.63149899983546,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 23.33
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-de",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "0": 0.10819365084171295,
+        "2": 0.103556789457798,
+        "3": 0.10132322460412979,
+        "5": 0.06931967288255692,
+        "4": 0.059998903423547745,
+        "1": 0.054258108139038086
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 569.652729005611,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 20.296
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-de",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 377.36407299962593,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 517
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.443
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-de",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "2",
+        "1",
+        "3",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "5": 0.10819365084171295,
+        "3": 0.103556789457798,
+        "2": 0.10132322460412979,
+        "0": 0.06931967288255692,
+        "1": 0.059998903423547745,
+        "4": 0.054258108139038086
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 343.0275669961702,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.339
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-en",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "order": [
+        "2",
+        "0",
+        "1",
+        "4",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "3": 0.1544337421655655,
+        "0": 0.135112464427948,
+        "2": 0.1289234161376953,
+        "4": 0.07953017950057983,
+        "1": 0.062371302396059036,
+        "5": 0.044468559324741364
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 182.94143600360258,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.725
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-en",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "order": [
+        "2",
+        "0",
+        "1",
+        "4",
+        "3",
+        "5"
+      ],
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 204.40175200201338,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 506
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.928
+      }
+    },
+    {
+      "case_id": "amount-threshold-2-en",
+      "pair": "amount-threshold-2",
+      "family": "amount-threshold",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "4",
+        "2",
+        "1",
+        "3",
+        "0"
+      ],
+      "order": [
+        "2",
+        "0",
+        "1",
+        "4",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "2": 0.1544337421655655,
+        "5": 0.135112464427948,
+        "3": 0.1289234161376953,
+        "1": 0.07953017950057983,
+        "4": 0.062371302396059036,
+        "0": 0.044468559324741364
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "2"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 191.61656200594734,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.974
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-de",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "5",
+        "1",
+        "4",
+        "0"
+      ],
+      "order": [
+        "0",
+        "5",
+        "4",
+        "1",
+        "2",
+        "3"
+      ],
+      "scores": {
+        "5": 0.11327537149190903,
+        "2": 0.1022372841835022,
+        "4": 0.08069214224815369,
+        "3": 0.0783674418926239,
+        "1": 0.06908930093050003,
+        "0": 0.035582467913627625
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 548.5009100011666,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 27.746
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-de",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "2",
+        "5",
+        "1",
+        "4",
+        "0"
+      ],
+      "order": [
+        "0",
+        "5",
+        "4",
+        "1",
+        "2",
+        "3"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 707.7394489970175,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 587
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.779
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-de",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "4",
+        "1",
+        "5",
+        "2",
+        "3"
+      ],
+      "order": [
+        "0",
+        "5",
+        "4",
+        "1",
+        "2",
+        "3"
+      ],
+      "scores": {
+        "0": 0.11327537149190903,
+        "3": 0.1022372841835022,
+        "1": 0.08069214224815369,
+        "2": 0.0783674418926239,
+        "4": 0.06908930093050003,
+        "5": 0.035582467913627625
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 346.23624000232667,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.727
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-en",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "5",
+        "1",
+        "4",
+        "0"
+      ],
+      "order": [
+        "2",
+        "0",
+        "5",
+        "3",
+        "1",
+        "4"
+      ],
+      "scores": {
+        "1": 0.17005425691604614,
+        "5": 0.16299325227737427,
+        "2": 0.15138687193393707,
+        "0": 0.09292847663164139,
+        "3": 0.08741630613803864,
+        "4": 0.08442070335149765
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 201.74477500404464,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.229
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-en",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "2",
+        "5",
+        "1",
+        "4",
+        "0"
+      ],
+      "order": [
+        "2",
+        "0",
+        "5",
+        "3",
+        "1",
+        "4"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 214.33126700139837,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 549
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.102
+      }
+    },
+    {
+      "case_id": "temporal-approval-1-en",
+      "pair": "temporal-approval-1",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "4",
+        "1",
+        "5",
+        "2",
+        "3"
+      ],
+      "order": [
+        "2",
+        "0",
+        "5",
+        "3",
+        "1",
+        "4"
+      ],
+      "scores": {
+        "4": 0.17005425691604614,
+        "0": 0.16299325227737427,
+        "3": 0.15138687193393707,
+        "5": 0.09292847663164139,
+        "2": 0.08741630613803864,
+        "1": 0.08442070335149765
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 203.60495899512898,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.066
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-de",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "5",
+        "1",
+        "4",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "5",
+        "4"
+      ],
+      "scores": {
+        "0": 0.13595084846019745,
+        "3": 0.12189050018787384,
+        "1": 0.07691478729248047,
+        "5": 0.04480098932981491,
+        "2": 0.03790285065770149,
+        "4": 0.03347248211503029
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 388.3199789997889,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.975
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-de",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "2",
+        "5",
+        "1",
+        "4",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "5",
+        "4"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 375.7350870000664,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 587
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.079
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-de",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "4",
+        "1",
+        "5",
+        "2",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "5",
+        "4"
+      ],
+      "scores": {
+        "5": 0.13595084846019745,
+        "2": 0.12189050018787384,
+        "4": 0.07691478729248047,
+        "0": 0.04480098932981491,
+        "3": 0.03790285065770149,
+        "1": 0.03347248211503029
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 353.6768759950064,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.795
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-en",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "5",
+        "1",
+        "4",
+        "3"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "2",
+        "4",
+        "5"
+      ],
+      "scores": {
+        "3": 0.15865342319011688,
+        "0": 0.13916470110416412,
+        "5": 0.0592617467045784,
+        "1": 0.03842274472117424,
+        "4": 0.0355922132730484,
+        "2": 0.01521928422152996
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 195.6627270046738,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 35.147
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-en",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "0",
+        "2",
+        "5",
+        "1",
+        "4",
+        "3"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "2",
+        "4",
+        "5"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 197.72681000176817,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 549
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.968
+      }
+    },
+    {
+      "case_id": "temporal-approval-2-en",
+      "pair": "temporal-approval-2",
+      "family": "temporal-approval",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "4",
+        "1",
+        "5",
+        "2",
+        "0"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "2",
+        "4",
+        "5"
+      ],
+      "scores": {
+        "2": 0.15865342319011688,
+        "5": 0.13916470110416412,
+        "0": 0.0592617467045784,
+        "4": 0.03842274472117424,
+        "1": 0.0355922132730484,
+        "3": 0.01521928422152996
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 180.62595599622,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 14.406
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-de",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "0",
+        "3",
+        "1"
+      ],
+      "order": [
+        "0",
+        "4",
+        "5",
+        "1",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "3": 0.10446841269731522,
+        "2": 0.07507416605949402,
+        "1": 0.06278830021619797,
+        "5": 0.05877953767776489,
+        "4": 0.05242593586444855,
+        "0": 0.03751733899116516
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 330.50557399838,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.934
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-de",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "0",
+        "3",
+        "1"
+      ],
+      "order": [
+        "0",
+        "4",
+        "5",
+        "1",
+        "3",
+        "2"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 339.40109799732454,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 606
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.44
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-de",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "3",
+        "0",
+        "4",
+        "5",
+        "2"
+      ],
+      "order": [
+        "0",
+        "4",
+        "5",
+        "1",
+        "3",
+        "2"
+      ],
+      "scores": {
+        "2": 0.10446841269731522,
+        "3": 0.07507416605949402,
+        "4": 0.06278830021619797,
+        "0": 0.05877953767776489,
+        "1": 0.05242593586444855,
+        "5": 0.03751733899116516
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 323.12693700077944,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.754
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-en",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "0",
+        "3",
+        "1"
+      ],
+      "order": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "scores": {
+        "3": 0.04366513714194298,
+        "4": 0.021603437140583992,
+        "5": 0.01661638356745243,
+        "0": 0.012790237553417683,
+        "2": 0.003224477171897888,
+        "1": 0.002536855870857835
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 170.5466420025914,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 16.106
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-en",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "0",
+        "3",
+        "1"
+      ],
+      "order": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 194.2171389964642,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 498
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.598
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-1-en",
+      "pair": "paraphrase-recovery-1",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "3",
+        "0",
+        "4",
+        "5",
+        "2"
+      ],
+      "order": [
+        "0",
+        "3",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "scores": {
+        "2": 0.04366513714194298,
+        "1": 0.021603437140583992,
+        "0": 0.01661638356745243,
+        "5": 0.012790237553417683,
+        "3": 0.003224477171897888,
+        "4": 0.002536855870857835
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 151.99510000093142,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.039
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-de",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "1",
+        "5",
+        "4",
+        "0",
+        "2",
+        "3"
+      ],
+      "scores": {
+        "0": 0.05585018917918205,
+        "1": 0.055166199803352356,
+        "3": 0.05082101747393608,
+        "5": 0.04843379929661751,
+        "4": 0.028701473027467728,
+        "2": 0.022601863369345665
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 578.3008549988153,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.925
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-de",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "1",
+        "5",
+        "4",
+        "0",
+        "2",
+        "3"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 335.84752900060266,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 606
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.824
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-de",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "1",
+        "5",
+        "4",
+        "0",
+        "2",
+        "3"
+      ],
+      "scores": {
+        "5": 0.05585018917918205,
+        "4": 0.055166199803352356,
+        "2": 0.05082101747393608,
+        "0": 0.04843379929661751,
+        "1": 0.028701473027467728,
+        "3": 0.022601863369345665
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 299.3384400033392,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.887
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-en",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "3",
+        "5",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "5": 0.015343300998210907,
+        "0": 0.005583306308835745,
+        "2": 0.005192289128899574,
+        "1": -0.005382906645536423,
+        "4": -0.008936741389334202,
+        "3": -0.01824083924293518
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 145.58435499930056,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.695
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-en",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "order": [
+        "1",
+        "5",
+        "3",
+        "4",
+        "2",
+        "0"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 159.53393599920673,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 498
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.795
+      }
+    },
+    {
+      "case_id": "paraphrase-recovery-2-en",
+      "pair": "paraphrase-recovery-2",
+      "family": "paraphrase-recovery",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "2",
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "order": [
+        "0",
+        "1",
+        "3",
+        "5",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "0": 0.015343300998210907,
+        "5": 0.005583306308835745,
+        "3": 0.005192289128899574,
+        "4": -0.005382906645536423,
+        "1": -0.008936741389334202,
+        "2": -0.01824083924293518
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 158.5378439995111,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 15.972
+      }
+    },
+    {
+      "case_id": "subject-object-1-de",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "1",
+        "0",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "4": 0.15813854336738586,
+        "3": 0.15532875061035156,
+        "0": 0.15147267282009125,
+        "1": 0.07883043587207794,
+        "2": 0.07384482771158218,
+        "5": 0.06624093651771545
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 327.1973020018777,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.746
+      }
+    },
+    {
+      "case_id": "subject-object-1-de",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "1",
+        "0",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 338.74620300048264,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 456
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.882
+      }
+    },
+    {
+      "case_id": "subject-object-1-de",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "0",
+        "1",
+        "4",
+        "5",
+        "2"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "1": 0.15813854336738586,
+        "2": 0.15532875061035156,
+        "5": 0.15147267282009125,
+        "4": 0.07883043587207794,
+        "3": 0.07384482771158218,
+        "0": 0.06624093651771545
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 313.2020220000413,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 35.122
+      }
+    },
+    {
+      "case_id": "subject-object-1-en",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "1",
+        "0",
+        "3"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "3": 0.1260785162448883,
+        "4": 0.12205103039741516,
+        "0": 0.10049257427453995,
+        "1": 0.06789930164813995,
+        "2": 0.024216443300247192,
+        "5": -0.005266464781016111
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 169.6233500042581,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.269
+      }
+    },
+    {
+      "case_id": "subject-object-1-en",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "2",
+        "5",
+        "4",
+        "1",
+        "0",
+        "3"
+      ],
+      "order": [
+        "2",
+        "5",
+        "4",
+        "1",
+        "0",
+        "3"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.0,
+        "all_sources3": false,
+        "ndcg3": 0.0
+      },
+      "elapsed_ms": 169.36015200190013,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 412
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.851
+      }
+    },
+    {
+      "case_id": "subject-object-1-en",
+      "pair": "subject-object-1",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "0",
+        "1",
+        "4",
+        "5",
+        "2"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "2": 0.1260785162448883,
+        "1": 0.12205103039741516,
+        "5": 0.10049257427453995,
+        "4": 0.06789930164813995,
+        "3": 0.024216443300247192,
+        "0": -0.005266464781016111
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 159.3580370026757,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.999
+      }
+    },
+    {
+      "case_id": "subject-object-2-de",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "0",
+        "5",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "1": 0.14149980247020721,
+        "3": 0.14012379944324493,
+        "4": 0.1354825794696808,
+        "2": 0.09949620813131332,
+        "5": 0.046029895544052124,
+        "0": 0.04330766201019287
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 333.01945300627267,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.322
+      }
+    },
+    {
+      "case_id": "subject-object-2-de",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "0",
+        "5",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "3",
+        "4"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 352.9178829994635,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 456
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 18.014
+      }
+    },
+    {
+      "case_id": "subject-object-2-de",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "5",
+        "0",
+        "4"
+      ],
+      "order": [
+        "0",
+        "1",
+        "2",
+        "5",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "4": 0.14149980247020721,
+        "2": 0.14012379944324493,
+        "1": 0.1354825794696808,
+        "3": 0.09949620813131332,
+        "0": 0.046029895544052124,
+        "5": 0.04330766201019287
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 331.5236660055234,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.363
+      }
+    },
+    {
+      "case_id": "subject-object-2-en",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "0",
+        "5",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "3": 0.13979344069957733,
+        "1": 0.13477276265621185,
+        "4": 0.09498891979455948,
+        "2": 0.07930031418800354,
+        "0": 0.041023675352334976,
+        "5": -0.007443638984113932
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 150.25251500628656,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.913
+      }
+    },
+    {
+      "case_id": "subject-object-2-en",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "0",
+        "5",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "4",
+        "0",
+        "5",
+        "1",
+        "2",
+        "3"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.0,
+        "all_sources3": false,
+        "ndcg3": 0.0
+      },
+      "elapsed_ms": 185.65611200028798,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 412
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.978
+      }
+    },
+    {
+      "case_id": "subject-object-2-en",
+      "pair": "subject-object-2",
+      "family": "subject-object",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "5",
+        "0",
+        "4"
+      ],
+      "order": [
+        "1",
+        "0",
+        "2",
+        "5",
+        "4",
+        "3"
+      ],
+      "scores": {
+        "2": 0.13979344069957733,
+        "4": 0.13477276265621185,
+        "1": 0.09498891979455948,
+        "3": 0.07930031418800354,
+        "5": 0.041023675352334976,
+        "0": -0.007443638984113932
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 166.95477200119058,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 18.667
+      }
+    },
+    {
+      "case_id": "multi-condition-1-de",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "3",
+        "1",
+        "2",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "2",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "5": 0.09588179737329483,
+        "2": 0.08464387059211731,
+        "0": 0.07061853259801865,
+        "3": 0.055153679102659225,
+        "1": 0.051745329052209854,
+        "4": 0.049363914877176285
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 353.31137900357135,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.405
+      }
+    },
+    {
+      "case_id": "multi-condition-1-de",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "3",
+        "1",
+        "2",
+        "5",
+        "0"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "2",
+        "3",
+        "5"
+      ],
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 338.7230040025315,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 544
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.797
+      }
+    },
+    {
+      "case_id": "multi-condition-1-de",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "5",
+        "2",
+        "1",
+        "3",
+        "4"
+      ],
+      "order": [
+        "0",
+        "1",
+        "4",
+        "2",
+        "3",
+        "5"
+      ],
+      "scores": {
+        "0": 0.09588179737329483,
+        "3": 0.08464387059211731,
+        "5": 0.07061853259801865,
+        "2": 0.055153679102659225,
+        "4": 0.051745329052209854,
+        "1": 0.049363914877176285
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 319.2750710004475,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.57
+      }
+    },
+    {
+      "case_id": "multi-condition-1-en",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "3",
+        "1",
+        "2",
+        "5",
+        "0"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "5",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "2": 0.13163135945796967,
+        "5": 0.08928298950195312,
+        "1": 0.029277408495545387,
+        "4": -0.0009580307523719966,
+        "3": -0.00566315371543169,
+        "0": -0.013894932344555855
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 179.1233679978177,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.939
+      }
+    },
+    {
+      "case_id": "multi-condition-1-en",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "4",
+        "3",
+        "1",
+        "2",
+        "5",
+        "0"
+      ],
+      "order": [
+        "4",
+        "3",
+        "1",
+        "2",
+        "5",
+        "0"
+      ],
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.5,
+        "all_sources3": false,
+        "ndcg3": 0.3065735963827292
+      },
+      "elapsed_ms": 201.77257500472479,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 454
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.866
+      }
+    },
+    {
+      "case_id": "multi-condition-1-en",
+      "pair": "multi-condition-1",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "0",
+        "5",
+        "2",
+        "1",
+        "3",
+        "4"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "5",
+        "2",
+        "4"
+      ],
+      "scores": {
+        "3": 0.13163135945796967,
+        "0": 0.08928298950195312,
+        "4": 0.029277408495545387,
+        "1": -0.0009580307523719966,
+        "2": -0.00566315371543169,
+        "5": -0.013894932344555855
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "0",
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 178.58777299989015,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.267
+      }
+    },
+    {
+      "case_id": "multi-condition-2-de",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "5",
+        "0",
+        "2",
+        "4",
+        "1"
+      ],
+      "order": [
+        "0",
+        "1",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "2": 0.11320462077856064,
+        "5": 0.09733370691537857,
+        "0": 0.08409251272678375,
+        "4": 0.06462088972330093,
+        "3": 0.04445131495594978,
+        "1": 0.04232010617852211
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 319.6035670043784,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 34.618
+      }
+    },
+    {
+      "case_id": "multi-condition-2-de",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "5",
+        "0",
+        "2",
+        "4",
+        "1"
+      ],
+      "order": [
+        "0",
+        "1",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 317.2978869988583,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 544
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.278
+      }
+    },
+    {
+      "case_id": "multi-condition-2-de",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "4",
+        "2",
+        "0",
+        "5",
+        "3"
+      ],
+      "order": [
+        "0",
+        "1",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "3": 0.11320462077856064,
+        "0": 0.09733370691537857,
+        "5": 0.08409251272678375,
+        "1": 0.06462088972330093,
+        "2": 0.04445131495594978,
+        "4": 0.04232010617852211
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 304.00700100290123,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.022
+      }
+    },
+    {
+      "case_id": "multi-condition-2-en",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "5",
+        "0",
+        "2",
+        "4",
+        "1"
+      ],
+      "order": [
+        "1",
+        "3",
+        "0",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "5": 0.08532154560089111,
+        "0": 0.06354057043790817,
+        "2": 0.06161096319556236,
+        "4": -0.010104735381901264,
+        "3": -0.012760462239384651,
+        "1": -0.0137002132833004
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 154.43408000282943,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.032
+      }
+    },
+    {
+      "case_id": "multi-condition-2-en",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "5",
+        "0",
+        "2",
+        "4",
+        "1"
+      ],
+      "order": [
+        "3",
+        "5",
+        "0",
+        "2",
+        "4",
+        "1"
+      ],
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 176.2029929959681,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 454
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 13.036
+      }
+    },
+    {
+      "case_id": "multi-condition-2-en",
+      "pair": "multi-condition-2",
+      "family": "multi-condition",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "1",
+        "4",
+        "2",
+        "0",
+        "5",
+        "3"
+      ],
+      "order": [
+        "1",
+        "3",
+        "0",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "0": 0.08532154560089111,
+        "5": 0.06354057043790817,
+        "3": 0.06161096319556236,
+        "1": -0.010104735381901264,
+        "2": -0.012760462239384651,
+        "4": -0.0137002132833004
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "3"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.6309297535714575
+      },
+      "elapsed_ms": 157.55165299924556,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.205
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-de",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "1",
+        "0",
+        "2",
+        "3",
+        "4"
+      ],
+      "order": [
+        "5",
+        "1",
+        "3",
+        "4",
+        "0",
+        "2"
+      ],
+      "scores": {
+        "0": 0.09432605654001236,
+        "1": 0.07972272485494614,
+        "4": 0.07924535125494003,
+        "5": 0.07668527960777283,
+        "2": 0.0706920400261879,
+        "3": 0.04696035757660866
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.0,
+        "all_sources3": false,
+        "ndcg3": 0.0
+      },
+      "elapsed_ms": 308.57416100479895,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.539
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-de",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "5",
+        "1",
+        "0",
+        "2",
+        "3",
+        "4"
+      ],
+      "order": [
+        "5",
+        "1",
+        "3",
+        "4",
+        "0",
+        "2"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.0,
+        "all_sources3": false,
+        "ndcg3": 0.0
+      },
+      "elapsed_ms": 337.1057180047501,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 683
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.441
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-de",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "3",
+        "2",
+        "0",
+        "1",
+        "5"
+      ],
+      "order": [
+        "5",
+        "1",
+        "3",
+        "4",
+        "0",
+        "2"
+      ],
+      "scores": {
+        "5": 0.09432605654001236,
+        "4": 0.07972272485494614,
+        "1": 0.07924535125494003,
+        "0": 0.07668527960777283,
+        "3": 0.0706920400261879,
+        "2": 0.04696035757660866
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 0.0,
+        "all_sources3": false,
+        "ndcg3": 0.0
+      },
+      "elapsed_ms": 314.7258090029936,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.294
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-en",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "5",
+        "1",
+        "0",
+        "2",
+        "3",
+        "4"
+      ],
+      "order": [
+        "0",
+        "2",
+        "1",
+        "5",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "2": 0.09068644791841507,
+        "3": 0.06780992448329926,
+        "1": 0.04073081165552139,
+        "0": 0.02208731137216091,
+        "4": 0.01926097460091114,
+        "5": 0.005838784389197826
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 179.3258670004434,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.391
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-en",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "5",
+        "1",
+        "0",
+        "2",
+        "3",
+        "4"
+      ],
+      "order": [
+        "0",
+        "2",
+        "1",
+        "5",
+        "3",
+        "4"
+      ],
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 200.27808799932245,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 542
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.908
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-1-en",
+      "pair": "domain-ambiguity-1",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "3",
+        "2",
+        "0",
+        "1",
+        "5"
+      ],
+      "order": [
+        "0",
+        "2",
+        "1",
+        "5",
+        "3",
+        "4"
+      ],
+      "scores": {
+        "3": 0.09068644791841507,
+        "2": 0.06780992448329926,
+        "4": 0.04073081165552139,
+        "5": 0.02208731137216091,
+        "1": 0.01926097460091114,
+        "0": 0.005838784389197826
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "0"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 189.96947599953273,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.858
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-de",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "0",
+        "5",
+        "4"
+      ],
+      "order": [
+        "1",
+        "5",
+        "3",
+        "0",
+        "4",
+        "2"
+      ],
+      "scores": {
+        "2": 0.11155963689088821,
+        "4": 0.07967067509889603,
+        "0": 0.07762980461120605,
+        "3": 0.07501637190580368,
+        "5": 0.047043342143297195,
+        "1": 0.037763211876153946
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 346.45593800087227,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 27.331
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-de",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "0",
+        "5",
+        "4"
+      ],
+      "order": [
+        "1",
+        "5",
+        "3",
+        "0",
+        "4",
+        "2"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 802.3656399964239,
+      "error": null,
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "ranked",
+        "candidates": 6,
+        "passage_chars": 683
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 27.968
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-de",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "de",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "5",
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "1",
+        "5",
+        "3",
+        "0",
+        "4",
+        "2"
+      ],
+      "scores": {
+        "3": 0.11155963689088821,
+        "1": 0.07967067509889603,
+        "5": 0.07762980461120605,
+        "2": 0.07501637190580368,
+        "0": 0.047043342143297195,
+        "4": 0.037763211876153946
+      },
+      "production_score_range_compatible": true,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 603.267942002276,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.657
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-en",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "0",
+        "5",
+        "4"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "2": 0.1273423135280609,
+        "3": 0.07312791049480438,
+        "0": 0.05430903658270836,
+        "5": 0.02938181161880493,
+        "1": 0.006087667774409056,
+        "4": -0.0025898923631757498
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 172.5956239970401,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 12.349
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-en",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 0,
+      "model": "tiny",
+      "mode": "adapter1.5s",
+      "input": [
+        "3",
+        "2",
+        "1",
+        "0",
+        "5",
+        "4"
+      ],
+      "order": [
+        "3",
+        "2",
+        "1",
+        "0",
+        "5",
+        "4"
+      ],
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": false,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 0.5
+      },
+      "elapsed_ms": 191.47946299926843,
+      "error": "ValueError",
+      "diagnostics": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-q8",
+        "revision": "0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553",
+        "outcome": "invalid",
+        "candidates": 6,
+        "passage_chars": 542
+      },
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 34.427
+      }
+    },
+    {
+      "case_id": "domain-ambiguity-2-en",
+      "pair": "domain-ambiguity-2",
+      "family": "domain-ambiguity",
+      "language": "en",
+      "permutation": 1,
+      "model": "tiny",
+      "mode": "semantic30s",
+      "input": [
+        "4",
+        "5",
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "order": [
+        "1",
+        "0",
+        "3",
+        "4",
+        "2",
+        "5"
+      ],
+      "scores": {
+        "3": 0.1273423135280609,
+        "2": 0.07312791049480438,
+        "5": 0.05430903658270836,
+        "0": 0.02938181161880493,
+        "4": 0.006087667774409056,
+        "1": -0.0025898923631757498
+      },
+      "production_score_range_compatible": false,
+      "expected": [
+        "1"
+      ],
+      "metrics": {
+        "top1": true,
+        "recall3": 1.0,
+        "all_sources3": true,
+        "ndcg3": 1.0
+      },
+      "elapsed_ms": 194.20303900551517,
+      "error": null,
+      "drain": {
+        "idle_verified": true,
+        "observations": 1,
+        "drain_ms": 15.206
+      }
+    }
+  ],
+  "limits": [
+    "32authoredparallelquestions,8families;16DE+16EN,notpopulationaccuracy.",
+    "Primaryqualityusesfirstpermutation;secondpermutationtestspositionrobustness.Rawsemanticorderingacceptsallfinitescalarsincludingnegatives;actualadapterretainsstrict0to1guard.",
+    "Semantic30sHTTPtimeoutisperoperationandonlyformeasurement;productionadapterunchanged1.5stotaldeadline.",
+    "NoPG/retrieval/citation/sourceeligibility/answergenerationmeasurement;allcandidatespublicandpreselected.",
+    "Adaptertimingsarewarmrepeatedcaseprobesafterrawscoring;passagesmax138chars,notrepresentative600char/coldproductionlatency."
+  ]
+}

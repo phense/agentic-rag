@@ -1,0 +1,90 @@
+{
+  "utc": "2026-10-30T20:37:54.831496+00:00",
+  "source_revision": "e81b21ffc907218800e1fa9646abf74d0c81b7e7",
+  "frozen": {
+    "benchmark.py": "4f0fb69842e4dde808795825b4e5bb609736d50970f82a1e6d65198bf917a147",
+    "build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+    "run_matrix.py": "b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db",
+    "server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+    "analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+    "corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36"
+  },
+  "product": {
+    "agentic_rag/neural_rerank.py": "5300d78b87ae0b5a9985b5f5a9aba7bdd35245c88da9674cca5eaca7eee149f7",
+    "agentic_rag/config.py": "6ed392ba9c9cdb8873ce140140395d57562b9a767d396e1b5644b42885407efa",
+    "agentic_rag/retrieval.py": "0476b66af0af4b8d923ff6b1de9fc1b723f59917baec06a2f79c80eeb6069490"
+  },
+  "model": {
+    "name": "mmarco",
+    "repo": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+    "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+    "license": "apache-2.0",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118620016,
+        "sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+        "upstream_lfs_sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 17082660,
+        "sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+        "upstream_lfs_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626"
+      },
+      "config.json": {
+        "upstream_path": "config.json",
+        "bytes": 891,
+        "sha256": "cc2cfe51aa3fd759d21d21acf5dfd6994aa67a3c9210636d22e143699d336c77",
+        "upstream_lfs_sha256": null
+      },
+      "tokenizer_config.json": {
+        "upstream_path": "tokenizer_config.json",
+        "bytes": 435,
+        "sha256": "e7fbfbfa6347b4e414c1cee50d142e2c2f9a895dad68b068ae83a8b564c3837e",
+        "upstream_lfs_sha256": null
+      },
+      "special_tokens_map.json": {
+        "upstream_path": "special_tokens_map.json",
+        "bytes": 239,
+        "sha256": "378eb3bf733eb16e65792d7e3fda5b8a4631387ca04d2015199c4d4f22ae554d",
+        "upstream_lfs_sha256": null
+      },
+      "README.md": {
+        "upstream_path": "README.md",
+        "bytes": 2278,
+        "sha256": "474736a65d6393a060119a8dc304563af67af4d8d86ccfee4a05dd0df107fc11",
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  "envelope": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-d-mmarco-r0.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      4.4462890625,
+      2.90087890625,
+      1.638671875
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 222449\nuser_usec 186376\nsystem_usec 36072\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 3\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "21561344",
+    "memory.peak": "21561344",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "versions": {
+    "onnxruntime": "1.31.1",
+    "tokenizers": "0.22.2",
+    "numpy": "2.5.4",
+    "torch": "2.15.0+cpu",
+    "transformers": "4.57.3",
+    "httpx": "0.28.1"
+  }
+}

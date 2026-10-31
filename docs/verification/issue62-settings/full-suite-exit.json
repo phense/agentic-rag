@@ -1,0 +1,15 @@
+{
+  "exit": 0,
+  "seconds": 1500.55,
+  "source_digest_before": "f9474bc296f58c557eac96d85e9446ac64ecdf05a257b4da05a463d4feb96b33",
+  "source_digest_after": "f9474bc296f58c557eac96d85e9446ac64ecdf05a257b4da05a463d4feb96b33",
+  "passed": 1756,
+  "skipped": 1,
+  "warnings": 1,
+  "pytest_seconds": 1498.32,
+  "command": "ISSUE60_TEST_RUN=settings-full-ipv4-final .venv/bin/python /home/administrator/Claude/.scratch/rag62-settings-20261030/run-full.py",
+  "pytest_command": ".venv/bin/python -m pytest -q --tb=short -p no:cacheprovider",
+  "log_sha256": "b875592d0297bcb1dc733050ed4cf7ea861f69bb37fc1b0e77e85134b1f838c3",
+  "code_review_digest": "e947260f13ef15bd1f6fd9e0010ea2ff206a786da6712ac791b3d359b10ff73e",
+  "recorded_at": "2026-10-31T00:29:39.203684+00:00"
+}

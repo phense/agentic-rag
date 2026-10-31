@@ -1,0 +1,40 @@
+{
+  "files": 30,
+  "digest": "e947260f13ef15bd1f6fd9e0010ea2ff206a786da6712ac791b3d359b10ff73e",
+  "manifest": {
+    "agentic_rag/benchmark/rerank_evaluation.py": "7b03b760ad7b2c5f59534ed1c72efc311be6a49377e63928a70c1ffbdaefbc6e",
+    "agentic_rag/config.py": "e5d7e03a2570b35402c3c0a80796c7685d91661e428c672b42ad34ba223e5eec",
+    "agentic_rag/neural_rerank.py": "66908c1efe468a98b68337243e572835284ac0d9129f4c9c8aa19368d52be242",
+    "agentic_rag/reranker_profiles.json": "a081b052e2a572f8d1017c2826a8bc99b05eaab2c912ef8bc7b5c98b325027c7",
+    "agentic_rag/reranker_profiles.py": "45d1a2c9bd22f7361769e5b22e50a5c32c6c720e93249af8d7644886e9264f3b",
+    "agentic_rag/reranker_runtime.py": "405303362e701df0173d1d9d2558b1faeab2b7c1a38944dd13a7915a9dfb012a",
+    "agentic_rag/service/auth.py": "1861b01c67283d7bcc583a2b66aed2929c24575dce4860175d9498e7ff3c0830",
+    "agentic_rag/service/dashboard_assets/app.js": "132b47b590f926ddbe03df49f2313d575eb650e83688822e62448808f610dc16",
+    "agentic_rag/service/dashboard_policy.py": "c1cd921e94722be9f4d548973f5ad163adc4315df5610295bccb6fe024a30350",
+    "agentic_rag/service/dashboard_settings.py": "5d01857859166c120814f3802d96a59229e5255c519db26634c2e3d2f27746e8",
+    "agentic_rag/service/dashboard_views.py": "87ebf90d511a376ff98b02a800dcf8ff1ed38787087686fd7faf41fb542fbfcc",
+    "agentic_rag/service/upgrade.py": "db32f2801ba8deee75481d26c3468aefc9d80eb44853c0f75d48e1325da7a89d",
+    "pyproject.toml": "91240395827277f7e6c7cd040fd6b3d182e58b8f4473e8d51f7a2f186cbb7828",
+    "scripts/rehearse_reranker.py": "63c1593cb4f63f0e44dfdab4c6899dd05df68487ddc1c35a6cd26ef6c3568cee",
+    "sql/028_reranker_settings.sql": "da31a313984903ec2f7933dc90ae478a42c1aee56f8b5c2e427a17226abf6201",
+    "tests/benchmark/test_corrections.py": "671d6297c33468e6a5ee14fa512be2b26dd0b6dbf471dc007c8e41786619ea3a",
+    "tests/browser/test_dashboard_browser.py": "bf9beb8a1dc29c5c081c49616e82dc9b70a4ed7d77bce7274fdd44e219ea00b6",
+    "tests/service/test_dashboard_acl.py": "cd24493bae9fdab60340fe0d634d2091a2989192555999bb7cf2c387db1f47d8",
+    "tests/service/test_provider_upgrade.py": "b8fcf8907ad64fcf13dfb1bfb90d54658b3b0904bc455fbaa4991bc58b039120",
+    "tests/service/test_reranker_settings.py": "620892bff6ff5b81b3d612e135e070fad769481f525caa39d5ac7a03397eadca",
+    "tests/service/test_reranker_upgrade.py": "29306949179697cabfa8a9eb555d67a24a84d1359cbf9a2c3833f79cc3bb85e2",
+    "tests/service/test_tracing_upgrade.py": "fac0ac9a19033fce187fad890ad6b207f311d12c3f570da81450deedcfdf840f",
+    "tests/service/test_upgrade.py": "a9b5b1af2def1cca2d7335758450ba2a43c1faddf20457347ce7b240ee264e6d",
+    "tests/test_domain_upgrade.py": "ab53eb3c6feca60d227861fbc8fefda3d399881521d9ee2a1e29423447bb3acb",
+    "tests/test_entities.py": "1915760001c455b1a881308f45c1cdafa71b4972f79453cafbf66626d2c04e69",
+    "tests/test_measured_rerank.py": "2ca250f6e2a05188ae78b26c396236acf94fea5638865475e4f90428bf567550",
+    "tests/test_neural_rerank.py": "c2a7d35d9b79daca0d87aaf466c1821811951c556754404be3a0ed87db347ba8",
+    "tests/test_reranker_settings.py": "4fc2d09046f8543204fd765caf89d6cd1648e4a681c960b9d4df9ca5318edc9d",
+    "tests/test_scope.py": "970df3aa1b1591b97f9c8f905b31171f3c76018160a8ef461ac59261ecd90b3e",
+    "uv.lock": "32855e4c2afe32da01c55cd41728c32171b68d22fead0e6b342fd58ec25f17ef"
+  },
+  "changed_since_initial_accepted_review": [
+    "agentic_rag/reranker_runtime.py",
+    "tests/test_reranker_settings.py"
+  ]
+}

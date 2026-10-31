@@ -1,0 +1,191 @@
+---
+id: RAG-062-settings-review
+title: Independent reranker Settings architecture and code review
+type: reference
+doc_id: standalone
+readers: [maintainer, coordinator]
+status: changes-required
+version: a8441eb plus uncommitted Settings extension
+last_reviewed: 2026-10-30
+summary: Two reproduced Medium defects and independently derived integration gates for the Settings extension.
+---
+
+# RAG-062 Settings independent review
+
+## Verdict and inspected boundary
+
+Not ready: Critical 0, High 0, Medium 2, actionable Low 0. Both Medium defects
+were reproduced without a database or native model call. Pending final tests and
+documentation are separate acceptance gates, not additional code defects.
+
+The reviewer did not implement this slice. Only this report was written; no Git,
+database, provider, production or child-agent action was performed. Writing depth
+is medium: one standalone reference for the maintainer and implementation owner.
+
+Inspection used worktree `.worktrees/request-tracing-60-20261030`, branch
+`feat/measured-reranker-62`, HEAD `a8441eb6a4c48c7204f21bfcfad449021e2a9077`,
+main/base `7a61955446119df522a34967273d8dacae56108b`. At
+2026-10-30T23:32:39Z the extension comprised 41 tracked-diff/untracked files.
+Its sorted `path + NUL + file-SHA256`, newline-joined content digest was
+`b97fcd69392c357147cc57e02a3e6bdbdd4147bcbfa3ec4bfa01c4335eb850e8`.
+The tree was changing under the coordinator; later changes require a recheck.
+
+All extension product modules, catalogue, SQL, dependency declarations/lock,
+script corrections, changed tests and available documentation were inspected.
+Requirements are `docs/specs/6-4-reranker-settings/{spec,plan,tasks}.md` and
+`docs/uml/reranker-settings.md`. The prior accepted original scope is recorded
+in `final-code-review.md`; its product interfaces were compared against main
+and re-read at the resulting tree, including search/retrieval, REST/MCP engine,
+protected policy authority, schema validation and upgrade preservation. This
+report does not repeat the historical benchmark evidence review.
+
+## Findings
+
+### M1: Known preset alias can disable the configured SHA check
+
+- Severity/status: Medium, open; AC005/006, IC003 and AF062-S2.
+- Evidence: `agentic_rag/neural_rerank.py:124` and `:151`,
+  `agentic_rag/reranker_profiles.py:22-24`.
+- Reproduction: construct `replace(Config(), rerank_revision='0'*64)` and mock
+  discovery with the actual mMARCO alias and its catalogue SHA. Return valid
+  complete scores from POST. Call `order` with eligible synthetic hits. Observed
+  request methods are `['GET', 'POST']`; the configured SHA does not match the
+  advertised SHA. A TOML manual model/revision declaration reaches the same path.
+- Cause/impact: `identify` requires both alias and catalogue SHA. A mismatched
+  configured SHA makes a known managed model look custom, so `revision=None`
+  removes identity validation before passage transfer. Source text reaches a
+  runtime that does not match the configured identity.
+- Fix direction: determine managed identity from the alias independently of SHA
+  equality, and require exact configured SHA discovery for every managed alias.
+  Keep the deliberate alias-only contract for genuinely custom/legacy aliases.
+  Add the wrong-configured-SHA case as well as the existing wrong-runtime-SHA case.
+
+### M2: Cancellation before worker start permanently occupies the native slot
+
+- Severity/status: Medium, open; AC005/006, runtime pressure/recovery boundary.
+- Evidence: `agentic_rag/reranker_runtime.py:140-151`.
+- Reproduction: use `create_app` with a synthetic ranker and an event-loop default
+  executor with one worker. Occupy that worker with an Event, start an ASGI rerank
+  request, cancel its task while inference remains queued, then release the
+  blocker. The next valid request returns 429 although no inference ever ran.
+  The standalone synthetic probe exited 0 and printed
+  `AFTER_CANCEL_WITH_NO_NATIVE_INFERENCE_STATUS 429`.
+- Cause/impact: the event-loop task acquires `gate`, but only `execute` releases
+  it. Cancelling the queued executor future prevents `execute` from running.
+  Subsequent calls remain on deterministic fallback until daemon restart.
+- Fix direction: make worker ownership cancellation-safe. A protected submitted
+  worker must eventually release the slot, or cancellation before native start
+  must release it exactly once. Do not release an active native slot merely
+  because its HTTP waiter was cancelled. Cover both before-start and active-work
+  cancellation with an accepted subsequent request after drain.
+
+## Architecture reconciliation
+
+| Boundary | Observed implementation and disposition |
+|---|---|
+| Browser authority | Dashboard requires same-origin JSON, human cookie and CSRF; state rechecks a live administrator, apply uses current reference and revision. No new authority store. |
+| Atomic settings/audit | Generic protected-file lock, durable prepared journal, exact session-row fence, atomic replacement and applied commit are reused. Account/machine edits preserve the extra table. Recovery is triggered by the next policy apply; GET alone does not finish the journal. |
+| Search snapshot | `effective` reads once into a frozen replacement configuration before inference; one call retains its model/budget. The in-flight switching test derived below must verify this across components. |
+| Discovery/privacy | Settings uses a fixed synthetic probe. Search checks discovery before sources; M1 weakens the intended managed-identity boundary for manual configuration. |
+| Runtime | Explicit preparation checks pinned sizes/hashes before linking staged files; startup verifies model/tokenizer, disables network inference, bounds pairs to 512 tokens, uses finite sigmoid scores and one shared native slot. M2 breaks slot recovery for queued cancellation. |
+| Migration028 | Only the existing audit-kind CHECK is widened. Runner transaction includes the marker; tables, ownership and ACLs are preserved. Old schema is rejected by new service startup until upgrade. |
+| Old binary | Archived0.6.14 ignores the extra policy table and accepts additional migration markers. Source extraction and fresh-process import assertion are real. Initial rollback test uses local search but REST/MCP `memory_domains`; the coordinator is replacing this with actual authorized nonempty searches. |
+| Model evidence | `native-smoke.json` records five native positive/negative probes: EN/DE for L6 and mMARCO, EN for tiny. Its aliases/SHA agree with the catalogue and it records process exit/listener refusal. This is a smoke check, with no quality or capacity inference. |
+
+The sequence diagram matches the successful authority flow. It still declares
+design mode and needs as-built metadata plus explicit dispositions of M1/M2.
+The custom-identity exception and recovery-on-next-apply behavior must remain
+clear. No new diagram type is needed to answer these questions.
+
+## Independently derived integration tests
+
+The following gates derive from the policy-to-search sequence and recovery
+boundary, not from a list of existing assertions. The coordinator owns their
+implementation and execution on isolated PostgreSQL; this reviewer ran no DB tests.
+
+### IT062-SUCCESS: Durable selection and one configuration per search
+
+- Suggested path: `tests/service/test_reranker_settings.py`.
+- Real collaborators: Dashboard cookie/CSRF, protected policy and audit journal,
+  REST/MCP engine, scoped SQL search, neural adapter and runtime HTTP contract.
+  Replace only inference/embedding with controlled synthetic providers.
+- Setup: at least three authorized ambiguous sources plus a matching source in
+  a foreign project/domain. Apply preset A using preview and apply. Record the
+  canonical snapshot and original hit payloads/scores.
+- Stimulus: pause an eligible REST search after exact A discovery. Apply preset B
+  in parallel, then release A. Issue a subsequent protocol1 REST and remote MCP
+  `memory_search`, and repeat after creating a fresh application instance.
+- Acceptance: first search POST/diagnostics retain A/SHA and focused6x600;
+  subsequent calls use B/SHA. The foreign source is absent from both runtime
+  input and returned hits. Ranking is a full identity permutation retaining
+  original payloads and retrieval scores. Preview changes no policy; applied
+  policy persists across app restart; audit records applied and canonical rows
+  stay equal except explicitly enumerated operational tables.
+- Gap at inspected boundary: selection persistence and direct `effective` are
+  tested, but no integrated REST/MCP model switch or in-flight barrier exists.
+  Execute the named test on the coordinator-owned isolated cluster and record
+  its exact command, final exit, timestamp and source digest.
+
+### IT062-RECOVERY: Interrupted setting, fallback and real old-code reads
+
+- Suggested paths: `tests/service/test_reranker_settings.py` and
+  `tests/service/test_reranker_upgrade.py`.
+- Real collaborators: populated schema027 store, verified backup/restore,
+  migration028, settings authority/journal, current search and archived0.6.14
+  local/REST/MCP engines.
+- Inject failure after settings atomic file replacement and before applied
+  journal commit. Recreate the application, retry and observe reconciliation.
+  Then make runtime unavailable or advertise the wrong selected-model SHA.
+  Execute saved explicit legacy configuration through a fresh interpreter using
+  actual archived0.6.14 against the same schema028 and additive policy table.
+- Acceptance: exactly one durable interrupted operation transitions
+  prepared-to-applied without duplicate application; users/credentials/ACLs and
+  previous audit rows survive. Current authorized searches retain the complete
+  deterministic eligible order under unavailability/pressure/deadline; wrong SHA
+  causes discovery only, never POST. Migration retry is empty; interrupted
+  migration leaves027 constraint and marker unchanged before retry. Old local,
+  REST and MCP searches return nonempty identical authorized originals before
+  upgrade and after code rollback, excluding foreign data; canonical hashes and
+  historical row identities remain equal. Do not claim old neural-model fidelity
+  while its daemon is disabled.
+- Gap at inspected boundary: separate crash reconciliation and migration retry
+  tests exist; rollback REST/MCP search coverage is being added. The combined
+  recovery-to-search assertions and retained final isolated-test exit are pending.
+
+## Fresh verification and remaining gates
+
+On 2026-10-30, this reviewer ran:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /home/administrator/Claude/agentic-rag/.venv/bin/python \
+  -m pytest -p no:cacheprovider -q \
+  tests/test_reranker_settings.py tests/test_measured_rerank.py
+```
+
+Exit 0: 26 passed, one existing Starlette TestClient deprecation warning, 1.91s.
+Both synthetic counterexamples above also exited 0 with the stated failing
+observations. `git diff --check` exited 0. Lock parsing confirmed ten new optional
+runtime packages and no changed pre-existing package record except this project.
+
+M1/M2 fixes need narrow regressions and independent recheck. Then reconcile the
+as-built model, run both derived paths, complete the changed-source full suite,
+browser checks and outside-checkout wheel/import checks. Documentation/evidence
+edits were underway; unresolved links to the new verification record and draft
+playbook status are not final document defects. Final delivery remains blocked
+until fresh evidence covers the final source tree. Production rollout, dedicated
+hardware capacity and language-wide quality claims are outside this verdict.
+
+After this inspection boundary, the coordinator reported reproducing both new
+regressions as RED, fixing reserved-preset SHA validation in `Config` and shielding
+the submitted runtime worker from caller cancellation, and observing 46 affected
+tests GREEN in 1.45s. Those later changes are not covered by this initial report;
+their full bounded independent recheck is a separate required review. The two
+findings above remain historical open findings at the explicitly inspected tree,
+with coordinator-reported fixes awaiting that review.
+
+Terminology: preset means the supported alias/artifacts/budget tuple; discovery
+means the loopback advertised identity; native slot means the one running CPU
+inference reservation; prepared journal means the durable administrative record
+written before atomic file replacement; canonical rows mean stored knowledge and
+retained identities, excluding declared operational/session records. Prose and
+terminology were checked against the maintainer audience and exact code names.

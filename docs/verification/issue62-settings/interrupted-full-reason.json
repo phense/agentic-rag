@@ -1,0 +1,10 @@
+{
+  "accepted_as_full_pass": false,
+  "reason": "Coordinator SIGINT to identified owned pytest after discovering unsupported optional native IPv6 bind. Product source was still unchanged; explicit IPv4-only correction and fresh whole suite follow.",
+  "exit": 2,
+  "passed_before_interrupt": 1352,
+  "skipped": 1,
+  "warning": 1,
+  "seconds_pytest": 1405.26,
+  "seconds_runner": 1407.49
+}

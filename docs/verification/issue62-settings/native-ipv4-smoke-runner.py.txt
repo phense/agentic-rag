@@ -1,0 +1,37 @@
+from pathlib import Path
+import subprocess,os,time,json,socket,sys
+root=Path('/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030')
+scratch=Path('/home/administrator/Claude/.scratch/rag62-settings-20261030');scratch.mkdir(exist_ok=True)
+import httpx
+command=['/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python','-m','agentic_rag.reranker_runtime','serve','--models-dir','/dev/shm/rag62-three-models-20261030','--port','8783']
+log=(scratch/'native-ipv4-final.log').open('w')
+process=subprocess.Popen(command,cwd=scratch,env=dict(os.environ,PYTHONPATH='/dev/shm/rag62-settings-wheel-ipv4-final-20261031:/dev/shm/rag62-settings-optional-20261030'),stdout=log,stderr=subprocess.STDOUT,preexec_fn=lambda:os.sched_setaffinity(0,{0,1,2,3}))
+report={'command':command,'pid':process.pid,'samples':[]}
+try:
+ deadline=time.monotonic()+60
+ with httpx.Client(trust_env=False,timeout=2) as client:
+  while True:
+   if process.poll() is not None:raise RuntimeError('native startup failed')
+   try:
+    identity=client.get('http://127.0.0.1:8783/v1/models');identity.raise_for_status();break
+   except httpx.ConnectError:
+    if time.monotonic()>deadline:raise
+    time.sleep(.2)
+  report['models']=identity.json()
+  for row in identity.json()['data']:
+   for language,query in [('en','Which city is the capital of Germany?')]+([] if 'tiny' in row['id'] else [('de','Welche Stadt ist die Hauptstadt von Deutschland?')]):
+    body=dict(model=row['id'],query=query,documents=['Berlin is the capital of Germany.','Bananas are a yellow fruit.'],top_n=2,return_documents=False)
+    start=time.perf_counter();response=client.post('http://127.0.0.1:8783/v1/rerank',json=body);elapsed=(time.perf_counter()-start)*1000
+    response.raise_for_status();result=response.json();assert result['results'][0]['relevance_score']>result['results'][1]['relevance_score']
+    report['samples'].append(dict(model=row['id'],language=language,elapsed_ms=elapsed,response=result))
+ report['passed']=True
+except BaseException as e:
+ report.update(passed=False,error=type(e).__name__+':'+str(e));raise
+finally:
+ process.terminate()
+ try:process.wait(timeout=20)
+ except subprocess.TimeoutExpired:process.kill();process.wait(timeout=10)
+ log.close();report['process_exit']=process.returncode
+ probe=socket.socket();report['listener_connect_after_stop']=probe.connect_ex(('127.0.0.1',8783));probe.close()
+ (scratch/'native-ipv4-final-smoke.json').write_text(json.dumps(report,indent=2)+'\n')
+ print(json.dumps(report,indent=2))

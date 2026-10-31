@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.15] - 2026-10-30
+
+- Add administrator Settings with MiniLM L6 EN/DE, mMARCO DE/EN (new default) and Jina tiny English-only presets, pinned optional offline CPU runtime and durable revision-checked selection.
+- Add additive audit-kind migration028, verified0.6.14 upgrade/retry/code rollback and explicit legacy model configuration support; preserve original knowledge and citation payloads.
+- Add sealed bilingual public failure-derived evaluation, target-class service resource accounting and populated code/config rollback evidence.
+
 ## [0.6.14] - 2026-10-30
 
 - Add independent immutable embedding profiles and bounded Ollama/compatible HTTP adapters, protected credential references and offline inspection/synthetic probes. Existing Claude/Codex CLI login remains supported.

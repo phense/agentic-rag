@@ -138,8 +138,15 @@ def search(
     if (reranker is None and rerank_mode == "auto" and strategy == "auto"
             and not shortcut and not symbols):
         from .neural_rerank import order
-        reranker = lambda candidates: order(query, candidates, cfg)
+        decision = {} if cfg.rerank_diagnostics else None
+        reranker = (lambda candidates: order(query, candidates, cfg, diagnostics=decision)) if decision is not None else (
+            lambda candidates: order(query, candidates, cfg))
+    else:
+        decision = None
     hits=rerank(hits,reranker,warnings)
+    if decision:
+        from .neural_rerank import diagnostic_text
+        warnings.append(diagnostic_text(decision))
     hits=diverse(hits,query,k)
     if graph_depth:
         hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain)

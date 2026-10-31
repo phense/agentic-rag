@@ -1,0 +1,19 @@
+Running as unit: rag62-four-runs-d-minilm-l6-r0.service; invocation ID: 63ec64e9c9b747b9882e654795f81717
+minilm-l6 quality 16 /96
+minilm-l6 quality 32 /96
+minilm-l6 quality 48 /96
+minilm-l6 quality 64 /96
+minilm-l6 quality 80 /96
+minilm-l6 quality 96 /96
+minilm-l6 semantic diagnostics complete
+minilm-l6 performance 6 120 round 0
+minilm-l6 performance 6 600 round 0
+minilm-l6 performance 6 1200 round 0
+minilm-l6 performance 12 600 round 0
+minilm-l6 performance 12 1200 round 0
+minilm-l6 round 0 actual exit 0 observations 520
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 4min 43.497s
+             CPU time consumed: 18min 32.189s
+                   Memory peak: 1012.3M (swap: 0B)

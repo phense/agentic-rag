@@ -296,3 +296,20 @@ projection. Independent complete-diff review and architecture-derived success/
 recovery probes pass after cursor-type and CLI-import corrections. No architecture
 difference remains. Final whole-project convergence and actual exit are recorded
 in [Issue60 verification](../verification/issue60-tracing.md); deployment is separate.
+
+## RAG-062 settings (as-built, 2026-10-30)
+
+- AF062-S1 (tasked T002/T003, AC002–004): File ownership/session races must
+  reuse the prepared policy journal and exact live-session fence; no second store.
+- AF062-S2 (tasked T001/T002, AC005/006): Alias alone is insufficient for new
+  presets. Require advertised artifact SHA before sources; startup hashes all files.
+- AF062-S3 (tasked T004, AC007): Migration028 widens only the audit-kind constraint; default
+  ordering changes. Prove explicit-config preservation and actual old-binary rollback.
+
+As-built: all three findings map to the existing authority/journal and pinned
+runtime boundaries in [reranker-settings.md](reranker-settings.md). Reserved
+alias/SHA mismatch fails during Config construction. Shielded submitted workers
+release the native slot after drain even when the caller cancels before start.
+IT062-SUCCESS/RECOVERY connect selection, scoped search, restart and actual old
+code rollback; final review and complete-suite gates are recorded in
+[Settings verification](../verification/issue62-settings.md).

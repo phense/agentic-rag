@@ -1,0 +1,13 @@
+[0;93m2026-10-30 23:26:11.746299867 [W:onnxruntime:Default, device_discovery.cc:95 GetPciBusId] Skipping pci_bus_id for PCI path at "<reference-host-pci-path>" because filename "<reference-host-device-id>" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/agentic_rag/reranker_runtime.py", line 184, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/agentic_rag/reranker_runtime.py", line 176, in main
+    rankers = {name: OnnxRanker(args.models_dir, preset(name), args.threads) for name in args.profiles}
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/agentic_rag/reranker_runtime.py", line 77, in __init__
+    raise ValueError('reranker padding token missing')
+ValueError: reranker padding token missing

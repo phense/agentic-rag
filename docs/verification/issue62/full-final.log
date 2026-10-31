@@ -1,0 +1,45 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+........................................................................ [ 20%]
+........................................................................ [ 24%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 41%]
+.........................F.............................................. [ 45%]
+........................................................................ [ 49%]
+........................................................................ [ 53%]
+........................................................................ [ 58%]
+........................s............................................... [ 62%]
+........................................................................ [ 66%]
+........................................................................ [ 70%]
+........................................................................ [ 74%]
+........................................................................ [ 78%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 91%]
+........................................................................ [ 95%]
+........................................................................ [ 99%]
+........                                                                 [100%]
+=================================== FAILURES ===================================
+_________________ test_current_release_metadata_is_consistent __________________
+tests/test_docs_continuity.py:82: in test_current_release_metadata_is_consistent
+    assert re.search(
+E   AssertionError: assert None
+E    +  where None = <function search at 0x77b53f4985e0>('^## \\[0\\.6\\.15\\] - \\d{4}-\\d{2}-\\d{2}$', '# Changelog\n\nAll notable changes to agentic-rag are documented here. The format follows\n[Keep a Changelog](https:/...ands for search, review, pin management, domain administration, and\n  maintenance (log rotation, status reporting).\n', re.MULTILINE)
+E    +    where <function search at 0x77b53f4985e0> = re.search
+E    +    and   '# Changelog\n\nAll notable changes to agentic-rag are documented here. The format follows\n[Keep a Changelog](https:/...ands for search, review, pin management, domain administration, and\n  maintenance (log rotation, status reporting).\n' = read_text()
+E    +      where read_text = PosixPath('CHANGELOG.md').read_text
+E    +        where PosixPath('CHANGELOG.md') = Path('CHANGELOG.md')
+E    +    and   re.MULTILINE = re.M
+=============================== warnings summary ===============================
+tests/service/test_api.py:5
+  /home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/tests/service/test_api.py:5: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docs_continuity.py::test_current_release_metadata_is_consistent
+1 failed, 1734 passed, 1 skipped, 1 warning in 1519.17s (0:25:19)

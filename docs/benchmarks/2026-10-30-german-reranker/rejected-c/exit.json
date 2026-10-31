@@ -1,0 +1,23 @@
+{
+  "exit": 1,
+  "cleanup_errors": [],
+  "remaining_group_members": [],
+  "owned_processes_stopped": true,
+  "reference_after": {
+    "cpu.max": "400000 100000",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.current": "87810048",
+    "memory.peak": "136318976",
+    "cpu.stat": "usage_usec 103113709\nuser_usec 102254478\nsystem_usec 859230\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 317\nnr_throttled 24\nthrottled_usec 27906\nnr_bursts 0\nburst_usec 0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+    "cpuset.cpus.effective": "not delegated",
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "member_count": 1
+  }
+}

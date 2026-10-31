@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-31T00:31:06.654633+00:00",
+  "documentation": {
+    "command": ".venv/bin/python -m pytest -q tests/test_docs_continuity.py --tb=short -p no:cacheprovider",
+    "exit": 0,
+    "passed": 17,
+    "seconds": 0.4
+  },
+  "node": {
+    "command": "node --test tests/test_opencode_plugin.mjs",
+    "exit": 0,
+    "passed": 7,
+    "duration_ms": 413.482386
+  },
+  "javascript_syntax_exit": 0,
+  "uv_lock_check_exit": 0,
+  "uv_locked_packages": 55,
+  "git_diff_check_exit": 0,
+  "local_markdown_links_checked": 244,
+  "missing_links": [],
+  "final_30_source_manifest_matches": true,
+  "record_kind": "coordinator transcription of completed tool commands",
+  "git_diff_check_boundary": "git diff a8441eb --check, after public failed-log whitespace normalization"
+}

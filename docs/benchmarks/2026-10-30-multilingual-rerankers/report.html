@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Multilingual reranker comparison</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+<h1 id="compare-four-local-multilingual-rerankers">Compare four local
+multilingual rerankers</h1>
+<p>mMARCO is the strongest small Apache-2.0 candidate in this experiment
+for a single client: 41/48 correct first sources in each language, with
+a 6×600-character p95 of 1,093.8 ms. MiniLM L6 is faster (508.7 ms) and
+tolerates more parallel work, with 38/48 in each language. Both still
+make role, negation or numeric mistakes; neither is approved for
+production by this report.</p>
+<p>Jina v2 leads German source ranking (46/48) but takes 3,843.2 ms at
+that same payload and misses seven of 96 actual client deadlines even on
+the shorter primary questions. Jina v3.5 reaches 44/48 in each language,
+takes a primary-query median of 11,729.7 ms, misses all 96 client
+deadlines, and fails the first long-text test. These CPU configurations
+do not meet the current interactive deadline. Jina’s declared
+noncommercial weight licenses also need a separate commercial licensing
+decision.</p>
+<p>This medium reference is for the maintainer choosing the optional
+reranker in <a
+href="https://github.com/phense/agentic-rag/issues/62">Issue #62</a> /
+<a href="https://github.com/phense/agentic-rag/pull/82">PR #82</a>. The
+<a href="report.html">rendered report</a>, <a
+href="comparison.html">interactive comparison</a>, <a
+href="summary.json">complete summary</a> and <a
+href="verification/independent-review.txt">independent review</a> retain
+the evidence. The original 2,688-observation protocol failed: nine
+successful units and one failed v3.5 unit produced 2,338 actual
+observations; 350 v3.5 observations were never attempted. Completion of
+the other candidates does not change that failed status.</p>
+<h2 id="terms-and-measurement-boundary">Terms and measurement
+boundary</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary</td>
+<td>First seeded candidate order for one query; 48 German and 48 English
+questions per model.</td>
+</tr>
+<tr>
+<td>First source</td>
+<td>Top-ranked passage is a required source.</td>
+</tr>
+<tr>
+<td>Recall@3 / all sources@3</td>
+<td>Per-query fraction / complete set of required sources among the
+first three results.</td>
+</tr>
+<tr>
+<td>MRR / nDCG@3</td>
+<td>Mean reciprocal rank of the first required source / normalized
+discounted relevance in the first three positions.</td>
+</tr>
+<tr>
+<td>p50/p95/p99</td>
+<td>Descriptive percentiles, interpolated at <code>(n-1)*p</code>.</td>
+</tr>
+<tr>
+<td>Ranked / fallback</td>
+<td>Product accepted the ranking within its deadline / retained original
+source order.</td>
+</tr>
+<tr>
+<td>Censored / unattempted</td>
+<td>Request timed out without usable HTTP response / request was never
+sent.</td>
+</tr>
+<tr>
+<td>Process-cold</td>
+<td>New server process with operating-system caches retained.</td>
+</tr>
+<tr>
+<td>RSS / cgroup</td>
+<td>Server resident memory / jointly limited process tree, including
+charged temporary model copies.</td>
+</tr>
+<tr>
+<td>INT8 / FP32</td>
+<td>Published eight-bit ONNX representation / 32-bit floating-point CPU
+representation.</td>
+</tr>
+</tbody>
+</table>
+<p>The frozen <a href="PLAN.md">protocol</a> uses synthetic public
+passages, six candidates/query and 96 questions in 24 related families.
+Thirty-two prior diagnostic cases remain unchanged; 64 are newly
+authored controls. Gold labels never enter inference. Each language has
+53 required-source occurrences because five questions require two
+sources. Recall@3 is averaged per question. The reverse candidate order
+supplies separate sensitivity checks, without doubling the primary
+denominator.</p>
+<p>The shared host is Intel Xeon E5-2650, AVX without AVX2. Every
+isolated process tree receives four CPUs, affinity 0–3, 8 GiB and zero
+cgroup swap; no GPU, PostgreSQL or private corpus is used. The published
+AVX2-named ONNX artifacts execute through runtime-selected kernels.
+Three models use INT8 ONNX; v3.5 uses its official audited Transformers
+code loaded FP32 from BF16 weights. This compares those local
+configurations, not precision-equivalent or architecture-only
+performance.</p>
+<p>The loopback lab bridge retains native scores and explicitly maps
+logits with sigmoid and cosine with <code>(cosine+1)/2</code>. MiniLM’s
+upstream default activation is Identity. All observed native orderings
+and ties survive the mappings. Scores remain uncalibrated. The product’s
+strict finite <code>[0,1]</code> guard is unchanged. Synthetic equal
+positive hit scores force route eligibility; this does not measure
+routing frequency in real retrieval.</p>
+<h2 id="source-ranking-quality">Source-ranking quality</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration/language</th>
+<th>First source</th>
+<th>All sources@3</th>
+<th>Recall@3</th>
+<th>MRR</th>
+<th>nDCG@3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE/de</td>
+<td>38/48 (79.2%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.885</td>
+<td>0.915</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE/en</td>
+<td>38/48 (79.2%)</td>
+<td>45/48</td>
+<td>0.938</td>
+<td>0.877</td>
+<td>0.879</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2/de</td>
+<td>41/48 (85.4%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.920</td>
+<td>0.941</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2/en</td>
+<td>41/48 (85.4%)</td>
+<td>47/48</td>
+<td>0.979</td>
+<td>0.911</td>
+<td>0.925</td>
+</tr>
+<tr>
+<td>Jina v2/de</td>
+<td>46/48 (95.8%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.979</td>
+<td>0.985</td>
+</tr>
+<tr>
+<td>Jina v2/en</td>
+<td>41/48 (85.4%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.924</td>
+<td>0.943</td>
+</tr>
+<tr>
+<td>Jina v3.5/de</td>
+<td>44/48 (91.7%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.958</td>
+<td>0.969</td>
+</tr>
+<tr>
+<td>Jina v3.5/en</td>
+<td>44/48 (91.7%)</td>
+<td>48/48</td>
+<td>1.000</td>
+<td>0.958</td>
+<td>0.969</td>
+</tr>
+</tbody>
+</table>
+<p>All 384 primary model/question responses are available. The <a
+href="verification/audit-final-bounded-reconstruction.json">independent
+reconstruction</a> lists all 51 primary misses with queries,
+required/selected text and native scores. German Jina v2 misses include
+reversed expense-review roles and an exact decimal amount. mMARCO
+incorrectly promotes a denied archive permission in one control. Such
+mistakes remain material even when all necessary evidence reaches the
+top three.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Prior DE /16</th>
+<th>New DE /32</th>
+<th>Prior EN /16</th>
+<th>New EN /32</th>
+<th>DE query/EN source /16</th>
+<th>EN query/DE source /16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>15</td>
+<td>23</td>
+<td>14</td>
+<td>24</td>
+<td>13</td>
+<td>13</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>13</td>
+<td>28</td>
+<td>12</td>
+<td>29</td>
+<td>13</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>16</td>
+<td>30</td>
+<td>14</td>
+<td>27</td>
+<td>16</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>15</td>
+<td>29</td>
+<td>15</td>
+<td>29</td>
+<td>15</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p>Reversing candidate order changes no ONNX ranking. v3.5 changes the
+first source in 5/48 German and 6/48 English cases, and the full order
+in 40/48 each. Its reversed German all-sources@3 falls to 46/48;
+reversed English first-source rises to 46/48. The first seeded order
+remains primary. Paired wins/losses, per-family results and all reverse
+metrics are retained in the summary. Related synthetic families do not
+establish population accuracy, significance, stored-corpus retrieval
+recall or generated-answer accuracy.</p>
+<h2 id="execution-time-and-actual-client">Execution time and actual
+client</h2>
+<p>Primary raw timing uses 96 varied short queries and their original
+passages. The separate performance grid pads each passage to
+approximately the stated character count. These distributions answer
+different questions.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Primary raw p50/p95 ms, n=96</th>
+<th>DE ranked/timeout/pressure</th>
+<th>EN ranked/timeout/pressure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>152.3/250.6</td>
+<td>48/0/0</td>
+<td>48/0/0</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>282.5/449.7</td>
+<td>48/0/0</td>
+<td>48/0/0</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>998.9/1,478.8</td>
+<td>46/2/0</td>
+<td>43/5/0</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>11,729.7/15,393.7</td>
+<td>0/48/0</td>
+<td>0/48/0</td>
+</tr>
+</tbody>
+</table>
+<p>The actual unchanged focused adapter sends at most six passages of
+600 characters and has a total 1.5-second deadline. No primary request
+was invalid. Jina v2 accepts 89/96 rankings: ranked-only first-source
+counts are 44/46 German and 36/43 English; all seven fallback first
+sources are wrong. v3.5 accepts none; its fallback first-source count of
+4/48 per language describes original order only. All original hit
+objects are preserved.</p>
+<p>Each performance cell has 15 requests per process across three fresh
+starts, n=45. The following p50/p95/p99 describe successful HTTP calls;
+censored counts are explicit.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Candidates × chars/passage</th>
+<th>Success/censored</th>
+<th>p50 ms</th>
+<th>p95 ms</th>
+<th>p99 ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>6x120</td>
+<td>45/0</td>
+<td>185.9</td>
+<td>350.0</td>
+<td>397.3</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>6x600</td>
+<td>45/0</td>
+<td>461.3</td>
+<td>508.7</td>
+<td>513.8</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>6x1200</td>
+<td>45/0</td>
+<td>875.9</td>
+<td>1,392.6</td>
+<td>1,531.2</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>12x600</td>
+<td>45/0</td>
+<td>901.4</td>
+<td>1,359.4</td>
+<td>1,709.6</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>12x1200</td>
+<td>45/0</td>
+<td>1,742.4</td>
+<td>2,437.7</td>
+<td>2,635.6</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>6x120</td>
+<td>45/0</td>
+<td>346.2</td>
+<td>579.6</td>
+<td>627.4</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>6x600</td>
+<td>45/0</td>
+<td>899.1</td>
+<td>1,093.8</td>
+<td>1,295.7</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>6x1200</td>
+<td>45/0</td>
+<td>1,769.7</td>
+<td>2,540.8</td>
+<td>2,821.3</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>12x600</td>
+<td>45/0</td>
+<td>1,848.4</td>
+<td>2,659.4</td>
+<td>2,898.4</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>12x1200</td>
+<td>45/0</td>
+<td>3,515.5</td>
+<td>4,434.4</td>
+<td>4,711.0</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>6x120</td>
+<td>45/0</td>
+<td>1,182.2</td>
+<td>1,490.2</td>
+<td>1,712.2</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>6x600</td>
+<td>45/0</td>
+<td>3,231.0</td>
+<td>3,843.2</td>
+<td>4,462.0</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>6x1200</td>
+<td>45/0</td>
+<td>6,125.2</td>
+<td>7,576.3</td>
+<td>8,947.2</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>12x600</td>
+<td>45/0</td>
+<td>6,581.5</td>
+<td>8,071.4</td>
+<td>10,005.5</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>12x1200</td>
+<td>44/1</td>
+<td>12,463.7</td>
+<td>23,691.7</td>
+<td>28,041.7</td>
+</tr>
+</tbody>
+</table>
+<p>Jina v2’s one censored 12×1200 request returned a client timeout at
+30,088.1 ms; native work finished at 36,971.8 ms and drained. That cell
+therefore has 44 successful timings, not 45 uncensored inferences. Its
+all-attempt client p95 is 26,434.7 ms, including the deadline
+observation. v3.5 has no performance-grid observations; every cell is
+unavailable. Forty-five observations, especially p99, do not establish
+stable capacity.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Starts</th>
+<th>Ready median/max ms</th>
+<th>First request median/max ms</th>
+<th>Server peak MiB</th>
+<th>Cgroup peak MiB</th>
+<th>CPU seconds total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>3</td>
+<td>2,714.4/2,783.8</td>
+<td>168.5/379.7</td>
+<td>835.2</td>
+<td>1012.4</td>
+<td>1672.4</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>3</td>
+<td>3,323.3/4,403.2</td>
+<td>321.5/568.6</td>
+<td>697.9</td>
+<td>853.8</td>
+<td>3194.1</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>3</td>
+<td>3,627.4/4,330.8</td>
+<td>2,040.9/2,241.5</td>
+<td>1170.8</td>
+<td>1520.5</td>
+<td>10678.0</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>1</td>
+<td>22,887.9/22,887.9</td>
+<td>20,226.6/20,226.6</td>
+<td>3756.9</td>
+<td>4481.7</td>
+<td>16179.5</td>
+</tr>
+</tbody>
+</table>
+<p>Ready time starts after copying the weights and measures server
+launch to health readiness. Cgroup counters include the charged model
+copy and cleanup. CPU totals sum different amounts of completed work,
+including the failed v3.5 work; they are not per-request efficiency
+comparisons. Values marked <code>[not set]</code> by retired systemd
+units remain unavailable; retained cgroup counters supply this table.
+ONNX preparation covers complete input preparation; v3.5’s subtotal
+covers external pretruncation only, with upstream retokenization
+included in total handling.</p>
+<h2 id="load-formatting-and-long-passages">Load, formatting and long
+passages</h2>
+<p>Five bursts at each client count use the actual adapter in one Python
+process and padded 599-character passages. The existing client permits
+two in-flight calls; excess calls return pressure. Fast pressure replies
+do not measure inference throughput.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Clients</th>
+<th>Requests</th>
+<th>Ranked/timeout/pressure</th>
+<th>Ranked-only p50/p95 ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>1</td>
+<td>5</td>
+<td>5/0/0</td>
+<td>478.5/483.7</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>2</td>
+<td>10</td>
+<td>10/0/0</td>
+<td>1,063.6/1,226.4</td>
+</tr>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>4</td>
+<td>20</td>
+<td>8/2/10</td>
+<td>1,083.6/1,380.3</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>1</td>
+<td>5</td>
+<td>4/1/0</td>
+<td>905.6/938.8</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>2</td>
+<td>10</td>
+<td>0/10/0</td>
+<td>unavailable/unavailable</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>4</td>
+<td>20</td>
+<td>0/10/10</td>
+<td>unavailable/unavailable</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>1</td>
+<td>5</td>
+<td>0/5/0</td>
+<td>unavailable/unavailable</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>2</td>
+<td>10</td>
+<td>0/10/0</td>
+<td>unavailable/unavailable</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>4</td>
+<td>20</td>
+<td>0/10/10</td>
+<td>unavailable/unavailable</td>
+</tr>
+</tbody>
+</table>
+<p>mMARCO is therefore a single-client compromise, not a proven
+concurrent service at this deadline. L6 has more headroom but still has
+two timeouts in the four-client bursts. v3.5 load/bypass checks are
+unattempted; the other models each pass one exact-symbol bypass without
+inference. Complete batch makespan, drain and ranked-only timing
+distributions are retained.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Long first: beginning/middle/end /16</th>
+<th>Whitespace/ASCII/NFD first /8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>13/7/0</td>
+<td>7/6/7</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>12/8/0</td>
+<td>7/6/7</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>16/10/0</td>
+<td>8/8/8</td>
+</tr>
+</tbody>
+</table>
+<p>Long controls place evidence at the beginning, middle or end of
+approximately 6,000 characters/passage. ONNX limits the combined
+query/document pair to 512 tokens; end evidence is clipped. The 0/16 end
+results describe this input policy. v3.5 limits each document to 512
+tokens before a joint prompt; its first attempt is censored and 47
+remaining long controls are unattempted. No result proves full
+advertised context-window quality.</p>
+<p>Formatting checks have eight German queries/variant. ASCII umlaut
+replacement and Unicode NFD each leave one query unchanged; whitespace
+changes all eight. ASCII changes the first source once for L6 and
+mMARCO, never for v2. Sixteen unsupported questions per completed model
+retain top-score distributions and top-two margins in the summary; they
+support no calibrated answerability threshold. v3.5 formatting and
+unsupported checks are unattempted.</p>
+<h2 id="three-practical-controls">Three practical controls</h2>
+<p>These fixed prior questions illustrate source-order changes. Each row
+is one raw request plus one separate actual-adapter call, not a latency
+percentile. Input rank is the deliberately shuffled candidate order, not
+a real retriever baseline; no live retrieval gain is implied.</p>
+<h3 id="access-negation-1-de">access-negation-1-de</h3>
+<p>Wer hat eine ausdrücklich erteilte Zugangsfreigabe für das
+Rechnungsarchiv? Required: Nora darf auf das Rechnungsarchiv zugreifen.
+Ihr Zugang ist ausdrücklich freigegeben.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Input source rank</th>
+<th>Raw source rank</th>
+<th>Raw ms</th>
+<th>Actual adapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>2</td>
+<td>2</td>
+<td>314.9</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>2</td>
+<td>2</td>
+<td>335.0</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>2</td>
+<td>1</td>
+<td>1,075.4</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>2</td>
+<td>1</td>
+<td>14,738.6</td>
+<td>timeout</td>
+</tr>
+</tbody>
+</table>
+<h3 id="amount-threshold-2-de">amount-threshold-2-de</h3>
+<p>Welche Lieferantenrechnung liegt genau auf der Grenze von fünfhundert
+Euro? Required: Die Rechnung des Lieferanten Drossel beträgt genau
+500,00 Euro und liegt damit auf der Grenze.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Input source rank</th>
+<th>Raw source rank</th>
+<th>Raw ms</th>
+<th>Actual adapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>4</td>
+<td>1</td>
+<td>201.0</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>4</td>
+<td>3</td>
+<td>317.1</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>4</td>
+<td>1</td>
+<td>1,176.0</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>4</td>
+<td>1</td>
+<td>15,409.2</td>
+<td>timeout</td>
+</tr>
+</tbody>
+</table>
+<h3 id="subject-object-2-de">subject-object-2-de</h3>
+<p>Wessen Reisekostenabrechnungen werden von Levin geprüft und
+freigegeben? Required: Levin prüft die Reisekostenabrechnungen von Nora
+und gibt sie anschließend frei.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Input source rank</th>
+<th>Raw source rank</th>
+<th>Raw ms</th>
+<th>Actual adapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>4</td>
+<td>1</td>
+<td>166.2</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>4</td>
+<td>2</td>
+<td>547.7</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>4</td>
+<td>1</td>
+<td>1,074.5</td>
+<td>ranked</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>4</td>
+<td>1</td>
+<td>13,868.0</td>
+<td>timeout</td>
+</tr>
+</tbody>
+</table>
+<h2 id="model-identity-failures-and-reproduction">Model identity,
+failures and reproduction</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Weight bytes / runtime</th>
+<th>Declared weight license</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MiniLM L6 EN/DE</td>
+<td>107,494,476 / INT8 ONNX CPU</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>mMARCO mMiniLMv2</td>
+<td>118,620,016 / INT8 ONNX CPU</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Jina v2</td>
+<td>279,577,152 / INT8 ONNX CPU</td>
+<td>CC BY-NC 4.0</td>
+</tr>
+<tr>
+<td>Jina v3.5</td>
+<td>1,193,708,152 BF16 file / official Transformers FP32 CPU</td>
+<td>CC BY-NC 4.0</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="models.json">model manifest</a> seals all 29
+model/tokenizer/configuration files and immutable repository revisions.
+<a href="requirements-frozen.txt">Dependencies</a> describe the isolated
+model environment, separate from the product environment. Model cards:
+<a
+href="https://huggingface.co/cross-encoder/msmarco-MiniLM-L6-en-de-v1">L6</a>,
+<a
+href="https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1">mMARCO</a>,
+<a
+href="https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual">v2</a>,
+<a href="https://huggingface.co/jinaai/jina-reranker-v3.5">v3.5</a>.</p>
+<p>The <a href="four-model-corpus-review.txt">corpus review</a> and <a
+href="four-model-harness-review.txt">helper review</a> preceded
+inference. Startup attempts a/b/c produced no inference, and the first
+v3.5 weight-copy attempt exhausted the tmpfs user quota. Their exact
+failures remain in <code>rejected-a/</code> through
+<code>rejected-d/</code>. SHA-identical owned old weight copies were
+deduplicated while retaining paths and contents. A reproduced
+drain-before-save defect was fixed after two failing regressions; five
+focused tests pass. The <a href="executed-sources/">executed sources</a>
+preserve old/new helper identities; successful timing boundaries stayed
+unchanged. The real failed drain now retains its request row.</p>
+<p>The <a href="aborted-e/jina-v3.5-r0/exit.json">v3.5 runtime
+failure</a> occurred after 4,208.788 seconds: first long request timed
+out at 30,042.7 ms and remained active throughout another 120 seconds.
+Its process was stopped as prescribed, with no OOM. Its 322 rows contain
+all primary/reverse, adapter and cross-language checks, one cold request
+and one failed long request. The 350 unattempted rows are 47 long, 24
+formatting, 16 unsupported, 225 performance, 35 load, one bypass and two
+cold requests. No timeout increase, v3.5 restart or post-result model
+tuning occurred. Retained Transformers warnings were checked: the
+Mistral regex warning is a false detection on this Qwen3 config and
+applies no regex change; <code>torch_dtype</code> deprecation preserves
+FP32.</p>
+<p>The <a href="evaluation/matrix-exit.json">terminal artifact</a>
+records nine successful units plus the failed unit. All ten measured
+children stopped, temporary copies were removed and port 8782 refused
+connections. The <a
+href="verification/independent-review.txt">independent review</a> found
+no open Critical/High/Medium or actionable Low code/evidence finding.
+Model infeasibility remains a result. Original product sources match the
+historical 343-file suite and 159-file diagnostic manifests. The earlier
+1,735-pass full suite is historical same-source evidence; this
+supplement has its own model measurements and focused checks.</p>
+<p>Reconstruct the summary without model dependencies from this report
+directory:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analyze_bounded.py evaluation <span class="at">--output</span> /path/to/new-summary.json</span></code></pre></div>
+<p>The output must equal <code>summary.json</code>: 2,338 actual rows,
+350 unattempted, explicit original-protocol failure. Run
+<code>PYTHONPATH=. .venv/bin/python docs/benchmarks/2026-10-30-multilingual-rerankers/check_failure_persistence.py</code>
+from the repository root for the five model-free regressions. Per-unit
+command arrays, actual exits, envelopes and timestamps are in the
+terminal artifact. Rerunning inference requires the sealed weight files,
+isolated model environment, Linux user systemd and four-CPU/eight-GiB
+envelope; the prescribed v3.5 stop remains expected evidence. The
+separate embedding comparison is tracked in <a
+href="https://github.com/phense/agentic-rag/issues/83">Issue
+#83</a>.</p>
+<p>No model service or production configuration was activated. PR #82
+remains subject to maintainer merge approval.</p>
+</body>
+</html>

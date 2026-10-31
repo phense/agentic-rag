@@ -1,0 +1,1 @@
+{"kind": "loaded", "name": "minilm-l6", "load_ms": 2395.807961001992, "pid": 1108523, "affinity": [0, 1, 2, 3], "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-minilm-l6-r0.service\n", "rss_peak_kib": 558952}

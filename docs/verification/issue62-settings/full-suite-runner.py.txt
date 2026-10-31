@@ -1,0 +1,26 @@
+"""Run full fresh suite; retain actual exit, timing and source digest separately."""
+from pathlib import Path
+from hashlib import sha256
+import json,os,subprocess,time
+root=Path('/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030')
+scratch=Path('/home/administrator/Claude/.scratch/rag62-settings-20261030')
+def source_digest():
+    paths=[]
+    for folder in ('agentic_rag','sql','tests'):
+        paths.extend(p for p in (root/folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix in {'.py','.sql','.js','.css','.html','.mjs','.json'})
+    paths.extend(root/name for name in ('pyproject.toml','uv.lock'))
+    h=sha256()
+    for p in sorted(paths):h.update(str(p.relative_to(root)).encode()+b'\0'+p.read_bytes()+b'\0')
+    return h.hexdigest()
+env=dict(os.environ)
+for name in ('PGHOST','PGHOSTADDR','PGSERVICE','PGSERVICEFILE'):env.pop(name,None)
+env.update(PGPORT='55460',PYTHONDONTWRITEBYTECODE='1',TMPDIR='/dev/shm/agentic-rag-issue60-20261030/test-artifacts',LD_LIBRARY_PATH='/home/administrator/Claude/.scratch/agentic-rag-issue59-20261030/browser-libs/usr/lib/x86_64-linux-gnu',RAG_BROWSER_ARTIFACT_DIR=str(scratch/'browser'),RAG_SETTINGS_EVIDENCE_DIR=str(scratch))
+name=os.environ.get('ISSUE60_TEST_RUN','full-final')
+started=time.monotonic();before=source_digest()
+with (scratch/(name+'.log')).open('w') as log:
+    result=subprocess.run([str(root/'.venv/bin/python'),'-m','pytest','-q','--tb=short','-p','no:cacheprovider'],cwd=root,env=env,stdout=log,stderr=subprocess.STDOUT)
+report={'exit':result.returncode,'seconds':round(time.monotonic()-started,2),'source_digest_before':before,'source_digest_after':source_digest()}
+(scratch/(name+'.exit')).write_text(str(result.returncode)+'\n')
+(scratch/(name+'-timing.json')).write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report))
+raise SystemExit(result.returncode)

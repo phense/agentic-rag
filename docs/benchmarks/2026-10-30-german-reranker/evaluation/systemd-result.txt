@@ -1,0 +1,6 @@
+Running as unit: rag62-german-20261030-d.service; invocation ID: db176f6428814f9d956758fa1caec099
+          Finished with result: success
+Main processes terminated with: code=exited, status=0/SUCCESS
+               Service runtime: 37.656s
+             CPU time consumed: 2min 3.264s
+                   Memory peak: 131.2M (swap: 0B)

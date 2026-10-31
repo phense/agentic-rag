@@ -1,0 +1,6 @@
+Running as unit: rag62-german-20261030-c.service; invocation ID: 451f5aeb9cdb4fa7a5690f2eee5348a9
+          Finished with result: exit-code
+Main processes terminated with: code=exited, status=1/FAILURE
+               Service runtime: 31.750s
+             CPU time consumed: 1min 43.201s
+                   Memory peak: 130M (swap: 0B)

@@ -25,10 +25,14 @@ requirements AC001–009. Last edited 2026-10-30. Target 0.6.12/schema 025.
 Content review and rehearsals are recorded separately in the
 [verification record](verification/issue59-dashboard.md).
 
+Current0.6.15 requires schema028. The original dashboard setup below remains
+applicable; use the [reranker Settings upgrade procedure](reranker-settings.md)
+for the subsequent027-to028 audit extension and the new model selection page.
+
 ## Before starting
 
-Use Python 3.13+, PostgreSQL 17 with pgvector, current 0.6.12 code and an initialized
-schema 025 store. For an existing installation, take a verified backup and use
+Use Python 3.13+, PostgreSQL 17 with pgvector, the approved package and its required schema
+(currently0.6.15/schema028). For an existing installation, take a verified backup and use
 [PB-058-01](13-central-service.md#pb-058-01-install-upgrade-and-enroll) to upgrade
 before starting the new API. Supported source prefixes 018–024 remain additive;
 025 adds dashboard control tables. An older-schema API refuses to start.

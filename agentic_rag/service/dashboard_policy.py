@@ -151,6 +151,13 @@ def _change(doc,change,*,generate=False):
     if not isinstance(change,dict) or not {'kind','id'}<=set(change):raise ServiceError('invalid_change')
     kind=change['kind'];subject=change['id'];secret=None
     if not isinstance(subject,str) or not _ID.fullmatch(subject):raise ServiceError('invalid_change')
+    if kind=='reranker':
+        if set(change)!={'kind','id'}:raise ServiceError('invalid_change')
+        from ..reranker_profiles import preset
+        preset(subject)
+        doc['reranker']={'profile':subject}
+        Policy(doc.unwrap())
+        return kind,subject,None
     allowed={'kind','id','fields','password'} if kind=='user' else {'kind','id','fields','user'} if kind=='machine' else {'kind','id','key_id'}
     if set(change)-allowed:raise ServiceError('invalid_change')
     if 'users' not in doc:doc['users']={}
@@ -223,6 +230,9 @@ def change_policy(cfg,path,principal,data,*,apply=False):
         if data['revision']!=revision(old):raise ServiceError('policy_revision_conflict',409)
         doc=tomlkit.parse(old.decode())
         kind,subject,secret=_change(doc,data['change'],generate=apply)
+        if kind=='reranker':
+            from .dashboard_settings import probe
+            probe(cfg,subject)
         current()
         if not apply:return {'valid':True,'revision':data['revision'],'kind':kind,'subject':subject,'ownership':'file','requires_explicit_apply':True}
         operation=str(uuid.UUID(data['operation_id']))

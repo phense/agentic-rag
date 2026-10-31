@@ -1,0 +1,60 @@
+Traceback (most recent call last):
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/_core/__init__.py", line 24, in <module>
+    from . import multiarray
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/_core/multiarray.py", line 11, in <module>
+    from . import _multiarray_umath, overrides
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/_core/overrides.py", line 6, in <module>
+    from numpy._core._multiarray_umath import (
+    ...<3 lines>...
+    )
+ModuleNotFoundError: No module named 'numpy._core._multiarray_umath'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/dev/shm/rag62-settings-wheel-20261030/agentic_rag/reranker_runtime.py", line 192, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/dev/shm/rag62-settings-wheel-20261030/agentic_rag/reranker_runtime.py", line 184, in main
+    rankers = {name: OnnxRanker(args.models_dir, preset(name), args.threads) for name in args.profiles}
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/dev/shm/rag62-settings-wheel-20261030/agentic_rag/reranker_runtime.py", line 68, in __init__
+    import numpy as np
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/__init__.py", line 109, in <module>
+    from numpy.__config__ import show_config
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/__config__.py", line 4, in <module>
+    from numpy._core._multiarray_umath import (
+    ...<3 lines>...
+    )
+  File "/dev/shm/rag62-settings-optional-20261030/numpy/_core/__init__.py", line 85, in <module>
+    raise ImportError(msg) from exc
+ImportError:
+
+IMPORTANT: PLEASE READ THIS FOR ADVICE ON HOW TO SOLVE THIS ISSUE!
+
+Importing the numpy C-extensions failed. This error can happen for
+many reasons, often due to issues with your setup or how NumPy was
+installed.
+The following compiled module files exist, but seem incompatible
+with with either python 'cpython-314' or the platform 'linux':
+
+  * _multiarray_umath.cpython-313-x86_64-linux-gnu.so
+
+We have compiled some common reasons and troubleshooting tips at:
+
+    https://numpy.org/devdocs/user/troubleshooting-importerror.html
+
+Please note and check the following:
+
+  * The Python version is: Python 3.14 from "/home/administrator/Claude/agentic-rag/.venv/bin/python"
+  * The NumPy version is: "2.5.4"
+
+and make sure that they are the versions you expect.
+
+Please carefully study the information and documentation linked above.
+This is unlikely to be a NumPy issue but will be caused by a bad install
+or environment on your machine.
+
+Original error was: No module named 'numpy._core._multiarray_umath'

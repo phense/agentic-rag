@@ -1,0 +1,16 @@
+{
+  "source_version": "0.6.14",
+  "target_version": "0.6.15",
+  "schema": "027",
+  "release_metadata": true,
+  "local_link_count": 195,
+  "missing_links": [],
+  "wheel_sha256": "6a081b14fb7d11eb471ee570b58998bd46423761eec8e7771c648bda15a2831e",
+  "wheel_installed_and_imported_outside_checkout": true,
+  "packaged_sql_files": 27,
+  "packaged_corpus_v2": true,
+  "lock_check_exit": 0,
+  "build_exit": 0,
+  "installation_exit": 0,
+  "import_exit": 0
+}

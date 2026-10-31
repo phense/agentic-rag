@@ -84,3 +84,6 @@ bounded audited backfill, source014→015 upgrade, interruption and recovery lim
 [OpenCode and DeepSeek](opencode.md) — native context/recall, compaction continuity, idle mining, installation and scope.
 
 - [Agent plugins, waiting requests and compaction](14-agent-plugins.md)
+
+For local search-model selection in0.6.15/schema028, use
+[Choose and upgrade local reranker settings](reranker-settings.md).

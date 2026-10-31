@@ -1,0 +1,94 @@
+{
+  "utc": "2026-10-30T22:43:07.871184+00:00",
+  "source_revision": "e81b21ffc907218800e1fa9646abf74d0c81b7e7",
+  "frozen": {
+    "analyze_bounded.py": "708f573d36b59c0bd68c0cf4ef802ce57e5cf9194394bc79bec8ceb5a950c259",
+    "benchmark.py": "cf90803200011b86bcc4a96e3d4fcbf1458b565c83712e4e1dfd6c0505e77a7d",
+    "check_failure_persistence.py": "b2acc7daf2d2b536c80ac494d18a6b7c55c43247b54670f9d5514139e48b88a3",
+    "build_corpus.py": "88d944f51fd3aff13bbdf8a689c78ee548ba3c684820882a17f94f2f29367ea1",
+    "finish_bounded_matrix.py": "97c19afe509874fae3a32c745d9fbc75cb1565e7be01e16ddba3195b68ded3a6",
+    "run_matrix.py": "b2fd582ee79470d77a33d000597a2cd258e23cfd5b671199fdd542861d3c58db",
+    "server.py": "12d8cbf71a4e258dac7a01113047541bf97c0a9b6b5eb82479644bda921ab962",
+    "analyze.py": "e4f0ccb78bf71ae591cc3f68b5321536fc2a5b8f56e0deee1a6f919f42549700",
+    "resume_matrix.py": "94535392fd77bb5e34cfcfee8000e0e062905f23d41c7d4338d7c61ca67576cf",
+    "corpus.json": "ecf2aa040e92e2eb9119d87b539afdd3ace4c4ac62668e9c5b8679bb103f2a36"
+  },
+  "product": {
+    "agentic_rag/neural_rerank.py": "5300d78b87ae0b5a9985b5f5a9aba7bdd35245c88da9674cca5eaca7eee149f7",
+    "agentic_rag/config.py": "6ed392ba9c9cdb8873ce140140395d57562b9a767d396e1b5644b42885407efa",
+    "agentic_rag/retrieval.py": "0476b66af0af4b8d923ff6b1de9fc1b723f59917baec06a2f79c80eeb6069490"
+  },
+  "model": {
+    "name": "minilm-l6",
+    "repo": "cross-encoder/msmarco-MiniLM-L6-en-de-v1",
+    "revision": "9eb610d90d409cfefb7422e13debd405f8465af6",
+    "license": "apache-2.0",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 107494476,
+        "sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+        "upstream_lfs_sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 9096735,
+        "sha256": "96ef91dd5d1c3b157a0437e85ff1f29d0eb3cf32fd40f863dab45baa5e839fad",
+        "upstream_lfs_sha256": null
+      },
+      "config.json": {
+        "upstream_path": "config.json",
+        "bytes": 840,
+        "sha256": "a9b877e1045cab3fa0a8cdded9af95827f04415c441b379782934cc078e30d2f",
+        "upstream_lfs_sha256": null
+      },
+      "tokenizer_config.json": {
+        "upstream_path": "tokenizer_config.json",
+        "bytes": 541,
+        "sha256": "d6ce88bf6b3994954d997ea969f0da21d435dfbbb74825e9e496e1090cb8a6d4",
+        "upstream_lfs_sha256": null
+      },
+      "special_tokens_map.json": {
+        "upstream_path": "special_tokens_map.json",
+        "bytes": 150,
+        "sha256": "7638f5bbbe86ef6d604ef28ad3647dc690d6d117c81c0d63e885416be8da1150",
+        "upstream_lfs_sha256": null
+      },
+      "README.md": {
+        "upstream_path": "README.md",
+        "bytes": 4998,
+        "sha256": "904aed3fcf00f8486b5dc0ddcc8960cfd1d8dc8c6e26ac6cd726ec9e1b822768",
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  "envelope": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-f-minilm-l6-r1.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      4.2080078125,
+      4.09375,
+      4.021484375
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 234803\nuser_usec 188841\nsystem_usec 45961\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 3\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "21295104",
+    "memory.peak": "21307392",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "versions": {
+    "onnxruntime": "1.31.1",
+    "tokenizers": "0.22.2",
+    "numpy": "2.5.4",
+    "torch": "2.15.0+cpu",
+    "transformers": "4.57.3",
+    "httpx": "0.28.1"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "exit": 1,
+  "observations": 0,
+  "child_stopped": true,
+  "child_exit": null,
+  "cleanup_errors": [],
+  "remaining_group_members": [],
+  "temporary_model_copy_removed": true,
+  "envelope_after": {
+    "path": "/user.slice/user-1000.slice/user@1000.service/app.slice/rag62-four-runs-d-jina-v35-r0.service",
+    "affinity": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "loadavg": [
+      5.2890625,
+      4.603515625,
+      4.21630859375
+    ],
+    "cpu.max": "400000 100000",
+    "cpu.stat": "usage_usec 1494557\nuser_usec 436499\nsystem_usec 1058058\nnice_usec 0\ncore_sched.force_idle_usec 0\nnr_periods 16\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+    "memory.current": "24109056",
+    "memory.peak": "593567744",
+    "memory.max": "8589934592",
+    "memory.swap.max": "0",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+  },
+  "utc": "2026-10-30T21:16:25.741523+00:00"
+}

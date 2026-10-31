@@ -1,0 +1,19 @@
+{
+  "authored_local_links": 59,
+  "missing": [],
+  "corpus_sha256": "2f018b5b7b4bd03a128942fa7aadaf1139f55d41702dc0fd95f4b06e3331aa84",
+  "evaluate_sha256": "3739c3546ef5eedfebce7eab75d4c9e8cd398d9ab2f68a6c7cfc3ce2d318f681",
+  "analyze_sha256": "21b320a001d207760052bb5986c6bc4ff7d0b92e136b2de8590d64958ed61944",
+  "original159source_files_unchanged": true,
+  "original343test_manifest_files_unchanged": true,
+  "raw_negative_example": "rejected-c/raw-48.json",
+  "accepted_exit": 0,
+  "no_production_change": true,
+  "documentation_tests": {
+    "passed": 17,
+    "exit": 0,
+    "seconds": 0.77
+  },
+  "independent_evidence_review_sha256": "719ba4cc2201b77063987c5c4a8e8c6b66fab6fb31d86250736c56d496ab6e15",
+  "rendered_and_visually_inspected": true
+}
