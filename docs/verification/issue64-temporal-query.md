@@ -21,7 +21,8 @@ roadmap step6/15, adds opt-in calendar interpretation and event-time preference
 or explicit filtering. Source0.6.16/schema029 is `8772fbd`; product changes end at
 `6291685`, independently reviewed through `517263c`. Target0.6.17 retains schema029.
 The independent review found zero Critical, High or Medium defects. The full-suite
-gate is 1,896passed,1expected macOS skip,1known Starlette warning,exit0,1686.96s. No production deployment is included.
+gate is 1,896passed,1expected macOS skip,1known Starlette warning,exit0,1686.96s. [PR87](https://github.com/phense/agentic-rag/pull/87) is published and awaits
+a new maintainer approval before merge. No production deployment is included.
 
 Terms: a candidate is a hit already selected by authorized retrieval; an event
 time is an assertion time or qualifying original source time, never import/update
