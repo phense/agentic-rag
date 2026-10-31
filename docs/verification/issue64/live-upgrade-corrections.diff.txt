@@ -1,0 +1,65 @@
+--- .engineering-method/inputs/RAG-064/live-upgrade-before-fixes.py.txt	2026-10-31 12:30:49.822317059 +0000
++++ docs/verification/issue64/live-upgrade.py.txt	2026-10-31 12:30:49.888899198 +0000
+@@ -25,12 +25,14 @@
+ OPERATIONAL = {'schema_migrations', 'service_sessions', 'dashboard_changes', 'dashboard_presence',
+                'request_traces', 'dashboard_setup', 'service_requests', 'service_foreground'}
+ READ = '''
+-from dataclasses import asdict
++from dataclasses import asdict,replace
+ from agentic_rag import db,search
+ from agentic_rag.config import load_config
+-import hashlib,json
+-cfg=load_config()
+-with db.connect(cfg,role='reader') as c:
++import hashlib,json,re,sys
++assert re.fullmatch(r"rag_bench_[0-9a-f]{24}",sys.argv[1]), "owned_clone_required"
++cfg=replace(load_config(),db_name=sys.argv[1])
++with db.connect(cfg) as c:
++ c.execute("SET ROLE rag_reader")
+  hits,warnings=search.search(c,cfg,'PostgreSQL',domain='sysadmin',k=3,strategy='lexical',rerank_mode='off',context_mode='off')
+  value=json.dumps([asdict(h) for h in hits],sort_keys=True,default=str)
+  print(json.dumps({'hits':len(hits),'sha256':hashlib.sha256(value.encode()).hexdigest(),'warnings':warnings}))
+@@ -66,20 +68,14 @@
+         assert db.apply_migrations(c, db.SQL_DIR) == []
+     return applied
+ 
+-def old_read(cfg, original_text, directory):
+-    path = directory / (cfg.db_name + '-old-read.toml')
+-    # Inputs are the checked deployment TOML, without temporal enabled yet.
+-    text = original_text.replace('name = "' + original_name + '"', 'name = "' + cfg.db_name + '"', 1)
+-    assert load_config_text_name(text) == cfg.db_name
+-    path.write_text(text); path.chmod(0o600)
+-    env = dict(os.environ, AGENTIC_RAG_CONFIG=str(path), PYTHONPATH=str(OLD))
+-    result = subprocess.run([str(OLD/'.venv/bin/python'), '-c', READ], cwd=OLD, env=env,
++def old_read(cfg, operator):
++    from agentic_rag.benchmark.database import validate_name
++    validate_name(cfg.db_name)
++    env = dict(os.environ, AGENTIC_RAG_CONFIG=str(operator), PYTHONPATH=str(OLD))
++    result = subprocess.run([str(OLD/'.venv/bin/python'), '-c', READ, cfg.db_name], cwd=OLD, env=env,
+                             capture_output=True, text=True, check=True, timeout=120)
+     return json.loads(result.stdout.strip().splitlines()[-1])
+ 
+-def load_config_text_name(text):
+-    import tomllib
+-    return tomllib.loads(text)['db']['name']
+ 
+ p = argparse.ArgumentParser()
+ p.add_argument('mode', choices=['preflight','rehearse','apply','post'])
+@@ -124,13 +120,14 @@
+         with db.connect(clone) as c:
+             c.execute(sql.SQL('ALTER DATABASE {} OWNER TO {}').format(sql.Identifier(clone.db_name),sql.Identifier(owner)))
+             c.commit()
+-        before=old_read(clone,text,base)
++        before=old_read(clone,operator)
+         applied=migrate(clone,owner,manifest,['029_source_evidence.sql'])
+-        after=old_read(clone,text,base)
++        after=old_read(clone,operator)
+         assert before==after, 'actual_0_6_15_read_changed'
+         from agentic_rag import search
+         from dataclasses import asdict
+-        with db.connect(clone,role='reader') as c:
++        with db.connect(clone) as c:
++            c.execute('SET ROLE rag_reader')
+             hits,warnings=search.search(c,replace(clone,temporal_enabled=False),'PostgreSQL',domain='sysadmin',k=3,strategy='lexical',rerank_mode='off',context_mode='off',temporal='off')
+             digest=hashlib.sha256(json.dumps([asdict(h) for h in hits],sort_keys=True,default=str).encode()).hexdigest()
+         assert digest==before['sha256'] and warnings==before['warnings'], 'new_legacy_read_changed'

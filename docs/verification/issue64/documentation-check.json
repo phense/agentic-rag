@@ -1,0 +1,27 @@
+{
+  "relative_links_checked": 22,
+  "missing": [],
+  "render": [
+    {
+      "document": "verification",
+      "tables": 3,
+      "rendered": true
+    },
+    {
+      "document": "temporal",
+      "tables": 4,
+      "rendered": true
+    }
+  ],
+  "version": "0.6.17",
+  "base_version": "0.6.16",
+  "schema_changed": false,
+  "unchanged_reviewed_runtime_test_version_files": 14,
+  "status": "passed",
+  "self_review": [
+    "standalone reference reader and scope explicit",
+    "human-prose chunk check preserves facts/limits and avoids rhetorical claims",
+    "curse-of-knowledge and terminology checks retain explicit command/artifact locations, expand MRR and Recall@5",
+    "privacy/provider statement distinguishes date parsing from normal retrieval"
+  ]
+}

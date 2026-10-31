@@ -1,0 +1,208 @@
+{
+  "passed": true,
+  "fresh_backup": {
+    "restore_verified": true,
+    "installed_version": "0.6.17",
+    "migrations": 29,
+    "tables": 39,
+    "rows": 299538,
+    "dump_sha256": "55e842002cb89c2e500de6938d922948a601673c2f87b98e9813f5b94920b257",
+    "sealed_bytes": 1100256758,
+    "root_private_modes_verified": true,
+    "completed_at": "2026-10-31T12:49:24.331036+00:00",
+    "date_based_daily_package": "existing0.6.15package retained; upgrade package is a separate fresh0.6.17backup"
+  },
+  "backup_timer_active_enabled": true,
+  "normal_backup_service_result": "success",
+  "auth_and_launchers_unchanged": true,
+  "worker_inactive_gate_absent": true,
+  "activation": {
+    "passed": true,
+    "installed_version": "0.6.17",
+    "both_API_units_active": true,
+    "temporal_enabled_both": true,
+    "timezone": "Europe/Berlin",
+    "other_configuration_equal": true,
+    "policy_hashes_unchanged": true,
+    "config_owners_modes_unchanged": true,
+    "worker_inactive_gate_absent": true,
+    "services_started_after_seconds": 300.92,
+    "HTTPS_verification": "passed; see live-http.json"
+  },
+  "stores": {
+    "canonical": {
+      "preflight": {
+        "migrations": 28,
+        "mode": "preflight",
+        "passed": true,
+        "ready": true,
+        "rows": 299506,
+        "seconds": 12.96,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:23:43.584676+00:00",
+        "tables": 35,
+        "target": "canonical",
+        "target_version": "0.6.17"
+      },
+      "rehearse": {
+        "empty_retry": true,
+        "migrations_applied": [
+          "029_source_evidence.sql"
+        ],
+        "mode": "rehearse",
+        "new_legacy_equal": true,
+        "old_code_rollback_equal": true,
+        "original_rows_unchanged": true,
+        "owned_rehearsal_database_removed": true,
+        "passed": true,
+        "read_hits": 3,
+        "restore_verified": true,
+        "seconds": 95.59,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:35:47.571966+00:00",
+        "target": "canonical",
+        "target_version": "0.6.17"
+      },
+      "apply": {
+        "dump_sha256": "0b33b9be0550dbec1c5c0dc1f98009f2f82594cf418b34452c9746e4f8292f8a",
+        "empty_retry": true,
+        "migrations_applied": [
+          "029_source_evidence.sql"
+        ],
+        "mode": "apply",
+        "original_rows_unchanged": true,
+        "passed": true,
+        "restore_verified": true,
+        "rows_preserved": 299517,
+        "seconds": 138.89,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:40:18.250863+00:00",
+        "tables_preserved": 35,
+        "target": "canonical",
+        "target_version": "0.6.17"
+      },
+      "post": {
+        "core_rows_preserved": 299450,
+        "core_tables_unchanged": 27,
+        "migration_history_unchanged": true,
+        "mode": "post",
+        "operational_tables_excluded": [
+          "dashboard_changes",
+          "dashboard_presence",
+          "dashboard_setup",
+          "request_traces",
+          "schema_migrations",
+          "service_foreground",
+          "service_requests",
+          "service_sessions"
+        ],
+        "original_grants_unchanged": true,
+        "original_owners_unchanged": true,
+        "passed": true,
+        "seconds": 12.1,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:47:05.472138+00:00",
+        "target": "canonical",
+        "target_version": "0.6.17"
+      }
+    },
+    "dashboard": {
+      "preflight": {
+        "migrations": 28,
+        "mode": "preflight",
+        "passed": true,
+        "ready": true,
+        "rows": 300944,
+        "seconds": 14.37,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:23:57.025441+00:00",
+        "tables": 35,
+        "target": "dashboard",
+        "target_version": "0.6.17"
+      },
+      "rehearse": {
+        "empty_retry": true,
+        "migrations_applied": [
+          "029_source_evidence.sql"
+        ],
+        "mode": "rehearse",
+        "new_legacy_equal": true,
+        "old_code_rollback_equal": true,
+        "original_rows_unchanged": true,
+        "owned_rehearsal_database_removed": true,
+        "passed": true,
+        "read_hits": 3,
+        "restore_verified": true,
+        "seconds": 96.95,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:37:23.614680+00:00",
+        "target": "dashboard",
+        "target_version": "0.6.17"
+      },
+      "apply": {
+        "dump_sha256": "a554ae7e3e98ca458387a9fb66cc0188dcacec7a170ed8f2afebaa055e07c37d",
+        "empty_retry": true,
+        "migrations_applied": [
+          "029_source_evidence.sql"
+        ],
+        "mode": "apply",
+        "original_rows_unchanged": true,
+        "passed": true,
+        "restore_verified": true,
+        "rows_preserved": 300955,
+        "seconds": 140.87,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:42:37.623799+00:00",
+        "tables_preserved": 35,
+        "target": "dashboard",
+        "target_version": "0.6.17"
+      },
+      "post": {
+        "core_rows_preserved": 300832,
+        "core_tables_unchanged": 27,
+        "migration_history_unchanged": true,
+        "mode": "post",
+        "operational_tables_excluded": [
+          "dashboard_changes",
+          "dashboard_presence",
+          "dashboard_setup",
+          "request_traces",
+          "schema_migrations",
+          "service_foreground",
+          "service_requests",
+          "service_sessions"
+        ],
+        "original_grants_unchanged": true,
+        "original_owners_unchanged": true,
+        "passed": true,
+        "seconds": 13.87,
+        "source_version": "0.6.15",
+        "started_at": "2026-10-31T12:47:17.817638+00:00",
+        "target": "dashboard",
+        "target_version": "0.6.17"
+      }
+    }
+  },
+  "event_time_coverage": {
+    "canonical": {
+      "sources": 3613,
+      "dated_sources": 3512
+    },
+    "dashboard": {
+      "sources": 3689,
+      "dated_sources": 3588
+    }
+  },
+  "permission_regression": {
+    "method": "synthetic producer and mocked validator; actual secure publisher and stat",
+    "permissions_passed": true,
+    "directory_root_0700": true,
+    "files_root_0600": true,
+    "database_restore_tested": false
+  },
+  "application_source": "e51003ac8a07c77aa7741cb07cd2be3714a1d0a1",
+  "runtime_matches_full_suite_head": "517263c64e3677246ca40acd7d82997b15f2f15a",
+  "schema_and_data_rewrite": "Only bundled additive029 from0.6.16; no re-embedding or original content rewrite",
+  "read_only_database_defaults_restored": true,
+  "source_files_verified_before_activation": 1179
+}

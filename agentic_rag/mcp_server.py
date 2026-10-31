@@ -81,7 +81,8 @@ def memory_domains() -> dict:
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
-                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto") -> dict:
+                  project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto",
+                  temporal: str | None = None, reference: str | None = None, timezone: str | None = None) -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
@@ -91,7 +92,14 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     lexical explicitly uses bilingual full-text only. A verified available local
     model may reorder ambiguous auto searches; rerank=off keeps deterministic
     candidate ordering. context=off retains original representations; auto also
-    uses current source-grounded contextual indices when migration015 is present."""
+    uses current source-grounded contextual indices when migration015 is present.
+    temporal (auto by default) interprets yesterday/gestern, last week/letzte Woche,
+    next month/nächsten Monat, ISO or German full dates and explicit ranges: auto
+    follows the server [temporal] configuration (off by default), prefer orders
+    hits whose known event time is in the period first, filter keeps only those
+    and fails on missing or ambiguous periods, off disables. reference (ISO
+    timestamp with offset) and timezone (IANA name) affect interpretation only,
+    never as_of/history. Applied interpretation is returned under "temporal"."""
     from .search import validate_strategy, validate_rerank_mode
     validate_strategy(strategy)
     validate_rerank_mode(rerank)
@@ -99,8 +107,13 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
         raise ValueError("context must be auto or off")
     cfg, conn = _connect()
     with conn:
-        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context)
-        return {"results": _plain(hits), "warnings": warnings}
+        diagnostics = {}
+        hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context,
+                                    temporal=temporal or "auto", reference=reference, timezone=timezone, diagnostics=diagnostics)
+        result = {"results": _plain(hits), "warnings": warnings}
+        if "temporal" in diagnostics:
+            result["temporal"] = diagnostics["temporal"]
+        return result
 
 
 async def memory_research(question: str, domain: str | None = None,
@@ -387,6 +400,16 @@ READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, mem
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin)
 
 
+# Optional arguments added after protocol1. A client omits them unless the caller
+# set them, so services that predate them keep accepting otherwise valid calls.
+ADDITIVE_ARGUMENTS = {"memory_search": ("temporal", "reference", "timezone")}
+
+
+def wire_arguments(name: str, arguments: dict) -> dict:
+    optional = ADDITIVE_ARGUMENTS.get(name, ())
+    return {key: value for key, value in arguments.items() if not (key in optional and value is None)}
+
+
 def tool_names(readonly: bool) -> list[str]:
     fns = list(READ_TOOLS) + ([] if readonly else list(WRITE_TOOLS))
     return [f.__name__ for f in fns]
@@ -405,7 +428,7 @@ def build_server(readonly: bool) -> FastMCP:
         async def proxy(**arguments):
             from .service.client import RemoteClient,RemoteError
             def call():
-                with RemoteClient(cfg) as client:return client.invoke(fn.__name__,arguments)
+                with RemoteClient(cfg) as client:return client.invoke(fn.__name__,wire_arguments(fn.__name__,arguments))
             try:return await asyncio.to_thread(call)
             except RemoteError as exc:raise ValueError(exc.code) from None
         hints=get_type_hints(fn)

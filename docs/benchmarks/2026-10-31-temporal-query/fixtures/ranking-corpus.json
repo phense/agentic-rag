@@ -1,0 +1,590 @@
+{
+ "fixture": "RAG-064 synthetic ranking corpus",
+ "version": 1,
+ "domain": "general",
+ "namespace": "synthetic",
+ "note": "All rows are written through audited gateways (save_claim, save_assertion, save_document, review_claim, set_source_state). No private data.",
+ "documents": [
+  {
+   "key": "dev-backup-yesterday",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-yesterday",
+   "body": "Nightly backup job failed on the storage node; retry succeeded.",
+   "sources": [
+    {
+     "source_id": "dev-backup-yesterday-src-0",
+     "role": "user",
+     "timestamp": "2026-10-29T14:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-backup-lastweek",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-lastweek",
+   "body": "Nightly backup job failed again: nightly backup job failed because the backup volume was full.",
+   "sources": [
+    {
+     "source_id": "dev-backup-lastweek-src-0",
+     "role": "user",
+     "timestamp": "2026-10-21T09:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-backup-old",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-old",
+   "body": "Nightly backup job failed. Nightly backup job failed after a network change.",
+   "sources": [
+    {
+     "source_id": "dev-backup-old-src-0",
+     "role": "user",
+     "timestamp": "2026-09-02T08:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-backup-assistant",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-assistant",
+   "body": "Nightly backup job failed, assistant summary of the nightly backup job failed run.",
+   "sources": [
+    {
+     "source_id": "dev-backup-assistant-src-0",
+     "role": "user",
+     "timestamp": "2026-09-10T10:00:00+02:00",
+     "complete": true
+    },
+    {
+     "source_id": "dev-backup-assistant-src-1",
+     "role": "assistant",
+     "timestamp": "2026-10-29T11:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-backup-refuted",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-refuted",
+   "body": "Nightly backup job failed. Nightly backup job failed, refuted report.",
+   "sources": [
+    {
+     "source_id": "dev-backup-refuted-src-0",
+     "role": "user",
+     "timestamp": "2026-10-29T09:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": [
+    {
+     "op": "refute"
+    }
+   ]
+  },
+  {
+   "key": "dev-backup-withdrawn",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-withdrawn",
+   "body": "Nightly backup job failed. Nightly backup job failed, withdrawn note.",
+   "sources": [
+    {
+     "source_id": "dev-backup-withdrawn-src-0",
+     "role": "user",
+     "timestamp": "2026-10-29T16:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": [
+    {
+     "op": "withdraw",
+     "source": 0
+    }
+   ]
+  },
+  {
+   "key": "dev-backup-legacy",
+   "kind": "legacy",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-backup-legacy",
+   "body": "Nightly backup job failed. Nightly backup job failed, legacy note without event time."
+  },
+  {
+   "key": "dev-backup-private",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/private",
+   "title": "Synthetic dev-backup-private",
+   "body": "Nightly backup job failed. Nightly backup job failed on the private node.",
+   "sources": [
+    {
+     "source_id": "dev-backup-private-src-0",
+     "role": "user",
+     "timestamp": "2026-10-29T12:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-vpn-1014",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-vpn-1014",
+   "body": "VPN tunnel dropped during the firmware update.",
+   "sources": [
+    {
+     "source_id": "dev-vpn-1014-src-0",
+     "role": "user",
+     "timestamp": "2026-10-14T15:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-vpn-1002",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-vpn-1002",
+   "body": "VPN tunnel dropped. VPN tunnel dropped at the branch office.",
+   "sources": [
+    {
+     "source_id": "dev-vpn-1002-src-0",
+     "role": "user",
+     "timestamp": "2026-10-02T10:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-vpn-0920",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-vpn-0920",
+   "body": "VPN tunnel dropped. VPN tunnel dropped twice on the gateway.",
+   "sources": [
+    {
+     "source_id": "dev-vpn-0920-src-0",
+     "role": "user",
+     "timestamp": "2026-09-20T10:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-vpn-range",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-vpn-range",
+   "body": "VPN tunnel dropped report.",
+   "sources": [
+    {
+     "source_id": "dev-vpn-range-src-0",
+     "role": "user",
+     "timestamp": "2026-10-01T23:30:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-relay-old",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "mail relay",
+   "attribute": "port",
+   "value": "mail relay port 25",
+   "event_at": "2026-10-12T08:00:00+02:00",
+   "relation": "assertion",
+   "expires_at": null
+  },
+  {
+   "key": "dev-relay-new",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "mail relay",
+   "attribute": "port",
+   "value": "mail relay port 2525",
+   "event_at": "2026-10-29T09:00:00+01:00",
+   "relation": "replacement",
+   "expires_at": null
+  },
+  {
+   "key": "dev-relay-future",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "mail relay",
+   "attribute": "port",
+   "value": "mail relay port 465 planned",
+   "event_at": "2026-11-15T09:00:00+01:00",
+   "relation": "replacement",
+   "expires_at": null
+  },
+  {
+   "key": "dev-relay-expired",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "mail relay",
+   "attribute": "maintenance port",
+   "value": "mail relay maintenance port 2526 temporary",
+   "event_at": "2026-10-20T09:00:00+02:00",
+   "relation": "assertion",
+   "expires_at": "2026-10-25T09:00:00+01:00"
+  },
+  {
+   "key": "dev-plan-nov",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-plan-nov",
+   "body": "Quarterly maintenance window planned for the data center.",
+   "sources": [
+    {
+     "source_id": "dev-plan-nov-src-0",
+     "role": "user",
+     "timestamp": "2026-11-12T20:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-plan-oct",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-plan-oct",
+   "body": "Quarterly maintenance window planned. Maintenance window planned review.",
+   "sources": [
+    {
+     "source_id": "dev-plan-oct-src-0",
+     "role": "user",
+     "timestamp": "2026-10-05T10:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "dev-plan-sep",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic dev-plan-sep",
+   "body": "Quarterly maintenance window planned. Maintenance window planned retrospective.",
+   "sources": [
+    {
+     "source_id": "dev-plan-sep-src-0",
+     "role": "user",
+     "timestamp": "2026-09-07T10:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-yesterday",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-yesterday",
+   "body": "Certificate renewal failed for the web proxy.",
+   "sources": [
+    {
+     "source_id": "ho-cert-yesterday-src-0",
+     "role": "user",
+     "timestamp": "2026-03-29T13:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-lastweek",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-lastweek",
+   "body": "Certificate renewal failed. Certificate renewal failed on the mail gateway.",
+   "sources": [
+    {
+     "source_id": "ho-cert-lastweek-src-0",
+     "role": "user",
+     "timestamp": "2026-03-25T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-feb",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-feb",
+   "body": "Certificate renewal failed. Certificate renewal failed after the CA change.",
+   "sources": [
+    {
+     "source_id": "ho-cert-feb-src-0",
+     "role": "user",
+     "timestamp": "2026-02-10T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-assistant",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-assistant",
+   "body": "Certificate renewal failed, assistant recap: certificate renewal failed.",
+   "sources": [
+    {
+     "source_id": "ho-cert-assistant-src-0",
+     "role": "user",
+     "timestamp": "2026-01-15T10:00:00+01:00",
+     "complete": true
+    },
+    {
+     "source_id": "ho-cert-assistant-src-1",
+     "role": "assistant",
+     "timestamp": "2026-03-29T10:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-boundary",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-boundary",
+   "body": "Certificate renewal failed, late evening alert.",
+   "sources": [
+    {
+     "source_id": "ho-cert-boundary-src-0",
+     "role": "user",
+     "timestamp": "2026-03-29T23:30:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-cert-nextday",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-cert-nextday",
+   "body": "Certificate renewal failed. Certificate renewal failed shortly after midnight.",
+   "sources": [
+    {
+     "source_id": "ho-cert-nextday-src-0",
+     "role": "user",
+     "timestamp": "2026-03-30T00:30:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-print-apr",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-print-apr",
+   "body": "Druckerwartung im zweiten Stock geplant.",
+   "sources": [
+    {
+     "source_id": "ho-print-apr-src-0",
+     "role": "user",
+     "timestamp": "2026-04-14T09:00:00+02:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-print-mar",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-print-mar",
+   "body": "Druckerwartung: Druckerwartung im Erdgeschoss abgeschlossen.",
+   "sources": [
+    {
+     "source_id": "ho-print-mar-src-0",
+     "role": "user",
+     "timestamp": "2026-03-11T09:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-print-jan",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-print-jan",
+   "body": "Druckerwartung: Druckerwartung mit Tonerwechsel.",
+   "sources": [
+    {
+     "source_id": "ho-print-jan-src-0",
+     "role": "user",
+     "timestamp": "2026-01-20T09:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-print-legacy",
+   "kind": "legacy",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-print-legacy",
+   "body": "Druckerwartung: Druckerwartung, Notiz ohne Datum."
+  },
+  {
+   "key": "ho-fw-old",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "edge firewall",
+   "attribute": "rule count",
+   "value": "edge firewall rule count 120",
+   "event_at": "2026-03-10T10:00:00+01:00",
+   "relation": "assertion",
+   "expires_at": null
+  },
+  {
+   "key": "ho-fw-new",
+   "kind": "assertion",
+   "project": "/synthetic/team",
+   "entity": "edge firewall",
+   "attribute": "rule count",
+   "value": "edge firewall rule count 134",
+   "event_at": "2026-03-29T15:00:00+02:00",
+   "relation": "replacement",
+   "expires_at": null
+  },
+  {
+   "key": "ho-fw-review",
+   "kind": "claim",
+   "claim_kind": "inference",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-fw-review",
+   "body": "Edge firewall rule count audit summary for the edge firewall rule count.",
+   "sources": [
+    {
+     "source_id": "ho-fw-review-src-0",
+     "role": "assistant",
+     "timestamp": "2026-03-26T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": [
+    {
+     "op": "confirm"
+    }
+   ]
+  },
+  {
+   "key": "ho-restore-0303",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-restore-0303",
+   "body": "Restore test completed for the finance share.",
+   "sources": [
+    {
+     "source_id": "ho-restore-0303-src-0",
+     "role": "user",
+     "timestamp": "2026-03-03T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-restore-0310",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-restore-0310",
+   "body": "Restore test completed. Restore test completed for the HR share.",
+   "sources": [
+    {
+     "source_id": "ho-restore-0310-src-0",
+     "role": "user",
+     "timestamp": "2026-03-10T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-restore-0324",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/team",
+   "title": "Synthetic ho-restore-0324",
+   "body": "Restore test completed. Restore test completed for the project share.",
+   "sources": [
+    {
+     "source_id": "ho-restore-0324-src-0",
+     "role": "user",
+     "timestamp": "2026-03-24T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  },
+  {
+   "key": "ho-restore-private",
+   "kind": "claim",
+   "claim_kind": "stated",
+   "project": "/synthetic/private",
+   "title": "Synthetic ho-restore-private",
+   "body": "Restore test completed. Restore test completed for the private share.",
+   "sources": [
+    {
+     "source_id": "ho-restore-private-src-0",
+     "role": "user",
+     "timestamp": "2026-03-03T10:00:00+01:00",
+     "complete": true
+    }
+   ],
+   "after": []
+  }
+ ]
+}

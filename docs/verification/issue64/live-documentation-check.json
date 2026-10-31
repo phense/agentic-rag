@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "relative_links_checked": 40,
+  "missing": [],
+  "render_documents": [
+    "docs/temporal-query.md",
+    "docs/verification/issue64-temporal-query.md",
+    "docs/playbooks/system/rag-064-live-temporal-upgrade.md",
+    "docs/playbooks/system/rag-064-live-temporal-upgrade-review.md"
+  ],
+  "application_tests_schema_version_unchanged_from": "517263c",
+  "latest_relevant_full_suite": "1896passed/1skip/1knownwarning exit0; see full-suite-result.json",
+  "ops_driver_validation": "two full-copy rehearsals plus actual fenced live upgrades, post-traffic integrity and independent review",
+  "self_review": [
+    "medium standalone operator/reference scope, source paths and terminology checked",
+    "initial blocked reviews preserved; every H/M corrected and live outcomes distinguished",
+    "private content/dumps/auth values excluded; snapshots and operational traffic have separate denominators",
+    "actual fresh package uses secure locked publisher, correct DBA-traversable parent and root-private published files"
+  ],
+  "render": [
+    {
+      "document": "issue64-temporal-query",
+      "rendered": true,
+      "tables": 4,
+      "heading_count": 2
+    },
+    {
+      "document": "rag-064-live-temporal-upgrade-review",
+      "rendered": true,
+      "tables": 1,
+      "heading_count": 1
+    },
+    {
+      "document": "rag-064-live-temporal-upgrade",
+      "rendered": true,
+      "tables": 1,
+      "heading_count": 1
+    },
+    {
+      "document": "temporal-query",
+      "rendered": true,
+      "tables": 4,
+      "heading_count": 2
+    }
+  ],
+  "render_probe_note": "Initial probe incorrectly required exactly one h1; Pandoc adds a title block from YAML. Corrected to check visible title/body/tables without suppressing document headings."
+}

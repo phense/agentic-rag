@@ -1,0 +1,230 @@
+# RAG-064 independent complete review (S2)
+
+Reviewer: independent S2 reviewer/architect; did not implement. Read-only on product,
+git, schema and GitHub. Date 2026-10-31 (UTC 11:20–11:55).
+
+## Verdict
+
+- **Critical 0 · High 0 · Medium 0 · Low 6 (+1 process note).** No blocking defect
+  found in the complete bounded diff.
+- **Not ready for PR handoff yet:** the coordinator full suite (started 11:36:43Z on
+  `517263c`) was about 50 % complete at 11:50Z. A running suite is not a pass. Hand off
+  only after it exits 0.
+- Architecture-derived probes: success P-S 29/29, recovery P-R 12/12, **exit 0**
+  (`independent-architect-plan.md`).
+- Recommendation: put L-1…L-6 into the Low bundle (Issue75). Fix L-1 before anyone
+  sets `[temporal] enabled = true` in production: version strings such as `0.6.16`
+  currently stop temporal ordering for exactly the queries this deployment stores.
+
+## Identity
+
+| Item | Value |
+|---|---|
+| Base | `8772fbdc3216a4fa5e3abfc0ce9bdd67d1a2c7ca` (0.6.16, schema029) |
+| Head | `517263c64e3677246ca40acd7d82997b15f2f15a`; worktree clean, all 32 files equal HEAD |
+| Product source last changed | `6291685` (517263c changes only README benchmark and results) |
+| Commits | f092737, 7d6aabf, a6de766, 992aec6, 9465d51, 3fffc51, fd2b894, e6cd548, 6291685, 517263c |
+| Review package | `review-8772fbd..517263c.diff` sha256 `ee748c0b…3683036`; its diff body equals `git diff -U10 8772fbd 517263c` (sha256 `aa7129d5…bb385e`) |
+| Manifest | `review-manifest.json`: 32 names, identical to `git diff --name-only` (no digests in the manifest; computed below) |
+
+## Manifest coverage (32/32 inspected)
+
+Columns: git blob at head, sha256 prefix of head content, worktree equals head,
+numstat versus base.
+
+| File | Blob | sha256 | WT | Δ |
+|---|---|---|---|---|
+| `CHANGELOG.md` | 3f08f07decfd | de129bbaa719901e | same | +7/-0 |
+| `README.md` | 111969e92cd3 | 28d00941d1292009 | same | +6/-1 |
+| `agentic_rag/benchmark/temporal_query.py` | 0e36e7976310 | 718ecb9748441ef7 | same | +82/-0 |
+| `agentic_rag/cli.py` | 91f1997ad6f7 | 3d0e3d33d6f24d1c | same | +50/-16 |
+| `agentic_rag/config.py` | 0f2ee0d99729 | 46e93bbc30b92e36 | same | +8/-0 |
+| `agentic_rag/mcp_server.py` | f52479fd0074 | c3ddfedb6dd58fd6 | same | +28/-5 |
+| `agentic_rag/search.py` | 1f5ebc3a9f29 | b68f386fb33675fd | same | +201/-1 |
+| `agentic_rag/service/upgrade.py` | d32ea5ed0afd | be53c81c293a2175 | same | +1/-1 |
+| `agentic_rag/temporal.py` | 4558db4b119c | 7f6b61f2d16786e6 | same | +250/-0 |
+| `docs/06-configuration-reference.md` | 015f800f2e8d | 45a3112c09adeed6 | same | +14/-1 |
+| `docs/11-reference-cli-and-mcp.md` | d66cc8e5527a | 285d932c179ecc64 | same | +2/-2 |
+| `docs/benchmarks/2026-10-31-temporal-query/README.md` | 6da167914c98 | 29cd8bacab7fea78 | same | +114/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/compatibility-evidence.json` | fee10ecc1032 | fdd86fec9af0cc83 | same | +180/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/fixtures/FROZEN.sha256` | 65311fcda69e | abf4d5cc9b1655ee | same | +3/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/fixtures/parser-cases.json` | 271bbc4f29da | 9528011b73dbbc23 | same | +498/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/fixtures/ranking-cases.json` | ac8f16a38e3f | 7cd9a2c81ac368c5 | same | +573/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/fixtures/ranking-corpus.json` | c7765ecbf828 | 824bdcc2c5c108c0 | same | +590/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/measure.py` | 930b9922da03 | 78c5824a63cfc9bd | same | +206/-0 |
+| `docs/benchmarks/2026-10-31-temporal-query/results.json` | 927c773c06ad | 64b73aae886f2dba | same | +1549/-0 |
+| `docs/specs/6-6-temporal-query/plan.md` | 57d541d61739 | f5e975fe820ac786 | same | +70/-0 |
+| `docs/specs/6-6-temporal-query/spec.md` | 624881c4a797 | 90bed68d947f5ca7 | same | +69/-0 |
+| `docs/specs/6-6-temporal-query/tasks.md` | d826edf882d2 | f637d3c41129c2d9 | same | +49/-0 |
+| `docs/temporal-query.md` | 87e99c706099 | 63482c76dc9a33ce | same | +193/-0 |
+| `docs/uml/findings.md` | 14fe91d26871 | 9a6b03e90ad41a63 | same | +20/-0 |
+| `docs/uml/temporal-query-64.md` | 3590cfdba07e | afa048728d5905ac | same | +42/-0 |
+| `pyproject.toml` | f65df226626e | 259669705f8b95d7 | same | +1/-1 |
+| `tests/service/test_temporal_transport.py` | e62e74097d1a | 2beabccde024d606 | same | +179/-0 |
+| `tests/service/test_temporal_upgrade.py` | f94f7a4b9cff | 1c9c580f182777aa | same | +256/-0 |
+| `tests/test_evidence_revisions.py` | 8b19aa5033aa | 0905171850764a63 | same | +2/-1 |
+| `tests/test_temporal.py` | 6f6b523e403f | d2cead3d98731124 | same | +143/-0 |
+| `tests/test_temporal_search.py` | 7da56a5b3fd3 | 384976c8c9441fd2 | same | +365/-0 |
+| `uv.lock` | 7e7eb44d25f1 | 046be01de4ed22e7 | same | +1/-1 |
+
+## What was verified, by requirement
+
+- **AC-001/002 parser.** Read `temporal.py` completely. Calendar math re-derived
+  independently for all 48 frozen parser labels (local-midnight endpoints and relative
+  day/week/month dates): all consistent; the only flagged case, PH21
+  (`America/Santiago` DST-gap midnight), is correct because the day starts at 01:00 local.
+  Extra boundaries checked: 169-hour Berlin week, 23-hour spring day, Santiago gap and
+  fall-back day, year rollover of `letzte Woche`, `next month` in UTC+14, leap day,
+  impossible dates, reversed ranges. Adversarial 1,000-character inputs parse in ≤ 6.5 ms.
+  The reference never touches `as_of`/`history` (`search.py:63-65`).
+- **AC-003/005 canonical time and authority.** `_TEMPORAL_SQL` uses the assertion
+  event exclusively when an assertion exists (`fact_assertions` PK is `document_id`, so
+  one row), otherwise only sources that would themselves satisfy `claim_eligible`
+  (`sql/023_claim_lookup.sql:9-37`: confirmed+reviewed, or stated+user+complete, active,
+  non-refuted). It runs under the caller role and RLS, re-checks `assertion_eligible`
+  with the same `at/history`, and drops freshly ineligible or invisible hits in both
+  modes. No new SQL objects, grants or writes.
+- **AC-004/006 stage and envelope.** Stage runs after rerank and before `diverse`;
+  `diverse` preserves input order (`retrieval.py:41-53`). Graph pass keeps the base
+  selection until after the temporal k cut (`search.py:172-180`). Savepoint around the
+  metadata read; soft failure keeps base order, hard failure raises. Per-hit additions
+  carry no source keys, namespaces or quotes.
+- **AC-007 transports and compatibility.** Engine validation derives from the
+  `memory_search` signature; unset new arguments are dropped by `wire_arguments` in the
+  client MCP proxy and remote CLI. 0.6.16 `load_config` ignores unknown sections
+  (`git show 8772fbd:agentic_rag/config.py:192-199`), so rollback with a `[temporal]`
+  section loads. `SUPPORTED_VERSIONS` now `0.6.0…0.6.16`. Version 0.6.17 consistent in
+  pyproject, uv.lock, README badge, CHANGELOG; installed metadata reports 0.6.17.
+- **AC-008 measurements.** Fixtures committed in `7d6aabf` (10:49:47Z) before the first
+  product commit `a6de766` and byte-unchanged since (hashes match `FROZEN.sha256` and
+  the loader). Results at `6291685`, tree clean. Quality and parser fields are identical
+  between the fd2b894 run and the 6291685 run; only latency changed (paired median
+  27.7→18.3 ms dev, 27.5→24.4 ms held-out). Denominators, zero-candidate RD07,
+  fail-safe HD13/RD11 and the title-token leak in RD01/HD01 are disclosed.
+- **Coordinator fixes in 6291685.** Source-version acceptance, graph k=3 eviction and
+  fresh withdrawal in prefer mode: all three code-read; only the graph k boundary was
+  independently executed (P-S graph checks at k=2/k=3 pass). The coordinator's
+  targeted log reports `104 passed, 1 warning in 98.56s`; I did not rerun pytest (owned
+  by the coordinator's full suite).
+
+## Findings
+
+All Low. Each is fail-safe: no authority widening, no wrong-period hit, no write.
+
+### L-1 Parser treats version numbers and common words as date expressions
+
+- Requirement: AC-001/FR-001 (recognize supported intent), AC-006 (no-intent parity).
+- Where: `agentic_rag/temporal.py:45-49,53`.
+- Evidence (`/dev/shm/rag64-20261031-tests/review/version-probe.log`,
+  `aktuell-probe.log`, probe OBS X3/X3b), reference 2026-10-31, Europe/Berlin:
+  - `rag upgrade 0.6.16 failed gestern` → `ambiguous` (`0.6.16` matched the two-digit-year
+    pattern although day 0 is no date); same for `rollout 1.12.25 last week`,
+    `Python 3.13. upgrade yesterday`, `Raum 3/12 Drucker gestern`.
+  - `release 0.6.17 notes` → `unsupported`.
+  - English modal `may 3`, the name `August 2`, and the German adjective
+    `aktuelle/aktuellen` (`aktuelle Rechnung vom 14.10.2026` → `ambiguous`,
+    `conflicting_expressions`).
+- Effect: with a real period present, `prefer` is not applied (warning) and `filter`
+  is rejected with `temporal_filter_requires_interval`. With `enabled = true` and no
+  period, `auto` adds a warning and a `temporal` envelope; hits stay identical.
+- Suggested fix: validate day/month ranges before classifying numeric forms as
+  unsupported dates; require a date context (`on`, `am`, year) for EN `may` and month
+  names; match only `aktuell` / `currently` as the current-intent adverb.
+
+### L-2 Long no-intent queries change the envelope under enabled `auto`
+
+- Requirement: AC-006 ("no temporal intent preserve baseline … fields").
+- Where: `temporal.py:197-198`, `search.py:70-71`.
+- Evidence: probe OBS X2, 1,110-character query without a period, enabled `auto`:
+  extra warning `temporal expression not applied: unsupported`, status `unsupported`,
+  reason `query_too_long`; hits identical to off.
+
+### L-3 Several temporal phrasings are neither applied nor reported
+
+- Requirement: AC-001 ("unsupported forms are reported conservatively"); docs list of
+  reported forms.
+- Where: `temporal.py:50-62`.
+- Evidence: probe OBS X5: `vergangene Woche`, `previous week`, `past week`,
+  `kommenden Monat`, `im Oktober 2026` → status `none`, no reason. Not guessed and
+  `filter` fails closed correctly, but `prefer`/`auto` silently treat them as no intent.
+
+### L-4 Out-of-range reference surfaces as an internal failure
+
+- Requirement: IC-001 failure behavior ("bounded ValueError/400").
+- Where: `temporal.py:94` and `:207` (`astimezone` outside the guarded block).
+- Evidence: probe OBS X1: references `9999-12-31T23:30:00+00:00` and
+  `0001-01-01T00:30:00+01:00` raise `OverflowError`; REST answers 400
+  `operation_failed`, not `invalid_arguments`. The local CLI maps non-`ValueError` to
+  exit 4 "unexpected error" (`cli.py:1084-1089`; code-read, not executed because the CLI
+  would open the configured database).
+
+### L-5 Empty `temporal` string is coerced to `auto`
+
+- Where: `mcp_server.py` `temporal=temporal or "auto"`; library `validate_mode('')`
+  rejects it.
+- Evidence: probe OBS X4: REST `{"temporal": ""}` → 200 legacy envelope.
+
+### L-6 Documentation and evidence drift
+
+- a) `docs/temporal-query.md:142-143` still quotes +28 ms median / +55 ms p95 from the
+  fd2b894 run; the published 6291685 results are +18.3/+24.4 ms median and
+  +40.1/+39.7 ms p95.
+- b) Benchmark README calls the control arm "time words removed by hand". `measure.py:82-86`
+  removes them with the product parser and documents the arm as post-hoc ("added after
+  the first run"); the README does not say post-hoc.
+- c) `compatibility-evidence.json` was last written at `3fffc51`, before the 6291685
+  `search.py` change, and records no target revision; `after_new_reads` is written as
+  the `original` dict (`test_temporal_upgrade.py:229`) rather than a separate snapshot
+  (equality is asserted just before, so the content is correct).
+- d) For a hard-filter metadata failure, REST/MCP clients get generic HTTP 400
+  `operation_failed`; the failure table documents only `temporal_metadata_unavailable`
+  (CLI exit 3).
+- e) `plan.md` names `docs/verification/issue64-temporal-query.md`; it does not exist at
+  head and no task owns it.
+- f) Benchmark README freeze time 10:49:38Z versus commit time 10:49:47Z (nit).
+
+### P-1 Process note (not a product defect)
+
+T064-003 transport tests were observed red retrospectively against a stashed change;
+`docs/uml/findings.md` records this. It is not original test-first evidence.
+
+## Informational (no finding)
+
+- A residual that is a bare slug now takes the exact-identity shortcut
+  (`search.py:68-69,100`, `_identity_candidates`): `deploy-notes 2026-10-01` searches
+  slug `deploy-notes` exactly, while feature-off runs hybrid search. This narrows, not
+  widens, and still applies eligibility; not probed.
+- `Config.__post_init__` now resolves `ZoneInfo(temporal_timezone)` on every load,
+  including the disabled default `UTC`. Hosts without a system tz database would fail to
+  load any configuration; the supported Linux/macOS hosts ship one.
+- Reorder bookkeeping uses dataclass equality (`h in ordered`): 1.8 ms for 150
+  candidates, negligible.
+
+## Probe results
+
+Command (repository root):
+
+```sh
+env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 \
+  TMPDIR=/dev/shm/rag64-20261031-tests PYTHONDONTWRITEBYTECODE=1 \
+  .venv/bin/python .engineering-method/runs/RAG-064/agent-reports/independent-architect-probes.py \
+  /dev/shm/rag64-20261031-tests/review/probe-run2.json
+```
+
+- Run 2: **exit 0**, 41 checks (P-S 29, P-R 12), 0 failed, 12.0 s, DB
+  `rag_bench_8a58370d2fcb4756bdcc99d0` dropped (checked in `pg_database`), 36
+  non-operational tables hash-identical before, between and after.
+- Run 1: exit 1, 4 probe-design failures (described in the plan), fixed without product
+  change.
+- Probe file sha256 `def58212…c3ed8c`; logs `probe-run2.json` sha256 `8cd74f44…07cc7`,
+  `probe-run2.out` sha256 `b2bebe0d…7901`, `probe-run1.json` sha256 `60598c27…12d5`
+  (all under `/dev/shm/rag64-20261031-tests/review/`, tmpfs, not durable).
+
+## Remaining limits
+
+- Full suite not finished; no pass claimed.
+- I did not execute pytest, the archived-0.6.16 rollback test, the public upgrade
+  test, the client MCP proxy or the remote CLI against an old service; those rest on
+  code reading plus the coordinator's targeted run.
+- Synthetic lexical corpus only; no embeddings, reranker, private corpus, production
+  volume, TLS, systemd or concurrent multi-client load.

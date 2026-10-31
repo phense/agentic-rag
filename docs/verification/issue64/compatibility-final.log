@@ -1,0 +1,8 @@
+..                                                                       [100%]
+=============================== warnings summary ===============================
+tests/service/test_temporal_upgrade.py:16
+  /home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/tests/service/test_temporal_upgrade.py:16: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 11.26s

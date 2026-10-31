@@ -1,0 +1,15 @@
+import hashlib,json,os,subprocess,sys
+from datetime import datetime,timezone
+from pathlib import Path
+root=Path.cwd();out=root/'.engineering-method/runs/RAG-064'
+command=[str(root/'.venv/bin/python'),'-m','pytest','-q','--tb=short','-p','no:cacheprovider']
+info={'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'command':command,'started_at':datetime.now(timezone.utc).isoformat()}
+env=dict(os.environ)
+for name in ('PGHOST','PGHOSTADDR','PGSERVICE','PGSERVICEFILE'):env.pop(name,None)
+env.update(PGPORT='55460',TMPDIR='/dev/shm/rag64-20261031-tests',PYTHONDONTWRITEBYTECODE='1',LD_LIBRARY_PATH='/home/administrator/Claude/.scratch/agentic-rag-issue59-20261030/browser-libs/usr/lib/x86_64-linux-gnu')
+(out/'full-final-start.json').write_text(json.dumps(info,indent=2))
+with (out/'full-final.log').open('w') as stream:result=subprocess.run(command,env=env,stdout=stream,stderr=subprocess.STDOUT)
+(out/'full-final.exit').write_text(str(result.returncode)+'\n')
+info.update(returncode=result.returncode,finished_at=datetime.now(timezone.utc).isoformat(),head_after=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),log_sha256=hashlib.sha256((out/'full-final.log').read_bytes()).hexdigest())
+(out/'full-final-result.json').write_text(json.dumps(info,indent=2))
+print('\n'.join((out/'full-final.log').read_text().splitlines()[-22:]));sys.exit(result.returncode)

@@ -1,0 +1,100 @@
+# RAG-064 independent architecture-derived integration test plan
+
+Template: `engineering-method/templates/uml/integration-test-plan.md` (0.2.1).
+Author: independent S2 reviewer/architect (did not implement). Code identity:
+head `517263c64e3677246ca40acd7d82997b15f2f15a`, product source last changed at
+`6291685`; worktree equal to HEAD for all 32 manifest files.
+
+```json
+{
+  "minimum_derived_tests": {"success": 1, "recovery": 1},
+  "derived": {"success": "P-S (29 checks)", "recovery": "P-R (12 checks)"},
+  "completion_requires": ["as_built_reconciliation", "derived_success_test_passed", "derived_recovery_test_passed", "clean_final_review", "fresh_verification"],
+  "status": {"as_built_reconciliation": "checked against code, consistent", "derived_success_test_passed": true,
+             "derived_recovery_test_passed": true, "clean_final_review": "0 C/H/M, Low only (see independent-review.md)",
+             "fresh_verification": "PENDING: coordinator full suite still running"}
+}
+```
+
+## Inputs
+
+- Work/requirements: RAG-064 / Issue64; AC-001..AC-008, IC-001..IC-003, AF-064-001..003.
+- Reconciled model: `docs/uml/temporal-query-64.md` (one sequence; success, graph and
+  failure paths described in the as-built dispositions). No separate component or state
+  diagram exists; the sequence participants (Client, Search, Time, Store, Rank) were
+  used as the component boundary list.
+- Reconciliation evidence checked against code: `search.py:65-71,167-184` (parse before
+  retrieval, stage after rerank and before `diverse`, graph re-check with base hits retained
+  before final k), `search.py:_TEMPORAL_SQL/_event_metadata` (assertion first, qualifying
+  active sources, unknown otherwise), `_TemporalStage._load` (savepoint, soft/hard),
+  `mcp_server.wire_arguments`, `cli.py:728-736`. The model statements hold for the code.
+
+## Derived success test (P-S)
+
+- ID/path: P-S in `.engineering-method/runs/RAG-064/agent-reports/independent-architect-probes.py`.
+- Diagram edges: Client→Search (REST and server MCP), Search→Time (one captured
+  reference), Search→Store (domain/project/RLS/eligibility), Search→Rank→Store (canonical
+  metadata), graph opt block (expansion, re-check, final k), Search→Client (envelope).
+- Real components: Starlette app from `service.api.create_app`, bearer auth policy,
+  `service.engine.invoke` (`validate_call`, request scope, read-only reader role, RLS
+  session settings), `mcp_server.memory_search`, `search.search`, `temporal.interpret`,
+  SQL migrations 001–029 incl. `assertion_eligible`/`claim_eligible`, audited gateways
+  (`save_claim`, `save_assertion`, `save_document`, `review_claim`, `set_source_state`).
+  Synthetic only: embeddings return `None`, reranker URL is a closed local port.
+- Setup: own `rag_bench_*` DB on PG55460; 15 gateway-written documents in domains
+  `alpha`/`beta`, projects `/projects/a`/`/projects/b`; principal `carol` may read only
+  `alpha` + `/projects/a`. Stimulus: `letzte Woche` with reference
+  `2026-10-26T09:00:00+01:00` in `Europe/Berlin` (the 169-hour week that contains the
+  2026-10-25 DST end), `nächsten Monat`, prefer/filter/off/auto, graph depth 1 with k 2/3/10.
+- Assertions: exact interval `[2026-10-18T22:00Z, 2026-10-25T23:00Z)`; start inclusive,
+  end exclusive, DST-night source inside; assertion event basis; assistant-only date never
+  qualifies; legacy document `unknown`; refuted, withdrawn, foreign-domain,
+  foreign-project and future assertion never returned; stored future plan matches next
+  month; prefer = stable matching-first with legacy relative order and unchanged
+  score/snippet/citation; filter exact; server MCP body == REST body; graph neighbour never
+  precedes or leaks; k=2 boundary holds only matching hits; enabled `auto` without intent
+  == disabled legacy body; explicit off == disabled auto (legacy envelope); metadata SQL
+  count 0 for off/no-intent and 1 for applied prefer (real reader role); 36
+  non-operational table hashes unchanged.
+- Result: see `independent-review.md` (41/41 checks, exit 0).
+
+## Derived recovery test (P-R)
+
+- ID/path: P-R in the same probe file.
+- Failure injection: real PostgreSQL privilege failure in the own DB only:
+  `REVOKE SELECT ON knowledge_sources FROM rag_reader` + column grant of every column
+  except `source_at`. Only the temporal metadata read uses `source_at`, so candidate
+  retrieval, eligibility and evidence summaries keep working (checked).
+- Edges: Rank→Store failure under savepoint; soft branch (warning, base order); hard
+  branch (fail closed); operator compensation (ACL restored); terminal state = success
+  path again.
+- Assertions: legacy REST unchanged during injection; soft prefer 200 with
+  `temporal metadata unavailable — original order kept`, `applied: none`, reason
+  `metadata_unavailable`, results byte-equal to legacy results; hard filter REST 4xx
+  without `results`, server MCP `isError` without hits; in-process caller transaction
+  stays `INTRANS` and usable after soft and hard failure (`RuntimeError
+  temporal_metadata_unavailable`); ACL restored to the original item set; prefer and filter
+  bodies after recovery equal the pre-failure success bodies; row hashes unchanged.
+
+## Gate evidence
+
+- Command (repository root, 2026-10-31T11:49Z):
+  `env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 TMPDIR=/dev/shm/rag64-20261031-tests PYTHONDONTWRITEBYTECODE=1 .venv/bin/python .engineering-method/runs/RAG-064/agent-reports/independent-architect-probes.py /dev/shm/rag64-20261031-tests/review/probe-run2.json`
+- Result: exit 0; 41 checks (29 P-S, 12 P-R), 0 failed; DB
+  `rag_bench_8a58370d2fcb4756bdcc99d0` created and dropped (verified absent afterwards).
+- First run (exit 1, `probe-run1.json`) failed 4 checks, all probe-design errors, fixed
+  before run 2: assertion provenance (pre-existing legacy field) was checked for locators,
+  `in_start` was not a graph seed, ACL compared as ordered text instead of a set. No
+  product behavior changed between runs.
+- Missing for completion: fresh full-suite exit (coordinator run started 11:36:43Z on
+  `517263c`, about 50 % at 11:50Z). Do not hand off to `speckit-converge` until it exits 0.
+
+## Coverage limits
+
+Not covered by these probes: client MCP proxy and remote CLI against an old 0.6.16
+service, actual archived-code rollback and the public upgrade workflow (reviewed in
+`tests/service/test_temporal_upgrade.py`, `test_temporal_transport.py`, run only by the
+coordinator), systemd/TLS/real network, real embeddings or neural reranker, private corpus,
+concurrent multi-client load, production data volume. Request tracing reported
+`request_tracing_degraded` in the probe app (service storage in tmpfs); not part of
+this feature.

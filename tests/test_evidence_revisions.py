@@ -120,4 +120,5 @@ def test_failed_gateway_transaction_leaves_no_revision_or_history(conn, cfg):
 def test_supported_source_version_includes_current_release():
     from agentic_rag.service import upgrade
     assert '0.6.15' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.16' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.16' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.17' not in upgrade.SUPPORTED_VERSIONS

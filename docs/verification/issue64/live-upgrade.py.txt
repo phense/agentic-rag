@@ -1,0 +1,164 @@
+"""PB-064-LIVE DBA driver. Private manifests stay on the VM; stdout is counts only.
+Run as postgres, with the reviewed 0.6.17 source on PYTHONPATH. Never targets a
+caller-provided database: the two deployment configurations below are fixed.
+"""
+from dataclasses import replace
+from pathlib import Path
+from datetime import datetime, timezone
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import time
+from psycopg import sql
+from agentic_rag import db
+from agentic_rag.config import load_config
+from agentic_rag.benchmark.database import isolated_database
+from agentic_rag.service import upgrade
+
+TARGETS = {
+    'canonical': ('/etc/agentic-rag/server.toml', 'agentic_rag', 'administrator'),
+    'dashboard': ('/var/lib/agentic-rag/issue59/server.toml', 'rag_dashboard_rehearsal_20261030', 'rag'),
+}
+OLD = Path('/opt/agentic-rag-releases/0.6.15-5390a6f')
+OPERATIONAL = {'schema_migrations', 'service_sessions', 'dashboard_changes', 'dashboard_presence',
+               'request_traces', 'dashboard_setup', 'service_requests', 'service_foreground'}
+READ = '''
+from dataclasses import asdict,replace
+from agentic_rag import db,search
+from agentic_rag.config import load_config
+import hashlib,json,re,sys
+assert re.fullmatch(r"rag_bench_[0-9a-f]{24}",sys.argv[1]), "owned_clone_required"
+cfg=replace(load_config(),db_name=sys.argv[1])
+with db.connect(cfg) as c:
+ c.execute("SET ROLE rag_reader")
+ hits,warnings=search.search(c,cfg,'PostgreSQL',domain='sysadmin',k=3,strategy='lexical',rerank_mode='off',context_mode='off')
+ value=json.dumps([asdict(h) for h in hits],sort_keys=True,default=str)
+ print(json.dumps({'hits':len(hits),'sha256':hashlib.sha256(value.encode()).hexdigest(),'warnings':warnings}))
+'''
+
+def save(path, value):
+    upgrade.private_json(path, value)
+
+def proof(cfg, path):
+    manifest = path.with_suffix(path.suffix + '.manifest.json')
+    if path.exists() or manifest.exists():
+        if not (path.exists() and manifest.exists()):
+            raise ValueError('incomplete_backup_choose_new_run_directory')
+        value = json.loads(manifest.read_text())
+        assert value['restore_verified'] is True
+        upgrade.check_dump(path, value)
+        upgrade.verify_preserved(cfg, value)
+        return value
+    return upgrade.verified_backup(cfg, '0.6.15', path)['manifest']
+
+def migrate(cfg, owner, manifest, expected):
+    with db.connect(cfg) as c:
+        c.execute('SET default_transaction_read_only=off'); c.commit()
+        c.execute(sql.SQL('SET ROLE {}').format(sql.Identifier(owner)))
+        applied = db.apply_migrations(c, db.SQL_DIR, commit=False)
+        assert applied == expected, ('unexpected_migrations', applied)
+        upgrade._verify(c, manifest, preserved=True)
+        c.commit()
+    upgrade.verify_preserved(cfg, manifest)
+    with db.connect(cfg) as c:
+        c.execute('SET default_transaction_read_only=off'); c.commit()
+        c.execute(sql.SQL('SET ROLE {}').format(sql.Identifier(owner)))
+        assert db.apply_migrations(c, db.SQL_DIR) == []
+    return applied
+
+def old_read(cfg, operator):
+    from agentic_rag.benchmark.database import validate_name
+    validate_name(cfg.db_name)
+    env = dict(os.environ, AGENTIC_RAG_CONFIG=str(operator), PYTHONPATH=str(OLD))
+    result = subprocess.run([str(OLD/'.venv/bin/python'), '-c', READ, cfg.db_name], cwd=OLD, env=env,
+                            capture_output=True, text=True, check=True, timeout=120)
+    return json.loads(result.stdout.strip().splitlines()[-1])
+
+
+p = argparse.ArgumentParser()
+p.add_argument('mode', choices=['preflight','rehearse','apply','post'])
+p.add_argument('target', choices=sorted(TARGETS))
+p.add_argument('--directory', type=Path, required=True)
+a = p.parse_args()
+assert __import__('pwd').getpwuid(os.geteuid()).pw_name == 'postgres', 'DBA_only'
+base = a.directory.resolve()
+assert str(base).startswith('/var/lib/postgresql/rag64-'), 'private_DBA_directory_required'
+base.mkdir(mode=0o700, parents=True, exist_ok=True)
+config_path, original_name, owner = TARGETS[a.target]
+operator = base/(a.target+'-operator.toml')
+assert operator.exists(), 'root_must_copy_config_to_DBA_private_directory'
+text = operator.read_text()
+cfg = load_config(operator)
+assert cfg.db_name == original_name and cfg.db_host == '/var/run/postgresql'
+assert len(list(db.SQL_DIR.glob('*.sql'))) == 29
+started = time.monotonic()
+with db.connect(cfg) as c:
+    actual_owner=c.execute('SELECT pg_get_userbyid(datdba) owner FROM pg_database WHERE datname=current_database()').fetchone()['owner']
+    installed=[r['filename'] for r in c.execute('SELECT filename FROM schema_migrations ORDER BY 1')]
+assert actual_owner == owner
+expected_names = [f.name for f in sorted(db.SQL_DIR.glob('*.sql'))]
+assert installed == expected_names[:len(installed)] and len(installed) in (28,29)
+out = {'target': a.target, 'mode': a.mode, 'source_version':'0.6.15','target_version':'0.6.17',
+       'started_at':datetime.now(timezone.utc).isoformat()}
+if a.mode == 'preflight':
+    report=upgrade.preflight(cfg, '0.6.15')
+    assert report['ready']
+    save(base/(a.target+'-preflight.json'),report)
+    out.update(ready=True,migrations=len(installed),tables=len(report['inventory']['tables']),
+               rows=sum(v['rows'] for v in report['inventory']['tables'].values()))
+elif a.mode == 'rehearse':
+    assert len(installed)==28, 'rehearsal_requires_original_schema028'
+    dump=base/(a.target+'-rehearsal.dump'); manifest=proof(cfg,dump)
+    with isolated_database(cfg,initialize=False) as clone:
+        upgrade._restore_verification(cfg,clone,dump,manifest)
+        with db.connect(clone) as c:
+            c.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
+            upgrade._verify(c,manifest,label='rehearsal_restore_mismatch')
+        # Match the real database owner so CREATE privileges match production.
+        with db.connect(clone) as c:
+            c.execute(sql.SQL('ALTER DATABASE {} OWNER TO {}').format(sql.Identifier(clone.db_name),sql.Identifier(owner)))
+            c.commit()
+        before=old_read(clone,operator)
+        applied=migrate(clone,owner,manifest,['029_source_evidence.sql'])
+        after=old_read(clone,operator)
+        assert before==after, 'actual_0_6_15_read_changed'
+        from agentic_rag import search
+        from dataclasses import asdict
+        with db.connect(clone) as c:
+            c.execute('SET ROLE rag_reader')
+            hits,warnings=search.search(c,replace(clone,temporal_enabled=False),'PostgreSQL',domain='sysadmin',k=3,strategy='lexical',rerank_mode='off',context_mode='off',temporal='off')
+            digest=hashlib.sha256(json.dumps([asdict(h) for h in hits],sort_keys=True,default=str).encode()).hexdigest()
+        assert digest==before['sha256'] and warnings==before['warnings'], 'new_legacy_read_changed'
+        out.update(restore_verified=True,original_rows_unchanged=True,migrations_applied=applied,
+                   empty_retry=True,old_code_rollback_equal=True,new_legacy_equal=True,read_hits=before['hits'])
+    out['owned_rehearsal_database_removed']=True
+elif a.mode == 'apply':
+    assert (base/(a.target+'-rehearse-result.json')).exists(), 'rehearsal_first'
+    # source_fence refuses remaining clients/worker locks and returning old logins.
+    with upgrade.source_fence(cfg,writers_stopped=True):
+        dump=base/(a.target+'-live-before.dump'); manifest=proof(cfg,dump)
+        expected=[] if len(installed)==29 else ['029_source_evidence.sql']
+        applied=migrate(cfg,owner,manifest,expected)
+    out.update(restore_verified=True,original_rows_unchanged=True,migrations_applied=applied,
+               empty_retry=True,tables_preserved=len(manifest['tables']),
+               rows_preserved=sum(v['rows'] for v in manifest['tables'].values()),
+               dump_sha256=manifest['dump_sha256'])
+else:
+    manifest=json.loads((base/(a.target+'-live-before.dump.manifest.json')).read_text())
+    with db.connect(cfg) as c:
+        c.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
+        c.execute("SET LOCAL timezone='UTC'")
+        core={t:upgrade._hash_table(c,t) for t in manifest['tables'] if t not in OPERATIONAL}
+        assert all(v==manifest['tables'][t] for t,v in core.items()), 'post_traffic_core_drift'
+        owners=upgrade._ownership(c); assert all(owners[t]==o for t,o in manifest['owners'].items())
+        assert upgrade._grants(c,list(manifest['tables']))==manifest['grants'], 'original_ACL_changed'
+        history={r['filename']:str(r['applied_at']) for r in c.execute('SELECT * FROM schema_migrations')}
+        assert len(history)==29 and all(history[r['filename']]==r['applied_at'] for r in manifest['migration_rows'])
+    out.update(core_tables_unchanged=len(core),core_rows_preserved=sum(x['rows'] for x in core.values()),
+               original_owners_unchanged=True,original_grants_unchanged=True,migration_history_unchanged=True,
+               operational_tables_excluded=sorted(OPERATIONAL))
+out.update(passed=True,seconds=round(time.monotonic()-started,2))
+save(base/(a.target+'-'+a.mode+'-result.json'),out)
+print(json.dumps(out),flush=True)

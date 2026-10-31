@@ -9,9 +9,14 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.16-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.17-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.17 temporal search:** searches can recognize yesterday/gestern, last
+week/letzte Woche, next month/nächsten Monat and explicit dates, then order or
+filter hits by their recorded event time without widening access or validity.
+It is off by default and needs no migration; read [temporal search](docs/temporal-query.md).
 
 **0.6.16 source evidence:** every client can inspect the exact stored quotes,
 source trust, claim review and fact lifecycle behind a memory, and reviews are

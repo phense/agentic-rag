@@ -500,3 +500,24 @@ supported. Migration028 expands the administrative audit-kind constraint only;
 knowledge and embeddings stay intact. Merge and production adoption are pending.
 [Operator procedure](docs/reranker-settings.md);
 [verification and limits](docs/verification/issue62-settings.md).
+
+
+## Opt-in temporal search (Issue64)
+
+Version0.6.17 interprets the initial EN/DE day/week/month/date grammar using a
+single aware reference and named timezone. It prefers or explicitly filters
+already eligible candidates by assertion event time or qualifying source time;
+missing times remain unknown. Current authority and explicit as_of/history stay
+independent. The default setting is off and no schema migration is added.
+Local/remote CLI, MCP and REST share the additive contract; old-service defaults
+and actual0.6.16 code rollback are tested on populated schema029.
+
+Frozen synthetic lexical measurements:48/48 parser labels correct; held-out
+Top-1 1/11 off,3/11 with time words removed and11/11 on. Eight of11 improve at
+Top-1 over the post-hoc words-removed diagnostic; none regress. Paired overhead
+on195 held-out period queries is+24.4ms median/+39.7ms p95. These figures do not
+measure native embeddings/reranker or production load. Independent complete
+review reports0 C/H/M; architecture success29/recovery12 checks pass. The final
+whole suite passes1,896tests with1expected macOS skip; [PR87](https://github.com/phense/agentic-rag/pull/87) is explicitly approved for merge after the successful pre-merge Hetzner deployment; [verification](docs/verification/issue64-temporal-query.md)
+tracks that gate and [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6543044931)
+tracks deferred Low limitations. Both existing Hetzner APIs now run0.6.17/schema029 with temporal auto/Berlin enabled after full-copy rehearsal, original-row preservation and fresh verified backup. The canonical worker remains inactive; broad/native adoption remains separate.

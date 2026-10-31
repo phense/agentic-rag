@@ -1,0 +1,6 @@
+{
+  "exit": 1,
+  "failure": "DBA producer cannot traverse newly created root:root0700 intermediate parent; no published package or verified restore claimed",
+  "verified_observation": "postgres test -x returned1; original root:postgres0710 parent works",
+  "fix": "intermediate parent root:postgres0710; final package/rootfiles retain700/600; reuse secure publisher"
+}
