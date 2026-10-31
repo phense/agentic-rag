@@ -65,7 +65,7 @@ Three repetitions, identical outcomes in all three.
 | Non-conclusions | 11 |
 | Provider calls | 9 |
 | Provider calls below the support floor | 0 |
-| Wall time, 3 repetitions | 15.0 s |
+| Wall time, 3 repetitions | 22.5 s |
 
 Outcome per evaluation:
 

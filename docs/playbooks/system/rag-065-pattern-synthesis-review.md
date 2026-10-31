@@ -1,11 +1,13 @@
 # PB-065-OPS review and rehearsal evidence
 
 Playbook: [rag-065-pattern-synthesis.md](rag-065-pattern-synthesis.md).
-State: **independent S4 review found PB065-R07 (Important) and R08 (Minor).
-The coordinator corrected both and repeated the hardlink rehearsal; final
-independent acceptance remains pending.** The original PB065-R01..R06 findings
-were resolved in the S4 independent review. Delivery stays blocked until the
-remaining review and full verification gates pass.
+State: **independently accepted at `73ddd02`, with no Important finding open.**
+The final review resolved PB065-R07/R08 and independently repeated the hardlink
+and backfill-recovery checks. Its one Minor finding, PB065-R09, was then
+corrected by the coordinator in C1/C9 and the user guide: a group exceeding the
+maximum input cannot be analysed, and the pending backfill holds later requests.
+That wording correction was checked against the final probe, without changing
+code or executable snippets. Full-suite acceptance remains pending.
 
 ## Rehearsal
 
@@ -99,6 +101,16 @@ state this.
 ## Independent review
 
 Original revision: changes required (PB065-R01..R06). Independent S4 review:
-those findings resolved; new PB065-R07/R08 required correction. Focused
-coordinator correction and hardlink rehearsal passed; independent acceptance
-of the changed procedure is pending.
+those findings resolved; new PB065-R07/R08 required correction. Final review
+at `73ddd02`: accepted, with R07/R08 resolved. All 34 fresh integration
+assertions passed; four owned databases were removed. B0 was independently
+executed against a real hardlink and two environments; the old snippet falsely
+passed while the new snippet correctly blocked the stale process. The backfill
+waiting/recovery branch was exercised through authenticated REST, the worker and
+CLI status. Unchanged success/recovery flows reuse the S4 probes, with the
+unchanged-source boundary verified by the 60-file manifest.
+
+PB065-R09's wording correction is coordinator-reviewed against probe F2; it
+adds no executable operation. The product limit remains open as
+[LOW-044](https://github.com/phense/agentic-rag/issues/75#issuecomment-6548506675).
+This content verdict is separate from full-suite and production readiness.

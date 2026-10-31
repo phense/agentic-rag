@@ -75,6 +75,9 @@ def test_restore_roundtrip(tmp_path, cfg, dbinit, conn, monkeypatch):
     monkeypatch.setattr(backup, "WARNING_STATE", tmp_path / "state" / "warn")
     conn.execute("INSERT INTO domains(name) VALUES ('probe')")
     conn.commit()
+    before_acl = _relation_acl(conn)
+    before_defaults = _default_acl(conn)
+    conn.rollback()
     c = Config(db_name=cfg.db_name, backup_local_dir=tmp_path,
                backup_cloud_dir=tmp_path / "no-cloud")
     res = backup.run_backup(c)
@@ -86,6 +89,52 @@ def test_restore_roundtrip(tmp_path, cfg, dbinit, conn, monkeypatch):
     assert check.execute(
         "SELECT 1 FROM domains WHERE name = 'probe'").fetchone()
     check.close()
+    # CREATE during an in-place restore must not inherit extra default grants.
+    assert _relation_acl(conn) == before_acl
+    assert _default_acl(conn) == before_defaults
+    from agentic_rag.service.schema import validate_schema
+    validate_schema(conn)
+
+
+def _relation_acl(conn):
+    return conn.execute("""SELECT c.relname, a.grantor::regrole::text grantor,
+        a.grantee, a.privilege_type, a.is_grantable
+        FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+        CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,
+            acldefault(CASE WHEN c.relkind='S' THEN 'S'::\"char\" ELSE 'r'::\"char\" END,c.relowner))) a
+        WHERE n.nspname='public' AND c.relkind IN ('r','S')
+        ORDER BY c.relname,grantor,a.grantee,a.privilege_type""").fetchall()
+
+
+def _default_acl(conn):
+    return conn.execute("""SELECT defaclrole, defaclnamespace, defaclobjtype, defaclacl::text
+        FROM pg_default_acl ORDER BY defaclrole,defaclnamespace,defaclobjtype""").fetchall()
+
+
+@pytest.mark.parametrize('failure', ['producer_exit', 'sql_error'])
+def test_failed_restore_rolls_back_rows_and_default_privileges(tmp_path, cfg, conn, monkeypatch, failure):
+    # A complete-looking stream from a failed producer must never be committed.
+    c = Config(db_name=cfg.db_name, backup_local_dir=tmp_path, backup_cloud_dir=None)
+    archive = backup.run_backup(c).local_path
+    conn.execute("INSERT INTO domains(name) VALUES ('after-backup')")
+    conn.commit()
+    before_acl, before_defaults = _relation_acl(conn), _default_acl(conn)
+    conn.rollback()
+    real_bin = backup._pg_bin
+    wrapper = tmp_path / 'pg-restore-failure'
+    wrapper.write_text('#!/usr/bin/python3\nimport subprocess,sys\n'
+                       f'code=subprocess.call([{real_bin("pg_restore", c)!r},*sys.argv[1:]])\n'
+                       'if code: sys.exit(code)\n' +
+                       ('sys.exit(19)\n' if failure == 'producer_exit' else
+                        'print("SELECT 1/0;",flush=True)\n'))
+    wrapper.chmod(0o700)
+    monkeypatch.setattr(backup, '_pg_bin', lambda name, config=None:
+                        str(wrapper) if name == 'pg_restore' else real_bin(name, config))
+    with pytest.raises(RuntimeError, match='restore failed'):
+        backup.restore(c, archive, assume_yes=True)
+    assert conn.execute("SELECT 1 FROM domains WHERE name='after-backup'").fetchone()
+    assert _relation_acl(conn) == before_acl
+    assert _default_acl(conn) == before_defaults
 
 
 def test_pg_bin_prefers_path(monkeypatch):

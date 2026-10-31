@@ -412,3 +412,15 @@ The corrected architecture requires fresh success and recovery probes, independe
 SQL/authorization/playbook review and the final full suite. The earlier review's
 probe exit0 means execution completed and includes a failed product recovery gate;
 it is not acceptance evidence for the corrected source. No gate is waived here.
+
+
+RAG-065 independent final acceptance at `73ddd02`: AF-065-001..004 are resolved
+at the implementation/model/integration boundary. The final 60-file manifest
+matched exactly; 34 fresh assertions passed, with four owned databases removed.
+N1 backfill waiting/no-consumption/recovery and PB065-R07's hardlink gate are
+resolved. Earlier source/policy/credential, atomic apply and accepted recovery
+probes are reused only for byte-identical code, as documented in the review.
+No Critical/High/Medium or Important finding remains. LOW-038..044 are deferred
+in Issue75; the companion Minor C1/C9 wording finding is corrected by the
+coordinator without changing executable steps. Full-suite and convergence
+acceptance are still pending.

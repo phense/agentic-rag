@@ -9,7 +9,7 @@ version: 0.6.18 (schema030)
 depends_on: [../pattern-synthesis.md]
 assets: []
 last_reviewed: 2026-10-31
-summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade and recovery evidence, playbook rehearsal and release limits for Issue65; independent review and the full suite are still pending.
+summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade/recovery and independent acceptance for Issue65; full-suite acceptance remains pending.
 ---
 
 # Pattern synthesis verification
@@ -20,8 +20,9 @@ summary: Frozen-fixture pattern-synthesis measurements, populated 0.6.17 upgrade
 synthesis: source-linked, reviewable inferences over several original memories.
 Source is 0.6.17/schema029 (`81beaf6`); the target is 0.6.18 with additive
 migration030. This record covers the implementation slice (S1) and the
-review-driven correction slice (S4). The independent re-review and the full test
-suite are coordinator-owned and **not yet done**; nothing here claims them.
+review-driven corrections (S4/S5). Independent review through `73ddd02` is
+accepted with no open Critical/High/Medium or Important finding. The full test
+suite remains coordinator-owned and **not yet done**; nothing here claims it.
 
 Terms: a *pattern* is a stored inference with exact citations. An *independent
 event* is a distinct user report after merging same-source and same-text quotes.
@@ -157,7 +158,7 @@ gate defect (PB065-R07). The coordinator reproduced both before fixing them:
   warning, 29.77 s, exit 0). The RO proxy now checks the four additional pattern
   reads and rejects the three pattern writes.
 
-Final independent acceptance and the complete suite remain pending. The first
+Final full-suite acceptance remains pending. The first
 full run was interrupted (exit 2, 997 passed/9 failed): eight browser launches
 lacked the existing library search path; one RO proxy test still expected 12
 instead of 16 tools. These failures are retained, not counted as acceptance.
@@ -165,6 +166,34 @@ With the existing browser-library path restored, all 98 affected browser,
 synthesis, transport and upgrade tests passed (223.39 s, one known upstream
 warning, exit 0). The six retained Low findings are recorded as
 [LOW-038..043 in Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6548367780).
+
+## Independent final acceptance and package
+
+The independent final review at `73ddd02` verified all 60 files against the
+manifest, read all 13 files changed since the previous review, and reused the
+unchanged earlier complete review and probes explicitly. It found no open
+Critical/High/Medium or Important issue. Fresh probes passed **34 of 34
+assertions**, covering authenticated waiting status, writer/RO/foreign scopes,
+local and client CLI, no consumption across repeated ticks, one-call recovery
+after raising the budget, concurrent forward progress, the SQL constraint and
+the exact hardlink gate. Four owned databases were created and removed; none
+remained. Earlier success/recovery, policy/source/credential changes and atomic
+apply probes are reused for byte-identical code; they were not all re-run.
+
+The final review also found a rare liveness limit:
+[LOW-044](https://github.com/phense/agentic-rag/issues/75#issuecomment-6548506675).
+Three independent large memories can jointly exceed the maximum 24,000-character
+input. That backfill stays visibly pending, holds later backfills of the policy
+and has no cancel route. Nothing is sent or consumed. The coordinator corrected
+the companion Minor documentation finding (PB065-R09) in C1/C9 and the user
+guide; the product limit remains deferred in Issue75.
+
+An offline wheel build at `73ddd02` passed. Its 184 entries include all **179
+tracked Python/SQL/assets files**, byte-identical to source; all Python entries
+compile. A smoke process imported the extracted wheel, initialized an owned
+schema030 database, verified the nullable waiting field, 16 read-only tools and
+default-off empty synthesis status, then removed its database. Wheel SHA-256:
+`d3cd118f683524a7f326016f34eb22f4181b8c54184bcc12cd9dc25bda3a42f7`.
 
 ## Defects found and fixed during S1
 
@@ -198,7 +227,21 @@ warning, exit 0). The six retained Low findings are recorded as
 - A code-only rollback is supported only before the first pattern; disable every
   policy first, because a 0.6.17 worker cannot process queued pattern jobs.
 
+## Final full-suite correction
+
+The completed run at `73ddd02` returned exit 1: **1,965 passed, 3 failed,
+1 skipped, 1 warning**. Two older tests expected eight writer tools instead
+of eleven. The third exposed an existing in-place restore defect: table creation
+inherited target default grants that the archive did not revoke. The dashboard
+schema validator correctly refused the resulting exposed control tables.
+The restore/dashboard test pair reproduced this; a strengthened restore test
+also observed 87 extra relation privileges. This is not a synthesis read-gate
+failure. The correction resets the creating operator's table/sequence defaults
+inside the restore transaction and commits only after the complete archive
+script succeeds. Regression tests compare all relation/default ACLs and retain
+post-backup rows on SQL or archive-producer failure. Independent review of this
+additional security slice and a new full run are required before delivery.
+
 ## Pending before delivery
 
-Independent re-review of S4, as-built reconciliation, the full test suite and
-the pull request (T065-010/011).
+The full test suite, final convergence and the pull request (T065-010/011).

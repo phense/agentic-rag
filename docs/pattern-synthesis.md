@@ -153,6 +153,10 @@ fit the input budget, it stays pending instead. `rag pattern status` prints
 `backfill … pending … (input_budget_below_floor)`. No run is created, and the
 cursor and batch allowance remain unchanged. Raise the worker's effective
 input budget and restart it; the next tick tries the same group again.
+If the minimum independent group still exceeds the maximum 24,000-character
+input, this release cannot analyse it. That backfill stays pending and holds
+later backfills for the same policy. There is no cancel command; contact the
+maintainer (Issue75/LOW-044). No original is consumed or deleted.
 
 ## Read and check a pattern
 
