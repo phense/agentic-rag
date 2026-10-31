@@ -65,6 +65,7 @@ retry and independently verified restore; actual0.6.18 consumers are exercised.
 - Baseline: merged `d4d2372`,0.6.18/schema030. Preserve existing `as_of/history`, source-evidence and graph-default contracts unless an explicit new view is requested or a caller applies a documented lifecycle decision.
 - Existing `memory_get` remains original-record inspection when no view is supplied; explicit current resolution must identify requested versus canonical original. Historical citations never silently redirect to another source.
 - No data deletion, source/evidence transplantation or forced re-embedding. New lifecycle state is additive and starts empty.
+- Automatic curation workers and their hook launchers must run the new exact policy after upgrade. Any supported old-code fallback disables automatic curation (`curation_budget=0`) and is tested; changing the database alone cannot update an old Python loop.
 - The upgrade path must define old/new direct-reader and writer combinations both before and after first use, including stale loaded processes. Do not infer compatibility from startup alone.
 - All destructive/failure/recovery/load tests use isolated owned synthetic stores, never5432 or production. No external-provider/private-corpus work is implied.
 
@@ -90,7 +91,13 @@ RO/future-revoked callers; budget/chain exhaustion; interrupted commit and backu
 - Operator review authorizes a decision; it does not mathematically prove semantic equivalence. Structural validation must say so. No unmeasured semantic classifier is introduced.
 - Current/latest are aliases for the justified canonical present, not alternative recency heuristics.
 - Existing raw original/evidence inspection and explicitly labelled history are distinct from current factual retrieval.
-- Scope and compatibility policy may be strengthened by the design gate before task generation; no product behavior is implemented in this phase.
+- New overlay anchors exclude assertion-managed, alias-definition and synthesis documents. Immutable assertion replacement/extension continues through `memory_assert`; lifecycle detail must still explain those existing relations instead of silently dropping that user scenario.
+- `include_merged` adds new active duplicate/extension members only; replacement members stay excluded. Legacy archived `duplicate_of` originals remain archived and are reachable by original/detail inspection, labelled `legacy_duplicate`.
+- Exact automatic curation is conservatively tightened to require identical title, body and dtype in the same known domain/project; different titles are not structural proof of the same entity. Semantic review remains explicit. This may deliberately reject legitimate differently titled copies; measure that separately.
+- Duplicate/extension members resurface through their own truth gates when their anchored relationship becomes stale or the target unavailable. Explicit replacement remains suppressive from its effective event until audited correction, including target edit/withdrawal/purge; missing replacement knowledge is reported, never filled by silently reviving the old value.
+- Flat canonical groups have one hop; extending or merging an existing canonical group requires correction/replanning, not an implicit multi-hop rewrite.
+- Existing omitted-history defaults remain unchanged. Explicit historical views contain qualified accepted past observations, including superseded/expired ones, but exclude future, refuted, withdrawn or unqualified truth. Raw original/evidence inspection remains a separate labelled route.
+- Design-time source analysis is accepted with the coordinator dispositions recorded in the contract/UML; no product behavior is implemented in this phase.
 
 ## Success measures
 

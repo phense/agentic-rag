@@ -22,7 +22,7 @@ explicitly reviewed. Contradictions remain unresolved visible records.
 |---|---|---|
 | Current baseline and branch isolation | merged PR88/main d4d2372; clean feat/memory-lifecycle-66 in existing isolated worktree | pass |
 | One audited store and genuine RO tools | store.py, mcp_server.READ_TOOLS/WRITE_TOOLS, service.engine/context | preserve |
-| Data preservation and old-code compatibility | service.upgrade, schema.py, test_synthesis_upgrade.py real-source harness | required031 rehearsal |
+| Data preservation and old-code compatibility | service.upgrade, schema.py, tests/service/test_synthesis_upgrade.py real-source harness | required031 rehearsal |
 | Exactly+1 patch and docs | pyproject/uv.lock/README/CHANGELOG0.6.18 | target0.6.19 in this PR |
 | Independent review and source-bound verification | AGENTS.md; existing owned PG55460 | delivery gate |
 | Merge policy | maintainer explicitly permits remaining6.x autonomous merges after tests/review/upgrade | no per-PR wait; no automatic production rollout |
@@ -62,10 +62,18 @@ evidence, scope and monotonic decision state, including ABA; a replay key cannot
 be reused with another payload. Correction closes only its own active decision,
 never modifies independent truth/source/expiry state, and never deletes an original.
 
-The architecture gate will reconcile exact predicates, version baselines,
-lock order and chain semantics with actual SQL/callers before task generation.
-Its findings must become traceable implementation tasks; unresolved semantic
-contradictions return to this coordinator, not silently waived.
+The design gate selects flat one-hop groups, separate `lv1` optimistic versions
+and immutable base snapshots. `lv1` includes the append-only lifecycle event count
+for action ABA; the base snapshot used by hiding excludes that count, so an action
+never stales itself or other group members. Both bind portable content/evidence/
+state/scope versions. Compare full base snapshots (not only `updated_at`) to catch
+source ABA. Leave existing ev1/src1 untouched on migration and overlay operations.
+New anchors exclude immutable assertions/alias definitions/synthesis; existing
+assertion operations and legacy duplicate relationships remain explained by detail.
+The existing automatic legacy exact curation is tightened to require identical
+non-empty body, title and dtype, not merely a same-body pair. Its source preservation,
+archive/edge/audit behavior stays. No new automatic semantic applier is added.
+Design findings AF-066-001..010 are explicit implementation obligations.
 
 ## Selection and invalidation
 
@@ -74,8 +82,12 @@ fields over the wire for old servers. Resolve view/as_of/history centrally, reje
 contradictory combinations, preserve each existing omitted-view default.
 Current/latest excludes explicitly merged/superseded members while preserving all
 existing claim/source/temporal gates. Include-merged adds merged originals, not
-invalid/expired/future/refuted truth. Historical results label retained superseded
-or expired accepted past observations; no ordinary current route resurrects them.
+invalid/expired/future/refuted truth. Explicit historical results label retained superseded or expired accepted past
+observations, enforce current source trust and exclude future/refuted/withdrawn
+truth; omitted legacy history keeps its old contract. `include_merged` widens only
+duplicate/extension hiding, never replacement. A replacement stays suppressive
+until explicit correction even if its target is missing; duplicate/extension stale
+or unavailable relationships resurface members only through their own truth gates.
 Original get/evidence remains inspection, not a silently redirected citation.
 
 Integrate SQL eligibility before candidate LIMIT across raw/contextual/managed
@@ -141,3 +153,20 @@ including correction and failure/recovery, not just internal functions. Preserve
 old-client/restart and post-backup-write limits. No separate development playbook:
 all development operations are owned synthetic database tests using existing isolation
 and cleanup helpers, with no production execution or special manual cutover here.
+
+## Coordinator design dispositions
+
+Accepted AF-066-001 exclusions and legacy-archive distinction with the specification
+clarifications above; existing assertion lifecycle remains in unified detail and
+uses its original audited gateway. Accepted one-hop groups and no new automatic
+applier. Corrected D2/D6 view semantics, D7 replacement persistence and full
+source/content snapshots, and D5 conservative legacy exact-title/type proof.
+These are source-grounded safeguards, not requirements waived to fit the code.
+AF-066-009/010 record the added curation and snapshot tests. No application code
+changed during planning; the independent implementation review checks these too.
+
+Worker compatibility refinement: upgrade/restart every automatic-curation worker
+and hook launcher as part of the existing fence/cutover. Old0.6.18 ordinary clients
+may be supported only through the explicit compatibility tests; old-code fallback
+must set `curation_budget=0` and prove no differently titled auto-merge. Do not
+claim a schema overlay changes old Python policy. PB-066-OPS includes this gate.
