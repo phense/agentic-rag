@@ -224,7 +224,8 @@ def test_lifecycle_scope_and_future_assertions_are_not_resurrected(corpus, conn)
     assert order == [] and report['reference'] == '2026-10-20T08:00:00+00:00'
 
 
-def test_graph_expansion_cannot_leak_or_undo_preference(corpus, conn):
+@pytest.mark.parametrize("limit", [3, 5])
+def test_graph_expansion_cannot_leak_or_undo_preference(corpus, conn, limit):
     cfg, keys = corpus
     neighbour = store.save_claim(conn, cfg, title='neighbour', body='Unrelated cabling inventory sheet.',
         domain='general', dtype='memory', project='/synthetic/team', claim_kind='stated', evidence=[
@@ -245,10 +246,13 @@ def test_graph_expansion_cannot_leak_or_undo_preference(corpus, conn):
     plain = fixture.ranked_keys(hits, keys)
     # Existing graph promotion places the out-of-period neighbour before the third match.
     assert plain[2] == 'neighbour' and len(plain) == 4
-    order, _, _, report = run(conn, cfg, keys, case, 'filter', graph_depth=1)
+    order, _, _, report = run(conn, cfg, keys, case, 'filter', graph_depth=1, k=limit)
     assert set(order) == {'seed', 'other', 'third'} and report['effect']['graph_checked'] == 1
-    order, hits, _, _ = run(conn, cfg, keys, case, 'prefer', graph_depth=1)
-    assert set(order[:3]) == {'seed', 'other', 'third'} and order[3] == 'neighbour' and hits[-1].graph_depth == 1
+    order, hits, _, _ = run(conn, cfg, keys, case, 'prefer', graph_depth=1, k=limit)
+    assert set(order[:3]) == {'seed', 'other', 'third'}
+    assert len(order) <= limit
+    if limit > 3:
+        assert order[3] == 'neighbour' and hits[-1].graph_depth == 1
 
 
 def test_symbols_and_exact_selectors_are_preserved(corpus, conn):
@@ -328,3 +332,34 @@ def test_unavailable_metadata_does_not_break_a_read_only_role(corpus, conn, cfg)
     finally:
         reader.close()
     assert order[0] == 'dev-backup-yesterday' and report['applied'] == 'preference'
+
+
+def test_source_withdrawal_between_retrieval_and_metadata_removes_preferred_hit(corpus, conn):
+    """A fresh eligibility rejection is exclusion, not an unknown date that
+    preference mode may keep behind its matching candidates."""
+    from agentic_rag import db
+    from agentic_rag.evidence import sources
+    cfg, keys = corpus
+    body = 'Temporal revocation probe original report.'
+    saved = store.save_claim(conn, cfg, title='Temporal revocation probe', body=body,
+        domain='general', dtype='memory', project='/synthetic/team', claim_kind='stated',
+        evidence=[dict(namespace='synthetic', source_id='revocation-probe', role='user',
+                       quote=body, timestamp='2026-10-29T10:00:00Z', complete=True)])
+    source_key = sources(conn, saved.doc_id)[0]['source_key']
+    conn.commit()
+
+    class WithdrawBeforeMetadata(Recorder):
+        withdrawn = False
+
+        def execute(self, query, *args, **kwargs):
+            if MARKER in str(query) and not self.withdrawn:
+                self.withdrawn = True
+                with db.connect(cfg) as writer:
+                    store.set_source_state(writer, source_key, state='removed', reason='Concurrent withdrawal')
+            return super().execute(query, *args, **kwargs)
+
+    observed = WithdrawBeforeMetadata(conn)
+    hits, _ = search.search(observed, cfg, 'temporal revocation probe gestern',
+        **fixture.options(DEV['RD01'], mode='prefer'))
+    assert observed.withdrawn
+    assert hits == []

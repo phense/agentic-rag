@@ -50,11 +50,13 @@ in-process reader:
 
 ## How to read the numbers
 
-Most of the gain over plain feature-off comes from removing the time words from
-the search text: lexical search requires every word, and no document contains
-*yesterday* or *2026-10-14*. The "time words removed by hand" column isolates the
-ordering effect of event times: 14 of 21 quality cases improve at top-1, none get
-worse.
+Removing time expressions improves candidate retrieval because lexical search
+requires every search word. The "time words removed by hand" column separates
+that effect from event-time ordering. On the held-out cases, Recall@5 rises from
+0.05 to 0.88 with word removal and to 1.00 with temporal ordering/filtering. Top-1
+rises from 0.09 to 0.27 with word removal and to 1.00 with the complete feature.
+Compared with the words-removed arm, 14 of 21 quality cases improve at top-1
+across both splits; none get worse.
 
 The feature-off column is slightly too favorable in RD01 and HD01. Document
 titles are indexed with the body, and the frozen fixture titles contain the key

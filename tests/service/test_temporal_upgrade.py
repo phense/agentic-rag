@@ -228,3 +228,29 @@ def test_populated_old_store_new_reads_and_actual_old_code_rollback(conn, cfg, t
             'old_http_status': [r['status'] for r in prior['http']], 'operational_tables_excluded': sorted(OPERATIONAL),
             'original': original, 'after_new_reads': original, 'after_old_reads': after, 'after_rollback': final},
             indent=1, sort_keys=True))
+
+
+def test_public_upgrade_accepts_populated_0_6_16_without_schema_change(cfg, tmp_path, monkeypatch):
+    """Existing operator workflow must accept the immediate source patch even
+    when the target only adds read behavior and has no SQL migration."""
+    from agentic_rag import store
+    from agentic_rag.benchmark.database import isolated_database
+    from agentic_rag.service import upgrade
+    monkeypatch.setattr(store, 'try_embed_texts', lambda *a: None)
+    with isolated_database(cfg) as source:
+        with db.connect(source) as source_conn:
+            from agentic_rag.domains import seed_defaults
+            seed_defaults(source_conn)
+            store.save_document(source_conn, source, title='Preserved operator corpus',
+                                body='Source patch 0.6.16 keeps original content and scope.',
+                                domain='general', dtype='memory', project='/synthetic/team')
+        before = upgrade.inventory(source, '0.6.16')
+        dry = upgrade.local_upgrade(source, '0.6.16', tmp_path / 'unused.dump')
+        assert dry['plan']['ready'] and dry['applied'] is False
+        assert not (tmp_path / 'unused.dump').exists()
+        proof = upgrade.local_upgrade(source, '0.6.16', tmp_path / 'code-only.dump',
+                                      apply=True, writers_stopped=True)
+        assert proof['restore_verified'] and proof['original_rows_unchanged']
+        assert proof['migrations_applied'] == []
+        assert upgrade.inventory(source, '0.6.16')['tables'] == before['tables']
+        assert upgrade.verify_preserved(source, proof['manifest'])['unchanged']

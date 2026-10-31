@@ -170,9 +170,15 @@ def search(
         hits = stage.apply(hits, warnings)
     hits=diverse(hits,query,k)
     if graph_depth:
+        before_graph = hits
         hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain)
-        if stage is not None:
-            hits = stage.apply(hits, warnings, graph=True)
+        if stage is not None and stage.available:
+            # Graph promotion applies its own k limit. Retain the eligible base
+            # selection until after temporal ordering so out-of-period graph
+            # neighbours cannot evict matching original hits at that boundary.
+            expanded_chunks = {h.chunk_id for h in hits}
+            candidates = hits + [h for h in before_graph if h.chunk_id not in expanded_chunks]
+            hits = stage.apply(candidates, warnings, graph=True)[:k]
     final = with_evidence([present(h,query) for h in hits])
     if stage is not None and stage.available:
         final = [replace(h, evidence={**h.evidence, 'temporal': stage.explain(h.document_id)}) for h in final]
@@ -330,7 +336,10 @@ class _TemporalStage:
             return hits
         ordered = [h for h in hits if self.matches(h.document_id)]
         if self.mode == 'prefer':
-            ordered += [h for h in hits if not self.matches(h.document_id)]
+            # A rejected or no-longer-visible document is not an unknown-date
+            # candidate. Respect the fresh authority result in soft mode too.
+            ordered += [h for h in hits if not self.matches(h.document_id)
+                        and self.metadata.get(h.document_id, {}).get('eligible', False)]
         effect = self.report['effect']
         if not graph:
             documents = list(dict.fromkeys(h.document_id for h in hits))

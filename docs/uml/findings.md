@@ -350,3 +350,14 @@ Question/model: [temporal-query-64.md](temporal-query-64.md), source8772fbd; req
 - **AF-064-001 (open, interface/time semantics):** AC-001/002/006, validity.py:selection and search.py:search. Calendar parsing must capture reference once, use explicit zone/DST calendar boundaries, avoid date guessing and never replace as_of/history. Owner S1/T064-001/002; prove parser boundaries, no-intent/off parity and future eligibility. Next: implementation.
 - **AF-064-002 (open, trust/data semantics):** AC-003/005, evidence.py and SQL020/023. Late import/update time and nonqualifying source time must not masquerade as event truth; RLS and current claim/validity gates remain authoritative. Owner S1/T064-002/003; batch finite metadata for visible candidates, explicit unknown/manual basis, no-resurrection and two-domain tests. Next: implementation.
 - **AF-064-003 (open, bounds/recovery/compatibility):** AC-004/006/007/008, search.py:diverse/_expand and MCP/CLI envelopes. Graph promotion cannot undo filtering/preference; candidate caps must be explicit, hard failures never return unfiltered output, off/no-intent preserve legacy transport and no SQL failure leaves a swallowed aborted transaction. Owner S1/T064-002..005; bounded graph/filter tests, real transport parity, populated old-code rollback and held-out measurements. Next: implementation then S2 independent success/recovery gate.
+
+
+RAG-064 as-built reconciliation, 2026-10-31: AF-064-001..003 have implemented
+responses in temporal.py/search.py/config.py and local/remote transports. The
+model records actual library/client opt-in defaults, canonical qualifying event
+time, savepoint recovery, bounded candidate recall, no-migration0.6.16 operator
+support and old-code rollback. Coordinator regressions reproduced and corrected
+k=3 graph eviction and fresh source-withdrawal retention. See
+[temporal-query-64.md](temporal-query-64.md). Findings are resolved at the
+implementation/model boundary; independent architecture success/recovery,
+complete bounded review and fresh full suite remain pending.

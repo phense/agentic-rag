@@ -159,7 +159,9 @@ server's setting decides `auto`.
 ## Enable, check and roll back
 
 Upgrading from 0.6.16 needs no migration, data rewrite or re-embedding; the store
-stays on schema029.
+stays on schema029. The existing operator upgrade workflow also accepts
+`--source-version 0.6.16`; its verified backup/restore and preservation checks
+remain available even though no migration is applied.
 
 1. Install 0.6.17 and restart long-running processes (`rag service serve`, MCP
    servers) so they load the new code and tool signatures.
