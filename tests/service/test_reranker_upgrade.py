@@ -115,7 +115,7 @@ with TestClient(app,base_url='https://testserver') as client:
         assert after_rollback==previous
         with db.connect(cfg) as conn:
             after=_snapshot(conn)
-            assert conn.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n']==29
+            assert conn.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n']==30
         operational={'service_sessions','dashboard_changes','dashboard_presence','request_traces','service_foreground','service_requests'}
         unchanged={k:v for k,v in canonical.items() if k not in operational}
         assert all(after[k]==v for k,v in unchanged.items())
