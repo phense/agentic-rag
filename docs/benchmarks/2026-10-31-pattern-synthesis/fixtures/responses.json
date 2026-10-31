@@ -1,0 +1,357 @@
+{
+ "format": 1,
+ "description": "Scripted provider responses for the mocked structured-provider boundary. quote_contains selects the opaque citation id whose candidate quote contains the text; literal_id injects a raw id.",
+ "responses": [
+  {
+   "case": "K1",
+   "variant": "oracle",
+   "response": {
+    "suggestions": [
+     {
+      "label": "VPN reconnect clears the DNS suffix list",
+      "statement": "Several independent reports suggest that after a VPN reconnect the DNS suffix search list is lost, so internal short names stop resolving until the suffix is restored.",
+      "confidence": "medium",
+      "parts": [
+       {
+        "text": "Internal names fail to resolve after a VPN reconnect.",
+        "citations": [
+         {
+          "quote_contains": "intranet.example.test would not resolve",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "none of the corp.example.test names resolved",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "unreachable by name after the VPN reconnect",
+          "stance": "supports"
+         }
+        ]
+       },
+       {
+        "text": "Restoring the DNS suffix or search domain fixes resolution.",
+        "citations": [
+         {
+          "quote_contains": "re-added the DNS suffix",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "adding the search domain fixed it",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "back into the DNS suffix list fixed it",
+          "stance": "supports"
+         }
+        ]
+       },
+       {
+        "text": "The suffix search list is empty after the reconnect.",
+        "citations": [
+         {
+          "quote_contains": "the DNS suffix search list is empty",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "K1",
+   "variant": "adversarial",
+   "response": {
+    "suggestions": [
+     {
+      "label": "VPN breaks DNS",
+      "statement": "The VPN client deletes DNS settings.",
+      "confidence": "high",
+      "parts": [
+       {
+        "text": "Confirmed by the vendor.",
+        "citations": [
+         {
+          "literal_id": "C99",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "the DNS suffix search list is empty",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "F1",
+   "variant": "adversarial",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Export fails on full disk",
+      "statement": "The nightly export repeatedly fails because the disk is full.",
+      "confidence": "high",
+      "parts": [
+       {
+        "text": "Three reports of the export failing on a full disk.",
+        "citations": [
+         {
+          "quote_contains": "disk was full",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "C1",
+   "variant": "oracle",
+   "response": {
+    "suggestions": [],
+    "non_conclusions": [
+     {
+      "reason": "conflicting_sources",
+      "citations": [
+       {
+        "quote_contains": "dedup job started too early",
+        "stance": "supports"
+       },
+       {
+        "quote_contains": "was not the dedup job",
+        "stance": "supports"
+       },
+       {
+        "quote_contains": "rebuilding a disk",
+        "stance": "supports"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case": "C1",
+   "variant": "adversarial",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Dedup causes backup overruns",
+      "statement": "The dedup job start time causes the backup overruns.",
+      "confidence": "high",
+      "parts": [
+       {
+        "text": "The dedup job overlaps the backup.",
+        "citations": [
+         {
+          "quote_contains": "dedup job started too early",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "was not the dedup job",
+          "stance": "contradicts"
+         },
+         {
+          "quote_contains": "rebuilding a disk",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "I1",
+   "variant": "oracle",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Teams white screen cleared by cache reset",
+      "statement": "Clearing the Teams cache repeatedly resolved a white Teams window.",
+      "confidence": "medium",
+      "parts": [
+       {
+        "text": "A white Teams screen recurred.",
+        "citations": [
+         {
+          "quote_contains": "Teams showed a white screen",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "White Teams window again",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "the white screen was gone",
+          "stance": "supports"
+         }
+        ]
+       },
+       {
+        "text": "Clearing the cache fixed it each time.",
+        "citations": [
+         {
+          "quote_contains": "clearing the Teams cache fixed it",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "Clearing the cache fixed it",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "After clearing the Teams cache",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "I1",
+   "variant": "adversarial",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Confirmed user statement",
+      "statement": "The user confirmed that clearing the cache always works.",
+      "confidence": "high",
+      "kind": "stated",
+      "domain": "programming",
+      "project_scope": "global",
+      "parts": [
+       {
+        "text": "User statement.",
+        "citations": [
+         {
+          "literal_id": "C99",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "K2",
+   "variant": "oracle",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Long TXT TTL breaks ACME DNS-01 renewal",
+      "statement": "Certificate renewals with the DNS-01 challenge appear to fail while the TXT record TTL is long and pass after it is lowered.",
+      "confidence": "medium",
+      "parts": [
+       {
+        "text": "Renewal fails with a long TXT TTL.",
+        "citations": [
+         {
+          "quote_contains": "TTL of 3600",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "DNS challenge timeout",
+          "stance": "supports"
+         }
+        ]
+       },
+       {
+        "text": "Lowering the TTL makes the challenge pass.",
+        "citations": [
+         {
+          "quote_contains": "Lowering the TXT record TTL to 60",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "only passed after the TXT TTL was reduced",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  },
+  {
+   "case": "C2",
+   "variant": "oracle",
+   "response": {
+    "suggestions": [],
+    "non_conclusions": [
+     {
+      "reason": "conflicting_sources",
+      "citations": [
+       {
+        "quote_contains": "blocked by the office firewall",
+        "stance": "supports"
+       },
+       {
+        "quote_contains": "8443 is open",
+        "stance": "supports"
+       },
+       {
+        "quote_contains": "8443 allowed",
+        "stance": "supports"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case": "C2",
+   "variant": "adversarial",
+   "response": {
+    "suggestions": [
+     {
+      "label": "Firewall blocks 8443",
+      "statement": "The office firewall blocks port 8443.",
+      "confidence": "high",
+      "parts": [
+       {
+        "text": "Port 8443 is blocked.",
+        "citations": [
+         {
+          "quote_contains": "blocked by the office firewall",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "8443 is open",
+          "stance": "supports"
+         },
+         {
+          "quote_contains": "8443 allowed",
+          "stance": "supports"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "non_conclusions": []
+   }
+  }
+ ]
+}
