@@ -88,13 +88,22 @@ restores a dump straight into your **live**, configured database. It streams
   it doesn't create one — so point `config.toml` at the right `db_name`
   (run `rag init-db` first if you're restoring onto a fresh install) before
   restoring.
-- **Default grants are reset inside that transaction before creating tables
-  and sequences.** The archive restores its own default grants afterwards.
+- **The creating operator's default grants are reset inside that transaction
+  for tables, sequences, functions, types and schemas.** PostgreSQL's built-in
+  defaults apply during creation; the archive restores its own defaults afterwards.
   This prevents an existing installation's defaults from adding access to
   owner-only dashboard/tracing state or protected knowledge history. A failed
   SQL statement or nonzero `pg_restore` exit rolls back both data and grants.
   If the connection is lost during commit, inspect the database before retrying;
   the client cannot prove whether the commit reached the server.
+- **Archives with PostgreSQL large objects are refused before connecting to
+  the target.** Large-object sections contain their own transaction boundary.
+  Nothing is skipped or changed on refusal. These objects are not used by
+  agentic-rag's schema. If another application added them, recover with
+  `pg_restore --single-transaction` into a confirmed empty database, following
+  the [move/recovery playbook](13-central-service.md#pb-058-02-move-restore-and-recover).
+  Verify the large objects and their ACLs separately before switching clients;
+  the application inventory does not cover them.
 
 This is the command you reach for in an actual incident. It is intentionally
 separate from — and touches nothing in common with — the automatic
@@ -176,8 +185,8 @@ you to set `[pg] bin_dir` or fix your `PATH` — never a silent skip. If a
 backup or maintenance `pg_dump`/`pg_restore` invocation itself fails (bad auth, disk full), the
 real stderr from the tool is surfaced in the error, not just an exit code —
 important for a job that mostly runs unattended.
-The live restore reports a transaction failure without printing SQL or stored
-content from the subprocess diagnostics.
+The live restore reports the failed stage and tool exit codes without printing
+SQL or stored content from subprocess diagnostics.
 
 ## Checking backup health from `rag status`
 

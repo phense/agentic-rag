@@ -6,7 +6,6 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -149,6 +148,7 @@ def run_backup(cfg: Config) -> BackupResult:
 
 
 _RESTORE_DEFAULTS = """BEGIN;
+SET LOCAL search_path = pg_catalog;
 -- CREATE must see PostgreSQL's base defaults, not the target's additive grants.
 -- The archive restores its own default ACLs after recreating the relations.
 DO $restore_defaults$
@@ -161,35 +161,56 @@ BEGIN
         CROSS JOIN LATERAL pg_catalog.aclexplode(d.defaclacl) a
         LEFT JOIN pg_catalog.pg_roles r ON r.oid=a.grantee
         WHERE d.defaclrole=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname=current_user)
-          AND d.defaclobjtype IN ('r','S')
+          AND d.defaclobjtype IN ('r','S','f','T','n')
     LOOP
-        objects := CASE item.defaclobjtype WHEN 'r' THEN 'TABLES' ELSE 'SEQUENCES' END;
+        objects := CASE item.defaclobjtype WHEN 'r' THEN 'TABLES' WHEN 'S' THEN 'SEQUENCES'
+            WHEN 'f' THEN 'FUNCTIONS' WHEN 'T' THEN 'TYPES' WHEN 'n' THEN 'SCHEMAS' END;
         scope := CASE WHEN item.nspname IS NULL THEN '' ELSE format(' IN SCHEMA %I',item.nspname) END;
         EXECUTE format('ALTER DEFAULT PRIVILEGES%s REVOKE ALL ON %s FROM %s',
             scope,objects,CASE WHEN item.grantee=0 THEN 'PUBLIC' ELSE quote_ident(item.rolname) END);
     END LOOP;
     EXECUTE format('ALTER DEFAULT PRIVILEGES GRANT ALL ON TABLES TO %I',current_user);
     EXECUTE format('ALTER DEFAULT PRIVILEGES GRANT ALL ON SEQUENCES TO %I',current_user);
+    EXECUTE format('ALTER DEFAULT PRIVILEGES GRANT ALL ON FUNCTIONS TO %I',current_user);
+    ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC;
+    EXECUTE format('ALTER DEFAULT PRIVILEGES GRANT ALL ON TYPES TO %I',current_user);
+    ALTER DEFAULT PRIVILEGES GRANT USAGE ON TYPES TO PUBLIC;
+    EXECUTE format('ALTER DEFAULT PRIVILEGES GRANT ALL ON SCHEMAS TO %I',current_user);
 END
 $restore_defaults$;
 """
+
+
+def _check_restore_archive(cfg: Config, dump: Path) -> None:
+    # pg_restore's script contains an internal COMMIT around large objects.
+    # Refuse those archives before connecting to the target, never skip the data.
+    large_objects = False
+    with subprocess.Popen([_pg_bin('pg_restore', cfg), '--list', str(dump)],
+                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+        for line in process.stdout:
+            if re.match(rb'^\d+;\s+\d+\s+\d+\s+(?:BLOBS?|LARGE OBJECT)\b', line):
+                large_objects = True
+        if process.wait() != 0:
+            raise RuntimeError(f'restore archive inspection failed (pg_restore={process.returncode})')
+    if large_objects:
+        raise RuntimeError('large objects require an empty restore target; in-place restore refused')
 
 
 def restore(cfg: Config, dump: Path, assume_yes: bool = False) -> None:
     from . import db
     if not assume_yes:
         raise RuntimeError("restore requires explicit confirmation (assume_yes=True)")
+    _check_restore_archive(cfg, dump)
     # One transaction includes the temporary default-ACL reset and the restore.
     # Stream COPY data without buffering the archive as SQL in RAM or on disk.
     # COMMIT is sent only after pg_restore produced the complete script.
-    with tempfile.TemporaryFile() as restore_errors, tempfile.TemporaryFile() as sql_errors:
-        source = subprocess.Popen([_pg_bin("pg_restore", cfg), "--clean", "--if-exists",
-                                   "--file=-", str(dump)], stdout=subprocess.PIPE, stderr=restore_errors)
+    with subprocess.Popen([_pg_bin("pg_restore", cfg), "--clean", "--if-exists", "--file=-", str(dump)],
+                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as source:
         target = None
         try:
             target = subprocess.Popen([_pg_bin("psql", cfg), "-X", "--set=ON_ERROR_STOP=on",
                                        "-d", db.dsn(cfg), "--file=-"], stdin=subprocess.PIPE,
-                                      stdout=subprocess.DEVNULL, stderr=sql_errors)
+                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             target.stdin.write(_RESTORE_DEFAULTS.encode())
             shutil.copyfileobj(source.stdout, target.stdin)
             source.stdout.close()
@@ -197,9 +218,11 @@ def restore(cfg: Config, dump: Path, assume_yes: bool = False) -> None:
                 target.stdin.write(b"\nCOMMIT;\n")
             target.stdin.close()
             if target.wait() != 0 or source.returncode != 0:
-                raise RuntimeError("restore failed; verify transaction outcome before retrying")
+                raise RuntimeError(f"restore failed (pg_restore={source.returncode}, psql={target.returncode}); "
+                                   "verify transaction outcome before retrying")
         except BrokenPipeError as exc:
-            raise RuntimeError("restore failed; verify transaction outcome before retrying") from exc
+            raise RuntimeError(f"restore failed (SQL stream closed, psql={target.poll()}); "
+                               "verify transaction outcome before retrying") from exc
         finally:
             for process in (target, source):
                 if process is not None:

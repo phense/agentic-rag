@@ -236,11 +236,19 @@ inherited target default grants that the archive did not revoke. The dashboard
 schema validator correctly refused the resulting exposed control tables.
 The restore/dashboard test pair reproduced this; a strengthened restore test
 also observed 87 extra relation privileges. This is not a synthesis read-gate
-failure. The correction resets the creating operator's table/sequence defaults
+failure. The correction resets the creating operator's object defaults
 inside the restore transaction and commits only after the complete archive
 script succeeds. Regression tests compare all relation/default ACLs and retain
-post-backup rows on SQL or archive-producer failure. Independent review of this
-additional security slice and a new full run are required before delivery.
+post-backup rows on SQL or archive-producer failure. The additional independent review at `c3df902` found two Medium cases that the
+normal-schema tests missed: large-object sections emit an internal COMMIT,
+and custom function defaults add EXECUTE access to SECURITY DEFINER writers.
+The coordinator reproduced both as regression failures, then refused
+large-object archives before a target connection and extended the default reset
+to functions, types and schemas with their built-in PUBLIC defaults. This
+explicitly narrows in-place recovery; large-object data require verified empty-
+target recovery. Mid-stream producer/SQL failure tests supplement end-of-stream
+failures. The aborted full run at `c3df902` (exit 2, 356 passed, 1 warning) is
+retained; a new full run on frozen corrected source is required before delivery.
 
 ## Pending before delivery
 

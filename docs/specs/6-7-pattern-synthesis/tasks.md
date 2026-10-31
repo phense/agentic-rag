@@ -81,7 +81,7 @@ required afterwards. No live rollout is included.
 
 ### Slice S6: Final full-suite restore regression
 
-- [ ] T065-015 [IC-003, R65-FULL-01] Preserve exact relation/default ACLs across the existing in-place `rag restore` path. Reproduce restore followed by dashboard browsing; protect all-or-nothing restore when SQL fails or the archive producer exits nonzero. Neutralize only the creating operator's inherited table/sequence defaults within the same transaction, then restore archive defaults. Preserve bounded streaming, role checks and explicit recovery limits. Update stale writer-surface assertions to include the three pattern writers. Independently review the complete added security/restore slice; rerun full verification on a frozen revision. No production restore is included.
+- [ ] T065-015 [AC-009, IC-004, R65-FULL-01] Preserve exact relation/default ACLs across the existing in-place `rag restore` path. Reproduce restore followed by dashboard browsing; protect all-or-nothing restore when SQL fails or the archive producer exits nonzero. Neutralize only the creating operator's inherited table/sequence/function/type/schema defaults within the same transaction, then restore archive defaults. Preserve bounded streaming, role checks and explicit recovery limits. Update stale writer-surface assertions to include the three pattern writers. Independently review the complete added security/restore slice; rerun full verification on a frozen revision. No production restore is included.
 
 The full run at `73ddd02` ended **exit 1: 1,965 passed, 3 failed, 1 skipped,
 1 warning**. Two failures are stale writer-surface expectations. The third
@@ -89,3 +89,13 @@ revealed existing default-ACL amplification during in-place restore, reproduced
 with the two-test restore/dashboard sequence and an explicit all-relation ACL
 comparison. These failures supersede the earlier pending-run status and are
 not accepted as full-suite evidence.
+
+The additional independent review of `73ddd02..c3df902` found two Medium
+corrections: an embedded large-object COMMIT and inherited function EXECUTE
+grants. The coordinator reproduced both with new regression tests before
+fixing them. Large-object archives now require empty-target recovery and are
+refused before any target connection; default resetting covers all five
+PostgreSQL17 object classes. The prior full run at `c3df902` was interrupted
+(exit 2, 356 passed, 1 warning) to avoid finishing an obsolete source revision.
+It remains retained evidence, not acceptance. Focused correction checks are
+coordinator-owned; the complete independent bounded review is retained.
