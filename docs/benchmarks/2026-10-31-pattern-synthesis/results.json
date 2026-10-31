@@ -1,0 +1,894 @@
+{
+ "environment": {
+  "machine": "x86_64",
+  "postgresql": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+  "processor": "Intel(R) Xeon(R) CPU E5-2650 0 @ 2.00GHz",
+  "python": "3.13.13"
+ },
+ "evaluations": [
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "backfill",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F1",
+   "drain_ms": 43.1,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 1,
+    "sufficient": false
+   },
+   "preview_ms": 19.7,
+   "schedule_ms": 18.6,
+   "split": "dev",
+   "variant": "worker"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "backfill",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F2",
+   "drain_ms": 40.3,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 1,
+    "excluded": {
+     "no_qualifying_span": 2,
+     "not_stated": 1
+    },
+    "independent_events": 1,
+    "sufficient": false
+   },
+   "preview_ms": 10.9,
+   "schedule_ms": 15.0,
+   "split": "dev",
+   "variant": "worker"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "backfill",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F3",
+   "drain_ms": 37.2,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 1,
+    "excluded": {
+     "no_qualifying_span": 3
+    },
+    "independent_events": 1,
+    "sufficient": false
+   },
+   "preview_ms": 11.0,
+   "schedule_ms": 17.8,
+   "split": "dev",
+   "variant": "worker"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "backfill",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F4",
+   "drain_ms": 44.5,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 2,
+    "excluded": {
+     "derived": 1,
+     "legacy_unmanaged": 1,
+     "no_qualifying_span": 1
+    },
+    "independent_events": 2,
+    "sufficient": false
+   },
+   "preview_ms": 13.7,
+   "schedule_ms": 22.9,
+   "split": "dev",
+   "variant": "worker"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "backfill",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F5",
+   "drain_ms": 39.8,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 2,
+    "sufficient": false
+   },
+   "preview_ms": 16.0,
+   "schedule_ms": 28.1,
+   "split": "held_out",
+   "variant": "worker"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "input_chars": 1110,
+    "outcome": "non_conclusion",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": "conflicting_sources",
+    "rejected_suggestions": 0,
+    "supported_parts": 0
+   },
+   "case": "C1",
+   "drain_ms": 42.2,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "conflicting_sources"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 20.2,
+   "schedule_ms": 17.6,
+   "split": "dev",
+   "variant": "oracle"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "input_chars": 1041,
+    "outcome": "non_conclusion",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": "conflicting_sources",
+    "rejected_suggestions": 0,
+    "supported_parts": 0
+   },
+   "case": "C2",
+   "drain_ms": 47.0,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "conflicting_sources"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 18.2,
+   "schedule_ms": 16.7,
+   "split": "held_out",
+   "variant": "oracle"
+  },
+  {
+   "actual": {
+    "applied": 1,
+    "cited_events": 3,
+    "cited_memories": 3,
+    "input_chars": 1144,
+    "outcome": "applied",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": null,
+    "rejected_suggestions": 0,
+    "supported_parts": 2
+   },
+   "case": "I1",
+   "drain_ms": 109.1,
+   "expected": {
+    "applied": 1,
+    "cited_events": 3,
+    "cited_memories": 3,
+    "outcome": "applied",
+    "provider_calls": 1,
+    "supported_parts": 2
+   },
+   "inspect_ms": 15.2,
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 15.6,
+   "schedule_ms": 16.7,
+   "split": "dev",
+   "variant": "oracle"
+  },
+  {
+   "actual": {
+    "applied": 1,
+    "cited_events": 4,
+    "cited_memories": 4,
+    "input_chars": 1412,
+    "outcome": "applied",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": null,
+    "rejected_suggestions": 0,
+    "supported_parts": 3
+   },
+   "case": "K1",
+   "drain_ms": 117.2,
+   "expected": {
+    "applied": 1,
+    "cited_events": 4,
+    "cited_memories": 4,
+    "outcome": "applied",
+    "provider_calls": 1,
+    "supported_parts": 3
+   },
+   "inspect_ms": 16.9,
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 4,
+    "excluded": {},
+    "independent_events": 4,
+    "sufficient": true
+   },
+   "preview_ms": 16.9,
+   "schedule_ms": 21.0,
+   "split": "dev",
+   "variant": "oracle"
+  },
+  {
+   "actual": {
+    "applied": 1,
+    "cited_events": 3,
+    "cited_memories": 3,
+    "input_chars": 1113,
+    "outcome": "applied",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": null,
+    "rejected_suggestions": 0,
+    "supported_parts": 2
+   },
+   "case": "K2",
+   "drain_ms": 98.4,
+   "expected": {
+    "applied": 1,
+    "cited_events": 3,
+    "cited_memories": 3,
+    "outcome": "applied",
+    "provider_calls": 1,
+    "supported_parts": 2
+   },
+   "inspect_ms": 11.2,
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 15.4,
+   "schedule_ms": 20.5,
+   "split": "held_out",
+   "variant": "oracle"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "input_chars": 1110,
+    "outcome": "non_conclusion",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": "conflicting_support",
+    "rejected_suggestions": 1,
+    "supported_parts": 0
+   },
+   "case": "C1",
+   "drain_ms": 39.7,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "conflicting_support"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 20.1,
+   "schedule_ms": 19.2,
+   "split": "dev",
+   "variant": "adversarial"
+  },
+  {
+   "actual": {
+    "applied": 1,
+    "cited_events": 3,
+    "cited_memories": 3,
+    "input_chars": 1041,
+    "outcome": "applied",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": null,
+    "rejected_suggestions": 0,
+    "supported_parts": 1
+   },
+   "case": "C2",
+   "drain_ms": 94.2,
+   "expected": {
+    "applied": 1,
+    "known_limit": "a dishonest model that marks contradicting spans as supporting is not detectable structurally; the result stays an unreviewed inference",
+    "outcome": "applied",
+    "provider_calls": 1
+   },
+   "inspect_ms": 15.3,
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 15.3,
+   "schedule_ms": 19.9,
+   "split": "held_out",
+   "variant": "adversarial"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "path": "validator",
+    "provider_calls": 0,
+    "reason": "insufficient_independent_support"
+   },
+   "case": "F1",
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "insufficient_independent_support"
+   },
+   "matches_label": false,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 1,
+    "sufficient": false
+   },
+   "preview_ms": 17.9,
+   "split": "dev",
+   "validate_ms": 0.1,
+   "variant": "adversarial"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "input_chars": 1144,
+    "outcome": "non_conclusion",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": "invalid_output",
+    "rejected_suggestions": 0,
+    "supported_parts": 0
+   },
+   "case": "I1",
+   "drain_ms": 54.8,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "invalid_output"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 3,
+    "excluded": {},
+    "independent_events": 3,
+    "sufficient": true
+   },
+   "preview_ms": 12.8,
+   "schedule_ms": 21.3,
+   "split": "dev",
+   "variant": "adversarial"
+  },
+  {
+   "actual": {
+    "applied": 0,
+    "input_chars": 1412,
+    "outcome": "non_conclusion",
+    "path": "forward",
+    "provider_calls": 1,
+    "reason": "unknown_citation",
+    "rejected_suggestions": 1,
+    "supported_parts": 0
+   },
+   "case": "K1",
+   "drain_ms": 56.9,
+   "expected": {
+    "applied": 0,
+    "outcome": "non_conclusion",
+    "provider_calls": 1,
+    "reason": "unknown_citation"
+   },
+   "matches_label": true,
+   "preview": {
+    "eligible_memories": 4,
+    "excluded": {},
+    "independent_events": 4,
+    "sufficient": true
+   },
+   "preview_ms": 13.9,
+   "schedule_ms": 18.8,
+   "split": "dev",
+   "variant": "adversarial"
+  }
+ ],
+ "examples": {
+  "C1-adversarial": {
+   "code": "conflicting_support",
+   "result": {
+    "applied": 0,
+    "non_conclusions": [],
+    "rejected": [
+     {
+      "code": "conflicting_support",
+      "index": 0
+     }
+    ]
+   },
+   "state": "non_conclusion"
+  },
+  "C1-oracle": {
+   "code": "conflicting_sources",
+   "result": {
+    "applied": 0,
+    "non_conclusions": [
+     {
+      "reason": "conflicting_sources"
+     }
+    ],
+    "rejected": []
+   },
+   "state": "non_conclusion"
+  },
+  "C2-adversarial": {
+   "applied_at": "2026-10-31T18:19:49.905148+00:00",
+   "confidence": "high",
+   "contract_version": 1,
+   "current": true,
+   "kind": "inference",
+   "parts": [
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "194356b4-75cd-441b-952c-f6a24fd06c35",
+        "slug": "port-8443-a",
+        "version": "ev1:ec145719a193fa65d2ea0245a04563b0ce6a7a41aecee5480ffad92e7a39777f"
+       },
+       "reference": "77c4469f5786ed12efc893f6a41535cb7d42dd86c240112a285eef424fd87efe#025f918d8bbd85270818342d31bba93d151559065da290554545e9da77a38b12",
+       "source_version": "src1:d32f8167dc7ec207c11925a83d8d4a7c95bc1e85950b5eb79f31556574da2a65"
+      },
+      {
+       "original": {
+        "id": "3c24891d-c125-4da2-bd17-53bf2c5c5797",
+        "slug": "port-8443-b",
+        "version": "ev1:4e582cfddbeff9b28d41fc9cb7f497fd358ece947217ff3304d8bc39add5e82c"
+       },
+       "reference": "186758808903be70b9853298ae5fa9537b0bbc5c1bb9821e2836be3704494576#2ef8699b59639dab874cf98fe016a59bce716ef7954ae0ac4f711326e3aff495",
+       "source_version": "src1:61c1bfe815b8132180727784b72444a894fb39aec16b3a3d811c80f2a9758957"
+      },
+      {
+       "original": {
+        "id": "691e992f-210f-401f-8fc3-66eb3554d2c0",
+        "slug": "port-8443-c",
+        "version": "ev1:44d5272597faafe1b6bfe0c58e8c35af9417ffcc0da466686e79c4b1aa1358a9"
+       },
+       "reference": "bba81f764c184c643cb4e535fd7caee77ad306f2e9802ebee12d3de52c10a60a#6a56ef914f7478212ba99a7e37f2f1767d41205c7a27f724cdea25c065b37962",
+       "source_version": "src1:e8707f71167da6faeaa26c80223ab40d8289b303a4d6fb9229c33b8417616853"
+      }
+     ],
+     "text": "Port 8443 is blocked."
+    }
+   ],
+   "pattern": {
+    "domain": "general",
+    "id": "62675eb7-8dac-4926-a8bd-baa57a9f2c7f",
+    "label": "Firewall blocks 8443",
+    "project_scope": "/synthetic/c2-conflict",
+    "slug": "firewall-blocks-8443",
+    "statement": "The office firewall blocks port 8443."
+   },
+   "review_state": "unreviewed",
+   "support": {
+    "events": 3,
+    "memories": 3
+   },
+   "verification": {
+    "independent": false
+   }
+  },
+  "I1-adversarial": {
+   "code": "invalid_output",
+   "result": {
+    "applied": 0
+   },
+   "state": "non_conclusion"
+  },
+  "I1-oracle": {
+   "applied_at": "2026-10-31T18:19:48.380833+00:00",
+   "confidence": "medium",
+   "contract_version": 1,
+   "current": true,
+   "kind": "inference",
+   "parts": [
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "30ef65b4-41c7-44dd-9514-22c4a97bd23d",
+        "slug": "teams-white-screen-c",
+        "version": "ev1:5400a119384c02ceb93e6ed0d9596c00999908d0eb5b3e6ef26df652374def8b"
+       },
+       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
+       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
+      },
+      {
+       "original": {
+        "id": "790f360a-0af1-4db1-873b-99404b95fb57",
+        "slug": "teams-white-screen-b",
+        "version": "ev1:fe7bbfeb373b1a6d48b2774f73bc59d491726b237b100cc5bb4b206f4529a58e"
+       },
+       "reference": "56a33ab2642d079fe7d230ea294fec1eb30c3bb2502605e738844acc510e41f4#8247b67f9de95b8676a47f7db347864bba596c161673104bc02203636bffd653",
+       "source_version": "src1:ad252a5e2667a3cf3ae85edd6d2b85214194dcd0a21d5064ec1d6452fb7e1261"
+      },
+      {
+       "original": {
+        "id": "fa3dc581-add1-490a-864d-07206d3ca529",
+        "slug": "teams-white-screen-a",
+        "version": "ev1:14a87d27b6f9709b29ef482d78e99ff211fad7c1dad506452305b25ae69452fc"
+       },
+       "reference": "39b06914add56b8f45e493627729bba6a1a9185d1f2fe5c96d85323bf35df7e1#506258045d10e1cac55a1ab2e7f7da2e76d73e425fc739194d011f2ab417e36a",
+       "source_version": "src1:709a55c57a8fbfefb897881649d7e1446270f3d41a2ad734ee8a29e51f960ab7"
+      }
+     ],
+     "text": "A white Teams screen recurred."
+    },
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "30ef65b4-41c7-44dd-9514-22c4a97bd23d",
+        "slug": "teams-white-screen-c",
+        "version": "ev1:5400a119384c02ceb93e6ed0d9596c00999908d0eb5b3e6ef26df652374def8b"
+       },
+       "reference": "8e5d09fd34a8204be5048005abdda15cfb0866ec00e6bd633b353f83f83ea881#c447b84b85d0160d84fbbae8530d188474669826e1386b02363546dd0e2a9867",
+       "source_version": "src1:31a502671392ff24f09dd58318869e644f338b053099ba0a9d9d624dc61f0f5d"
+      },
+      {
+       "original": {
+        "id": "790f360a-0af1-4db1-873b-99404b95fb57",
+        "slug": "teams-white-screen-b",
+        "version": "ev1:fe7bbfeb373b1a6d48b2774f73bc59d491726b237b100cc5bb4b206f4529a58e"
+       },
+       "reference": "56a33ab2642d079fe7d230ea294fec1eb30c3bb2502605e738844acc510e41f4#8247b67f9de95b8676a47f7db347864bba596c161673104bc02203636bffd653",
+       "source_version": "src1:ad252a5e2667a3cf3ae85edd6d2b85214194dcd0a21d5064ec1d6452fb7e1261"
+      },
+      {
+       "original": {
+        "id": "fa3dc581-add1-490a-864d-07206d3ca529",
+        "slug": "teams-white-screen-a",
+        "version": "ev1:14a87d27b6f9709b29ef482d78e99ff211fad7c1dad506452305b25ae69452fc"
+       },
+       "reference": "39b06914add56b8f45e493627729bba6a1a9185d1f2fe5c96d85323bf35df7e1#506258045d10e1cac55a1ab2e7f7da2e76d73e425fc739194d011f2ab417e36a",
+       "source_version": "src1:709a55c57a8fbfefb897881649d7e1446270f3d41a2ad734ee8a29e51f960ab7"
+      }
+     ],
+     "text": "Clearing the cache fixed it each time."
+    }
+   ],
+   "pattern": {
+    "domain": "general",
+    "id": "674b2fa6-967e-451d-b62c-dbe6e2f70520",
+    "label": "Teams white screen cleared by cache reset",
+    "project_scope": "/synthetic/i1-injection",
+    "slug": "teams-white-screen-cleared-by-cache-reset",
+    "statement": "Clearing the Teams cache repeatedly resolved a white Teams window."
+   },
+   "review_state": "unreviewed",
+   "support": {
+    "events": 3,
+    "memories": 3
+   },
+   "verification": {
+    "independent": false
+   }
+  },
+  "K1-oracle": {
+   "applied_at": "2026-10-31T18:19:48.660721+00:00",
+   "confidence": "medium",
+   "contract_version": 1,
+   "current": true,
+   "kind": "inference",
+   "parts": [
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "a7cb1822-7510-43ea-a006-9014456c3feb",
+        "slug": "vpn-reconnect-name-resolution-c",
+        "version": "ev1:50cac85d98d4edbc307c371ca5a7dad582043e0b9fe93dfc7439434b178f4a36"
+       },
+       "reference": "9fc87a75fc5fd4cddf350c2b6851b9920a0b0efa1d1a24aaa62e05fbe6005af4#43c30105f7def8161bd26f63c1709cc11c599698415406dcc822365a5f13b837",
+       "source_version": "src1:94cc828890d03755f3c57ceac450227311715a4ba453d76209e02479625268f0"
+      },
+      {
+       "original": {
+        "id": "c3fa6684-30fa-447f-af05-81b279ade8ab",
+        "slug": "vpn-reconnect-name-resolution-a",
+        "version": "ev1:612edaf9d49e448e531cb799e12fd51cd5979e91b5f38bc7b8a54cfef76c4a76"
+       },
+       "reference": "baf35cbe423006972acc90559bc3921f03ec231d5fa4a01afd7386e16884fab9#e13a38c938f6b3ae6e256e2ac19e8b221a5ebb8e98ab446ac44e0fa7ba1b7957",
+       "source_version": "src1:2b4a7231e64c8810f7762f127806946dd13ffc618e300844230b220e522b8c2e"
+      },
+      {
+       "original": {
+        "id": "dc69d5db-1cfd-4ac3-a3d3-af805849e0ef",
+        "slug": "vpn-reconnect-name-resolution-b",
+        "version": "ev1:b01ffa865ff279dbb3bb7dd157607d9762dd707f0d2107d1caa143e57f12d102"
+       },
+       "reference": "7979a73571fad05f75449a48d3588d0dd7b3f079ccdb76805da369d9d73b4c62#28e8aabbf530b1fabc4d8c8af090c82e7fa00cc9221833444ed4780e904a613d",
+       "source_version": "src1:e897cc1b2aceeb9a8ce6e143606efcc1170b2fbaeba9775a919288b94bc77d40"
+      }
+     ],
+     "text": "Internal names fail to resolve after a VPN reconnect."
+    },
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "a7cb1822-7510-43ea-a006-9014456c3feb",
+        "slug": "vpn-reconnect-name-resolution-c",
+        "version": "ev1:50cac85d98d4edbc307c371ca5a7dad582043e0b9fe93dfc7439434b178f4a36"
+       },
+       "reference": "9fc87a75fc5fd4cddf350c2b6851b9920a0b0efa1d1a24aaa62e05fbe6005af4#43c30105f7def8161bd26f63c1709cc11c599698415406dcc822365a5f13b837",
+       "source_version": "src1:94cc828890d03755f3c57ceac450227311715a4ba453d76209e02479625268f0"
+      },
+      {
+       "original": {
+        "id": "c3fa6684-30fa-447f-af05-81b279ade8ab",
+        "slug": "vpn-reconnect-name-resolution-a",
+        "version": "ev1:612edaf9d49e448e531cb799e12fd51cd5979e91b5f38bc7b8a54cfef76c4a76"
+       },
+       "reference": "baf35cbe423006972acc90559bc3921f03ec231d5fa4a01afd7386e16884fab9#e13a38c938f6b3ae6e256e2ac19e8b221a5ebb8e98ab446ac44e0fa7ba1b7957",
+       "source_version": "src1:2b4a7231e64c8810f7762f127806946dd13ffc618e300844230b220e522b8c2e"
+      },
+      {
+       "original": {
+        "id": "dc69d5db-1cfd-4ac3-a3d3-af805849e0ef",
+        "slug": "vpn-reconnect-name-resolution-b",
+        "version": "ev1:b01ffa865ff279dbb3bb7dd157607d9762dd707f0d2107d1caa143e57f12d102"
+       },
+       "reference": "7979a73571fad05f75449a48d3588d0dd7b3f079ccdb76805da369d9d73b4c62#28e8aabbf530b1fabc4d8c8af090c82e7fa00cc9221833444ed4780e904a613d",
+       "source_version": "src1:e897cc1b2aceeb9a8ce6e143606efcc1170b2fbaeba9775a919288b94bc77d40"
+      }
+     ],
+     "text": "Restoring the DNS suffix or search domain fixes resolution."
+    },
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "ad7a4958-0772-483d-a027-00c82cd72617",
+        "slug": "vpn-reconnect-name-resolution-d",
+        "version": "ev1:8107e94a10bbb100f401203f56082b32ab5e1c1993d66c0f5e89afcbf6b78e3a"
+       },
+       "reference": "4db5faa3646c75d35757db88d16b4a36b819aa4348f2f823b50f75455b3e1d77#f8e888143d85ae2d09393f45ce9e38c1ff828256d3bb37322a5f74fd52144484",
+       "source_version": "src1:bb74351e4982319a628bfad80229870005cb15d8bcdc28616f14cd35516e28cd"
+      }
+     ],
+     "text": "The suffix search list is empty after the reconnect."
+    }
+   ],
+   "pattern": {
+    "domain": "general",
+    "id": "a949ed50-b53b-463f-a5ff-2135958d8e06",
+    "label": "VPN reconnect clears the DNS suffix list",
+    "project_scope": "/synthetic/k1-vpn-dns",
+    "slug": "vpn-reconnect-clears-the-dns-suffix-list",
+    "statement": "Several independent reports suggest that after a VPN reconnect the DNS suffix search list is lost, so internal short names stop resolving until the suffix is restored."
+   },
+   "review_state": "unreviewed",
+   "support": {
+    "events": 4,
+    "memories": 4
+   },
+   "verification": {
+    "independent": false
+   }
+  },
+  "K2-oracle": {
+   "applied_at": "2026-10-31T18:19:48.910260+00:00",
+   "confidence": "medium",
+   "contract_version": 1,
+   "current": true,
+   "kind": "inference",
+   "parts": [
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "82847c41-52f2-4739-9c25-f661f07b76f3",
+        "slug": "certificate-renewal-b",
+        "version": "ev1:95bfecfd447a8530af623c6e7c7204484830a76f69953df5354a600532aa01f7"
+       },
+       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
+       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
+      },
+      {
+       "original": {
+        "id": "9b431681-367c-4568-b237-447975a219ef",
+        "slug": "certificate-renewal-a",
+        "version": "ev1:587d989c53b5c56ca7a1fc4c2f406addb41aac234381766b92b26e7d80c22c39"
+       },
+       "reference": "63f4be77457c37b680c3e3b150ec02aee7e488faebbc872c9191f7942b3eab95#d3f99299db2a0f5b5d5291f693289c0587a352c41758f0d409409a8bdb5b2342",
+       "source_version": "src1:5d89f58d8850e770efb9b0250bf2ed26110214714611edd8ef9c7b812cda287a"
+      }
+     ],
+     "text": "Renewal fails with a long TXT TTL."
+    },
+    {
+     "citations": [
+      {
+       "original": {
+        "id": "82847c41-52f2-4739-9c25-f661f07b76f3",
+        "slug": "certificate-renewal-b",
+        "version": "ev1:95bfecfd447a8530af623c6e7c7204484830a76f69953df5354a600532aa01f7"
+       },
+       "reference": "f8ce3e3331fc921bb968fb3f55a61a3de82df0f83f6ac2870d8e91cd4d73957c#b5df2c5da2423850890d998b8404221879b05caf77a2230e82394e9b556cec2b",
+       "source_version": "src1:6e3c2a4e900b57f0cb2aacc88771e2fd007ffd26ed0094d97a0d3706c50855f8"
+      },
+      {
+       "original": {
+        "id": "b6c0fcad-37b9-4458-98fc-4b474aed1ccc",
+        "slug": "certificate-renewal-c",
+        "version": "ev1:101beac4c8a6b73030c36cd8e900abc2ac4b4df63ec26ce51aab3bdfb5f26703"
+       },
+       "reference": "b81937b18834ce92daed744d1dd4ca979468dd92acf3dd1a037147e41fea1a9d#7fe1fa3e152f883120ca8bc22f1205c74825464c215e01406ebdc59bdc85f4d6",
+       "source_version": "src1:82bd997bfa53ee1d52883840f816f704bea91726ce9c927d9c81ff472ef48b7f"
+      }
+     ],
+     "text": "Lowering the TTL makes the challenge pass."
+    }
+   ],
+   "pattern": {
+    "domain": "general",
+    "id": "028d2aa2-fc7c-43c3-b42d-45463c8b1943",
+    "label": "Long TXT TTL breaks ACME DNS-01 renewal",
+    "project_scope": "/synthetic/k2-cert",
+    "slug": "long-txt-ttl-breaks-acme-dns-01-renewal",
+    "statement": "Certificate renewals with the DNS-01 challenge appear to fail while the TXT record TTL is long and pass after it is lowered."
+   },
+   "review_state": "unreviewed",
+   "support": {
+    "events": 3,
+    "memories": 3
+   },
+   "verification": {
+    "independent": false
+   }
+  }
+ },
+ "fixtures": {
+  "corpus.json": "8b2388177c94f0e912a6dea42018754f3dfc6bd6468bba6ec2d426e38d8d7081",
+  "labels.json": "d7fbcff3ad856c4a2d925d92d5554948ff0597ec9fa4bd6cbbc813aa88901dc4",
+  "responses.json": "4cd4fb6b2c322d1d9afc6f35c6c4ae2d93b3d50c3bbcbb7621106190244afb76"
+ },
+ "provider": "scripted (fixtures/responses.json); no real model",
+ "source_revision": "7603b7b04530a2349165c5c198f8a31f9ce5a95d",
+ "summary": {
+  "applied_patterns": 4,
+  "cases": 10,
+  "dev_evaluations": 11,
+  "evaluations": 15,
+  "held_out_evaluations": 4,
+  "label_errata": {
+   "F1-adversarial": "label expects provider_calls=1, but below the independence floor no provider is ever called (contract pattern-v1); the over-claiming answer is rejected by the validator with the labelled reason. Outcome, reason and applied count match."
+  },
+  "matches_label": 14,
+  "mismatches": [
+   "F1-adversarial"
+  ],
+  "non_conclusions": 11,
+  "outcomes_identical_across_repetitions": true,
+  "provider_calls": 9,
+  "rejected_suggestions": 3,
+  "repetitions": 3,
+  "supported_parts": 8,
+  "wall_seconds": 15.4
+ },
+ "timing_ms": {
+  "drain_ms": {
+   "max": 148.9,
+   "median": 45.2,
+   "n": 42
+  },
+  "inspect_ms": {
+   "max": 33.4,
+   "median": 15.2,
+   "n": 12
+  },
+  "preview_ms": {
+   "max": 60.1,
+   "median": 16.2,
+   "n": 45
+  },
+  "schedule_ms": {
+   "max": 45.0,
+   "median": 19.2,
+   "n": 42
+  },
+  "validate_ms": {
+   "max": 0.1,
+   "median": 0.1,
+   "n": 3
+  }
+ }
+}
