@@ -63,9 +63,9 @@ class Config:
     embed_dim: int = 1024
     ollama_url: str = "http://localhost:11434"
     rerank_url: str = "http://127.0.0.1:8766"
-    rerank_policy: str = "legacy-v1"
-    rerank_model: str = "agentic-rag-qwen3-reranker-0.6b-q8"
-    rerank_revision: str = "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48"
+    rerank_policy: str = "focused-v1"
+    rerank_model: str = "agentic-rag-mmarco-int8"
+    rerank_revision: str = "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
     rerank_timeout_seconds: float = 1.5
     rerank_diagnostics: bool = False
     backup_cloud_dir: Path | None = None   # opt-in: no cloud copy unless set
@@ -113,6 +113,10 @@ class Config:
             raise ValueError('invalid rerank model alias')
         if not isinstance(self.rerank_revision,str) or not re.fullmatch(r'[0-9a-f]{64}',self.rerank_revision):
             raise ValueError('rerank revision must be a pinned SHA256')
+        from .reranker_profiles import catalogue
+        for profile in catalogue():
+            if self.rerank_model == profile['alias'] and self.rerank_revision != profile['files']['model.onnx']['sha256']:
+                raise ValueError('rerank preset identity must match pinned SHA256')
         if type(self.rerank_diagnostics) is not bool:
             raise ValueError('rerank diagnostics must be boolean')
         if (type(self.rerank_timeout_seconds) not in (float,int)
@@ -204,4 +208,16 @@ def load_config(path: Path | None = None) -> Config:
             if name in _PATH_FIELDS:
                 value = Path(str(value)).expanduser()
             kwargs[name] = value
+    rerank = data.get('rerank', {})
+    if isinstance(rerank, dict):
+        if 'profile' in rerank:
+            if {'model', 'revision', 'policy'} & rerank.keys():
+                raise ValueError('rerank profile cannot be mixed with model/revision/policy')
+            from .reranker_profiles import configuration
+            kwargs.update(configuration(rerank['profile']))
+        elif {'model', 'revision'} & rerank.keys():
+            # Explicit pre-0.6.15 identities keep all omitted legacy defaults.
+            kwargs.setdefault('rerank_model', 'agentic-rag-qwen3-reranker-0.6b-q8')
+            kwargs.setdefault('rerank_revision', '22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48')
+            kwargs.setdefault('rerank_policy', 'legacy-v1')
     return Config(**kwargs)

@@ -24,6 +24,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CORPUS = Path(__file__).with_name('corpus-reranker-v2.json')
 BASE = '7a61955446119df522a34967273d8dacae56108b'
 POLICIES = ('legacy-v1', 'focused-v1')
+BASELINE_MODEL='agentic-rag-qwen3-reranker-0.6b-q8'
+BASELINE_REVISION='22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48'
 TINY_MODEL='agentic-rag-jina-tiny-en-q8'
 TINY_REVISION='0defc1f8a1f4dd22183124a2a25a97765603e5a9e42258046c9b2c8a26d1f553'
 
@@ -350,7 +352,7 @@ def run(cfg,*,output,repeats=2,progress=None,tiny_url=None,owned_pg_data=None,ru
     neural_rerank._url(cfg.rerank_url)
     if tiny_url:neural_rerank._url(tiny_url)
     if cfg.ollama_url!='http://127.0.0.1:1':raise ValueError('evaluation requires isolated disabled embedding endpoint')
-    if cfg.rerank_model!=neural_rerank.MODEL or cfg.rerank_revision!=Config().rerank_revision or cfg.rerank_timeout_seconds!=1.5:
+    if cfg.rerank_model!=BASELINE_MODEL or cfg.rerank_revision!=BASELINE_REVISION or cfg.rerank_timeout_seconds!=1.5:
         raise ValueError('preregistered baseline model/revision/deadline required')
     corpus,corpus_hash=load_corpus();source=sources();reference=reference_snapshot();before,old_hash=_before_order()
     owned=owned_database_preflight(cfg,owned_pg_data)

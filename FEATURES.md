@@ -469,3 +469,14 @@ held-out families, compares a small local English-trained Jina challenger, and
 retains every failure. Reordering preserves original citations and scope/time
 eligibility. [Operator procedure](docs/local-reranker.md); measured evidence is
 published with the completed comparison. Adoption remains separately authorized.
+
+## Dashboard reranker presets (Issue62, PR82)
+
+Implemented for review in0.6.15/schema028: administrator-only Settings selects
+MiniLM L6 EN/DE, mMARCO DE/EN (new default) or Jina tiny (English only). Pinned
+INT8 ONNX preparation and offline loopback inference preserve original search
+payloads and deterministic fallback. Existing explicit model settings remain
+supported. Migration028 expands the administrative audit-kind constraint only;
+knowledge and embeddings stay intact. Merge and production adoption are pending.
+[Operator procedure](docs/reranker-settings.md);
+[verification and limits](docs/verification/issue62-settings.md).

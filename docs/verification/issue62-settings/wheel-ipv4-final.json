@@ -1,0 +1,17 @@
+{
+  "python": "3.13.13 (main, May 10 2026, 19:26:54) [Clang 22.1.3 ]",
+  "imported_package": "/dev/shm/rag62-settings-wheel-ipv4-final-20261031/agentic_rag",
+  "models": [
+    "minilm-l6",
+    "mmarco",
+    "jina-tiny"
+  ],
+  "default": "agentic-rag-mmarco-int8",
+  "migrations": 28,
+  "module_help_exit": 0,
+  "wheel_sha256": "e8d6d489eea467e8566b1ac910c969aa422f35e70e1221afc928409ca93bd647",
+  "product_sql_files_compared": 169,
+  "differences": 0,
+  "metadata_readme_matches_current": true,
+  "native_bind": "127.0.0.1 only"
+}

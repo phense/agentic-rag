@@ -1,0 +1,26 @@
+[
+  {
+    "file": "native-final.log",
+    "raw_sha256": "ee1952f2fdc181317f02899d651ee9d8e7d3a89c958c567959cd1cf462543563",
+    "published_sha256": "7b1af46a163a0060188298815ca93f9f135be66a0e351d68eebd32b18101a434",
+    "normalization": "Redacted reference-host PCI path/device UUID in benign ONNX discovery warning; numerical outcomes unchanged. Raw log retained locally."
+  },
+  {
+    "file": "rejected-startup-native.log",
+    "raw_sha256": "134bb82f0e5cc33afee23e7faf3042349637fc5f3d1b475b924c497108cbf010",
+    "published_sha256": "c94f9c2cd74e15e782c3c669789b4827715c673324697f6e6fba1edfdf97961d",
+    "normalization": "Redacted reference-host PCI path/device UUID in benign ONNX discovery warning; numerical outcomes unchanged. Raw log retained locally."
+  },
+  {
+    "file": "native-ipv4-final.log",
+    "raw_sha256": "d0a0d251dabec088d260b681498a7098652a23b160c5602ab7857fb54b25cd1e",
+    "published_sha256": "a1ab5b0b7a14055121a8444ba8f8003ff99e6aeb6f9ac0d44d87330b16c8b116",
+    "normalization": "Redacted reference-host PCI path/device UUID only; raw retained locally."
+  },
+  {
+    "file": "native-adapter-final.log",
+    "raw_sha256": "6ef191649571d9d9bc3add5a155e30e5982caa3364a379ef21d4c467f7ae2c8f",
+    "published_sha256": "affb7ab311db09edbbe44ac1ef75de43da4a5566e3f8d46f16ad7e7ab621e063",
+    "normalization": "Redacted reference-host PCI path/device UUID only; raw retained locally."
+  }
+]

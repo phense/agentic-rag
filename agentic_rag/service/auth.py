@@ -139,6 +139,13 @@ class Policy:
     def __init__(self, data: dict):
         if data.get('version') != 1:
             raise ValueError('unsupported credential configuration version')
+        reranker = data.get('reranker', {})
+        if not isinstance(reranker, dict) or set(reranker) - {'profile'}:
+            raise ValueError('invalid reranker policy')
+        self.reranker_profile = reranker.get('profile')
+        if self.reranker_profile is not None:
+            from ..reranker_profiles import preset
+            preset(self.reranker_profile)
         self.users = data.get('users', {})
         self.machines = data.get('machines', {})
         self.keys: dict[str, tuple[str, str]] = {}

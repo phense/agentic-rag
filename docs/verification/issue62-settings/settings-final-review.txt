@@ -1,0 +1,226 @@
+---
+id: RAG-062-settings-final-review
+title: Independent final Settings code and playbook content review
+type: reference
+doc_id: standalone
+readers: [maintainer, coordinator]
+status: reviewed
+version: a8441eb plus Settings extension
+last_reviewed: 2026-10-30
+summary: Both Medium fixes verified; code and operator content ready with final execution evidence still pending.
+---
+
+# Independent Settings review
+
+## Scope and exact boundary
+
+Code verdict: Ready, with zero open Critical, High, Medium or actionable Low
+findings in this bounded extension. Playbook content verdict: Ready, with zero
+open Critical, Important or Minor findings. Delivery acceptance remains pending
+until the coordinator binds actual final verification exits to the final tree.
+
+Reviewer: independent `/root/settings_final_review`; no implementation ownership.
+The reviewer owns only this report. Writing depth is medium: one standalone
+reference for the implementation coordinator and maintainer. The code-review
+contract and `playbook-review` skill/template were read; the report follows the
+latter's separate content, rehearsal and acceptance decisions. Reader/prose and
+terminology checks were applied using `documentation-authoring`,
+`human-prose-drafting`, `terminology-guard` and the knowledge filter.
+
+Worktree: `/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030`;
+branch `feat/measured-reranker-62`. HEAD is
+`a8441eb6a4c48c7204f21bfcfad449021e2a9077`; main/source is
+`7a61955446119df522a34967273d8dacae56108b`,0.6.14/schema027.
+Inspection boundary: 2026-10-30T23:42:38.778241+00:00. The complete extension has 46 changed or
+untracked files. Digest of sorted `path + NUL + SHA256`, newline-joined:
+`58af3c5a98e5fea7155ee4312e9ff32ad5e17b121207c8172af457745a540db8`. Its 30 code/catalogue/SQL/dependency/script/test files have
+separate digest `60a572d1933152936e7f10c2e0bc7be07c2350b9c4d3c7628b57b9f01834043d`.
+PB062-SETTINGS artifact SHA256: `7afd49f03168f71dbf73a2301b9373bd3d36bd20ad6336b2eafae652bff770be`.
+
+Requirements: `docs/specs/6-4-reranker-settings/{spec,plan,tasks}.md`, AC001–008,
+FR001–004 and IC001–004. The entire uncommitted extension was inspected,
+including all product files, catalogue, SQL028, lock, changed tests and documents.
+The resulting interfaces against main were rechecked through search/retrieval,
+REST/MCP dispatch, immutable request Config, policy/session authority, schema
+startup and the upgrade/rollback operator. The original completed slice uses
+`final-code-review.md` as its accepted baseline; historical benchmark outputs were
+not rerun or reclassified. The current as-built sequence and recovery boundaries
+in `docs/uml/reranker-settings.md` match this implementation.
+
+## Finding dispositions
+
+| ID | Severity | Evidence and independent verification | Disposition |
+|---|---|---|---|
+| M1, initial review | Medium | Config rejects every reserved preset alias with a noncatalogue SHA before construction; the wrong-config-SHA regression passes. Exact matching discovery remains required before private passages. Custom aliases keep their declared legacy contract. | Resolved |
+| M2, initial review | Medium | Submitted executor work is shielded; its worker releases the slot in `finally`. Submission failure releases synchronously. The queued-cancellation regression passes. A separate reviewer probe cancelled an active waiter: the next request returned429 during work and200 after drain. | Resolved |
+| PB-S1, precision comment | Minor | The operator text originally overstated focused defaults when an explicit legacy policy is present. The coordinator added the explicit-policy exception; it matches `load_config`. | Resolved |
+
+No further code defect was identified. This records absence of findings within
+the inspected slice; it does not turn unfinished execution gates into passes.
+
+## Boundary observations
+
+- Authority: human cookie/origin/CSRF checks precede Settings; GET rechecks a live
+  administrator. Preview and apply use the existing protected-file lock and
+  revision. Apply probes again, rechecks authority and uses the exact live
+  session-row fence around replacement and journal commit. Generic policy
+  editing reaches the same protected reranker branch and probe. User/machine
+  edits preserve the additive policy table.
+- Persistence and concurrency: the prepared journal is durable before file
+  replacement; recovery checks old/new file hashes. Unknown drift refuses
+  mutation. Recovery occurs on the next policy apply. A search reads one frozen
+  effective configuration before discovery/scoring, retaining one identity and
+  budget while subsequent requests observe a newly saved selection.
+- Privacy and fallback: managed aliases require exact artifact SHA discovery;
+  fixed synthetic checks contain no stored content. Requests use literal
+  loopback, no proxies or redirects, and bounded bodies and deadlines. Search
+  rehydrates the original complete identity permutation and original scores;
+  scopes and eligibility are established before inference. Absent/mismatched
+  discovery quietly keeps originals; invalid/timeout errors use the existing
+  safe fallback. There is no inference-time download or request-content log.
+- Native runtime: preparation verifies size/hash before publishing immutable
+  files; startup verifies both model and tokenizer, bounds pairs to512 tokens,
+  uses CPU-only ONNX and finite bounded sigmoid values. One shared native slot
+  remains reserved until worker completion, including after HTTP cancellation.
+  Inputs and response fields are bounded; scores never replace source content.
+- Upgrade: SQL028 changes only the audit-kind CHECK inside the runner's same
+  migration/marker transaction. Existing rows, grants and ownership remain.
+  New service startup requires028; actual old code tolerates the additive marker
+  and policy table. The upgrade test now exercises archived0.6.14 nonempty local,
+  REST and MCP authorized searches before/after upgrade plus code rollback,
+  interrupted DDL retry and original-table hashes. It explicitly excludes
+  declared operational changes and does not claim the disabled old daemon's
+  neural fidelity.
+- Packaging: the optional dependency group is additive. Lock parsing found ten
+  new runtime packages and only this project's existing record changed; no
+  pre-existing dependency resolution changed. The catalogue is inside the
+  packaged Python directory and SQL uses the existing wheel inclusion rule.
+  Outside-checkout wheel/native proof remains the coordinator's execution gate.
+
+The independently derived IT062-SUCCESS and IT062-RECOVERY paths are implemented
+in `tests/service/test_reranker_settings.py` and
+`tests/service/test_reranker_upgrade.py`. Static inspection covers their real
+policy-to-search barrier, subsequent REST/MCP identity, foreign-data exclusion,
+restart reconciliation, wrong-SHA GET-only fallback and old-binary preservation.
+Their execution is coordinator-owned on the private representative cluster; the
+completed targeted record and generated preservation summary were subsequently
+inspected as described below.
+
+## Fresh reviewer verification and excluded attempt
+
+The following complete command exited0 on2026-10-30:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /home/administrator/Claude/agentic-rag/.venv/bin/python \
+  -m pytest -p no:cacheprovider -q \
+  tests/test_reranker_settings.py tests/test_measured_rerank.py
+```
+
+Observed:28 passed, one existing Starlette TestClient deprecation warning,1.00s.
+This includes the two regression tests. The separate synthetic active-cancel
+ASGI probe exited0 and printed `ACTIVE_CANCEL_BUSY_AND_AFTER_DRAIN 429 200`.
+`git diff --check` exited0. Relative local links in all extension Markdown files
+resolved. CLI argument locations were checked against `service/operator.py`;
+no upgrade, restore, model preparation or daemon command was executed by the
+reviewer. The review invoked no provider or browser and made no product edits,
+Git changes or GitHub actions. No child agent was started.
+
+Excluded attempt: an earlier command also included the full
+`tests/test_neural_rerank.py` module before its database fixtures were noticed.
+Its final exit was not retained and none of its partial output is accepted as
+verification. It had no PG environment override: PGHOST,PGPORT,PGDATABASE,PGUSER,
+PGSERVICE,AGENTIC_RAG_CONFIG and PYTHONPATH were unset. The module's `dbinit` can
+create/reset only default-socket `agentic_rag_test`, and individual `conn`
+fixtures can truncate its declared fixture tables. The reviewer did not inspect
+that database afterward and cannot assert which fixture effects occurred. The
+coordinator was notified immediately; the command ended with no reviewer pytest
+PID remaining. It did not target the coordinator's explicitly configured private
+port55460 cluster. All later tests were the two verified database-free modules.
+
+## PB062-SETTINGS content review
+
+Canonical path: `docs/reranker-settings.md`. Audience/owner: deployment
+administrator familiar with the CLI, private configuration and existing process
+supervisor. Obligation: AC006/007 and T005, ready before Settings delivery;
+production execution requires its own authority. Source/target versions and
+schema boundary are explicit. `/owned/` paths and the user's service supervisor
+are declared installation inputs, not hidden universal service names.
+
+Content verdict: Ready. The prerequisites identify Python, PostgreSQL/pgvector,
+old checkout/environment/config/policy, owner privileges, writers and restore
+space. The documented preflight/upgrade parser syntax is executable. Upgrade
+requires restore and preservation proof before resuming writers; failure retains
+dump/proof artifacts. Explicit model preparation, foreground start, identity
+inspection, runtime conflicts, custom-file precedence, browser preview/apply,
+stale/unavailable checks and deterministic fallback have observable outcomes.
+Interrupted migration uses a new dump and retries missing work; prepared-file
+recovery and unknown-drift refusal match the implementation. Code rollback
+retains028 and audit history, checks old local/REST/MCP reads, and explains the
+old-daemon dependency. Later accepted writes prohibit blind old-dump restore.
+All local links resolve; interface labels agree with `app.js` and the local Terms
+section supplies the recurring operator vocabulary. No credentials appear.
+
+Rehearsal status: passed for the inspected isolated component scenarios below;
+not executed by this reviewer. Final complete-suite validation remains pending.
+Validating party: coordinator,2026-10-30, private PostgreSQL55460 and owned public
+model files. Read-only artifact inspection used
+`/home/administrator/Claude/.scratch/rag62-settings-20261030/`:
+
+- `targeted-exit.json` explicitly records coordinator transcription of the
+  completed session88034: eight settings/upgrade tests, exit0,32.15s. This is
+  labelled transcribed evidence; it is not a captured machine exit. Its exact
+  command, isolated port and evidence directory are recorded.
+- `upgrade-summary.json` is generated after the successful representative test
+  assertions. It records027-to028, verified restore, empty retry, all three
+  presets, restart/reconciliation, wrong-SHA GET-only fallback and actual old
+  local/REST/MCP equality. It includes29 preserved-table hashes. The separate
+  interruption-before-commit case is in the eight-test record.
+- `native-smoke.json`, `native.log` and `run-native.py` agree on three pinned
+  identities and five successful positive/negative checks: EN/DE for L6 and
+  mMARCO, EN for tiny. The runner uses the extracted wheel and optional modules
+  outside the checkout with CPU affinity0–3. Process exit-15 is its deliberate
+  stop and listener probe111 records refusal. The benign ONNX PCI-discovery
+  warning contains no query/source content. Retained rejected Python-ABI/startup
+  attempts remain failures; their empty samples are not counted as successes.
+- `wheel.json` records outside-checkout imports, three catalogue presets,28 SQL
+  files and module-help exit0. The actual wheel SHA256 is
+  `d9bfe292ae9a4a98d42e9c3f9e3240a6b7a401adb64b645123199b2d3444d2a5`.
+  Independent ZIP comparison found all169 corresponding product/SQL files
+  byte-equal to the inspected tree, with zero differences.
+- Both retained Settings desktop/mobile PNGs were visually inspected. The saved
+  L6 selection, exact language labels, save notice, readable form and mobile
+  layout are visible. The coordinator reports one completed browser case in
+  9.75s; screenshots prove those captured states. The full suite will provide
+  the fresh captured browser test exit.
+
+The required rehearsal method is synthetic native smoke plus populated
+isolated0.6.14/schema027 upgrade/restore/retry/interruption, Settings/REST/MCP and
+actual old-code rollback. The artifacts support those bounded scenarios;
+production execution, target-hardware capacity and old neural-model recovery
+with its live daemon remain untested. Content readiness does not certify those
+branches or reset last-validated to this review date. The actual
+`settings-full-final.exit` and `settings-full-final-timing.json` files were
+absent when inspected; their running log is not a pass.
+
+## Acceptance and freshness
+
+Draft status: code and operator content inspected; final public evidence record
+still being completed. Content-review readiness: Ready at the hashes above.
+Agreed validation criteria met: pending. Operation/delivery readiness: blocked
+by the missing final inspected full-suite exit and its before/after source
+digest, final browser result and final public evidence reconciliation. Native,
+wheel and populated component artifacts were independently inspected above. Historical full-suite
+and benchmark evidence cannot replace the changed-source suite.
+
+The coordinator owns final evidence collection, task-state reconciliation and
+PR handoff. Recheck any later material product, contract, procedure or test
+change. Final evidence-only prose edits can reuse this code/content verdict
+when their statements are separately compared with actual artifacts and the
+unchanged code/playbook hashes. No merge or production rollout is approved.
+
+Terms used in this report: preset is the pinned model/tokenizer/budget tuple;
+artifact SHA is its immutable file identity; native slot is the single reserved
+inference worker; prepared journal is the durable pre-replacement administrative
+record; canonical rows are retained knowledge and identities, with operational
+exceptions named by the preservation test. Prose checks preserved all numerical,
+revision, failed-attempt and unresolved-gate facts.

@@ -20,7 +20,7 @@ def transport(monkeypatch, model, *, broken=False):
     real=httpx.AsyncClient
     def handler(req):
         calls.append(req)
-        if req.method=='GET':return httpx.Response(200,json={'data':[{'id':model}]})
+        if req.method=='GET':return httpx.Response(200,json={'data':[{'id':model,'revision':Config().rerank_revision}]})
         body=json.loads(req.content)
         if broken:return httpx.Response(200,content=b'private malformed source')
         return httpx.Response(200,json={'model':model,'results':[
@@ -58,15 +58,15 @@ def test_invalid_options_rejected_before_network(options,monkeypatch):
         Config(**options)
 
 
-def test_default_and_old_toml_retain_legacy_policy(tmp_path,monkeypatch):
+def test_default_without_explicit_model_uses_focused_policy(tmp_path,monkeypatch):
     calls=transport(monkeypatch,neural_rerank.MODEL)
     p=tmp_path/'old.toml';p.write_text('[rerank]\nurl="http://127.0.0.1:8766"\n')
     cfg=load_config(p)
-    assert cfg.rerank_policy=='legacy-v1' and cfg.rerank_diagnostics is False
+    assert cfg.rerank_policy=='focused-v1' and cfg.rerank_diagnostics is False
     original=hits();info={}
     neural_rerank.order('ordinary multilingual evidence question',original,cfg,diagnostics=info)
-    assert len(json.loads(calls[-1].content)['documents'])==12 and info['candidates']==12
-    assert info['passage_chars']==14400 and info['route']=='legacy-v1'
+    assert len(json.loads(calls[-1].content)['documents'])==6 and info['candidates']==6
+    assert info['passage_chars']==3600 and info['route']=='focused-v1'
 
 
 def test_safe_invalid_and_absent_diagnostics_preserve_full_order(monkeypatch):
@@ -75,7 +75,7 @@ def test_safe_invalid_and_absent_diagnostics_preserve_full_order(monkeypatch):
     after=retrieval.rerank(original,lambda hs:neural_rerank.order(
         'private query secret',hs,Config(),diagnostics=info),warnings)
     assert after==original and info['outcome']=='invalid'
-    assert info['candidates']==12 and info['passage_chars']==14400
+    assert info['candidates']==6 and info['passage_chars']==3600
     assert 'private' not in json.dumps(info) and 'secret' not in json.dumps(info)
     assert warnings==['local reranker unavailable or invalid — deterministic hybrid fallback']
     info={}

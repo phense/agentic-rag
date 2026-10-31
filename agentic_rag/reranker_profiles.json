@@ -1,0 +1,80 @@
+[
+  {
+    "id": "minilm-l6",
+    "label": "MiniLM L6 EN/DE",
+    "alias": "agentic-rag-minilm-l6-en-de-int8",
+    "repo": "cross-encoder/msmarco-MiniLM-L6-en-de-v1",
+    "revision": "9eb610d90d409cfefb7422e13debd405f8465af6",
+    "license": "apache-2.0",
+    "languages": [
+      "de",
+      "en"
+    ],
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 107494476,
+        "sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+        "upstream_lfs_sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 9096735,
+        "sha256": "96ef91dd5d1c3b157a0437e85ff1f29d0eb3cf32fd40f863dab45baa5e839fad",
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  {
+    "id": "mmarco",
+    "label": "mMARCO DE/EN",
+    "alias": "agentic-rag-mmarco-int8",
+    "repo": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+    "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+    "license": "apache-2.0",
+    "languages": [
+      "de",
+      "en"
+    ],
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118620016,
+        "sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+        "upstream_lfs_sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 17082660,
+        "sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+        "upstream_lfs_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626"
+      }
+    }
+  },
+  {
+    "id": "jina-tiny",
+    "label": "Jina tiny (English only)",
+    "alias": "agentic-rag-jina-tiny-en-int8",
+    "repo": "jinaai/jina-reranker-v1-tiny-en",
+    "revision": "aca45de6945b5dc6399abcd2a9c55ded5dc9111f",
+    "license": "apache-2.0",
+    "languages": [
+      "en"
+    ],
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quantized.onnx",
+        "bytes": 33424854,
+        "sha256": "5fa8508528828b4ad9bc97c97b6e020984e3b745fbcb53f0a907e68704f8a18a"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 2030772,
+        "sha256": "0046da43cc8c424b317f56b092b0512aaaa65c4f925d2f16af9d9eeb4d0ef902"
+      }
+    }
+  }
+]

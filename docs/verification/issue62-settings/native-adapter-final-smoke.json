@@ -1,0 +1,246 @@
+{
+  "command": [
+    "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+    "-m",
+    "agentic_rag.reranker_runtime",
+    "serve",
+    "--models-dir",
+    "/dev/shm/rag62-three-models-20261030",
+    "--port",
+    "8783"
+  ],
+  "pid": 1294357,
+  "samples": [
+    {
+      "model": "agentic-rag-minilm-l6-en-de-int8",
+      "language": "en",
+      "elapsed_ms": 61.005491006653756,
+      "response": {
+        "model": "agentic-rag-minilm-l6-en-de-int8",
+        "results": [
+          {
+            "index": 0,
+            "relevance_score": 0.9996299748050284
+          },
+          {
+            "index": 1,
+            "relevance_score": 9.419241040698544e-05
+          }
+        ]
+      }
+    },
+    {
+      "model": "agentic-rag-minilm-l6-en-de-int8",
+      "language": "de",
+      "elapsed_ms": 59.75420099275652,
+      "response": {
+        "model": "agentic-rag-minilm-l6-en-de-int8",
+        "results": [
+          {
+            "index": 0,
+            "relevance_score": 0.9999037204615672
+          },
+          {
+            "index": 1,
+            "relevance_score": 0.00011678964175300513
+          }
+        ]
+      }
+    },
+    {
+      "model": "agentic-rag-mmarco-int8",
+      "language": "en",
+      "elapsed_ms": 229.53708400018513,
+      "response": {
+        "model": "agentic-rag-mmarco-int8",
+        "results": [
+          {
+            "index": 0,
+            "relevance_score": 0.999851286923897
+          },
+          {
+            "index": 1,
+            "relevance_score": 0.002027950738660099
+          }
+        ]
+      }
+    },
+    {
+      "model": "agentic-rag-mmarco-int8",
+      "language": "de",
+      "elapsed_ms": 122.84897500649095,
+      "response": {
+        "model": "agentic-rag-mmarco-int8",
+        "results": [
+          {
+            "index": 0,
+            "relevance_score": 0.9995202980322143
+          },
+          {
+            "index": 1,
+            "relevance_score": 0.0011601924921656678
+          }
+        ]
+      }
+    },
+    {
+      "model": "agentic-rag-jina-tiny-en-int8",
+      "language": "en",
+      "elapsed_ms": 126.39694500830956,
+      "response": {
+        "model": "agentic-rag-jina-tiny-en-int8",
+        "results": [
+          {
+            "index": 0,
+            "relevance_score": 0.9064462719054662
+          },
+          {
+            "index": 1,
+            "relevance_score": 0.1891356000770345
+          }
+        ]
+      }
+    }
+  ],
+  "models": {
+    "data": [
+      {
+        "id": "agentic-rag-minilm-l6-en-de-int8",
+        "revision": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab"
+      },
+      {
+        "id": "agentic-rag-mmarco-int8",
+        "revision": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
+      },
+      {
+        "id": "agentic-rag-jina-tiny-en-int8",
+        "revision": "5fa8508528828b4ad9bc97c97b6e020984e3b745fbcb53f0a907e68704f8a18a"
+      }
+    ]
+  },
+  "adapter_samples": [
+    {
+      "profile": "minilm-l6",
+      "language": "en",
+      "diagnostic": {
+        "route": "focused-v1",
+        "model": "agentic-rag-minilm-l6-en-de-int8",
+        "revision": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+        "outcome": "ranked",
+        "candidates": 3,
+        "passage_chars": 163
+      },
+      "elapsed_ms": 145.63938400533516,
+      "before": [
+        "0",
+        "1",
+        "2"
+      ],
+      "after": [
+        "2",
+        "1",
+        "0"
+      ],
+      "original_payloads_and_scores_preserved": true
+    },
+    {
+      "profile": "minilm-l6",
+      "language": "de",
+      "diagnostic": {
+        "route": "focused-v1",
+        "model": "agentic-rag-minilm-l6-en-de-int8",
+        "revision": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+        "outcome": "ranked",
+        "candidates": 3,
+        "passage_chars": 163
+      },
+      "elapsed_ms": 121.37718699523248,
+      "before": [
+        "0",
+        "1",
+        "2"
+      ],
+      "after": [
+        "2",
+        "1",
+        "0"
+      ],
+      "original_payloads_and_scores_preserved": true
+    },
+    {
+      "profile": "mmarco",
+      "language": "en",
+      "diagnostic": {
+        "route": "focused-v1",
+        "model": "agentic-rag-mmarco-int8",
+        "revision": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+        "outcome": "ranked",
+        "candidates": 3,
+        "passage_chars": 163
+      },
+      "elapsed_ms": 246.8362390063703,
+      "before": [
+        "0",
+        "1",
+        "2"
+      ],
+      "after": [
+        "2",
+        "1",
+        "0"
+      ],
+      "original_payloads_and_scores_preserved": true
+    },
+    {
+      "profile": "mmarco",
+      "language": "de",
+      "diagnostic": {
+        "route": "focused-v1",
+        "model": "agentic-rag-mmarco-int8",
+        "revision": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+        "outcome": "ranked",
+        "candidates": 3,
+        "passage_chars": 163
+      },
+      "elapsed_ms": 151.80473298823927,
+      "before": [
+        "0",
+        "1",
+        "2"
+      ],
+      "after": [
+        "2",
+        "1",
+        "0"
+      ],
+      "original_payloads_and_scores_preserved": true
+    },
+    {
+      "profile": "jina-tiny",
+      "language": "en",
+      "diagnostic": {
+        "route": "focused-v1",
+        "model": "agentic-rag-jina-tiny-en-int8",
+        "revision": "5fa8508528828b4ad9bc97c97b6e020984e3b745fbcb53f0a907e68704f8a18a",
+        "outcome": "ranked",
+        "candidates": 3,
+        "passage_chars": 163
+      },
+      "elapsed_ms": 131.15500500134658,
+      "before": [
+        "0",
+        "1",
+        "2"
+      ],
+      "after": [
+        "2",
+        "1",
+        "0"
+      ],
+      "original_payloads_and_scores_preserved": true
+    }
+  ],
+  "passed": true,
+  "process_exit": -15,
+  "listener_connect_after_stop": 111
+}

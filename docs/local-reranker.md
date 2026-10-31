@@ -5,7 +5,7 @@ type: how-to
 doc_id: standalone
 readers: [maintainer, operator]
 status: reviewed
-version: 0.6.15 / schema027
+version: 0.6.15 / schema028
 last_reviewed: 2026-10-30
 depends_on: []
 assets: []
@@ -13,6 +13,11 @@ summary: Deploy an optional pinned loopback model without changing canonical kno
 ---
 
 # PB062-OPS: Run and recover a measured local reranker
+
+For the current three-model **Settings** workflow and mMARCO default, use
+[PB062-SETTINGS](reranker-settings.md). It includes the required schema028
+audit-kind upgrade. The Qwen and Jina GGUF instructions below describe explicit
+legacy runtime configurations; their measured results remain historical.
 
 Use this procedure after separately authorizing local model-service adoption.
 The implementation uses an existing local HTTP ordering seam. It does not install
@@ -112,9 +117,10 @@ path and sends no query/source text to Hugging Face or another hosted service.
 
 ## Adopt and recover without knowledge migration
 
-The supported source for this update is0.6.14, `7a61955`, schema027. No schema,
-embedding, configuration-file rewrite, hook/job or client-adapter migration is
-needed. Existing `[db]`, `[embed]` and `[ollama]` sections remain valid. The default
+The supported source is0.6.14, `7a61955`, schema027. Apply the additive
+audit-kind migration028 using [the verified upgrade procedure](reranker-settings.md)
+before starting the new API. No embedding, hook/job or client-adapter migration
+is needed. Existing `[db]`, `[embed]` and `[ollama]` sections remain valid. The default
 optional origin is `http://127.0.0.1:8766`; another literal loopback origin can be
 added as `[rerank] url = "http://127.0.0.1:PORT"`. Hostnames, remote addresses,
 credentials, URL paths, queries, redirects and environment proxies are rejected.
@@ -177,7 +183,8 @@ below uses only invented public sources and owned processes.
 ### Inspect and choose a configuration
 
 Keep the old checkout and a private copy of your configuration. All new fields
-are optional; omitting them preserves the Qwen alias, `legacy-v1` and 1500 ms.
+are optional; explicit legacy identities retain their previous budget. Omitting
+an identity now selects mMARCO and `focused-v1` with1500 ms.
 No provider migration, re-embedding or canonical write accompanies a policy change.
 A configured revision labels an operator assertion; model discovery cannot prove
 which weights are loaded. Check the model checksum independently before activation.
@@ -245,7 +252,8 @@ requires separate sizing; the semaphore is not a global daemon queue.
 ### Validate adoption and recovery
 
 1. Restart only the separately approved Python/MCP client processes from the new
-   checkout. Existing 0.6.14 clients continue on the same schema027 database.
+   checkout. Existing0.6.14 clients can read the upgraded schema028 database; keep the
+   additive audit migration on code rollback.
 2. Compare an authorized representative query using
    `rag search 'YOUR APPROVED QUERY' --json` and the same command with
    `--rerank off`. Inspect original citations, domain/project and current sources.

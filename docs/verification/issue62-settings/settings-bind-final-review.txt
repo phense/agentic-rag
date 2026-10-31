@@ -1,0 +1,143 @@
+---
+id: RAG-062-settings-bind-final-review
+title: Independent Settings native-bind final recheck
+type: reference
+doc_id: standalone
+readers: [maintainer, coordinator]
+status: reviewed
+version: a8441eb plus Settings extension, source digest e947260f
+last_reviewed: 2026-10-31
+summary: IPv4-only native CLI correction is code-ready; fresh full-suite and final artifact acceptance remain pending.
+---
+
+# Independent Settings native-bind recheck
+
+Code verdict: Ready. This complete bounded recheck found zero open Critical,
+High, Medium or actionable Low defects. The inherited playbook content verdict
+remains Ready because its procedure body is byte-identical. Delivery acceptance
+remains pending final execution evidence bound to the corrected source.
+
+Reviewer `/root/settings_bind_recheck` did not implement this extension and owns
+only this report. Writing depth is medium: one standalone reference for the
+maintainer and coordinator. The code-review contract, documentation-authoring,
+human-prose-drafting, terminology-guard, knowledge filter and
+verification-before-completion guidance were applied. The existing RAG-062 run
+and its state/resume were read; the coordinator retains continuity ownership.
+No product, Git, GitHub, database, provider or browser mutation was performed.
+No child agent was started.
+
+## Exact source boundary
+
+Worktree: `/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030`.
+Branch: `feat/measured-reranker-62`. HEAD:
+`a8441eb6a4c48c7204f21bfcfad449021e2a9077`. Source main:
+`7a61955446119df522a34967273d8dacae56108b`, version0.6.14/schema027;
+target0.6.15/schema028 in the existing PR82.
+
+The [accepted complete Settings review](settings-final-review.md) is the review
+baseline. Its 30 code/catalogue/SQL/dependency/script/test files have digest
+`60a572d1933152936e7f10c2e0bc7be07c2350b9c4d3c7628b57b9f01834043d`.
+The complete changed product-file set still equals that manifest, with no extra
+or missing files. Independent comparison at2026-10-31T00:05:22Z found exactly two
+changed hashes. Current 30-file digest, using sorted `path + NUL + SHA256` entries
+joined by newlines:
+`e947260f13ef15bd1f6fd9e0010ea2ff206a786da6712ac791b3d359b10ff73e`.
+
+| Source file | Current SHA256 | Exact delta from accepted review |
+|---|---|---|
+| `agentic_rag/reranker_runtime.py` | `405303362e701df0173d1d9d2558b1faeab2b7c1a38944dd13a7915a9dfb012a` | Line164 removes unused `[::1]` Host allowance; line175 restricts native `--host` choices to127.0.0.1. |
+| `tests/test_reranker_settings.py` | `4fc2d09046f8543204fd765caf89d6cd1648e4a681c960b9d4df9ca5318edc9d` | Lines144–151 append the IPv6 rejection regression. |
+
+Reversing only those two runtime substitutions reconstructed the accepted
+runtime SHA `7ddf8b7997ff89de65f38197e4c007c290fc25773f55b6b4de08424d98902fdb`.
+Removing only the appended regression reconstructed the accepted test SHA
+`2f7814f6a67e0d4b34dd90c02e4654eb5edfce056ae59bf0a121e576b75997c5`.
+The other28 manifest entries remain byte-identical. The coordinator must retain
+the refreshed manifest when replacing the published baseline manifest.
+
+## Complete extension and requirement recheck
+
+Governing artifacts are the [Settings specification](../../../docs/specs/6-4-reranker-settings/spec.md),
+plan/tasks in that directory, and [as-built sequence](../../../docs/uml/reranker-settings.md).
+AC001–008, FR001–004 and IC001–004 remain the accepted boundary. The new daemon
+is an optional, unmerged runtime. Neither the requested three presets/settings,
+default mMARCO and upgrade outcome nor AC006 requires native IPv6 support.
+The operator command already specifies literal127.0.0.1. Rejecting an unusable
+optional bind before model loading preserves that requested contract. The
+legacy custom-runtime adapter still accepts literal IPv6 loopback URLs.
+
+Reinspection covered the resulting runtime, catalogue/configuration mapping,
+discovery-before-passages, immutable per-search selection, Settings dispatch,
+browser preview/apply, policy journal/session fence and SQL028/upgrade tests.
+Their interactions remain consistent with the accepted baseline:
+
+- Reserved aliases still require the catalogue's exact model SHA in Config;
+  discovery still matches alias and SHA before sending private passages.
+- The shared native slot remains owned by the shielded executor until worker
+  completion, including cancellation before executor start; submission failure
+  releases it synchronously. Host parsing changes no inference/cancellation path.
+- Administrator, origin/CSRF, revision, operation replay, fresh synthetic probe
+  and live session checks still protect policy replacement and durable audit.
+  Searches keep their original payloads/scores and one immutable preset snapshot.
+- The default and three language-labelled presets, explicit custom-configuration
+  compatibility, bounded inputs/deadlines and deterministic fallback are unchanged.
+- SQL028 still changes only the existing audit-kind CHECK within the migration
+  transaction. The populated upgrade/restore/interruption and actual archived
+  old0.6.14 local/REST/MCP rollback tests are unchanged. Their prior component
+  evidence is inherited; this reviewer ran no database tests.
+
+No unresolved finding requires a severity/path/line defect entry. The missing
+fresh complete-suite acceptance is an execution gate, not a newly identified
+code defect.
+
+## Fresh independent checks
+
+This complete database-free command exited0 on2026-10-31:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /home/administrator/Claude/agentic-rag/.venv/bin/python \
+  -m pytest -p no:cacheprovider -q \
+  tests/test_reranker_settings.py tests/test_measured_rerank.py
+```
+
+Observed:29 passed, one existing Starlette TestClient deprecation warning,
+1.56s. Both prior Medium regressions and the new bind regression passed.
+`git diff --check` also exited0.
+
+A separate pure Python probe exited0. It mocked ranker construction and
+`uvicorn.run`, confirmed default CLI dispatch selects all three presets and
+host127.0.0.1, and rejected `--host ::1` with argparse exit2 before any artifact
+load. It confirmed `_url('http://[::1]:8766')` remains accepted for legacy custom
+adapters. Using synthetic rankers through `httpx.ASGITransport`, IPv4 discovery
+returned200 and a hostile Host returned400. This invoked no socket listener,
+native model, download or provider.
+
+## Playbook and acceptance boundary
+
+At2026-10-31T00:06:17Z, the [playbook binding](../../../docs/verification/issue62-settings/playbook-review-binding.json)
+matched the current [operator guide](../../../docs/reranker-settings.md) SHA
+`9b84675fcc13f89a2ec597dee83ddfb71d837b7a23f0005245de52eba3f34c32`.
+Reversing only frontmatter `status: reviewed` to `status: draft` reconstructed the
+accepted reviewed SHA
+`7afd49f03168f71dbf73a2301b9373bd3d36bd20ad6336b2eafae652bff770be`.
+The procedure body is byte-identical. The existing content review/rehearsal
+disposition remains applicable, with no new production or rehearsal claim.
+
+The retained interrupted suite is explicitly excluded as a full pass: exit2,
+1352 passed, one skipped, one warning,1405.26s pytest/1407.49s runner. Its source
+digest before/after is equal, `01d91f66e45fba3bae26bb745c5a53c82794131c641fa25f0311fc05c9397290`.
+At inspection the private `settings-full-final.exit` and timing files still
+contained that old interrupted exit2, last modified2026-10-31T00:03:00Z. Their
+existence does not prove completion of the newly started corrected-source suite.
+
+The coordinator owns the new complete-suite exit and unchanged-source proof,
+corrected-source wheel/native/browser evidence and final public reconciliation.
+Those final execution gates remain pending in this report. No merge or
+production rollout is approved. Recheck later material source, contract,
+procedure or test changes against the hashes recorded here.
+
+Terms: preset means the pinned model/tokenizer/budget tuple; artifact SHA means
+its immutable file checksum; native slot means the single reserved inference
+worker; policy journal means the existing durable prepared/applied audit; source
+digest means the path-and-file-hash binding described above. Prose, term and
+reader checks preserved all hashes, test counts and unresolved acceptance gates.

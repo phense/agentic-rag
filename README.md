@@ -13,16 +13,20 @@ hosted RAG service.**
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
+**0.6.15 reranker Settings:** administrators can select MiniLM L6 EN/DE,
+mMARCO DE/EN (default) or Jina tiny (English only). Current service startup
+requires schema028; use the verified [upgrade and model procedure](docs/reranker-settings.md).
+Knowledge and existing embeddings are preserved.
+
 **0.6.13 request tracing:** metadata-only request IDs and authorized job diagnostics
 are available through the dashboard, REST and CLI. Read the
 [tracing operations guide](docs/16-request-tracing.md). Existing service stores
-require the additive schema026 upgrade before starting this API.
+introduced additive schema026; current startup requires028 as described above.
 
 **0.6.12 dashboard:** authenticated setup, enrolled-client administration and scoped
 knowledge/source browsing, served by the same engine. Read the
 [dashboard operations guide](docs/15-dashboard.md) and [access/limits reference](docs/dashboard-reference.md).
-Existing installations require the verified additive schema025 upgrade before
-starting the new API; standalone CLI/stdio operation remains available.
+That release introduced the verified additive schema025 upgrade; standalone CLI/stdio operation remains available.
 
 > **New in v0.6.0:** ten retrieval and ingestion features, including original-backed
 > entity aliases, bounded embedding reuse and offline confirmed-failure evaluation.
@@ -365,6 +369,8 @@ your documents through a paid service.<br>
 ---
 
 ## Configuration
+
+[Reranker settings](docs/reranker-settings.md) adds a server-wide dashboard preset backed by the protected auth policy file. mMARCO DE/EN is the default; the optional model daemon must be prepared and started explicitly. Existing stores require the verified audit-kind migration028.
 
 Config lives in one TOML file at `~/.agentic-rag/config.toml`. Every key is optional — omit a section to keep its defaults.
 

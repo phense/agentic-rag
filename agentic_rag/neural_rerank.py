@@ -12,7 +12,7 @@ import httpx
 
 from .retrieval import terms, strong_symbols
 
-MODEL = 'agentic-rag-qwen3-reranker-0.6b-q8'
+MODEL = 'agentic-rag-mmarco-int8'
 MAX_CANDIDATES = 12
 PASSAGE_CHARS = 1200
 QUERY_CHARS = 512
@@ -65,7 +65,7 @@ async def _json(client, method, url, **kwargs):
         return json.loads(body)
 
 
-async def _scores(url, query, passages, *, model=MODEL, deadline=None, diagnostics=None):
+async def _scores(url, query, passages, *, model=MODEL, deadline=None, diagnostics=None, revision=None):
     # A single cancellable deadline covers discovery, headers and streamed bodies.
     deadline = min(DEADLINE_SECONDS, deadline if deadline is not None else DEADLINE_SECONDS)
     async with asyncio.timeout(deadline):
@@ -77,7 +77,8 @@ async def _scores(url, query, passages, *, model=MODEL, deadline=None, diagnosti
                 return None  # The optional local runtime is not installed/running.
             if not isinstance(identity, dict) or not isinstance(identity.get('data'), list):
                 raise ValueError('invalid model discovery')
-            if not any(isinstance(m, dict) and m.get('id') == model for m in identity['data']):
+            if not any(isinstance(m, dict) and m.get('id') == model
+                       and (revision is None or m.get('revision') == revision) for m in identity['data']):
                 return None  # Never send private passages to an unrelated local service.
             client.cookies.clear()
             if diagnostics is not None:
@@ -118,6 +119,9 @@ def diagnostic_text(info):
 
 
 def order(query, hits, cfg, *, diagnostics=None):
+    from .reranker_profiles import effective, identify
+    cfg = effective(cfg)
+    profile = identify(cfg)
     info = inspect(cfg)
     if diagnostics is not None:
         diagnostics.clear()
@@ -143,7 +147,8 @@ def order(query, hits, cfg, *, diagnostics=None):
         prefix = hits[:count]
         passages = [(h.title + '\n' + h.snippet)[:chars] for h in prefix]
         scores = asyncio.run(_scores(url, query, passages, model=cfg.rerank_model,
-                                   deadline=cfg.rerank_timeout_seconds,diagnostics=info))
+                                   deadline=cfg.rerank_timeout_seconds,diagnostics=info,
+                                   revision=cfg.rerank_revision if profile else None))
         if scores is None:
             info['outcome'] = 'unavailable'
             return hits

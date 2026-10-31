@@ -13,9 +13,10 @@ summary: Independent bounded review, populated old/new client recovery and resou
 
 Issue #62 extends the existing optional ordering seam with explicit bounded local
 configuration and safe diagnostics. The source installation is 0.6.14/schema027
-at `7a61955446119df522a34967273d8dacae56108b`; target 0.6.15 retains schema027.
-No SQL migration, embedding rebuild, authority change or client-config rewrite
-is required. Old and new clients continue against one audited PostgreSQL store.
+at `7a61955446119df522a34967273d8dacae56108b`; target0.6.15 uses schema028 after the requested Settings extension.
+[The current Settings record](issue62-settings.md) covers migration028, the new
+mMARCO default, optional runtime and refreshed verification. No embedding rebuild
+or client-config rewrite is required. Old and new clients continue against one audited PostgreSQL store.
 
 Writing depth: medium standalone reference. The operator is the deployment
 administrator; [PB062-OPS](../local-reranker.md) defines activation and recovery.
@@ -24,8 +25,9 @@ separates public synthetic results from production acceptance.
 
 ## Runtime and recovery boundary
 
-Defaults retain Qwen, 12 passages of 1200 characters and a 1500 ms deadline. Focused
-configuration sends at most 6 passages of 600 characters. Model alias/revision and
+The original measured slice retained Qwen and12×1200 defaults. The requested
+Settings extension now defaults to mMARCO with6×600 while preserving explicit
+legacy configurations. The total inference deadline remains1500ms. Model alias/revision and
 diagnostics are optional. The same 512-character query, 32 KiB response and two
 nonqueued in-flight Python calls apply. Runtime work may continue after HTTP
 cancellation; daemon capacity must be sized across clients separately.
@@ -81,7 +83,7 @@ checks configuration, procedures and publication fidelity. Complete-suite
 evidence is linked below.
 No new Low finding has been identified for Issue75 in this slice.
 
-## Verification commands and observed status
+## Original slice verification before Settings
 
 - `pytest -q tests/test_neural_rerank.py tests/test_measured_rerank.py tests/benchmark/test_rerank_evaluation.py tests/benchmark/test_runner.py tests/service/test_rerank_compat.py --tb=short`:
  108 passed, one upstream Starlette deprecation warning, 44.68 s, exit 0 at 4ac82cd.
@@ -122,7 +124,7 @@ checks passed. Its [exit manifest](issue62/full-final-exit.json) confirms unchan
 that 342-file manifest, which did not include CHANGELOG.md. The fresh complete run
 also freezes CHANGELOG.md. These failed attempts do not count as passing gates.
 
-## Delivery checks
+## Original slice delivery checks
 
 The [release/package record](issue62/release-package-check.json) records all four
 0.6.15 metadata references, the installed wheel and its 27 SQL files. PB062-OPS

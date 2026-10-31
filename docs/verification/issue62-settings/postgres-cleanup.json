@@ -1,0 +1,14 @@
+{
+  "recorded_at": "2026-10-31T00:29:57.982438+00:00",
+  "pid": 1235931,
+  "verified_cmdline": "/usr/lib/postgresql/17/bin/postgres -p 55460 -h 127.0.0.1 -k /home/administrator/Claude/.scratch/agentic-rag-issue60-20261030 ",
+  "verified_process_cwd": "/dev/shm/agentic-rag-issue60-20261030/pgdata",
+  "owned_port": 55460,
+  "data_directory": "/dev/shm/agentic-rag-issue60-20261030/pgdata",
+  "stop_exit": 0,
+  "port_connect_ex_after": 111,
+  "pid_gone": true,
+  "data_retained": true,
+  "production_changed": false,
+  "initial_guard": "Refused stop because postmaster cmdline omits -D; independent /proc cwd plus pidfile data directory verified before retry."
+}

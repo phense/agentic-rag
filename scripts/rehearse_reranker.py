@@ -20,7 +20,7 @@ import time
 import httpx
 import psycopg
 
-from agentic_rag.benchmark.rerank_evaluation import reference_snapshot,run,TINY_MODEL,TINY_REVISION
+from agentic_rag.benchmark.rerank_evaluation import reference_snapshot,run,TINY_MODEL,TINY_REVISION,BASELINE_MODEL,BASELINE_REVISION
 from agentic_rag.config import Config
 
 QWEN_SHA='22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48'
@@ -108,7 +108,7 @@ def main():
         else:raise TimeoutError('owned PostgreSQL startup')
         metadata['membership']['postgres']=Path(f'/proc/{pg_process.pid}/cgroup').read_bytes()==own_group
         metadata['child_affinity']['postgres']=sorted(os.sched_getaffinity(pg_process.pid))
-        for model,alias,port,model_digest in [(args.qwen,Config().rerank_model,8768,QWEN_SHA),(args.tiny,TINY_MODEL,8769,TINY_REVISION)]:
+        for model,alias,port,model_digest in [(args.qwen,BASELINE_MODEL,8768,QWEN_SHA),(args.tiny,TINY_MODEL,8769,TINY_REVISION)]:
             log=(args.output/(alias+'.log')).open('wb');files.append(log);start=time.perf_counter()
             process=subprocess.Popen([str(args.runtime),'--model',str(model),'--host','127.0.0.1','--port',str(port),
                 '--rerank','--pooling','rank','--ctx-size','4096','--parallel','1','--threads','4','--threads-batch','4',
@@ -140,7 +140,7 @@ def main():
         write(args.output/'runtime-manifest.json',metadata)
         os.environ['PGPORT']='55463'
         for key in ('PGHOST','PGHOSTADDR','PGSERVICE','PGSERVICEFILE'):os.environ.pop(key,None)
-        result=run(Config(db_host=str(sock),ollama_url='http://127.0.0.1:1',rerank_url='http://127.0.0.1:8768'),
+        result=run(Config(rerank_model=BASELINE_MODEL,rerank_revision=BASELINE_REVISION,rerank_policy='legacy-v1',db_host=str(sock),ollama_url='http://127.0.0.1:1',rerank_url='http://127.0.0.1:8768'),
             output=args.output/'comparison',tiny_url='http://127.0.0.1:8769',owned_pg_data=data,repeats=args.repeats,
             runtime_manifest=args.output/'runtime-manifest.json',
             progress=lambda split,identity:print(json.dumps({'split':split,'finished':identity}),flush=True))

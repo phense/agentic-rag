@@ -122,23 +122,34 @@ and an explicit rebuild/cutover; do not repurpose historical untagged vectors.
 
 Optional local neural ordering uses a separate loopback runtime. It preserves
 original citations and falls back to deterministic search ordering when inference
-cannot complete. Follow [PB062-OPS](local-reranker.md) for verified model identity,
-activation, diagnostics and local/central recovery. Measured configurations are
-reported separately; no benchmark winner is adopted automatically.
+cannot complete. Follow [PB062-SETTINGS](reranker-settings.md) for the three pinned presets,
+explicit preparation, activation, upgrade and recovery. Version0.6.15 defaults
+to mMARCO DE/EN; historical measurements retain their original configurations.
 
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `url` | `rerank_url` | `"http://127.0.0.1:8766"` | Literal HTTP loopback origin; environment proxies and redirects are disabled. |
-| `policy` | `rerank_policy` | `"legacy-v1"` | `legacy-v1` sends at most 12 passages of 1200 characters; `focused-v1` sends 6 of 600. |
-| `model` | `rerank_model` | `"agentic-rag-qwen3-reranker-0.6b-q8"` | Required advertised alias; at most 80 ASCII letters, digits, dots, underscores or hyphens, starting with a letter or digit. |
-| `revision` | `rerank_revision` | Qwen SHA-256 in PB062-OPS | Exactly 64 lowercase hex characters. Labels the operator's verified weights; discovery alone cannot attest them. |
+| `policy` | `rerank_policy` | `"focused-v1"` | `legacy-v1` sends at most 12 passages of 1200 characters; `focused-v1` sends 6 of 600. |
+| `model` | `rerank_model` | `"agentic-rag-mmarco-int8"` | Required advertised alias; at most 80 ASCII letters, digits, dots, underscores or hyphens, starting with a letter or digit. |
+| `revision` | `rerank_revision` | mMARCO artifact SHA-256 in the [catalogue](../agentic_rag/reranker_profiles.json) | Exactly 64 lowercase hex characters. Reserved preset aliases require the catalogue pin; discovery must match before sending sources. Custom aliases retain the legacy operator-verified contract. |
 | `timeout_seconds` | `rerank_timeout_seconds` | `1.5` | Finite inference deadline from 0.01 to 1.5 seconds. Native work can continue after HTTP cancellation. |
 | `diagnostics` | `rerank_diagnostics` | `false` | Opt-in fixed-schema route/model/revision/outcome and bounded counts; excludes query, passages, URL and exception text. |
 
 Both policies retain a 512-character query bound, 32-KiB response bound and two
 nonqueued calls per Python process. Exact/short queries can bypass inference.
 Client search options remain `--rerank auto|off`; central requests use the server's
-configuration. Removing the optional keys restores legacy defaults.
+configuration, including its saved dashboard preset.
+
+Use `profile = "mmarco"`, `"minilm-l6"` or `"jina-tiny"` as a shortcut in
+`[rerank]`; it selects the pinned alias/SHA and focused budget. Do not mix
+`profile` with `model`, `revision` or `policy`. A saved `[reranker] profile` in
+the protected service auth policy takes precedence; this is managed through
+Dashboard Settings, not a section in the main configuration.
+
+Explicit existing `model` or `revision` fields retain omitted old Qwen identity
+fields and the legacy budget; explicit URL/timeout/policy values remain supported.
+Removing all explicit identity fields adopts the new mMARCO/focused defaults.
+Jina tiny is English only. Selection does not rebuild stored embeddings.
 
 ## `[backup]`
 

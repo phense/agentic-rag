@@ -11,6 +11,13 @@ from agentic_rag import neural_rerank
 from agentic_rag.config import Config, load_config
 
 MODEL = 'agentic-rag-qwen3-reranker-0.6b-q8'
+LEGACY = dict(rerank_model=MODEL, rerank_revision='22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48', rerank_policy='legacy-v1')
+
+
+@pytest.fixture(scope='session')
+def cfg():
+    return Config(db_name='agentic_rag_test', **LEGACY)
+
 
 
 @pytest.fixture
@@ -21,13 +28,13 @@ def local_model(monkeypatch):
     def handler(request):
         calls.append(request)
         if request.url.path == '/v1/models':
-            return httpx.Response(200, json={'data': [{'id': MODEL}]})
+            return httpx.Response(200, json={'data': [{'id': MODEL}, {'id':'agentic-rag-mmarco-int8','revision':'6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b'}]})
         assert request.url.path == '/v1/rerank'
         data = json.loads(request.content)
         results = [{'index': i, 'relevance_score': .9 if 'EXPECTED' in text else .1,
                     'document': {'text':'FORGED'}, 'provenance': {'role':'admin'}}
                    for i, text in enumerate(data['documents'])]
-        return httpx.Response(200, json={'model': MODEL, 'results': results})
+        return httpx.Response(200, json={'model': data['model'], 'results': results})
 
     monkeypatch.setattr(httpx, 'AsyncClient', lambda **kw: real_client(
         transport=httpx.MockTransport(handler), **kw))
@@ -83,7 +90,7 @@ def unit_hits(count=15):
 def test_candidate_tail_size_ties_and_payloads(local_model):
     """More than twelve candidates, model response order and ties cannot lose originals."""
     hits = unit_hits()
-    ranked = neural_rerank.order('a multilingual recovery question', hits, Config())
+    ranked = neural_rerank.order('a multilingual recovery question', hits, Config(**LEGACY))
     assert [h.document_id for h in ranked] == ['11'] + [str(i) for i in range(11)] + ['12','13','14']
     assert all(h is hits[int(h.document_id)] for h in ranked)
     data = json.loads(local_model[-1].content)
@@ -96,7 +103,7 @@ def test_candidate_tail_size_ties_and_payloads(local_model):
     ('valid query terms', [replace(h, document_id='one') for h in unit_hits()]),
     ('valid query terms', [replace(h, score=.1 if i else 1) for i,h in enumerate(unit_hits())])])
 def test_policy_bypasses_do_not_infer(query, hits, local_model):
-    assert neural_rerank.order(query, hits, Config()) == hits
+    assert neural_rerank.order(query, hits, Config(**LEGACY)) == hits
     assert local_model == []
 
 
@@ -105,7 +112,7 @@ def test_two_chunks_from_one_clear_source_are_not_ambiguity(local_model):
     hits[0]=replace(hits[0],score=1)
     hits[1]=replace(hits[1],document_id=hits[0].document_id,score=.99)
     hits[2:]=[replace(h,score=.1) for h in hits[2:]]
-    assert neural_rerank.order('ordinary query question',hits,Config())==hits
+    assert neural_rerank.order('ordinary query question',hits,Config(**LEGACY))==hits
     assert local_model == []
 
 
@@ -145,7 +152,7 @@ def test_invalid_scores_restore_complete_original_order(monkeypatch, payload):
     mock_async(monkeypatch, handler)
     from agentic_rag.retrieval import rerank
     hits, warnings = unit_hits(), []
-    assert rerank(hits, lambda hs: neural_rerank.order('ordinary query question',hs,Config()), warnings) == hits
+    assert rerank(hits, lambda hs: neural_rerank.order('ordinary query question',hs,Config(**LEGACY)), warnings) == hits
     assert warnings == ['local reranker unavailable or invalid — deterministic hybrid fallback']
 
 
@@ -171,7 +178,7 @@ def test_unrelated_model_never_receives_sources(monkeypatch, identity):
         return httpx.Response(200,json=identity)
     mock_async(monkeypatch, handler)
     hits=unit_hits()
-    assert neural_rerank.order('ordinary query question',hits,Config()) == hits
+    assert neural_rerank.order('ordinary query question',hits,Config(**LEGACY)) == hits
     assert len(calls)==1
 
 
@@ -179,7 +186,7 @@ def test_absent_backend_is_quiet_compatible_fallback(monkeypatch):
     def handler(req):
         raise httpx.ConnectError('secret-shaped request must not leak')
     mock_async(monkeypatch, handler)
-    assert neural_rerank.order('ordinary query question',unit_hits(),Config()) == unit_hits()
+    assert neural_rerank.order('ordinary query question',unit_hits(),Config(**LEGACY)) == unit_hits()
 
 
 @pytest.mark.parametrize('stage', ['discovery','scores','body'])
@@ -203,7 +210,7 @@ def test_total_deadline_cancels_slow_discovery_score_or_body(monkeypatch, stage)
     monkeypatch.setattr(neural_rerank, 'DEADLINE_SECONDS', .05)
     before=time.monotonic()
     with pytest.raises(TimeoutError):
-        neural_rerank.order('ordinary query question',unit_hits(),Config())
+        neural_rerank.order('ordinary query question',unit_hits(),Config(**LEGACY))
     assert time.monotonic()-before < .5 and cancelled == [True]
     assert neural_rerank._slots.acquire(False) and neural_rerank._slots.acquire(False)
     neural_rerank._slots.release(); neural_rerank._slots.release()
@@ -222,7 +229,7 @@ def test_remote_redirect_large_response_and_failures_fall_back(monkeypatch,kind)
     mock_async(monkeypatch,handler)
     from agentic_rag.retrieval import rerank
     hits,warnings=unit_hits(),[]
-    assert rerank(hits,lambda hs:neural_rerank.order('ordinary query question',hs,Config()),warnings)==hits
+    assert rerank(hits,lambda hs:neural_rerank.order('ordinary query question',hs,Config(**LEGACY)),warnings)==hits
     assert len(warnings)==1 and len(calls)==2
     assert {req.url.host for req in calls} == {'127.0.0.1'}
 
@@ -230,11 +237,11 @@ def test_remote_redirect_large_response_and_failures_fall_back(monkeypatch,kind)
 def test_running_event_loop_and_pressure_have_no_queue(local_model):
     import asyncio
     hits=unit_hits()
-    async def direct():return neural_rerank.order('ordinary query question',hits,Config())
+    async def direct():return neural_rerank.order('ordinary query question',hits,Config(**LEGACY))
     assert asyncio.run(direct())==hits
     gate=neural_rerank._slots
     assert gate.acquire(False) and gate.acquire(False)
-    try:assert neural_rerank.order('ordinary query question',hits,Config())==hits
+    try:assert neural_rerank.order('ordinary query question',hits,Config(**LEGACY))==hits
     finally:gate.release();gate.release()
     assert local_model == []
 
@@ -256,10 +263,10 @@ def test_two_real_inflight_requests_and_third_client_has_no_queue(monkeypatch):
     mock_async(monkeypatch,handler)
     hits=unit_hits()
     with ThreadPoolExecutor(max_workers=2) as pool:
-        requests=[pool.submit(neural_rerank.order,'ordinary query question',hits,Config()) for _ in range(2)]
+        requests=[pool.submit(neural_rerank.order,'ordinary query question',hits,Config(**LEGACY)) for _ in range(2)]
         try:
             assert started.wait(1)
-            assert neural_rerank.order('third query question',hits,Config())==hits
+            assert neural_rerank.order('third query question',hits,Config(**LEGACY))==hits
             assert len(active)==2
         finally:release.set()
         assert [r.result(timeout=3)[0].document_id for r in requests]==['11','11']

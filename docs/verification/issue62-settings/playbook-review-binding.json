@@ -1,0 +1,7 @@
+{
+  "review_report": "settings-final-review.txt",
+  "reviewed_sha256": "7afd49f03168f71dbf73a2301b9373bd3d36bd20ad6336b2eafae652bff770be",
+  "published_sha256": "9b84675fcc13f89a2ec597dee83ddfb71d837b7a23f0005245de52eba3f34c32",
+  "change": "Frontmatter status draft -> reviewed after independent Ready content verdict. Procedure body byte-identical; no new rehearsal or production claim.",
+  "procedure_body_identical": true
+}

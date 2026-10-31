@@ -7,7 +7,8 @@ milestones rather than every commit, and interfaces may still change between `0.
 
 ## [0.6.15] - 2026-10-30
 
-- Add opt-in bounded local reranker model/policy selection and safe diagnostics; preserve legacy defaults and original citation payloads.
+- Add administrator Settings with MiniLM L6 EN/DE, mMARCO DE/EN (new default) and Jina tiny English-only presets, pinned optional offline CPU runtime and durable revision-checked selection.
+- Add additive audit-kind migration028, verified0.6.14 upgrade/retry/code rollback and explicit legacy model configuration support; preserve original knowledge and citation payloads.
 - Add sealed bilingual public failure-derived evaluation, target-class service resource accounting and populated code/config rollback evidence.
 
 ## [0.6.14] - 2026-10-30
