@@ -95,11 +95,16 @@ def view_scope(conn, view):
     if view is None:
         yield
         return
-    if conn.autocommit:
-        with conn.transaction():
-            with view_scope(conn, view):
-                yield
+    if conn.autocommit and conn.info.transaction_status == TransactionStatus.IDLE:
+        with conn.transaction(), _set_view(conn, view):
+            yield
         return
+    with _set_view(conn, view):
+        yield
+
+
+@contextmanager
+def _set_view(conn, view):
     prior = _setting(conn)
     conn.execute("SELECT set_config('rag_lifecycle.view', %s, true)", (view,))
     try:
@@ -118,6 +123,17 @@ def current_scope(conn):
         return
     with view_scope(conn, 'current'):
         yield
+
+
+def current_only(fn):
+    """Decorator for derived readers whose first argument is the connection."""
+    from functools import wraps
+
+    @wraps(fn)
+    def wrapped(conn, *args, **kwargs):
+        with current_scope(conn):
+            return fn(conn, *args, **kwargs)
+    return wrapped
 
 
 def time_selection(view, as_of, history):

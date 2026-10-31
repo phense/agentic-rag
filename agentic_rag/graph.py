@@ -36,19 +36,30 @@ class TimelineEdge:
     valid_to: datetime | None
 
 
+def _time(project, scope, as_of, history, view):
+    """Omitted view keeps the graph default (legacy history when unscoped and
+    untimed). An explicit view selects lifecycle membership instead."""
+    from .lifecycle import normalize_view, time_selection
+    view = normalize_view(view, history=history, as_of=as_of)
+    if view is None and history is None:
+        history = project is None and scope is None and as_of is None
+    at, history = time_selection(view, as_of, bool(history))
+    return at, history, view
+
+
 def neighbors(conn, doc_id: str, depth: int = 1,
               predicates: list[str] | None = None, *,
-              project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> list[EdgeHop]:
+              project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None,
+              view: str | None = None) -> list[EdgeHop]:
     from .scope import selection
     scopes = selection(project, scope)
-    from .validity import selection as time_selection
-    if history is None:
-        history = project is None and scope is None and as_of is None
-    at, history = time_selection(as_of, history)
-    rows = bounded_rows(conn,
-        "SELECT * FROM graph_neighbors_temporal(%s, %s, %s, %s, %s, %s)",
-        (doc_id, depth, predicates, scopes, at, history),
-    )
+    at, history, view = _time(project, scope, as_of, history, view)
+    from .lifecycle import view_scope
+    with view_scope(conn, view):
+        rows = bounded_rows(conn,
+            "SELECT * FROM graph_neighbors_temporal(%s, %s, %s, %s, %s, %s)",
+            (doc_id, depth, predicates, scopes, at, history),
+        )
     return [
         EdgeHop(str(r["edge_id"]), str(r["src_id"]), str(r["dst_id"]),
                 r["predicate"], r["evidence"], r["confidence"], r["depth"])
@@ -57,19 +68,19 @@ def neighbors(conn, doc_id: str, depth: int = 1,
 
 
 def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
-         project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> list[PathStep]:
+         project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None,
+         view: str | None = None) -> list[PathStep]:
     from .scope import selection
     scopes = selection(project, scope)
-    from .validity import selection as time_selection
-    if history is None:
-        history = project is None and scope is None and as_of is None
-    at, history = time_selection(as_of, history)
-    rows = bounded_rows(conn,
-        "SELECT p.step, p.doc_id, p.via_predicate, d.slug, d.title"
-        " FROM graph_path_temporal(%s, %s, %s, %s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
-        " ORDER BY p.step",
-        (from_id, to_id, max_depth, scopes, at, history),
-    )
+    at, history, view = _time(project, scope, as_of, history, view)
+    from .lifecycle import view_scope
+    with view_scope(conn, view):
+        rows = bounded_rows(conn,
+            "SELECT p.step, p.doc_id, p.via_predicate, d.slug, d.title"
+            " FROM graph_path_temporal(%s, %s, %s, %s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
+            " ORDER BY p.step",
+            (from_id, to_id, max_depth, scopes, at, history),
+        )
     return [
         PathStep(r["step"], str(r["doc_id"]), r["slug"], r["title"],
                  r["via_predicate"])

@@ -93,7 +93,8 @@ def memory_domains() -> dict:
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
                   project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto",
-                  temporal: str | None = None, reference: str | None = None, timezone: str | None = None) -> dict:
+                  temporal: str | None = None, reference: str | None = None, timezone: str | None = None,
+                  view: str | None = None) -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
@@ -110,7 +111,11 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     hits whose known event time is in the period first, filter keeps only those
     and fails on missing or ambiguous periods, off disables. reference (ISO
     timestamp with offset) and timezone (IANA name) affect interpretation only,
-    never as_of/history. Applied interpretation is returned under "temporal"."""
+    never as_of/history. Applied interpretation is returned under "temporal".
+    view (optional): current (= latest) hides members of applied lifecycle
+    decisions; include_merged also returns duplicate/extension members (never
+    replaced ones); historical returns qualified accepted past records. Each hit
+    then carries evidence.lifecycle. Omitted keeps the existing default."""
     from .search import validate_strategy, validate_rerank_mode
     validate_strategy(strategy)
     validate_rerank_mode(rerank)
@@ -120,7 +125,8 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
     with conn:
         diagnostics = {}
         hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context,
-                                    temporal=temporal or "auto", reference=reference, timezone=timezone, diagnostics=diagnostics)
+                                    temporal=temporal or "auto", reference=reference, timezone=timezone, diagnostics=diagnostics,
+                                    view=view)
         result = {"results": _plain(hits), "warnings": warnings}
         if "temporal" in diagnostics:
             result["temporal"] = diagnostics["temporal"]
@@ -132,7 +138,8 @@ async def memory_research(question: str, domain: str | None = None,
                           as_of: str | None = None, history: StrictBool = False,
                           provider: StrictBool = False, strategy: str = "auto",
                           steps: StrictInt = 4, calls: StrictInt = 16, seconds: StrictFloat = 30,
-                          context_chars: StrictInt = 12000, min_sources: StrictInt = 2) -> dict:
+                          context_chars: StrictInt = 12000, min_sources: StrictInt = 2,
+                          view: str | None = None) -> dict:
     """Bounded read-only multi-step evidence research. Defaults stay local and
     abstain from semantic answers. provider=true explicitly sends the redacted
     question and selected evidence to the configured Codex/Claude CLI. Returns
@@ -143,12 +150,17 @@ async def memory_research(question: str, domain: str | None = None,
     from .research import ResearchBudget, research_async
     return await research_async(load_config(),question,domain=domain,project=project,scope=scope,
         as_of=as_of,history=history,provider=provider,strategy=strategy,min_sources=min_sources,
-        budget=ResearchBudget(steps,calls,seconds,context_chars))
+        budget=ResearchBudget(steps,calls,seconds,context_chars),view=view)
 
 
-def memory_get(id_or_slug: str) -> dict:
+def memory_get(id_or_slug: str, view: str | None = None) -> dict:
     """Full document (title, body, meta, provenance, status) plus its
-    incoming and outgoing typed edges."""
+    incoming and outgoing typed edges. Without view this is original inspection.
+    view=current resolves one hop to the canonical original (requested_id,
+    canonical_id, resolution); include_merged/historical return the original with
+    a lifecycle block. A canonical you cannot read is reported as unavailable."""
+    from . import lifecycle
+    view = lifecycle.normalize_view(view)
     cfg, conn = _connect()
     with conn:
         from .service.context import CURRENT
@@ -156,21 +168,31 @@ def memory_get(id_or_slug: str) -> dict:
             # Budget preflight and materialization must see the same records;
             # concurrent source-trust updates cannot enlarge a checked result.
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
-        doc = get_document(conn, id_or_slug)
+        with lifecycle.view_scope(conn, view):
+            doc = get_document(conn, id_or_slug)
+            if doc is None:
+                return {"error": f"not found: {id_or_slug}"}
+            resolved = {"document": doc} if view is None else lifecycle.resolve_get(conn, doc, view)
+        doc = resolved["document"]
         if doc is None:
-            return {"error": f"not found: {id_or_slug}"}
+            return {"document": None, "edges_out": [], "edges_in": [], "lifecycle": _plain(resolved["lifecycle"])}
         doc = dict(doc)
         edges_out = doc.pop("edges_out")
         edges_in = doc.pop("edges_in")
-        return {"document": _plain(doc), "edges_out": _plain(edges_out),
-                "edges_in": _plain(edges_in)}
+        out = {"document": _plain(doc), "edges_out": _plain(edges_out),
+               "edges_in": _plain(edges_in)}
+        if view is not None:
+            out["lifecycle"] = _plain(resolved["lifecycle"])
+        return out
 
 
 def memory_neighbors(id_or_slug: str, depth: int = 1,
                      predicates: list[str] | None = None, project: str | None = None,
-                     scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> dict:
+                     scope: str | None = None, as_of: str | None = None, history: bool | None = None,
+                     view: str | None = None) -> dict:
     """Graph traversal: every edge within `depth` hops of the document
-    (undirected), optionally filtered to specific predicates."""
+    (undirected), optionally filtered to specific predicates. An explicit view
+    (current, latest, include_merged, historical) replaces the legacy default."""
     cfg, conn = _connect()
     with conn:
         doc_id = _readable_id(conn, id_or_slug)
@@ -178,14 +200,16 @@ def memory_neighbors(id_or_slug: str, depth: int = 1,
             return {"error": f"not found: {id_or_slug}"}
         return {"edges": _plain(graph.neighbors(conn, doc_id,
                                                 depth=min(depth, 3),
-                                                predicates=predicates, project=project, scope=scope, as_of=as_of, history=history))}
+                                                predicates=predicates, project=project, scope=scope, as_of=as_of, history=history,
+                                                view=view))}
 
 
 def memory_path(from_id_or_slug: str, to_id_or_slug: str,
                 max_depth: int = 4, project: str | None = None,
-                scope: str | None = None, as_of: str | None = None, history: bool | None = None) -> dict:
+                scope: str | None = None, as_of: str | None = None, history: bool | None = None,
+                view: str | None = None) -> dict:
     """How do X and Y relate? The shortest edge path between two documents
-    (empty steps = no connection within max_depth)."""
+    (empty steps = no connection within max_depth). Optional view as in memory_neighbors."""
     cfg, conn = _connect()
     with conn:
         a = _readable_id(conn, from_id_or_slug)
@@ -193,7 +217,8 @@ def memory_path(from_id_or_slug: str, to_id_or_slug: str,
         if a is None or b is None:
             missing = from_id_or_slug if a is None else to_id_or_slug
             return {"error": f"not found: {missing}"}
-        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope, as_of=as_of, history=history))}
+        return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope, as_of=as_of, history=history,
+                                           view=view))}
 
 
 def memory_timeline(id_or_slug: str) -> dict:
@@ -481,16 +506,79 @@ def memory_pattern_recover(run_id: str, reason: str) -> dict:
         return _plain(recover_synthesis_run(conn, cfg, run_id, reason=reason, actor=_actor()))
 
 
+def _lifecycle_read(producer, *args, **kwargs):
+    cfg, conn = _connect()
+    with conn:
+        # One snapshot: versions, relationships and pages describe the same state.
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(producer(conn, *args, **kwargs))
+
+
+def memory_lifecycle_preview(member: str, target: str, operation: str | None = None) -> dict:
+    """Preview a lifecycle decision for two originals (id or slug): member is hidden,
+    target is the canonical. Classifies exact_duplicate (structural proof: identical
+    title, body, dtype), and for a requested semantic_duplicate, extension,
+    replacement (proven event order only) or contradiction states what is proven
+    versus operator judgement. Returns both lv1 versions to pass to apply. No write,
+    no provider call. Missing and inaccessible documents both return not_found."""
+    from .lifecycle import preview
+    return _lifecycle_read(preview, member, target, operation=operation)
+
+
+def memory_lifecycle(id_or_slug: str, history: StrictBool = False, cursor: str | None = None,
+                     limit: StrictInt = 20) -> dict:
+    """Explain one original: lifecycle decisions where it is member or canonical
+    (relationship hiding/stale/target_unavailable/replaced/contested/corrected),
+    legacy archived duplicates and immutable-assertion supersession. history=true
+    adds the append-only event page (limit 1-100, opaque cursor)."""
+    from .lifecycle import detail
+    return _lifecycle_read(detail, id_or_slug, history=history, cursor=cursor, limit=limit)
+
+
+def memory_lifecycle_apply(member: str, target: str, operation: str, expected_member_version: str,
+                           expected_target_version: str, reason: str, reviewed: StrictBool = False,
+                           request_key: str | None = None) -> dict:
+    """Apply one previewed lifecycle decision through the audited gateway. Pass the
+    lv1 versions from memory_lifecycle_preview; a changed document returns
+    stale_version. semantic_duplicate, extension and replacement need reviewed=true
+    (operator judgement). Originals, sources and evidence are never changed; the
+    same request returns the existing decision, a reused request_key with another
+    payload returns replay_mismatch."""
+    from .store import apply_lifecycle
+    cfg, conn = _connect()
+    with conn:
+        return _plain(apply_lifecycle(conn, cfg, member=member, target=target, operation=operation,
+                                      expected_member_version=expected_member_version,
+                                      expected_target_version=expected_target_version, reason=reason,
+                                      reviewed=reviewed, request_key=request_key, actor=_actor()))
+
+
+def memory_lifecycle_correct(decision_id: str, expected_revision: StrictInt, reason: str,
+                             request_key: str | None = None) -> dict:
+    """Correct (undo) one lifecycle decision. expected_revision is the decision's
+    revision from memory_lifecycle. Only this decision changes state; refutation,
+    expiry, withdrawal and other decisions stay as they are."""
+    from .store import correct_lifecycle
+    cfg, conn = _connect()
+    with conn:
+        return _plain(correct_lifecycle(conn, cfg, decision_id=decision_id, expected_revision=expected_revision,
+                                        reason=reason, request_key=request_key, actor=_actor()))
+
+
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline, memory_evidence, memory_evidence_history,
-              memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern)
+              memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern,
+              memory_lifecycle_preview, memory_lifecycle)
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin,
-               memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover)
+               memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover,
+               memory_lifecycle_apply, memory_lifecycle_correct)
 
 
 # Optional arguments added after protocol1. A client omits them unless the caller
 # set them, so services that predate them keep accepting otherwise valid calls.
-ADDITIVE_ARGUMENTS = {"memory_search": ("temporal", "reference", "timezone")}
+ADDITIVE_ARGUMENTS = {"memory_search": ("temporal", "reference", "timezone", "view"),
+                      "memory_research": ("view",), "memory_get": ("view",),
+                      "memory_neighbors": ("view",), "memory_path": ("view",)}
 
 
 def wire_arguments(name: str, arguments: dict) -> dict:
