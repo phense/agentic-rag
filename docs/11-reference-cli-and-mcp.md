@@ -41,6 +41,10 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `rag status` | — | One-screen health check: document counts; queue counts/errors and oldest open mine; provider health/remediation; open checkpoint count; newest checkpoint time/quality/project; pending checkpoint-enrichment count/age/warnings; backup freshness; and last curation run. |
 | `rag research <question>` | `--domain` · `--project` / `--scope` · `--as-of` / `--history` · `--strategy auto\|lexical` · `--provider` · `--steps` (4;1–8) · `--calls` (16;1–40) · `--seconds` (30;0.1–180) · `--context-chars` (12000;512–32000) · `--min-sources` (2;2–8) · `--json` | Bounded read-only multi-step retrieval with relevant graph passages. Returns supported exact source excerpts, disagreement, missing evidence, abstention and usage. Local mode always abstains semantic completion; provider assessment requires explicit opt-in. [Operation and limits](bounded-research.md). |
 | `rag summary <topic>` | `--project` · `--domain` · `--history` · `--context-chars` (4800;1000–12000) · `--refresh` | Local extractive thematic profile JSON with exact original citations, source/version references and trust/temporal labels. Reads use reader authority; explicit refresh uses the audited writer gateway and reports rebuilt/reused work. History retains trusted superseded assertions but still excludes expiry/withdrawal. [Reference](thematic-summaries.md), [upgrade/recovery](playbooks/thematic-summaries.md). |
+| `rag pattern preview\|status\|list\|show` | `--domain` · `--project` / `--scope global` · `preview`: `--start` · `--end` · `status`/`list`: `--limit` · `list`: `--cursor` · `--json` | Provider-free reads of opt-in pattern synthesis: candidate counts and exclusions, policies and runs, current patterns, one pattern with exact original citations. Withheld patterns are omitted or `evidence_unavailable`. [Pattern synthesis](pattern-synthesis.md). |
+| `rag pattern enable\|disable` | `--domain` · `--project` / `--scope global` · `--reason` (required) · `--interval-seconds` (86400; 60–2592000) | Audited scoped opt-in/opt-out. Enabling records the forward boundary; disabling withholds existing patterns without deleting them. Requires `[synthesis] enabled = true`, otherwise exit 1 (`synthesis_disabled` in client mode). |
+| `rag pattern backfill` | `--domain` · `--project` / `--scope global` · `--start` · `--end` · `--reason` (all required) · `--max-batches` (1; 1–10) | Explicit history window before the forward boundary, at most 366 days. |
+| `rag pattern recover <run_id>` | `--reason` (required) | Re-queues a parked accepted run (`recoverable` in `status`); reuses its stored answer, no provider call. |
 | `rag queue requeue-legacy-provider-failures` | `--expect <int>` (default `60`) · `--yes` | One-time recovery for the exact legacy Claude missing-binary/exit-1 cohort. Always prints the candidate count; refuses without `--yes` or on count mismatch. Preserves job identity, payload, transcript cursor/path, resets attempts, and makes only that cohort pending. |
 
 ### Pins
@@ -288,6 +292,25 @@ and client reconnect.
 | `memory_neighbors` | `(id_or_slug, depth=1, predicates=None)` | Every edge within `depth` hops (undirected, capped at 3), optionally filtered by predicate. |
 | `memory_path` | `(from_id_or_slug, to_id_or_slug, max_depth=4)` | Shortest edge path between two documents; empty steps means no connection within `max_depth`. |
 | `memory_timeline` | `(id_or_slug)` | Every edge touching the document, ordered by validity interval. |
+
+### Pattern tools
+
+Version 0.6.18 adds four read tools to both servers (`agentic-rag-ro` now has
+sixteen read tools) and three write tools to `agentic-rag`. All are also served
+by the central service (`POST /v1/tools/<name>`, remote MCP). Write tools need
+write scope for the policy's domain and project and return `synthesis_disabled`
+(409) while `[synthesis] enabled` is false. Behavior: [pattern synthesis](pattern-synthesis.md);
+output contract: [pattern-v1](specs/6-7-pattern-synthesis/contracts/pattern-v1.md).
+
+| Tool | Level | Signature | What it does |
+|---|---|---|---|
+| `memory_pattern_preview` | read | `(domain, project=None, scope=None, start=None, end=None)` | Candidate memories, independent events, exclusions and budgets. No provider call, no write, no quotes. |
+| `memory_pattern_status` | read | `(domain=None, project=None, scope=None, limit=20)` | Visible policies, open backfills and newest runs with state, code, counts and provider calls. |
+| `memory_patterns` | read | `(domain, project=None, scope=None, limit=20, cursor=None)` | Current patterns of one scope; withheld ones are omitted without a count. |
+| `memory_pattern` | read | `(id_or_slug)` | One current pattern with exact citations; drill down with `memory_evidence(original.id, source_key)`. Otherwise `evidence_unavailable`. |
+| `memory_pattern_policy` | write | `(domain, enabled, reason, project=None, scope=None, interval_seconds=86400)` | Audited opt-in/opt-out of one scope. |
+| `memory_pattern_backfill` | write | `(domain, start, end, reason, project=None, scope=None, max_batches=1)` | Bounded history window before the forward boundary. |
+| `memory_pattern_recover` | write | `(run_id, reason)` | Re-queues a parked accepted run without a provider call. |
 
 ### Write tools (`agentic-rag` only)
 

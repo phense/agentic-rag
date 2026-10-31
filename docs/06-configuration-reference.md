@@ -18,7 +18,7 @@ agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[rerank]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
-`[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`. Unknown sections and unknown keys inside a known
+`[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`, `[synthesis]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -281,6 +281,25 @@ rollback: [temporal search](temporal-query.md).
 | `timezone` | `temporal_timezone` | `"UTC"` | IANA zone where calendar days start, for example `"Europe/Berlin"`. An invalid name stops loading with `invalid_timezone`. A request's `timezone` argument overrides it. |
 
 On a central service the server's section decides `auto`; clients need no entry.
+
+## `[synthesis]`
+
+Opt-in pattern suggestions over several original memories. This switch alone
+does nothing: an operator must also enable a concrete domain and project with
+`rag pattern enable`. Details, run outcomes and rollback:
+[pattern synthesis](pattern-synthesis.md).
+
+| Key | Field | Default | What it does |
+|---|---|---|---|
+| `enabled` | `synthesis_enabled` | `false` | Global switch. `false` stops all pattern scheduling, provider calls, policy changes and backfills; existing patterns of enabled policies stay readable. Must be a boolean. |
+| `provider` | `synthesis_provider` | `""` | `claude`, `codex` or `openai-compatible`; empty reuses `[llm] provider`. |
+| `model` | `synthesis_model` | `""` | At most 200 characters; empty reuses `[llm] model`. |
+| `timeout_seconds` | `synthesis_timeout_seconds` | `30` | Deadline of the one provider call per run, 1–300. |
+| `max_input_chars` | `synthesis_max_input_chars` | `12000` | Prompt budget, 1000–24000. A larger prompt ends the run as `input_budget_exceeded` without a call. |
+| `max_output_tokens` | `synthesis_max_output_tokens` | `1024` | Provider output budget, 128–4096. |
+| `max_runs_per_tick` | `synthesis_max_runs_per_tick` | `2` | New runs the worker schedules per tick, 1–10. |
+
+On a central service only the server's section matters; clients need no entry.
 
 ## Managed Claude configuration
 

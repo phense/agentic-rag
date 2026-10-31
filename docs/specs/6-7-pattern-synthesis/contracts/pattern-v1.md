@@ -133,3 +133,44 @@ still has the recorded `src1` version and is active. `memory_get`,
 `memory_evidence`, `memory_evidence_history`, graph tools and pattern tools apply
 the same check. An unreviewed pattern stays out of ordinary retrieval even when
 current, as every unreviewed inference does.
+
+## As-built refinements (T065-002..007)
+
+Recorded by the S1 implementation; each stays within the accepted outcomes.
+
+- **Application key.** The key binds `pattern-v1`, the policy id, the
+  generation tuple (floor 3, 12 memories, 8 spans per memory, 8 spans per
+  suggestion), domain, `project_scope` and the sorted cited
+  `(document_id, ev1, source_key, span_hash, src1)`. It deliberately omits the
+  policy `version`, which changes on every enable/disable: with it, a re-enable
+  followed by a backfill over the same unchanged originals would write a
+  duplicate pattern. Any change of the generation parameters still yields a new
+  key. The key is also part of the pattern body, so the content-hash
+  deduplication of `save_claim` never reuses another document.
+- **Recovery tool.** `memory_pattern_recover(run_id, reason)` (write) and
+  `rag pattern recover <run_id> --reason …` re-queue a parked accepted run
+  (`state=error`, `code=apply_failed`) and reuse its stored output without a
+  provider call. They refuse when the policy is disabled or another run of the
+  policy is open.
+- **Run codes.** In addition to the validation codes above:
+  `input_budget_exceeded` (prompt over `max_input_chars`, no call),
+  `duplicate_application`, `withheld` with `policy_changed`, `source_changed` or
+  `authorization_changed`, and `error` with `job_failed` (open run without a live
+  queue job) or `apply_failed` (accepted output kept, recoverable). An unusable
+  provider answer is a terminal `invalid_output`; an unreachable provider keeps
+  the run `pending` under the existing worker backoff.
+- **Withholding on policy change.** Any policy version change between scheduling
+  and processing withholds the run with `policy_changed`; re-enabling a policy
+  shows its unchanged patterns again.
+- **Settle window.** The forward cursor only considers documents older than 60
+  seconds, so rows of a transaction still in progress are not skipped. A writer
+  transaction longer than that can still be passed over; a backfill covers it.
+- **Backfill runs** are created whenever the window holds at least one candidate
+  memory; below the floor they end as `insufficient_independent_support` without
+  a provider call. A window without candidates closes (`done`) without a run.
+- **Scheduling** runs in the hook-started local worker tick and in the central
+  `rag service worker` loop, before each drain.
+- **Old clients.** A 0.6.17 process reading a schema030 store returns a pattern
+  body from `memory_get` by id, because it lacks the Python guard; its search
+  stays guarded by the redefined SQL eligibility functions.
+- **CLI.** `rag pattern preview|status|list|show|enable|disable|backfill|recover`.
