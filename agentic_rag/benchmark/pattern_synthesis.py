@@ -18,7 +18,6 @@ FROZEN = {
     'responses.json': '4cd4fb6b2c322d1d9afc6f35c6c4ae2d93b3d50c3bbcbb7621106190244afb76',
     'labels.json': 'd7fbcff3ad856c4a2d925d92d5554948ff0597ec9fa4bd6cbbc813aa88901dc4',
 }
-CANDIDATES_MARKER = 'CANDIDATES_JSON\n'
 
 
 def load(name: str) -> dict:
@@ -60,6 +59,7 @@ def ingest(conn, cfg, case_ids=None) -> dict[str, str]:
 
 
 def candidates_from_prompt(prompt: str) -> list[dict]:
+    from ..synthesis import CANDIDATES_MARKER
     return json.loads(prompt.split(CANDIDATES_MARKER, 1)[1])['candidates']
 
 

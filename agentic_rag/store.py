@@ -462,3 +462,9 @@ def request_synthesis_backfill(conn, cfg, **kwargs):
     """Audited explicit finite history window for an enabled policy."""
     from .synthesis import request_backfill
     return request_backfill(conn, cfg, **kwargs)
+
+
+def recover_synthesis_run(conn, cfg, run_id, **kwargs):
+    """Audited re-queue of parked accepted pattern work; no new provider call."""
+    from .synthesis import recover
+    return recover(conn, cfg, run_id, **kwargs)
