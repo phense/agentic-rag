@@ -25,7 +25,7 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(17))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(18))
 EXCLUDED={'benchmark_ownership'}
 ROLES=('rag_reader','rag_writer','rag_admin')
 

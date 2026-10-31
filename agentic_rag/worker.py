@@ -206,6 +206,11 @@ def process_job(conn, cfg: Config, job: dict, *,
         rep = curation.run_pass(conn, cfg, runner=runner)
         _log(f"curate: {rep}")
         return None
+    if job["kind"] == "synthesis":
+        from . import synthesis
+        result = synthesis.process(conn, cfg, job, runner=runner)
+        _log(f"synthesis {payload.get('run')}: {result}")
+        return None
     if job["kind"] == "backup":
         backup.run_backup(cfg)
         _log("backup: done")
@@ -367,10 +372,27 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def _schedule_synthesis(conn, cfg) -> None:
+    """Opt-in pattern work rides the existing tick; a failure never stops the drain."""
+    if not cfg.synthesis_enabled:
+        return
+    try:
+        from . import synthesis
+        report = synthesis.schedule(conn, cfg)
+        if report['scheduled']:
+            _log(f"synthesis scheduled: {report}")
+    except WorkerAuthorityLost:
+        raise
+    except Exception as e:  # noqa: BLE001 — scheduling is fail-open
+        conn.rollback()
+        _log(f"synthesis scheduling failed: {e!r}")
+
+
 def _run_owned(cfg):
     conn = db.connect(cfg, role="writer")
     try:
         requeue_orphans(conn, cfg)
+        _schedule_synthesis(conn, cfg)
         rep = drain(conn, cfg)
         _log(f"drain: {rep}")
         from .service.priority import background_ready

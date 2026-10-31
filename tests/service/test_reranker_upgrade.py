@@ -74,7 +74,7 @@ with TestClient(app,base_url='https://testserver') as client:
         before=upgrade.inventory(cfg,'0.6.14',identities=True)
         assert len(before['migrations'])==27
         result=upgrade.local_upgrade(cfg,'0.6.14',tmp_path/'upgrade028.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['028_reranker_settings.sql','029_source_evidence.sql']
+        assert result['migrations_applied']==['028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql']
         assert result['restore_verified'] and result['original_rows_unchanged']
         assert upgrade.verify_preserved(cfg,before)['unchanged']
         assert path.read_bytes()==original_policy
@@ -144,4 +144,4 @@ def test_027_interruption_rolls_back_constraint_and_marker_then_retries(tmp_path
             constraint=conn.execute("SELECT pg_get_constraintdef(oid) value FROM pg_constraint WHERE conrelid='dashboard_changes'::regclass AND conname='dashboard_changes_kind_check'").fetchone()['value']
             assert 'reranker' not in constraint
         result=upgrade.local_upgrade(cfg,'0.6.14',tmp_path/'retried028.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['028_reranker_settings.sql','029_source_evidence.sql'] and result['restore_verified']
+        assert result['migrations_applied']==['028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql'] and result['restore_verified']

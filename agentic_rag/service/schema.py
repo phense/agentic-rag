@@ -17,6 +17,7 @@ SCOPED_TABLES = (
     'project_profiles', 'thematic_summaries', 'service_streams', 'service_windows',
     'service_session_access', 'service_requests',
     'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
+    'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_patterns', 'synthesis_dependencies',
 )
 
 
@@ -138,7 +139,8 @@ def validate_schema(conn):
         # Derived/read-only tables have no write check; remaining mutable tables
         # must enforce the original row's authority in addition to WITH CHECK.
         read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors',
-                   'source_revisions','claim_revisions','source_history','claim_history'}
+                   'source_revisions','claim_revisions','source_history','claim_history',
+                   'synthesis_patterns','synthesis_dependencies'}
         if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
             raise ServiceSchemaError()
         roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()

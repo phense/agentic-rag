@@ -450,3 +450,15 @@ def select_embedding_index(conn, cfg, name, *, rollback=False, **kwargs):
     from . import indexes
     operation = indexes.rollback if rollback else indexes.activate
     return operation(conn, cfg, name, **kwargs)
+
+
+def set_synthesis_policy(conn, cfg, **kwargs):
+    """Audited scoped pattern-synthesis opt-in/opt-out; no provider call."""
+    from .synthesis import set_policy
+    return set_policy(conn, cfg, **kwargs)
+
+
+def request_synthesis_backfill(conn, cfg, **kwargs):
+    """Audited explicit finite history window for an enabled policy."""
+    from .synthesis import request_backfill
+    return request_backfill(conn, cfg, **kwargs)
