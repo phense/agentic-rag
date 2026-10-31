@@ -38,6 +38,24 @@ LABEL_ERRATA = {
                       'labelled reason. Outcome, reason and applied count match.',
 }
 
+# Human inspection of the unchanged frozen responses and their original quotes:
+# (cited parts, semantically unsupported parts). Structural citation validation
+# cannot establish this judgment. Any new applied case/part count needs review.
+SEMANTIC_REVIEW = {
+    ('K1', 'oracle'): (3, 0),
+    ('K2', 'oracle'): (2, 0),
+    ('I1', 'oracle'): (2, 0),
+    ('C2', 'adversarial'): (1, 1),  # claims blocked; all three originals say open
+}
+
+
+def semantic_part_counts(case, variant, cited_parts):
+    expected, unsupported = SEMANTIC_REVIEW[(case, variant)]
+    if cited_parts != expected:
+        raise ValueError('applied parts changed; repeat human semantic review')
+    return {'cited_parts': cited_parts, 'semantically_supported_parts': cited_parts - unsupported,
+            'semantically_unsupported_parts': unsupported}
+
 
 def _ms(start):
     return round((time.perf_counter() - start) * 1000, 1)
@@ -130,10 +148,11 @@ def evaluate(cfg, variant):
                     record['actual'] = {'outcome': run['state'], 'reason': run['code'],
                                         'applied': after['patterns'] - before['patterns'],
                                         'provider_calls': len(provider.calls), 'path': 'forward',
-                                        'supported_parts': after['parts'] - before['parts'],
+                                        'cited_parts': after['parts'] - before['parts'],
                                         'rejected_suggestions': len((run['result'] or {}).get('rejected', [])),
                                         'input_chars': (run['usage'] or {}).get('input_chars')}
                     if run['state'] == 'applied':
+                        record['actual'].update(semantic_part_counts(case, variant, record['actual']['cited_parts']))
                         pattern = (run['result'] or {})['patterns'][0]
                         started = time.perf_counter()
                         shown = synthesis.inspect(conn, pattern)
@@ -158,7 +177,10 @@ def evaluate(cfg, variant):
                     checks.append(record['actual']['reason'] == expected['reason'])
                 for key in ('supported_parts', 'cited_events', 'cited_memories'):
                     if key in expected:
-                        checks.append(record['actual'].get(key) == expected[key])
+                        # Frozen "supported_parts" labels predate the semantic
+                        # correction: they counted cited parts, including C2's lie.
+                        actual_key = 'cited_parts' if key == 'supported_parts' else key
+                        checks.append(record['actual'].get(actual_key) == expected[key])
                 record['matches_label'] = all(checks)
                 rows.append(record)
     return rows, examples
@@ -202,7 +224,9 @@ def main(argv=None):
         'mismatches': [f"{r['case']}-{r['variant']}" for r in first if not r['matches_label']],
         'label_errata': LABEL_ERRATA,
         'applied_patterns': sum(r['actual']['applied'] for r in first),
-        'supported_parts': sum(r['actual'].get('supported_parts', 0) for r in first),
+        'cited_parts': sum(r['actual'].get('cited_parts', 0) for r in first),
+        'semantically_supported_parts': sum(r['actual'].get('semantically_supported_parts', 0) for r in first),
+        'semantically_unsupported_parts': sum(r['actual'].get('semantically_unsupported_parts', 0) for r in first),
         'rejected_suggestions': sum(r['actual'].get('rejected_suggestions', 0) for r in first)
                                 + sum(r['actual'].get('path') == 'validator' for r in first),
         'non_conclusions': sum(r['actual']['outcome'] == 'non_conclusion' for r in first),

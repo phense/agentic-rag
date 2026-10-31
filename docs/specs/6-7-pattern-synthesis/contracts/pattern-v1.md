@@ -101,10 +101,12 @@ from contract evidence-v1. No namespace, source event ID or transcript path.
 - The snapshot records sorted `(document_id, ev1, source_key, span_hash, src1)`.
 - Accepted provider output is validated and committed before application.
   A retry of an accepted run never calls the provider again.
-- Application key: `sha256(["pattern-v1", policy_id, policy_version, domain,
+- Application key: `sha256(["pattern-v1", policy_id, generation_parameters, domain,
   project_scope, sorted cited (document_id, ev1, source_key, span_hash, src1)])`,
   unique. One pattern document, its dependencies, its claim spans and one
   `synthesis_apply` audit row commit atomically.
+  `generation_parameters` binds the semantic floor/candidate/span limits listed
+  below; the enable/disable version counter is excluded.
 - Forward cursor: document arrival `(created_at, id)`; not advanced while the
   pending candidates are below the floor and fewer than a full batch.
 
