@@ -105,12 +105,16 @@ def resolve(conn, id_or_slug):
         raise EvidenceUnavailable()
     try:
         uuidlib.UUID(id_or_slug)
-        row = conn.execute('SELECT id,slug,title,domain,project_scope,status FROM public.documents WHERE id=%s',
+        row = conn.execute('SELECT id,slug,title,domain,project_scope,status,dtype FROM public.documents WHERE id=%s',
                            (id_or_slug,)).fetchone()
     except ValueError:
-        row = conn.execute('SELECT id,slug,title,domain,project_scope,status FROM public.documents WHERE slug=%s',
+        row = conn.execute('SELECT id,slug,title,domain,project_scope,status,dtype FROM public.documents WHERE slug=%s',
                            (id_or_slug,)).fetchone()
     if row is None:
+        raise EvidenceUnavailable()
+    # RAG-065: a derived pattern is readable only while all its originals are current.
+    from .synthesis import withheld
+    if withheld(conn, row['id'], row['dtype']):
         raise EvidenceUnavailable()
     return row
 
@@ -299,6 +303,10 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
         else:
             basis = 'none'
         verification = 'operator_review' if claim['review_state'] == 'confirmed' else 'none'
+    if doc['dtype'] == 'synthesis':
+        from .synthesis import is_pattern
+        if is_pattern(conn, doc_id):
+            notices.append('derived_pattern')
     if fact is not None and fact['state'] != 'current':
         reasons.append('fact_' + fact['state'])
     if not current and not reasons:

@@ -53,7 +53,8 @@ def fingerprint(cfg,path):
 def browse(cfg,principal,query):
     limit=int(query.get('limit','25'));offset=int(query.get('offset','0'))
     if not 1<=limit<=50 or not 0<=offset<=10000:raise ServiceError('invalid_pagination')
-    clauses=['true'];params=[]
+    from ..synthesis import WITHHELD_SQL
+    clauses=['NOT '+WITHHELD_SQL];params=[]
     for key,column in [('domain','d.domain'),('project','d.project_scope')]:
         value=query.get(key)
         if value:

@@ -285,6 +285,9 @@ def get_document(conn, id_or_slug: str) -> dict | None:
     ).fetchone()
     if doc is None:
         return None
+    from .synthesis import withheld
+    if withheld(conn, doc["id"], doc["dtype"]):
+        return None  # RAG-065: stale or unauthorized derived pattern
     out = [
         EdgeInfo(r["predicate"], r["dst_slug"], _s(r["dst_id"]), "out",
                  r["evidence"], r["confidence"])

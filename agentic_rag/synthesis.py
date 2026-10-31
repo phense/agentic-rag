@@ -980,3 +980,91 @@ def _process_locked(conn, cfg, run_id, principal, runner):
         state = _finish(conn, run, 'non_conclusion', 'duplicate_application', result=result, advance=True)
     conn.commit()
     return state
+
+
+# ------------------------------------------------------------- guarded reads
+
+# A registered pattern that is not current. Callers prefilter on dtype so
+# ordinary documents never evaluate the dependency guard.
+WITHHELD_SQL = ("(d.dtype='synthesis' AND EXISTS(SELECT 1 FROM public.synthesis_patterns sp WHERE sp.document_id=d.id)"
+                " AND NOT public.rag_pattern_current(d.id))")
+
+
+def withheld(conn, document_id, dtype=None) -> bool:
+    """True for a registered pattern whose policy, scope or originals changed."""
+    if dtype is not None and dtype != 'synthesis':
+        return False
+    if not installed(conn):
+        return False
+    return conn.execute('SELECT EXISTS(SELECT 1 FROM public.synthesis_patterns WHERE document_id=%s)'
+                        ' AND NOT public.rag_pattern_current(%s) AS hidden',
+                        (str(document_id), str(document_id))).fetchone()['hidden']
+
+
+def is_pattern(conn, document_id) -> bool:
+    return installed(conn) and conn.execute('SELECT 1 FROM public.synthesis_patterns WHERE document_id=%s',
+                                            (str(document_id),)).fetchone() is not None
+
+
+def _item(row):
+    return {'id': str(row['document_id']), 'slug': row['slug'], 'label': row['label'], 'confidence': row['confidence'],
+            'review_state': row['review_state'], 'support': {'events': row['events'], 'memories': row['memories']},
+            'applied_at': _time(row['applied_at'])}
+
+
+def patterns(conn, cfg, *, domain, project=None, scope=None, limit=20, cursor=None) -> dict:
+    """Current, non-refuted patterns of one concrete scope; withheld ones are omitted without a count."""
+    if type(limit) is not int or not 1 <= limit <= 20:
+        raise ValueError('invalid_limit')
+    selected = policy_scope(project, scope)
+    after = None
+    if cursor is not None:
+        parts = cursor.split('.') if isinstance(cursor, str) and len(cursor) <= 80 else []
+        try:
+            after = (datetime.fromisoformat(parts[0].replace('_', '+')), str(uuidlib.UUID(parts[1])))
+        except (IndexError, ValueError):
+            raise ValueError('invalid_cursor') from None
+    if not installed(conn):
+        return {'contract_version': CONTRACT_VERSION, 'items': [], 'limit': limit, 'next_cursor': None}
+    rows = conn.execute(
+        'SELECT p.*,d.slug,c.review_state FROM public.synthesis_patterns p JOIN public.documents d ON d.id=p.document_id'
+        " JOIN public.claim_records c ON c.document_id=d.id WHERE d.domain=%s AND d.project_scope=%s AND d.status='active'"
+        " AND c.review_state<>'refuted' AND (%s::timestamptz IS NULL OR (p.applied_at,p.document_id)<(%s,%s::uuid))"
+        ' AND public.rag_pattern_current(d.id) ORDER BY p.applied_at DESC,p.document_id DESC LIMIT %s',
+        (domain, selected, after and after[0], after and after[0], after and after[1], limit + 1)).fetchall()
+    items = [_item(r) for r in rows[:limit]]
+    last = rows[limit - 1] if len(rows) > limit else None
+    return {'contract_version': CONTRACT_VERSION, 'scope': {'domain': domain, 'project_scope': selected},
+            'items': items, 'limit': limit,
+            'next_cursor': f"{last['applied_at'].isoformat().replace('+', '_')}.{last['document_id']}" if last else None}
+
+
+def inspect(conn, id_or_slug) -> dict:
+    """One current pattern with exact citations; otherwise the shared unavailable error."""
+    doc = contract.resolve(conn, id_or_slug)  # withholds a non-current pattern
+    row = conn.execute('SELECT p.*,c.kind,c.review_state FROM public.synthesis_patterns p'
+                       ' JOIN public.claim_records c ON c.document_id=p.document_id WHERE p.document_id=%s',
+                       (str(doc['id']),)).fetchone() if installed(conn) else None
+    if row is None:
+        raise contract.EvidenceUnavailable()
+    originals = {}
+    for part in row['parts']:
+        for c in part['citations']:
+            originals.setdefault(c['document_id'], None)
+    for r in conn.execute('SELECT id,slug FROM public.documents WHERE id=ANY(%s)', (list(originals),)).fetchall():
+        originals[str(r['id'])] = r['slug']
+    if any(slug is None for slug in originals.values()):
+        raise contract.EvidenceUnavailable()
+    return {
+        'contract_version': CONTRACT_VERSION,
+        'pattern': {'id': str(doc['id']), 'slug': doc['slug'], 'label': row['label'], 'statement': row['statement'],
+                    'domain': doc['domain'], 'project_scope': doc['project_scope']},
+        'kind': row['kind'], 'confidence': row['confidence'], 'review_state': row['review_state'], 'current': True,
+        'verification': {'independent': False},
+        'support': {'events': row['events'], 'memories': row['memories']},
+        'parts': [{'text': p['text'], 'citations': [
+            {'reference': c['source_key'] + '#' + c['span_hash'], 'source_version': c['source_version'],
+             'original': {'id': c['document_id'], 'slug': originals[c['document_id']], 'version': c['version']}}
+            for c in p['citations']]} for p in row['parts']],
+        'applied_at': _time(row['applied_at']),
+    }
