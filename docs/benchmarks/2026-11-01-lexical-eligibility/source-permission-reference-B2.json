@@ -1,0 +1,442 @@
+{
+  "experiment": "Source-guard source-bound B2",
+  "source": "0a0878524f2d4fc61ee8418b61b476c64a4d11af",
+  "source_archive_sha256": "85f85d68e0399bf180d27c0fdc9f0cbf57d5d78f11e2dcf832a11383867c071f",
+  "source_files_verified": 188,
+  "controller_sha256": "475e443238f2b0e1f8bc6db7226553c1a7fa310fd12308605ca09132d85175c5",
+  "supervisor_sha256": "dc41b21455b43fdf5cffb948f384cb271a39cf764f961a2f891ee8c9da425918",
+  "actual_exit_code": 0,
+  "runtime_seconds": 454.358,
+  "all_owned_services_stopped": true,
+  "production_changed": false,
+  "prospective_settings": {
+    "consumers": 4,
+    "foreground_model_threads": 2,
+    "background_model_threads": 2,
+    "foreground_model_cpu_quota_percent": 350,
+    "background_model_cpu_quota_percent": 100,
+    "background_model_cpu_weight": 1,
+    "each_model_memory_max_bytes": 2147483648,
+    "background_model_deadline_seconds": 60
+  },
+  "result": {
+    "correctness": {
+      "searches": 117,
+      "empty_searches": 0,
+      "warnings": 0,
+      "invalid_citations": 0,
+      "invalid_eligibility": 0,
+      "hits": 351,
+      "source_windows": 13,
+      "source_hash_mismatch": 0,
+      "missing_source_evidence": 0,
+      "fallbacks": 0,
+      "dedup_skips": 0
+    },
+    "model_runtime": "owned11435 foreground350%/2GiB and11436 background100%/CPUWeight1/2GiB, each parallel1",
+    "installed_distribution": "0.6.22",
+    "source_head": "0a0878524f2d4fc61ee8418b61b476c64a4d11af; model-lane diagnostic shim only, not an implemented release",
+    "cpu_count": 4,
+    "phases": [
+      {
+        "phase": "idle40",
+        "started_epoch": 1793555240.297399,
+        "finished_epoch": 1793555268.6754928,
+        "clients": 40,
+        "rounds": 3,
+        "offered": 120,
+        "owned_cgroup_cpu_seconds": 68.59774,
+        "owned_model_cgroup_cpu_seconds": 20.634773,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 42,
+            "completed": 42,
+            "total_seconds": {
+              "n": 42,
+              "p50": 5.165210775914602,
+              "p95": 8.353050623903982,
+              "max": 8.552113099955022
+            },
+            "wait_seconds": {
+              "n": 42,
+              "p50": 3.2831225,
+              "p95": 5.409402849999999,
+              "max": 5.566922
+            },
+            "execution_seconds": {
+              "n": 42,
+              "p50": 0.17483100000000001,
+              "p95": 0.23969034999999989,
+              "max": 0.305223
+            },
+            "retry_requests": 138,
+            "states": {
+              "completed": 42
+            }
+          },
+          "context": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 4.932747596874833,
+              "p95": 8.299094808683732,
+              "max": 8.70351453195326
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 2.612612,
+              "p95": 5.2003104,
+              "max": 5.4684
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 0.701953,
+              "p95": 0.8933983000000001,
+              "max": 0.975147
+            },
+            "retry_requests": 115,
+            "states": {
+              "completed": 39
+            }
+          },
+          "search": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 5.825507689034566,
+              "p95": 9.212838350096717,
+              "max": 9.769380764802918
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 2.928543,
+              "p95": 5.4154112,
+              "max": 5.476852
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 1.460585,
+              "p95": 1.8158948000000001,
+              "max": 1.891679
+            },
+            "retry_requests": 137,
+            "states": {
+              "completed": 39
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 30,
+            "completed": 30
+          },
+          "1": {
+            "offered": 30,
+            "completed": 30
+          },
+          "2": {
+            "offered": 30,
+            "completed": 30
+          },
+          "3": {
+            "offered": 30,
+            "completed": 30
+          }
+        }
+      },
+      {
+        "phase": "growing40",
+        "started_epoch": 1793555269.860207,
+        "finished_epoch": 1793555303.5179923,
+        "clients": 40,
+        "rounds": 3,
+        "offered": 120,
+        "owned_cgroup_cpu_seconds": 76.405869,
+        "owned_model_cgroup_cpu_seconds": 21.762683,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 42,
+            "completed": 42,
+            "total_seconds": {
+              "n": 42,
+              "p50": 5.356716044596396,
+              "p95": 9.72037554346025,
+              "max": 10.277699478901923
+            },
+            "wait_seconds": {
+              "n": 42,
+              "p50": 3.7747479999999998,
+              "p95": 7.262881,
+              "max": 7.360949
+            },
+            "execution_seconds": {
+              "n": 42,
+              "p50": 0.2137615,
+              "p95": 0.29134065000000003,
+              "max": 0.364885
+            },
+            "retry_requests": 111,
+            "states": {
+              "completed": 42
+            }
+          },
+          "context": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 6.442956980783492,
+              "p95": 10.23446788545698,
+              "max": 11.196280129952356
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 3.976178,
+              "p95": 7.003682700000001,
+              "max": 7.622722
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 0.922725,
+              "p95": 1.3637814000000001,
+              "max": 1.47803
+            },
+            "retry_requests": 114,
+            "states": {
+              "completed": 39
+            }
+          },
+          "search": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 7.4307919659186155,
+              "p95": 10.646084449556657,
+              "max": 11.413636492099613
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 3.825869,
+              "p95": 7.1103214,
+              "max": 7.291334
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 1.732228,
+              "p95": 2.2537724,
+              "max": 2.281582
+            },
+            "retry_requests": 102,
+            "states": {
+              "completed": 39
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 30,
+            "completed": 30
+          },
+          "1": {
+            "offered": 30,
+            "completed": 30
+          },
+          "2": {
+            "offered": 30,
+            "completed": 30
+          },
+          "3": {
+            "offered": 30,
+            "completed": 30
+          }
+        }
+      },
+      {
+        "phase": "noarrivals40",
+        "started_epoch": 1793555307.1701481,
+        "finished_epoch": 1793555341.8970795,
+        "clients": 40,
+        "rounds": 3,
+        "offered": 120,
+        "owned_cgroup_cpu_seconds": 74.90190800000002,
+        "owned_model_cgroup_cpu_seconds": 23.051724999999998,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 42,
+            "completed": 42,
+            "total_seconds": {
+              "n": 42,
+              "p50": 4.966197824454866,
+              "p95": 10.350215867767108,
+              "max": 10.986106422031298
+            },
+            "wait_seconds": {
+              "n": 42,
+              "p50": 3.5082649999999997,
+              "p95": 7.30730345,
+              "max": 7.65031
+            },
+            "execution_seconds": {
+              "n": 42,
+              "p50": 0.235142,
+              "p95": 0.3328742999999999,
+              "max": 0.339962
+            },
+            "retry_requests": 116,
+            "states": {
+              "completed": 42
+            }
+          },
+          "context": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 6.54444773378782,
+              "p95": 10.856128640635871,
+              "max": 11.210035173920915
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 3.910796,
+              "p95": 7.0216459,
+              "max": 7.568492
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 0.914535,
+              "p95": 1.1974470000000002,
+              "max": 1.364683
+            },
+            "retry_requests": 140,
+            "states": {
+              "completed": 39
+            }
+          },
+          "search": {
+            "offered": 39,
+            "completed": 39,
+            "total_seconds": {
+              "n": 39,
+              "p50": 7.575127590214834,
+              "p95": 11.111155460868032,
+              "max": 12.028504744870588
+            },
+            "wait_seconds": {
+              "n": 39,
+              "p50": 3.37574,
+              "p95": 6.767772600000001,
+              "max": 7.31071
+            },
+            "execution_seconds": {
+              "n": 39,
+              "p50": 1.750383,
+              "p95": 2.5413279,
+              "max": 2.647655
+            },
+            "retry_requests": 142,
+            "states": {
+              "completed": 39
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 30,
+            "completed": 30
+          },
+          "1": {
+            "offered": 30,
+            "completed": 30
+          },
+          "2": {
+            "offered": 30,
+            "completed": 30
+          },
+          "3": {
+            "offered": 30,
+            "completed": 30
+          }
+        }
+      }
+    ],
+    "source_windows": 13,
+    "arrival_count_during_growing": 12,
+    "source_states": {
+      "applied": 13
+    },
+    "all_sources_applied": true,
+    "model_calls": {
+      "foreground": 117,
+      "background": 27,
+      "background_seconds": {
+        "n": 27,
+        "p50": 11.606840372085571,
+        "p95": 21.429053997993464,
+        "max": 31.770511865615845
+      },
+      "errors": 0
+    },
+    "observed_background_starts": [
+      1793555269.8472588,
+      1793555307.152882
+    ],
+    "poll_interval_seconds": 1.05,
+    "extraction_provider": "scripted synthetic result; not LLM quality/latency",
+    "limits": [
+      "Actual local CPU embeddings; owned Ollama runtime on11435, same read-only bge-m3-q8 model blobs",
+      "Other production services remained running; no production DB/config/service writes",
+      "Read-only populated schema024 source migrated only on own PG55468 copy",
+      "No long soak, TLS or cross-host traffic claim",
+      "Maintainer target: search total p95<=10seconds per40-client phase; bounded bursts, not a soak",
+      "Test and owned-model CPU accounted separately per phase; production Ollama outside both groups; no production service limit changed"
+    ],
+    "all_clients_completed": true,
+    "diagnostic_only": true,
+    "consumer_override": 4,
+    "acceptance": false,
+    "latency_target_seconds": 10,
+    "target_40client_phases_pass": false,
+    "background_execution_over_idle_seconds": {
+      "growing40": 0.43787759999999976,
+      "noarrivals40": 0.7254331
+    },
+    "resource_gate": {
+      "sample_errors": 0,
+      "host_available_min_bytes": 2608988160,
+      "model_limit_or_oom_events": 0,
+      "swap_delta_bytes": 0
+    },
+    "stage_B_pass": false
+  },
+  "cpu_attribution_sample": {
+    "idle40": {
+      "non_model_cpu_seconds": 68.59774,
+      "foreground_model_cpu_seconds": 20.634773,
+      "background_model_cpu_sample_delta_seconds": 3.5e-05
+    },
+    "growing40": {
+      "non_model_cpu_seconds": 76.405869,
+      "foreground_model_cpu_seconds": 21.762683,
+      "background_model_cpu_sample_delta_seconds": 19.490971
+    },
+    "noarrivals40": {
+      "non_model_cpu_seconds": 74.901908,
+      "foreground_model_cpu_seconds": 23.051725,
+      "background_model_cpu_sample_delta_seconds": 24.285059
+    }
+  },
+  "limits": [
+    "Prospective lane/consumer/thread shims remain unimplemented; no actual-client/final acceptance",
+    "Metadata copied as a version label; this is not a release-package proof",
+    "Same read-only024 snapshot restored/analyzed on owned copy, not actual0.6.21 upgrade evidence",
+    "Wildcard readers and citation-coordinate/truth checks, no restricted-reader disclosure or independent ranking oracle under load",
+    "CPU samples do not cover every phase boundary; timings compared across runs do not alone prove causal gains"
+  ]
+}

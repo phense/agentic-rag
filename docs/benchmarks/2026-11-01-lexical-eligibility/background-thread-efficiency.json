@@ -1,0 +1,394 @@
+{
+  "experiment": "Background thread efficiency E-EFF-1",
+  "diagnostic_only": true,
+  "acceptance": false,
+  "production_changed": false,
+  "rows": [
+    {
+      "role": "foreground",
+      "index": 0,
+      "background_threads": 2,
+      "start_seconds": 0.15602058288641274,
+      "end_seconds": 0.650542058981955,
+      "seconds": 0.49452169612050056,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 20.467189
+    },
+    {
+      "role": "background",
+      "index": 0,
+      "background_threads": 2,
+      "start_seconds": 7.236097007989883e-05,
+      "end_seconds": 21.751334070926532,
+      "seconds": 21.751262021018192,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 20.467189
+    },
+    {
+      "role": "foreground",
+      "index": 1,
+      "background_threads": 2,
+      "start_seconds": 0.15168618713505566,
+      "end_seconds": 0.8521008570678532,
+      "seconds": 0.7004148908890784,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.639765
+    },
+    {
+      "role": "background",
+      "index": 1,
+      "background_threads": 2,
+      "start_seconds": 4.840409383177757e-05,
+      "end_seconds": 24.09118553902954,
+      "seconds": 24.09113729489036,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.639765
+    },
+    {
+      "role": "foreground",
+      "index": 2,
+      "background_threads": 2,
+      "start_seconds": 0.152259900001809,
+      "end_seconds": 0.6605135968420655,
+      "seconds": 0.5082539469003677,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 21.119976
+    },
+    {
+      "role": "background",
+      "index": 2,
+      "background_threads": 2,
+      "start_seconds": 4.733097739517689e-05,
+      "end_seconds": 22.37150173680857,
+      "seconds": 22.371454655891284,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 21.119976
+    },
+    {
+      "role": "foreground",
+      "index": 3,
+      "background_threads": 2,
+      "start_seconds": 0.1512242320459336,
+      "end_seconds": 0.605303892865777,
+      "seconds": 0.45407997188158333,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.083755
+    },
+    {
+      "role": "background",
+      "index": 3,
+      "background_threads": 2,
+      "start_seconds": 4.5859022065997124e-05,
+      "end_seconds": 23.250695671886206,
+      "seconds": 23.250650313915685,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.083755
+    },
+    {
+      "role": "foreground",
+      "index": 4,
+      "background_threads": 2,
+      "start_seconds": 0.15568628394976258,
+      "end_seconds": 0.6788115811068565,
+      "seconds": 0.5231255472172052,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.343649
+    },
+    {
+      "role": "background",
+      "index": 4,
+      "background_threads": 2,
+      "start_seconds": 4.492606967687607e-05,
+      "end_seconds": 23.765156604116783,
+      "seconds": 23.765111937886104,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 22.343649
+    },
+    {
+      "role": "foreground",
+      "index": 0,
+      "background_threads": 1,
+      "start_seconds": 0.1514238379895687,
+      "end_seconds": 0.5896379791665822,
+      "seconds": 0.4382143821567297,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.037703
+    },
+    {
+      "role": "background",
+      "index": 0,
+      "background_threads": 1,
+      "start_seconds": 4.624016582965851e-05,
+      "end_seconds": 12.03628831799142,
+      "seconds": 12.03624230879359,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.037703
+    },
+    {
+      "role": "foreground",
+      "index": 1,
+      "background_threads": 1,
+      "start_seconds": 0.15193409682251513,
+      "end_seconds": 0.6829525409266353,
+      "seconds": 0.5310185940470546,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.126752
+    },
+    {
+      "role": "background",
+      "index": 1,
+      "background_threads": 1,
+      "start_seconds": 4.874495789408684e-05,
+      "end_seconds": 11.760176759911701,
+      "seconds": 11.760128265013918,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.126752
+    },
+    {
+      "role": "foreground",
+      "index": 2,
+      "background_threads": 1,
+      "start_seconds": 0.15051595703698695,
+      "end_seconds": 1.0792907879222184,
+      "seconds": 0.9287750720977783,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.240756
+    },
+    {
+      "role": "background",
+      "index": 2,
+      "background_threads": 1,
+      "start_seconds": 4.5357970520853996e-05,
+      "end_seconds": 12.468398079974577,
+      "seconds": 12.468352952972054,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.240756
+    },
+    {
+      "role": "foreground",
+      "index": 3,
+      "background_threads": 1,
+      "start_seconds": 0.15081289294175804,
+      "end_seconds": 0.6643833289854228,
+      "seconds": 0.5135706060100347,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.158018
+    },
+    {
+      "role": "background",
+      "index": 3,
+      "background_threads": 1,
+      "start_seconds": 5.9545040130615234e-05,
+      "end_seconds": 11.742442505899817,
+      "seconds": 11.742383190896362,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.158018
+    },
+    {
+      "role": "foreground",
+      "index": 4,
+      "background_threads": 1,
+      "start_seconds": 0.15174138196744025,
+      "end_seconds": 0.6872149959672242,
+      "seconds": 0.5354738140013069,
+      "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.451435
+    },
+    {
+      "role": "background",
+      "index": 4,
+      "background_threads": 1,
+      "start_seconds": 4.750210791826248e-05,
+      "end_seconds": 11.843725214945152,
+      "seconds": 11.843677952885628,
+      "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+      "bitwise_equal_to_default_threads_primary": true,
+      "background_pair_cpu_seconds": 10.451435
+    }
+  ],
+  "preload_parity": [
+    {
+      "endpoint": "foreground",
+      "input": "background",
+      "equal": true,
+      "max_abs_difference": 0.0
+    },
+    {
+      "endpoint": "foreground",
+      "input": "foreground",
+      "equal": true,
+      "max_abs_difference": 0.0
+    },
+    {
+      "endpoint": "background",
+      "input": "background",
+      "equal": true,
+      "max_abs_difference": 0.0
+    },
+    {
+      "endpoint": "background",
+      "input": "foreground",
+      "equal": true,
+      "max_abs_difference": 0.0
+    }
+  ],
+  "summary": {
+    "foreground_p95_seconds": 0.8260129905538631,
+    "foreground_max_seconds": 0.9287750720977783,
+    "background_max_seconds": 24.09113729489036,
+    "vectors_equal": true,
+    "model_files_unchanged": true,
+    "minimum_host_available_bytes": 2154070016,
+    "swap_delta_bytes": 0,
+    "memory_limit_or_oom_events": 0,
+    "model_resources": {
+      "foreground": {
+        "memory_bytes": 1663741952,
+        "memory_peak_bytes": 1668390912,
+        "memory_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "cpu_stat": {
+          "usage_usec": 36672563,
+          "user_usec": 35551758,
+          "system_usec": 1120804,
+          "nice_usec": 0,
+          "nr_periods": 253,
+          "nr_throttled": 34,
+          "throttled_usec": 1065274,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "pss_bytes": 1659553792,
+        "rss_bytes": 1682034688
+      },
+      "background": {
+        "memory_bytes": 2091503616,
+        "memory_peak_bytes": 2101280768,
+        "memory_events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "cpu_stat": {
+          "usage_usec": 208569626,
+          "user_usec": 206849211,
+          "system_usec": 1720415,
+          "nice_usec": 0,
+          "nr_periods": 2292,
+          "nr_throttled": 830,
+          "throttled_usec": 20294486,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "pss_bytes": 1652056064,
+        "rss_bytes": 1674539008
+      }
+    },
+    "burner_resources": {
+      "memory_bytes": 51728384,
+      "memory_peak_bytes": 51961856,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "cpu_stat": {
+        "usage_usec": 534036245,
+        "user_usec": 533720145,
+        "system_usec": 316100,
+        "nice_usec": 0,
+        "nr_periods": 2143,
+        "nr_throttled": 2078,
+        "throttled_usec": 70353472,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "pss_bytes": 54483968,
+      "rss_bytes": 97820672
+    }
+  },
+  "arms": {
+    "2": {
+      "background_cpu_median_seconds": 22.083755,
+      "background_median_seconds": 23.250650313915685
+    },
+    "1": {
+      "background_cpu_median_seconds": 10.158018,
+      "background_median_seconds": 11.843677952885628
+    }
+  },
+  "background_cpu_ratio_1_over_2": 0.4599769377988481,
+  "candidate_warrants_load_test": true,
+  "stage_A_pass": true,
+  "complete": true,
+  "all_owned_units_inactive": true,
+  "actual_supervisor_exit_code": 0,
+  "actual_supervisor_runtime_seconds": 246.12,
+  "protocol": {
+    "experiment": "E-EFF-1",
+    "frozen_before_execution": true,
+    "controller_sha256": "fe2900f2e4beb42c0ee45dd74c3dfe9055ff0f25eea023e8ddb2b17916034911",
+    "hypothesis": "Background model at2threads competes for near0.6-0.7CPU during B2 and pushes40client p95 over10s. Under existing100% quota, one background thread may reduce synchronization CPU work; foreground remains2threads. Compare actual CPU work before any load retry or product change.",
+    "one_variable": "background request num_thread 2 versus1; both100%quota/CPUWeight1/2GiB, FG2threads350%2GiB, same three250%burners asstageA",
+    "measurements": "5pairs perarm after discarded warmup,3215char fullBG and49charFG150ms offset; actual BG cgroup CPU delta perpair and wall time, default-primary-vector exact equality, unchanged model blobs, hostmemory/swap/OOM",
+    "abort_or_no_load_retry": "No B3 unless model-vector parity and existing stageA resource/FGp95<=1/BG<=60 checks pass AND backgroundCPUmedian drops at least25%; preserve failed results. No change to any current daemon until B2 terminal and all ownedservices inactive.",
+    "limits": [
+      "Model-only causal experiment, no acceptance or product lane/thread adoption",
+      "No private inputs or DB; synthetic only",
+      "Two arms same host, five pairs each, no longsoak; stop all owned units"
+    ],
+    "trigger_evidence": {
+      "B2_source": "0a0878524f2d4fc61ee8418b61b476c64a4d11af",
+      "B2_terminal_exit": 0,
+      "B2_p95_seconds": [
+        9.212838350096717,
+        10.646084449556657,
+        11.111155460868032
+      ],
+      "B2_background_model_cpu_phase_samples_seconds": [
+        3.5e-05,
+        19.490971,
+        24.285059
+      ],
+      "B2_background_wall_max_seconds": 31.770511865615845,
+      "B2_zero_model_errors": true,
+      "B2_all_owned_units_inactive": true
+    }
+  },
+  "limits": [
+    "Five measured pairs perarm after warmup,2threads arm before1thread arm, samehost; no full-load acceptance",
+    "Vector parity checks cover the frozen synthetic inputs; final actual-input matrix remains open",
+    "No product settings or production services changed"
+  ]
+}

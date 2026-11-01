@@ -751,3 +751,36 @@ repair is selected. This experiment used harness polling, wildcard readers and
 a populated 024 diagnostic copy; it does not replace actual-client observation,
 a restricted-reader result oracle, a real 0.6.21 upgrade/recovery rehearsal or the
 final full suite. Issues 68 and 92 and tasks T06811/T06818 remain open.
+
+### Source-permission plan reuse: source-bound B2 (2026-11-01)
+
+The independent review accepted the bounded source-permission refactor at
+`0a08785` with no findings. Its fresh probes included 19,200 original/new call
+pairs across automatic, generic and custom plans, with no mismatches. The
+populated 0.6.21 upgrade, interruption/retry and limited-owner independent restore
+remain separate passing author evidence. This acceptance covers the SQL slice.
+
+The [source-bound B2 result](../../benchmarks/2026-11-01-lexical-eligibility/source-permission-reference-B2.json)
+verified all 188 archived source files before execution. It retained the earlier
+prospective lane, four-consumer and two-thread harness settings. Supervisor exit
+was 0, but search total p95 was 9.213 s idle, 10.646 s growing and 11.111 s without
+new arrivals: the 10 s target still failed. All 360 foreground calls completed;
+all 13 originals were applied. The 117 search responses had 351 checked hits and
+no invalid citations, ineligible hits, empty responses or warnings. The 117
+foreground and 27 background model calls had no errors; fallback and skipped-dedup
+counters were zero. Resource and cleanup checks passed.
+
+The background model consumed approximately 19.49 and 24.29 CPU seconds within
+the sampled background phases. The next model-only experiment compares one and
+two background threads under the same CPU quota, using complete synthetic input
+and exact vector parity. It must show lower CPU work before another load trial.
+No lane or thread setting is adopted by these experiments. Actual-client,
+restricted-reader, final full-suite and AC05 acceptance remain open.
+
+The [background-thread experiment E-EFF-1](../../benchmarks/2026-11-01-lexical-eligibility/background-thread-efficiency.json)
+completed with supervisor exit 0. Five measured pairs per arm, after warmup,
+used the same CPU quota and complete synthetic input. Median background CPU
+was 22.084 s with two threads and 10.158 s with one. Measured vectors remained
+bit-identical to the primary default-thread reference, and all model/resource
+checks passed. The result justifies B3 with only the background thread count
+changed. It does not prove final-input parity or the 40-client target.
