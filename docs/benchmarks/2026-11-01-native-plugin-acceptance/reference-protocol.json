@@ -26,7 +26,9 @@
     "background_progress_seconds": 240,
     "postgres_connections": 48,
     "postgres_shared_buffers_MiB": 128,
-    "postgres_work_mem_MiB": 8
+    "postgres_work_mem_MiB": 8,
+    "cgroup_memory_GiB": 3,
+    "cgroup_CPU_percent": 350
   },
   "isolation": {
     "PG": "owned55468Unixsocketonly",
@@ -42,5 +44,5 @@
     "actual response and cleanup exits"
   ],
   "acceptance": "Publish actual values; unagreed targets never reported as SLA accepted; no long soak claim",
-  "harness_sha256": "677f56d811f0611d9c761e64fcbf5125565031eec43faa3f0706a9def0425675"
+  "harness_sha256": "91482a9827d61a19e6911a540c2ba1f79170632d44911a20042ee241a1588c00"
 }
