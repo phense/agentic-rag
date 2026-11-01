@@ -172,3 +172,20 @@ unique session/source text corrected those test-only assumptions. Original
 failed logs are retained, not counted as product evidence. Full3 was interrupted
 on unchanged624dce6 for this repair and is not a pass. Independent focused
 acceptance and final full-suite verification remain pending.
+
+### Post-CM1 evidence at e88717f
+
+- Actual PB-067 populated upgrade/restore plus upgrade preservation and docs
+  continuity:19passed,1known warning,exit0,36.88s.
+- Coordinator rerun of the unchanged prior independent correction script:
+  37/37 checks passed,0errors; own databases cleaned. This reuses the probe
+  design but is not an independent review. Its prior failed artifact is retained.
+- Frozen EN/DE measurement:3repetitions,all labels matched,identical deterministic
+  outcomes; new raw observations in results-final.json preserve the first run.
+- Node adapter:7/7,exit0. Offline lock check:55packages,exit0.
+- Built wheel:191entries,186source payloads byte-identical,32SQL migrations.
+  SHA256953cf5f60c3e3716690cde5dea2271590abbc54af71684c44512c47d57c26814.
+  Import from the extracted wheel on a new owned database passed schema
+  validation and durable binding; the database was dropped after the smoke test.
+
+No full-suite pass or independent acceptance is inferred from these checks.

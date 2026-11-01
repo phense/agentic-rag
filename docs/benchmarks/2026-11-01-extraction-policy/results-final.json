@@ -1,0 +1,583 @@
+{
+ "all_labels_matched": true,
+ "deterministic_outcomes_identical": true,
+ "format": 1,
+ "latency_ms": {
+  "D1": {
+   "max": 89.94,
+   "min": 56.84,
+   "values": [
+    89.94,
+    69.31,
+    56.84
+   ]
+  },
+  "L1": {
+   "max": 73.34,
+   "min": 60.06,
+   "values": [
+    73.34,
+    63.97,
+    60.06
+   ]
+  },
+  "P1.failed_attempt": {
+   "max": 22.04,
+   "min": 14.08,
+   "values": [
+    22.04,
+    14.08,
+    14.59
+   ]
+  },
+  "P1.replay": {
+   "max": 2.51,
+   "min": 2.37,
+   "values": [
+    2.51,
+    2.37,
+    2.51
+   ]
+  },
+  "P1.retry": {
+   "max": 67.75,
+   "min": 53.55,
+   "values": [
+    67.75,
+    53.55,
+    58.3
+   ]
+  },
+  "R1": {
+   "max": 308.18,
+   "min": 125.63,
+   "values": [
+    308.18,
+    125.63,
+    136.84
+   ]
+  },
+  "S1": {
+   "max": 102.12,
+   "min": 88.87,
+   "values": [
+    102.12,
+    88.87,
+    97.63
+   ]
+  },
+  "Z1": {
+   "max": 20.17,
+   "min": 14.29,
+   "values": [
+    17.91,
+    14.29,
+    20.17
+   ]
+  }
+ },
+ "package": "0.6.20",
+ "product_tree_dirty": false,
+ "provider": "mock (predetermined output)",
+ "python": "3.13.13",
+ "repetitions": 3,
+ "runs": [
+  {
+   "D1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1,
+     "pin_suggestions": 1
+    },
+    "kept_without_policy": {
+     "domain_proposals": 1,
+     "lessons": 1,
+     "memories": 2,
+     "pin_suggestions": 1
+    },
+    "latency_ms": 89.94,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "domain_proposals": {
+      "category_disabled": 1
+     },
+     "lessons": {
+      "body_limit": 1
+     },
+     "memories": {
+      "item_limit": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "Wächter-Zeit"
+     ],
+     "pin_suggestions": 1
+    },
+    "secret_absent": true
+   },
+   "L1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "memories": 1
+    },
+    "latency_ms": 73.34,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "IVFFlat experiment"
+     ]
+    },
+    "secret_absent": true
+   },
+   "P1": {
+    "latency_ms": {
+     "failed_attempt": 22.04,
+     "replay": 2.51,
+     "retry": 67.75
+    },
+    "malformed_admitted": false,
+    "malformed_queue_rows_added": 0,
+    "matches_label": true,
+    "new_admission_digest_differs": true,
+    "new_admission_rejected": {
+     "lessons": {
+      "category_disabled": 1
+     }
+    },
+    "provider_calls_on_replay": 0,
+    "provider_calls_until_accepted": 2,
+    "retained_on_retry": {
+     "lessons": [
+      "Restart after policy change"
+     ]
+    },
+    "retry_digest_equals_admission": true,
+    "retry_read_policy_file": false
+   },
+   "R1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "lessons": 1,
+     "memories": 1,
+     "signals": 1
+    },
+    "latency_ms": 308.18,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "lessons": {
+      "category_disabled": 1
+     },
+     "signals": {
+      "category_disabled": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "HNSW decision"
+     ]
+    },
+    "secret_absent": true
+   },
+   "S1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 2
+    },
+    "kept_without_policy": {
+     "memories": 2
+    },
+    "latency_ms": 102.12,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "Relay port",
+      "Invented host"
+     ]
+    },
+    "secret_absent": true
+   },
+   "V1": {
+    "errors": [
+     {
+      "code": "reserved_setting",
+      "location": "rules[1].write_domains"
+     },
+     {
+      "code": "duplicate_selector",
+      "location": "rules[1]"
+     }
+    ],
+    "matches_label": true
+   },
+   "Z1": {
+    "cursor_advanced": true,
+    "latency_ms": 17.91,
+    "matches_label": true,
+    "provider_calls": 0,
+    "saved": 0,
+    "skipped": "extraction disabled by policy"
+   },
+   "_totals": {
+    "bind_audits": 11,
+    "bindings": 11
+   }
+  },
+  {
+   "D1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1,
+     "pin_suggestions": 1
+    },
+    "kept_without_policy": {
+     "domain_proposals": 1,
+     "lessons": 1,
+     "memories": 2,
+     "pin_suggestions": 1
+    },
+    "latency_ms": 69.31,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "domain_proposals": {
+      "category_disabled": 1
+     },
+     "lessons": {
+      "body_limit": 1
+     },
+     "memories": {
+      "item_limit": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "Wächter-Zeit"
+     ],
+     "pin_suggestions": 1
+    },
+    "secret_absent": true
+   },
+   "L1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "memories": 1
+    },
+    "latency_ms": 63.97,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "IVFFlat experiment"
+     ]
+    },
+    "secret_absent": true
+   },
+   "P1": {
+    "latency_ms": {
+     "failed_attempt": 14.08,
+     "replay": 2.37,
+     "retry": 53.55
+    },
+    "malformed_admitted": false,
+    "malformed_queue_rows_added": 0,
+    "matches_label": true,
+    "new_admission_digest_differs": true,
+    "new_admission_rejected": {
+     "lessons": {
+      "category_disabled": 1
+     }
+    },
+    "provider_calls_on_replay": 0,
+    "provider_calls_until_accepted": 2,
+    "retained_on_retry": {
+     "lessons": [
+      "Restart after policy change"
+     ]
+    },
+    "retry_digest_equals_admission": true,
+    "retry_read_policy_file": false
+   },
+   "R1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "lessons": 1,
+     "memories": 1,
+     "signals": 1
+    },
+    "latency_ms": 125.63,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "lessons": {
+      "category_disabled": 1
+     },
+     "signals": {
+      "category_disabled": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "HNSW decision"
+     ]
+    },
+    "secret_absent": true
+   },
+   "S1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 2
+    },
+    "kept_without_policy": {
+     "memories": 2
+    },
+    "latency_ms": 88.87,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "Relay port",
+      "Invented host"
+     ]
+    },
+    "secret_absent": true
+   },
+   "V1": {
+    "errors": [
+     {
+      "code": "reserved_setting",
+      "location": "rules[1].write_domains"
+     },
+     {
+      "code": "duplicate_selector",
+      "location": "rules[1]"
+     }
+    ],
+    "matches_label": true
+   },
+   "Z1": {
+    "cursor_advanced": true,
+    "latency_ms": 14.29,
+    "matches_label": true,
+    "provider_calls": 0,
+    "saved": 0,
+    "skipped": "extraction disabled by policy"
+   },
+   "_totals": {
+    "bind_audits": 11,
+    "bindings": 11
+   }
+  },
+  {
+   "D1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1,
+     "pin_suggestions": 1
+    },
+    "kept_without_policy": {
+     "domain_proposals": 1,
+     "lessons": 1,
+     "memories": 2,
+     "pin_suggestions": 1
+    },
+    "latency_ms": 56.84,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "domain_proposals": {
+      "category_disabled": 1
+     },
+     "lessons": {
+      "body_limit": 1
+     },
+     "memories": {
+      "item_limit": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "Wächter-Zeit"
+     ],
+     "pin_suggestions": 1
+    },
+    "secret_absent": true
+   },
+   "L1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "memories": 1
+    },
+    "latency_ms": 60.06,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "IVFFlat experiment"
+     ]
+    },
+    "secret_absent": true
+   },
+   "P1": {
+    "latency_ms": {
+     "failed_attempt": 14.59,
+     "replay": 2.51,
+     "retry": 58.3
+    },
+    "malformed_admitted": false,
+    "malformed_queue_rows_added": 0,
+    "matches_label": true,
+    "new_admission_digest_differs": true,
+    "new_admission_rejected": {
+     "lessons": {
+      "category_disabled": 1
+     }
+    },
+    "provider_calls_on_replay": 0,
+    "provider_calls_until_accepted": 2,
+    "retained_on_retry": {
+     "lessons": [
+      "Restart after policy change"
+     ]
+    },
+    "retry_digest_equals_admission": true,
+    "retry_read_policy_file": false
+   },
+   "R1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 1
+    },
+    "kept_without_policy": {
+     "lessons": 1,
+     "memories": 1,
+     "signals": 1
+    },
+    "latency_ms": 136.84,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {
+     "lessons": {
+      "category_disabled": 1
+     },
+     "signals": {
+      "category_disabled": 1
+     }
+    },
+    "retained": {
+     "memories": [
+      "HNSW decision"
+     ]
+    },
+    "secret_absent": true
+   },
+   "S1": {
+    "claim_kinds": true,
+    "evidence_links": true,
+    "exact_quotes": true,
+    "foreign_writes": 0,
+    "kept_with_policy": {
+     "memories": 2
+    },
+    "kept_without_policy": {
+     "memories": 2
+    },
+    "latency_ms": 97.63,
+    "matches_label": true,
+    "provider_calls": 1,
+    "rejected": {},
+    "retained": {
+     "memories": [
+      "Relay port",
+      "Invented host"
+     ]
+    },
+    "secret_absent": true
+   },
+   "V1": {
+    "errors": [
+     {
+      "code": "reserved_setting",
+      "location": "rules[1].write_domains"
+     },
+     {
+      "code": "duplicate_selector",
+      "location": "rules[1]"
+     }
+    ],
+    "matches_label": true
+   },
+   "Z1": {
+    "cursor_advanced": true,
+    "latency_ms": 20.17,
+    "matches_label": true,
+    "provider_calls": 0,
+    "saved": 0,
+    "skipped": "extraction disabled by policy"
+   },
+   "_totals": {
+    "bind_audits": 11,
+    "bindings": 11
+   }
+  }
+ ],
+ "schema": 32,
+ "source_revision": "e88717f"
+}

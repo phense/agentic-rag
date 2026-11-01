@@ -77,3 +77,16 @@ instantly. A real provider call adds its own latency; the policy adds no call.
   about whether a model follows guidance.
 - Seven small synthetic cases on one host; timings vary with load.
 - Embeddings were disabled (no Ollama), so near-duplicate linking did not run.
+
+## Recheck after the policy-binding corrections
+
+At clean product revision `e88717f`, the same seven frozen cases were measured
+again in three owned databases: all labels matched and all deterministic
+outcomes were identical. [results-final.json](results-final.json) preserves the
+new observations separately from the original results above. Providers remained
+scripted, embeddings disabled; these figures do not measure model quality.
+The CM1 domain-add/revocation regressions are separate from these frozen cases:
+41 affected tests passed, and the coordinator re-executed the prior independent
+correction script with37/37 assertions passing. That replay is coordinator
+verification, not a new independent review. Independent correction acceptance
+and the root full-suite result remain separate gates.
