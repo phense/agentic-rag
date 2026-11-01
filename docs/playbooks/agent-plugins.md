@@ -354,6 +354,9 @@ The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine
 archived0.6.21 creates the store, an injected interruption rolls back034, retry
 preserves originals and function privileges, the old scoped reader still returns
 identical responses, and both source and target backups restore independently.
+Restart all0.6.22 API processes for the scoped thematic selection repair as well;
+it changes only the reader query, with no stored cache, knowledge or pending-job
+rewrite. Existing0.6.21 readers retain their previous results and query costs.
 Service workers must also restart on0.6.22: embedding preparation retains the
 worker context on the calling thread, including foreground admission, single-input
 pages and the10-second background HTTP timeout. Existing queued inputs and accepted

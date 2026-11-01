@@ -96,3 +96,17 @@ in approximately0.58s versus1.07s. Repair only that repeated work with scalar
 initplans, preserve every operator/RLS/truth gate and score, and verify the real
 parser-call bound, complete EN/DE parity, populated upgrade/restore and actual
 reference load. This does not satisfy T06821 until the full acceptance run passes.
+
+
+T06819/T06820 contextual follow-up: the same documents-first truth work exists
+in thematic membership, called three times by startup context. Frozen pre-repair
+SQL and8 regression cases reproduce62/124 real claim checks even with no lexical
+matches. Materialize scoped lexical matches before checking distinct documents;
+retain cheap status/domain/project filtering before materialization to avoid
+scanning the whole store for a narrow project. Preserve the entire candidate
+version/cache packet, current/history rules and eligibility before the25-row pool.
+The unscoped first prototype regressed reference context latency and is rejected;
+the corrected scoped prototype preserves the response hash while reducing the
+context's actual lifecycle calls1974→932. Do not change RLS policies or consumer
+count on this evidence. Record fresh whole-context/resource/load acceptance after
+independent review; the117-test affected selection is not the full suite.

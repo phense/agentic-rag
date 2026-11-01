@@ -419,12 +419,65 @@
       "source_hashes_unchanged_to_end": true
     },
     "diagnostic": "capacity-and-parser-diagnostics.json",
-    "status": "independent review pending; owned load diagnosis running, no latency/fullsuite acceptance",
+    "status": "independently accepted on46ed6f3;40client diagnostic still fails10s; no final full suite",
     "docs": {
       "passed": 17,
       "exit_code": 0,
       "seconds": 0.71,
       "log_sha256": "14197384a5a3ac788034ff939ad0455e094519bd380c0c597f28ed62ed704b94"
+    },
+    "independent": {
+      "head": "46ed6f36235497afe0e8da83302c56b0e97d23e0",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "important": 0,
+      "fresh": "real parser auto_explain InitPlan loops1;100fullrecordcases;24single-expression mutations discriminate"
+    }
+  },
+  "thematic_selection_correction": {
+    "regression_commit": "f80587b",
+    "frozen_sql_sha256": "c358ec24e25f730dfe2cf8d7ff312a2b855ccbb763d57358ac8e63c0ebbc5e22",
+    "red": {
+      "failed": 8,
+      "exit_code": 1,
+      "seconds": 3.72,
+      "log_sha256": "cf64e9c9904a7183f5a579f5d754510b9fad18b9df6b0a18e760a93212c714d0",
+      "real_claim_calls_per_query": [
+        62,
+        124
+      ]
+    },
+    "green_initial": {
+      "passed": 8,
+      "exit_code": 0,
+      "seconds": 3.15,
+      "note": "Before reference probe added cheap scope/status/domain matching filter; final affected selection covers final code"
+    },
+    "affected": {
+      "passed": 117,
+      "exit_code": 0,
+      "seconds": 68.69,
+      "log_sha256": "8225c511b63f1837efd05e6c9230e923b1d9649f137121460184ea350bbef185",
+      "command": "PGPORT=55460 pytest -q tests/test_thematic_eligibility_work.py tests/test_thematic.py tests/test_profiles.py tests/test_project_context.py tests/test_hook_session_start.py tests/test_lifecycle_views.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "inputs": {
+        "at": 1793545626.5912569,
+        "files": {
+          "agentic_rag/thematic.py": "507774da308fd2bda5ca97688cf9fe1214f2a0c2e66921d601193ff6cc068208",
+          "tests/test_thematic_eligibility_work.py": "cf4cabc6d2f5ebab2dea85c1c95fad881d22ac1b4932fb756dbb81c817821f63",
+          "tests/fixtures/thematic-work-92/before.sql": "c358ec24e25f730dfe2cf8d7ff312a2b855ccbb763d57358ac8e63c0ebbc5e22"
+        }
+      },
+      "source_hashes_unchanged_to_end": true
+    },
+    "diagnostic": "context-selection-diagnostics.json",
+    "status": "independent review pending; own2vs4capacity diagnosis running; latency/fullsuite not accepted",
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.97,
+      "log_sha256": "7c87ff231193266922c0097127c7e08f9d169966f2b14c91da04881335c7ffec"
     }
   }
 }

@@ -63,25 +63,37 @@ def _available(conn):
 def _state(conn, topic, scopes, domain, history, key):
     """Cache and current eligible/versioned pool share one statement snapshot.
 
-    Each FTS branch filters before limiting. SQL scan cost still depends on the
+    Match chunks before checking each distinct document once, independent of
+    planner Memoize. All eligibility filters remain before limiting. SQL scan cost depends on the
     visible corpus; transferred rows, chunks and excerpt work are bounded.
     """
     row = conn.execute("""
-      WITH matches AS (
-        SELECT d.id document_id,c.id chunk_id,c.idx,
-          ts_rank_cd(c.tsv_en,websearch_to_tsquery('english',%(query)s)) +
-          ts_rank_cd(c.tsv_de,websearch_to_tsquery('german',%(query)s)) rank
-        FROM chunks c JOIN documents d ON d.id=c.document_id
-        LEFT JOIN fact_assertions a ON a.document_id=d.id
-        WHERE (c.tsv_en @@ websearch_to_tsquery('english',%(query)s)
-            OR c.tsv_de @@ websearch_to_tsquery('german',%(query)s))
-          AND d.status='active' AND d.project_scope=ANY(%(scopes)s)
-          AND (%(domain)s::text IS NULL OR d.domain=%(domain)s)
-          AND claim_eligible(d.id)
-          AND CASE WHEN %(history)s THEN a.document_id IS NULL OR
-            (a.disposition='accepted' AND a.event_at<=statement_timestamp()
-             AND (a.expires_at IS NULL OR a.expires_at>statement_timestamp()))
-            ELSE assertion_eligible(d.id,statement_timestamp()) END
+      WITH matching_chunks AS MATERIALIZED (
+        SELECT c.id chunk_id,c.document_id,c.idx,
+          ts_rank_cd(c.tsv_en,(SELECT websearch_to_tsquery('english',%(query)s))) +
+          ts_rank_cd(c.tsv_de,(SELECT websearch_to_tsquery('german',%(query)s))) rank
+        FROM chunks c JOIN documents scoped ON scoped.id=c.document_id
+        WHERE scoped.status='active' AND scoped.project_scope=ANY(%(scopes)s)
+          AND (%(domain)s::text IS NULL OR scoped.domain=%(domain)s)
+          AND (c.tsv_en @@ (SELECT websearch_to_tsquery('english',%(query)s))
+            OR c.tsv_de @@ (SELECT websearch_to_tsquery('german',%(query)s)))
+      ), eligible_documents AS MATERIALIZED (
+        SELECT d.id FROM (SELECT DISTINCT document_id FROM matching_chunks) m
+        JOIN LATERAL (
+          SELECT d.id FROM documents d
+          LEFT JOIN fact_assertions a ON a.document_id=d.id
+          WHERE d.id=m.document_id AND d.status='active'
+            AND d.project_scope=ANY(%(scopes)s)
+            AND (%(domain)s::text IS NULL OR d.domain=%(domain)s)
+            AND claim_eligible(d.id)
+            AND CASE WHEN %(history)s THEN a.document_id IS NULL OR
+              (a.disposition='accepted' AND a.event_at<=statement_timestamp()
+               AND (a.expires_at IS NULL OR a.expires_at>statement_timestamp()))
+              ELSE assertion_eligible(d.id,statement_timestamp()) END
+          OFFSET 0
+        ) d ON true
+      ), matches AS (
+        SELECT c.* FROM matching_chunks c JOIN eligible_documents d ON d.id=c.document_id
       ), chosen AS (
         SELECT DISTINCT ON (document_id) document_id,chunk_id,rank FROM matches
         ORDER BY document_id,rank DESC,idx,chunk_id

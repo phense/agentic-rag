@@ -646,3 +646,25 @@ restore rehearsals, including the limited owner. SQL/test hashes were captured
 during the run and remained identical at its end; they are not prior-start
 snapshot proof. No RLS policies or operators changed. Independent review, the
 source-bound load target and final full-suite acceptance remain open.
+
+
+The parser independent review accepted46ed6f3 with0 findings. Fresh probes checked
+100 full-response cases and every individual parser-expression mutation; actual
+nested plans retain RLS and use one-loop initplans. The subsequent3-round owned
+load still fails10s (search p95 approximately20.5–22.5s); its supervisor exit0
+only proves completion/cleanup. The [context diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/context-selection-diagnostics.json)
+records this failed target and the remaining thematic cost. Further JIT-off
+changes did not help and are not selected.
+
+The frozen thematic SQL regression in f80587b failed8 cases (exit1,3.72s),
+observing62/124 claim checks on unrelated originals. The selected reader query
+materializes scoped matches before distinct-document truth checks. Its first,
+unscoped prototype reduced calls but doubled reference latency, so that prototype
+was rejected; the scoped variant preserves the full context hash and reduces
+1974 lifecycle checks to932, approximately0.69→0.53s in two repetitions. The
+117-test affected selection passed (exit0,68.69s), including current/history
+source withdrawal and expiry, context/profile/lifecycle behavior and both actual
+populated upgrade/restore rehearsals. Pre-run input hashes remained unchanged.
+No authorization policy changed; the separate scope-policy experiment was rolled
+back and is not adopted. Independent review, the final40-client target and the
+final full suite remain open.
