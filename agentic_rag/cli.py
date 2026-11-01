@@ -976,6 +976,9 @@ def _main(argv: list[str] | None = None) -> int:
             print("duplicate candidates:")
             for d in rep["duplicate_candidates"]:
                 print(f"  {d['src_slug']} duplicate_of {d['dst_slug']}")
+            print("lifecycle review:")
+            for d in rep["lifecycle_review"]:
+                print(f"  decision {d['id']}: {d['operation']} [{d['relationship']}] member {d['member_id']}")
             print("dangling links:")
             for d in rep["dangling"]:
                 print(f"  {d['src_slug']} -{d['predicate']}-> {d['dst_slug']}")
