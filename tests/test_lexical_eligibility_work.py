@@ -70,6 +70,61 @@ def test_reader_lexical_work_is_bounded_by_matching_chunks(lexical_database, fun
 
 
 @pytest.fixture(scope='module')
+def broad_lexical_database():
+    # Review M1: freeze a separate multi-chunk extension; keep the original
+    # pre-implementation workload byte-identical.
+    with pytest.MonkeyPatch.context() as patch, isolated_database(Config()) as cfg:
+        patch.setattr(store, 'try_embed_texts', lambda texts, cfg: None)
+        patch.setattr(embed, 'try_embed_texts', lambda texts, cfg: [[1.0] + [0.0] * 1023 for _ in texts])
+        patch.setattr(query_cache, 'model_digest', lambda cfg: 'a' * 64)
+        with db.connect(cfg) as owner:
+            domains.add_domain(owner, 'general')
+            for i in range(8):
+                body = ''.join(f'## Section {j}\n\n' +
+                    f'Common maintenance inspection guidance for manual {i} section {j}. ' * 12 + '\n\n'
+                    for j in range(8))
+                saved = store.save_document(owner, cfg, title=f'Manual {i}', body=body,
+                    domain='general', dtype='reference', scope='global')
+                store.save_document(owner, cfg, title=f'Manual {i}', body=body,
+                    domain='general', dtype='reference', doc_id=saved.doc_id, index_context=True)
+            assert owner.execute('SELECT count(*) n FROM chunk_contexts').fetchone()['n'] >= 32
+            files = ('013_retrieval_quality.sql', '016_filter_aware_search.sql',
+                     '015_contextual_chunks.sql', '016_filter_aware_search.sql')
+            for name, filename in zip(FUNCTIONS, files):
+                original = re.search(r'CREATE FUNCTION ' + name + r'\(.*?\$\$;',
+                    (db.SQL_DIR / filename).read_text(), re.S).group()
+                owner.execute(original.replace('CREATE FUNCTION ' + name, 'CREATE FUNCTION broad_before92_' + name, 1))
+            for table in ('documents', 'chunks', 'chunk_contexts'):
+                owner.execute(f'ANALYZE {table}')
+            owner.commit()
+        yield cfg
+
+
+@pytest.mark.parametrize('function', FUNCTIONS)
+@pytest.mark.parametrize('memoize', ['on', 'off'])
+def test_broad_multichunk_work_is_bounded_by_documents(broad_lexical_database, function, memoize):
+    # Per-chunk truth checks can return identical rows while making common
+    # multi-chunk searches slower. The bound must also hold without Memoize.
+    with db.connect(broad_lexical_database) as reader:
+        reader.execute("SET track_functions = 'all'")
+        reader.execute(f'SET enable_memoize = {memoize}')
+        reader.execute('SET ROLE rag_reader')
+        principal = Principal('broad-probe', 'owned', 'reader', frozenset({'general'}),
+                              frozenset(), frozenset({'global'}), frozenset())
+        apply_connection(reader, RequestScope(principal, broad_lexical_database, True))
+        expected = reader.execute(f'SELECT * FROM broad_before92_{function}(%s)',
+                                  ('maintenance inspection',)).fetchall()
+        before = reader.execute('SELECT COALESCE(pg_stat_get_xact_function_calls(%s::regprocedure),0) n',
+                                (HIDDEN,)).fetchone()['n']
+        actual = reader.execute(f'SELECT * FROM {function}(%s)', ('maintenance inspection',)).fetchall()
+        after = reader.execute('SELECT COALESCE(pg_stat_get_xact_function_calls(%s::regprocedure),0) n',
+                               (HIDDEN,)).fetchone()['n']
+        assert actual == expected
+        assert len(actual) == 16  # two chunks per each of eight documents
+        assert after - before <= 16, {'calls': after - before, 'function': function, 'memoize': memoize}
+
+
+@pytest.fixture(scope='module')
 def parity_database(lexical_database):
     cfg = lexical_database
     with db.connect(cfg) as owner:

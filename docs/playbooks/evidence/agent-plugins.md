@@ -2,7 +2,7 @@
 title: PB06801 review and rehearsal evidence
 type: reference
 audience: administrators
-version: 0.6.21
+version: 0.6.22
 ---
 
 # PB06801 review and rehearsal evidence
@@ -431,3 +431,28 @@ This permits delivery of the0.6.21 source-origin correction with its tested
 populated upgrade/retry/restore path. It does not close Issue68: T06811/AC05
 repair and performance acceptance continue in Issue92, and unobserved native
 host criteria remain in Issues12–14. No production migration or cutover is implied.
+
+## 0.6.22/schema034 lexical-search continuation
+
+The populated rehearsal in `tests/service/test_lexical_upgrade.py` uses archived
+0.6.21 (`64f2104`) to create a multi-domain/project store with original assertions,
+a pin and pending work. The verified0.6.21 backup restores independently before an
+injected migration failure; the034 transaction rolls back. A new attempt applies
+only034, preserves original-row hashes and function OIDs/owners/grants, and keeps
+the old scoped reader response identical. Repeating applies no migrations. A
+truthfully labelled0.6.22 backup also restores independently. The recorded final
+pre-correction run passed1 test in15.28s; revised SQL requires fresh verification.
+
+The full suite on `26184b9` passed2,280 tests,1 skipped and1 known upstream
+Starlette warning (exit0,2,153.68s);396 source files stayed unchanged. This result
+predates the correction of review M1 and the worker-context defect and does not
+certify the corrected tree. The first review found contextual eligibility work
+repeated per matching chunk. The retained reference r1 and r2 load attempts ended
+with `no_actual_background_embedding_observed`; neither is a contention pass.
+The bounded replay showed inference running in a thread without worker context,
+so it was classified and admitted as foreground. Fresh correction review, full
+suite and reference growing/draining measurements remain required.
+
+See [bounded comparison evidence](../../benchmarks/2026-11-01-lexical-eligibility/verification.json).
+No live rollout, production lock-duration guarantee or agreed latency SLA is
+established by these owned-copy rehearsals.

@@ -2,7 +2,7 @@
 title: Install or recover a native agentic-rag client
 type: playbook
 audience: administrators
-version: 0.6.21
+version: 0.6.22
 ---
 
 # PB06801: Install or recover a native agentic-rag client
@@ -12,7 +12,7 @@ version: 0.6.21
 - Class: system.
 - Origin: Issue #68, FR01–09 in [the specification](../specs/6-10-agent-plugins/spec.md).
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
-- Target: 0.6.21/schema033; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
+- Target: 0.6.22/schema034; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
 - Last edited: 2026-11-01 (procedures independently reviewed; final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
@@ -28,7 +28,7 @@ it does not justify copying another department's credentials.
 
 ## Before starting
 
-1. Choose an existing Python environment with agentic-rag0.6.21 and run
+1. Choose an existing Python environment with agentic-rag0.6.22 and run
    `rag --help` and `rag plugin --help` in it.
 2. Check the enrolled token's private permissions and intended domains/projects/
    teams with the administrator; do not print the token. Use the existing
@@ -308,12 +308,18 @@ distribution metadata agrees with the source. Retain the0.6.21 environment.
    intended installation. Use new private paths; never overwrite recovery proof.
 2. Pause capture/mining and other writers using the installation's service
    procedure; retain their spools and queued work. Keep readers available if
-   their connection budget permits the migration's short function-lock wait.
+   their connection budget permits function replacement. Lock acquisition can
+   wait behind existing transactions; there is no measured production lock-time
+   bound. Monitor the upgrade and the installation's normal lock budget. If it
+   must be cancelled, retain the failed attempt and check the schema before retry.
 3. Run `rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
    Require `restore_verified` and `original_rows_unchanged`, with only
    `034_lexical_eligibility_work.sql` applied. The command verifies its backup by
    independent restore before changing the database. A failed apply rolls back;
-   repeat with a fresh dump path. A successful repeat applies no migrations.
+   inspect the error and schema inventory, then retry once with a fresh dump
+   path after correcting the cause. If the retry fails, keep writers paused and
+   escalate with both attempt records; do not reset migration markers. A
+   successful repeat applies no migrations.
 4. Start the0.6.22 services and adapters, resume writers, and check authenticated
    scoped search, client capture/replay and queued extraction progress. Create
    a target backup with `rag service --config SERVER_CONFIG verified-backup --source-version 0.6.22 --output AFTER_DUMP`.
@@ -323,6 +329,11 @@ The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine
 archived0.6.21 creates the store, an injected interruption rolls back034, retry
 preserves originals and function privileges, the old scoped reader still returns
 identical responses, and both source and target backups restore independently.
+Service workers must also restart on0.6.22: embedding preparation retains the
+worker context on the calling thread, including foreground admission, single-input
+pages and the10-second background HTTP timeout. Existing queued inputs and accepted
+batches replay through the normal worker; no requeue, data rewrite or cache reset
+is required. Standalone local inference retains its bounded two-thread execution.
 Production service restarts and cross-host routing require their own rollout checks.
 
 For code recovery keep schema034 and the verified0.6.22 backup tooling;

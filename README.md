@@ -14,8 +14,9 @@ hosted RAG service.**
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
 **0.6.22 lexical search:** selective full-text queries run expensive truth and
-lifecycle checks only on matching chunks, retaining the same scoped results and
-ranking. Upgrade existing0.6.21 stores with the
+lifecycle checks once per matching document, retaining the same scoped results
+and ranking. Service embedding preparation also retains worker priority and
+background timeout rules. Upgrade existing0.6.21 stores with the
 [lexical-search upgrade procedure](docs/playbooks/agent-plugins.md#0621-to-0622-lexical-search-upgrade).
 
 **0.6.21 native source continuity:** generated compaction summaries no longer
