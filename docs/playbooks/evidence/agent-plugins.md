@@ -862,3 +862,39 @@ model, cross-daemon vector parity for every actual input, resource budget,
 actual40-client load, complete independent review or full suite was run here.
 The PB06801 section is drafted, not independently reviewed or rehearsed on a
 real daemon.
+
+### S06808 review corrections and real-daemon L0/L1 rehearsal
+
+The independent review at `20e2bd4` found no Critical, High or Medium code
+findings, four Low findings and two Important playbook findings. Its real
+client/queue/worker/SQL probes passed the derived success and recovery flows;
+the model endpoints were loopback HTTP doubles. Of59 assertions,58 passed and
+one diagnostic-code observation failed; the script exited1. It was not an
+all-green probe run.
+
+Corrections `41583cb` and `590400a` add the rendered-unit inputs and template,
+pause extraction before testing, require renewed parity after model/runtime
+updates, document reachable failure/rollback decisions and clarify daemon
+aliases. The client now resets fallback waiting after a valid hint. The real
+client regression failed first; all47 client tests then passed. The final
+seven-file selection on `590400a` passed152 tests in52.54s, exit0, including
+populated0.6.21 upgrade/retry and independently restored source/target backups.
+All386 Python/SQL input hashes stayed unchanged during that selection.
+
+The [physical rehearsal record](../../benchmarks/2026-11-01-lexical-eligibility/optional-lane-playbook-rehearsal.json)
+binds L0/L1 to `590400a` on the owned4-vCPU/8-GiB Hetzner copy. The printed
+discovery and three-input parity snippets ran against two real Ollama0.31.2
+daemons using the new unit template: three vectors matched exactly across
+unthreaded primary, two-thread primary and one-thread background requests.
+The daemon journals confirm the requested thread settings. Fresh model-cgroup
+peaks were1,776,336,896 and1,769,013,248 bytes, with no hard-limit or OOM events;
+available host memory after the probe was2,864,209,920 bytes. All10 model files
+were byte-identical before/after and both owned units stopped with closed ports.
+The first probe is retained: parity passed but its observer incorrectly
+expected a process flag; the corrected observer uses Ollama's thread journal.
+
+This is a partial rehearsal, not delivery acceptance. L2/L3 with real model
+daemons and actual API/worker restarts, the complete acceptance-input parity
+matrix,40-client scoped/correct lossless load below11s and final full suite
+remain open. Renewed independent correction review is also pending. Low080–084
+are recorded in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6563006840).

@@ -14,7 +14,7 @@ version: 0.6.22
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
 - Target: 0.6.22/schema034; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-11-01 (optional background daemon section corrected after S06808 independent review; renewed content review and physical-model rehearsal remain open, alongside final delivery/performance gates).
+- Last edited: 2026-11-01 (optional daemon section corrected after S06808 review; L0/L1 physically rehearsed on owned copies. Renewed content review, L2/L3 real-model rehearsal and final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
