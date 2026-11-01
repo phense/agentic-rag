@@ -123,8 +123,7 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         for row in privileges:
             settings = (row['proconfig'] or []) + ['jit=off']
             if not row['proname'].endswith('_planned'):
-                settings += (['rag.iterative_vectors=on', 'hnsw.iterative_scan=strict_order'] if iterative else
-                             ['rag.iterative_vectors=off'])
+                settings += ['hnsw.iterative_scan=strict_order'] if iterative else []
             expected_privileges.append(row | {'proconfig': settings})
         assert function_privileges(cfg) == expected_privileges
         assert old_read() == old_results  # Genuine archived0.6.21 with schema034.

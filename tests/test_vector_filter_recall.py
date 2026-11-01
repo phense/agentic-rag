@@ -53,7 +53,10 @@ def gated_vectors(request):
                     'ORDER BY (' + alias + '.embedding <=> query_vec)+0 LIMIT 256')
                 owner.execute(definition)
             originals[axis] = {'near': [], 'far': []}
-            for group, indices in (('near', range(270)), ('far', range(300, 355))):
+            # Scope cases also fill a complete ANN pool after the hidden near
+            # cohort; the other axes exercise the underfilled exact fallback.
+            far_end = 600 if axis == 'scope' else 355
+            for group, indices in (('near', range(270)), ('far', range(300, far_end))):
                 for index in indices:
                     marker = f'vmk{axis_index}x{index:04}'
                     kwargs = {'domain': 'general', 'scope': 'global'}
@@ -128,13 +131,22 @@ def test_hidden_nearest_vectors_do_not_starve_allowed_results(gated_vectors, con
                     or (axis in ('stale', 'model') and not contextual))
     expected_ids = originals[axis]['near' if near_allowed else 'far'][:50]
     with db.connect(cfg) as reader:
+        continuation = axis == 'scope' and mode == 'restricted'
+        if continuation:
+            reader.execute("SET track_functions='all'")
         reader.execute('SET jit=off')
         if mode == 'capped':
             reader.execute('SET hnsw.max_scan_tuples=1')
         reader.execute('SET ROLE rag_reader')
         apply_connection(reader, RequestScope(principal, cfg, True))
         statement = f'SELECT * FROM {function}({placeholders})'
+        count = "SELECT COALESCE(pg_stat_get_xact_function_calls('rag_lifecycle_hidden(uuid,timestamptz,boolean)'::regprocedure),0) n"
+        before = reader.execute(count).fetchone()['n'] if continuation else 0
         actual = reader.execute(statement, args).fetchall()
+        if continuation:
+            # Mutation: always taking the exact branch checks all300 allowed
+            # documents. Actual ANN continuation fills256 and returns the same50.
+            assert reader.execute(count).fetchone()['n'] - before <= 256
         exact = reader.execute(f'SELECT * FROM exact92_{function}({placeholders})', args).fetchall()
         # Hand-built literal cohort first; the exact-plan control cannot bless
         # a shared eligibility bug. Full records also check scores and order.
@@ -162,7 +174,7 @@ def test_absent_iterative_capability_uses_exact_scoped_fallback(gated_vectors):
         with owner.transaction(force_rollback=True):
             owner.execute(simulated_legacy)
             configs = owner.execute("SELECT proconfig FROM pg_proc WHERE proname IN ('hybrid_search_candidates','contextual_search_candidates')").fetchall()
-            assert all('rag.iterative_vectors=off' in row['proconfig'] for row in configs)
+            assert all(not any(setting.startswith(('rag.iterative_vectors=', 'hnsw.iterative_scan=')) for setting in row['proconfig']) for row in configs)
             assert all(not any(setting.startswith('enable_') for setting in row['proconfig']) for row in configs)
             owner.execute('SET LOCAL ROLE rag_reader')
             for contextual in (False, True):

@@ -47,7 +47,9 @@ vec AS (
        AND (p_scopes IS NULL OR d.project_scope=ANY(p_scopes))
      OFFSET 0
    ) d ON true
-   WHERE current_setting('rag.iterative_vectors',true)='on' AND query_vec IS NOT NULL AND c.embedding IS NOT NULL
+   WHERE (SELECT current_setting('hnsw.iterative_scan',true)='strict_order'
+     AND EXISTS(SELECT 1 FROM pg_catalog.pg_extension WHERE extname='vector'
+       AND (split_part(extversion,'.',1)::int>0 OR split_part(extversion,'.',2)::int>=8))) AND query_vec IS NOT NULL AND c.embedding IS NOT NULL
    ORDER BY c.embedding <=> query_vec LIMIT 256
  ), exact_pool AS MATERIALIZED (
    -- A capped or unsupported ANN scan must not turn eligible results into gaps.
@@ -150,7 +152,9 @@ vec AS (
        AND x.source_hash=chunk_context_source_hash(d.title,d.body,d.project_scope,c.content)
      OFFSET 0
    ) d ON true
-   WHERE current_setting('rag.iterative_vectors',true)='on' AND query_vec IS NOT NULL AND x.version=1 AND x.embedding IS NOT NULL AND x.model_digest=p_model
+   WHERE (SELECT current_setting('hnsw.iterative_scan',true)='strict_order'
+     AND EXISTS(SELECT 1 FROM pg_catalog.pg_extension WHERE extname='vector'
+       AND (split_part(extversion,'.',1)::int>0 OR split_part(extversion,'.',2)::int>=8))) AND query_vec IS NOT NULL AND x.version=1 AND x.embedding IS NOT NULL AND x.model_digest=p_model
    ORDER BY x.embedding <=> query_vec LIMIT 256
  ), exact_pool AS MATERIALIZED (
    -- A capped or unsupported ANN scan must not turn eligible results into gaps.
@@ -351,6 +355,9 @@ $$;
 -- pgvector0.8+ can continue HNSW past filtered neighbours. Keep this local to
 -- each retrieval function; caller scan/memory caps remain in force. Older
 -- supported0.7 installations use exact scans instead of silently losing recall.
+-- Use only registered USERSET parameters so a non-superuser owner can migrate
+-- and restore functions without extra parameter privileges. Capability is bound
+-- when migrating; a later extension upgrade does not install the local setting.
 DO $capability$
 DECLARE can_iterate boolean; signature text;
 BEGIN
@@ -364,11 +371,7 @@ BEGIN
    'public.contextual_search_candidates(text,halfvec,text,integer,text[],timestamptz,boolean,text)'
  ] LOOP
    IF can_iterate THEN
-     EXECUTE format('ALTER FUNCTION %s SET rag.iterative_vectors TO on',signature);
      EXECUTE format('ALTER FUNCTION %s SET hnsw.iterative_scan TO %L',signature,'strict_order');
-   ELSE
-     -- Disable only the ANN branch, retaining B-tree/GIN for exact scoped work.
-     EXECUTE format('ALTER FUNCTION %s SET rag.iterative_vectors TO off',signature);
    END IF;
  END LOOP;
 END $capability$;

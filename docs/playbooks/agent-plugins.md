@@ -312,6 +312,17 @@ Rebuild disposable rehearsals that already applied an earlier unpublished034:
 the migration ledger records filenames and will not reapply an edited file.
 Do not clear ledger rows or replay SQL manually on an existing installation.
 
+A non-superuser deployment owner needs the existing DBA-prepared vector
+extension/preload setup from the [service installation procedure](../13-central-service.md#start-and-verify-the-central-service).
+For independent restores, supply an empty, owner-accessible vector-only
+template of the same extension version with `--verification-template TEMPLATE`
+on both `upgrade` and `verified-backup`. The template must contain no application
+tables. Migration034 uses registered pgvector settings; do not grant superuser
+or parameter privileges to make it apply. If the extension is later upgraded
+from0.7 to0.8+, the functions retain their exact fallback until a subsequent
+release installs iterative settings; an extension upgrade alone does not
+reconfigure them. Do not edit migration history to enable that optimization.
+
 1. Record the database identity and inventory with the0.6.22 operator CLI:
    `rag service --config SERVER_CONFIG inventory --source-version 0.6.21 --identities --output BEFORE_JSON`.
    Resolve `SERVER_CONFIG`, `BEFORE_JSON` and the following dump paths for the

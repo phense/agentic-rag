@@ -581,7 +581,8 @@ The final affected selection passed188 tests (exit0,600.51s), including all51
 recall cases, dense-work/settings guards, lexical/contextual parity and the
 genuine populated0.6.21 upgrade with interruption, retry and independent source/
 target restores. All six SQL/test input hashes remained unchanged. Documentation
-checks passed17 tests (exit0,0.91s). Independent re-review remains pending.
+checks passed17 tests (exit0,0.91s). The independent review accepted recall
+and found the non-superuser upgrade defect described below.
 The cancellation check characterizes restoration after a real abort; PostgreSQL
 rollback itself restores settings, so the successful-return check is the
 independent discriminator for leaked function settings.
@@ -593,3 +594,24 @@ target and runs the rejected `665d449` retrieval code. Its target boolean also
 omits the required correctness/drain/model-error conjunction. It cannot certify
 Issue68/92, even though its supervisor ended with exit0 and its owned processes
 were cleaned up. The next source-bound load must check all those gates together.
+
+
+The next independent review found that the custom function setting required
+superuser privileges during migration and archive restore. The limited-owner
+regression was committed in `e4ea872` before the runtime repair: the genuine
+0.6.21 source backup and restore succeeded, then034 failed with permission denied
+for `rag.iterative_vectors` (1 failure, exit1,4.73s). An earlier setup failure
+omitted the documented vector preload prerequisite and is retained as invalid
+red evidence.
+
+The repair uses the registered `hnsw.iterative_scan` setting and the installed
+extension version. It grants no new privileges. Both populated upgrade tests
+passed (exit0,18.95s), including a NOSUPERUSER/NOCREATEROLE/NOBYPASSRLS owner,
+verified source/target backups and a separate restored target with preserved
+row hashes, pending work and a successful search. The affected selection then
+passed59 tests (exit0,504.61s). Its scope fixture now has300 allowed farther
+documents and checks actual ANN work, covering continuation as well as exact
+fallback. The empty restore template and vector preload are DBA-prepared
+installation prerequisites; no production configuration changed. Actual
+pgvector0.7, final independent correction review, the10s latency acceptance
+and the final full suite remain unverified.

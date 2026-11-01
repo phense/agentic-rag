@@ -334,5 +334,48 @@
       "source has confirmed filtered-vector recall regression",
       "controller target boolean omitted correctness/drain/model-error conjunction"
     ]
+  },
+  "limited_owner_correction": {
+    "state": "affected_tests_passed_independent_review_pending",
+    "base": "f65c19b",
+    "red_commit": "e4ea872",
+    "red": {
+      "failed": 1,
+      "exit_code": 1,
+      "seconds": 4.73,
+      "log_sha256": "f4088e5929477beb514c72f6f0ef1f2d4b3c1c36208f1f31666e25735315a6e4",
+      "expected_failure": "permission denied to set parameter rag.iterative_vectors during actual034 after source backup/restore succeeds"
+    },
+    "retained_invalid_red": {
+      "seconds": 4.29,
+      "reason": "Missing documented vector preload in disposable role, old0.6.21 source restore failed at hnsw.ef_search; not N1 product red"
+    },
+    "green": {
+      "passed": 2,
+      "exit_code": 0,
+      "seconds": 18.95,
+      "log_sha256": "6e3f46a5169df1de8fdb2a28e4b196a80da6705f242c2b505b93182cf386b480",
+      "scope": "existing real0.6.21 populated interruption/retry and new NOSUPERUSER/NOCREATEROLE/NOINHERIT/NOBYPASSRLS owner migration, verified source/target backups and extra real restored target search/pending job/hash checks"
+    },
+    "repair": "Remove custom placeholder functionGUC; use registered hnsw.iterative_scan and installed version guard. No new parameter/superuser grants. Older unsupported capability retains exact fallback.",
+    "limits": [
+      "No actual pgvector0.7 binary run",
+      "Capability decision at migration time; later extension upgrade alone does not add local iterative config",
+      "Independent correction review, <=10s reference acceptance and final full suite remain open"
+    ],
+    "affected": {
+      "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 pytest -q tests/test_vector_filter_recall.py tests/test_vector_candidate_work.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "passed": 59,
+      "exit_code": 0,
+      "seconds": 504.61,
+      "log_sha256": "219c04f72e05b79464c74a793c4a70b0e4004f7f16412d1bd8f54319fb54a3fd",
+      "coverage": "51 recall cases including 300 permitted farther documents and ANN work counter, 6 dense/settings checks, 2 populated upgrade/restore cases including limited owner"
+    },
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.82,
+      "log_sha256": "bae87bf7d2a00b06bc748f7b9f82feb41da8928b9099148e1be7e1f4caf11f5a"
+    }
   }
 }
