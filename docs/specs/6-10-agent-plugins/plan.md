@@ -244,7 +244,11 @@ a future `/api/ps` expiry and stable runner PID.
 
 Freeze unconditional primary reset points: early `feasibility`, each
 `before-background-preflight`/`after-daemon-stop`/`final` pre-BG guard, and
-`before-load`. Run all three primary parity arms before the first BG start;
+`before-load`. Before the three lane-enabled rehearsal worker starts, also
+reset at `rehearsal-initial`, `rehearsal-after-daemon-stop` and
+`rehearsal-final`, then require the both-resident2GiB check and verified
+primary identity. The key-removal recovery uses the single primary and keeps
+its existing identity check. Run all three primary parity arms before the first BG start;
 keep all454 inputs/four arms. The actual-state feasibility gate runs before
 that expensive preflight with PG/API active, worker paused and BG absent.
 Require4GiB available immediately before each BG start. Gate A after parity
@@ -253,7 +257,11 @@ available. Keep the BG long-input history. No reset during load or drain.
 A failed guard terminates the run; no adaptive retry, threshold reduction,
 production stop or removal of PG/API to manufacture capacity.
 
-Record recursive cgroup service/scope/slice inventories, anon/file/shmem,
+Record recursive cgroup service/scope/slice inventories at memory guards and
+stage/load-phase boundaries, outside the timed client operations. Each1s
+sample reads only resolved owned-unit paths, top-level slices and named
+agentic-rag/PostgreSQL production units, including idle model daemons and
+nested PostgreSQL services. Record sampler time per sample, anon/file/shmem,
 expanded host meminfo, raw model residency and runner PIDs. Record unrelated
 on-demand model loads at every guard rather than excluding them. Do not run
 this physical gate concurrently with the full test suite. Rename a parity-end

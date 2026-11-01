@@ -959,3 +959,24 @@ not establish this revised procedure. The4GiB/2GiB floors and strict search
 p95 below11s remain unchanged. The resource claim is bounded to the frozen
 foreground queries of at most73 characters; longer production inputs are
 not limited by this release and can enlarge the primary workspace.
+
+
+### Focused resource-kit correction before refreeze
+
+The fixed-unload review accepted the resource mechanism and prior ANN/full-suite
+evidence, but withheld a new physical run for two kit defects. Three lane-enabled
+rehearsal worker starts lacked their own reset/both-resident check, and the1s
+sampler recursively inventoried the host inside the client-measurement process.
+The corrected kit declares and tests all three reset points; single-primary
+key-removal recovery keeps its separate identity check. Recursive inventories
+remain at memory guards and phase boundaries. Periodic samples read resolved
+paths, retain idle production model units and nested PostgreSQL, and report
+their own elapsed time. Memory floors and sampling interval are unchanged.
+
+The first focused tests reproduced the missing worker guards and expensive
+sampler path. The final offline kit run passed53 tests. A local read-only
+characterization (10 samples) measured medians of0.107s for the full inventory
+and0.0058s for the bounded sample; this is not target-host latency evidence.
+The bounded correction still needs independent acceptance before refreeze.
+The next physical run must prove parity, L2/L3, both memory gates, all40-client
+phases below11s and all13 originals applied. No such pass is claimed here.
