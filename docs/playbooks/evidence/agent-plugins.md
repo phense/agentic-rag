@@ -784,3 +784,30 @@ was 22.084 s with two threads and 10.158 s with one. Measured vectors remained
 bit-identical to the primary default-thread reference, and all model/resource
 checks passed. The result justifies B3 with only the background thread count
 changed. It does not prove final-input parity or the 40-client target.
+
+The [source-bound B3 result and paired timing attribution](../../benchmarks/2026-11-01-lexical-eligibility/background-one-thread-reference-B3.json)
+completed with supervisor exit 0 in 437.816 s. Compared with B2, only the
+background request thread count changed from two to one. Search total p95 was
+9.607 s idle, 10.621 s growing and 10.801 s without new arrivals; the last two
+phases still failed the 10 s gate. Execution p95 exceeded idle by only 0.046 s
+and 0.170 s. All 360 foreground calls and 13 complete originals finished. The
+117 searches contained 351 checked hits, with zero citation, eligibility, source
+hash or evidence errors. All 117 foreground and 28 background model calls
+completed without error; fallback and skipped-dedup counters were zero. No
+resource-limit, OOM, swap or sampler error occurred. All owned services stopped.
+
+A subsequent read-only probe on the stopped diagnostic copy paired all 360
+client durations with their stored request timestamps, then stopped its own
+PostgreSQL again (exit 0). The search residual outside stored server wait and
+execution had medians 2.146/1.668/1.617 s and p95 3.073/3.315/3.086 s. This
+combines admission, retries, publication and result observation; it does not
+locate their individual costs or measure CPU. The p95 of each request's stored
+wait plus execution was 6.605/8.276/8.097 s. These are paired calculations;
+separate percentiles must not be added or subtracted to attribute latency.
+
+B3 still uses four wildcard principals, harness polling and the shared HTTP
+thread pool. It does not prove the actual durable client's observation time,
+restricted-reader result equality or a final-input model-parity matrix. Before
+another load trial, review the admission, consumer and polling boundaries against
+A2. Neither A2 adoption nor feature acceptance follows from B3; AC05, T06811,
+T06818 and Issues 68/92 remain open.
