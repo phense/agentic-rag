@@ -359,7 +359,7 @@ def test_operator_cli_and_old_central_service_on_populated_0_6_18(tmp_path, monk
         assert outputs['upgrade']['restore_verified'] and outputs['upgrade']['original_rows_unchanged']
         assert outputs['retry']['migrations_applied'] == []
         assert lifecycle_counts(cfg) == {'decisions': 0, 'events': 0, 'audits': 0}
-        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.21',
+        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.22',
                          '--mode', 'local']) == 1
         capsys.readouterr()
         decide(cfg, ids['dup-copy'], ids['dup-keep'], 'exact_duplicate', 'same release checklist')

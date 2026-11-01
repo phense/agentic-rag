@@ -109,16 +109,17 @@ def test_corrupted_binding_blocks_instead_of_falling_back(cfg, conn):
 
 def test_upgrade_accepts_0_6_19_and_restore_allows_the_new_table():
     from agentic_rag.service import upgrade
-    assert '0.6.19' in upgrade.SUPPORTED_VERSIONS and '0.6.20' in upgrade.SUPPORTED_VERSIONS and '0.6.21' not in upgrade.SUPPORTED_VERSIONS
+    assert {'0.6.19', '0.6.20', '0.6.21'} <= upgrade.SUPPORTED_VERSIONS
+    assert '0.6.22' not in upgrade.SUPPORTED_VERSIONS
     assert 'extraction_policy_bindings' in upgrade.RESTORE_ADDED_TABLES
     assert {'lifecycle_decisions', 'lifecycle_events', 'service_windows'} <= upgrade.RESTORE_ADDED_TABLES
 
 
 def test_current_release_backup_records_the_actual_source_version(cfg, conn, tmp_path):
-    # Operators must never relabel a 0.6.20 store as 0.6.19 just to take a backup.
+    # Operators must never relabel the current 0.6.21 store as an older release.
     from agentic_rag.service import upgrade
     mining.bind_policy(conn, session_id='current-backup', input_cursor='', bundle=bundle(), origin='direct')
-    proof = upgrade.verified_backup(cfg, '0.6.20', tmp_path / 'current-release.dump')
+    proof = upgrade.verified_backup(cfg, '0.6.21', tmp_path / 'current-release.dump')
     assert proof['restore_verified']
-    assert proof['manifest']['source_version'] == '0.6.20'
+    assert proof['manifest']['source_version'] == '0.6.21'
     assert proof['manifest']['tables']['extraction_policy_bindings']['rows'] == 1

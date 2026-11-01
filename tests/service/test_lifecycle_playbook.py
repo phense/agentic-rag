@@ -72,8 +72,8 @@ def gate_rehearsal(tmp_path):
     fresh = subprocess.run([sys.executable, '-I', '-c', snippet('PYFRESH')], text=True, capture_output=True, timeout=60)
     assert fresh.returncode == 0, fresh.stderr
     version, metadata = fresh.stdout.split()
-    # The gate checks the installed release; RAG-067 moved it from 0.6.19 to 0.6.20.
-    assert version == expected == '0.6.20' and Path(metadata).name == 'METADATA'
+    # The gate checks the installed release, including later additive upgrades.
+    assert version == expected and Path(metadata).name == 'METADATA'
     token = 'pb066-gate-' + uuid.uuid4().hex
     reader = [sys.executable, '-c', f'import time; time.sleep(120)  # {token}']
     stale = subprocess.Popen(reader)
@@ -149,7 +149,7 @@ def test_pb066_upgrade_decide_refuse_correct_and_restore(tmp_path, monkeypatch, 
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.21', '--dump',
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.22', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'decisions': 0, 'decision_without_event': 0, 'correction_without_event': 0,
                 'events_minus_audit': 0, 'chains': 0}
