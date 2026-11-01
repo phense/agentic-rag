@@ -1,0 +1,46 @@
+{
+  "source": "owned existing populated rehearsal copy, never production mutations",
+  "host": "Hetzner4CPU8GiB",
+  "clients": [
+    20,
+    40,
+    40,
+    40
+  ],
+  "phases": [
+    "idle20",
+    "idle40",
+    "growing40",
+    "draining40"
+  ],
+  "source_windows": 8,
+  "foreground_tools": [
+    "metadata",
+    "context",
+    "hybrid search rerank off"
+  ],
+  "search_queries": "synthetic only; output bodies never published",
+  "model": "actual loopback bge-m3-q8 embeddings; scripted extraction semantic response",
+  "budgets": {
+    "per_request_seconds": 180,
+    "background_progress_seconds": 240,
+    "postgres_connections": 48,
+    "postgres_shared_buffers_MiB": 128,
+    "postgres_work_mem_MiB": 8
+  },
+  "isolation": {
+    "PG": "owned55468Unixsocketonly",
+    "API": "owned28768loopback",
+    "source_DB": "rag_plugins_rehearsal_20261030 read-only dump",
+    "target": "fresh private PostgreSQL cluster"
+  },
+  "evidence": [
+    "p50/p95 queue/execution/total",
+    "all owner progress",
+    "actual source states after foreground demand",
+    "process PSS/RSS/CPU,hostRAM,DBconnections,modelresident bytes,disk",
+    "actual response and cleanup exits"
+  ],
+  "acceptance": "Publish actual values; unagreed targets never reported as SLA accepted; no long soak claim",
+  "harness_sha256": "677f56d811f0611d9c761e64fcbf5125565031eec43faa3f0706a9def0425675"
+}
