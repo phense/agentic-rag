@@ -47,6 +47,18 @@ def enqueue_mine(conn, cfg: Config, *, session_id: str, transcript_path: str,
                      " '{\"rerun_requested\":true}'::jsonb WHERE id=%s", (open_job["id"],))
         conn.commit()
         return False
+    payload = {"project": project}
+    if getattr(cfg, "mine_policy_file", None) is not None:
+        # RAG-067: capture the configured extraction policy once, inside this
+        # serialized admission. A rerun or has_more continuation of the open job
+        # keeps its bundle; an invalid file fails this new admission visibly.
+        from . import extraction_policy
+        try:
+            names = [r["name"] for r in conn.execute("SELECT name FROM domains ORDER BY name")]
+            payload["extraction_policy"] = extraction_policy.capture(cfg, project, names)
+        except BaseException:
+            conn.rollback()
+            raise
     n = conn.execute(
         "INSERT INTO mining_queue"
         " (kind, session_id, transcript_path, payload, last_uuid,"
@@ -60,7 +72,7 @@ def enqueue_mine(conn, cfg: Config, *, session_id: str, transcript_path: str,
         "   SELECT 1 FROM mining_queue WHERE session_id = %(sid)s"
         "   AND kind = 'mine' AND status IN ('pending', 'processing'))",
         {"sid": session_id, "path": transcript_path,
-         "payload": json.dumps({"project": project}),
+         "payload": json.dumps(payload),
          "debounce": cfg.mine_debounce_seconds},
     ).rowcount
     conn.commit()

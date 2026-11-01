@@ -1,0 +1,11 @@
+# RAG-067 frozen synthetic malformed policy: duplicate selector and an unknown key.
+version = 1
+
+[[rules]]
+domain = "programming"
+categories = ["memories"]
+
+[[rules]]
+domain = "programming"
+categories = ["lessons"]
+write_domains = ["*"]

@@ -80,7 +80,9 @@ def gate_rehearsal(tmp_path):
     finally:
         stale.kill()
         stale.wait()
-    time.sleep(1.2)
+    # ps floors boot time and lstart to seconds. Separate the restart from
+    # installation by more than both rounding intervals; 1.2s can look stale.
+    time.sleep(2.2)
     restarted = subprocess.Popen(reader)
     try:
         passed = subprocess.run([sys.executable, '-c', snippet('PYGATE'), str(marker), token],

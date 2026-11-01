@@ -67,7 +67,7 @@ product writers or independently mutable interface assumptions.
 ### Slice S3: Convergence, final verification, PR and autonomous merge
 
 - [x] T066-012 Run speckit-converge and resolve every actionable gap through this executor. Run source-bound full pytest and relevant Node suites, inspect actual exit/failure/warning/skip output, offline wheel SQL/assets/import/version smoke, uv lock, relative links and exact patch bump against current target main. Retain failed/interrupted evidence; independent review and targeted tests do not stand in for full acceptance.
-- [ ] T066-013 Synchronize Issue66, BACKLOG/FEATURES and public evidence, create focused PR closing66 with tested upgrade/recovery and2–3 measured examples, link it immediately to this thread after creation and each push. Verify exact head/base/current checks/reviews; merge autonomously under the maintainer's explicit remaining6.x permission only when gates pass. If waiting for checks, watch PR and end the turn; do not poll. Report PR/merge/step8of15 briefly, then continue67; no production rollout implied.
+- [x] T066-013 Synchronize Issue66, BACKLOG/FEATURES and public evidence, create focused PR closing66 with tested upgrade/recovery and2–3 measured examples, link it immediately to this thread after creation and each push. Verify exact head/base/current checks/reviews; merge autonomously under the maintainer's explicit remaining6.x permission only when gates pass. If waiting for checks, watch PR and end the turn; do not poll. Report PR/merge/step8of15 briefly, then continue67; no production rollout implied.
 
 ## Coverage and playbook obligations
 
@@ -109,3 +109,6 @@ three identical frozen measurements plus seven paired security-cost rounds.
 Node7,lock55,wheel182payloadmatch,docs17,255relative links valid. Post-run
 changes are documentation and benchmark evidence only. T066-013 remains open
 until actual PR/CI/merge; no production rollout is inferred.
+
+Integration completed: PR90 merged2026-11-01T02:22:38Z at01bc13bd; Issue66 closed.
+Both current benchmark-contracts checks succeeded. No production rollout.

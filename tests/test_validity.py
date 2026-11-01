@@ -261,7 +261,9 @@ def test_replacement_failure_preserves_all_effect_counts(conn,cfg,tmp_path,monke
     monkeypatch.setattr(store,'save_assertion',fail)
     args=dict(session_id='replace',transcript_path=str(p),last_uuid=None,project='/synthetic/a')
     with pytest.raises(RuntimeError):mining.mine_session(conn,cfg,**args)
-    after=counts();assert after=={**before,'audit_log':before['audit_log']+1}  # durable acceptance only
+    # Durable acceptance only: since RAG-067 the pre-provider policy binding is audited too.
+    after=counts();assert after=={**before,'audit_log':before['audit_log']+2}
+    assert [r['op'] for r in conn.execute('SELECT op FROM audit_log ORDER BY id DESC LIMIT 2')]==['mining_accept','extraction_policy_bind']
     assert eligible(conn)==['7000']
     assert conn.execute('SELECT result FROM mining_batches').fetchone()['result'] is None
     monkeypatch.setattr(store,'save_assertion',original)

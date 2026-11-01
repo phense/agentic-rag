@@ -131,6 +131,13 @@ def accept(cfg,principal,policy,data):
             clean,_=strip_secrets_json(envelope.model_dump())
             clean['window']['text']='\n'.join(event['text'] for event in clean['window']['events'])
             clean['_principal']=credential_reference(principal,policy)
+            if cfg.mine_policy_file is not None:
+                # RAG-067: the service's own file, read once, for only the domains this
+                # principal may write now. The public envelope can never carry it.
+                from .. import extraction_policy
+                writable=[r['name'] for r in conn.execute('SELECT name FROM domains ORDER BY name') if principal.can_write(r['name'],project)]
+                try:clean['_extraction_policy']=extraction_policy.capture(cfg,project,writable)
+                except extraction_policy.PolicyError:raise ServiceError('extraction_policy_invalid',503) from None
             row=conn.execute('''INSERT INTO service_windows(owner_namespace,session_id,input_cursor,output_cursor,content_hash,payload,project,origin_request_id,origin_correlation_id)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id''',(principal.namespace,session,envelope.input_cursor,envelope.output_cursor,digest,json.dumps(clean),project,*tracing.origin())).fetchone()
             receipt=str(row['id'])

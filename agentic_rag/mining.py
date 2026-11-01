@@ -337,14 +337,135 @@ def _audit(conn, op: str, summary: str) -> None:
         (op, strip_secrets(summary)[0]))
 
 
+def bind_policy(conn, *, session_id: str, input_cursor: str, bundle, origin: str):
+    """Commit one immutable policy binding plus its audit before any provider call.
+
+    `bundle` is an extraction_policy.Bundle or a zero-argument callable that
+    resolves one; it is only evaluated when the cursor has no binding yet, so an
+    existing binding wins before any file is read. Concurrent callers get one
+    committed winner. Returns (winning Bundle, created). A malformed durable
+    snapshot raises PolicySnapshotError instead of falling back.
+    """
+    from . import extraction_policy
+
+    def winner():
+        row = conn.execute("SELECT digest,snapshot FROM extraction_policy_bindings"
+                           " WHERE session_id=%s AND input_cursor=%s", (session_id, input_cursor)).fetchone()
+        return None if row is None else extraction_policy.validate_capture(
+            {'digest': row['digest'], 'snapshot': row['snapshot']})
+    try:
+        existing = winner()
+        if existing is None:
+            candidate = bundle() if callable(bundle) else bundle
+            row = conn.execute(
+                "INSERT INTO extraction_policy_bindings(session_id,input_cursor,digest,snapshot,origin)"
+                " VALUES (%s,%s,%s,%s,%s) ON CONFLICT (session_id,input_cursor) DO NOTHING RETURNING digest",
+                (session_id, input_cursor, candidate.digest, extraction_policy.canonical(candidate.snapshot),
+                 origin)).fetchone()
+            if row is not None:
+                # Same transaction: an audit failure leaves no unaudited binding.
+                _audit(conn, "extraction_policy_bind", f"bound extraction policy {candidate.digest} ({origin})")
+                conn.commit()
+                return candidate, True
+            existing = winner()
+        conn.commit()
+        return existing, False
+    except BaseException:
+        conn.rollback()
+        raise
+
+
+def prepare_extraction(conn, cfg: Config, *, window: MiningWindow, session_id: str, project: str | None,
+                       domain_names: list[str], bundle, system: str = SYSTEM, runner=subprocess.run):
+    """Provider call, unchanged grounding and deterministic policy enforcement; no writes.
+
+    Shared by mine_session and the read-only `rag extraction dry-run --evaluate`.
+    Returns (normalized extraction dict, enforcement report, skip reason, provider called).
+    """
+    from . import extraction_policy
+    synthetic = window.synthetic
+    disabled = extraction_policy.all_disabled(bundle, domain_names)
+    called = False
+    if window.text.strip() and not synthetic and not disabled:
+        pin_bodies = [p.body for p in matching_pins(conn, project)]
+        data = run_structured(
+            build_prompt(window.text, domain_names, pin_bodies)
+            + extraction_policy.render_preferences(bundle, domain_names)
+            + "\nSOURCE EVENTS (consumed fragments only):\n" + json.dumps(window.events, ensure_ascii=False),
+            build_schema(domain_names), cfg, system=system, runner=runner)
+        called = True
+    else:
+        data = {}
+    # Persist only the normalized accepted batch, not unbounded raw output.
+    clean, _ = strip_secrets_json(data)
+    clean = ground_claim_items(clean, window.events, session_id)
+    for contradiction in clean.get('contradictions',[]):
+        if not isinstance(contradiction,dict):continue
+        grounded=ground_claim_items({'memories':[{'title':'contradiction','body':contradiction.get('statement',''),
+            'domain':contradiction.get('domain'),'claim_kind':'inference',
+            'evidence':[{'source_id':contradiction.get('source_id'),'quote':contradiction.get('quote')}]}]},window.events,session_id)
+        contradiction['evidence']=grounded['memories'][0]['evidence']
+    clean["assertions"] = ground_assertions(clean.get("assertions", []), window.events)
+    ext = parse_extraction(clean, set(domain_names))
+    # The bound policy filters only this new output; accepted batches are never re-filtered.
+    filtered, report = extraction_policy.enforce(asdict(ext), bundle)
+    skip = ("synthetic mining transcript" if synthetic else "empty digest" if not window.text.strip()
+            else "extraction disabled by policy" if disabled else None)
+    return filtered, report, skip, called
+
+
+def _policy_bundle(conn, cfg, *, session_id, last_uuid, project, policy, policy_origin, domain_names):
+    """Bind this input cursor to one policy before any provider call."""
+    from . import extraction_policy
+    key = extraction_policy.canonical_project(project)
+    if policy is None:
+        origin = 'direct'
+
+        def candidate():
+            captured = extraction_policy.capture(cfg, project, domain_names)
+            return (extraction_policy.builtin_bundle(key, domain_names) if captured is None
+                    else extraction_policy.validate_capture(captured))
+        admitted = None
+    elif policy == extraction_policy.LEGACY:
+        origin = 'legacy'
+        admitted = None
+        candidate = lambda: extraction_policy.builtin_bundle(key, domain_names)
+    else:
+        origin = policy_origin
+        admitted = candidate = extraction_policy.validate_capture(policy)
+    if admitted is not None and admitted.snapshot['project'] != key:
+        raise extraction_policy.PolicySnapshotError()
+    bundle, _ = bind_policy(conn, session_id=session_id, input_cursor=last_uuid or "", bundle=candidate, origin=origin)
+    conflict = origin == 'legacy' and not extraction_policy.is_builtin(bundle)
+    if admitted is not None:
+        old, new = bundle.snapshot, admitted.snapshot
+        common = old['domains'].keys() & new['domains'].keys()
+        # A bundle digest also includes the admitted domain set. Domain addition
+        # or revocation does not change the policy on the surviving domains.
+        conflict = old['domainless'] != new['domainless'] or any(
+            old['domains'][d] != new['domains'][d] for d in common)
+    if bundle.snapshot['project'] != key or conflict:
+        # A direct retry may reuse its binding without reading today's file.
+        # A new admission must not silently inherit a different policy or scope.
+        # Retain the immutable binding and job; the worker records this code.
+        raise ValueError('extraction_policy_conflict')
+    return bundle, origin
+
+
 def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  last_uuid: str | None, project: str | None,
                  runner=subprocess.run, benchmark_prompt: str | None = None,
-                 provided_window: MiningWindow | None = None, before_apply=None) -> MineResult:
+                 provided_window: MiningWindow | None = None, before_apply=None,
+                 policy=None, policy_origin: str = 'queue') -> MineResult:
     """Accept a bounded extraction durably, then apply all its effects atomically.
 
-    A previously accepted input cursor wins over new model output/source appends.
-    Caller transactions must not contain unrelated uncommitted writes.
+    A previously accepted input cursor wins over new model output/source appends
+    and over every policy file. Otherwise the cursor is bound to one extraction
+    policy before the first provider call: `policy` is an admitted capture
+    (`policy_origin` 'queue' or 'window'), extraction_policy.LEGACY for work
+    admitted without metadata (builtin rules) or None for a direct call, which
+    resolves the configured file once. Caller transactions must not contain
+    unrelated uncommitted writes.
     """
     system = SYSTEM
     if benchmark_prompt is not None:
@@ -377,32 +498,24 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
             conn.commit()
             return MineResult(new_last_uuid=last_uuid,
                               skipped="no domains defined (run 'rag domain add')")
-        synthetic = window.synthetic
-        if window.text.strip() and not synthetic:
-            pin_bodies = [p.body for p in matching_pins(conn, project)]
-            data = run_structured(
-                build_prompt(window.text, domain_names, pin_bodies) + "\nSOURCE EVENTS (consumed fragments only):\n" + json.dumps(window.events, ensure_ascii=False),
-                build_schema(domain_names), cfg, system=system, runner=runner)
-        else:
-            data = {}
-        # Persist only the normalized accepted batch, not unbounded raw output.
-        clean, _ = strip_secrets_json(data)
-        clean = ground_claim_items(clean, window.events, session_id)
-        for contradiction in clean.get('contradictions',[]):
-            if not isinstance(contradiction,dict):continue
-            grounded=ground_claim_items({'memories':[{'title':'contradiction','body':contradiction.get('statement',''),
-                'domain':contradiction.get('domain'),'claim_kind':'inference',
-                'evidence':[{'source_id':contradiction.get('source_id'),'quote':contradiction.get('quote')}]}]},window.events,session_id)
-            contradiction['evidence']=grounded['memories'][0]['evidence']
-        clean["assertions"] = ground_assertions(clean.get("assertions", []), window.events)
-        ext = parse_extraction(clean, set(domain_names))
+        bundle, origin = _policy_bundle(conn, cfg, session_id=session_id, last_uuid=last_uuid, project=project,
+                                        policy=policy, policy_origin=policy_origin, domain_names=domain_names)
+        # Current authority intersected with the admitted domains; never a union.
+        domain_names = [d for d in domain_names if d in bundle.domains]
+        if not domain_names:
+            conn.commit()
+            return MineResult(new_last_uuid=last_uuid, skipped="no writable domains in the admitted extraction policy")
+        filtered, report, skip, _ = prepare_extraction(
+            conn, cfg, window=window, session_id=session_id, project=project, domain_names=domain_names,
+            bundle=bundle, system=system, runner=runner)
         row = conn.execute(
             "INSERT INTO mining_batches(session_id,input_cursor,output_cursor,"
             " extraction,domains,project,has_more,warnings)"
             " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
             " ON CONFLICT (session_id,input_cursor) DO NOTHING RETURNING *",
             (session_id, last_uuid or "", window.last_uuid,
-             json.dumps({**asdict(ext), "_skip_reason": "synthetic mining transcript" if synthetic else ("empty digest" if not window.text.strip() else None)}), json.dumps(domain_names),
+             json.dumps({**filtered, "_skip_reason": skip, "_policy": {**report, "origin": origin}}),
+             json.dumps(domain_names),
              strip_secrets(project)[0] if project else None,
              window.has_more, json.dumps(window.warnings))).fetchone()
         if row is not None:
@@ -424,7 +537,8 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
         ext = parse_extraction(row["extraction"], set(row["domains"]))
         result = _apply_extraction(conn, cfg, ext, session_id=session_id,
                                    project=row["project"], batch_id=str(row["id"]),
-                                   output_cursor=row["output_cursor"])
+                                   output_cursor=row["output_cursor"],
+                                   policy_digest=(row["extraction"].get("_policy") or {}).get("digest"))
         result = replace(result, has_more=row["has_more"], warnings=tuple(row["warnings"]),
                          skipped=row["extraction"].get("_skip_reason"))
         conn.execute("UPDATE mining_batches SET result=%s, applied_at=now() WHERE id=%s",
@@ -440,7 +554,7 @@ def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
 
 
 def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
-                      output_cursor):
+                      output_cursor, policy_digest=None):
     from . import embedding_reuse, store
     documents = []
     for items in (ext.memories, ext.lessons, ext.signals):
@@ -451,13 +565,16 @@ def _apply_extraction(conn, cfg, ext, *, session_id, project, batch_id,
             documents.append((item.title, body))
     with embedding_reuse.prepare_documents(conn, cfg, documents, loader=store.try_embed_texts):
         return _apply_prepared_extraction(conn, cfg, ext, session_id=session_id,
-            project=project, batch_id=batch_id, output_cursor=output_cursor)
+            project=project, batch_id=batch_id, output_cursor=output_cursor, policy_digest=policy_digest)
 
 
 def _apply_prepared_extraction(conn, cfg, ext, *, session_id, project, batch_id,
-                               output_cursor):
+                               output_cursor, policy_digest=None):
     provenance = {"origin": "session-mining", "session_id": session_id,
                   "project": project, "mining_batch": batch_id}
+    if policy_digest is not None:
+        # RAG-067 batches name the bound policy; older batches keep their provenance.
+        provenance["extraction_policy"] = policy_digest
     location={'scope':project} if project in {'global','unknown'} else {'project':project}
     saved = duplicates = 0
     for dtype, items in (("memory", ext.memories), ("lesson", ext.lessons),

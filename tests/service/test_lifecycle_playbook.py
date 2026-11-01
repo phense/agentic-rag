@@ -72,7 +72,8 @@ def gate_rehearsal(tmp_path):
     fresh = subprocess.run([sys.executable, '-I', '-c', snippet('PYFRESH')], text=True, capture_output=True, timeout=60)
     assert fresh.returncode == 0, fresh.stderr
     version, metadata = fresh.stdout.split()
-    assert version == expected == '0.6.19' and Path(metadata).name == 'METADATA'
+    # The gate checks the installed release; RAG-067 moved it from 0.6.19 to 0.6.20.
+    assert version == expected == '0.6.20' and Path(metadata).name == 'METADATA'
     token = 'pb066-gate-' + uuid.uuid4().hex
     reader = [sys.executable, '-c', f'import time; time.sleep(120)  # {token}']
     stale = subprocess.Popen(reader)
@@ -86,7 +87,9 @@ def gate_rehearsal(tmp_path):
     finally:
         stale.kill()
         stale.wait()
-    time.sleep(1.2)
+    # ps floors boot time and lstart to seconds. Separate the restart from
+    # installation by more than both rounding intervals; 1.2s can look stale.
+    time.sleep(2.2)
     restarted = subprocess.Popen(reader)
     try:
         passed = subprocess.run([sys.executable, '-c', snippet('PYGATE'), str(marker), token],
@@ -139,14 +142,14 @@ def test_pb066_upgrade_decide_refuse_correct_and_restore(tmp_path, monkeypatch, 
         assert operator('preflight', '--source-version', '0.6.18', '--mode', 'local')['ready'] is True
         a4 = operator('upgrade', '--source-version', '0.6.18', '--dump', str(proofs / 'lifecycle031.dump'),
                       '--apply', '--writers-stopped')
-        assert a4['migrations_applied'] == ['031_memory_lifecycle.sql']
+        assert a4['migrations_applied'] == ['031_memory_lifecycle.sql', '032_extraction_policy.sql']
         assert a4['restore_verified'] and a4['original_rows_unchanged']
         assert (proofs / 'lifecycle031.dump.manifest.json').exists()
         a5 = operator('upgrade', '--source-version', '0.6.18', '--dump', str(proofs / 'retry.dump'),
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.19', '--dump',
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.21', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'decisions': 0, 'decision_without_event': 0, 'correction_without_event': 0,
                 'events_minus_audit': 0, 'chains': 0}

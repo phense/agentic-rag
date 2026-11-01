@@ -51,6 +51,25 @@ adapter tests do not close native authenticated compression scenarios in #12–1
 The [guide](docs/14-agent-plugins.md) and [measured evidence](docs/playbooks/evidence/agent-plugins.md)
 record tested versions, finite workloads and remaining rollout boundaries.
 
+## Versioned extraction policies (F-067 / issue #67)
+
+✅ Implemented and independently accepted, 0.6.20/schema032. An optional strict
+TOML file controls advisory guidance, examples, output categories and narrower
+limits with global/domain/project precedence. `rag extraction validate`,
+`inspect` and `dry-run` explain settings before activation; evaluation requires
+explicit opt-in and never writes knowledge. Mandatory evidence, redaction,
+current scope and audited gateways remain authoritative.
+
+Durable admission and pre-provider cursor bindings preserve retry/replay meaning;
+real rule/project conflicts block, compatible domain-set changes keep the original
+bound set, and current authority can only narrow it. Populated 0.6.19 upgrade,
+interruption/retry and restore preserve 177 original rows in 47 tables. Old miners
+must be upgraded before custom activation. Full verification: 2,151 passed, one
+skipped, one known warning; synthetic measurements show enforcement, not model
+quality. File-activation auditing remains LOW-054 in Issue75.
+[Guide](docs/extraction-policy.md),
+[verification](docs/verification/issue67-extraction-policy.md). No production rollout.
+
 ## Independent providers and recoverable indexes (RAG-061 / issue #61)
 
 🔵 Implemented in the feature branch, pending PR integration. Extraction supports
@@ -110,8 +129,9 @@ No production activation is included.
 
 ## Source-preserving memory lifecycle (RAG-066 / issue #66)
 
-🔵 Implemented, independently reviewed and source-bound verified; PR integration
-and production rollout remain separate. Five explicit decisions link originals
+Merged in [PR90](https://github.com/phense/agentic-rag/pull/90) at `01bc13bd`,
+independently reviewed and source-bound verified; production rollout remains
+separate. Five explicit decisions link originals
 without moving their evidence. SQL current/include-merged/historical selection
 runs before limits; versioned correction, scope protection, bounded history and
 current derived outputs share the audited gateway. Existing exact curation now

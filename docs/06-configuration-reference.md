@@ -238,6 +238,7 @@ curation](05-session-mining-and-curation.md) for the full pipeline.
 | `max_digest_chars` | `mine_max_digest_chars` | `12000` | Max size of the transcript digest built for the miner LLM; values below 128 are rejected so checkpoint tail retention remains actionable. |
 | `per_block_chars` | `mine_per_block_chars` | `800` | Max characters from one event per mining window; remaining eligible prose resumes in subsequent windows. Continuity digests retain their separate bounded-view behavior. |
 | `dedup_threshold` | `dedup_threshold` | `0.90` | Cosine-similarity threshold (embedding space) above which a newly mined item is treated as a near-duplicate of an existing document and linked with a `duplicate_of` edge instead of saved fresh. This field has no `mine_` prefix in the dataclass — it maps into `[mining]` via the same bare-key fallback as the `[hooks]` fields. |
+| `policy_file` | `mine_policy_file` | unset | Optional path of the versioned [extraction policy](extraction-policy.md) (`~` expanded). Unset keeps the 0.6.19 prompt, schema and retained output. Read once per new admission; admitted work keeps its snapshot. On a central service it is the service host's file; clients cannot send one. Activate only after every mining process runs 0.6.20 ([PB-067-OPS](playbooks/system/rag-067-extraction-policy.md), part B). |
 
 ## `[curation]`
 

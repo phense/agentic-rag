@@ -1,0 +1,55 @@
+{
+  "format": 1,
+  "issue": 67,
+  "work_id": "RAG-067",
+  "reviewed_head": "eadd2e5bc913c0f2e64f1201631a95757109dd67",
+  "product_fix": "e88717f759e995d45b84cea887e1c78368a64ee9",
+  "complete_review_base": "01bc13bd7998851032c7f753bead8829faeb9d86",
+  "verdict": "independent_code_and_playbook_accepted_full_suite_passed",
+  "open_critical": 0,
+  "open_high": 0,
+  "open_medium": 0,
+  "open_playbook_important": 0,
+  "independent_latest_checks": {
+    "total": 36,
+    "passed": 36,
+    "errors": 0,
+    "provider": "mock only",
+    "database": "owned isolated PG17 on55460",
+    "executed": "2026-11-01T04:24:45Z..2026-11-01T04:24:57Z"
+  },
+  "coverage": "Complete71-file review plus two bounded correction reviews; unchanged paths inherited explicitly, not re-executed.",
+  "artifact_sha256": {
+    "independent-review.md": "ef4ce3d31b1aee2a7988995eb59248fe496416e8e14e0391695349497d323faf",
+    "independent-playbook-review.md": "2a46a62e4095bfa81a91a25175c5d8612ff27cd10c0ed5553d63fbb98bacaf81",
+    "correction-review.md": "e19345b77f0476f7c51fba8a5be4cdcfb2ff2288987ca7f9350c500165962a6f",
+    "correction-playbook-review.md": "c0cbeeb21f85ff542207a4d42fc8af4cff9e159edb1a6ed6efeb6669a9bf3db3",
+    "cm1-review.md": "b1829712397b8089327b1896b632be2aea2f70502926f6ae9ea5e56c0457bc37",
+    "cm1-playbook-review.md": "efaa6a6f2f0bc6167d5b94a9bd6dd197c03ec4b2ff2d6505793e9134d7541d47",
+    "cm1-integration-plan.md": "f515f2528cbc4c31f58b07a6ccfd367ac465964944e719e3ec66df9d1b9bf63a",
+    "cm1-probes.py": "be5a062cf26a30f5077f4ab2fe18dc68329c1aeea466c1dd3ae2a8a6d8569d3a",
+    "cm1-probes-results.json": "cc57192ef5b9506517c186280535a298cb61a21663c1c20cbefa47b87ffb0e8f"
+  },
+  "retained_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6553401312",
+  "full_suite": {
+    "head": "d0fe52eaa3c4c74ac076224c61d0e99af667e837",
+    "passed": 2151,
+    "skipped": 1,
+    "warnings": 1,
+    "exit_code": 0,
+    "log_sha256": "60b39be53788409caa2fe7746576c20c0691ec89d4745770a2a89d74fc543660",
+    "evidence": "issue67-extraction-policy-final.json"
+  },
+  "limits": [
+    "synthetic mock provider only",
+    "one Linux host",
+    "no production rollout",
+    "no TLS/systemd/macOS/multi-host or real-model quality evidence"
+  ],
+  "mechanical_test_addendum": {
+    "scope": "Two current/future-version expectations and three process-gate restart waits; no product or SQL changes",
+    "coordinator_review": "complete bounded diff inspected",
+    "targeted_passed": 26,
+    "targeted_exit": 0
+  }
+}

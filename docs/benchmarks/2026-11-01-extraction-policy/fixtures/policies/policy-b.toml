@@ -1,0 +1,7 @@
+# RAG-067 frozen synthetic policy B: the operator's replacement of policy A
+# during a retry. Lessons are disabled everywhere.
+version = 1
+
+[global]
+guidance = "Keep decisions only."
+categories = ["memories", "assertions", "pin_suggestions"]

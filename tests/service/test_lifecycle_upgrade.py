@@ -240,7 +240,7 @@ def test_populated_0_6_18_upgrade_old_code_curation_limit_and_recovery(tmp_path,
         started = time.perf_counter()
         changed = upgrade.local_upgrade(cfg, '0.6.18', tmp_path / 'upgrade.dump', apply=True, writers_stopped=True)
         report['upgrade_seconds'] = round(time.perf_counter() - started, 2)
-        assert changed['migrations_applied'] == ['031_memory_lifecycle.sql']
+        assert changed['migrations_applied'] == ['031_memory_lifecycle.sql', '032_extraction_policy.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         assert upgrade.verify_preserved(cfg, original)['unchanged']
         retry = upgrade.local_upgrade(cfg, '0.6.18', tmp_path / 'retry.dump', apply=True, writers_stopped=True)
@@ -355,11 +355,11 @@ def test_operator_cli_and_old_central_service_on_populated_0_6_18(tmp_path, monk
             outputs[name] = json.loads(capsys.readouterr().out)
         assert outputs['preflight']['ready'] and outputs['preflight']['inventory']['supported']
         assert outputs['plan']['applied'] is False
-        assert outputs['upgrade']['migrations_applied'] == ['031_memory_lifecycle.sql']
+        assert outputs['upgrade']['migrations_applied'] == ['031_memory_lifecycle.sql', '032_extraction_policy.sql']
         assert outputs['upgrade']['restore_verified'] and outputs['upgrade']['original_rows_unchanged']
         assert outputs['retry']['migrations_applied'] == []
         assert lifecycle_counts(cfg) == {'decisions': 0, 'events': 0, 'audits': 0}
-        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.19',
+        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.21',
                          '--mode', 'local']) == 1
         capsys.readouterr()
         decide(cfg, ids['dup-copy'], ids['dup-keep'], 'exact_duplicate', 'same release checklist')

@@ -62,6 +62,8 @@ def _main(argv: list[str] | None = None) -> int:
     add_plugin_parser(sub)
     from .provider_cli import add_parser as add_provider_parser
     add_provider_parser(sub)
+    from .extraction_cli import add_parser as add_extraction_parser
+    add_extraction_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -400,6 +402,10 @@ def _main(argv: list[str] | None = None) -> int:
 
     if args.cmd in ('providers', 'index'):
         from .provider_cli import run
+        return run(args, cfg)
+
+    if args.cmd == 'extraction':
+        from .extraction_cli import run
         return run(args, cfg)
 
     if args.cmd == 'entity':

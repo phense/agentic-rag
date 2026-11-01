@@ -260,6 +260,13 @@ picked up by the next Stop, or by the next SessionStart that finds a due
 job. Any error is logged and swallowed; the hook always exits 0 and prints
 nothing.
 
+With an optional [extraction policy](extraction-policy.md) (`[mining]
+policy_file`), the queue insert also captures the policy for that job. The job
+keeps it through debounced reruns, provider failures and retries; a changed file
+applies to the next newly admitted job. An invalid file is logged as
+`invalid extraction policy: <code> at <location>` and admits no job, so no turn is
+skipped once the file is fixed. Without a file, mining behaves exactly as before.
+
 ### SessionStart — inject context, restore continuity, and check maintenance
 
 At the start of an interactive session, this hook builds and injects: every

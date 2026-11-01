@@ -23,7 +23,7 @@ def test_populated026_provider_upgrade_strict_restore_and_retry(tmp_path, monkey
         if mode == 'local':
             result = upgrade.local_upgrade(cfg, '0.6.13', tmp_path / 'provider.dump',
                 apply=True, writers_stopped=True)
-            assert result['migrations_applied'] == ['027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+            assert result['migrations_applied'] == ['027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
             assert result['restore_verified'] and result['original_rows_unchanged']
             assert upgrade.verify_preserved(cfg, original)['unchanged']
             with db.connect(cfg) as conn:
@@ -37,7 +37,7 @@ def test_populated026_provider_upgrade_strict_restore_and_retry(tmp_path, monkey
                 target = replace(target, ollama_url=cfg.ollama_url)
                 result = upgrade.restore_target(target, tmp_path / 'provider.dump',
                     proof['manifest'], apply=True)
-                assert result['migrations_applied'] == ['027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+                assert result['migrations_applied'] == ['027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
                 assert result['restore_verified'] and result['original_rows_unchanged']
                 with db.connect(target) as conn:
                     assert conn.execute('SELECT id FROM documents ORDER BY id').fetchall() == before_ids

@@ -1,0 +1,100 @@
+{
+ "format": 1,
+ "note": "Synthetic EN/DE inputs for RAG-067, frozen before any product change. 'provider' is the predetermined output of a mock provider, deliberately ignoring the advisory guidance where a case tests deterministic enforcement. No real person, project, credential or model output.",
+ "domains": ["programming", "operations"],
+ "cases": {
+  "R1": {
+   "title": "Retained decision; dishonest provider returns disabled categories (EN)",
+   "policy": "policy-a.toml", "project": "/synthetic/team-a", "session": "rag067-r1",
+   "events": [
+    {"source_id": "r1-e1", "role": "user", "timestamp": "2026-11-01T08:00:00Z", "text": "[user] Decision: the store uses HNSW indexes with m = 16.", "offset": 0, "complete": true},
+    {"source_id": "r1-e2", "role": "user", "timestamp": "2026-11-01T08:01:00Z", "text": "[user] We tried IVFFlat for an hour and dropped it.", "offset": 0, "complete": true},
+    {"source_id": "r1-e3", "role": "assistant", "timestamp": "2026-11-01T08:02:00Z", "text": "[assistant] ERROR: index row size exceeds maximum 2712", "offset": 0, "complete": true}
+   ],
+   "provider": [{
+    "memories": [{"title": "HNSW decision", "body": "Decision: the store uses HNSW indexes with m = 16.", "domain": "programming", "edges": [], "claim_kind": "stated",
+                  "evidence": [{"source_id": "r1-e1", "quote": "Decision: the store uses HNSW indexes with m = 16."}]}],
+    "lessons": [{"title": "IVFFlat experiment", "body": "We tried IVFFlat for an hour and dropped it.", "domain": "programming", "edges": [], "claim_kind": "stated",
+                 "evidence": [{"source_id": "r1-e2", "quote": "We tried IVFFlat for an hour and dropped it."}]}],
+    "signals": [{"title": "Index row size", "body": "Index rows can exceed the page limit.", "signal": "index row size exceeds maximum", "domain": "programming", "edges": [], "claim_kind": "inference",
+                 "evidence": [{"source_id": "r1-e3", "quote": "index row size exceeds maximum"}]}]
+   }]
+  },
+  "L1": {
+   "title": "Semantic limit: abandoned experiment mislabelled as an allowed memory (EN)",
+   "policy": "policy-a.toml", "project": "/synthetic/team-a", "session": "rag067-l1",
+   "events": [
+    {"source_id": "l1-e1", "role": "user", "timestamp": "2026-11-01T08:10:00Z", "text": "[user] We tried IVFFlat for an hour and dropped it.", "offset": 0, "complete": true}
+   ],
+   "provider": [{
+    "memories": [{"title": "IVFFlat experiment", "body": "We tried IVFFlat for an hour and dropped it.", "domain": "programming", "edges": [], "claim_kind": "stated",
+                  "evidence": [{"source_id": "l1-e1", "quote": "We tried IVFFlat for an hour and dropped it."}]}]
+   }]
+  },
+  "D1": {
+   "title": "German project rule: item limit, body limit and a disabled domainless category (DE)",
+   "policy": "policy-a.toml", "project": "/synthetic/team-b", "session": "rag067-d1",
+   "events": [
+    {"source_id": "d1-e1", "role": "user", "timestamp": "2026-11-01T09:00:00Z", "text": "[user] Entscheidung: Der Wächter läuft werktags um 07:20.", "offset": 0, "complete": true},
+    {"source_id": "d1-e2", "role": "user", "timestamp": "2026-11-01T09:01:00Z", "text": "[user] Wir haben 06:00 probiert und wieder verworfen.", "offset": 0, "complete": true},
+    {"source_id": "d1-e3", "role": "user", "timestamp": "2026-11-01T09:02:00Z", "text": "[user] Bitte immer vor Änderungen ein Backup ziehen.", "offset": 0, "complete": true}
+   ],
+   "provider": [{
+    "memories": [
+     {"title": "Wächter-Zeit", "body": "Entscheidung: Der Wächter läuft werktags um 07:20.", "domain": "operations", "edges": [], "claim_kind": "stated",
+      "evidence": [{"source_id": "d1-e1", "quote": "Entscheidung: Der Wächter läuft werktags um 07:20."}]},
+     {"title": "Verworfener Versuch", "body": "Wir haben 06:00 probiert und wieder verworfen.", "domain": "operations", "edges": [], "claim_kind": "stated",
+      "evidence": [{"source_id": "d1-e2", "quote": "Wir haben 06:00 probiert und wieder verworfen."}]}
+    ],
+    "lessons": [{"title": "Lange Notiz", "body": "Lange Notiz über den Wächter: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.", "domain": "operations", "edges": [], "claim_kind": "inference",
+                 "evidence": [{"source_id": "d1-e1", "quote": "Der Wächter läuft werktags um 07:20."}]}],
+    "pin_suggestions": [{"body": "Vor Änderungen ein Backup ziehen.", "scope": "global", "reason": "Vom Benutzer als ständige Regel genannt."}],
+    "domain_proposals": [{"name": "betrieb", "description": "Betriebsthemen", "reason": "Passt angeblich in keine Domäne."}]
+   }]
+  },
+  "S1": {
+   "title": "Source-event fidelity and secret stripping (EN)",
+   "policy": "policy-a.toml", "project": "/synthetic/team-a", "session": "rag067-s1",
+   "events": [
+    {"source_id": "s1-e1", "role": "user", "timestamp": "2026-11-01T10:00:00Z", "text": "[user] The relay port is now 2525.", "offset": 0, "complete": true}
+   ],
+   "provider": [{
+    "memories": [
+     {"title": "Relay port", "body": "The relay port is now 2525.", "domain": "operations", "edges": [], "claim_kind": "stated",
+      "evidence": [{"source_id": "s1-e1", "quote": "The relay port is now 2525."}]},
+     {"title": "Invented host", "body": "The relay runs on host q7 with token sk-ant-api03-SYNTHETICabcdefghijklmnopqrstuvwxyz0123456789.", "domain": "operations", "edges": [], "claim_kind": "stated",
+      "evidence": [{"source_id": "s1-e1", "quote": "The relay runs on host q7."}]}
+    ]
+   }]
+  },
+  "P1": {
+   "title": "Policy change during a provider-failure retry; replay and a new admission",
+   "policy": "policy-a.toml", "replacement_policy": "policy-b.toml", "malformed_policy": "policy-invalid.toml",
+   "project": "/synthetic/team-a", "session": "rag067-p1", "new_session": "rag067-p1-new",
+   "events": [
+    {"source_id": "p1-e1", "role": "user", "timestamp": "2026-11-01T11:00:00Z", "text": "[user] Lesson: restart every worker after changing the policy file.", "offset": 0, "complete": true}
+   ],
+   "provider": [
+    "PROVIDER_UNAVAILABLE",
+    {"lessons": [{"title": "Restart after policy change", "body": "Lesson: restart every worker after changing the policy file.", "domain": "operations", "edges": [], "claim_kind": "stated",
+                  "evidence": [{"source_id": "p1-e1", "quote": "Lesson: restart every worker after changing the policy file."}]}]}
+   ]
+  },
+  "Z1": {
+   "title": "Every category disabled: intentional empty extraction without a provider call",
+   "policy": "policy-disabled.toml", "project": "/synthetic/team-a", "session": "rag067-z1",
+   "events": [
+    {"source_id": "z1-e1", "role": "user", "timestamp": "2026-11-01T12:00:00Z", "text": "[user] Decision: nothing durable here.", "offset": 0, "complete": true}
+   ],
+   "provider": []
+  },
+  "V1": {
+   "title": "Malformed policy file fails validation and new admission visibly",
+   "policy": "policy-invalid.toml", "project": "/synthetic/team-a", "session": "rag067-v1",
+   "events": [
+    {"source_id": "v1-e1", "role": "user", "timestamp": "2026-11-01T13:00:00Z", "text": "[user] Decision: keep the queue cursor.", "offset": 0, "complete": true}
+   ],
+   "provider": []
+  }
+ }
+}
