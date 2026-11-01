@@ -36,7 +36,7 @@ def test_verified_local_upgrade_preserves_rows_grants_and_retries(tmp_path,monke
         assert not (tmp_path/'upgrade.dump').exists()
         result=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'upgrade.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['applied'] and len(result['migrations_applied'])==31-schema
+        assert result['applied'] and len(result['migrations_applied'])==32-schema
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         retry=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'retry.dump',apply=True,writers_stopped=True)
         assert retry['migrations_applied']==[]
