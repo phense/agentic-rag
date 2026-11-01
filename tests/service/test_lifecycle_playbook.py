@@ -72,7 +72,8 @@ def gate_rehearsal(tmp_path):
     fresh = subprocess.run([sys.executable, '-I', '-c', snippet('PYFRESH')], text=True, capture_output=True, timeout=60)
     assert fresh.returncode == 0, fresh.stderr
     version, metadata = fresh.stdout.split()
-    assert version == expected == '0.6.19' and Path(metadata).name == 'METADATA'
+    # The gate checks the installed release; RAG-067 moved it from 0.6.19 to 0.6.20.
+    assert version == expected == '0.6.20' and Path(metadata).name == 'METADATA'
     token = 'pb066-gate-' + uuid.uuid4().hex
     reader = [sys.executable, '-c', f'import time; time.sleep(120)  # {token}']
     stale = subprocess.Popen(reader)

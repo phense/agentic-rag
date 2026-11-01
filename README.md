@@ -9,9 +9,16 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.19-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.20-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.20 extraction policy:** an operator can decide in one versioned file which
+mined knowledge is kept per domain or project: output categories, item and text
+limits, plus advisory guidance for the provider. Admitted work keeps its policy
+across retries, a change only affects new work, and without a file nothing
+changes. Upgrade with the [operations playbook](docs/playbooks/system/rag-067-extraction-policy.md)
+and read [extraction policy](docs/extraction-policy.md).
 
 **0.6.19 memory lifecycle:** an operator can mark one memory as a duplicate,
 extension, replaced version or contradiction of another after a read-only preview.
