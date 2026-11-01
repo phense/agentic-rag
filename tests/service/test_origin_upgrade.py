@@ -86,8 +86,9 @@ def test_populated_0_6_20_origin_migration_retry_and_independent_restore(tmp_pat
         retry = upgrade.local_upgrade(cfg, '0.6.20', tmp_path / 'retry.dump',
                                       apply=True, writers_stopped=True)
         assert retry['migrations_applied'] == [] and retry['restore_verified']
-        # Post-migration dump is independently restored too; no source-version
-        # label is inferred from a schema marker. Release21 bump is a later gate.
-        after = upgrade.verified_backup(cfg, '0.6.20', tmp_path / 'after.dump')
+        # The target release must support its own truthful backup label, with a
+        # real independent restore; accepting only its predecessor breaks recovery.
+        after = upgrade.verified_backup(cfg, '0.6.21', tmp_path / 'after.dump')
         assert after['restore_verified']
+        assert after['manifest']['source_version'] == '0.6.21'
         assert upgrade.verify_preserved(cfg, after['manifest'])['unchanged']

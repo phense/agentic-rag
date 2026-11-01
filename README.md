@@ -9,9 +9,16 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.20-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.21-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.21 native source continuity:** generated compaction summaries no longer
+become original user evidence. A bounded, audited quarantine repairs old source
+classification; migration033 preserves original records and ordinary no-revival
+rules. Use the [source-origin upgrade gate](docs/playbooks/agent-plugins.md#0620-to-0621-native-source-origin-gate-acceptance-draft)
+before restarting capture. Native synthetic observations are published under
+[the acceptance fixtures](docs/benchmarks/2026-11-01-native-plugin-acceptance/).
 
 **0.6.20 extraction policy:** an operator can decide in one versioned file which
 mined knowledge is kept per domain or project: output categories, item and text

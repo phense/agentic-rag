@@ -25,7 +25,7 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(21))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(22))
 # Tables a later migration may add to an empty resume target (restore_target).
 RESTORE_ADDED_TABLES=frozenset({'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence','request_traces','embedding_generations','embedding_selection','embedding_vectors','source_revisions','claim_revisions','source_history','claim_history','synthesis_policies','synthesis_backfills','synthesis_runs','synthesis_processed','synthesis_patterns','synthesis_dependencies','lifecycle_decisions','lifecycle_events','extraction_policy_bindings'})
 EXCLUDED={'benchmark_ownership'}

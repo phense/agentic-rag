@@ -271,3 +271,45 @@ cost at600 assertions was0.270s versus0.184s, best of5 on the test host; this is
 an observation for the open reference latency gate, not accepted performance.
 Editable environments must be reinstalled after the release bump so generated
 native manifests read the new installed metadata; restart alone is insufficient.
+
+
+## Native continuation observations, 2026-11-01
+
+Writing depth: small, one evidence update in this existing record. Claude
+Code2.1.314 ran only frozen synthetic prompts in an owned workspace, package,
+configuration and spool. Global settings and authentication were retained.
+Manual shortening emitted real PreCompact/manual, SessionStart/compact and
+PostCompact/manual. A separate native resume recalled all3 identifiers.
+
+The frozen multi-turn automatic protocol at `fd4fe99` crossed its controlled
+1% threshold on padding turn4, after4 completed assistant replies. It emitted
+PreCompact/auto, a native summary record, SessionStart/compact and
+PostCompact/auto. A separate native resume recalled3/3 identifiers; total81.04s.
+The reader emitted12 original source events and0 of5 generated records. Raw
+source and compacted checkpoint remained durable offline. Earlier two0.1%
+attempts emitted PreCompact without PostCompact; they remain failed observations,
+not successful compactions. The prefix line was a warning, and the decisive
+abort was the empty assistant summary set.
+
+The separate same-partition TCP admission probe at `a6b80fb` started offline,
+then brought up its own authenticated loopback service and isolated database.
+After committing the first window, the harness replaced its ACK with503; replay
+returned the same receipt. A genuine native resume recalled3/3 identifiers.
+All4 original event IDs reached2 unique windows/jobs, with0 pending local items;
+raw source remained retained. Total23.26s. No compaction occurred in this ACK-only
+session, so it created no checkpoint. No extraction worker/provider ran: these
+receipts prove durable admission, not applied memories. The first ACK attempt
+failed only because the harness expected200 instead of the correct202; its
+native initial turn and failed artifacts were preserved.
+
+Machine-readable observations and frozen protocols are in
+[the native acceptance directory](../../benchmarks/2026-11-01-native-plugin-acceptance/).
+They do not prove other hosts, ordinary automatic thresholds, TLS, cross-host
+outages, reference-load latency, a long soak or production rollout.
+
+The final target-release upgrade selection added a real0.6.21-labelled backup
+and independent restore to the populated archived0.6.20→033 scenario. It first
+failed with `unsupported_source_version`, then passed after the target label was
+supported. The release/upgrade/package selection completed38 tests, one known
+Starlette warning, exit0 in69.65s. Editable distribution metadata is now0.6.21.
+Node contracts completed7/7; these checks do not replace the final full suite.
