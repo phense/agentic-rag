@@ -236,6 +236,64 @@ def test_direct_mining_binds_once_and_reuses_the_binding(base, conn, tmp_path, m
     assert conn.execute("SELECT origin FROM extraction_policy_bindings WHERE session_id='direct'").fetchone()['origin'] == 'direct'
 
 
+@pytest.mark.parametrize('new_project', [None, '/synthetic/team-b'])
+def test_new_job_cannot_silently_use_an_older_failed_jobs_policy(new_project, base, conn, tmp_path, monkeypatch):
+    # Mutation caught: returning the old binding despite a new admitted digest.
+    case = fx.case('P1')
+    cfg_a = replace(configured(base, 'policy-a.toml'), worker_max_attempts=1)
+    first = admit(conn, cfg_a, case, tmp_path)
+    monkeypatch.setattr(mining, 'run_structured', lambda *a, **k: (_ for _ in ()).throw(RuntimeError('provider outage')))
+    assert worker.drain(conn, cfg_a, max_jobs=1)['failed'] == 1
+    assert conn.execute('SELECT status FROM mining_queue WHERE id=%s', (first['id'],)).fetchone()['status'] == 'error'
+    conn.commit()
+    cfg_b = replace(configured(base, 'policy-b.toml'), worker_max_attempts=1)
+    second = admit(conn, cfg_b, {**case, 'project': new_project or case['project']}, tmp_path)
+    mock = provider(monkeypatch, 'P1', outputs=[case['provider'][1]])
+    report = worker.drain(conn, cfg_b, max_jobs=1)
+    state = conn.execute('SELECT status,last_error,last_uuid FROM mining_queue WHERE id=%s', (second['id'],)).fetchone()
+    assert report['done'] == 0 and report['failed'] == 1
+    assert state == {'status': 'error', 'last_error': 'extraction_policy_conflict', 'last_uuid': None}
+    assert mock.calls == 0
+    assert conn.execute('SELECT count(*) n FROM mining_batches').fetchone()['n'] == 0
+    assert conn.execute('SELECT count(*) n FROM documents').fetchone()['n'] == 0
+    assert conn.execute('SELECT digest FROM extraction_policy_bindings').fetchone()['digest'] == first['payload']['extraction_policy']['digest']
+    conn.commit()
+    # Supported recovery: restore the original policy and project for a new
+    # ordinary admission; preserve both failed jobs and the immutable binding.
+    recovery = admit(conn, cfg_a, case, tmp_path)
+    assert worker.drain(conn, cfg_a, max_jobs=1)['done'] == 1
+    assert mock.calls == 1
+    assert conn.execute('SELECT status FROM mining_queue WHERE id=%s', (recovery['id'],)).fetchone()['status'] == 'done'
+    assert conn.execute('SELECT status FROM mining_queue WHERE id=%s', (second['id'],)).fetchone()['status'] == 'error'
+
+
+def test_valid_snapshot_for_another_project_is_rejected_before_binding(base, conn, tmp_path, monkeypatch):
+    case = fx.case('R1')
+    cfg = configured(base, 'policy-a.toml')
+    queued = admit(conn, cfg, case, tmp_path)
+    foreign = ep.capture(cfg, '/synthetic/foreign', ['operations', 'programming'])
+    mock = provider(monkeypatch, 'R1')
+    with pytest.raises(ep.PolicySnapshotError, match='policy_snapshot_invalid'):
+        worker.process_job(conn, cfg, {**queued, 'payload': {**queued['payload'], 'extraction_policy': foreign}})
+    conn.rollback()
+    assert mock.calls == 0
+    assert conn.execute('SELECT count(*) n FROM extraction_policy_bindings').fetchone()['n'] == 0
+
+
+def test_direct_retry_cannot_apply_a_bound_policy_to_another_project(base, conn, tmp_path, monkeypatch):
+    case = fx.case('P1')
+    path = fx.write_transcript(tmp_path / 'direct-project.jsonl', case['events'])
+    mock = provider(monkeypatch, 'P1')
+    with pytest.raises(llm.LLMUnavailableError):
+        mining.mine_session(conn, configured(base, 'policy-a.toml'), session_id='direct-project',
+                            transcript_path=path, last_uuid=None, project=case['project'])
+    with pytest.raises(ValueError, match='^extraction_policy_conflict$'):
+        mining.mine_session(conn, configured(base, 'policy-b.toml'), session_id='direct-project',
+                            transcript_path=path, last_uuid=None, project='/synthetic/team-b')
+    assert mock.calls == 1
+    assert conn.execute('SELECT count(*) n FROM mining_batches').fetchone()['n'] == 0
+
+
 def test_enforcement_filters_all_eight_channels_deterministically():
     policy = ep.parse_document({'version': 1, 'global': {'categories': ['memories', 'assertions', 'contradictions',
                                                                        'pin_suggestions'], 'max_items_per_category': 1,

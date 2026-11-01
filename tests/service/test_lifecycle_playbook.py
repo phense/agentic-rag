@@ -147,7 +147,7 @@ def test_pb066_upgrade_decide_refuse_correct_and_restore(tmp_path, monkeypatch, 
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.20', '--dump',
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.21', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'decisions': 0, 'decision_without_event': 0, 'correction_without_event': 0,
                 'events_minus_audit': 0, 'chains': 0}

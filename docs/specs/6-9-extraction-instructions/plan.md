@@ -78,7 +78,11 @@ existing transaction, after principal/project validation. Public envelope cannot
 supply this field. Worker passes the captured bundle to mine_session, which binds
 it before calling extraction. Queue/window entries lacking metadata mean explicit
 legacy builtin, not today's file. Direct new calls resolve once, then reuse the
-binding on retries. Existing mining_batches win before binding/resolution so old
+binding on retries within the same canonical project. An admitted snapshot from
+a different project is invalid. If a new admission differs from an existing
+unaccepted binding, refuse with extraction_policy_conflict before the provider;
+keep the binding and cursor unchanged. No silent replacement or policy reuse.
+Existing mining_batches win before binding/resolution so old
 accepted data is applied untouched; new accepted output records its digest in
 reserved metadata/provenance and binds to the same snapshot.
 

@@ -427,17 +427,19 @@ def _policy_bundle(conn, cfg, *, session_id, last_uuid, project, policy, policy_
                     else extraction_policy.validate_capture(captured))
         admitted = None
     elif policy == extraction_policy.LEGACY:
-        origin, admitted = 'legacy', None
-        candidate = lambda: extraction_policy.builtin_bundle(key, domain_names)
+        origin = 'legacy'
+        admitted = candidate = extraction_policy.builtin_bundle(key, domain_names)
     else:
         origin = policy_origin
         admitted = candidate = extraction_policy.validate_capture(policy)
+    if admitted is not None and admitted.snapshot['project'] != key:
+        raise extraction_policy.PolicySnapshotError()
     bundle, _ = bind_policy(conn, session_id=session_id, input_cursor=last_uuid or "", bundle=candidate, origin=origin)
-    if admitted is not None and bundle.digest != admitted.digest:
-        # One meaning per cursor: an earlier committed binding wins, visibly.
-        _audit(conn, "extraction_policy_reuse",
-               f"reused bound extraction policy {bundle.digest} instead of admitted {admitted.digest}")
-        conn.commit()
+    if bundle.snapshot['project'] != key or (admitted is not None and bundle.digest != admitted.digest):
+        # A direct retry may reuse its binding without reading today's file.
+        # A new admission must not silently inherit a different policy or scope.
+        # Retain the immutable binding and job; the worker records this code.
+        raise ValueError('extraction_policy_conflict')
     return bundle, origin
 
 

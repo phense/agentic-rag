@@ -77,3 +77,23 @@ serially:13passed,1known warning,exit0,108.16s (`root-current-backup-green.log`)
 The current PB-067 rehearsal exercised the0.6.20-labelled dump/restore. It retains
 the central-mining and host limitations above; independent content and integration
 acceptance are still pending.
+
+## Independent review and coordinator correction
+
+The independent review at54573e7 rejected M1/PB-I1: a new local job could use an
+older failed job's binding, even after changing projects. The coordinator chose
+conflict refusal, preserving the immutable binding. C2 and Completion now require
+matching admitted/bound policies and explain the stop/escalate decision. Four
+regressions first failed; after correction35 affected checks passed (one known
+Starlette warning, exit0,30.62s). These include queue conflict recovery by a new
+ordinary admission under the original policy/project, central retry/scope and
+the populated PB-066 upgrade/restore rehearsal. Independent correction acceptance
+and the final full suite remain pending; the earlier full2 was interrupted and
+is not a pass. Minor process-gate and regular-file assumptions are now explicit.
+The integrity check still cannot detect an old miner's policy bypass; the
+all-miner gate is mandatory and that diagnostic limit is tracked in Issue75.
+
+The changed PB-067 commands and documentation continuity check were also
+rehearsed after the correction:18passed,1known warning,exit0,15.92s
+(root-review-pb-docs-green.log). Nonblocking findings LOW-050..055 are tracked in
+[Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6553145423).

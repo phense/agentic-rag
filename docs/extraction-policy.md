@@ -24,8 +24,9 @@ session and saves what passes the evidence checks. The **extraction policy** is
 an optional TOML file that acts like a sieve after that step: it decides which
 output categories are kept, how many items per category and how long an item
 text may be. It can also hand the provider short **guidance** and examples.
-Without a file nothing changes: the prompt, the schema and the retained output
-are exactly those of 0.6.19.
+Without a file, the prompt, schema and retained output match 0.6.19. Mining
+still records a builtin policy binding, its audit, batch policy metadata and
+the extraction-policy digest in document provenance.
 
 ## What a policy can and cannot do
 
@@ -94,7 +95,9 @@ guidance = "Behalte bestätigte Betriebsentscheidungen."
 | `max_items_per_category` | fragment | per-category limit | 0–8, never above a built-in cap |
 | `max_body_chars` | fragment | longest kept item text | 1–8000 |
 
-The whole file is at most 64 KiB. A rule needs a `domain`, a `project` or both,
+The whole file is at most 64 KiB. Policy and sample paths must name regular
+files; do not pass devices or FIFOs. The current sample reader checks size after
+reading, so check sample size before invoking it. A rule needs a `domain`, a `project` or both,
 and at least one fragment key. Two rules with the same selector are an error.
 
 ### Output categories
@@ -135,8 +138,13 @@ travels with the job. Before its first provider call, mining binds the input
 position of the session to that snapshot, together with an audit row
 (`extraction_policy_bind`, policy digest only).
 
-- A provider failure, crash or retry reuses the bound policy. A changed or even
-  invalid file is not read again.
+- A retry of the same admitted job reuses its bound policy. A changed or even
+  invalid file is not read again. Direct retries must retain the same project.
+- A new admission that reaches an unaccepted cursor already bound to another
+  digest or project fails with `extraction_policy_conflict`, without a provider
+  call or cursor movement. `inspect --queued` shows the admitted and bound
+  digests; the worker records the error in `last_error`. The binding is never
+  replaced. See the recovery decision in [PB-067 C2](playbooks/system/rag-067-extraction-policy.md#part-c-invalid-files-queued-work-and-retries).
 - An already accepted result is applied without another provider call and is
   never filtered again by a newer policy.
 - A debounced local job that continues (`has_more`, or more turns while it waits)

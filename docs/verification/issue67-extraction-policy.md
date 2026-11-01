@@ -87,9 +87,10 @@ its binding and trigger; pre-upgrade restore loses later writes.
 
 ## Deviations and limits
 
-- One cursor has one meaning: if a new local job reaches a cursor that already
-  has a binding from an earlier job, the earlier binding wins and an
-  `extraction_policy_reuse` audit row names both digests (not silent).
+- Review M1 rejected cross-job binding reuse. New admissions with conflicting
+  digests or bound projects now fail before the provider; wrong-project admitted
+  captures are invalid. Bindings and failed jobs remain intact. Direct retries
+  keep their original policy only within the original project.
 - A malformed central snapshot ends the receipt as `error`/`processing_failed`
   (no dedicated public code); the local job records `policy_snapshot_invalid`.
 - The binding audit adds one `audit_log` row per newly mined cursor; one earlier
@@ -127,3 +128,26 @@ records that actual version. Future0.6.21 remains unsupported. The new real
 backup/independent-restore case and affected schema, PB-067, lifecycle and synthesis
 upgrade tests passed together: **13 passed**,1known warning,exit0,108.16s.
 Earlier evidence of0.6.20 refusal describes the pre-correction source only.
+
+## Independent-review correction (M1 and PB-I1)
+
+Four new regressions reproduced cross-job policy override, project changes and a
+validly hashed wrong-project capture. The correction rejects a conflicting new
+admission with extraction_policy_conflict before any provider call, batch or
+cursor advance; an invalid admitted project is policy_snapshot_invalid. Failed
+jobs and the original binding are retained. Direct same-project retries still
+reuse the original binding without reading the file. Queue tests also resume
+under the original policy/project without modifying either failed job.
+
+Affected verification:35passed,1known Starlette warning,exit0,30.62s
+(root-review-conflict-green.log). This covers local mining, binding schema,
+central admission/retry/scope and PB-066 populated upgrade/restore. The PB-066
+future-version refusal now uses0.6.21, since0.6.20 is supported by this release.
+Full1 failed on a stopped test database; full2 was interrupted for these code
+corrections (445passed,1stale-test-expectation failure). Neither is a full pass.
+Independent correction review and a source-bound final full suite are pending.
+
+The changed PB-067 commands and documentation continuity check were also
+rehearsed after the correction:18passed,1known warning,exit0,15.92s
+(root-review-pb-docs-green.log). Nonblocking findings LOW-050..055 are tracked in
+[Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6553145423).

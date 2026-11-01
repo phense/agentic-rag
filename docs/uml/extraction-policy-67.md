@@ -125,13 +125,15 @@ filter and gateway call sites. Independent integration acceptance remains open.
 | Legacy compatibility and activation | test_extraction_policy_upgrade actual archived01bc13bd; PB-067 all-miner restart gate | Matches D8 subject to independent PB review; no live/native/multi-host claim |
 | Current-release backup | service.upgrade source list now includes actual0.6.20; PB post-upgrade dump uses0.6.20 | Corrected plan implementation: an0.6.20 dump must not be labelled0.6.19; actual backup regression plus affected PB/schema/upgrade rehearsal passed13tests |
 
-A pre-existing cursor binding takes precedence over a newly admitted local job's
-snapshot; mining._policy_bundle emits extraction_policy_reuse with both digests.
-This is the implementation's explicit interpretation of one meaning per cursor,
-not a claim that a new admission can reinterpret earlier work. The original
-implementer did not directly test that cross-job case. Independent review must
-probe it and decide whether further refusal/status behavior is required by
-AC-005/007; it is not silently declared accepted here.
+Review M1 rejected the original cross-job reuse behavior. A newly admitted
+snapshot must match both the work's canonical project and any existing cursor
+binding. An invalid admitted project raises policy_snapshot_invalid before
+binding. A different admitted digest or a bound project mismatch raises
+extraction_policy_conflict before the provider, acceptance or cursor movement.
+The worker retains the job and records the error using its existing finite retry
+policy; the immutable binding remains intact. Direct retries reuse the existing
+binding without reading today's file, but cannot change its project. Accepted
+batches still replay unchanged before policy resolution.
 
 The implementer's PB rehearsal admitted a central window but did not mine it;
 central integration success/recovery must therefore be derived and exercised by

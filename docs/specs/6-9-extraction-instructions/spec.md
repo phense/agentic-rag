@@ -53,6 +53,10 @@ be restored for future work, independently of replaying already accepted work.
   before its first provider call. Retries, accepted-output replay and continuation
   of the same admitted job never resolve a different policy silently. Malformed or
   mismatched durable snapshots block rather than fall back to today's settings.
+  Before acceptance, a new admission conflicting with an existing cursor binding
+  fails with `extraction_policy_conflict`, without provider call or cursor movement.
+  Every admitted and bound snapshot must match the work's canonical project.
+  Retrying a direct call may reuse its binding only in that same project.
 - AC-006 — Existing queue windows/batches without custom-policy metadata have an
   explicit legacy/builtin interpretation. Missing configuration preserves existing
   mining prompt/schema/output behavior. Existing accepted batches are never
@@ -61,8 +65,9 @@ be restored for future work, independently of replaying already accepted work.
 - AC-007 — File-first operation has one shared validation/resolution API for future
   dashboard editing. Service-side files own central mining; clients cannot upload
   guidance or override service rules. A file is read once per admission, changed
-  atomically, with required restart/reload behavior documented. Bind/change audit
+  atomically, with required restart/reload behavior documented. The binding audit
   identifies policy hashes without copying arbitrary text into audit summaries.
+  File replacements themselves are not database events and are not audited.
 - AC-008 — Policy changes are prospective and never trigger historical re-mining.
   This feature adds no bulk historical rewrite/re-mining operation. Reusing an
   accepted cursor replays its accepted result. Any future historical run requires

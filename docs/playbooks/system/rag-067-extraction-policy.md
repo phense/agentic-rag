@@ -89,8 +89,9 @@ unchanged (rehearsed). It adds one empty table, `extraction_policy_bindings`.
 Keep `DIR/policy032.dump` and its manifest until you decide never to return to
 the pre-upgrade state (part D).
 
-Without a policy file 0.6.20 mines exactly as 0.6.19: same prompt, same schema,
-same retained output. Work queued before the upgrade, or admitted while no file
+Without a policy file 0.6.20 uses the 0.6.19 prompt, schema and retained output,
+while adding builtin binding/audit, batch policy metadata and provenance.
+Work queued before the upgrade, or admitted while no file
 is configured, always uses these builtin rules, even after you add a file.
 
 `--source-version 0.6.19` names the version the store came from. The label
@@ -165,6 +166,11 @@ no fallback setting that makes 0.6.19 mining honor a policy.
 
 ### B2–B5: validate, inspect, activate
 
+For editable installs or a wall-clock step since boot, restart every listed
+process unconditionally; the timestamp check alone is insufficient. Policy and
+sample paths must be regular files. Check sample size (at most 64 KiB) before
+reading it; devices, FIFOs and oversized transcripts are not supported.
+
 | Step | Actor and target | Action | Expected evidence | Failure / next step |
 |---|---|---|---|---|
 | B2 | Operator, draft file | Write the draft next to `POLICY` (same directory), for example `POLICY.new`. `rag extraction validate --file POLICY.new` | `"valid": true`, an `identity` starting with `xf1:`, the rule count and the caps. No provider call, no write | `"valid": false` lists `code` and `location` per error, never the value: fix that place and repeat. Codes: [extraction policy](../../extraction-policy.md#error-codes) |
@@ -182,10 +188,26 @@ configuration. Work already admitted keeps its policy (part C3).
 | Step | Situation | Action | Expected evidence | Failure / next step |
 |---|---|---|---|---|
 | C1 | Invalid file in use. Local hooks log `invalid extraction policy: <code> at <location>` and admit no new job; a central service answers new windows with `extraction_policy_invalid` (HTTP 503), clients keep them in their spool and retry | `mv POLICY.prev POLICY` (or fix the file), then `rag extraction validate` | `"valid": true`. Nothing was lost: a refused admission consumes no cursor; the next hook run or client retry admits the window | Already admitted work is unaffected; it never reads the file again |
-| C2 | You want to know which policy pending work will use | `rag extraction inspect --queued` on the database host (refused in client mode) | Per job or window: `admitted` digest, or `legacy-builtin` for work admitted without metadata, and `bound` once a mining attempt started | |
+| C2 | You want to know which policy pending work will use | `rag extraction inspect --queued` on the database host (refused in client mode) | Per job or window: `admitted` digest, or `legacy-builtin` for work admitted without metadata, and `bound` once an attempt started. Equal digests identify the policy used | A new admission with a different digest or bound project fails with `extraction_policy_conflict` in local `mining_queue.last_error`; no provider call, batch or cursor movement. Follow the conflict decision below |
 | C3 | A job or window failed after admission (provider outage, crash, blocked authority) | Retry it as usual: the local worker retries automatically; a central owner uses `rag service job-retry RECEIPT` | The retry uses the admitted and bound policy, even if the file changed or is invalid meanwhile; a result that was already accepted is applied without a second provider call (rehearsed) | A malformed stored snapshot stops the job and moves no cursor (local job `last_error` `policy_snapshot_invalid`; central receipt state `error`, code `processing_failed`): keep the job, escalate |
 | C4 | A domain was removed from a principal after admission | Nothing to do | The retry writes only domains that are both admitted and currently writable; with none left the window is blocked (`authorization_or_predecessor_blocked`) | Restore the authority and use C3 |
 | C5 | Every category disabled on purpose | Nothing to do | Mining accepts an empty batch, makes no provider call and advances the cursor (`skipped: extraction disabled by policy`) | |
+
+### Conflict decision (C2)
+
+Keep the conflicting job and binding. Do not edit snapshots, delete bindings,
+advance cursors or replay the transcript under a new session ID. If the original
+policy and project remain acceptable, restore that exact policy file and resume
+the session in its original project. After the conflicting job exhausts its
+normal retry budget, the next ordinary Stop/SessionEnd admission can finish the
+original cursor under that binding. This path is covered by the queue regression
+test. Only subsequent cursors can use the changed policy. The old conflict job
+remains an error for inspection. If the original policy is no longer authorized,
+leave the work stopped and escalate; this release provides no rebind command.
+A direct retry in another project also reports extraction_policy_conflict. A
+validly hashed admitted snapshot naming the wrong project instead reports
+policy_snapshot_invalid. Neither case is repaired by changing the current file
+for an already admitted job.
 
 ### Integrity check
 
@@ -260,8 +282,8 @@ downgrade.
 ## Escalation and preserved evidence
 
 Escalate to the maintainer when A1, A2 or A4 report an unsupported store or a
-preservation mismatch, when B1 finds an unknown direct client, when C3 reports
-`policy_snapshot_invalid` or when the integrity check is not clean. Keep, without
+preservation mismatch, when B1 finds an unknown direct client, when C2 reports an unresolved
+`extraction_policy_conflict`, when C3 reports `policy_snapshot_invalid` or when the integrity check is not clean. Keep, without
 secrets: the process list, the B1 outputs, the inventory, preflight and A4/A5
 output, the dump and its manifest, each validated policy identity with the file
 and the integrity result. Do not attach dumps, policy files with internal
@@ -271,8 +293,9 @@ guidance or memory texts to public issues.
 
 Part A is complete when A4 and A5 succeeded, A6 shows no error, all processes on
 the list run 0.6.20 and the integrity check is clean. Part B is complete when B1
-passed on every listed host, B5 shows the validated identity and the next mined
-batch names that policy (`rag extraction inspect --queued` or the batch's
+passed on every listed host, B5 shows the validated identity, C2 reports no
+unresolved conflict, and the next mined batch names its admitted policy
+(`rag extraction inspect --queued` or the batch's
 `_policy` digest). Keep the verified pre-upgrade dump until you decide never to
 return to the pre-upgrade state.
 
