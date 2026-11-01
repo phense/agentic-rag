@@ -1,0 +1,824 @@
+{
+  "source_head": "ba9648d393b1fa7af90aa70995d1d9dbbaa0409c",
+  "runtime_source": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+  "experiment": "E-LANE-1",
+  "diagnostic_only": true,
+  "acceptance": false,
+  "production_changed": false,
+  "stage_A": {
+    "protocol": {
+      "experiment": "E-LANE-1 A",
+      "source_head": "ba9648d393b1fa7af90aa70995d1d9dbbaa0409c",
+      "runtime_source": "5667ee7 unchanged; model-only experiment",
+      "controller_sha256": "83900c19a04a0abdb349a58cf9e96e6d0c7400ea63e1a283972f53df4d78d1cd",
+      "created_before_execution": true,
+      "repetitions": 10,
+      "foreground_after_background_seconds": 0.15,
+      "foreground_threads": 2,
+      "background_threads": 2,
+      "foreground_cpu_quota_percent": 350,
+      "background_cpu_quota_percent": 100,
+      "background_cpu_weight": 1,
+      "cpu_burner_processes": 3,
+      "cpu_burner_combined_quota_percent": 250,
+      "memory_per_model_bytes": 2147483648,
+      "thresholds": {
+        "foreground_p95_seconds": 1,
+        "background_max_seconds": 60,
+        "host_available_min_bytes": 1610612736,
+        "vector_parity": "bitwise against complete-input primary default-thread reference",
+        "model_or_oom_or_memorylimit_events": 0,
+        "swap_delta": 0,
+        "model_files_unchanged": true
+      },
+      "abort": "Do not run stage B if any A condition fails. Preserve failure and restore all owned units.",
+      "production_changed": false,
+      "provider_input": "Only the exact synthetic full texts from prior parallelism diagnostic; no private copied data",
+      "attempt": "r2",
+      "prior_attempt": "r1 setup failure 226/NAMESPACE: PrivateTmp hides /var/tmp home; zero measured pairs; retained",
+      "setup_correction": "Dedicated /var/lib diagnostic root, same sandbox and all model/CPU/threshold settings"
+    },
+    "result": {
+      "experiment": "E-LANE-1 A",
+      "diagnostic_only": true,
+      "acceptance": false,
+      "production_changed": false,
+      "rows": [
+        {
+          "role": "foreground",
+          "index": 0,
+          "start_seconds": 0.1505179200321436,
+          "end_seconds": 0.782379194162786,
+          "seconds": 0.6318616941571236,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 0,
+          "start_seconds": 0.00010776915587484837,
+          "end_seconds": 24.71323687513359,
+          "seconds": 24.71312928502448,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 1,
+          "start_seconds": 0.1540300790220499,
+          "end_seconds": 0.7007674248889089,
+          "seconds": 0.5467376159504056,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 1,
+          "start_seconds": 3.5899924114346504e-05,
+          "end_seconds": 24.195266284048557,
+          "seconds": 24.19523066515103,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 2,
+          "start_seconds": 0.15185052389279008,
+          "end_seconds": 0.7074297040235251,
+          "seconds": 0.5555796111002564,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 2,
+          "start_seconds": 5.917483940720558e-05,
+          "end_seconds": 23.589512957958505,
+          "seconds": 23.58945394307375,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 3,
+          "start_seconds": 0.15518632205203176,
+          "end_seconds": 0.6291855061426759,
+          "seconds": 0.473999435082078,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 3,
+          "start_seconds": 3.589899279177189e-05,
+          "end_seconds": 24.402676999103278,
+          "seconds": 24.40264123119414,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 4,
+          "start_seconds": 0.15071472013369203,
+          "end_seconds": 0.718728194013238,
+          "seconds": 0.5680136338341981,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 4,
+          "start_seconds": 6.581703200936317e-05,
+          "end_seconds": 23.909115839982405,
+          "seconds": 23.90905018313788,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 5,
+          "start_seconds": 0.1514855062123388,
+          "end_seconds": 0.5883545381948352,
+          "seconds": 0.4368692529387772,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 5,
+          "start_seconds": 3.6631012335419655e-05,
+          "end_seconds": 22.49194228113629,
+          "seconds": 22.491905911127105,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 6,
+          "start_seconds": 0.1505650000181049,
+          "end_seconds": 0.6454525908920914,
+          "seconds": 0.4948877820279449,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 6,
+          "start_seconds": 0.0040834578685462475,
+          "end_seconds": 23.685699194902554,
+          "seconds": 23.68161590816453,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 7,
+          "start_seconds": 0.15221635391935706,
+          "end_seconds": 0.672618520911783,
+          "seconds": 0.5204023970291018,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 7,
+          "start_seconds": 5.1309820264577866e-05,
+          "end_seconds": 23.804221167927608,
+          "seconds": 23.804170028073713,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 8,
+          "start_seconds": 0.15615602303296328,
+          "end_seconds": 0.6149146729148924,
+          "seconds": 0.4587589108850807,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 8,
+          "start_seconds": 4.0207989513874054e-05,
+          "end_seconds": 22.192851535975933,
+          "seconds": 22.19281146908179,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "foreground",
+          "index": 9,
+          "start_seconds": 0.1543107449542731,
+          "end_seconds": 0.7012880479451269,
+          "seconds": 0.5469774529337883,
+          "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a",
+          "bitwise_equal_to_default_threads_primary": true
+        },
+        {
+          "role": "background",
+          "index": 9,
+          "start_seconds": 3.4288037568330765e-05,
+          "end_seconds": 23.73837517690845,
+          "seconds": 23.738341048825532,
+          "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682",
+          "bitwise_equal_to_default_threads_primary": true
+        }
+      ],
+      "preload_parity": [
+        {
+          "endpoint": "foreground",
+          "input": "background",
+          "equal": true,
+          "max_abs_difference": 0.0
+        },
+        {
+          "endpoint": "foreground",
+          "input": "foreground",
+          "equal": true,
+          "max_abs_difference": 0.0
+        },
+        {
+          "endpoint": "background",
+          "input": "background",
+          "equal": true,
+          "max_abs_difference": 0.0
+        },
+        {
+          "endpoint": "background",
+          "input": "foreground",
+          "equal": true,
+          "max_abs_difference": 0.0
+        }
+      ],
+      "summary": {
+        "foreground_p95_seconds": 0.603130067011807,
+        "foreground_max_seconds": 0.6318616941571236,
+        "background_max_seconds": 24.71312928502448,
+        "vectors_equal": true,
+        "model_files_unchanged": true,
+        "minimum_host_available_bytes": 2107383808,
+        "swap_delta_bytes": 0,
+        "memory_limit_or_oom_events": 0,
+        "model_resources": {
+          "foreground": {
+            "memory_bytes": 1660076032,
+            "memory_peak_bytes": 1663819776,
+            "memory_events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu_stat": {
+              "usage_usec": 35187873,
+              "user_usec": 33920966,
+              "system_usec": 1266907,
+              "nice_usec": 0,
+              "nr_periods": 233,
+              "nr_throttled": 37,
+              "throttled_usec": 1331526,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "pss_bytes": 1661971456,
+            "rss_bytes": 1684295680
+          },
+          "background": {
+            "memory_bytes": 1859936256,
+            "memory_peak_bytes": 1882861568,
+            "memory_events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu_stat": {
+              "usage_usec": 233022175,
+              "user_usec": 231999753,
+              "system_usec": 1022422,
+              "nice_usec": 0,
+              "nr_periods": 2525,
+              "nr_throttled": 1163,
+              "throttled_usec": 22716114,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "pss_bytes": 1635493888,
+            "rss_bytes": 1657819136
+          }
+        },
+        "burner_resources": {
+          "memory_bytes": 51412992,
+          "memory_peak_bytes": 51781632,
+          "memory_events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "cpu_stat": {
+            "usage_usec": 593859726,
+            "user_usec": 593558074,
+            "system_usec": 301652,
+            "nice_usec": 0,
+            "nr_periods": 2381,
+            "nr_throttled": 2296,
+            "throttled_usec": 76947712,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "pss_bytes": 54164480,
+          "rss_bytes": 97603584
+        }
+      },
+      "stage_A_pass": true,
+      "complete": true,
+      "all_owned_units_inactive": true
+    },
+    "observed_supervisor_exit_code": 0,
+    "owned_root": "/var/lib/rag92-lane1-model-gate-r2-20261101",
+    "prior_attempt": {
+      "root": "/var/tmp/rag92-lane1-model-gate-20261101",
+      "exit_code": 1,
+      "model_status": "226/NAMESPACE before inference",
+      "cause": "PrivateTmp hides var/tmp home; r2 relocates only owned root, keeps sandbox and thresholds",
+      "measured_pairs": 0,
+      "all_started_owned_units_inactive": true,
+      "retained": true
+    }
+  },
+  "stage_B": {
+    "protocol": {
+      "experiment": "E-LANE-1 B",
+      "frozen_before_execution": true,
+      "source_head": "ba9648d393b1fa7af90aa70995d1d9dbbaa0409c",
+      "runtime_source": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+      "source_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+      "controller_sha256": "df038153e46dd14feb04e08345e699aac341871780d0dde0be8a3663d37d1cdc",
+      "supervisor_sha256": "ee4f80f00d030766a3e9a8a395ae3768447a6c923026ffb9dd49db7138a496a9",
+      "stage_A_terminal_sha256": "b499bc94301c56b8ecc7d4db22e335b7be5f2dfc2e9d2f0095cf5fced039c44c",
+      "prerequisite": "stage A r2 actual exit0 pass;10 pairs, p95FG0.60313, parity/full inputs/hostmemory/noOOM/cleanup pass",
+      "clients": 40,
+      "rounds": 3,
+      "searches_per_phase": 39,
+      "phases": [
+        "idle40",
+        "growing40",
+        "noarrivals40"
+      ],
+      "sources": 13,
+      "limits": [
+        "Diagnostic shim, not release implementation or final acceptance",
+        "Same actual API/source/window workload, all principals read wildcard; non-disclosure under load remains final gate",
+        "Search snippet/citation and truth checked on immutable returned chunks; no independent rank oracle under load",
+        "Actual client remains final gate; harness polls1.05s",
+        "Full originals not truncated, model tag digest guarded before/after each routed call",
+        "Same4CPU8GiB, no production changes"
+      ],
+      "required": {
+        "search_p95_seconds_per_phase": 10,
+        "background_execution_p95_over_idle_max_seconds": 0.5,
+        "all_originals_applied": 13,
+        "model_errors_fallbacks_dedup_skips_warnings_timeouts": 0,
+        "source_text_hash_mismatches": 0,
+        "invalid_citations_or_ineligible_hits": 0,
+        "host_available_min_bytes": 1610612736,
+        "oom_memorylimit_swapdelta": 0
+      }
+    },
+    "result": {
+      "experiment": "E-LANE-1 B",
+      "production_changed": false,
+      "acceptance": false,
+      "controller_exit_code": 0,
+      "complete": true,
+      "load_result": {
+        "correctness": {
+          "searches": 117,
+          "empty_searches": 0,
+          "warnings": 0,
+          "invalid_citations": 0,
+          "invalid_eligibility": 0,
+          "hits": 351,
+          "source_windows": 13,
+          "source_hash_mismatch": 0,
+          "missing_source_evidence": 0,
+          "fallbacks": 0,
+          "dedup_skips": 0
+        },
+        "model_runtime": "owned11435 foreground350%/2GiB and11436 background100%/CPUWeight1/2GiB, each parallel1",
+        "installed_distribution": "0.6.22",
+        "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; model-lane diagnostic shim only, not an implemented release",
+        "cpu_count": 4,
+        "phases": [
+          {
+            "phase": "idle40",
+            "started_epoch": 1793552482.8060493,
+            "finished_epoch": 1793552513.0181887,
+            "clients": 40,
+            "rounds": 3,
+            "offered": 120,
+            "owned_cgroup_cpu_seconds": 76.260695,
+            "owned_model_cgroup_cpu_seconds": 21.390783,
+            "all_completed": true,
+            "tools": {
+              "metadata": {
+                "offered": 42,
+                "completed": 42,
+                "total_seconds": {
+                  "n": 42,
+                  "p50": 5.684164597536437,
+                  "p95": 9.120470441505311,
+                  "max": 9.403138519031927
+                },
+                "wait_seconds": {
+                  "n": 42,
+                  "p50": 3.3427015,
+                  "p95": 5.788288,
+                  "max": 6.337143
+                },
+                "execution_seconds": {
+                  "n": 42,
+                  "p50": 0.1944615,
+                  "p95": 0.26667504999999997,
+                  "max": 0.310136
+                },
+                "retry_requests": 165,
+                "states": {
+                  "completed": 42
+                }
+              },
+              "context": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 4.5960951880551875,
+                  "p95": 9.405224375589752,
+                  "max": 10.283503179904073
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 2.531759,
+                  "p95": 5.805520800000001,
+                  "max": 6.261411
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 0.775888,
+                  "p95": 0.9298756000000002,
+                  "max": 1.14448
+                },
+                "retry_requests": 119,
+                "states": {
+                  "completed": 39
+                }
+              },
+              "search": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 6.930847220821306,
+                  "p95": 9.908299023984,
+                  "max": 10.12771674292162
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 3.549043,
+                  "p95": 5.812158500000001,
+                  "max": 6.070913
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 1.546674,
+                  "p95": 2.1439716000000004,
+                  "max": 2.248751
+                },
+                "retry_requests": 147,
+                "states": {
+                  "completed": 39
+                }
+              }
+            },
+            "owners": {
+              "0": {
+                "offered": 30,
+                "completed": 30
+              },
+              "1": {
+                "offered": 30,
+                "completed": 30
+              },
+              "2": {
+                "offered": 30,
+                "completed": 30
+              },
+              "3": {
+                "offered": 30,
+                "completed": 30
+              }
+            }
+          },
+          {
+            "phase": "growing40",
+            "started_epoch": 1793552514.2182293,
+            "finished_epoch": 1793552550.0168417,
+            "clients": 40,
+            "rounds": 3,
+            "offered": 120,
+            "owned_cgroup_cpu_seconds": 83.38472999999999,
+            "owned_model_cgroup_cpu_seconds": 22.479003000000002,
+            "all_completed": true,
+            "tools": {
+              "metadata": {
+                "offered": 42,
+                "completed": 42,
+                "total_seconds": {
+                  "n": 42,
+                  "p50": 6.830969027476385,
+                  "p95": 10.636118778516538,
+                  "max": 11.000746303936467
+                },
+                "wait_seconds": {
+                  "n": 42,
+                  "p50": 4.7488245,
+                  "p95": 7.4565345,
+                  "max": 7.588197
+                },
+                "execution_seconds": {
+                  "n": 42,
+                  "p50": 0.1942775,
+                  "p95": 0.25798474999999993,
+                  "max": 0.367694
+                },
+                "retry_requests": 138,
+                "states": {
+                  "completed": 42
+                }
+              },
+              "context": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 6.626805451000109,
+                  "p95": 11.175277106557042,
+                  "max": 12.014995589852333
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 4.023636,
+                  "p95": 7.540771000000001,
+                  "max": 8.106971
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 0.963595,
+                  "p95": 1.359525,
+                  "max": 1.530324
+                },
+                "retry_requests": 113,
+                "states": {
+                  "completed": 39
+                }
+              },
+              "search": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 7.769877330865711,
+                  "p95": 11.641561793140136,
+                  "max": 12.296246170066297
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 4.598853,
+                  "p95": 7.6105766,
+                  "max": 7.743051
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 1.860992,
+                  "p95": 2.6717998,
+                  "max": 2.97546
+                },
+                "retry_requests": 131,
+                "states": {
+                  "completed": 39
+                }
+              }
+            },
+            "owners": {
+              "0": {
+                "offered": 30,
+                "completed": 30
+              },
+              "1": {
+                "offered": 30,
+                "completed": 30
+              },
+              "2": {
+                "offered": 30,
+                "completed": 30
+              },
+              "3": {
+                "offered": 30,
+                "completed": 30
+              }
+            }
+          },
+          {
+            "phase": "noarrivals40",
+            "started_epoch": 1793552550.0290685,
+            "finished_epoch": 1793552586.2479236,
+            "clients": 40,
+            "rounds": 3,
+            "offered": 120,
+            "owned_cgroup_cpu_seconds": 81.50709999999998,
+            "owned_model_cgroup_cpu_seconds": 22.714157999999998,
+            "all_completed": true,
+            "tools": {
+              "metadata": {
+                "offered": 42,
+                "completed": 42,
+                "total_seconds": {
+                  "n": 42,
+                  "p50": 5.316756695043296,
+                  "p95": 10.389284594566558,
+                  "max": 11.631920885061845
+                },
+                "wait_seconds": {
+                  "n": 42,
+                  "p50": 3.3757495,
+                  "p95": 6.9430048499999995,
+                  "max": 8.867808
+                },
+                "execution_seconds": {
+                  "n": 42,
+                  "p50": 0.2338335,
+                  "p95": 0.31882015,
+                  "max": 0.401071
+                },
+                "retry_requests": 131,
+                "states": {
+                  "completed": 42
+                }
+              },
+              "context": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 6.518326222198084,
+                  "p95": 10.967111477791331,
+                  "max": 11.345804687123746
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 3.846678,
+                  "p95": 7.175999200000001,
+                  "max": 7.735582
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 0.882702,
+                  "p95": 1.2072411000000003,
+                  "max": 1.326927
+                },
+                "retry_requests": 127,
+                "states": {
+                  "completed": 39
+                }
+              },
+              "search": {
+                "offered": 39,
+                "completed": 39,
+                "total_seconds": {
+                  "n": 39,
+                  "p50": 7.791858709882945,
+                  "p95": 11.484554438269699,
+                  "max": 12.95028813299723
+                },
+                "wait_seconds": {
+                  "n": 39,
+                  "p50": 3.470643,
+                  "p95": 7.3617315,
+                  "max": 8.642707
+                },
+                "execution_seconds": {
+                  "n": 39,
+                  "p50": 1.940232,
+                  "p95": 2.8672659000000005,
+                  "max": 3.051313
+                },
+                "retry_requests": 125,
+                "states": {
+                  "completed": 39
+                }
+              }
+            },
+            "owners": {
+              "0": {
+                "offered": 30,
+                "completed": 30
+              },
+              "1": {
+                "offered": 30,
+                "completed": 30
+              },
+              "2": {
+                "offered": 30,
+                "completed": 30
+              },
+              "3": {
+                "offered": 30,
+                "completed": 30
+              }
+            }
+          }
+        ],
+        "source_windows": 13,
+        "arrival_count_during_growing": 12,
+        "source_states": {
+          "applied": 13
+        },
+        "all_sources_applied": true,
+        "model_calls": {
+          "foreground": 117,
+          "background": 28,
+          "background_seconds": {
+            "n": 28,
+            "p50": 11.66213583946228,
+            "p95": 18.810470879077897,
+            "max": 30.116410970687866
+          },
+          "errors": 0
+        },
+        "observed_background_starts": [
+          1793552514.1985273,
+          1793552549.8138404
+        ],
+        "poll_interval_seconds": 1.05,
+        "extraction_provider": "scripted synthetic result; not LLM quality/latency",
+        "limits": [
+          "Actual local CPU embeddings; owned Ollama runtime on11435, same read-only bge-m3-q8 model blobs",
+          "Other production services remained running; no production DB/config/service writes",
+          "Read-only populated schema024 source migrated only on own PG55468 copy",
+          "No long soak, TLS or cross-host traffic claim",
+          "Maintainer target: search total p95<=10seconds per40-client phase; bounded bursts, not a soak",
+          "Test and owned-model CPU accounted separately per phase; production Ollama outside both groups; no production service limit changed"
+        ],
+        "all_clients_completed": true,
+        "diagnostic_only": true,
+        "consumer_override": 4,
+        "acceptance": false,
+        "latency_target_seconds": 10,
+        "target_40client_phases_pass": false,
+        "background_execution_over_idle_seconds": {
+          "growing40": 0.5278281999999996,
+          "noarrivals40": 0.7232943000000001
+        },
+        "resource_gate": {
+          "sample_errors": 0,
+          "host_available_min_bytes": 2622685184,
+          "model_limit_or_oom_events": 0,
+          "swap_delta_bytes": 0
+        },
+        "stage_B_pass": false
+      },
+      "all_owned_models_inactive": true
+    },
+    "observed_supervisor_exit_code": 0,
+    "owned_root": "/var/lib/rag92-lane1-load-20261101",
+    "owned_api_and_worker_exited": true,
+    "owned_pg_stopped": true
+  },
+  "disposition": "Physical isolation works and preserves complete-vector/source correctness, but lane alone fails the unchanged10second target. Do not adopt lane/consumer/thread settings or start implementation on this evidence alone. Attribute remaining non-model CPU/SQL work before choosing another repair. Final real-client, stronger scoped oracle, populated0.6.21 upgrade/recovery and complete suite gates remain open.",
+  "controller_identity_files": {
+    "lane1_model_gate.py": {
+      "sha256": "d29126c4ca009f221e084d1c82b79b333c777c678fcf078599903ff849d806f0",
+      "bytes": 9452
+    },
+    "lane1-model-protocol.json": {
+      "sha256": "0def6ab1c15fbe11bc70fb82d9fb768deb9312495917d71d84002ebe7c89751b",
+      "bytes": 1203
+    },
+    "lane1_model_gate_r2.py": {
+      "sha256": "83900c19a04a0abdb349a58cf9e96e6d0c7400ea63e1a283972f53df4d78d1cd",
+      "bytes": 9467
+    },
+    "lane1-model-protocol-r2.json": {
+      "sha256": "46512d0a43bfcc41e1f698bd36cd8ee25af129cc9516fd4ce5e5497b99e61b97",
+      "bytes": 1449
+    }
+  }
+}

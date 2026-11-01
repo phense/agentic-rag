@@ -710,3 +710,44 @@ had no OOM events, and stopped both sequential service runs; it did not invoke
 the product, establish a deployment budget or test40 clients. A separate
 foreground/background execution-lane proposal is under design review, not
 implemented or accepted.
+
+
+### E-LANE-1: isolated background model experiment (2026-11-01)
+
+Source archive: `5667ee7eed39a33b49b74cef0cf6b792d67c859a`; planning HEAD
+`ba9648d`. This is a harness experiment, not adopted runtime configuration or a
+release. The prospective protocols, hashes and aggregate results are in
+[model-lane-feasibility.json](../../benchmarks/2026-11-01-lexical-eligibility/model-lane-feasibility.json).
+
+Stage A passed with an actual supervisor exit 0: ten complete-input pairs,
+foreground p95 0.603 s, longest background 24.713 s. Default-thread, two-thread and
+cross-daemon vectors were bit-identical; all ten model files were unchanged.
+Minimum available host memory was 2,107,383,808bytes, with no swap delta, OOM or
+memory-limit event. The first attempt failed before inference because PrivateTmp
+hid its var/tmp home (226/NAMESPACE); that artifact is retained. The second attempt
+changed only the owned diagnostic root, retaining the sandbox and thresholds.
+All owned model and burner services stopped after the run.
+
+Stage B completed with supervisor exit 0, but **failed its numerical gate**.
+Three rounds per phase, 40 clients, four diagnostic consumers and two model threads
+produced search total p95 9.908 s idle, 11.642 s growing and 11.485 s without further
+arrivals. Search execution p95 exceeded idle by 0.528 s and 0.723 s in the background
+phases, above the prospective 0.5 s margin. The background endpoint used a separate
+SQL lock, 100% CPU quota and CPUWeight 1; the primary retained 350%. Each model had a
+2 GiB limit and shared read-only pinned blobs. No product configuration changed.
+
+All 360 foreground requests completed. All 13 complete original-source windows
+were applied with matching text hashes and complete quote evidence. The 117 search
+responses contained 351 hits: no empty response, warning, invalid citation
+coordinate or ineligible returned document. All 117 foreground and 28 background
+model calls completed without error; cache fallback and skipped-dedup counters
+were zero. Minimum available memory was 2,622,685,184bytes; no swap delta, OOM,
+limit event or sampler error occurred. The owned API/worker, PostgreSQL and both
+model services stopped; production services and data were untouched.
+
+The isolation candidate removes the measured model serialization but is not
+sufficient for AC05. Further work must attribute PostgreSQL/API cost before a
+repair is selected. This experiment used harness polling, wildcard readers and
+a populated 024 diagnostic copy; it does not replace actual-client observation,
+a restricted-reader result oracle, a real 0.6.21 upgrade/recovery rehearsal or the
+final full suite. Issues 68 and 92 and tasks T06811/T06818 remain open.
