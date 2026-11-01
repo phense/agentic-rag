@@ -811,3 +811,50 @@ restricted-reader result equality or a final-input model-parity matrix. Before
 another load trial, review the admission, consumer and polling boundaries against
 A2. Neither A2 adoption nor feature acceptance follows from B3; AC05, T06811,
 T06818 and Issues 68/92 remain open.
+
+## S06808: optional model lane and client polling
+
+Implementation of the A2 minimum (T06823–T06827) on base `0587aed`, recorded
+2026-11-01. Machine-readable summary:
+[s06808-a2-implementation-evidence.json](../../benchmarks/2026-11-01-lexical-eligibility/s06808-a2-implementation-evidence.json).
+All runs used an owned PostgreSQL17 copy on port55460, serially. Ollama, the
+extraction provider and model identity were simulated; no model, provider,
+remote host or production system was contacted.
+
+Test-first record. Before any runtime edit, 116 new tests were run: 81 failed on
+behavior (ignored settings, default route, shared lock, missing identity checks,
+two fixed consumers, ignored `retry_after`, no pre-acknowledgement resend) and 35
+characterizations passed (default payload, default background route and lock,
+standalone and managed-profile routes, fallback polling, terminal and permanent
+failures, negotiation and old synchronous calls, ContextVars, graceful shutdown).
+Commit `fa154a8` freezes exactly those inputs. Four test-harness corrections
+followed and are listed in commit `8252a3d`; none weakened an assertion.
+
+Real-component rehearsal (`tests/service/test_model_lane_runtime.py`, 13 tests):
+lane success through the gateway; digest swap on either daemon and a daemon
+outage each keep the job pending with its attempt and accepted batch, write no
+document or audit row, then apply without a second provider call; key removal
+and restart apply on the primary daemon with the unchanged10s deadline; lane
+and default workers share the singleton lock; a revoked key blocks before any
+inference; the actual client completes through four consumers after the12/s
+window and replays a lost acknowledgement as one queued request; the API refuses
+to start above the pool reserve; and the PB06801 parity probe text accepts
+identical doubles and rejects differing vectors or digests. Two mutations
+(removing the post-inference identity check; turning an outage into a
+best-effort save) each failed three tests.
+
+Populated upgrade (`tests/service/test_lexical_upgrade.py`): genuine0.6.21 also
+creates an accepted source window and a queued request. Interruption rolls
+back034, the retry preserves every table hash, and source and target backups
+restore independently. On the upgraded store the pending request blocks new
+background pages, then completes on the consumer path; genuine0.6.21 worker
+code is excluded by the singleton lock; a lane digest swap publishes nothing;
+the default lane then applies the retained extraction. Original documents,
+pins and the pending legacy job stay unchanged.
+
+The final affected run on `eb0ca10` passed 432 tests (exit0, 306.9s; one
+pre-existing Starlette deprecation warning). Remaining limits: no physical
+model, cross-daemon vector parity for every actual input, resource budget,
+actual40-client load, complete independent review or full suite was run here.
+The PB06801 section is drafted, not independently reviewed or rehearsed on a
+real daemon.
