@@ -21,8 +21,8 @@ lifecycle decisions: duplicate, extension, replacement and contradiction between
 two original memories, recorded as an audited overlay that never edits the
 originals. Source is 0.6.18/schema030 (`d4d2372`); the target is 0.6.19 with
 additive migration031. This record covers the implementation slice S1
-(T066-001..009) on branch `feat/memory-lifecycle-66`. Independent review (S2)
-and the full test suite (S3) have not run; nothing here claims them.
+(T066-001..009) on branch `feat/memory-lifecycle-66`. The first independent review (S2) found blockers at `1fc0628`; correction
+review and full-suite acceptance (S3) remain pending. Nothing here claims them.
 
 ## What was measured, and what was not
 
@@ -81,7 +81,8 @@ actual 0.6.18 code (git archive of `d4d2372`) and observed (2026-10-31):
 [PB-066-OPS](../playbooks/system/rag-066-memory-lifecycle.md) is rehearsed by
 `tests/service/test_lifecycle_playbook.py`; observed results are in the
 [rehearsal record](../playbooks/system/rag-066-memory-lifecycle-review.md). The
-playbook content review (T066-011) is pending.
+first playbook content review required correction of PB-I1; independent
+correction acceptance (T066-011) is pending.
 
 ## Defects found and fixed during S1
 
@@ -107,12 +108,15 @@ playbook content review (T066-011) is pending.
 
 ## Limits and low findings (for Issue75)
 
-- A `request_key` already used in a foreign scope is reported as
-  `replay_mismatch`, which reveals that the key exists.
-- Row-level security shows a decision to a direct SQL client that can see only
-  the member, including the target id; the tools never return it.
-- The managed-index search path is covered by the shared SQL predicate and code
-  inspection, not by an end-to-end managed-index k=1 test.
+- First-review F1 (moved-member metadata leakage, Medium) and F4 (foreign-key
+  collisions, Low) are corrected at `a5f359c` and `30b4064`; independent
+  correction acceptance remains pending.
+- The independent managed-index k=1 probe passed on an actual managed generation
+  in the exact pool (up to 4096 candidates). The larger ANN path was not tested.
+- Trusted direct SQL writers can create an unaudited decision (F5 Low). The
+  gateway stays atomic; the playbook detects this state and requires
+  maintainer-led repair. This existing trusted-writer boundary is tracked for
+  Issue75, not silently called impossible.
 - The hidden check adds about 1.3 ms per merged member among a query's matches
   (384 ms for 300 in the constructed worst case); queries without merged members
   are unaffected.
@@ -157,3 +161,27 @@ must also classify the reported foreign request-key collision and direct-SQL
 decision target visibility, exercise managed k=1 retrieval end to end, and check
 history pagination through the public tool. They are not accepted as Low solely
 because the implementation report used that severity.
+
+## Independent review and corrections (2026-11-01)
+
+The independent review inspected all 68 changed files at `1fc0628` and ran
+130 assertions on owned databases: 127 passed, three failed on pagination and
+overflow. Other probes reproduced moved-member metadata disclosure. Its separate
+playbook check passed five of six assertions; the integrity query falsely counted
+a contested relationship as a hiding chain. Verdict: changes required, two Medium
+findings (F1/F2), one Important playbook finding (PB-I1), three Low findings
+(F3/F4/F5). The first full-suite run was intentionally interrupted after these
+blockers were confirmed: exit 2, sources unchanged. It is retained as failed
+acceptance evidence and never counted as a full pass.
+
+| Correction | Regression evidence | Current focused evidence |
+|---|---|---|
+| F1: original-scope-only decision/event RLS, Boolean-only suppression helper, redacted placeholder | two moved-member cases failed before the fix | 27 related tests passed, exit 0, at `a5f359c` |
+| F2/F3: history cursor advances events; bounded as-member detail signals overflow | two pagination/overflow cases failed before the fix | three pagination/integrity tests passed, exit 0; `4365348` |
+| PB-I1: count only active hiding chains; explain escalation-only unaudited decisions | contested-plus-hiding fixture falsely reported two chains | included in the three passing tests |
+| F4: key uniqueness and lookup use domain/project scope | foreign request returned 409 instead of 200 | 33 affected tests passed, exit 0; expanded four-case scope/privileged-operator run passed, exit 0 (14.69 s), at `30b4064` |
+
+These focused results do not replace the new source-bound full suite, current
+populated-upgrade/restore evidence or independent correction review. The first
+review's success/recovery probes and preserved originals remain evidence for
+unchanged parts only; its metadata/pagination verdict requires a fresh recheck.

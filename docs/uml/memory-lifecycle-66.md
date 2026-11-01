@@ -1,6 +1,6 @@
 # Source-preserving lifecycle overlay (RAG-066)
 
-- Work: RAG-066 / feature 6.8 / Issue66; mode: **as-built**, product `82c031f`; independent integration gates pending.
+- Work: RAG-066 / feature 6.8 / Issue66; mode: **as-built**, correction product `30b4064`; independent correction gates pending.
 - Questions: Q1 operation semantics and automatic policy; Q2 where version, flat-chain,
   scope and authority gates run; Q3 how every reader distinguishes current from intentional
   history before `LIMIT`; Q4 how derived outputs invalidate without touching `ev1`;

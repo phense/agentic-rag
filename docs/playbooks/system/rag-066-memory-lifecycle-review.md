@@ -1,8 +1,9 @@
 # PB-066-OPS review and rehearsal evidence
 
 Playbook: [rag-066-memory-lifecycle.md](rag-066-memory-lifecycle.md).
-State: **drafted and rehearsed by the author; independent content review
-(T066-011) has not run.** Nothing here is a review verdict.
+State: **author rehearsal recorded; first independent content review required
+changes at `1fc0628`; correction acceptance (T066-011) pending.** The historical
+rehearsal below is not a verdict on the corrected playbook.
 
 ## Rehearsal
 
@@ -70,4 +71,16 @@ runs of the affected suites, at `49d37bc` and at `351b6f4` (1,188 passed, exit 0
 
 ## Review
 
-Pending (T066-011).
+The independent content review at `1fc0628` found PB-I1 Important: the integrity
+query treated a legal contested relationship as a hiding chain. Its owned-DB
+probe passed five of six assertions. Minor findings concerned unaudited-decision
+repair, foreign request-key advice and history paging.
+
+`4365348` changes the query to count active hiding decisions only and documents
+escalation-only handling of `decision_without_event`. A real gateway fixture
+with a contested relationship plus hiding decision failed the old query (two
+chains) and passed the corrected query (zero). The same three-test regression
+run verifies history paging and detail overflow. `30b4064` scopes request keys
+per domain/project and updates C2/C6 advice. The populated rehearsal must run
+again for the corrected system; independent content recheck remains pending.
+No real service restart, TLS, macOS or multi-host rehearsal is inferred.

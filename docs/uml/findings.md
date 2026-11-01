@@ -614,3 +614,23 @@ acceptance are required; the implementation's Low label is not adopted.
 These dispositions replace the design-only next-task statuses above, without
 claiming final resolution. T066-011 derives fresh success/recovery probes from
 the reconciled views before running them; T066-012 supplies final full verification.
+
+
+### RAG-066 independent review corrections (2026-11-01)
+
+The complete review of `1fc0628` supersedes the pending-question dispositions:
+F1 Medium confirmed moved-member decision/event metadata disclosure. `a5f359c`
+keeps rows in their original scope and introduces a Boolean-only, fixed-search-
+path definer helper gated on caller-visible members. Detail/get use only a
+suppression placeholder across an inaccessible decision scope. F2 Medium
+confirmed repeated public history pages; `4365348` applies the cursor to the
+selected collection. F3 Low now has `as_member_more`; PB-I1 Important counts
+only active hiding chains. F4 Low now namespaces keys and both lookups by domain
+and project (`30b4064`). F5 Low remains the documented trusted direct-SQL writer
+boundary, to be collected in Issue75. Independent correction review is required
+for the new definer boundary; targeted tests alone do not close AF-066-008.
+
+Managed-index k=1 passed on the independent actual exact-pool generation;
+ANN above4096 was not exercised. The first full suite at `1fc0628` was
+intentionally interrupted (exit2, source unchanged), not accepted. New final
+verification must bind the corrected sources and populated upgrade/recovery.
