@@ -622,6 +622,10 @@ def detail(conn, id_or_slug, *, history=False, cursor=None, limit=DEFAULT_PAGE) 
     if type(history) is not bool:
         raise LifecycleError('invalid_arguments')
     limit, after = _limit(limit), _cursor(cursor)
+    # One wire cursor selects the requested collection: history=True pages the
+    # history; otherwise it pages the canonical's member list. Never apply a
+    # history (at,id) boundary to decision (created_at,id) pagination.
+    member_after = None if history else after
     doc_id = _resolve(conn, id_or_slug)
     if doc_id is None:
         raise LifecycleError('not_found')
@@ -631,11 +635,12 @@ def detail(conn, id_or_slug, *, history=False, cursor=None, limit=DEFAULT_PAGE) 
     if withheld(conn, doc_id, doc['dtype']):
         raise LifecycleError('not_found')
     as_member = []
-    for r in conn.execute(f"""SELECT ld.*, {_RELATIONSHIP} AS relationship,
+    member_rows = conn.execute(f"""SELECT ld.*, {_RELATIONSHIP} AS relationship,
             (SELECT count(*) FROM lifecycle_events e WHERE e.decision_id=ld.id) AS revision,
             t.id::text AS visible_target, t.slug AS target_slug, t.title AS target_title
           FROM lifecycle_decisions ld LEFT JOIN documents t ON t.id=ld.target_id
-          WHERE ld.member_id=%s ORDER BY ld.created_at DESC, ld.id DESC LIMIT %s""", (doc_id, DEFAULT_PAGE)).fetchall():
+          WHERE ld.member_id=%s ORDER BY ld.created_at DESC, ld.id DESC LIMIT %s""", (doc_id, DEFAULT_PAGE + 1)).fetchall()
+    for r in member_rows[:DEFAULT_PAGE]:
         item = {**_decision(r), 'relationship': r['relationship'], 'revision': r['revision']}
         item.pop('target_id')
         if r['visible_target']:
@@ -651,7 +656,8 @@ def detail(conn, id_or_slug, *, history=False, cursor=None, limit=DEFAULT_PAGE) 
           FROM lifecycle_decisions ld JOIN documents m ON m.id=ld.member_id
           WHERE ld.target_id=%s AND (%s::timestamptz IS NULL OR (ld.created_at, ld.id) < (%s::timestamptz, %s::uuid))
           ORDER BY ld.created_at DESC, ld.id DESC LIMIT %s""",
-                        (doc_id, after[0] if after else None, after[0] if after else None, after[1] if after else None,
+                        (doc_id, member_after[0] if member_after else None, member_after[0] if member_after else None,
+                         member_after[1] if member_after else None,
                          limit + 1)).fetchall()
     members = [{**_decision(r), 'relationship': r['relationship'], 'revision': r['revision'],
                 'member': {'id': str(r['member_id']), 'slug': r['member_slug'], 'title': r['member_title']}}
@@ -663,11 +669,12 @@ def detail(conn, id_or_slug, *, history=False, cursor=None, limit=DEFAULT_PAGE) 
            'version': conn.execute('SELECT rag_lifecycle_version(%s) v', (doc_id,)).fetchone()['v'],
            'current': conn.execute('SELECT assertion_eligible(%s) ok', (doc_id,)).fetchone()['ok'] and doc['status'] == 'active',
            'as_member': as_member,
+           'as_member_more': len(member_rows) > DEFAULT_PAGE,
            'as_canonical': {'members': members, 'more': len(page) > limit,
                             'cursor': _encode(page[limit - 1]['created_at'], page[limit - 1]['id']) if len(page) > limit else None},
            'legacy': _legacy(conn, doc_id), 'assertion': _assertion(conn, doc_id), 'statement': STATEMENT}
     if history:
-        out['history'] = events(conn, doc_id, cursor=None, limit=limit)
+        out['history'] = events(conn, doc_id, cursor=cursor, limit=limit)
     return out
 
 

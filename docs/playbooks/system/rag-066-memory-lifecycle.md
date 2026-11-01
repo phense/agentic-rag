@@ -218,11 +218,16 @@ SELECT
     WHERE op IN ('lifecycle_apply', 'lifecycle_correct')) AS events_minus_audit,
   (SELECT count(*) FROM lifecycle_decisions a JOIN lifecycle_decisions b
     ON b.target_id = a.member_id
-    WHERE a.state IN ('active', 'contested') AND b.state IN ('active', 'contested')) AS chains;
+    WHERE a.state = 'active' AND b.state = 'active') AS chains;
 ```
 
 Expected: every column except `decisions` is 0. Any other value: stop recording
 decisions, keep the output and escalate.
+Only active hiding decisions count as chains; a contested contradiction never
+forms a hiding chain. A nonzero `decision_without_event` is escalation-only:
+the ordinary correction command requires an existing event revision. Preserve
+the store and its audit evidence for maintainer-led repair; do not invent a
+revision or delete the decision directly.
 
 ## Part D: interruption, rollback and restore
 

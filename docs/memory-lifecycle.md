@@ -126,7 +126,14 @@ rag lifecycle history MEMBER
 ```
 
 The decision becomes `corrected`; history keeps both events and the audit log has
-one row per event. Correcting restores visibility only: a memory that was refuted
+one row per event. With `--json --limit 20`, history returns `items`, `more` and
+a continuation `cursor`; pass that cursor to `rag lifecycle history MEMBER
+--cursor CURSOR --json` for the next page. The `memory_lifecycle` tool pages
+history when `history=true`, and canonical members otherwise. Detail returns at
+most 20 `as_member` relationships and sets `as_member_more` when older ones exist;
+use history to inspect the older events.
+
+Correcting restores visibility only: a memory that was refuted
 or whose source was withdrawn in the meantime stays excluded.
 
 ## Automatic curation
