@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "background_count": 160,
+  "background_title": "Background {i}",
+  "background_body": "Ordinary independent background documentation number {i}.",
+  "documents": [
+    {"title": "English original", "body": "The quasar observatory records unusual signals.", "slug": "english-original"},
+    {"title": "German original", "body": "Die Pflanzen im Garten brauchen besonderen Schutz.", "slug": "german-original"}
+  ],
+  "queries": [
+    {"query": "unfindablequasar", "slugs": [], "maximum_eligibility_calls": 0},
+    {"query": "quasar observatory", "slugs": ["english-original"], "maximum_eligibility_calls": 2},
+    {"query": "Pflanze Garten", "slugs": ["german-original"], "maximum_eligibility_calls": 2}
+  ]
+}
