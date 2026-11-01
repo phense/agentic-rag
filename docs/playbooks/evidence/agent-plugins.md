@@ -440,8 +440,11 @@ a pin and pending work. The verified0.6.21 backup restores independently before 
 injected migration failure; the034 transaction rolls back. A new attempt applies
 only034, preserves original-row hashes and function OIDs/owners/grants, and keeps
 the old scoped reader response identical. Repeating applies no migrations. A
-truthfully labelled0.6.22 backup also restores independently. The recorded final
-pre-correction run passed1 test in15.28s; revised SQL requires fresh verification.
+truthfully labelled0.6.22 backup also restores independently. After the corrections, the upgrade, priority and documentation selection passed
+23 tests in14.93s. The inference, priority and full lexical-parity selection passed
+134 tests in88.26s; eight new broad multi-chunk cases also bound actual work with
+Memoize enabled and disabled. Three worker regressions were observed failing
+before the correction, then passed through real model admission and mocked HTTP.
 
 The full suite on `26184b9` passed2,280 tests,1 skipped and1 known upstream
 Starlette warning (exit0,2,153.68s);396 source files stayed unchanged. This result

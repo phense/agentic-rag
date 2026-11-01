@@ -414,6 +414,14 @@ The example API/worker memory caps are384MiB/1GiB; database, reranker and model
 processes require their own measured budgets. Ollama's2GiB example can reject
 an oversized model; it is not proof that a particular model fits. Before buying
 or sizing a4-vCPU/8-GiB host, measure actual model residency and cold/warm load.
+The0.6.22 example aligns `MemoryHigh` with the unchanged2GiB `MemoryMax`.
+An owned same-model/input A/B found that the former1536MiB soft limit caused
+sustained reclaim and a10-second embedding timeout despite available host RAM;
+the2GiB arm completed. This is a bounded budget diagnosis, not proof that every
+input fits2GiB. On an existing installation inspect `memory.events` and memory
+pressure under its own workload. Apply a measured budget during an authorized
+model-service maintenance window, then verify embeddings and queued progress;
+copying the updated example alone does not change a running unit.
 The recorded40-connection API rehearsal used synthetic capability/domain requests,
 separate from populated retrieval and real-model extraction tests. The reference
 host completed30synthetic source jobs, including recovery after a killed worker.

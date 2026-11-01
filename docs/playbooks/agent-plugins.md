@@ -334,6 +334,16 @@ worker context on the calling thread, including foreground admission, single-inp
 pages and the10-second background HTTP timeout. Existing queued inputs and accepted
 batches replay through the normal worker; no requeue, data rewrite or cache reset
 is required. Standalone local inference retains its bounded two-thread execution.
+Inspect the installed Ollama override as well: the former example's1536MiB
+`MemoryHigh` can continuously throttle the actual model below its working set.
+The0.6.22 example uses2GiB for both `MemoryHigh` and the unchanged `MemoryMax`.
+Compare cgroup `memory.events`/pressure and a bounded embedding probe before
+resuming extraction. If a budget change is necessary, retain the old override,
+apply the measured values and restart the model service during the installation's
+authorized maintenance window; then repeat the probe and check accepted-batch
+replay. A repeated timeout or OOM blocks resumption: retain the queue and spools,
+restore the previous override if needed and investigate sizing. The rehearsal
+changed only an owned model instance, leaving the production override untouched.
 Production service restarts and cross-host routing require their own rollout checks.
 
 For code recovery keep schema034 and the verified0.6.22 backup tooling;

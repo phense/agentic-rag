@@ -57,3 +57,12 @@ actual executed path instead of introducing a redundant fix.
 - [ ] T06816 [FR04/07/08, AC02/04/05, Issue92] Repair matching/eligibility ordering without changing retrieval semantics or removing any authorization/truth/temporal/lifecycle predicate before ranking/LIMIT. Prove old/new result-set and order parity, reader RLS isolation, cancellation and finite SQL work. Deliver the next patch release, additive migration if needed, populated upgrade/retry/verified backup/independent restore and old-client parity; depends15 and the merged0.6.21 source-origin PR.
 - [ ] T06817 [FR06/07/09, AC01/05, Issue92] Repeat bounded20–40-client reference measurements with actual growing arrivals and draining backlog, recorded foreground/background model overlap, honest sample sizes, queue/execution/total p50/p95 and per-phase resource accounting. Compare against the retained baseline without inventing an SLA or sustained-load proof; depends16.
 - [ ] T06818 [FR08/09, AC01..05, Issue92] Complete independent bounded repair review, real-component success/recovery and current full-suite/Node/build/docs/lock gates; reconcile as-built and T06811 before Issue68 closure. Keep unobserved native host criteria in12–14, non-blocking Lows in75 and production cutover separate; depends16/17.
+
+Correction scope for T06816 (review M1 and reference r2): materialize eligible
+documents over distinct lexical-match IDs, independent of planner Memoize or
+matching chunks per document; retain source-hash validation before ranking.
+Keep service embedding preparation in its caller's context: the inference
+executor previously lost worker authority/priority/timeout context. Do not copy
+live database connections into concurrent thread contexts. Existing queued jobs
+and accepted extraction batches must replay without data rewriting. These are
+repairs to the existing ordering/admission contract, not new public options.
