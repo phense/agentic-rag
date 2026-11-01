@@ -375,6 +375,9 @@ for an explicit reviewed replay plan. No automatic rebind is provided.
 | Client |16MiB logical pending/raw/handoff budget;2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
 | Central writes |8GiB database budget,2GiB free-space reserve,1,000 pending jobs,100 pending source windows per owner,64MiB pending source payloads; explicit429/507/503 pressure |
 | Worker | One database-fenced inference worker; retry with backoff; SIGTERM stops after current job; process group killed after330s by example unit |
+| Queued tools | Default two consumers per API process, `[service] request_consumers` 1–4; startup fails above half of the default thread pool; 12 control requests/s per namespace and four control slots unchanged |
+| Model admission | One shared embedding lock by default; optional `[ollama] background_url` gives extraction embeddings a second daemon with its own lock and a 10–60s deadline ([PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon)) |
+| Client polling | After acknowledgement: server `retry_after` within poll interval..8s, +0–25% jitter; before acknowledgement: same request resent after 0.3s on 429/408/timeouts until the caller's deadline |
 | Logs | Four1MiB worker/client files;8KiB UTF-8 records; namespace journal64MiB persistent/16MiB runtime in supplied example |
 | Backup | Finite configured counts, conservative free-space check before dump/restore rehearsal; unique private artifacts; previous backups survive pressure |
 
@@ -407,7 +410,13 @@ The API has CPU weight200; the serial background worker has weight20, nice10
 and a one-CPU quota. These controls cover the worker and its CLI children,
 while PostgreSQL and shared Ollama work require separate measured budgets.
 They prioritize current-work retrieval over Python/CLI extraction; they do not
-establish priority inside a shared embedding service. The broader queued-client
+establish priority inside a shared embedding service. In0.6.22 the optional
+background embedding daemon separates already admitted extraction embeddings
+from interactive ones. It needs its own measured CPU and memory budget, a
+verified identical model and a restart of every API and worker process; the
+procedure, limits and rollback are in
+[PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon).
+Without its keys nothing changes. The broader queued-client
 and model-scheduling extension is tracked in roadmap6.10 / Issue68.
 
 The example API/worker memory caps are384MiB/1GiB; database, reranker and model

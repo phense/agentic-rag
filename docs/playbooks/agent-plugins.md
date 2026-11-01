@@ -14,7 +14,7 @@ version: 0.6.22
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
 - Target: 0.6.22/schema034; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-11-01 (procedures independently reviewed; final delivery/performance gates remain open).
+- Last edited: 2026-11-01 (optional background daemon section drafted for S06808, not yet independently reviewed or rehearsed on a physical model; final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -431,6 +431,139 @@ and explicit database cutover in the
 [source-evidence recovery procedure](system/rag-063-source-evidence-upgrade.md).
 That snapshot excludes later writes; stop writers and account for retained
 spools before cutover. No lossless downgrade after new writes is implied.
+
+## Optional background embedding daemon
+
+Use this section only when a0.6.22 central server should run its extraction
+embeddings on a second, CPU-limited Ollama daemon (Issue92 A2). It is optional;
+an installation without the keys keeps one daemon, one shared model lock and the
+10-second background deadline. Do not use it for standalone stores, clients or
+[managed embedding profiles](../provider-indexes.md), which keep their own route.
+The settings and their validation are in the
+[configuration reference](../06-configuration-reference.md#ollama).
+
+Before starting, check all of these:
+
+- All API and worker processes already run0.6.22 with the lane keys unset, and
+  the lexical upgrade above has completed with both verified backups.
+- An authorized maintenance window covers a model-service start and restarts of
+  every API and worker process. Activation is not authorized by this document.
+- The host has the memory for a second model copy. The reference measurement
+  (4 vCPU, 8 GiB) used these limits; size other hosts from their own measurements.
+
+| Daemon | Address | systemd limits | Ollama environment |
+|---|---|---|---|
+| Primary (unchanged role) | `127.0.0.1:11434` | `CPUQuota=350%`, `MemoryHigh=2G`, `MemoryMax=2G` | `OLLAMA_NUM_PARALLEL=1`, `OLLAMA_MAX_LOADED_MODELS=1` |
+| Background | `127.0.0.1:11436` | `CPUQuota=100%`, `CPUWeight=1`, `MemoryHigh=2G`, `MemoryMax=2G`, `ReadOnlyPaths=MODEL_STORE` | `OLLAMA_NUM_PARALLEL=1`, `OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NOPRUNE=1`, `OLLAMA_MODELS=MODEL_STORE` |
+
+`MODEL_STORE` is the primary daemon's existing model directory; resolve it from
+the installed primary unit. The background daemon only reads those files and
+never pulls or prunes. Every lane call has a finite deadline of
+`background_timeout_seconds` (60 s in the reference). The reference threads are
+`num_thread = 2` for the primary and `background_num_thread = 1` for the lane.
+
+### L1: start and verify the background daemon
+
+1. Install a separate unit for the background daemon with the limits in the
+   table (`ExecStart` is the same `ollama serve` binary as the primary). Start
+   only that unit. Expected: `curl -fsS http://127.0.0.1:11436/api/tags` lists
+   the `[embed] model` tag. If it does not, stop the unit; nothing else changed.
+2. Run the identity and parity probe from the prepared0.6.22 environment while
+   extraction is paused. `SERVER_CONFIG` is the private server configuration,
+   `LANE_URL` the background address, and the two thread values are the planned
+   `num_thread` and `background_num_thread` (`-` for unset). It sends only the
+   three synthetic inputs below and writes nothing.
+
+```sh
+timeout 400s .venv/bin/python - SERVER_CONFIG LANE_URL 2 1 <<'PYPARITY'
+from pathlib import Path
+import sys
+import httpx
+from agentic_rag.config import load_config
+from agentic_rag.providers import validate_vectors
+cfg = load_config(Path(sys.argv[1]))
+lane = sys.argv[2].rstrip('/')
+threads = [None if v == '-' else int(v) for v in sys.argv[3:5]]
+tag = cfg.embed_model if ':' in cfg.embed_model else cfg.embed_model + ':latest'
+inputs = ['Synthetic parity probe.', ('Synthetic upgrade probe. ' * 134)[:3200],
+          'Kurzer synthetischer Text mit Umlauten: äöüß.']
+def digest(client, url):
+    found = {m['digest'] for m in client.get(url + '/api/tags', timeout=5).json()['models']
+             if m.get('name', m.get('model')) == tag}
+    if len(found) != 1:
+        raise SystemExit('model tag missing or ambiguous')
+    return found.pop()
+def embed(client, url, text, thread):
+    body = {'model': cfg.embed_model, 'input': [text]}
+    if thread is not None:
+        body['options'] = {'num_thread': thread}
+    response = client.post(url + '/api/embed', json=body, timeout=60)
+    response.raise_for_status()
+    return validate_vectors(response.json()['embeddings'], 1, cfg.embed_dim)[0]
+with httpx.Client(trust_env=False) as client:
+    before = digest(client, cfg.ollama_url), digest(client, lane)
+    pairs = [(embed(client, cfg.ollama_url, t, threads[0]), embed(client, lane, t, threads[1])) for t in inputs]
+    after = digest(client, cfg.ollama_url), digest(client, lane)
+if len({*before, *after}) != 1:
+    raise SystemExit('digests differ; do not enable the lane')
+if any(a != b for a, b in pairs):
+    raise SystemExit('vectors differ; do not enable the lane')
+print({'digest': before[0], 'inputs': len(pairs), 'identical': True})
+PYPARITY
+```
+
+   Require exit0 and `identical: True`. Any other result keeps the lane off:
+   stop the background unit and keep the evidence. This probe covers three
+   synthetic inputs; it does not replace the complete-input parity gate of the
+   acceptance run.
+
+### L2: enable, restart and verify the route
+
+3. Pause extraction: stop the worker unit and wait for it to exit (it finishes
+   its current job). Queued windows, accepted batches and client spools remain.
+4. Add `background_url`, `background_timeout_seconds`, `num_thread` and
+   `background_num_thread` under `[ollama]` in the server configuration. Add
+   `[service] request_consumers` only on hosts whose default pool allows it;
+   the API refuses to start otherwise and names the allowed maximum.
+5. Restart every API process, then start the worker. All processes read the file
+   only at start; a mix of old and new settings still obeys the single worker
+   lock and execution pins, but restart them together to avoid it.
+6. Verify: the `pending` count from `rag service --config SERVER_CONFIG status`
+   falls over time, the background daemon's journal shows embed requests, and
+   this read-only query as the database owner returns no rows (`DB` is the
+   `[db] name`):
+   `psql -d DB -c "SELECT result->>'code' code, count(*) FROM service_windows WHERE state='blocked' AND result->>'code' LIKE 'background_model_%' GROUP BY 1"`.
+   Scoped search and context requests keep working while extraction runs.
+
+### L3: recovery and rollback
+
+- A window that reports `background_model_unavailable` (timeout or outage) or
+  `background_model_identity` (digest change or invalid vectors) is still
+  pending. Nothing was stored for it, its attempt was not used up and its
+  accepted extraction is replayed without a second provider call. Restore the
+  daemon or digest and the worker resumes after its backoff.
+- To roll back, stop the worker, remove all four `[ollama]` lane and thread keys
+  and `request_consumers` together (a background setting without
+  `background_url` stops configuration loading), restart every API process and
+  the worker, then stop the background unit. Jobs, receipts, caches and
+  knowledge are not deleted; work continues on the primary daemon.
+
+Client rollout note: clients from this release follow the server's
+`retry_after` value. Every deployed queued server already sends `1`, so updated
+clients poll about once per second, also against older servers. Before the
+server acknowledges a request, a client resends the same request every0.3s
+plus up to25% random delay on contention or timeouts, until its deadline.
+The server's limits are unchanged: twelve control requests per second per
+namespace and four control slots. Many waiting clients in one namespace
+therefore see more `request_rate_limited` answers and may return a pending
+handle at their deadline; that handle is not a result.
+
+The real-component rehearsal of these success and recovery cases is
+`tests/service/test_model_lane_runtime.py`, plus the A2 steps in the populated
+upgrade test; the evidence is in the
+[review record](evidence/agent-plugins.md#s06808-optional-model-lane-and-client-polling).
+They use simulated model daemons; no physical-model or40-client result is
+claimed here.
 
 ## Completion and maintenance
 

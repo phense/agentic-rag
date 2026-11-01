@@ -83,6 +83,30 @@ authentication files private. See the [server/client procedure](13-central-servi
 | `max_pending` | `1000` | Global pending-job admission limit |
 | `max_pending_per_owner` | `100` | Pending source-window limit for one owner |
 | `max_pending_bytes` | `67108864` | Pending source payload budget,64MiB |
+| `request_consumers` | `2` | Server: queued-tool consumers per API process, an integer from1 to4. See the reserve rule below |
+| `poll_seconds` | `1` | Client: lowest wait between status polls after the server acknowledged a queued request |
+
+`request_consumers` runs that many queued tool calls at once. Each one occupies a
+worker of the event loop's default thread pool, which also serves HTTP, control
+and tracing work. The API therefore refuses to start when the setting exceeds
+half of that pool: CPython sizes it as `min(32, CPUs + 4)`, counting the CPUs
+the process may use (`os.process_cpu_count`, or `os.cpu_count` on Python older
+than3.13). A4-vCPU host has eight workers and allows four consumers; a1-vCPU
+host allows two. The check covers the supported `rag service` API only. If you
+host the application under a custom ASGI server or replace its default executor,
+keep the same reserve yourself. More consumers do not add CPU capacity.
+
+The client keeps a queued request in its private outbox until the server
+acknowledges it. Before that acknowledgement it resends the same stored request,
+with the same idempotency key, after0.3s plus up to25% random delay when the
+server answers429 or408 or the connection times out. It stops at the caller's
+deadline. Other failures are not resent: permanent4xx and5xx answers, invalid
+receipts or responses, protocol negotiation and old synchronous tool calls.
+After acknowledgement, the client waits for the server's numeric `retry_after`
+value, limited to at least `poll_seconds` and at most8s, plus up to25% random
+delay. Without a usable value it doubles its wait from `poll_seconds` up to8s.
+A deadline that expires while waiting returns the same pending request handle;
+that is not a completed result.
 
 A client profile can be generated with `rag service client-config`; server
 examples are under `deploy/central-service/`. Budgets stop fresh admissions with
@@ -117,6 +141,31 @@ and an explicit rebuild/cutover; do not repurpose historical untagged vectors.
 | Key | Field | Default | What it does |
 |---|---|---|---|
 | `url` | `ollama_url` | `"http://localhost:11434"` | Base URL of the local Ollama server used for embedding calls. |
+| `num_thread` | `ollama_num_thread` | unset | Optional integer1–8 sent as the `num_thread` request option to `url`. Unset sends the unchanged request body. |
+| `background_url` | `ollama_background_url` | unset | Optional second Ollama daemon for central background embeddings, see below. `http` or `https` only, no user name, password, query or fragment, and not the same address as `url`. |
+| `background_timeout_seconds` | `ollama_background_timeout_seconds` | `60` when `background_url` is set | Finite deadline from10 to60 seconds for one background call. Requires `background_url`. |
+| `background_num_thread` | `ollama_background_num_thread` | unset | Optional integer1–8 sent as `num_thread` to `background_url`. Requires `background_url`. |
+
+Without these keys a central server keeps one embedding daemon: every call goes
+to `url`, one model lock is shared, and background calls have a10-second
+deadline. With `background_url`, only embeddings made by the central extraction
+worker move to the second daemon. They take their own lock, so one background
+call and one interactive call can run at the same time; the worker still pauses
+whenever interactive work is waiting. Searches, standalone installations and
+[managed embedding profiles](provider-indexes.md) keep their previous route and
+the shared lock.
+
+Before and after every background call the server reads the model digest of the
+configured `[embed] model` from both daemons. Both must report the same valid
+digest, and the returned vectors must have the configured dimension and finite
+values. Otherwise nothing is stored: the job stays pending without using up an
+attempt, the window shows `background_model_identity` or, for timeouts and
+outages, `background_model_unavailable`, and an already accepted extraction is
+applied later without calling the extraction provider again. Reuse caches keep
+the identity of `url`, so prove that both daemons return identical vectors
+before enabling the lane. The steps are in
+[PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon).
+Invalid values stop configuration loading before any work starts.
 
 ## `[rerank]`
 

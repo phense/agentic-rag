@@ -254,3 +254,51 @@ def test_api_startup_rejects_consumers_beyond_pool_reserve(runtime, monkeypatch)
     assert isinstance(error, ValueError) and 'request_consumers=3' in str(error)
     with db.connect(cfg) as conn:
         assert conn.execute('SELECT count(*) n FROM service_requests').fetchone()['n'] == 0
+
+
+@pytest.mark.parametrize('mode,ok', [('same', True), ('vectors', False), ('digest', False)])
+def test_playbook_parity_probe_snippet_executes(tmp_path, mode, ok):
+    # Executes the exact PB06801 probe text against two loopback doubles; no model.
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from pathlib import Path
+    import subprocess
+    import sys
+    root = Path(__file__).resolve().parents[2]
+    text = (root / 'docs/playbooks/agent-plugins.md').read_text()
+    probe = text.split("<<'PYPARITY'\n", 1)[1].split('\nPYPARITY', 1)[0]
+    def handler(lane):
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+            def reply(self, data):
+                body = json.dumps(data).encode()
+                self.send_response(200)
+                self.send_header('content-type', 'application/json')
+                self.send_header('content-length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            def do_GET(self):
+                digest = 'b' * 64 if lane and mode == 'digest' else 'a' * 64
+                self.reply({'models': [{'name': 'bge-m3:latest', 'digest': digest}]})
+            def do_POST(self):
+                request = json.loads(self.rfile.read(int(self.headers['content-length'])))
+                assert request['options'] == {'num_thread': 1 if lane else 2}
+                vector = [0.25] + [0.0] * 1023
+                if lane and mode == 'vectors':
+                    vector[1] = 0.5
+                self.reply({'embeddings': [vector]})
+        return Handler
+    servers = [ThreadingHTTPServer(('127.0.0.1', 0), handler(lane)) for lane in (False, True)]
+    for server in servers:
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        config = tmp_path / 'server.toml'
+        config.write_text(f'[ollama]\nurl = "http://127.0.0.1:{servers[0].server_port}"\n')
+        result = subprocess.run([sys.executable, '-', str(config), f'http://127.0.0.1:{servers[1].server_port}', '2', '1'],
+                                input=probe, text=True, capture_output=True, timeout=60, cwd=root)
+    finally:
+        for server in servers:
+            server.shutdown()
+            server.server_close()
+    assert (result.returncode == 0) is ok, result.stderr
+    assert ("'identical': True" in result.stdout) is ok
