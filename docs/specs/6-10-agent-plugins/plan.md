@@ -39,3 +39,39 @@ Testing: meaningful red behavior tests before each slice, real SQL/HTTP/transact
 mock inference only at provider boundaries. Bundle1–3 major full-range reviews/test
 rounds; independent Sol high, sparse use. Upgrade original-row/ACL comparisons,
 40-client queue benchmark, compaction traces and full Python/Node before PR.
+
+## RAG-068-A1: native origin correction and remaining acceptance
+
+Continue the merged implementation from29a2f44 (0.6.20/schema032) on the
+existing isolated acceptance branch; preserve the old RAG-068 run and evidence.
+The actual Claude2.1.314 manual probe revealed `isCompactSummary:true` inside a
+`user` message. Treat outer conversation type and generated-origin flags as
+authoritative before prose can become source evidence. Generated summaries,
+metadata and API request mirrors do not enter extraction or continuity digests.
+Raw recordings and historical normalized lengths remain available to advance
+old partial `mw1` cursors without rewinding or shifting subsequent originals.
+
+Use existing source trust rather than rewriting historical roles or documents:
+an operator previews a bounded complete recording and explicit local/service
+namespace, then applies its exact SHA-256 with writers stopped. The audited
+source gateway atomically marks proven generated source identities removed,
+including orphan tombstones for pending old batches. New inference filters
+those fragments out of old staged windows. Immutable accepted batches keep
+their existing replay identity and cannot restore removed source trust. This
+is per-recording evidence, never a claim to have censused unavailable histories.
+No new DDL is required; target release0.6.21 still needs the populated upgrade,
+backup/restore, independent review and final suite gates in T06812..14.
+
+Native observations remain separate from adapter tests. Manual Claude compact
+and native restart/resume retained all three frozen identifiers. Two automatic
+attempts emitted `PreCompact auto` but no native summary or `PostCompact`; they
+are failures, not completed compactions. The second attempt's native debug
+trace reports a fixed prefix larger than the artificial threshold and no
+assistant messages in its reactive summarize set. Obtain a fresh review before
+another automatic probe; do not patch host callbacks or count recall alone.
+The larger synthetic trigger extension was hashed before use, after the
+original semantic fixture freeze; it does not change expected identifiers.
+
+The reference VM was read-only verified as4vCPU/7757MiB. Numerical latency
+acceptance is still pending; use no production service, credentials or data
+changes to manufacture reference acceptance. All production cutover gates remain.

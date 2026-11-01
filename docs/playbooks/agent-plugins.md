@@ -113,6 +113,70 @@ package ownership conflict to the maintainer. Preserve version, event names,
 request/source IDs, stable error codes, timing, file hashes and owned test logs.
 Keep prompts, recordings, tokens and unrestricted results out of public issues.
 
+## 0.6.20 to 0.6.21: native source-origin gate (acceptance draft)
+
+Claude Code2.1.314 can store a generated compaction summary as a `user` message
+with `isCompactSummary:true`. API request mirrors and `isMeta` records are also
+host context. The corrected reader excludes these records from extraction and
+digests, while preserving raw recordings, original source IDs and old `mw1`
+cursor positions. This correction requires no schema migration beyond032.
+
+Before restarting extraction, the deployment administrator must inventory every
+local miner, central worker, uploader, active client and retained recording/spool.
+Use the existing verified backup/independent restore procedure, then upgrade all
+capture/mining processes in a maintenance window. Keep workers and uploaders
+stopped until the following origin audit covers their retained recordings and
+accepted windows. Do not delete old buffers or recreate their session identities.
+Existing0.6.20 source-state predicates understand the resulting trust withdrawal.
+
+The following paths, namespace and digest are intentional parameters. Run on
+the database host with its local operator configuration, not a client token.
+For a local recording the namespace is `session:<original-session-id>`; for a
+remote recording use its exact stored `svc1:<uploader-hash>:<session-hash>`.
+Never substitute another uploader's namespace or infer it from a user label.
+
+```sh
+rag service --config /owned/operator.toml source-origin \
+  --transcript /owned/original-session.jsonl \
+  --namespace 'session:original-session-id' --output /owned/origin-preview.json
+```
+
+Inspect `generated_sources` and retain the private report's `recording_sha256`.
+This is a read-only preview. Confirm the original recording is complete and
+regular; incomplete, malformed, oversized or nonregular input is refused.
+After confirming the maintenance window and retaining the verified backup:
+
+```sh
+rag service --config /owned/operator.toml source-origin \
+  --transcript /owned/original-session.jsonl \
+  --namespace 'session:original-session-id' --output /owned/origin-applied.json \
+  --apply --writers-stopped --expected-sha256 '<recording_sha256 from preview>'
+```
+
+The audited gateway marks only exact generated source identities `removed`.
+It also creates removed source tombstones for pending old batches. Original
+documents, quotes, source roles, queued envelopes and accepted batches remain.
+New inference filters these proven generated fragments out of old staged
+windows; already accepted batches replay without another provider call and
+cannot reactivate a tombstoned source. A claim with another valid independent
+source can remain eligible. Check affected claims with `rag evidence show` and
+their decisions with `rag evidence history --source` through a readable document.
+
+An interrupted audit is atomic. Retry with the same digest and a new report
+path; already inactive sources produce no duplicate source-state audit. A
+metadata conflict, missing/rewritten recording or uncertain namespace blocks
+activation for that stream. Preserve it for operator review: this command
+covers only the provided complete recording and explicit namespace, not a
+global census or unknown historical formats. Keep uncovered streams stopped.
+Before activation rehearse pending-window replay and the independent restore
+on an owned populated copy, and verify original-row and permission inventories.
+
+For code recovery retain032 and all removed sources. Returning to0.6.20 can
+misclassify newly generated records again: keep extraction stopped until the
+corrected capture/mining code is restored. Restoring the pre-upgrade backup
+also restores its old trust state and loses later writes; it requires another
+origin audit and the existing explicit restore/cutover procedure.
+
 ## Completion and maintenance
 
 The operation completes when the host discovers the package, current knowledge

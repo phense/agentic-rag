@@ -191,3 +191,34 @@ the canonical worker's boot guard stays inactive. A day-long leak test, sustaine
 40-client model inference and acceptance of a numerical interactive latency
 budget remain unproved. Finite storage/retention guards and short workload
 measurements are the evidence supplied by this PR.
+
+## RAG-068-A1 source-origin correction: provisional evidence
+
+The new source-origin section in PB06801 is drafted for0.6.21/schema032; its
+independent review and full populated backup/restore rehearsal remain open.
+The prior0.6.11 evidence above does not validate this new gate.
+
+Targeted command with owned PG55460 and owned temporary files:
+
+```sh
+PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 .venv/bin/python -m pytest -q \
+  tests/test_transcript_origin.py tests/test_transcript_origin_upgrade.py \
+  tests/test_mining.py tests/test_mining_window.py tests/test_evidence.py \
+  tests/test_validity.py tests/service/test_local_capture.py \
+  tests/service/test_source_worker.py tests/test_extraction_policy_mining.py \
+  --tb=short -p no:cacheprovider
+```
+
+Observed result:117 passed, one known Starlette warning, exit0 in47.55s.
+Regressions first failed on actual generated native shapes and on staged
+generated prose reaching inference. The first staged-window red had a missing
+test argument; only its corrected second red is behavior evidence. A later
+neighbor run had116 passes and one fixture authentication failure; supplying
+the fixture's missing credential revision produced the result above.
+
+Real SQL/gateway checks cover existing misattributed claims, unchanged original
+body/provenance rows, idempotent repeat, source tombstones before a pending old
+attachment, scoped service-writer attachment, wrong digest/stopped-writer gate,
+provider exclusion for old staged windows, and an injected audit failure with
+zero surviving source/history rows. Inference is mocked at its provider boundary;
+this is not a fresh full suite, independent review or production rollout.

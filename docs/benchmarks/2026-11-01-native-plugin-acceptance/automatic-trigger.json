@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "reason": "The tiny-context native attempt emitted PreCompact auto but no completed compaction. Preserve that failed artifact; use a larger wholly synthetic conversation for one further bounded attempt.",
+  "base_fixture": "fixtures.json",
+  "padding_lines": 400,
+  "padding_template": "Inert synthetic padding record {index:04d}: token ALPHA BETA GAMMA; this carries no action, authorization or real-world fact.",
+  "placement": "Append padding to the initial frozen prompt, then repeat its instruction to reply only READY-NATIVE68. Recall uses the unchanged frozen recall prompt.",
+  "native_threshold_override_pct": 0.1,
+  "provider_budget": "One new isolated Claude session, two user turns, at most one native automatic compaction attempt, 120 seconds per invocation; existing authenticated model preferences only.",
+  "success": "Actual native PreCompact auto, native summary/boundary, PostCompact auto, durable source/checkpoint and goal/blocker/next identifiers after native resume. No callback synthesis."
+}
