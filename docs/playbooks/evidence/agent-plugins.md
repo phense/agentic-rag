@@ -922,3 +922,40 @@ synthetic primary warm-up, normalized tag lookup and memory reading immediately
 before starting the second daemon. The new warm-up has not been physically
 rehearsed. Documentation tests alone do not exercise these decisions; focused
 content acceptance remains open.
+
+
+### Resource-workspace correction: diagnostic only
+
+Full-suite r4 on `57b1f51` passed2508 tests with1 skip and the known Starlette
+warning (exit0,2717.44s). The observed original managed-ANN query took0.352s.
+A separate fresh corpus after explicit `ANALYZE` passed its original regression
+without changing the2s timeout; its query took0.226s. The earlier full-r3 ANN
+failure remains unreproduced, not evidence of a repaired product defect.
+
+The owned diagnostic `6b63961b9b80` completed with controller/supervisor exit0
+and52 controller checks. After a deliberately long synthetic primary input,
+the fixed unload/check path preserved the daemon PID and released its runner.
+With API and copied PG active, worker paused and BG absent, available memory
+was4,466,782,208 bytes; the next pre-BG check measured4,444,504,064 bytes.
+With both models resident, including long-input BG workspace, it measured
+2,807,529,472 bytes. Both model identities/reference vectors matched; all six
+owned units were inactive after cleanup, and model-store/snapshot hashes were
+unchanged. Production services were not changed. This is bounded feasibility,
+not40-client latency, full parity, L2/L3 or feature acceptance.
+
+The preceding diagnostic `44eb28f98d60` stopped before capacity measurement:
+the kit compared JSON-encoded vector hashes with its float64-little-endian
+encoding. The actual vectors matched the retained full-parity reference.
+Two regression assertions failed before the correction;49 offline kit tests
+passed afterward. Both diagnostic reports are retained. After this measurement, the maintainer
+authorized deletion of disposable test files while keeping active test DBs.
+The old physical runs' stopped PG copies were removed; their compact reports,
+protocols and synthetic vector references remain available. The source dump
+and live test DBs were preserved.
+
+The new L1/L2/L3 maintenance sections and kit reset points need independent
+review and a fresh frozen full physical run. Earlier partial rehearsals do
+not establish this revised procedure. The4GiB/2GiB floors and strict search
+p95 below11s remain unchanged. The resource claim is bounded to the frozen
+foreground queries of at most73 characters; longer production inputs are
+not limited by this release and can enlarge the primary workspace.

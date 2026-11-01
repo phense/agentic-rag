@@ -134,3 +134,16 @@ change migration034 or published001..033. T06821/T06822 remain coordinator gates
 - [ ] T06826 [FR06/08/09, AC04/05, PB3-04/08] After T06824/25, update configuration/central-service guidance, CHANGELOG and PB06801 with exact opt-in daemon resource limits, model identity/parity probe, startup order, all-process restart and mixed-version polling load, key-removal/restart recovery. Keep version0.6.22 consistent; no extra patch increment inside this existing PR branch. Review/rehearse required operations before activation.
 - [ ] T06827 [FR04/05/08/09, AC02/04, AF092-A2-05, PB3-08] After T06824..26, rehearse the final runtime on a populated multi-user0.6.21 source: interrupted upgrade/retry, independently restored source/target backups, original/user/domain/ACL/job/receipt/history preservation, optional-config rollback and all A2 runtime success/recovery cases. Use real collaborating queue/client/worker/gateway/DB components with mock inference only for failure tests; report exact scope/limits. Run affected suites serially and commit clean source/evidence.
 - [ ] T06828 [FR04..09, AC01..05, PB3-01..08] After T06827, coordinator performs complete bounded independent review plus architecture success/recovery reconciliation. Resolve C/H/M/Important, collect Low in75, then execute T06821 once on the final implemented source and T06822's full-suite/delivery gates. No feature closure from the B3 numerical disposition alone.
+
+
+### Resource-recovery refinement within S06808 (not an acceptance pass)
+
+T06826/T06828 include the fixed unload/check procedure and independent kit/PB
+re-review described in the plan. Keep4GiB pre-BG and2GiB both-resident gates,
+API/PG active and worker paused; record recursive cgroups and actual model
+residency. Run feasibility before full parity, then a fixed primary reset
+before gate B; no reset or retuning during load/drain. The corrected-format
+resource diagnostic passed on an owned copy; it is not T06821. Its preceding
+reference-encoding failure is retained. The original full-suite r4 passed
+2508 tests with1 skip on57b1f51; product/tests/SQL remain unchanged by this
+procedure refinement. Full physical acceptance and closure remain open.

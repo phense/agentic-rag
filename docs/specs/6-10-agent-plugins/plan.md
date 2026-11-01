@@ -231,6 +231,41 @@ digest swap during inference; API/worker restart; config rollback; old/new
 worker exclusion; lost ACK/offline replay; authority revocation before commit.
 Use existing FR04/05 audit and result-publication checks in every applicable case.
 
+### Fixed model-workspace maintenance before acceptance
+
+The measured resource failure came from retained anonymous model workspace
+created by setup/parity/seed and rollback inputs. The selected correction is
+model unload through `/api/embed` with empty input and `keep_alive:0`, not a
+daemon restart or a smaller memory floor. Keep the API and database resident
+and pause the worker. Prove the model is absent, its old runner exited and
+anonymous memory returned within128MiB of the cold-daemon baseline; preserve
+the daemon PID. Warm twice with FG2/BG1, the pinned synthetic reference hash,
+a future `/api/ps` expiry and stable runner PID.
+
+Freeze unconditional primary reset points: early `feasibility`, each
+`before-background-preflight`/`after-daemon-stop`/`final` pre-BG guard, and
+`before-load`. Run all three primary parity arms before the first BG start;
+keep all454 inputs/four arms. The actual-state feasibility gate runs before
+that expensive preflight with PG/API active, worker paused and BG absent.
+Require4GiB available immediately before each BG start. Gate A after parity
+and gate B immediately before load require both models resident and2GiB
+available. Keep the BG long-input history. No reset during load or drain.
+A failed guard terminates the run; no adaptive retry, threshold reduction,
+production stop or removal of PG/API to manufacture capacity.
+
+Record recursive cgroup service/scope/slice inventories, anon/file/shmem,
+expanded host meminfo, raw model residency and runner PIDs. Record unrelated
+on-demand model loads at every guard rather than excluding them. Do not run
+this physical gate concurrently with the full test suite. Rename a parity-end
+sample `after_parity`; only an observed resident check establishes residency.
+
+The bounded diagnostic on the new path is not acceptance and skips full
+parity/extraction/load. After it passes, independently review the kit and
+procedure delta, refreeze and execute one fresh full acceptance run. Claims
+cover the frozen foreground queries (maximum73 characters), not unrestricted
+production input lengths or uninterrupted maintenance. No product query limit
+is introduced. T06821/T06828 stay open until the full final run passes.
+
 ### Final-runtime acceptance after B3
 
 PB3-01..05 are implementation/acceptance obligations, not new defects in the

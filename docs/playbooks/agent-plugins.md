@@ -498,8 +498,9 @@ before resuming. Every setup failure below returns through this path.
    arrange a separately authorized primary-unit change and restart; leave
    setup through the early-exit path above. Step 5 loads the primary model
    with a synthetic input before requiring at least4GiB `MemAvailable`;
-   this reserves the new daemon's2GiB limit plus2GiB for the remaining host.
-   A different model or host needs its own sizing evidence.
+   this is an actual-state admission floor, not a guarantee for arbitrary
+   future inputs. Keep the database and API running during the check. A
+   different model or host needs its own sizing evidence.
 3. Resolve the four unit inputs from the running primary using this read-only
    command. It prints only the selected paths and account names. Require a
    non-root primary account, an existing model directory readable by that
@@ -564,34 +565,116 @@ from L1 step 5 with the rehearsal.
 
    Require exit0, then run `sudo systemctl daemon-reload`. An unsuccessful
    install returns through the early-exit path.
-5. Before starting the new daemon, run this bounded synthetic warm-up in the
-   prepared0.6.22 environment. `SERVER_CONFIG` is the private server
-   configuration. Require exit0 and `primary_loaded: True`; the check
-   normalizes a tag without a suffix to `:latest`.
+5. In the authorized maintenance window, keep extraction paused and wait for
+   foreground inference to finish. Keep the database and API running. Save
+   the following block as an owned staging file `lane-memory-check.py`.
+   It is specific to the pinned reference model and thread settings; a
+   different model needs a separately reviewed reference vector and sizing.
+   `SERVER_CONFIG` is the private configuration; `PG_UNIT` is the actual
+   running PostgreSQL unit recorded for this installation.
 
-   ```sh
-   timeout 75s .venv/bin/python - SERVER_CONFIG <<'PYPRIMARYWARM'
-   import sys
+   The command unloads the primary model through Ollama, checks that its
+   runner has exited without restarting the daemon, then warms it with the
+   configured two-thread option. It does not change stored vectors or jobs.
+   A cold model load is part of this maintenance step. Do not run it while
+   serving foreground inference, during a load phase or while draining work.
+
+   ```python
+   # lane-memory-check.py: run with the prepared 0.6.22 Python environment.
+   import hashlib, struct, subprocess, sys, time
+   from datetime import datetime
    from pathlib import Path
    import httpx
    from agentic_rag.config import load_config
+   from agentic_rag.providers import validate_vectors
+
    cfg = load_config(Path(sys.argv[1]))
-   tag = cfg.embed_model if ':' in cfg.embed_model else cfg.embed_model + ':latest'
+   primary, pg, mode = sys.argv[2:5]
+   background = 'agentic-rag-ollama-background.service'
+   worker, api = 'agentic-rag-worker.service', 'agentic-rag-api.service'
+   # Replace the three example API/worker/background names if L0 mapped them.
+   if mode not in {'before-background', 'before-load'}:
+       raise SystemExit('mode must be before-background or before-load')
+   def prop(unit, name):
+       return subprocess.check_output(
+           ['systemctl', 'show', unit, '-p', name, '--value'], text=True).strip()
+   def active(unit):
+       return prop(unit, 'ActiveState') == 'active'
+   if active(worker) or not active(pg) or not active(api):
+       raise SystemExit('require worker paused and database/API running')
+   if active(background) != (mode == 'before-load'):
+       raise SystemExit('background state does not match this maintenance point')
+   if cfg.embed_model not in {'bge-m3-q8', 'bge-m3-q8:latest'} or cfg.embed_dim != 1024:
+       raise SystemExit('a different model needs its own reviewed sizing reference')
+   tag = 'bge-m3-q8:latest'
+   digest = '7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d'
+   reference = 'a430c659c9f04749a1e2ab16c268a2e967f86b525f5bbe842d04f1b7c789505b'
+   def runners(unit):
+       group = Path('/sys/fs/cgroup') / prop(unit, 'ControlGroup').lstrip('/')
+       return sorted(int(pid) for pid in (group / 'cgroup.procs').read_text().split()
+                     if (Path('/proc') / pid / 'comm').read_text().strip() == 'llama-server')
+   def models(client, url):
+       r = client.get(url + '/api/ps', timeout=5)
+       r.raise_for_status()
+       return r.json()['models']
+   daemon = int(prop(primary, 'MainPID'))
+   if daemon <= 0:
+       raise SystemExit('primary daemon is not running')
+   url = cfg.ollama_url.rstrip('/')
    with httpx.Client(trust_env=False) as client:
-       response = client.post(cfg.ollama_url + '/api/embed', timeout=60,
-           json={'model': cfg.embed_model, 'input': ['Synthetic parity probe.'], 'keep_alive': '10m'})
-       response.raise_for_status()
-       response = client.get(cfg.ollama_url + '/api/ps', timeout=5)
-       response.raise_for_status()
-       if not any(m.get('name', m.get('model')) == tag for m in response.json()['models']):
-           raise SystemExit('primary model is not loaded')
-   print({'primary_loaded': True})
-   PYPRIMARYWARM
+       r = client.post(url + '/api/embed', timeout=60,
+                       json={'model': cfg.embed_model, 'input': [], 'keep_alive': 0})
+       r.raise_for_status()
+       deadline = time.monotonic() + 60
+       while True:
+           if not models(client, url) and not runners(primary):
+               break
+           if time.monotonic() >= deadline:
+               raise SystemExit('primary runner did not unload; stop and retain evidence')
+           time.sleep(0.5)
+       if int(prop(primary, 'MainPID')) != daemon:
+           raise SystemExit('primary daemon changed during maintenance')
+       endpoints = [(primary, url, 2)]
+       if mode == 'before-load':
+           endpoints.append((background, 'http://127.0.0.1:11436', 1))
+       for unit, endpoint, threads in endpoints:
+           previous = None
+           for _ in range(2):
+               r = client.post(endpoint + '/api/embed', timeout=60,
+                   json={'model': cfg.embed_model, 'input': ['Synthetic parity probe.'],
+                         'options': {'num_thread': threads}, 'keep_alive': '10m'})
+               r.raise_for_status()
+               vector = validate_vectors(r.json()['embeddings'], 1, 1024)[0]
+               actual = hashlib.sha256(b''.join(struct.pack('<d', v) for v in vector)).hexdigest()
+               resident = models(client, endpoint)
+               matching = [m for m in resident if m.get('name', m.get('model')) == tag
+                           and m.get('digest') == digest]
+               pids = runners(unit)
+               if actual != reference or len(matching) != 1 or len(pids) != 1:
+                   raise SystemExit('reference vector, model identity or runner mismatch')
+               expiry = datetime.fromisoformat(matching[0]['expires_at'].replace('Z', '+00:00'))
+               if expiry.timestamp() <= time.time() + 60 or (previous is not None and previous != pids):
+                   raise SystemExit('resident model expired or runner changed')
+               previous = pids
+               print({'unit': unit, 'models': resident, 'runner_pids': pids})
+   available = int(next(line.split()[1] for line in Path('/proc/meminfo').read_text().splitlines()
+                        if line.startswith('MemAvailable:'))) * 1024
+   minimum = (4 if mode == 'before-background' else 2) * 1024**3
+   print({'mode': mode, 'MemAvailable': available, 'minimum': minimum})
+   if available < minimum:
+       raise SystemExit('CAPACITY_BLOCKED: retain evidence; do not lower the floor or retry adaptively')
    ```
 
-   Immediately run `free -b` and require at least4GiB available; otherwise
-   use the early-exit path. Repeat the warm-up and memory check after any
-   delay or primary restart. Start only the new daemon with
+   Run `sudo timeout 400s .venv/bin/python lane-memory-check.py SERVER_CONFIG ollama.service PG_UNIT before-background`.
+   Require exit0 and at least4GiB `MemAvailable`, with the primary loaded and
+   the database/API still active. Retain the output and a recursive cgroup
+   memory inventory (including nested PostgreSQL and scope units). Record
+   the production Ollama unit too if it differs from the measured primary;
+   an on-demand model load is real host demand, not an excluded anomaly.
+   If the check fails, use the early-exit path; do not stop other services,
+   lower a threshold or repeat the same failed sizing attempt. After a delay
+   or any new primary inference, repeat the declared maintenance check before
+   starting the background daemon. Start only that daemon with
    `sudo systemctl start agentic-rag-ollama-background.service`. Require
    `curl -fsS http://127.0.0.1:11436/api/tags` to list the `[embed] model` tag.
    If it does not, run
@@ -669,7 +752,13 @@ PYPARITY
    reference values are `background_url = "http://127.0.0.1:11436"`, timeout60,
    primary threads2, background threads1 and `request_consumers = 4`.
 8. Restart every API process (`sudo systemctl restart agentic-rag-api.service`
-   for the example installation), then run
+   for the example installation). Keep the worker paused. After the parity
+   probe and all setup or rollback inputs, run
+   `sudo timeout 400s .venv/bin/python lane-memory-check.py SERVER_CONFIG ollama.service PG_UNIT before-load`.
+   Require exit0: both models must be resident with stable runner PIDs and
+   their reference vectors, with at least2GiB `MemAvailable`. Do not unload
+   the background model or erase its long-input workspace history. A failure
+   uses L3; do not start extraction or a load measurement. Then run
    `sudo systemctl start agentic-rag-worker.service`. All processes read the file
    only at start; a mix of old and new settings still obeys the single worker
    lock and execution pins, but restart them together to avoid it.
@@ -698,7 +787,13 @@ command. This precondition also applies when an update's parity probe fails.
   invalid vectors) is still
   pending. Nothing was stored for it, its attempt was not used up and its
   accepted extraction is replayed without a second provider call. Restore the
-  daemon or digest. If step 9 stopped the worker, explicitly run
+  daemon or digest. Before restarting a stopped background daemon, keep
+  the worker paused, repeat L1 step 5 (`before-background`,4GiB), then start
+  only the background daemon and check its listener mapping. Before every
+  resumed worker start after that recovery, run the step 8 `before-load`
+  check (both resident,2GiB). Do not perform these resets during normal
+  foreground traffic or an active acceptance load. If step 9 stopped the
+  worker, explicitly run
   `sudo systemctl start agentic-rag-worker.service` and require
   `systemctl is-active agentic-rag-worker.service` to report `active`.
   A running worker retries the retained window after its backoff.
@@ -713,6 +808,14 @@ command. This precondition also applies when an update's parity probe fails.
   `systemctl is-active agentic-rag-worker.service` to report `active`.
   Stop the background unit. Jobs, receipts, caches and
   knowledge are not deleted; work continues on the primary daemon.
+
+The fixed reset points release workspace left by setup, parity checks,
+seed generation and the temporary single-lane rollback. The acceptance
+workload's foreground queries are at most73 characters. The measured memory
+and latency result applies only to that workload: production queries are not
+length-limited, and longer requests can grow the runner again. A sizing check
+is not a guarantee for arbitrary request lengths or uninterrupted maintenance.
+Never reset a model to conceal pressure during load or backlog drain.
 
 Before a model pull, model-tag replacement or Ollama binary upgrade, stop the
 worker as in L0 and stop `agentic-rag-ollama-background.service`. Preserve a
