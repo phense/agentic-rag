@@ -44,5 +44,6 @@
     "actual response and cleanup exits"
   ],
   "acceptance": "Publish actual values; unagreed targets never reported as SLA accepted; no long soak claim",
-  "harness_sha256": "91482a9827d61a19e6911a540c2ba1f79170632d44911a20042ee241a1588c00"
+  "harness_sha256": "17e17243435404b07c21826f86f8d40d8f7a30c53dc0c5e9af7d80825fa32a22",
+  "setup_attempt1": "Stopped before measurement: existing source cluster requires peer OS postgres for read-only dump; owned PG stopped. Corrected dump subprocess OS identity, no production change."
 }
