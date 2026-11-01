@@ -5,7 +5,7 @@ from dataclasses import asdict, replace
 import json
 import subprocess
 
-from .. import db, mining
+from .. import db, extraction_policy, mining
 from ..llm import LLMJobError, LLMUnavailableError
 from .auth import AuthenticationError, resolve_reference
 from .context import request_scope
@@ -77,7 +77,9 @@ def process_source(conn,cfg,job,*,runner=subprocess.run):
                         for item in accepted['extraction'].get(kind,[]):
                             if not principal.can_write(item['domain'],row['project']): raise JobBlocked('accepted_output_scope_changed')
             result=mining.mine_session(scoped,cfg,session_id=row['session_id'],transcript_path='',last_uuid=row['input_cursor'] or None,
-                project=row['project'],provided_window=mining_window(row['payload']),before_apply=before_apply,runner=runner)
+                project=row['project'],provided_window=mining_window(row['payload']),before_apply=before_apply,runner=runner,
+                # Windows admitted without metadata keep builtin rules, never today's file.
+                policy=row['payload'].get('_extraction_policy',extraction_policy.LEGACY),policy_origin='window')
             if result.skipped and result.new_last_uuid!=row['output_cursor']: raise JobBlocked('no_writable_domains')
             # Recheck immediately before the receipt transition, too.
             if _principal(cfg,row['payload']['_principal'])!=principal: raise JobBlocked('authorization_changed')

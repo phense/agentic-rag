@@ -20,7 +20,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from . import backup, curation, db, jobs, mining, provider_health, store
+from . import backup, curation, db, extraction_policy, jobs, mining, provider_health, store
 from .continuity import enrich
 from .config import Config, load_config
 from .llm import LLMUnavailableError
@@ -174,7 +174,10 @@ def process_job(conn, cfg: Config, job: dict, *,
             conn, cfg, session_id=job["session_id"],
             transcript_path=job["transcript_path"],
             last_uuid=job["last_uuid"], project=payload.get("project"),
-            runner=runner)
+            runner=runner,
+            # Missing metadata means work admitted without a custom policy.
+            policy=payload.get("extraction_policy", extraction_policy.LEGACY),
+            policy_origin="queue")
         _log(f"mine {job['session_id']}: saved={res.saved}"
              f" dup={res.duplicates} contra={res.contradictions}"
              f" pin_contra={res.pin_contradictions}"

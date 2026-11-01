@@ -525,3 +525,54 @@ def _section(scope, policy: Policy, channels) -> str:
     if policy.max_body_chars is not None:
         lines.append(f'  Items with text longer than {policy.max_body_chars} characters are dropped.')
     return '\n'.join(lines)
+
+
+# Marker for queued work admitted without policy metadata: builtin rules, never
+# the file that happens to be configured when the work runs.
+LEGACY = 'legacy'
+
+
+def all_disabled(bundle: Bundle, domains) -> bool:
+    """True when no output channel can retain anything: skip the provider call."""
+    for domain in domains:
+        policy = bundle.policy(domain)
+        if policy is not None and any(policy.limit(c) for c in DOMAIN_CHANNELS):
+            return False
+    domainless = bundle.domainless()
+    return not any(domainless.limit(c) for c in DOMAINLESS_CHANNELS)
+
+
+def enforce(data: dict, bundle: Bundle):
+    """Deterministic post-extraction filter over all eight output channels.
+
+    Domain channels use the item's domain policy; a domain outside the bundle
+    is rejected. Domainless channels use the domainless policy. Order: domain,
+    category, text limit, item limit. Returns (filtered data, report); the
+    report holds counts and reasons only, never discarded text.
+    """
+    out = {k: v for k, v in data.items() if k not in CHANNELS}
+    rejected, counts = {}, {}
+    for channel in CHANNELS:
+        kept = []
+        for item in data.get(channel) or []:
+            domain = item.get('domain') if channel in DOMAIN_CHANNELS and isinstance(item, dict) else None
+            policy = bundle.policy(domain) if channel in DOMAIN_CHANNELS else bundle.domainless()
+            key = (channel, domain)
+            if policy is None:
+                reason = 'domain_not_bound'
+            elif channel not in policy.categories:
+                reason = 'category_disabled'
+            elif policy.max_body_chars is not None and len(str(item.get(TEXT_FIELDS[channel]) or '')) > policy.max_body_chars:
+                reason = 'body_limit'
+            elif counts.get(key, 0) >= policy.limit(channel):
+                reason = 'item_limit'
+            else:
+                reason = None
+            if reason:
+                bucket = rejected.setdefault(channel, {})
+                bucket[reason] = bucket.get(reason, 0) + 1
+                continue
+            counts[key] = counts.get(key, 0) + 1
+            kept.append(item)
+        out[channel] = kept
+    return out, {'digest': bundle.digest, 'rejected': rejected}
