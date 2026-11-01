@@ -208,3 +208,37 @@ def test_reader_results_scores_and_order_match_published_sql(parity_database, fu
             if at == '2026-01-15T00:00:00Z':
                 expected.add('expired')
             assert {str(row['document_id']) for row in after} == {ids[key] for key in expected}
+
+
+@pytest.mark.parametrize('function', FUNCTIONS)
+@pytest.mark.parametrize('query', ['unfindablequasar', 'maintenance inspection'])
+def test_lexical_query_parsing_is_bounded_per_statement(broad_lexical_database, function, query):
+    # Mutation: evaluating websearch_to_tsquery in every scanned chunk or ranked
+    # row returns the same response but repeats expensive query parsing. A stable
+    # observer preserves the real parser and measures calls, not wall-clock time.
+    with db.connect(broad_lexical_database) as conn:
+        conn.execute("SET track_functions='all'")
+        conn.execute('''CREATE OR REPLACE FUNCTION parse_work92(regconfig,text)
+            RETURNS tsquery LANGUAGE plpgsql STABLE AS $$
+            BEGIN RETURN pg_catalog.websearch_to_tsquery($1,$2); END $$''')
+        conn.commit()
+        principal = Principal('parser-probe', 'owned', 'reader', frozenset({'general'}),
+                              frozenset(), frozenset({'global'}), frozenset())
+        conn.execute('SET ROLE rag_reader')
+        apply_connection(conn, RequestScope(principal, broad_lexical_database, True))
+        conn.execute('RESET ROLE')
+        conn.commit()
+        with conn.transaction(force_rollback=True):
+            definition = conn.execute('SELECT pg_get_functiondef(oid) body FROM pg_proc WHERE proname=%s',
+                                      (function,)).fetchone()['body']
+            assert 'websearch_to_tsquery(' in definition
+            conn.execute(definition.replace('websearch_to_tsquery(', 'parse_work92('))
+            conn.execute('SET LOCAL ROLE rag_reader')
+            expected = conn.execute(f'SELECT * FROM broad_before92_{function}(%s)', (query,)).fetchall()
+            counter = "SELECT COALESCE(pg_stat_get_xact_function_calls('parse_work92(regconfig,text)'::regprocedure),0) n"
+            before = conn.execute(counter).fetchone()['n']
+            actual = conn.execute(f'SELECT * FROM {function}(%s)', (query,)).fetchall()
+            calls = conn.execute(counter).fetchone()['n'] - before
+            assert actual == expected
+            assert len(actual) == (16 if query == 'maintenance inspection' else 0)
+            assert 0 < calls <= 8, {'function': function, 'parse_calls': calls}

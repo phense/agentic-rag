@@ -317,7 +317,9 @@ extension/preload setup from the [service installation procedure](../13-central-
 For independent restores, supply an empty, owner-accessible vector-only
 template of the same extension version with `--verification-template TEMPLATE`
 on both `upgrade` and `verified-backup`. The template must contain no application
-tables. Migration034 uses registered pgvector settings; do not grant superuser
+tables, and `vector` must be installed in `public`; see the
+[restore-template preparation](../15-dashboard.md#restore-verification-privileges).
+Migration034 uses registered pgvector settings; do not grant superuser
 or parameter privileges to make it apply. If the extension is later upgraded
 from0.7 to0.8+, the functions retain their exact fallback until a subsequent
 release installs iterative settings; an extension upgrade alone does not
@@ -334,8 +336,9 @@ reconfigure them. Do not edit migration history to enable that optimization.
    bound. Monitor the upgrade and the installation's normal lock budget. If it
    must be cancelled, retain the failed attempt and check the schema before retry.
 3. Run `rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
-   Require `restore_verified` and `original_rows_unchanged`, with only
-   `034_lexical_eligibility_work.sql` applied. The command verifies its backup by
+   For a restricted owner, append `--verification-template TEMPLATE` using the
+   prepared template described above. Require `restore_verified` and
+   `original_rows_unchanged`, with only `034_lexical_eligibility_work.sql` applied. The command verifies its backup by
    independent restore before changing the database. A failed apply rolls back;
    inspect the error and schema inventory, then retry once with a fresh dump
    path after correcting the cause. If the retry fails, keep writers paused and
@@ -344,6 +347,7 @@ reconfigure them. Do not edit migration history to enable that optimization.
 4. Start the0.6.22 services and adapters, resume writers, and check authenticated
    scoped search, client capture/replay and queued extraction progress. Create
    a target backup with `rag service --config SERVER_CONFIG verified-backup --source-version 0.6.22 --output AFTER_DUMP`.
+   For a restricted owner, append `--verification-template TEMPLATE` here too.
    Require its independent restore to succeed before retiring the old runtime.
 
 The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine

@@ -336,7 +336,7 @@
     ]
   },
   "limited_owner_correction": {
-    "state": "affected_tests_passed_independent_review_pending",
+    "state": "independently_accepted",
     "base": "f65c19b",
     "red_commit": "e4ea872",
     "red": {
@@ -376,6 +376,16 @@
       "exit_code": 0,
       "seconds": 0.82,
       "log_sha256": "bae87bf7d2a00b06bc748f7b9f82feb41da8928b9099148e1be7e1f4caf11f5a"
+    },
+    "independent_review": {
+      "head": "86d855dd0901fd42115f3dd3ccb95cab366c65db",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "important": 0,
+      "fresh_probes": "Limited-owner genuine populated upgrade and independent source/target restores; restored vector search/config, caller preservation; ANN256 vs forced exact300, version guard and cap fallback",
+      "input_hash_limit": "Coordinator logs predate commit without input hashes; essential paths freshly checked independently on HEAD",
+      "playbook_minor": "Conditional template flags/link/public-schema requirement corrected in follow-up docs"
     }
   }
 }
