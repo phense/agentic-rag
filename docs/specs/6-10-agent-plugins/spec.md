@@ -42,6 +42,9 @@ shortening context and extracted by one lower-priority central worker.
   and model batches, including indirect shared database/Ollama work. Keep model
   residency/concurrency finite; bound already-running background model work.
   Resume background progress after foreground pressure subsides.
+  An optional, resource-bounded local background embedding lane may isolate
+  already-running inference; retain full inputs, the same verified model identity,
+  default single-lane compatibility and eventual lossless background progress.
 - FR08: Standalone remains default. Additive populated023→024 upgrade preserves
   original knowledge, embeddings, ACLs, pending source jobs and history; require
   verified backup and documented staged server/client upgrade/code rollback.

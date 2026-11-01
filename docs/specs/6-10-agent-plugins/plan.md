@@ -84,3 +84,110 @@ initial backlog, not continuous growth. No numerical SLA has been agreed.
 Keep performance acceptance open until diagnosis and independent disposition.
 Use no production service, credentials or data changes to manufacture acceptance.
 All production cutover gates remain.
+
+
+## A2: isolate admitted background inference (Issue92, design gate)
+
+Status: conditional design, pending E-LANE-1. Runtime5667ee7 is unchanged. This
+amendment supersedes the fixed-consumer/shared-runner decisions above only when
+its optional configuration is selected. The10s AC05 target and4-vCPU/8-GiB
+reference remain binding; no consumer, thread or model-lane setting is adopted
+by a diagnostic result alone. Owner: coordinator, one cohesive implementation
+slice after the experiment and architecture gate. Model and originals stay intact.
+
+### Evidence and decision
+
+The independent model-admission review on6ffeb3d traces the two serial boundaries
+to `service/priority.py:model_slot` and the Ollama runner. The controlled reports
+are [restored statistics and capacity](../../benchmarks/2026-11-01-lexical-eligibility/restored-statistics-capacity-diagnostics.json)
+and [native parallelism](../../benchmarks/2026-11-01-lexical-eligibility/native-model-parallel-diagnostic.json).
+With analyzed copies, four diagnostic consumers and two model threads give
+idle search p959.407/9.805s but12.931/13.584s in background phases. Native
+parallelism2 does not let the short request bypass a full input. One optional
+background daemon is the minimum candidate addressing that observation. The
+existing configured endpoint remains the default and foreground endpoint.
+
+The stated headroom is an observed risk, not proof of a latency floor or of
+insufficiency. MAD-01..03 are conditional High design obligations for the new
+lane, not newly observed defects in an installation without that lane. They
+must be resolved in code and tests before PR readiness. MAD-04..08 require client,
+resource and runtime evidence. MAD-09/10 are acceptance counters and recovery
+limits; do not create a duplicate Low issue merely for unimplemented-design risks.
+
+### Contracts and ownership
+
+- `config.py`, `embed.py`, `service/priority.py`: optional background URL and a
+  finite10..60s timeout, optional bounded model thread count. Without lane/thread
+  settings, keep existing request JSON, endpoint, admission lock, ten-second
+  background deadline and response semantics. Only fenced central legacy-Ollama
+  background work uses the new lane. Standalone, foreground and managed embedding
+  profiles retain their old routing; managed calls explicitly retain shared
+  admission. A separate legacy-background lock permits at most one background
+  inference alongside one foreground inference. Keep foreground preference for
+  starting every new background page/job, finite waits and existing worker pins.
+- `query_cache.py`, `embedding_reuse.py`, `embed.py`: verify both endpoint tags and
+  immutable digests before and after routed inference, validate dimension and
+  vector shape, and refuse unknown/mismatched identity before persistence. Reuse
+  keys keep the primary endpoint/model identity only after bitwise parity is
+  proven. Never silently relabel another daemon's vectors. Foreground query-cache
+  semantics remain unchanged. A background-lane timeout/unavailability/identity
+  failure raises attempt-preserving ResourcePressure, never a best-effort save
+  with missing vectors. Accepted extraction output remains replayable without a
+  new provider call. Count timeouts, fallback and dedup skips in the acceptance
+  harness without disclosing inputs.
+- `service/requests.py`: configurable bounded consumer count, default2. An
+  explicitly configured capacity owns a bounded executor; propagate ContextVars
+  and never share live connections. Preserve the default path and shutdown's
+  execution-pin guarantee: wait for finite calls; do not abandon a live gateway
+  and start replacement execution. More consumers do not establish more capacity.
+- `service/client.py`: honor finite, bounded existing `retry_after` hints with
+  jitter and the caller's remaining deadline. Old servers without a valid hint
+  retain exponential fallback. Preserve pre-ACK/offline durable handles, lost-ACK
+  reconciliation, cancellation and terminal errors. Waiting is never successful
+  search. No new wire field or long-poll endpoint. Preserve per-namespace rate limits.
+- Configuration reference, central-service guide and PB06801: describe the
+  opt-in daemon, read-only pinned blobs, finite per-lane/global CPU and memory,
+  old/new coexistence, verified startup and a key-removal/restart recovery path.
+  Deliver these before lane activation; no production activation in this work.
+
+### E-LANE-1: falsify before implementation
+
+Freeze controller/protocol hashes before execution. All processes are owned
+copies on the same reference. Never send copied private inputs to any model.
+A: use the complete3215/49-character synthetic model inputs with150ms offset,
+10 repetitions, both runners at2 threads, plus three bounded default-weight CPU
+burners approximating2.5 cores of non-model work. Compare default-thread versus
+2-thread vectors, then require cross-daemon bit identity. Foreground uses the
+unchanged owned350%/2GiB envelope; background uses CPUWeight1, CPUQuota100%,
+parallel1/one model,2GiB and shared read-only blobs. Require foreground p95<=1s,
+every background call<=60s, no model/OOM/memory-limit event, host MemAvailable
+>=1.5GiB and unchanged blob hashes. Abort B on failure; retain the failed evidence.
+B: only after A passes, use the fresh populated owned024->034 copy, explicit
+ANALYZE, unchanged40-client three-phase mixed workload and13 originals. A hashed
+harness shim changes only fenced legacy routing/lock/deadline; consumers4 and
+threads2 remain declared diagnostic overrides. Require each search total p95<=10s
+and background-phase execution p95<=idle+0.5s, complete scoped results/citations,
+zero model failures/fallbacks/dedup skips/timeouts,13/13 original-source hashes
+applied, eventual drain, no swap/OOM and the recorded CPU/PSS/memory envelope.
+An experiment pass proves feasibility only; final acceptance needs implemented
+source, the actual client, enough samples and all original correctness gates.
+
+### Upgrade and recovery gates before delivery
+
+No new DDL is planned;034 and its existing source0.6.21/schema033 verified upgrade
+remain mandatory. Rehearse the exact final runtime on populated0.6.21, not only
+the024 diagnostic snapshot: interruption/retry, source and target independently
+restored backups, original/user/domain/ACL/job/receipt history unchanged.
+Prepare the optional daemon before enabling a key, verify identity/parity and
+resources, deploy code with lane unset, pause extraction and drain the old call,
+then configure/restart and verify the actual route. Mixed old/new workers must
+still obey OWNER_LOCK and execution pins. Removing lane/thread/consumer settings
+and restarting restores single-lane operation without deleting jobs or caches.
+Do not rewrite the migration ledger or claim a schema downgrade.
+
+Derived success/recovery cases, required before final review: default routing/
+request/lock compatibility; real-client completed result within AC05; old-server
+poll fallback; rate-limited durable handle retained; kill background daemon;
+digest swap during inference; API/worker restart; config rollback; old/new
+worker exclusion; lost ACK/offline replay; authority revocation before commit.
+Use existing FR04/05 audit and result-publication checks in every applicable case.
