@@ -536,7 +536,8 @@ PYMODELUNIT
 ```
 
 The worker is stopped, the primary is running and all four unit inputs are
-known. Record the primary unit settings and memory sample with the rehearsal.
+known. Record the primary unit settings now and the loaded-model memory sample
+from L1 step 5 with the rehearsal.
 
 ### L1: start and verify the background daemon
 
@@ -714,7 +715,12 @@ command. This precondition also applies when an update's parity probe fails.
   knowledge are not deleted; work continues on the primary daemon.
 
 Before a model pull, model-tag replacement or Ollama binary upgrade, stop the
-worker as in L0 and stop `agentic-rag-ollama-background.service`. Perform the
+worker as in L0 and stop `agentic-rag-ollama-background.service`. Preserve a
+verified copy of the current Ollama binary, model-tag manifest and every blob
+it references, together with their SHA-256 values and the primary unit file.
+Keep that recovery copy outside the active model store so a pull or prune cannot
+remove it; verify that the retained manifest resolves to the saved blobs before
+updating. Do not proceed without those recovery files. Perform the
 separately authorized update through the primary installation, then restart
 the primary daemon. Repeat L0 step 3 discovery and compare all four inputs
 with `systemctl cat agentic-rag-ollama-background.service` and the saved
