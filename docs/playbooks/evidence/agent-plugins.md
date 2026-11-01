@@ -453,8 +453,8 @@ certify the corrected tree. The first review found contextual eligibility work
 repeated per matching chunk. The retained reference r1 and r2 load attempts ended
 with `no_actual_background_embedding_observed`; neither is a contention pass.
 The bounded replay showed inference running in a thread without worker context,
-so it was classified and admitted as foreground. Fresh correction review, full
-suite and reference growing/draining measurements remain required.
+so it was classified and admitted as foreground. The subsequent correction review and reference r3 are recorded below; a fresh
+terminal full-suite result remains required.
 
 See [bounded comparison evidence](../../benchmarks/2026-11-01-lexical-eligibility/verification.json).
 No live rollout, production lock-duration guarantee or agreed latency SLA is
@@ -472,3 +472,40 @@ The model-budget A/B used one owned Ollama instance with identical model/input:
 load, not a universal latency ratio. The reference load now uses that owned model
 instance with separate CPU/memory accounting; the old baseline used the shared
 instance, so total load latency changes cannot be attributed solely to SQL.
+
+
+The independent correction acceptance at `656ea27` leaves0 Critical, High,
+Medium or playbook Important findings. Its320 extra SQL cases preserve complete
+responses, and each broad60-document case makes60 eligibility checks regardless
+of chunk count or Memoize. The worker probes pass15/15 with real admission and
+HTTP doubles. One earlier stale probe was invalid and replaced by5/5 checks;
+the probe-plan timestamp does not establish prospective freezing.
+
+The [corrected r3 load](../../benchmarks/2026-11-01-lexical-eligibility/reference-load-r3-analysis.json)
+on runtime `5395f36` completes420/420 foreground requests and13/13 synthetic
+source windows. All163 actual model calls match their completions (135
+foreground,28 background), with0 errors and no simultaneous HTTP inference.
+Foreground demand starts with a background call in flight in both contended
+phases; background pages contain one input and take at most7.802s.
+
+Twelve real arrivals increase the growing backlog to13. The recorded
+`draining40` phase has no arrivals but holds all13 while foreground demand
+continues; it is not evidence of draining under load. After foreground ends,
+the backlog reaches0 in116.66s. All723 resource samples are valid, at most17
+DB connections are open and available host RAM stays above3.425GB. Sampled
+model residency peaks at1.694GB; the2GiB `memory.peak` and624 hard-limit events
+were already present before r3 and do not increase during it. No OOM occurs.
+Owned model/API/database processes are stopped and their listeners absent.
+
+Search total p95 is31.99s with20clients and60.04/62.47/61.63s in the three
+40-client phases. These short bursts establish no agreed response-time target
+or soak result. The full-load baseline used a different model instance and soft
+budget; use the paired SQL A/B, not total-load differences, to attribute the
+query repair. Raw aggregate hashes and an independent recomputation accompany
+the public results; private source/result text and vectors are excluded.
+
+The full-suite attempt on `656ea27` stopped near31% without a terminal result
+and no pytest process remained. It is not a pass; its cause is unproven. A new
+source-bound full suite is required before delivery. The maintainer latency
+disposition and T06811/T06818 reconciliation remain open; Issue68/92 closure and
+production rollout are separate from these measurements.

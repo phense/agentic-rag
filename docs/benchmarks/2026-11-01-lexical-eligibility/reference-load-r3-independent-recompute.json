@@ -1,0 +1,121 @@
+{
+  "raw_hashes_match_analysis": {
+    "issue92-reference-r3-cleanup-live.json": true,
+    "issue92-reference-r3-provider-calls.jsonl": true,
+    "issue92-reference-r3-cleanup.json": true,
+    "issue92-reference-r3-arrivals.json": true,
+    "issue92-reference-r3-model-calls.jsonl": true,
+    "issue92-reference-r3-resources.json": true,
+    "issue92-reference-r3-result.json": true
+  },
+  "model_starts": 163,
+  "model_ends": 163,
+  "fg_calls": 135,
+  "bg_calls": 28,
+  "errors": 0,
+  "bg_max": 7.8022847175598145,
+  "bg_items": [
+    1
+  ],
+  "model_interval_overlaps": 0,
+  "unmatched_starts": 0,
+  "phases": {
+    "idle20": {
+      "clients": 20,
+      "offered": 60,
+      "completed": 60,
+      "arrivals_in_phase": 0,
+      "backlog_first_min_max_last": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bg_calls_intersecting": 0,
+      "bg_active_at_start": false,
+      "search_p95": 31.988948104309376
+    },
+    "idle40": {
+      "clients": 40,
+      "offered": 120,
+      "completed": 120,
+      "arrivals_in_phase": 0,
+      "backlog_first_min_max_last": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "bg_calls_intersecting": 0,
+      "bg_active_at_start": false,
+      "search_p95": 60.038020698563194
+    },
+    "growing40": {
+      "clients": 40,
+      "offered": 120,
+      "completed": 120,
+      "arrivals_in_phase": 12,
+      "backlog_first_min_max_last": [
+        2,
+        2,
+        13,
+        13
+      ],
+      "bg_calls_intersecting": 1,
+      "bg_active_at_start": true,
+      "search_p95": 62.46993387695402
+    },
+    "draining40": {
+      "clients": 40,
+      "offered": 120,
+      "completed": 120,
+      "arrivals_in_phase": 0,
+      "backlog_first_min_max_last": [
+        13,
+        13,
+        13,
+        13
+      ],
+      "bg_calls_intersecting": 1,
+      "bg_active_at_start": true,
+      "search_p95": 61.63192230302375
+    }
+  },
+  "post_samples": 110,
+  "post_backlog_first_last": [
+    13,
+    0
+  ],
+  "drain_seconds_to_zero_from_last_phase_end": 116.65684223175049,
+  "total_offered": 420,
+  "total_completed": 420,
+  "samples": 723,
+  "sampler_errors": 0,
+  "max_db_connections": 17,
+  "host_min_available": 3425341440,
+  "model_mem_current_max": 1693536256,
+  "model_peak_first_last": [
+    2147483648,
+    2147483648
+  ],
+  "model_events_first_last": [
+    {
+      "low": "0",
+      "high": "7410",
+      "max": "624",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    },
+    {
+      "low": "0",
+      "high": "7410",
+      "max": "624",
+      "oom": "0",
+      "oom_kill": "0",
+      "oom_group_kill": "0"
+    }
+  ],
+  "provider_calls": 13,
+  "arrivals_total": 13
+}

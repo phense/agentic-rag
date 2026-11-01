@@ -333,7 +333,8 @@ Service workers must also restart on0.6.22: embedding preparation retains the
 worker context on the calling thread, including foreground admission, single-input
 pages and the10-second background HTTP timeout. Existing queued inputs and accepted
 batches replay through the normal worker; no requeue, data rewrite or cache reset
-is required. Standalone local inference retains its bounded two-thread execution.
+is required. Unscoped local calls retain bounded two-thread execution; both
+central and standalone fenced workers prepare serially on their calling thread.
 Inspect the installed Ollama override as well: the former example's1536MiB
 `MemoryHigh` can continuously throttle the actual model below its working set.
 The0.6.22 example uses2GiB for both `MemoryHigh` and the unchanged `MemoryMax`.
@@ -344,6 +345,46 @@ authorized maintenance window; then repeat the probe and check accepted-batch
 replay. A repeated timeout or OOM blocks resumption: retain the queue and spools,
 restore the previous override if needed and investigate sizing. The rehearsal
 changed only an owned model instance, leaving the production override untouched.
+Run the bounded probe from the prepared0.6.22 environment while extraction is
+paused. Replace `SERVER_CONFIG` with that installation's private config path.
+This sends one3,200-character synthetic input to the configured loopback model;
+it does not access stored content or write to the database.
+
+```sh
+timeout 15s .venv/bin/python - SERVER_CONFIG <<'PYPROBE'
+from pathlib import Path
+import sys, time
+from urllib.parse import urlsplit
+import httpx
+from agentic_rag.config import load_config
+from agentic_rag.providers import validate_vectors
+cfg = load_config(Path(sys.argv[1]))
+endpoint = urlsplit(cfg.ollama_url)
+if endpoint.hostname not in ('localhost', '127.0.0.1', '::1'):
+    raise SystemExit('probe requires the intended loopback model endpoint')
+started = time.monotonic()
+try:
+    with httpx.Client(timeout=10.0, trust_env=False) as client:
+        response = client.post(cfg.ollama_url + '/api/embed', json={
+            'model': cfg.embed_model,
+            'input': [('Synthetic upgrade probe. ' * 134)[:3200]],
+        })
+        response.raise_for_status()
+        vectors = validate_vectors(response.json()['embeddings'], 1, cfg.embed_dim)
+    elapsed = time.monotonic() - started
+    if elapsed >= 10.0:
+        raise ValueError('deadline exceeded')
+except Exception:
+    raise SystemExit('probe failed; keep extraction paused and inspect model sizing') from None
+print({'vectors': len(vectors), 'dimension': cfg.embed_dim, 'seconds': round(elapsed, 3)})
+PYPROBE
+```
+
+Require exit0, one vector of the configured dimension in less than10seconds,
+and no new cgroup OOM or hard-limit events between the before/after samples.
+The outer15-second deadline also bounds a stalled client. A successful probe is
+one sizing check, not a sustained-load or latency-SLA acceptance.
+
 Production service restarts and cross-host routing require their own rollout checks.
 
 For code recovery keep schema034 and the verified0.6.22 backup tooling;

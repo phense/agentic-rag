@@ -39,9 +39,8 @@
     "seconds": 145.44
   },
   "gates_open": [
-    "independent correction review with0 C/H/M/Important",
-    "corrected root full-suite exit0",
-    "corrected three-burst growing/draining reference load"
+    "corrected root full-suite terminal exit0 on final documentation tree",
+    "maintainer latency disposition before Issue68/92 closure"
   ],
   "limitations": [
     "Reference SQL AB has2 measurements per arm per case, no latency SLA",
@@ -149,5 +148,33 @@
     }
   ],
   "known_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6556493316",
-  "corrected_reference_sql": "reference-ab-corrected.json"
+  "corrected_reference_sql": "reference-ab-corrected.json",
+  "independent_correction_review": {
+    "head": "656ea278bb762d189af4df1061541123db1de766",
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "playbook_important": 0,
+    "scope": "Complete43-file bounded diff plus16-file correction;27 unchanged files inherited by hash. Delivery conditional on fresh full suite; later edits are documentation/evidence only.",
+    "probes": {
+      "broad": "8 units equal;60 distinct-document checks each",
+      "sql_extra": "320 cases pass",
+      "worker": "15/15",
+      "stale_replacement": "5/5"
+    },
+    "limits": [
+      "Original corr-probe25/26 includes one invalid stale design, replaced by5/5 valid checks",
+      "Probe plan timestamp is not accepted as prospective freezing",
+      "One reader foreign subcheck is vacuous; separate foreign_denial_reader_a covers denial"
+    ]
+  },
+  "corrected_reference_load": "reference-load-r3-analysis.json",
+  "full_suite_attempt3": {
+    "head": "656ea278bb762d189af4df1061541123db1de766",
+    "state": "terminated_without_terminal_artifact",
+    "exit_code": null,
+    "progress": "about31percent",
+    "accepted": false,
+    "cause": "unproven; no pytest process or end artifact remained"
+  }
 }
