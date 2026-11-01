@@ -1,0 +1,39 @@
+{
+  "source_head": "e883f43509a57450f1014e23c86ece6ca7b72e35",
+  "script_sha256": "1d1618cc8bc1d455e5553efa791d462a8b71c8717c784a8b92365465ba1a816d",
+  "host": "owned copy on4-vCPU/8-GiB reference VM",
+  "baseline": "retained0.6.21/pre-repair r4; paired SQL AB separately retains private full-row equality",
+  "phases": [
+    {
+      "name": "idle20",
+      "clients": 20,
+      "rounds": 3
+    },
+    {
+      "name": "idle40",
+      "clients": 40,
+      "rounds": 3
+    },
+    {
+      "name": "growing40",
+      "clients": 40,
+      "rounds": 3
+    },
+    {
+      "name": "draining40",
+      "clients": 40,
+      "rounds": 3
+    }
+  ],
+  "growing": "One initial real background embedding;12 new synthetic windows admitted at0.5-second intervals during foreground demand. Observe sampled unapplied backlog increase.",
+  "draining": "No new arrivals; start foreground with an actual running background embedding and observe eventual13of13 application.",
+  "model": "Shared existing loopback bge-m3-q8; actual foreground/background embedding calls; synthetic scripted extraction only",
+  "cpu": "per-phase owned cgroup cpu.stat delta; excludes shared Ollama; phase-tagged PSS/RAM/connections/disk/model residency/backlog samples",
+  "limits": [
+    "No agreed SLA",
+    "Three short bursts per phase; no soak or throughput claim",
+    "No production configuration/database/service mutation",
+    "No copied private excerpt to provider or public evidence"
+  ],
+  "installation": "Owned unpacked0.6.22 wheel with matching metadata; existing interpreter dependencies; production environment unchanged"
+}

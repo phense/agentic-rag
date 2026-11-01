@@ -1,0 +1,108 @@
+{
+  "baseline_source": "9cc025f5e07f98520116e6d39f7a113aa99f8bbf",
+  "migration_sha256": "df5c64a115481377ac637a2bd87078b09b869faf1d08b28e96ee69247c4466f4",
+  "production_changes": false,
+  "arms": [
+    {
+      "arm": "before",
+      "case": "no_match",
+      "seconds": 6.6656702579930425,
+      "rows": 0,
+      "same_results_order_scores": true,
+      "eligibility_calls": 13014
+    },
+    {
+      "arm": "before",
+      "case": "selective",
+      "seconds": 9.909073030110449,
+      "rows": 50,
+      "same_results_order_scores": true,
+      "eligibility_calls": 19521
+    },
+    {
+      "arm": "before",
+      "case": "broad",
+      "seconds": 10.242365780984983,
+      "rows": 103,
+      "same_results_order_scores": true,
+      "eligibility_calls": 19521
+    },
+    {
+      "arm": "after",
+      "case": "no_match",
+      "seconds": 1.8529217990580946,
+      "rows": 0,
+      "same_results_order_scores": true,
+      "eligibility_calls": 0
+    },
+    {
+      "arm": "after",
+      "case": "selective",
+      "seconds": 5.703127460088581,
+      "rows": 50,
+      "same_results_order_scores": true,
+      "eligibility_calls": 6507
+    },
+    {
+      "arm": "after",
+      "case": "broad",
+      "seconds": 5.300056834006682,
+      "rows": 103,
+      "same_results_order_scores": true,
+      "eligibility_calls": 7002
+    },
+    {
+      "arm": "after",
+      "case": "no_match",
+      "seconds": 1.8215971351601183,
+      "rows": 0,
+      "same_results_order_scores": true,
+      "eligibility_calls": 0
+    },
+    {
+      "arm": "after",
+      "case": "selective",
+      "seconds": 5.71444194810465,
+      "rows": 50,
+      "same_results_order_scores": true,
+      "eligibility_calls": 6507
+    },
+    {
+      "arm": "after",
+      "case": "broad",
+      "seconds": 5.375671105924994,
+      "rows": 103,
+      "same_results_order_scores": true,
+      "eligibility_calls": 7002
+    },
+    {
+      "arm": "before",
+      "case": "no_match",
+      "seconds": 6.805437164846808,
+      "rows": 0,
+      "same_results_order_scores": true,
+      "eligibility_calls": 13014
+    },
+    {
+      "arm": "before",
+      "case": "selective",
+      "seconds": 10.443659968907014,
+      "rows": 50,
+      "same_results_order_scores": true,
+      "eligibility_calls": 19521
+    },
+    {
+      "arm": "before",
+      "case": "broad",
+      "seconds": 10.224556972971186,
+      "rows": 103,
+      "same_results_order_scores": true,
+      "eligibility_calls": 19521
+    }
+  ],
+  "original_documents": 24513,
+  "embedding_seconds": 2.6575744210276753,
+  "complete": true,
+  "definitions_restored": true,
+  "owned_pg_stopped": true
+}

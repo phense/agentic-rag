@@ -1,0 +1,61 @@
+{
+  "source_head": "e883f43509a57450f1014e23c86ece6ca7b72e35",
+  "fixture_commit": "0eb950c",
+  "regression_red": {
+    "command": "pytest tests/test_lexical_eligibility_work.py -q --tb=short -p no:cacheprovider",
+    "exit_code": 1,
+    "failed": 12,
+    "seconds": 10.86,
+    "reason": "324 real truth/lifecycle calls per reader query; literal outputs already correct"
+  },
+  "regression_green": {
+    "exit_code": 0,
+    "passed": 12,
+    "seconds": 8.48
+  },
+  "parity": {
+    "exit_code": 0,
+    "passed": 92,
+    "seconds": 83.66,
+    "includes": "literal current/as-of boundaries and full-field old/new equality; fixture was corrected to exercise generated replacement before final run"
+  },
+  "populated_upgrade": {
+    "exit_code": 0,
+    "passed": 1,
+    "seconds": 15.28,
+    "source": "archived64f2104/0.6.21/schema033",
+    "target": "0.6.22/schema034",
+    "checks": [
+      "original-row identity and hashes",
+      "function oid/owner/grants/security/config retained",
+      "interruption rollback and retry",
+      "actual archived0.6.21 scoped readers unchanged",
+      "verified source and target backups independently restored"
+    ]
+  },
+  "targeted": {
+    "command": "pytest tests/test_lexical_eligibility_work.py tests/service/test_lexical_upgrade.py tests/test_contextual_indexing.py tests/test_lifecycle_views.py tests/test_transcript_origin_upgrade.py tests/test_search.py tests/test_docs_continuity.py -q -x --tb=short -p no:cacheprovider",
+    "exit_code": 0,
+    "passed": 173,
+    "seconds": 145.44
+  },
+  "gates_open": [
+    "independent review",
+    "root full suite",
+    "applicable Node/lock verification",
+    "three-burst-per-phase growing/draining reference load result"
+  ],
+  "limitations": [
+    "Reference SQL AB has2 measurements per arm per case, no latency SLA",
+    "Vector threshold remains bounded4097; no vector-plan change",
+    "RLS may prevent GIN; the fix does not mark operators leakproof or bypass it",
+    "Performance copy/model is distinct from production rollout"
+  ],
+  "log_sha256": {
+    "issue92-regression-red.log": "f9cabaa7056dd65c5b9f4db8353423f5d9d62d0c46c6c1818caad2b805c23ed5",
+    "issue92-regression-green.log": "dba287b17a9875c451843979952cda72bb5b5d9e850a42d9430d070960485de0",
+    "issue92-parity-final.log": "2f09b2e0eb1ac9c8c62c3e66ed5ca8b67707f38bc2b5909189cea78d25974c12",
+    "issue92-upgrade-final.log": "e4c9d20ff57f489c2d579827b4149c277ddf6259ff64e411977d7c46cd48584e",
+    "issue92-targeted.log": "4ff29c1f2756c73227c8d588eb3cc4f8ce469b9a2772db2d2a64b268cca52774"
+  }
+}
