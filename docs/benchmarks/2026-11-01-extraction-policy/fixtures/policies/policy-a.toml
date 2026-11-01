@@ -1,0 +1,26 @@
+# RAG-067 frozen synthetic policy A (English). Advisory guidance plus
+# deterministic category and limit settings. No secrets, no real data.
+version = 1
+
+[global]
+guidance = "Keep confirmed solutions and decisions. Skip abandoned experiments and one-off chatter."
+examples = [
+  { kind = "positive", text = "Decision: the store uses HNSW indexes with m = 16." },
+  { kind = "negative", text = "We tried IVFFlat for an hour and dropped it." },
+]
+
+[[rules]]
+domain = "programming"
+categories = ["memories", "assertions", "contradictions", "pin_suggestions", "contradictions_with_pins"]
+max_items_per_category = 2
+
+[[rules]]
+project = "/synthetic/team-b"
+categories = ["memories", "lessons", "assertions", "pin_suggestions"]
+max_items_per_category = 1
+max_body_chars = 400
+
+[[rules]]
+domain = "operations"
+project = "/synthetic/team-b"
+guidance = "Behalte bestätigte Betriebsentscheidungen. Verwirf verworfene Versuche."

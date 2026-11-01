@@ -1,0 +1,5 @@
+# RAG-067 frozen synthetic policy: every output category explicitly disabled.
+version = 1
+
+[global]
+categories = []
