@@ -1,7 +1,8 @@
 # Contract lifecycle-v1 (RAG-066, schema031)
 
-Status: design-time contract from the architecture gate (2026-10-31). Rationale and
-diagrams: `../../../uml/memory-lifecycle-66.md`. Findings: AF-066-001..008. Why a separate
+Status: as-built reconciliation at product `82c031f` (2026-11-01); independent
+review and final verification pending. Rationale and
+diagrams: `../../../uml/memory-lifecycle-66.md`. Findings: AF-066-001..010. Why a separate
 contract: implementation, transports, upgrade and tests need one place for the exact
 budgets, codes and predicates. The spec deliberately leaves these to design.
 
@@ -27,11 +28,11 @@ conservatively tightened to identical title/body/dtype and existing scope/claim 
 
 ## Versions and identities
 
-- `lv1(doc)` = `'lv1:'||sha256(jsonb[ rag_document_version(doc), sha256(portable JSON[title,body]),
-  dtype, status, domain, project_scope, epoch(updated_at), anchor_revision(doc) ])`.
-  `anchor_revision` = count of `lifecycle_events` touching the document. The count is
-  monotonic because the table is append-only, so a decision ABA (apply then correct) is
-  detected. Content ABA is detected through `updated_at` (migration001 trigger).
+- `lv1(doc)` = `'lv1:' || sha256(JSONB[base_snapshot(doc), anchor_revision(doc)])`.
+  `base_snapshot` is the SQL `ls1` digest described below. `anchor_revision` is
+  the count of append-only `lifecycle_events` touching the document, detecting
+  apply/correct ABA without staling the base snapshot. The snapshot binds content
+  ABA through `updated_at`, and source ABA through ev1's source revisions.
   `rag_document_version` (ev1) and `src1` are **not** changed.
 - `action_key` = sha256 of canonical JSON `[operation, member_id, target_id, lv1_member,
   lv1_target, reason]`, which is unique. An optional client `request_key` (≤128 chars,
@@ -60,13 +61,18 @@ conservatively tightened to identical title/body/dtype and existing scope/claim 
   state='active'`.
 - `lifecycle_events`: UUID `id` primary key for stable `(at,id)` paging, append-only (`rag_history_append_only`), with `decision_id`,
   `event` (`applied`|`recorded`|`corrected`), `actor`, `reason`, `request_key`, `at`,
-  and `domain`/`project_scope` copied from the decision.
+  and `action_key`, `member_id`, `target_id`, `domain`/`project_scope` copied
+  from the decision (the action key belongs to the individual operation).
 - `rag_lifecycle_guard` (SECURITY DEFINER, `search_path` pinned) on INSERT and UPDATE of
   decisions. It enforces the anchor rules and the flat invariant. Identity columns are
   immutable; the only allowed transition is `active|contested → corrected`. It raises
   fixed SQLSTATE `23514` messages and reads identifiers only.
-- RLS on both tables: `USING rag_service_document(domain, project_scope)`, `WITH CHECK`
-  write flag. Grants: reader SELECT; writer SELECT, INSERT, plus UPDATE(state) on
+- RLS on both tables: read the original decision scope **or a currently visible
+  member**, preserving replacement hiding after a scope move; `WITH CHECK` uses
+  the decision scope write flag. Restrictive UPDATE also requires that flag.
+  This widens direct-SQL row visibility: target identifiers are stored on the
+  visible decision/event. Tool responses redact inaccessible targets; independent
+  review must assess the raw identifier boundary before acceptance. Grants: reader SELECT; writer SELECT, INSERT, plus UPDATE(state) on
   decisions; admin ALL. Both tables join `SCOPED_TABLES` and the restore allowlist.
 - `rag_assertion_eligible_base` = exact 030 body. `assertion_eligible` keeps its signature
   and adds the view-aware hidden check. `rag_lifecycle_hidden(id, at)` evaluates D7.
@@ -100,7 +106,7 @@ READ: `memory_lifecycle_preview(member, target, operation=None)` and `memory_lif
 history=False, cursor=None, limit=20)`. WRITE: `memory_lifecycle_apply(...)` and
 `memory_lifecycle_correct(...)`. CLI: `rag lifecycle preview|apply|correct|show|history`.
 `include_merged` bypasses hiding only for exact/semantic duplicates and extensions;
-replacement remains suppressed. Explicit `historical` includes qualified accepted
+replacement remains suppressed, including explicit `get`. Explicit `historical` includes qualified accepted
 past records (including superseded/expired), excludes future/refuted/withdrawn or
 unqualified truth, and preserves pattern withholding. Unset legacy `history` retains
 its prior contract. Invalid view/history/as_of combinations fail before DB mutation.
@@ -111,8 +117,12 @@ readers always force current semantics; request view cannot widen their dependen
 Codes: `not_found` (missing, foreign and invisible all look alike, with no counts),
 `scope_mismatch` (both visible), `unknown_scope`, `not_original`, `assertion_managed`,
 `stale_version`, `replay_mismatch`, `already_active`, `chain_conflict`,
-`event_order_unproven`, `budget_exceeded`, `busy`, `invalid_view`, plus the existing
-scope-denied mapping (42501).
+`event_order_unproven`, `budget_exceeded`, `busy`, `invalid_view`,
+`proof_failed`, `review_required`, `not_current`, `invalid_arguments`,
+`scope_denied` (including the existing 42501 mapping). Anchor/scope checks precede
+version checks; version checks precede proof checks, so a stale request returns
+`stale_version` even if a fresh proof would also fail. This avoids evaluating an
+operation against a snapshot the operator did not inspect.
 
 ## Responsibilities
 
@@ -155,3 +165,17 @@ The server derives action_key from the immutable request, including its reason.
 A repeated original request can return its existing decision even though its own
 apply advanced lv1; it must never reactivate a corrected/stale decision. Current
 read/write authority is checked again before any idempotent result is disclosed.
+
+## As-built implementation seams (2026-11-01)
+
+At `82c031f`, store functions are thin entry points; transaction, lock, decision,
+event, audit and current-authority commit code lives in `lifecycle.py`. Snapshot
+SQL is defined once in the invoker-rights `rag_lifecycle_snapshots` view; a cached
+PL/pgSQL merge-holds helper avoids nested per-candidate SQL re-planning. This is
+a performance implementation of the same ls1 semantics, not an ev1 change.
+
+Detail includes a bounded member list and an optional history page. Public history
+cursor behavior, cross-scope request-key collision responses and raw decision-row
+identifiers remain explicit independent-review questions. No acceptance criterion
+is waived by documenting these questions. Omitted get remains raw inspection;
+explicit get checks view eligibility and active status before exposing an original.

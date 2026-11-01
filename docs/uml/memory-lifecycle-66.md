@@ -1,15 +1,15 @@
 # Source-preserving lifecycle overlay (RAG-066)
 
-- Work: RAG-066 / feature 6.8 / Issue66; mode: **design-time**, before task generation.
+- Work: RAG-066 / feature 6.8 / Issue66; mode: **as-built**, product `82c031f`; independent integration gates pending.
 - Questions: Q1 operation semantics and automatic policy; Q2 where version, flat-chain,
   scope and authority gates run; Q3 how every reader distinguishes current from intentional
   history before `LIMIT`; Q4 how derived outputs invalidate without touching `ev1`;
   Q5 which 0.6.18 readers/writers stay valid before and after first use.
 - Requirements: US-001..004, AC-001..010, IC-001..004, FR-001..005; plan
   `../specs/6-8-memory-lifecycle/plan.md`; contract
-  `../specs/6-8-memory-lifecycle/contracts/lifecycle-v1.md`; findings AF-066-001..008 in
+  `../specs/6-8-memory-lifecycle/contracts/lifecycle-v1.md`; findings AF-066-001..010 in
   `findings.md`.
-- Evidence (base `d4d2372`, branch head `af7c9d8`): `curation._merge_exact_duplicates`
+- Original design evidence (base `d4d2372`, planning head `af7c9d8`): `curation._merge_exact_duplicates`
   and `_lock_scope_pair`; `validity.save` (advisory scope lock, 50-candidate bound,
   event-ordered `supersedes`); migration030 `assertion_eligible`, `claim_eligible`,
   `rag_document_version` (ev1), `rag_pattern_current`, `rag_synthesis_dependency_guard`;
@@ -25,9 +25,13 @@
   `service.upgrade.SUPPORTED_VERSIONS` (`range(18)`) and restore allowlist line 370;
   `tests/service/test_synthesis_upgrade.py` (`SOURCE='81beaf6'`, `old_tree`, `run_old`).
 - Notation: Mermaid component, sequence and state diagrams.
-- Verified on 2026-10-31 by semantic source review of directives, identifiers, block
+- Reconciled on 2026-11-01 against migration031, lifecycle.py, store gateways,
+  search/graph/research wrappers, derived-reader decorators and service transports
+  at `82c031f`. S1 affected run:1188 passed at351b6f4; coordinator view regressions:
+  4 red, then19 passed/exit0. Independent/full gates remain pending.
+- Diagram notation checked by semantic source review of directives, identifiers, block
   pairing and labels. **No renderer was run; no render is claimed.** No runtime test was run
-  for this gate.
+  for the original design gate; runtime evidence is distinguished above.
 
 ## Design decisions in one place
 
@@ -99,8 +103,8 @@ sequenceDiagram
     participant D as PostgreSQL031
     C->>L: preview(member, target)  [reader role allowed]
     L->>D: read anchors, lv1 versions, class, support, event basis
-    D-->>C: class, proved vs judgement, lv1 pair, action_key, required approval
-    C->>S: apply(action_key, operation, lv1 pair, reason)
+    D-->>C: class, proved vs judgement, lv1 pair, required approval
+    C->>S: apply(operation, anchors, lv1 pair, reason, reviewed)
     S->>D: SET LOCAL lock_timeout 2000ms, statement_timeout 10000ms
     S->>D: SELECT both anchors ORDER BY id FOR UPDATE
     alt action_key already recorded
@@ -160,8 +164,8 @@ one active hiding decision per member.
 |---|---|---|---|
 | omitted | existing default; non-history paths behave as `current` | original record, unchanged payload | always `current` |
 | `current` = `latest` | `base AND NOT hidden` | canonical resolution, ≤1 hop, returns `requested_id`, `canonical_id`, `resolution` | n/a |
-| `include_merged` | `base` with only duplicate/extension hiding bypassed; replacements remain hidden | original plus lifecycle block | n/a |
-| `historical` | qualified accepted past records; label; exclude future/refuted/withdrawn truth | original plus lifecycle block | unchanged history branches |
+| `include_merged` | `base` with only duplicate/extension hiding bypassed; replacements remain hidden | eligible active original plus lifecycle block; replacement excluded | n/a |
+| `historical` | qualified accepted past records; label; exclude future/refuted/withdrawn truth | eligible active historical original plus lifecycle block | unchanged history branches |
 
 `historical` with `as_of`, or `current`/`include_merged` with `history=true`, fails with
 `invalid_view`. Graph keeps its omitted-history default (`graph.py:45`).
@@ -227,3 +231,29 @@ Worker compatibility refinement: the automatic exact policy is Python code. An o
 PB-066-OPS must inventory/update/restart worker launchers before normal operation;
 old-code fallback must disable curation with `curation_budget=0` and prove that path.
 No new schema feature can be claimed to protect an unmodified old curation loop.
+
+## As-built reconciliation and pending acceptance
+
+Product `82c031f` implements D1–D8 through additive031, the flat decision/event
+guards, invoker ls1 snapshots, optimistic lv1, store entry points delegating to
+lifecycle transaction code, the SQL before-LIMIT predicate, explicit transport
+views and derived current-only scopes. The profile token is appended only once
+a scope has events, preserving old cached revisions across an empty upgrade.
+The old0.6.18 code and fallback budget0 are exercised by the populated upgrade
+harness; no live rollout, real-model or multiple-host behavior is inferred.
+
+The original RLS description omitted a visibility requirement after member scope
+moves. Actual031 permits reading a decision/event when its original scope or its
+member is visible. That preserves replacement suppression, but raw rows expose
+target IDs. Tool redaction and the raw-SQL boundary require an independent verdict.
+Additional reviewer questions: global request-key collisions, public history
+continuation, and actual managed-index k=1 selection. These are unresolved
+acceptance questions, not silently accepted Low findings.
+
+The coordinator found and fixed explicit-get selection and nested autocommit
+current-scope defects before review (four failing cases, then19 tests passed).
+Contract differences now state the five additional error codes, version-before-
+proof ordering, event anchor columns, ls1-based lv1 and actual transaction owner.
+The historical design report is retained; this reconciliation supersedes its
+implementation claims. AC/IC/AF coverage remains in tasks.md and must be judged
+by T066-011 and T066-012 before PR creation.

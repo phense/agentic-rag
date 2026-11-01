@@ -591,3 +591,26 @@ so old0.6.18 automatic workers cannot enforce it. Upgrade/restart all workers an
 hook launchers in PB-066-OPS; an old-code fallback must disable curation with
 curation_budget=0 and prove that behavior. Ordinary old reader/writer support is
 separate and must be measured.
+
+## RAG-066 as-built dispositions (2026-11-01, product82c031f)
+
+AF-066-001/009: implemented in preview/classifier and curation title/body/dtype
+checks; fixture-first b0f3bf5, measured at0b3ca4e with actual old0.6.18 code.
+AF-066-002/010: invoker ls1 snapshot plus append-only event-count lv1; ev1/src1
+unchanged in the populated upgrade and gateway tests. AF-066-003/006: ordered
+anchor/decision locks, flat guard, replay, persistent replacement and correction
+are implemented; independent concurrency/recovery acceptance remains pending.
+AF-066-004/005: SQL eligibility plus explicit view wrappers and derived current
+scopes are implemented. Coordinator regression fixed explicit-get selection and
+autocommit current-scope inheritance (4red→19green). Managed-index k=1 runtime
+coverage and public history pagination remain independent-review questions.
+AF-066-007: actuald4d2372 populated upgrade, interrupted/empty retry, verified
+restore and old worker budget0 fallback implemented and rehearsed; PB content
+review remains open. AF-066-008: application redaction/current authority are
+implemented, but moved-member RLS exposes raw decision target IDs and foreign
+request-key collisions may distinguish existence. Independent severity and
+acceptance are required; the implementation's Low label is not adopted.
+
+These dispositions replace the design-only next-task statuses above, without
+claiming final resolution. T066-011 derives fresh success/recovery probes from
+the reconciled views before running them; T066-012 supplies final full verification.
