@@ -98,6 +98,8 @@ class Config:
     mine_debounce_seconds: int = 600
     mine_max_digest_chars: int = 12000
     mine_per_block_chars: int = 800
+    # Optional RAG-067 extraction policy file ([mining] policy_file); None keeps builtin behavior.
+    mine_policy_file: Path | None = None
     dedup_threshold: float = 0.90
     curation_budget: int = 20
     worker_max_attempts: int = 3
@@ -202,7 +204,7 @@ class Config:
             )
 
 
-_PATH_FIELDS = {"service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
+_PATH_FIELDS = {"mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
 
 
 def load_config(path: Path | None = None) -> Config:
