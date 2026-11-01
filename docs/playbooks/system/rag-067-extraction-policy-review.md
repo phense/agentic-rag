@@ -1,8 +1,8 @@
 # PB-067-OPS review and rehearsal evidence
 
 Playbook: [rag-067-extraction-policy.md](rag-067-extraction-policy.md).
-State: **drafted and rehearsed by the implementer; independent content review
-pending (S2).** Live rollout is separate and not authorized by this record.
+State: **independently accepted at eadd2e5 after the M1 and CM1 corrections;
+final root full-suite gate remains open.** Live rollout is separate and not authorized by this record.
 
 ## Rehearsal
 
@@ -100,7 +100,7 @@ rehearsed after the correction:18passed,1known warning,exit0,15.92s
 
 ## Domain-set correction (CM1 / PB-CI1)
 
-The independent correction review rejected624dce6: full-bundle comparison could
+The independent correction review rejected 624dce6: full-bundle comparison could
 strand builtin retries after domain additions or permission revocations, and
 unchanged-file recovery after adding a domain. The comparison now checks
 common-domain and domainless effective policy hashes; legacy retries require a
@@ -110,7 +110,7 @@ binding. C2 distinguishes compatible domain-set changes from rule conflicts.
 
 Focused regressions reproduced three failures (local builtin retry, unchanged
 file recovery, central builtin retry) and one passing captured-policy control.
-After correction41affected tests passed,1known warning,exit0,19.61s. Three
+After correction 41 affected tests passed,1known warning,exit0,19.61s. Three
 additional negative cases protect real common-domain rule changes, domainless
 rule changes and custom-to-builtin conflicts. The test harness initially reused
 a module-scoped central session and then duplicated earlier fixture content;
@@ -135,3 +135,15 @@ acceptance and final full-suite verification remain pending.
   validation and durable binding; the database was dropped after the smoke test.
 
 No full-suite pass or independent acceptance is inferred from these checks.
+
+## Final independent acceptance
+
+At `eadd2e5` (product fix `e88717f`), the focused independent review accepted
+CM1/PB-CI1 with0Critical/High/Medium and0Important findings. Fresh real queue,
+worker, binding/audit, REST, ingest, service-worker and RLS probes passed36/36,
+0errors. Only the provider was mocked. The reviewer planned the checks before
+execution and removed all owned databases. Unchanged paths explicitly inherit
+the earlier complete and correction reviews; those checks were not all repeated.
+C4 now says bound domains, consistent with the independently measured behavior.
+Low notes are tracked in Issue75comment6553401312. No full-suite or live-host
+acceptance is implied; final full4 must still terminate successfully.

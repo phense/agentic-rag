@@ -154,7 +154,7 @@ rehearsed after the correction:18passed,1known warning,exit0,15.92s
 
 ## Domain-set correction (CM1 / PB-CI1)
 
-The independent correction review rejected624dce6: full-bundle comparison could
+The independent correction review rejected 624dce6: full-bundle comparison could
 strand builtin retries after domain additions or permission revocations, and
 unchanged-file recovery after adding a domain. The comparison now checks
 common-domain and domainless effective policy hashes; legacy retries require a
@@ -164,7 +164,7 @@ binding. C2 distinguishes compatible domain-set changes from rule conflicts.
 
 Focused regressions reproduced three failures (local builtin retry, unchanged
 file recovery, central builtin retry) and one passing captured-policy control.
-After correction41affected tests passed,1known warning,exit0,19.61s. Three
+After correction 41 affected tests passed,1known warning,exit0,19.61s. Three
 additional negative cases protect real common-domain rule changes, domainless
 rule changes and custom-to-builtin conflicts. The test harness initially reused
 a module-scoped central session and then duplicated earlier fixture content;
@@ -189,3 +189,17 @@ acceptance and final full-suite verification remain pending.
   validation and durable binding; the database was dropped after the smoke test.
 
 No full-suite pass or independent acceptance is inferred from these checks.
+
+## Independent acceptance before final full4
+
+Reviewed source `eadd2e5`, product fix `e88717f`:0Critical/High/Medium and
+0Important. The final independent probes passed36/36 with0errors, including
+builtin/captured retries through domain addition and revocation, original
+binding preservation, real effective/domainless/project conflicts, conditional
+recovery and accepted-batch replay. Only provider output was mocked. Previous
+full-slice evidence is inherited only for unchanged paths. Test-strength Low
+LOW-056 stays in Issue75; LOW-057/058 wording/typography is corrected.
+
+The final full-suite gate remains open. The public review summary is
+[issue67-extraction-policy-review.json](issue67-extraction-policy-review.json).
+No production, TLS, systemd, macOS, multi-host or model-quality claim is made.

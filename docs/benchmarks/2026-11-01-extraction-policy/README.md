@@ -87,6 +87,6 @@ new observations separately from the original results above. Providers remained
 scripted, embeddings disabled; these figures do not measure model quality.
 The CM1 domain-add/revocation regressions are separate from these frozen cases:
 41 affected tests passed, and the coordinator re-executed the prior independent
-correction script with37/37 assertions passing. That replay is coordinator
+correction script with 37/37 assertions passing. That replay is coordinator
 verification, not a new independent review. Independent correction acceptance
 and the root full-suite result remain separate gates.

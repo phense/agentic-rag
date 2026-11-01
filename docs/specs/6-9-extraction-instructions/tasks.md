@@ -36,7 +36,7 @@ S2/S3 are coordinator-owned integration and acceptance. No parallel pytest.
 
 ### Slice S2: Reconcile and independently accept integrated behavior
 
-- [ ] T067-008 [AC-001..010] [IC-001..005] Reconcile as-built code and design, record every difference and all AF dispositions. Independently review complete base→head bounded diff, schema/RLS/policy trust/queue replay/concurrency and PB content. Derive a plan before executing ACF-067-S success and ACF-067-R recovery against real collaborating components/owned DBs. Fix all Critical/High/Medium and Important playbook defects; collect Low in Issue75. Re-review changed risk boundaries proportionally.
+- [x] T067-008 [AC-001..010] [IC-001..005] Reconcile as-built code and design, record every difference and all AF dispositions. Independently review complete base→head bounded diff, schema/RLS/policy trust/queue replay/concurrency and PB content. Derive a plan before executing ACF-067-S success and ACF-067-R recovery against real collaborating components/owned DBs. Fix all Critical/High/Medium and Important playbook defects; collect Low in Issue75. Re-review changed risk boundaries proportionally.
 
 ### Slice S3: Converge, verify and deliver
 
