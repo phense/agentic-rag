@@ -911,3 +911,14 @@ guards installation before writing a unit and renews unit-input discovery
 after updates. These are documentation corrections; L2/L3 physical rehearsal
 and focused content recheck are still open. The focused documentation check
 passed17 tests (exit0,0.45s); no runtime, test or migration file changed.
+
+The focused content review on `f4b1afe` accepted PB-R01–05 and the as-built
+update. It found a conflicting update/rollback branch (PB-R06, Important):
+rollback could restart extraction on an unverified changed primary. The next
+correction makes verified primary identity/runtime a precondition for every
+L3 worker-start command. Its safe failure remains a recorded outage until a
+verified primary is restored. PB-R07 (Minor) is addressed by a bounded
+synthetic primary warm-up, normalized tag lookup and memory reading immediately
+before starting the second daemon. The new warm-up has not been physically
+rehearsed. Documentation tests alone do not exercise these decisions; focused
+content acceptance remains open.

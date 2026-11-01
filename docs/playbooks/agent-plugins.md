@@ -496,14 +496,10 @@ before resuming. Every setup failure below returns through this path.
    in `systemctl show` output) and both memory values
    `2147483648` for that reference. If they differ, keep the lane off and
    arrange a separately authorized primary-unit change and restart; leave
-   setup through the early-exit path above. Before checking memory, run
-   `curl -fsS http://127.0.0.1:11434/api/ps` and require the configured
-   `[embed] model` tag to be listed as loaded. If it is absent, defer setup
-   through the early-exit path rather than measuring an unloaded primary.
-   Require at least4GiB `MemAvailable` while that model remains loaded and
-   immediately before starting the second daemon (`free -b`);
-   this reserves its2GiB limit plus2GiB for the remaining host. A different
-   model or host needs its own sizing evidence.
+   setup through the early-exit path above. Step 5 loads the primary model
+   with a synthetic input before requiring at least4GiB `MemAvailable`;
+   this reserves the new daemon's2GiB limit plus2GiB for the remaining host.
+   A different model or host needs its own sizing evidence.
 3. Resolve the four unit inputs from the running primary using this read-only
    command. It prints only the selected paths and account names. Require a
    non-root primary account, an existing model directory readable by that
@@ -567,7 +563,34 @@ known. Record the primary unit settings and memory sample with the rehearsal.
 
    Require exit0, then run `sudo systemctl daemon-reload`. An unsuccessful
    install returns through the early-exit path.
-5. Start only the new daemon with
+5. Before starting the new daemon, run this bounded synthetic warm-up in the
+   prepared0.6.22 environment. `SERVER_CONFIG` is the private server
+   configuration. Require exit0 and `primary_loaded: True`; the check
+   normalizes a tag without a suffix to `:latest`.
+
+   ```sh
+   timeout 75s .venv/bin/python - SERVER_CONFIG <<'PYPRIMARYWARM'
+   import sys
+   from pathlib import Path
+   import httpx
+   from agentic_rag.config import load_config
+   cfg = load_config(Path(sys.argv[1]))
+   tag = cfg.embed_model if ':' in cfg.embed_model else cfg.embed_model + ':latest'
+   with httpx.Client(trust_env=False) as client:
+       response = client.post(cfg.ollama_url + '/api/embed', timeout=60,
+           json={'model': cfg.embed_model, 'input': ['Synthetic parity probe.'], 'keep_alive': '10m'})
+       response.raise_for_status()
+       response = client.get(cfg.ollama_url + '/api/ps', timeout=5)
+       response.raise_for_status()
+       if not any(m.get('name', m.get('model')) == tag for m in response.json()['models']):
+           raise SystemExit('primary model is not loaded')
+   print({'primary_loaded': True})
+   PYPRIMARYWARM
+   ```
+
+   Immediately run `free -b` and require at least4GiB available; otherwise
+   use the early-exit path. Repeat the warm-up and memory check after any
+   delay or primary restart. Start only the new daemon with
    `sudo systemctl start agentic-rag-ollama-background.service`. Require
    `curl -fsS http://127.0.0.1:11436/api/tags` to list the `[embed] model` tag.
    If it does not, run
@@ -662,6 +685,13 @@ PYPARITY
 
 ### L3: recovery and rollback
 
+**Safety precondition for every worker start below:** the primary model and
+binary must still be the verified installation, or have completed the required
+post-update checks. Removing lane keys does not verify a changed primary.
+If that condition is false, leave the worker stopped, retain the recorded
+outage and restore the verified primary before executing any worker-start
+command. This precondition also applies when an update's parity probe fails.
+
 - A window that reports `background_model_unavailable` (inference timeout or
   outage) or `background_model_identity` (digest unavailable, digest change or
   invalid vectors) is still
@@ -693,7 +723,8 @@ L1 step 4; retain and compare the existing file before its separately reviewed
 replacement. Restart the background daemon only after these inputs agree,
 then repeat L1's parity probe before restarting extraction.
 Require unchanged digests throughout that probe and `identical: True`; otherwise
-keep extraction paused and follow L3 rollback. Sharing a binary and model store
+keep extraction paused and follow L3's safety precondition: restore the verified
+primary before a rollback can start the worker. Sharing a binary and model store
 can change both digests together: matching digests alone do not renew the
 parity evidence. Also repeat the complete-input acceptance gate when changing
 thread options or the model/runtime used for an accepted load result. Keep the
