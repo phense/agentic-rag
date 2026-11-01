@@ -1,0 +1,50 @@
+{
+  "source_head": "5395f369e079051a75761054df9fc3dc5701e3e6",
+  "script_sha256": "f3adb4da34426cef86c2155ef62bcee565b8fee830ed43afd4f3d19914278e5b",
+  "host": "owned copy on4-vCPU/8-GiB reference VM",
+  "baseline": "retained0.6.21/pre-repair r4; paired SQL AB separately retains private full-row equality",
+  "phases": [
+    {
+      "name": "idle20",
+      "clients": 20,
+      "rounds": 3
+    },
+    {
+      "name": "idle40",
+      "clients": 40,
+      "rounds": 3
+    },
+    {
+      "name": "growing40",
+      "clients": 40,
+      "rounds": 3
+    },
+    {
+      "name": "draining40",
+      "clients": 40,
+      "rounds": 3
+    }
+  ],
+  "growing": "One initial real background embedding;12 new synthetic windows admitted at0.5-second intervals during foreground demand. Observe sampled unapplied backlog increase.",
+  "draining": "No new arrivals; start foreground with an actual running background embedding and observe eventual13of13 application.",
+  "model": "Owned loopback Ollama11435, same existing bge-m3-q8 read-only blobs; MemoryHigh=MemoryMax2GiB, parallel1, one model, CPUQuota350%",
+  "cpu": "Per-phase test cgroup and owned model cgroup CPU deltas reported separately; model memory peak/events sampled",
+  "limits": [
+    "No agreed SLA",
+    "Three short bursts per phase; no soak or throughput claim",
+    "No production configuration/database/service mutation",
+    "No copied private excerpt to provider or public evidence"
+  ],
+  "installation": "Owned unpacked0.6.22 wheel with matching metadata; existing interpreter dependencies; production environment unchanged",
+  "run": "owned-r2",
+  "retained_failure": "r1: fixture quote exceeded4000; no actual background embedding, zero acceptance. All owned children/PG stopped.",
+  "fixture_fix": "70neutral sentences; stripped user marker in output body/quote, verified real ground_claim_items1evidence link/stated before repeat",
+  "corrections": [
+    "r1 quote5918 exceeded grounding bound; retained failed run",
+    "r2 validquote3218 exposed lost LEASE through inference executor; retained failed run",
+    "r3 same r2 fixture and admission timing, corrected caller-thread service inference and distinct-document lexical work"
+  ],
+  "state": "running; results not yet accepted",
+  "configuration_head": "bc7ccf73559e46e0d0685132340878d37df6f394",
+  "baseline_limitation": "Full load baseline used shared11434 and earlier soft limit; do not attribute total latency change solely to SQL. Corrected paired SQL AB isolates the query functions on one owned copy with one fixed query vector."
+}

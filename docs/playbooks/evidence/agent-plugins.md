@@ -459,3 +459,16 @@ suite and reference growing/draining measurements remain required.
 See [bounded comparison evidence](../../benchmarks/2026-11-01-lexical-eligibility/verification.json).
 No live rollout, production lock-duration guarantee or agreed latency SLA is
 established by these owned-copy rehearsals.
+
+The corrected paired SQL comparison completed12 before/after units on the
+24,513-document owned reference: every private full response, score and order
+matched. Original function definitions were restored and the owned database
+stopped before the separate load run. This does not certify that load run.
+
+The model-budget A/B used one owned Ollama instance with identical model/input:
+1536MiB `MemoryHigh` produced a10-second timeout and7,392 new high-limit events;
+2GiB completed in0.705s with no additional high-limit events. Both arms kept the
+2GiB hard cap, and no OOM occurred. This is one bounded trial under shared-host
+load, not a universal latency ratio. The reference load now uses that owned model
+instance with separate CPU/memory accounting; the old baseline used the shared
+instance, so total load latency changes cannot be attributed solely to SQL.

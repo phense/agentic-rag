@@ -1,0 +1,68 @@
+{
+  "owned_only": true,
+  "same_model_same_input": true,
+  "arms": [
+    {
+      "memory_high": "1536M",
+      "before": {
+        "memory_current": 1647505408,
+        "memory_events": {
+          "low": 0,
+          "high": 0,
+          "max": 624,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=3739\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=3739"
+      },
+      "error_type": "ReadTimeout",
+      "seconds": 10.06199967302382,
+      "after": {
+        "memory_current": 1646469120,
+        "memory_events": {
+          "low": 0,
+          "high": 7392,
+          "max": 624,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "pressure": "some avg10=25.71 avg60=6.07 avg300=1.33 total=4416240\nfull avg10=25.71 avg60=6.07 avg300=1.33 total=4413693"
+      }
+    },
+    {
+      "memory_high": "2G",
+      "before": {
+        "memory_current": 1646727168,
+        "memory_events": {
+          "low": 0,
+          "high": 7410,
+          "max": 624,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "pressure": "some avg10=25.71 avg60=6.07 avg300=1.33 total=4420693\nfull avg10=25.71 avg60=6.07 avg300=1.33 total=4418146"
+      },
+      "vectors": 1,
+      "dimensions": 1024,
+      "seconds": 0.7051964800339192,
+      "after": {
+        "memory_current": 1660350464,
+        "memory_events": {
+          "low": 0,
+          "high": 7410,
+          "max": 624,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "pressure": "some avg10=25.71 avg60=6.07 avg300=1.33 total=4428459\nfull avg10=25.71 avg60=6.07 avg300=1.33 total=4425402"
+      }
+    }
+  ],
+  "final_high": "2G",
+  "hard_limit": "2G",
+  "production_unchanged": true
+}

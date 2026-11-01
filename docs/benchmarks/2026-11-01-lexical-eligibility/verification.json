@@ -1,5 +1,4 @@
 {
-  "source_head": "e883f43509a57450f1014e23c86ece6ca7b72e35",
   "fixture_commit": "0eb950c",
   "regression_red": {
     "command": "pytest tests/test_lexical_eligibility_work.py -q --tb=short -p no:cacheprovider",
@@ -40,10 +39,9 @@
     "seconds": 145.44
   },
   "gates_open": [
-    "independent review",
-    "root full suite",
-    "applicable Node/lock verification",
-    "three-burst-per-phase growing/draining reference load result"
+    "independent correction review with0 C/H/M/Important",
+    "corrected root full-suite exit0",
+    "corrected three-burst growing/draining reference load"
   ],
   "limitations": [
     "Reference SQL AB has2 measurements per arm per case, no latency SLA",
@@ -56,6 +54,100 @@
     "issue92-regression-green.log": "dba287b17a9875c451843979952cda72bb5b5d9e850a42d9430d070960485de0",
     "issue92-parity-final.log": "2f09b2e0eb1ac9c8c62c3e66ed5ca8b67707f38bc2b5909189cea78d25974c12",
     "issue92-upgrade-final.log": "e4c9d20ff57f489c2d579827b4149c277ddf6259ff64e411977d7c46cd48584e",
-    "issue92-targeted.log": "4ff29c1f2756c73227c8d588eb3cc4f8ce469b9a2772db2d2a64b268cca52774"
-  }
+    "issue92-targeted.log": "4ff29c1f2756c73227c8d588eb3cc4f8ce469b9a2772db2d2a64b268cca52774",
+    "issue92-background-red-valid.log": "156c845d2013e472b942ba14381142cb58c7c445b811c8930351125f1968a766",
+    "issue92-broad-red.log": "220fe6f8ea4156e86458393eaaec610308c86fe3a273733d100f9c7e8a65ee7c",
+    "issue92-correction-green.log": "9770ee7ac011a1aebf7070fb934624c0288010a293ac07b4c1d66e7af5447b5e",
+    "issue92-correction-upgrade.log": "464e10c247825f7bd97dccde900166c2eaf62ba18329ae543fa5d2c58d26a11c",
+    "issue92-correction-docs-final.log": "aaac26eb1d35c963d9eb0ae0d75ab753fe267fc303320af8f74e203e7fe1c73f",
+    "issue92-corrected-node.log": "aa39b7414d8dd04f4cb1a29b072e10900d66456e5a0344185e401a339b2d7b25",
+    "issue92-corrected-lock.log": "3941654c2351f6c42eb1287a95ce72badd3c80001d26b85a92bfcb5a9224f4cc",
+    "issue92-corrected-build.log": "6742f637f213b2c3d6649f1e87850416f5d3d2e32bff9c24b474e97c5e672b3e",
+    "issue92-correction-docs-handoff.log": "9daf8c8a9c3ab7d749cba828058ba813f1c74db5a48d6786c1a347ed9fb8980a"
+  },
+  "pre_correction_source_head": "e883f43509a57450f1014e23c86ece6ca7b72e35",
+  "runtime_correction_head": "5395f369e079051a75761054df9fc3dc5701e3e6",
+  "configuration_correction_head": "bc7ccf73559e46e0d0685132340878d37df6f394",
+  "pre_correction_full_suite": {
+    "head": "26184b96f8a1881b87ad0531c36934c51fe4fdcc",
+    "command": [
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-x",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "started": "2026-11-01T09:16:43.967177+00:00",
+    "finished": "2026-11-01T09:52:39.602033+00:00",
+    "exit_code": 0,
+    "seconds": 2155.63,
+    "source_files": 396,
+    "sources_unchanged": true,
+    "log_sha256": "d48005bb1e6d3ce57b6537716666ffa4b51e6e4f1071f3edc686c4e26ed70f62",
+    "passed": 2280,
+    "skipped": 1,
+    "warnings": 1,
+    "scope": "before correction, not a final pass"
+  },
+  "corrections": {
+    "regression_red_background": {
+      "failed": 3,
+      "exit_code": 1,
+      "note": "valid nonzero HTTP vectors; lost background priority and paging/timeout/thread ownership"
+    },
+    "regression_red_broad": {
+      "failed": 8,
+      "exit_code": 1,
+      "note": "128 truth calls for8 multi-chunk documents, with Memoize on/off"
+    },
+    "targeted_green": {
+      "passed": 134,
+      "seconds": 88.26,
+      "exit_code": 0,
+      "scope": "priority, embedding reuse, lexical full-row parity and multi-chunk bounds"
+    },
+    "upgrade_priority_docs": {
+      "passed": 23,
+      "seconds": 14.93,
+      "exit_code": 0,
+      "scope": "real archived populated upgrade, interruption/retry, old reader, verified source/target independent restore; priority and docs"
+    },
+    "final_docs": {
+      "passed": 17,
+      "seconds": 0.73,
+      "exit_code": 0,
+      "note": "exact duration retained in log"
+    },
+    "node": {
+      "passed": 7,
+      "exit_code": 0
+    },
+    "lock": {
+      "exit_code": 0
+    },
+    "build": {
+      "exit_code": 0,
+      "distribution": "0.6.22"
+    },
+    "model_budget": "model-budget-ab.json; bounded owned-only same-input A/B; no production limit changed"
+  },
+  "retained_failed_loads": [
+    {
+      "run": "r1",
+      "error": "no_actual_background_embedding_observed",
+      "cause": "quote over grounding bound; original artifacts retained",
+      "accepted": false
+    },
+    {
+      "run": "r2",
+      "error": "no_actual_background_embedding_observed",
+      "cause": "valid source grounding, but background context lost in inference thread; original artifacts retained",
+      "accepted": false
+    }
+  ],
+  "known_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6556493316",
+  "corrected_reference_sql": "reference-ab-corrected.json"
 }

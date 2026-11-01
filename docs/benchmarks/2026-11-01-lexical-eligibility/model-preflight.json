@@ -1,0 +1,13 @@
+{
+  "characters": 3219,
+  "seconds": 3.6935725829098374,
+  "vectors": 1,
+  "dimensions": 1024,
+  "own_model_cgroup": {
+    "memory.max": "2147483648",
+    "memory.high": "2147483648",
+    "memory.current": "2147078144",
+    "memory.events": "low 0\nhigh 0\nmax 624\noom 0\noom_kill 0\noom_group_kill 0",
+    "memory.pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=3739\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=3739"
+  }
+}
