@@ -20,7 +20,7 @@ def test_populated025_restore_migrate_retry_and_original_preservation(tmp_path,m
         assert original['tables']['service_windows']['rows']==1 and original['tables']['service_requests']['rows']==1
         changed=upgrade.local_upgrade(cfg,'0.6.12',tmp_path/'025-to026.dump',apply=True,writers_stopped=True)
         assert changed['restore_verified'] and changed['original_rows_unchanged']
-        assert changed['migrations_applied']==['026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+        assert changed['migrations_applied']==['026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
         assert upgrade.verify_preserved(cfg,original)['unchanged']
         with db.connect(cfg) as conn:
             validate_schema(conn)

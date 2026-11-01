@@ -125,4 +125,6 @@ def test_supported_source_version_includes_current_release():
     assert '0.6.17' in upgrade.SUPPORTED_VERSIONS
     # RAG-066: 0.6.18 became an accepted source for 0.6.19; the running target is refused.
     assert '0.6.18' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.19' not in upgrade.SUPPORTED_VERSIONS
+    # RAG-067: 0.6.19 became an accepted source for 0.6.20; the running target is refused.
+    assert '0.6.19' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.20' not in upgrade.SUPPORTED_VERSIONS

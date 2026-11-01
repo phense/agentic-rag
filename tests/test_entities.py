@@ -503,7 +503,7 @@ def test_candidate_on_populated017_retains_legacy_reads_writes_and_fallback(cfg,
                 link(writer,owned,confirm=True)
             assert store.get_document(writer,saved.doc_id)['body']=='8766'
         with db.connect(owned,role='owner') as owner:
-            assert db.apply_migrations(owner,db.SQL_DIR)==['018_entity_identities.sql', '019_embedding_reuse.sql', '020_domain_assertions.sql', '021_service_scope.sql', '022_service_state.sql', '023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+            assert db.apply_migrations(owner,db.SQL_DIR)==['018_entity_identities.sql', '019_embedding_reuse.sql', '020_domain_assertions.sql', '021_service_scope.sql', '022_service_state.sql', '023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
         with db.connect(owned,role='reader') as reader:
             initial=entities.read(reader,'legacy-on017',domain='general',project=PROJECT)
             assert not initial['identity_persisted'] and initial['facts'][0]['document_id']==saved.doc_id

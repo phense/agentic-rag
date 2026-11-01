@@ -143,7 +143,7 @@ def test_populated_original022_adds_uploader_without_rewriting_session_history(t
             old=dict(conn.execute('SELECT * FROM service_sessions').fetchone())
             conn.commit()
         result=upgrade.local_upgrade(cfg,'0.6.9',tmp_path/'original022.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
         assert result['original_rows_unchanged'] and result['restore_verified']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         with db.connect(cfg) as conn:
@@ -199,7 +199,7 @@ def test_populated023_upgrade_current024_backup_restore_and_retry(tmp_path,monke
         old=upgrade.inventory(cfg,'0.6.10')
         result=upgrade.local_upgrade(cfg,'0.6.10',tmp_path/'upgrade024.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['migrations_applied']==['024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+        assert result['migrations_applied']==['024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         current=upgrade.verified_backup(cfg,'0.6.11',tmp_path/'current024.dump')
         assert current['restore_verified']
@@ -215,7 +215,7 @@ def test_populated024_upgrade025_preserves_all_originals_and_retry(tmp_path,monk
     with owned_source(tmp_path,24) as cfg:
         original=upgrade.inventory(cfg,'0.6.11')
         changed=upgrade.local_upgrade(cfg,'0.6.11',tmp_path/'upgrade025.dump',apply=True,writers_stopped=True)
-        assert changed['migrations_applied']==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
+        assert changed['migrations_applied']==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
         assert changed['original_rows_unchanged'] and changed['restore_verified']
         assert upgrade.verify_preserved(cfg,original)['unchanged']
         with db.connect(cfg) as conn:

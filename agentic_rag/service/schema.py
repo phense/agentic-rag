@@ -18,7 +18,7 @@ SCOPED_TABLES = (
     'service_session_access', 'service_requests',
     'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
     'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_processed', 'synthesis_patterns',
-    'synthesis_dependencies', 'lifecycle_decisions', 'lifecycle_events',
+    'synthesis_dependencies', 'lifecycle_decisions', 'lifecycle_events', 'extraction_policy_bindings',
 )
 
 

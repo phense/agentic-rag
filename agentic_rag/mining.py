@@ -337,6 +337,44 @@ def _audit(conn, op: str, summary: str) -> None:
         (op, strip_secrets(summary)[0]))
 
 
+def bind_policy(conn, *, session_id: str, input_cursor: str, bundle, origin: str):
+    """Commit one immutable policy binding plus its audit before any provider call.
+
+    `bundle` is an extraction_policy.Bundle or a zero-argument callable that
+    resolves one; it is only evaluated when the cursor has no binding yet, so an
+    existing binding wins before any file is read. Concurrent callers get one
+    committed winner. Returns (winning Bundle, created). A malformed durable
+    snapshot raises PolicySnapshotError instead of falling back.
+    """
+    from . import extraction_policy
+
+    def winner():
+        row = conn.execute("SELECT digest,snapshot FROM extraction_policy_bindings"
+                           " WHERE session_id=%s AND input_cursor=%s", (session_id, input_cursor)).fetchone()
+        return None if row is None else extraction_policy.validate_capture(
+            {'digest': row['digest'], 'snapshot': row['snapshot']})
+    try:
+        existing = winner()
+        if existing is None:
+            candidate = bundle() if callable(bundle) else bundle
+            row = conn.execute(
+                "INSERT INTO extraction_policy_bindings(session_id,input_cursor,digest,snapshot,origin)"
+                " VALUES (%s,%s,%s,%s,%s) ON CONFLICT (session_id,input_cursor) DO NOTHING RETURNING digest",
+                (session_id, input_cursor, candidate.digest, extraction_policy.canonical(candidate.snapshot),
+                 origin)).fetchone()
+            if row is not None:
+                # Same transaction: an audit failure leaves no unaudited binding.
+                _audit(conn, "extraction_policy_bind", f"bound extraction policy {candidate.digest} ({origin})")
+                conn.commit()
+                return candidate, True
+            existing = winner()
+        conn.commit()
+        return existing, False
+    except BaseException:
+        conn.rollback()
+        raise
+
+
 def mine_session(conn, cfg: Config, *, session_id: str, transcript_path: str,
                  last_uuid: str | None, project: str | None,
                  runner=subprocess.run, benchmark_prompt: str | None = None,

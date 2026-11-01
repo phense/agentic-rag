@@ -59,8 +59,8 @@ def test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_1
                                       'synthesis_processed', 'synthesis_patterns', 'synthesis_dependencies'}
     assert conn.execute('SELECT count(*) n FROM synthesis_policies').fetchone()['n'] == 0
     from agentic_rag.service import upgrade
-    # RAG-066 moved the refused running target from 0.6.18 to 0.6.19.
-    assert '0.6.17' in upgrade.SUPPORTED_VERSIONS and '0.6.19' not in upgrade.SUPPORTED_VERSIONS
+    # RAG-067 moved the refused running target from 0.6.19 to 0.6.20.
+    assert '0.6.17' in upgrade.SUPPORTED_VERSIONS and '0.6.20' not in upgrade.SUPPORTED_VERSIONS
 
 
 def test_default_off_ordinary_worker_and_reads_never_schedule_or_call_provider(conn, cfg, forbidden):
