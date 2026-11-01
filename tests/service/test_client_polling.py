@@ -128,6 +128,16 @@ def test_invalid_or_missing_hint_keeps_bounded_exponential_fallback(tmp_path, cl
     assert clock.sleeps == pytest.approx([1.125, 2.25, 4.5, 9.0, 9.0])
 
 
+def test_valid_hint_resets_backoff_between_transient_status_errors(tmp_path, clock):
+    limited = (429, {'error': 'request_rate_limited'})
+    server = Server(posts=[ack(retry_after=1)],
+                    gets=[limited, pending(retry_after=1), limited,
+                          pending(retry_after=1), limited, completed()])
+    result, outbox = invoke(tmp_path, server)
+    assert result == {'domains': []} and outbox == []
+    assert clock.sleeps == pytest.approx([1.125] * 5)
+
+
 @pytest.mark.parametrize('jitter,expected', [(0.0, 4.0), (1.0, 5.0)])
 def test_jitter_is_zero_to_twenty_five_percent(tmp_path, clock, jitter, expected):
     clock.jitter = jitter

@@ -168,6 +168,7 @@ class RemoteClient(RemoteConnection):
                 poll_delay=min(MAX_POLL_SECONDS,max(floor,poll_delay*2))
             else:
                 delay=max(floor,min(MAX_POLL_SECONDS,hint))
+                poll_delay=floor
             time.sleep(min(delay*(1+random.random()*.25),max(0,remaining-.2)))
 
     def request_status(self,handle,*,cancel=False,seconds=1,consume=True):

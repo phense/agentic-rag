@@ -14,7 +14,7 @@ version: 0.6.22
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
 - Target: 0.6.22/schema034; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-11-01 (optional background daemon section drafted for S06808, not yet independently reviewed or rehearsed on a physical model; final delivery/performance gates remain open).
+- Last edited: 2026-11-01 (optional background daemon section corrected after S06808 independent review; renewed content review and physical-model rehearsal remain open, alongside final delivery/performance gates).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -462,14 +462,87 @@ never pulls or prunes. Every lane call has a finite deadline of
 `background_timeout_seconds` (60 s in the reference). The reference threads are
 `num_thread = 2` for the primary and `background_num_thread = 1` for the lane.
 
+### L0: pause extraction and check the host
+
+The commands below use `ollama.service`, `agentic-rag-api.service` and
+`agentic-rag-worker.service` from the deployment examples. If the installation
+uses other unit names, record the mapping before executing any command. Use
+`agentic-rag-ollama-background.service` for the new daemon. Keep its
+`127.0.0.1:11436` listener private; first require no output from
+`ss -ltn 'sport = :11436' -H`.
+
+1. Stop extraction in the authorized window with
+   `sudo systemctl stop agentic-rag-worker.service`. Require
+   `systemctl is-active agentic-rag-worker.service` to report `inactive`.
+   Wait for the current job to finish; never force-kill it. Queued windows,
+   accepted batches and client spools remain available.
+2. Check the primary with
+   `systemctl show ollama.service -p CPUQuotaPerSecUSec -p MemoryHigh -p MemoryMax`.
+   The table describes the reference configuration, not values installed by
+   this procedure: require `CPUQuotaPerSecUSec=3.5s` and both memory values
+   `2147483648` for that reference. If they differ, keep the lane off and
+   arrange a separately authorized primary-unit change and restart. Require
+   at least4GiB `MemAvailable` before starting the second daemon (`free -b`);
+   this reserves its2GiB limit plus2GiB for the remaining host. A different
+   model or host needs its own sizing evidence.
+3. Resolve the four unit inputs from the running primary using this read-only
+   command. It prints only the selected paths and account names. Require a
+   non-root primary account, an existing model directory readable by that
+   account, and the same Ollama binary for both daemons. If discovery fails,
+   keep extraction paused and resolve the installation before continuing.
+
+```sh
+sudo python3 - <<'PYMODELUNIT'
+import grp, json, pwd, re, subprocess
+from pathlib import Path
+pid = int(subprocess.check_output(
+    ['systemctl', 'show', 'ollama.service', '-p', 'MainPID', '--value'], text=True))
+if pid <= 0:
+    raise SystemExit('primary daemon is not running')
+proc = Path('/proc') / str(pid)
+env = dict(item.split('=', 1) for item in (proc / 'environ').read_bytes().decode().split('\0')
+           if '=' in item)
+account = pwd.getpwuid(proc.stat().st_uid)
+if account.pw_uid == 0:
+    raise SystemExit('use a reviewed non-root model account before enabling the lane')
+home = Path(env.get('HOME', account.pw_dir))
+store = Path(env.get('OLLAMA_MODELS', str(home / '.ollama' / 'models'))).resolve(strict=True)
+if not store.is_dir():
+    raise SystemExit('model store is not a directory')
+binary = str((proc / 'exe').resolve(strict=True))
+if any(not re.fullmatch(r'[A-Za-z0-9_./-]+', value) for value in (str(store), binary)):
+    raise SystemExit('paths need a separately reviewed systemd escaping rule')
+print(json.dumps({'MODEL_USER': account.pw_name,
+                  'MODEL_GROUP': grp.getgrgid(proc.stat().st_gid).gr_name,
+                  'MODEL_STORE': str(store),
+                  'OLLAMA_BIN': binary}, indent=2))
+PYMODELUNIT
+```
+
+The worker is stopped, the primary is running and all four unit inputs are
+known. Record the primary unit settings and memory sample with the rehearsal.
+
 ### L1: start and verify the background daemon
 
-1. Install a separate unit for the background daemon with the limits in the
-   table (`ExecStart` is the same `ollama serve` binary as the primary). Start
-   only that unit. Expected: `curl -fsS http://127.0.0.1:11436/api/tags` lists
-   the `[embed] model` tag. If it does not, stop the unit; nothing else changed.
-2. Run the identity and parity probe from the prepared0.6.22 environment while
-   extraction is paused. `SERVER_CONFIG` is the private server configuration,
+4. Copy [the background unit template](../../deploy/central-service/ollama-background.service.example)
+   to an owned staging file named `agentic-rag-ollama-background.service`.
+   Replace `MODEL_USER`, `MODEL_GROUP`, `MODEL_STORE` and `OLLAMA_BIN` with the
+   L0 output; verify read access with
+   `sudo -u MODEL_USER test -r MODEL_STORE` after replacing those two inputs.
+   Review the rendered file, then run
+   `systemd-analyze verify ./agentic-rag-ollama-background.service`.
+   On any error, stop here. Install only the reviewed file:
+   `sudo install -m 0644 ./agentic-rag-ollama-background.service /etc/systemd/system/agentic-rag-ollama-background.service`,
+   then `sudo systemctl daemon-reload`. Do not overwrite a pre-existing unit;
+   compare and resolve it before installation.
+5. Start only the new daemon with
+   `sudo systemctl start agentic-rag-ollama-background.service`. Require
+   `curl -fsS http://127.0.0.1:11436/api/tags` to list the `[embed] model` tag.
+   If it does not, run
+   `sudo systemctl stop agentic-rag-ollama-background.service`, retain
+   `journalctl -u agentic-rag-ollama-background.service` and keep the lane off.
+6. Run the identity and parity probe from the prepared0.6.22 environment while
+   extraction remains paused. `SERVER_CONFIG` is the private server configuration,
    `LANE_URL` the background address, and the two thread values are the planned
    `num_thread` and `background_num_thread` (`-` for unset). It sends only the
    three synthetic inputs below and writes nothing. Each input is embedded by
@@ -524,34 +597,55 @@ PYPARITY
 
 ### L2: enable, restart and verify the route
 
-3. Pause extraction: stop the worker unit and wait for it to exit (it finishes
-   its current job). Queued windows, accepted batches and client spools remain.
-4. Add `background_url`, `background_timeout_seconds`, `num_thread` and
+7. Add `background_url`, `background_timeout_seconds`, `num_thread` and
    `background_num_thread` under `[ollama]` in the server configuration. Add
    `[service] request_consumers` only on hosts whose default pool allows it;
-   the API refuses to start otherwise and names the allowed maximum.
-5. Restart every API process, then start the worker. All processes read the file
+   the API refuses to start otherwise and names the allowed maximum. The
+   reference values are `background_url = "http://127.0.0.1:11436"`, timeout60,
+   primary threads2, background threads1 and `request_consumers = 4`.
+8. Restart every API process (`sudo systemctl restart agentic-rag-api.service`
+   for the example installation), then run
+   `sudo systemctl start agentic-rag-worker.service`. All processes read the file
    only at start; a mix of old and new settings still obeys the single worker
    lock and execution pins, but restart them together to avoid it.
-6. Verify: the `pending` count from `rag service --config SERVER_CONFIG status`
+9. Verify for up to five minutes: the `pending` count from `rag service --config SERVER_CONFIG status`
    falls over time, the background daemon's journal shows embed requests, and
    this read-only query as the database owner returns no rows (`DB` is the
    `[db] name`):
    `psql -d DB -c "SELECT result->>'code' code, count(*) FROM service_windows WHERE state='blocked' AND result->>'code' LIKE 'background_model_%' GROUP BY 1"`.
    Scoped search and context requests keep working while extraction runs.
+   If background errors persist, pending work makes no progress despite no
+   foreground demand, an OOM event appears, or host `MemAvailable` falls below
+   2GiB, stop the worker and follow L3. Retain status, daemon journals and
+   before/after cgroup `memory.events`; do not delete jobs to clear an error.
 
 ### L3: recovery and rollback
 
-- A window that reports `background_model_unavailable` (timeout or outage) or
-  `background_model_identity` (digest change or invalid vectors) is still
+- A window that reports `background_model_unavailable` (inference timeout or
+  outage) or `background_model_identity` (digest unavailable, digest change or
+  invalid vectors) is still
   pending. Nothing was stored for it, its attempt was not used up and its
   accepted extraction is replayed without a second provider call. Restore the
   daemon or digest and the worker resumes after its backoff.
+  An unreachable daemon during a tag lookup also reports
+  `background_model_identity`; check reachability before treating it as a
+  changed model. If L1 cannot be restored, use the rollback below.
 - To roll back, stop the worker, remove all four `[ollama]` lane and thread keys
   and `request_consumers` together (a background setting without
   `background_url` stops configuration loading), restart every API process and
   the worker, then stop the background unit. Jobs, receipts, caches and
   knowledge are not deleted; work continues on the primary daemon.
+
+Before a model pull, model-tag replacement or Ollama binary upgrade, stop the
+worker as in L0 and stop `agentic-rag-ollama-background.service`. Perform the
+separately authorized update through the primary installation, then restart
+both model daemons and repeat L1's parity probe before restarting extraction.
+Require unchanged digests throughout that probe and `identical: True`; otherwise
+keep extraction paused and follow L3 rollback. Sharing a binary and model store
+can change both digests together: matching digests alone do not renew the
+parity evidence. Also repeat the complete-input acceptance gate when changing
+thread options or the model/runtime used for an accepted load result. Keep the
+old and new versions, digest, settings and probe output with the update record.
 
 Client rollout note: clients from this release follow the server's
 `retry_after` value. Every deployed queued server already sends `1`, so updated

@@ -18,7 +18,7 @@ flowchart LR
     Primary --> Identity[Primary model identity and dimension]
     Background --> Verify[Verify both endpoints before and after inference]
     Identity --> Verify
-    Verify -->|same digest and proven vector parity| Cache[Canonical reuse identity]
+    Verify -->|same digest; operator verifies parity before activation| Cache[Canonical reuse identity]
     Verify -->|unknown identity or pressure| Pending[Retain accepted output and pending work]
     Cache --> Gateway[Existing audited gateway and authority recheck]
 ```

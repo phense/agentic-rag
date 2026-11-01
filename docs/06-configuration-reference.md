@@ -105,7 +105,8 @@ receipts or responses, protocol negotiation and old synchronous tool calls.
 After acknowledgement, the client waits for the server's numeric `retry_after`
 value, limited to at least `poll_seconds` and at most8s, plus up to25% random
 delay. Without a usable value it doubles its wait from `poll_seconds` up to8s.
-A deadline that expires while waiting returns the same pending request handle;
+A valid hint resets that fallback, so separate transient errors do not inherit
+an old long wait. A deadline that expires while waiting returns the same pending request handle;
 that is not a completed result.
 
 A client profile can be generated with `rag service client-config`; server
