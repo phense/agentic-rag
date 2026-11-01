@@ -148,7 +148,7 @@
       "accepted": false
     }
   ],
-  "known_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6556493316",
+  "known_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6556493316 LOW071..073: Issue75 comment6558890575 (cancellation characterization, rejectedr4 gate omissions, unpublished034 rehearsal drift).",
   "corrected_reference_sql": "reference-ab-corrected.json",
   "independent_correction_review": {
     "head": "656ea278bb762d189af4df1061541123db1de766",
@@ -249,7 +249,7 @@
     "followup": "corrected selection137passed, no code changed because of patherror"
   },
   "filtered_vector_recall_correction": {
-    "state": "affected_selection_running_independent_review_pending",
+    "state": "188affected_passed_independent_review_pending",
     "regression_commit": "1e79b23",
     "rejected_runtime": "665d449",
     "red": {
@@ -284,11 +284,37 @@
       "invalid globally-disabled-index exact oracle: controlled exit2 after5timeouts; not product red"
     ],
     "remaining": [
-      "final affected selection",
       "fresh independent review",
       "target load with correctness/drain/error gates",
       "final full suite"
-    ]
+    ],
+    "affected_final": {
+      "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_vector_filter_recall.py tests/test_vector_candidate_work.py tests/test_lexical_eligibility_work.py tests/test_contextual_indexing.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "passed": 188,
+      "exit_code": 0,
+      "seconds": 600.51,
+      "log_sha256": "5d8abee77ad44c9a329f58cf0ed6413b3862ff520e843598f63164889c7ca3cd",
+      "coverage": [
+        "51adversarial recall cases with literal cohorts and exact oracle",
+        "6dense work/settings cases",
+        "lexical parity/work and contextual indexing",
+        "genuine populated0.6.21 source interruption/retry/source and target actual independent restores"
+      ]
+    },
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.91,
+      "log_sha256": "580688cb1ffbcd40e0b9e1d5745009dd0f57eaaf2613d95a11ccacc5abdee76c"
+    },
+    "input_sha256": {
+      "sql/034_lexical_eligibility_work.sql": "d8b25c8d185113cd49f4977208c0cc4d5390428e15867169d49ddfa617f4c480",
+      "tests/test_vector_filter_recall.py": "65ddcc98ce939cfe2112d1bc46771eab16119dfda3d8efa8d9f0f285e16c4be6",
+      "tests/test_vector_candidate_work.py": "29972d67885b6a12acae9d59a5e59a18b921d1a3641c7817dd2294a3726681dd",
+      "tests/test_lexical_eligibility_work.py": "83e858064768c6a72409eb8f491219ad854a8d4aa319ac203c15223b7e67fd9a",
+      "tests/test_contextual_indexing.py": "767ebffd667bc27eba099f1852a27292f3ca7f9451bb808cd95684e094e92351",
+      "tests/service/test_lexical_upgrade.py": "84394074e7f7d1d426a3f067b12ef79c04b3dad85ef77c3c16e934ad0bc0b433"
+    }
   },
   "reference_load_r4_rejected": {
     "artifact": "reference-r4-failed-target.json",

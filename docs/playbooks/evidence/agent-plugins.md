@@ -577,7 +577,11 @@ skips ANN and uses the exact path, retaining B-tree/GIN access. The simulated
 legacy-capability and scan-cap selection passed5 tests (exit0,73.98s); this does
 not certify an actual0.7 binary. The dense600-document384-check bound remains a
 fixture-specific work regression, not a bound on selective exact fallback.
-The complete affected selection and independent re-review are still pending.
+The final affected selection passed188 tests (exit0,600.51s), including all51
+recall cases, dense-work/settings guards, lexical/contextual parity and the
+genuine populated0.6.21 upgrade with interruption, retry and independent source/
+target restores. All six SQL/test input hashes remained unchanged. Documentation
+checks passed17 tests (exit0,0.91s). Independent re-review remains pending.
 The cancellation check characterizes restoration after a real abort; PostgreSQL
 rollback itself restores settings, so the successful-return check is the
 independent discriminator for leaked function settings.
