@@ -15,6 +15,8 @@ from agentic_rag.service import upgrade
 from agentic_rag.service.auth import Principal
 from agentic_rag.service.context import RequestScope, apply_connection
 from agentic_rag.service.schema import validate_schema
+from .test_auth import policy_file
+from .test_model_lane import LANE, OTHER, PRIMARY, PRIMARY_VECTOR, LANE_VECTOR, ollama  # noqa: F401
 
 SOURCE = '64f2104d7e8b542dbfb72c6fbb40196364afdc95'
 POPULATE = r'''
@@ -40,7 +42,40 @@ with db.connect(cfg) as c:
     jobs.enqueue_mine(c,cfg,session_id='pending-lexical',transcript_path='/synthetic/preserved.jsonl',project='/synthetic/a')
     n=c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n']
     assert n==33
-print(json.dumps({'schema':n,'ids':ids}))
+service={}
+if os.environ.get('LEXICAL_POLICY'):
+    # Multi-user service state of genuine 0.6.21: an accepted source window
+    # (pending central job + receipt) and a queued tool request.
+    import uuid
+    from datetime import datetime, timezone
+    from pathlib import Path
+    from agentic_rag.service.auth import Policy
+    from agentic_rag.service.ingest import accept
+    from agentic_rag.service import requests as queue
+    with db.connect(cfg) as c:
+        domains.add_domain(c,'alpha')
+    scfg=Config(db_name=cfg.db_name,db_host='127.0.0.1',ollama_url='http://127.0.0.1:1',
+                service_auth_file=Path(os.environ['LEXICAL_POLICY']))
+    policy=Policy.load(scfg.service_auth_file)
+    who=policy.authenticate_key('one.synthetic-long-random-machine-secret')
+    text='[user] server port is now 9000'
+    service['receipt']=accept(scfg,who,policy,{'version':1,'session_id':'upgrade-lane','input_cursor':'',
+        'output_cursor':'cursor-1','project':'/projects/a','window':{'text':text,'events':[{'source_id':'event-1',
+        'role':'user','timestamp':'2026-10-29T10:00:00Z','text':text,'offset':0,'complete':True}],
+        'warnings':[],'synthetic':False,'has_more':False}})['receipt']
+    service['request']=queue.submit(scfg,who,{'idempotency_key':str(uuid.uuid4()),
+        'created_at':datetime.now(timezone.utc).isoformat(),'tool':'memory_domains','arguments':{}})['request_id']
+print(json.dumps({'schema':n,'ids':ids,'service':service}))
+'''
+
+OLD_LOCK = r'''
+import json,os
+from agentic_rag import db
+from agentic_rag.config import Config
+from agentic_rag.worker import acquire_database_lock
+assert db.__file__.startswith(os.getcwd())
+with acquire_database_lock(Config(db_name=os.environ['LEXICAL_UPGRADE_DB'],db_host='127.0.0.1')) as keeper:
+    print(json.dumps({'excluded':keeper is None}))
 '''
 
 READ_OLD = r'''
@@ -89,7 +124,7 @@ def assert_source_permissions_on_reused_connection(cfg):
                 assert actual is allowed
 
 
-def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path, monkeypatch):
+def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path, monkeypatch, ollama):
     monkeypatch.setattr(query_cache, 'model_digest', lambda cfg: 'a' * 64)
     root = Path(__file__).resolve().parents[2]
     archive = tmp_path / 'old.tar'
@@ -102,12 +137,14 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         stream.extractall(old, filter='data')
     assert 'version = "0.6.21"' in (old / 'pyproject.toml').read_text()
     with isolated_database(Config(), initialize=False) as cfg:
+        policy = policy_file(tmp_path)
         env = {**os.environ, 'PYTHONPATH': str(old), 'LEXICAL_UPGRADE_DB': cfg.db_name,
-               'PYTHONDONTWRITEBYTECODE': '1'}
+               'PYTHONDONTWRITEBYTECODE': '1', 'LEXICAL_POLICY': str(policy)}
         result = subprocess.run([sys.executable, '-c', POPULATE], cwd=old, env=env,
                                 text=True, capture_output=True, timeout=60)
         assert result.returncode == 0, result.stderr
-        assert json.loads(result.stdout)['schema'] == 33
+        populated = json.loads(result.stdout)
+        assert populated['schema'] == 33 and set(populated['service']) == {'receipt', 'request'}
         def old_read():
             result = subprocess.run([sys.executable, '-c', READ_OLD], cwd=old, env=env,
                                     text=True, capture_output=True, timeout=60)
@@ -167,6 +204,88 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert after['restore_verified']
         assert after['manifest']['source_version'] == '0.6.22'
         assert upgrade.verify_preserved(cfg, after['manifest'])['unchanged']
+        exercise_final_runtime(cfg, policy, populated, old, env, monkeypatch, ollama)
+
+
+def exercise_final_runtime(cfg, policy, populated, old, env, monkeypatch, ollama):
+    """A2 runtime on the upgraded populated store, after both verified backups.
+
+    Real accepted 0.6.21 window/job/request, worker fence, gateway and request
+    consumer; only the extraction provider and Ollama HTTP are simulated.
+    """
+    from dataclasses import replace
+    from agentic_rag import mining
+    from agentic_rag.service import requests as queue
+    from agentic_rag.service.engine import ResourcePressure
+    from agentic_rag.service.fence import worker_scope
+    from agentic_rag.service.worker import process_source
+    from agentic_rag.worker import acquire_database_lock
+    calls = []
+    monkeypatch.setattr(mining, 'run_structured', lambda *a, **k: calls.append(1) or {'memories': [{
+        'title': 'Upgrade lane port', 'body': 'server port is now 9000', 'domain': 'alpha', 'edges': [],
+        'claim_kind': 'stated', 'evidence': [{'source_id': 'event-1', 'quote': 'server port is now 9000'}]}]})
+    default = replace(cfg, service_mode='server', service_auth_file=policy, ollama_url=PRIMARY)
+    lane = replace(default, ollama_background_url=LANE, service_request_consumers=4)
+    def originals():
+        with db.connect(cfg) as c:
+            return (c.execute('SELECT id,title,body,status,domain,project_scope FROM documents WHERE id=ANY(%s::uuid[]) ORDER BY id',
+                              (populated['ids'],)).fetchall(),
+                    c.execute('SELECT body,scope FROM pins ORDER BY body').fetchall(),
+                    c.execute("SELECT status,attempts,transcript_path FROM mining_queue WHERE session_id='pending-lexical'").fetchall())
+    before = originals()
+    def window():
+        with db.connect(cfg) as c:
+            return (c.execute("SELECT state,result->>'code' code FROM service_windows WHERE id=%s", (receipt,)).fetchone(),
+                    [json.loads(r['v']) for r in c.execute("SELECT c.embedding::text v FROM chunks c JOIN documents d "
+                     "ON d.id=c.document_id WHERE d.title='Upgrade lane port'")],
+                    c.execute('SELECT count(*) n FROM mining_batches WHERE applied_at IS NULL').fetchone()['n'])
+    receipt = populated['service']['receipt']
+    with db.connect(cfg) as c:
+        job = dict(c.execute('SELECT q.* FROM mining_queue q JOIN service_windows w ON q.id=w.queue_id WHERE w.id=%s',
+                             (receipt,)).fetchone())
+    with acquire_database_lock(lane) as keeper:
+        assert keeper is not None
+        # The pending 0.6.21 queued request is foreground demand: no lane
+        # page starts. (Called directly, bypassing drain's entry check, the
+        # extraction is accepted once and retained for replay.)
+        with worker_scope(keeper), db.connect(lane) as conn:
+            with pytest.raises(ResourcePressure, match='foreground_busy'):
+                process_source(conn, lane, job)
+        assert calls == [1] and not ollama.embeds() and window()[2] == 1
+    # The queued 0.6.21 request executes on the final consumer path.
+    assert queue.run_one(lane) is True
+    with db.connect(cfg) as c:
+        row = c.execute('SELECT state,result FROM service_requests WHERE id=%s', (populated['service']['request'],)).fetchone()
+    assert row['state'] == 'completed' and row['result']['domains'][0]['name'] == 'alpha'
+    with acquire_database_lock(lane) as keeper:
+        assert keeper is not None
+        # Genuine 0.6.21 worker code is excluded by the same singleton lock.
+        locked = subprocess.run([sys.executable, '-c', OLD_LOCK], cwd=old, env=env,
+                                text=True, capture_output=True, timeout=60)
+        assert locked.returncode == 0, locked.stderr
+        assert json.loads(locked.stdout) == {'excluded': True}
+        # Lane digest swap during inference: nothing published, batch retained.
+        def swap(fake):
+            fake.after_embed = None
+            fake.digests['lane.test'] = OTHER
+        ollama.after_embed = swap
+        with worker_scope(keeper), db.connect(lane) as conn:
+            with pytest.raises(ResourcePressure, match='background_model_identity'):
+                process_source(conn, lane, job)
+    state, vectors, accepted = window()
+    assert (state['state'], state['code'], vectors, accepted, calls) == ('blocked', 'background_model_identity', [], 1, [1])
+    # Optional keys removed and processes restarted: the default lane applies
+    # the accepted output without a second provider call.
+    lane_calls = len(ollama.embeds('lane.test'))
+    assert lane_calls == 1
+    with acquire_database_lock(default) as keeper:
+        with worker_scope(keeper), db.connect(default) as conn:
+            assert process_source(conn, default, job).saved == 1
+    state, vectors, accepted = window()
+    assert state['state'] == 'applied' and accepted == 0 and calls == [1]
+    assert vectors and all(v == PRIMARY_VECTOR for v in vectors)
+    assert len(ollama.embeds('lane.test')) == lane_calls
+    assert originals() == before
 
 
 def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, monkeypatch):
