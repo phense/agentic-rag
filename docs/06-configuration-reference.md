@@ -245,6 +245,12 @@ curation](05-session-mining-and-curation.md) for the full pipeline.
 |---|---|---|---|
 | `budget` | `curation_budget` | `20` | Max number of items (duplicate merges plus refute-candidate reviews) one curation pass processes before stopping. |
 
+Since 0.6.19 automatic curation archives a copy only when an older active memory
+of the same domain and project has the same title, type and body. A process that
+still runs 0.6.18 lacks the title and type rule; set `budget = 0` for it until it
+runs 0.6.19 ([PB-066-OPS](playbooks/system/rag-066-memory-lifecycle.md), step B0).
+Lifecycle decisions have no configuration key; see [memory lifecycle](memory-lifecycle.md).
+
 ## `[worker]`
 
 Retry policy for the single-writer background worker that drains
