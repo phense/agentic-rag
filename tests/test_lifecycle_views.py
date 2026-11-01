@@ -177,6 +177,33 @@ def test_graph_default_history_is_unchanged_and_explicit_view_selects(conn, cfg,
     assert len(default) == 1 and current == [] and len(merged) == 1
 
 
+@pytest.mark.parametrize(('key', 'view'), [
+    ('P1-old', 'include_merged'),
+    ('Q1-inferred', 'historical'),
+    ('P5-future', 'historical'),
+])
+def test_explicit_get_obeys_the_selected_view(conn, cfg, ids, hook_env, key, view):
+    from agentic_rag import mcp_server
+    apply(conn, cfg, ids['P1-old'], ids['P1-new'], 'replacement')
+    # Raw original inspection stays available; selecting a view must apply its
+    # truth/time gates, just like search, instead of merely adding a label.
+    assert mcp_server.memory_get(ids[key])['document']['id'] == ids[key]
+    result = mcp_server.memory_get(ids[key], view=view)
+    assert result['document'] is None
+    assert result['edges_in'] == [] and result['edges_out'] == []
+
+
+def test_derived_current_scope_inside_autocommit_view(cfg, ids, conn):
+    apply(conn, cfg, ids['R1-short'], ids['R1-rich'], 'extension')
+    with db.connect(cfg, role='reader') as reader:
+        reader.autocommit = True
+        with lifecycle.view_scope(reader, 'include_merged'):
+            assert reader.execute('SELECT assertion_eligible(%s) ok', (ids['R1-short'],)).fetchone()['ok']
+            with lifecycle.current_scope(reader):
+                assert not reader.execute('SELECT assertion_eligible(%s) ok', (ids['R1-short'],)).fetchone()['ok']
+            assert reader.execute('SELECT assertion_eligible(%s) ok', (ids['R1-short'],)).fetchone()['ok']
+
+
 def test_derived_profile_thematic_and_pattern_follow_decisions(conn, cfg, ids, monkeypatch):
     store.refresh_profile(conn, cfg, PROJECT)
     assert profiles.read(conn, cfg, PROJECT)['status'] == 'fresh'

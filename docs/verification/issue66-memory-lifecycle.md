@@ -138,3 +138,22 @@ gives each pair in the scope test one title, so only the scope decides. Both
 changes are marked in the tests.
 
 This is not the full suite; S3 owns that run.
+
+## Coordinator checks before independent review (2026-11-01)
+
+The S1 affected run ended with 1,188 passed, one known warning and exit 0 at
+`351b6f4`; the subsequent S1 commit changes documentation only. The coordinator
+then found two Medium defects in explicit views. `get` returned replaced, weakly
+supported or future originals under an explicit view without testing eligibility,
+and a derived current scope inherited `include_merged` inside an autocommit
+transaction. Four regression cases failed before either fix. After the fixes,
+`tests/test_lifecycle_views.py tests/service/test_lifecycle_transports.py` passed:
+19 tests, one known warning, exit 0 (48.23 s). Omitted original inspection remains
+available; explicit get views now use their SQL eligibility and active-status
+gates. The autocommit view restores the enclosing selection after current reads.
+
+These checks are not the independent review or full-suite acceptance. The review
+must also classify the reported foreign request-key collision and direct-SQL
+decision target visibility, exercise managed k=1 retrieval end to end, and check
+history pagination through the public tool. They are not accepted as Low solely
+because the implementation report used that severity.

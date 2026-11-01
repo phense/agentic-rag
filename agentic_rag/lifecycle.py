@@ -118,7 +118,7 @@ def _set_view(conn, view):
 def current_scope(conn):
     """Derived readers (profiles, thematic, entity, context) always use current
     semantics; a request view can never widen their dependencies."""
-    if conn.autocommit or conn.info.transaction_status != TransactionStatus.INTRANS or _setting(conn) in ('', 'current'):
+    if conn.info.transaction_status != TransactionStatus.INTRANS or _setting(conn) in ('', 'current'):
         yield
         return
     with view_scope(conn, 'current'):
@@ -192,7 +192,12 @@ def resolve_get(conn, document: dict, view: str) -> dict:
     label = labels(conn, [requested], view).get(requested, {'view': view, 'state': 'current', 'role': 'original'})
     block = {'requested_id': requested, **label}
     if view != 'current':
-        return {'document': document, 'lifecycle': block}
+        eligible = (document.get('status') == 'active'
+                    and conn.execute('SELECT assertion_eligible(%s) ok', (requested,)).fetchone()['ok'])
+        if eligible:
+            return {'document': document, 'lifecycle': block}
+        block.pop('canonical_id', None)
+        return {'document': None, 'lifecycle': {**block, 'resolution': 'not_current'}}
     if label['state'] == 'current' and conn.execute('SELECT assertion_eligible(%s) ok', (requested,)).fetchone()['ok'] \
             and document.get('status') == 'active':
         return {'document': document, 'lifecycle': {**block, 'canonical_id': requested, 'resolution': 'self'}}
