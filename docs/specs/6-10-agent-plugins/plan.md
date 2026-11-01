@@ -191,3 +191,24 @@ poll fallback; rate-limited durable handle retained; kill background daemon;
 digest swap during inference; API/worker restart; config rollback; old/new
 worker exclusion; lost ACK/offline replay; authority revocation before commit.
 Use existing FR04/05 audit and result-publication checks in every applicable case.
+
+
+### T06820 refinement: source-permission plan work
+
+E-LANE-1 A passed; B preserved all originals and returned citations but remained
+above 10 s. The fresh analyzed cost attribution records PostgreSQL 75.50 CPU s
+and API 7.25 CPU s for 120 requests. The existing SQL SECURITY DEFINER helper
+`rag_service_source_write(text,text)` repeatedly plans its unchanged predicate.
+The rolled-back counterfactual reduced 1,071 plans to 6 and retained all 18 full
+result packet hashes. These are bounded diagnostics, not target acceptance.
+Evidence: [non-model-cost-attribution.json](../../benchmarks/2026-11-01-lexical-eligibility/non-model-cost-attribution.json).
+
+Within T06820, characterize the original helper before and after wrapping its
+entire SELECT in a static PLpgSQL RETURN. Keep signature, three-valued NULL
+semantics, STABLE, SECURITY DEFINER, fixed search_path, owner and grants. Reuse
+execution plans only; reevaluate namespace/domain/project/write conditions on
+every call. Recheck the same connection after authorization settings and source
+dependents change. Keep published 001..033 unchanged; append the replacement to
+unpublished 034. Require the populated source upgrade and limited-owner independent
+restore again. This localized refactor adds no configuration or new admission
+lane and does not adopt A2's conditional consumer/thread/endpoint settings.
