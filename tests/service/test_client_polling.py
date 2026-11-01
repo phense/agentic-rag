@@ -117,7 +117,9 @@ def test_finite_numeric_hint_is_clamped_and_jittered(tmp_path, clock, hint, poll
     assert clock.sleeps == [pytest.approx(expected)] * 3
 
 
-@pytest.mark.parametrize('hint', ['missing', None, True, False, 'x', math.nan, math.inf, -math.inf, [1], {}])
+@pytest.mark.parametrize('hint', ['missing', None, True, False, 'x', math.nan, math.inf, -math.inf, [1], {},
+    pytest.param(10**400, id='oversized-positive-integer'),
+    pytest.param(-(10**400), id='oversized-negative-integer')])
 def test_invalid_or_missing_hint_keeps_bounded_exponential_fallback(tmp_path, clock, hint):
     extra = {} if hint == 'missing' else {'retry_after': hint}
     server = Server(posts=[ack(**extra)], gets=[pending(**extra)] * 5 + [completed()])

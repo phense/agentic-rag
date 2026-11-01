@@ -28,8 +28,13 @@ _TRANSIENT_TRANSPORT = frozenset({'network_unavailable', 'response_timeout'})
 
 def _retry_hint(value):
     """A finite JSON number; booleans, strings, NaN and infinities are invalid."""
-    if type(value) in (int, float) and math.isfinite(value):
-        return float(value)
+    if type(value) in (int, float):
+        try:
+            number = float(value)
+        except OverflowError:
+            return None
+        if math.isfinite(number):
+            return number
     return None
 
 
