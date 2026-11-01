@@ -69,9 +69,11 @@ def test_curation_requires_equal_known_scopes(conn,cfg):
     cfg=replace(cfg,ollama_url='http://127.0.0.1:1')
     domains.add_domain(conn,'scope-test')
     def save(title,**kw):return store.save_document(conn,cfg,title=title,body='identical source fact',domain='scope-test',dtype='memory',**kw)
-    a=save('A',project='/scope/a');a2=save('A2',project='/scope/a')
-    b=save('B',project='/scope/b',actor='mining',edges=[store.EdgeSpec('contradicts',a.slug,evidence='foreign assertion')])
-    u=save('U');u2=save('U2')
+    # RAG-066: exact copies also need the same title, so every pair shares one;
+    # only the scope decides here.
+    a=save('A',project='/scope/a');a2=save('A',project='/scope/a')
+    b=save('A',project='/scope/b',actor='mining',edges=[store.EdgeSpec('contradicts',a.slug,evidence='foreign assertion')])
+    u=save('U');u2=save('U')
     assert curation._refute_candidates(conn,20)==[]
     assert curation._merge_exact_duplicates(conn,20)==1
     assert conn.execute("SELECT count(*) AS n FROM documents WHERE status='active'").fetchone()['n']==4
