@@ -46,6 +46,9 @@ def test_commit_then_lost_ack_survives_restart_and_replays_once(service_store,tm
 def test_cached_context_is_owned_and_explicitly_stale_offline(service_store,tmp_path):
     from agentic_rag.service.client import RemoteClient
     cfg,_=service_store;app,_=app_fixture(tmp_path,cfg);remote=client_config(tmp_path,cfg)
+    # Cache ownership is the contract here; queued completion may exceed the
+    # one-second hook default on a loaded host. Deadline behavior has clock tests.
+    remote=replace(remote,service_hook_wait_seconds=5)
     with TestClient(app,base_url='https://testserver') as sender,RemoteClient(remote,sender=sender) as client:
         assert 'alpha' in client.context('s','/projects/a')
     def down(request):raise httpx.ConnectError('offline')
