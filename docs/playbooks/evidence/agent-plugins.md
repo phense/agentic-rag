@@ -830,7 +830,7 @@ failures, negotiation and old synchronous calls, ContextVars, graceful shutdown)
 Commit `fa154a8` freezes exactly those inputs. Four test-harness corrections
 followed and are listed in commit `8252a3d`; none weakened an assertion.
 
-Real-component rehearsal (`tests/service/test_model_lane_runtime.py`, 13 tests):
+Real-component rehearsal (`tests/service/test_model_lane_runtime.py`, 14 tests):
 lane success through the gateway; digest swap on either daemon and a daemon
 outage each keep the job pending with its attempt and accepted batch, write no
 document or audit row, then apply without a second provider call; key removal
@@ -839,7 +839,10 @@ and default workers share the singleton lock; a revoked key blocks before any
 inference; the actual client completes through four consumers after the12/s
 window and replays a lost acknowledgement as one queued request; the API refuses
 to start above the pool reserve; and the PB06801 parity probe text accepts
-identical doubles and rejects differing vectors or digests. Two mutations
+identical doubles and rejects differing vectors or digests, and a primary
+thread setting whose vectors differ from the unthreaded ones behind stored
+chunks and reuse keys (the earlier probe text accepted that case; corrected in
+self-review after the final affected run). Two mutations
 (removing the post-inference identity check; turning an outage into a
 best-effort save) each failed three tests.
 
@@ -853,7 +856,8 @@ the default lane then applies the retained extraction. Original documents,
 pins and the pending legacy job stay unchanged.
 
 The final affected run on `eb0ca10` passed 432 tests (exit0, 306.9s; one
-pre-existing Starlette deprecation warning). Remaining limits: no physical
+pre-existing Starlette deprecation warning). After the probe correction the
+probe and documentation tests were rerun on the committed source. Remaining limits: no physical
 model, cross-daemon vector parity for every actual input, resource budget,
 actual40-client load, complete independent review or full suite was run here.
 The PB06801 section is drafted, not independently reviewed or rehearsed on a

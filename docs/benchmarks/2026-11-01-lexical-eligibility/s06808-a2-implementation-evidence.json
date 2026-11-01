@@ -127,7 +127,7 @@
   "tests/service/test_model_lane.py": 21,
   "tests/service/test_request_consumers.py": 14,
   "tests/service/test_client_polling.py": 44,
-  "tests/service/test_model_lane_runtime.py": 13,
+  "tests/service/test_model_lane_runtime.py": 14,
   "tests/service/test_lexical_upgrade.py (extended)": 2
  },
  "recovery_cases": {
@@ -142,7 +142,7 @@
   "actual_client_rate_limit_four_consumers": 1,
   "actual_client_lost_ack": 1,
   "api_startup_reserve_rejection": 1,
-  "parity_probe_snippet": 3,
+  "parity_probe_snippet": 4,
   "populated_upgrade_interruption_retry_restores": 1,
   "populated_upgrade_runtime_steps": 6,
   "passed": "all"
@@ -153,5 +153,11 @@
   "actual 40-client AC05 latency (T06821)",
   "full suite and complete independent review (T06822/T06828)",
   "playbook review and real-daemon rehearsal"
- ]
+ ],
+ "post_final_correction": {
+  "finding": "parity probe did not compare threaded vectors with unthreaded stored-vector identity",
+  "fix": "probe embeds primary without and with num_thread plus lane; all must be identical",
+  "red_against_old_probe_text": "1 failed, 3 passed",
+  "rerun_scope": "probe snippet and documentation tests"
+ }
 }

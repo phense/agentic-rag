@@ -472,7 +472,10 @@ never pulls or prunes. Every lane call has a finite deadline of
    extraction is paused. `SERVER_CONFIG` is the private server configuration,
    `LANE_URL` the background address, and the two thread values are the planned
    `num_thread` and `background_num_thread` (`-` for unset). It sends only the
-   three synthetic inputs below and writes nothing.
+   three synthetic inputs below and writes nothing. Each input is embedded by
+   the primary without thread option (as stored vectors and reuse caches were
+   made), by the primary with `num_thread` and by the background daemon; all
+   three vectors must be identical, because caches keep the primary identity.
 
 ```sh
 timeout 400s .venv/bin/python - SERVER_CONFIG LANE_URL 2 1 <<'PYPARITY'
@@ -502,13 +505,15 @@ def embed(client, url, text, thread):
     return validate_vectors(response.json()['embeddings'], 1, cfg.embed_dim)[0]
 with httpx.Client(trust_env=False) as client:
     before = digest(client, cfg.ollama_url), digest(client, lane)
-    pairs = [(embed(client, cfg.ollama_url, t, threads[0]), embed(client, lane, t, threads[1])) for t in inputs]
+    # Stored vectors and reuse keys came from the unthreaded primary request.
+    triples = [(embed(client, cfg.ollama_url, t, None), embed(client, cfg.ollama_url, t, threads[0]),
+                embed(client, lane, t, threads[1])) for t in inputs]
     after = digest(client, cfg.ollama_url), digest(client, lane)
 if len({*before, *after}) != 1:
     raise SystemExit('digests differ; do not enable the lane')
-if any(a != b for a, b in pairs):
+if any(not (a == b == c) for a, b, c in triples):
     raise SystemExit('vectors differ; do not enable the lane')
-print({'digest': before[0], 'inputs': len(pairs), 'identical': True})
+print({'digest': before[0], 'inputs': len(triples), 'identical': True})
 PYPARITY
 ```
 

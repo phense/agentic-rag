@@ -256,7 +256,7 @@ def test_api_startup_rejects_consumers_beyond_pool_reserve(runtime, monkeypatch)
         assert conn.execute('SELECT count(*) n FROM service_requests').fetchone()['n'] == 0
 
 
-@pytest.mark.parametrize('mode,ok', [('same', True), ('vectors', False), ('digest', False)])
+@pytest.mark.parametrize('mode,ok', [('same', True), ('vectors', False), ('digest', False), ('threads', False)])
 def test_playbook_parity_probe_snippet_executes(tmp_path, mode, ok):
     # Executes the exact PB06801 probe text against two loopback doubles; no model.
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -282,10 +282,15 @@ def test_playbook_parity_probe_snippet_executes(tmp_path, mode, ok):
                 self.reply({'models': [{'name': 'bge-m3:latest', 'digest': digest}]})
             def do_POST(self):
                 request = json.loads(self.rfile.read(int(self.headers['content-length'])))
-                assert request['options'] == {'num_thread': 1 if lane else 2}
+                options = request.get('options')
+                assert options == ({'num_thread': 1} if lane else options) and options in (None, {'num_thread': 2}, {'num_thread': 1})
                 vector = [0.25] + [0.0] * 1023
-                if lane and mode == 'vectors':
+                if mode == 'vectors' and lane:
                     vector[1] = 0.5
+                if mode == 'threads' and options:
+                    # Threaded primary and lane agree, but differ from the
+                    # unthreaded vectors behind stored chunks and reuse keys.
+                    vector[2] = 0.5
                 self.reply({'embeddings': [vector]})
         return Handler
     servers = [ThreadingHTTPServer(('127.0.0.1', 0), handler(lane)) for lane in (False, True)]
