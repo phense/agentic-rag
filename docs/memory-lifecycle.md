@@ -82,7 +82,8 @@ Agents and central clients use the same steps through `memory_lifecycle_preview`
 `memory_lifecycle_apply` and `memory_lifecycle` ([reference](11-reference-cli-and-mcp.md#lifecycle-tools)).
 A retry with the same inspected versions and reason returns the existing decision
 and writes nothing. An optional request key makes that explicit; reusing it for a
-different request fails with `replay_mismatch`.
+different request in the same domain and project fails with `replay_mismatch`.
+Other domains and projects may use the same key independently.
 
 ## What readers see
 
@@ -116,7 +117,9 @@ the stale decision and decide anew.
 A replacement is different. Once its event time has passed it keeps the old
 version out of the current view, even if the target is later refuted or deleted;
 `show` then reports `canonical_unavailable` and never reveals the deleted target.
-Correct the decision if the old memory should answer again.
+Correct the decision if the old memory should answer again. After a scope move,
+a reader who cannot access the original decision sees only `suppressed` and
+`decision_unavailable`; its target, reason, actor and original scope stay hidden.
 
 ## Undo a decision
 

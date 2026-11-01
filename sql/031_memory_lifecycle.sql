@@ -41,14 +41,15 @@ CREATE TABLE public.lifecycle_events (
     decision_id uuid NOT NULL REFERENCES public.lifecycle_decisions(id),
     event text NOT NULL CHECK (event IN ('applied','recorded','corrected')),
     action_key text NOT NULL UNIQUE CHECK (action_key ~ '^[0-9a-f]{64}$'),
-    request_key text UNIQUE CHECK (request_key IS NULL OR length(request_key) BETWEEN 1 AND 128),
+    request_key text CHECK (request_key IS NULL OR length(request_key) BETWEEN 1 AND 128),
     actor text NOT NULL,
     reason text NOT NULL CHECK (length(reason) BETWEEN 1 AND 1000),
     member_id uuid NOT NULL,
     target_id uuid NOT NULL,
     domain text NOT NULL,
     project_scope text NOT NULL,
-    at timestamptz NOT NULL DEFAULT now()
+    at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (domain, project_scope, request_key)
 );
 CREATE INDEX lifecycle_events_decision ON public.lifecycle_events(decision_id, at, id);
 CREATE INDEX lifecycle_events_member ON public.lifecycle_events(member_id);

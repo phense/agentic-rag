@@ -489,8 +489,10 @@ def apply(conn, cfg, *, member, target, operation, expected_member_version, expe
             raise LifecycleError('not_found')
         action_key = _key([operation, member_id, target_id, expected_member_version, expected_target_version, reason])
         _lock(conn, [member_id, target_id])
-        known = conn.execute('SELECT action_key FROM lifecycle_events WHERE request_key=%s', (request_key,)).fetchone() \
-            if request_key else None
+        known = conn.execute(
+            'SELECT e.action_key FROM lifecycle_events e JOIN documents m '
+            'ON m.domain=e.domain AND m.project_scope=e.project_scope '
+            'WHERE m.id=%s AND e.request_key=%s', (member_id, request_key)).fetchone() if request_key else None
         if known is not None and known['action_key'] != action_key:
             raise LifecycleError('replay_mismatch')
         existing = conn.execute('SELECT * FROM lifecycle_decisions WHERE action_key=%s', (action_key,)).fetchone()
@@ -563,8 +565,9 @@ def correct(conn, cfg, *, decision_id, expected_revision, reason, request_key=No
         _lock(conn, present)
         row = _writable_decision(conn, identity)
         key = _key(['correct', identity, expected_revision, reason])
-        known = conn.execute('SELECT action_key FROM lifecycle_events WHERE request_key=%s', (request_key,)).fetchone() \
-            if request_key else None
+        known = conn.execute(
+            'SELECT action_key FROM lifecycle_events WHERE domain=%s AND project_scope=%s AND request_key=%s',
+            (row['domain'], row['project_scope'], request_key)).fetchone() if request_key else None
         if known is not None and known['action_key'] != key:
             raise LifecycleError('replay_mismatch')
         if conn.execute('SELECT 1 FROM lifecycle_events WHERE action_key=%s AND decision_id=%s', (key, identity)).fetchone():

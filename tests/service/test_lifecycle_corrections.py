@@ -75,3 +75,40 @@ def test_moved_member_does_not_grant_its_old_decision_scope(lifecycle_store, tmp
             status, got = call(client, KEYS[2], 'memory_get', id_or_slug=member, view='current')
             assert status == 200 and got['document'] is None
             assert got['lifecycle']['resolution'] == 'decision_unavailable'
+
+
+@pytest.mark.parametrize('same_domain', [False, True])
+def test_request_keys_are_independent_between_scopes(lifecycle_store, tmp_path, same_domain):
+    cfg, ids = lifecycle_store
+    if same_domain:
+        with db.connect(cfg) as owner:
+            for name in ('foreign-copy', 'foreign-keep'):
+                store.set_domain(owner, ids[name], 'alpha')
+    app, policy = app_fixture(tmp_path, cfg)
+    if same_domain:
+        policy.write_text(policy.read_text().replace('read_domains=["beta"]', 'read_domains=["alpha"]')
+                          .replace('write_domains=["beta"]', 'write_domains=["alpha"]'))
+    replay_arguments = []
+    with TestClient(app, base_url='https://testserver') as client:
+        for key, member, target in ((KEYS[0], ids['copy'], ids['keep']),
+                                    (KEYS[2], ids['foreign-copy'], ids['foreign-keep'])):
+            status, seen = call(client, key, 'memory_lifecycle_preview', member=member, target=target)
+            assert status == 200
+            arguments = dict(member=member, target=target, operation='exact_duplicate', reason='same ticket',
+                expected_member_version=seen['member']['version'], expected_target_version=seen['target']['version'],
+                request_key='same-ticket')
+            status, made = call(client, key, 'memory_lifecycle_apply', **arguments)
+            assert status == 200, made
+            assert call(client, key, 'memory_lifecycle_apply', **arguments)[1]['replayed'] is True
+            assert call(client, key, 'memory_lifecycle_apply', **{**arguments, 'reason': 'different payload'}) == (
+                409, {'error': 'replay_mismatch'})
+            status, corrected = call(client, key, 'memory_lifecycle_correct', decision_id=made['decision']['id'],
+                expected_revision=1, reason='same correction ticket', request_key='same-correction')
+            assert status == 200, corrected
+            replay_arguments.append(arguments)
+    # The same scoped lookup is required for a local operator who sees all
+    # domains/projects; relying only on RLS would match the first scope's key.
+    with db.connect(cfg) as owner:
+        for arguments in replay_arguments:
+            result = store.apply_lifecycle(owner, cfg, **arguments)
+            assert result['replayed'] is True and result['decision']['state'] == 'corrected'

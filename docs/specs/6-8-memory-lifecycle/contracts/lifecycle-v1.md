@@ -1,7 +1,7 @@
 # Contract lifecycle-v1 (RAG-066, schema031)
 
-Status: as-built reconciliation at product `82c031f` (2026-11-01); independent
-review and final verification pending. Rationale and
+Status: correction reconciliation after review of `1fc0628` (2026-11-01);
+independent correction review and final verification pending. Rationale and
 diagrams: `../../../uml/memory-lifecycle-66.md`. Findings: AF-066-001..010. Why a separate
 contract: implementation, transports, upgrade and tests need one place for the exact
 budgets, codes and predicates. The spec deliberately leaves these to design.
@@ -36,7 +36,7 @@ conservatively tightened to identical title/body/dtype and existing scope/claim 
   `rag_document_version` (ev1) and `src1` are **not** changed.
 - `action_key` = sha256 of canonical JSON `[operation, member_id, target_id, lv1_member,
   lv1_target, reason]`, which is unique. An optional client `request_key` (≤128 chars,
-  unique when present) is stored on the event. A replay that produces the same
+  unique within `(domain, project_scope)` when present) is stored on the event. A replay that produces the same
   `action_key` returns the existing decision and writes nothing. A known `request_key`
   that arrives with a different `action_key` fails with `replay_mismatch`. The transport
   request ID plays no part.
@@ -67,13 +67,19 @@ conservatively tightened to identical title/body/dtype and existing scope/claim 
   decisions. It enforces the anchor rules and the flat invariant. Identity columns are
   immutable; the only allowed transition is `active|contested → corrected`. It raises
   fixed SQLSTATE `23514` messages and reads identifiers only.
-- RLS on both tables: read the original decision scope **or a currently visible
-  member**, preserving replacement hiding after a scope move; `WITH CHECK` uses
-  the decision scope write flag. Restrictive UPDATE also requires that flag.
-  This widens direct-SQL row visibility: target identifiers are stored on the
-  visible decision/event. Tool responses redact inaccessible targets; independent
-  review must assess the raw identifier boundary before acceptance. Grants: reader SELECT; writer SELECT, INSERT, plus UPDATE(state) on
-  decisions; admin ALL. Both tables join `SCOPED_TABLES` and the restore allowlist.
+- RLS on both tables reads only the original decision scope; `WITH CHECK` uses
+  that scope's write flag. Restrictive UPDATE also requires that flag. A member
+  moving to another scope grants no access to the old decision or events.
+  `rag_lifecycle_hidden` is a STABLE SECURITY DEFINER function with a fixed
+  `search_path`, no PUBLIC rights, and grants to the existing reader/writer/admin
+  roles. It returns only a Boolean, and only when the caller can read the current
+  member. This preserves replacement suppression across a scope move without
+  exposing decision IDs, target IDs, scope, actor, reason or request keys.
+  Inaccessible and nonexistent member IDs both return false. Detail and explicit
+  get use a `suppressed` / `decision_unavailable` placeholder when the original
+  decision is inaccessible. Grants: reader SELECT; writer SELECT, INSERT, plus
+  UPDATE(state) on decisions; admin ALL. Both tables join `SCOPED_TABLES` and
+  the restore allowlist.
 - `rag_assertion_eligible_base` = exact 030 body. `assertion_eligible` keeps its signature
   and adds the view-aware hidden check. `rag_lifecycle_hidden(id, at)` evaluates D7.
   `rag_pattern_current` is redefined with an explicit hidden check that ignores the view
@@ -87,7 +93,8 @@ conservatively tightened to identical title/body/dtype and existing scope/claim 
 | Apply/correct lock and statement timeout | `lock_timeout` 2000 ms, `statement_timeout` 10000 ms (never raises a stricter caller value) → `busy` (retryable, nothing written) |
 | Canonical resolution | exactly 1 hop (flat invariant) |
 | Active members per canonical | ≤500, otherwise `budget_exceeded` |
-| Detail members / history events page | default 20, max 100, opaque cursor `(at,id)`, `more` flag |
+| Canonical members / history events page | default 20, max 100, opaque timestamp/id cursor, `more` flag; `history=true` applies the cursor to events, otherwise to canonical members |
+| Detail as-member relationships | at most 20, `as_member_more` signals older relationships; older events remain accessible through history |
 | Search candidates and graph nodes | unchanged: 150 and 20 |
 
 ## Views and wire

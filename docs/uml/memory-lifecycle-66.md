@@ -87,11 +87,13 @@ flowchart LR
     PC --> H
 ```
 
-Trust notes: `G` is the only definer-rights path, reads identifiers only, and raises fixed
-codes. A same-scope invariant (D4) means it never reveals a row that the writer cannot already
-read. Reads use invoker rights: a decision row carries the anchors' domain and project, so a
-reader who sees the member also sees its decision. `ServiceConnection.check_commit_authority`
-runs at commit, so a revocation before commit rolls back decision, event and audit together.
+Trust notes: `G` uses definer rights for fixed-code validation. `H` also uses
+fixed-search-path definer rights, returning only suppression for a caller-visible
+member; inaccessible members return false. Decision and event rows remain within
+the original scope under RLS even after a member moves. The public detail/get
+placeholder reports suppression without original-scope metadata.
+`ServiceConnection.check_commit_authority` runs at commit, so a revocation before
+commit rolls back decision, event and audit together.
 
 ## Q2/Q5: apply, replay, conflict and correction (success and failure)
 
@@ -242,13 +244,18 @@ a scope has events, preserving old cached revisions across an empty upgrade.
 The old0.6.18 code and fallback budget0 are exercised by the populated upgrade
 harness; no live rollout, real-model or multiple-host behavior is inferred.
 
-The original RLS description omitted a visibility requirement after member scope
-moves. Actual031 permits reading a decision/event when its original scope or its
-member is visible. That preserves replacement suppression, but raw rows expose
-target IDs. Tool redaction and the raw-SQL boundary require an independent verdict.
-Additional reviewer questions: global request-key collisions, public history
-continuation, and actual managed-index k=1 selection. These are unresolved
-acceptance questions, not silently accepted Low findings.
+The first independent review at `1fc0628` found moved-member metadata leakage
+(F1 Medium), repeated history pages (F2 Medium), silent as-member overflow
+(F3 Low), cross-scope request-key collisions (F4 Low), and a playbook integrity
+check that treated contested relationships as hiding chains (PB-I1 Important).
+Correction: original-scope-only RLS plus the Boolean-only definer `H`; history
+cursor selects events; `as_member_more` reports the bounded detail list;
+request-key uniqueness is per domain/project; integrity counts only active
+hiding chains. These corrections need independent re-review before acceptance.
+The actual managed-index k=1 success probe passed for the exact pool through
+4096 candidates; the larger ANN branch was not exercised. Direct trusted SQL
+writers can still create unaudited decisions (F5 Low); the integrity check
+flags them and the playbook requires maintainer-led repair.
 
 The coordinator found and fixed explicit-get selection and nested autocommit
 current-scope defects before review (four failing cases, then19 tests passed).
