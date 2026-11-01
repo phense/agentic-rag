@@ -72,7 +72,7 @@ def gate_rehearsal(tmp_path):
     fresh = subprocess.run([sys.executable, '-I', '-c', snippet('PYFRESH')], text=True, capture_output=True, timeout=60)
     assert fresh.returncode == 0, fresh.stderr
     version, metadata = fresh.stdout.split()
-    assert version == expected == '0.6.20' and Path(metadata).name == 'METADATA'
+    assert version == expected and Path(metadata).name == 'METADATA'
     token = 'pb067-gate-' + uuid.uuid4().hex
     reader = [sys.executable, '-c', f'import time; time.sleep(120)  # {token}']
     stale = subprocess.Popen(reader)
@@ -156,7 +156,8 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.21', '--dump',
+        # 0.6.21 is the current supported target; reject the next release.
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.22', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'bindings': 0, 'malformed_digests': 0, 'bindings_minus_audit': 0, 'batch_policy_mismatch': 0}
         assert integrity(load_config(config)) == zero
@@ -252,7 +253,7 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
         final = integrity(cfg)
         assert final['bindings'] >= 1 and {k: v for k, v in final.items() if k != 'bindings'} == dict.fromkeys(
             ['malformed_digests', 'bindings_minus_audit', 'batch_policy_mismatch'], 0)
-        current = operator('verified-backup', '--source-version', '0.6.20', '--output', str(proofs / 'current.dump'))
+        current = operator('verified-backup', '--source-version', '0.6.21', '--output', str(proofs / 'current.dump'))
         assert current['restore_verified']
         with isolated_database(cfg, initialize=False) as target:
             from agentic_rag import backup
