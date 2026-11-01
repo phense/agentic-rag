@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "synthetic only",
-  "maximum_new_sessions": 1,
-  "maximum_user_turns": 2,
+  "maximum_new_sessions": 2,
+  "maximum_user_turns": 3,
   "maximum_seconds_per_invocation": 120,
   "loopback_port": 28768,
   "source_fixture_sha256": "b06b3e0bb80c21fabba34e9933a285711e958be51b12a85c90234408fe6724a7",
@@ -11,7 +11,7 @@
     "Start own loopback ASGI service backed by own isolated PG55460 database; never run extraction provider",
     "Replace first committed window response with 503, retaining actual durable receipt; replay must return same receipt",
     "Run real native same-session resume with unchanged URL/token/spool; verify recall and native final-tail capture",
-    "Drain using public client transport; compare all original event IDs, retained source/checkpoint and server unique windows; remove only owned DB/server"
+    "Drain using public client transport; compare all original event IDs, retained source and server unique windows; remove only owned DB/server"
   ],
   "acceptance": [
     "Offline input survives before server exists",
@@ -24,5 +24,9 @@
     "Single Linux host, loopback TCP, synthetic authentication and fixtures",
     "No production rollout, TLS or cross-host outage claim",
     "Compaction acceptance is separate completed manual/automatic protocol"
-  ]
+  ],
+  "attempt_disposition": {
+    "attempt1": "Harness incorrectly required HTTP200 for window admission; actual service correctly returned202. Native initial turn succeeded. Owned DB/server cleaned. No product defect; original artifacts preserved.",
+    "attempt2": "Corrected response observer to202; same frozen prompts/URL/token within the new session. No compaction in this ACK-only session; checkpoint acceptance stays in separately observed native compaction protocol."
+  }
 }
