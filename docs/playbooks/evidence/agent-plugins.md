@@ -2,13 +2,14 @@
 title: PB06801 review and rehearsal evidence
 type: reference
 audience: administrators
-version: 0.6.11
+version: 0.6.21
 ---
 
 # PB06801 review and rehearsal evidence
 
-Version0.6.11/schema024; updated2026-10-30. This is an owned-copy development
-rehearsal, not production cutover or a maximum-capacity guarantee.
+The historical0.6.11/schema024 rehearsal below was recorded2026-10-30. The
+0.6.21/schema033 continuation follows it with separately scoped evidence. These
+are owned-copy development rehearsals, not production cutover or a maximum-capacity guarantee.
 
 ## Verification and review
 
@@ -194,7 +195,7 @@ measurements are the evidence supplied by this PR.
 
 ## RAG-068-A1 source-origin correction: provisional evidence
 
-The new source-origin section in PB06801 is drafted for0.6.21/schema033. The correction review below accepts
+The source-origin section in PB06801 targets0.6.21/schema033. The correction review below accepts
 its bounded source-origin slice; final release and whole-feature gates remain open.
 The prior0.6.11 evidence above does not validate this new gate.
 
@@ -250,11 +251,11 @@ The first new replacement fixture lacked explicit replacement wording; that
 initial failure was a fixture error. The corrected blue/red regression then
 failed for the actual current-fact defect in both applied and pending cases.
 
-PB O1–O4 remains an acceptance draft pending independent correction review.
-The release is still an intermediate0.6.20 package; bumping all release references
-to0.6.21 and accepting its current-backup label remain delivery tasks. Native
-automatic compaction/online ACK, the reference latency/resource acceptance,
-full Python/Node/build/lock gates and production rollout are not proved here.
+At this intermediate measurement snapshot, PB O1–O4 still awaited independent
+correction review and the package metadata still reported0.6.20. The later
+review, native observations, reference diagnosis and0.6.21 upgrade selection are
+recorded below. Neither this targeted run nor the later observations establish
+a full-suite pass, an agreed latency SLA or a production rollout.
 Writing depth: small, one focused correction within this existing evidence page
 and its linked playbook; no documentation-set restructure.
 
@@ -385,7 +386,7 @@ its7.130s is structural evidence, not a measured product speedup. No predicate,
 authorization, scheduler or production setting was relaxed. Two bounded foreground
 consumers serialize heavy searches and cheap metadata alike; this explains the
 queue buildup while retaining the existing finite compute budget. This is a
-capacity limitation, not an SLA acceptance or a claim that cheap calls are fast
+correctable retrieval inefficiency, not an SLA acceptance or a claim that cheap calls are fast
 under a40-client burst. M-ACC1 remains pending independent disposition.
 
 The prior `growing40` label denotes8 windows already pending at burst start, not
@@ -396,3 +397,16 @@ exclude SQL text, vectors and result bodies. Both owned-cluster diagnosis runs
 stopped PostgreSQL in `finally`; production services were untouched. Native child
 suppression remains adapter-tested, not natively observed (LOW-064). CPU attribution
 is coarse (LOW-063). Both are recorded in Issue75.
+
+
+The final correction review at `b110d37` accepts H1 and the bounded M-ACC1
+diagnosis with0 C/H/M/Important. The confirmed lexical inefficiency and remaining
+T06811/AC05 acceptance are tracked in [Issue92](https://github.com/phense/agentic-rag/issues/92);
+Issue68 and T06811 stay open. The asserted third unbounded vector count is not
+established: `indexes._neighbors` already materializes at most4,097 eligible rows
+before counting, on both the base and current source. The whole-corpus count in
+the diagnosis was a separate timed probe, not a traced third scan in that search.
+Do not add its time to the measured query as though both were one operation.
+The033 overhead measured on synthetic replacement-superseded documents is
+recorded as LOW-065 in Issue75, with concurrent-host/noise limits. Full3 remains
+an independent delivery gate until its actual terminal result is available.

@@ -314,7 +314,7 @@ commands change, when the process types that admit or run mining change, or when
 the policy file version changes. Sources: `agentic_rag/extraction_policy.py`,
 `agentic_rag/extraction_cli.py`, `agentic_rag/mining.py` (`bind_policy`,
 `prepare_extraction`), `agentic_rag/jobs.py`, `agentic_rag/service/ingest.py`,
-`agentic_rag/service/upgrade.py` (`SUPPORTED_VERSIONS` covers 0.6.0–0.6.20),
+`agentic_rag/service/upgrade.py` (`SUPPORTED_VERSIONS` covers 0.6.0–0.6.21),
 `sql/032_extraction_policy.sql` and [PB-063](rag-063-source-evidence-upgrade.md).
 
 Change history: 2026-11-01 drafted with the RAG-067 implementation.

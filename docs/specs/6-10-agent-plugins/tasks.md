@@ -40,3 +40,20 @@ Issue68 keeps these acceptance gates open. Run: RAG-068-A1.
 - [ ] T06812 [FR01/08, AC03/04] Deliver0.6.20→0.6.21 populated upgrade/retry/backup/independent restore and plugin update/recovery with preserved originals, scoped users/grants, pending handles/buffers and foreign host configuration. State whether migration is required; no reset or silent loss. Update PB06801 for changed steps and review/rehearse affected recovery paths.
 - [ ] T06813 [FR09, AC04] Independently review the complete new bounded diff and changed native/priority/upgrade boundaries; inherit prior unchanged reviews explicitly. Derive real collaborating-component success/recovery probes, fix all C/H/M and Important findings, collect Lows in Issue75.
 - [ ] T06814 [FR09, AC01..05] Reconcile exact as-built and every open canonical criterion. Run final source-bound full suite/Node/build/lock/docs checks, record actual exits and limits, publish measured before/after traces and tested upgrade path, create/link PR and merge autonomously after clean gates. Close Issue68 only for actually evidenced native/performance acceptance; no production cutover implied.
+
+## Convergence 2: confirmed retrieval inefficiency and remaining performance acceptance
+
+The source-origin continuation review at `b110d37` has0 C/H/M/Important. Its
+bounded diagnosis resolves M-ACC1 against that delta; it does not complete T06811
+or AC05. [Issue92](https://github.com/phense/agentic-rag/issues/92) tracks the
+remaining repair, before declaring6.10 complete. T06811 stays unchecked.
+The proposed unbounded vector threshold count is rejected: the existing
+materialized pool already has LIMIT4097. Preserve that bound and verify the
+actual executed path instead of introducing a redundant fix.
+
+### Slice S06806: Selective lexical work with unchanged authorized results
+
+- [ ] T06815 [FR06/07, AC05, Issue92] Continue the confirmed-defect diagnosis on an owned populated copy; freeze selective/no-match/broad cases and source/result expectations before repair. Inspect the actual legacy/managed paths and nested query plans. Reproduce documents-first eligibility work with valid GIN indexes; no production or provider access to copied private excerpts.
+- [ ] T06816 [FR04/07/08, AC02/04/05, Issue92] Repair matching/eligibility ordering without changing retrieval semantics or removing any authorization/truth/temporal/lifecycle predicate before ranking/LIMIT. Prove old/new result-set and order parity, reader RLS isolation, cancellation and finite SQL work. Deliver the next patch release, additive migration if needed, populated upgrade/retry/verified backup/independent restore and old-client parity; depends15 and the merged0.6.21 source-origin PR.
+- [ ] T06817 [FR06/07/09, AC01/05, Issue92] Repeat bounded20–40-client reference measurements with actual growing arrivals and draining backlog, recorded foreground/background model overlap, honest sample sizes, queue/execution/total p50/p95 and per-phase resource accounting. Compare against the retained baseline without inventing an SLA or sustained-load proof; depends16.
+- [ ] T06818 [FR08/09, AC01..05, Issue92] Complete independent bounded repair review, real-component success/recovery and current full-suite/Node/build/docs/lock gates; reconcile as-built and T06811 before Issue68 closure. Keep unobserved native host criteria in12–14, non-blocking Lows in75 and production cutover separate; depends16/17.
