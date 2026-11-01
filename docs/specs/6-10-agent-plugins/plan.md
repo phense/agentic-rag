@@ -59,7 +59,13 @@ including orphan tombstones for pending old batches. New inference filters
 those fragments out of old staged windows. Immutable accepted batches keep
 their existing replay identity and cannot restore removed source trust. This
 is per-recording evidence, never a claim to have censused unavailable histories.
-No new DDL is required; target release0.6.21 still needs the populated upgrade,
+Review M1 requires additive migration033: only a replacement supported solely
+by proven generated-origin tombstones loses its suppressive effect. Ordinary
+refutation/removal/expiry and genuinely supported replacement keep the existing
+no-revival rule. Inactive-source replay is review-only, with no new edge. The
+DB-backed preview must cover retained windows, accepted batches and known sources;
+remote export must separately cover pending SQLite outbox windows. The target
+release0.6.21 still needs the populated upgrade,
 backup/restore, independent review and final suite gates in T06812..14.
 
 Native observations remain separate from adapter tests. Manual Claude compact

@@ -14,7 +14,7 @@ version: 0.6.11
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
 - Target: 0.6.11/schema024; owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-10-30.
+- Last edited: 2026-11-01 (origin continuation remains draft).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -115,67 +115,162 @@ Keep prompts, recordings, tokens and unrestricted results out of public issues.
 
 ## 0.6.20 to 0.6.21: native source-origin gate (acceptance draft)
 
-Claude Code2.1.314 can store a generated compaction summary as a `user` message
-with `isCompactSummary:true`. API request mirrors and `isMeta` records are also
-host context. The corrected reader excludes these records from extraction and
-digests, while preserving raw recordings, original source IDs and old `mw1`
-cursor positions. This correction requires no schema migration beyond032.
+Older capture code can classify a native compaction summary or API mirror as
+user testimony. Keep every original recording and spool. Migration033 corrects
+current selection when a replacement's **only** sources have been proven to be
+generated host context. Ordinary refutation, removal and expiry still do not
+revive an older value. No assertion, edge or evidence quote is rewritten.
 
-Before restarting extraction, the deployment administrator must inventory every
-local miner, central worker, uploader, active client and retained recording/spool.
-Use the existing verified backup/independent restore procedure, then upgrade all
-capture/mining processes in a maintenance window. Keep workers and uploaders
-stopped until the following origin audit covers their retained recordings and
-accepted windows. Do not delete old buffers or recreate their session identities.
-Existing0.6.20 source-state predicates understand the resulting trust withdrawal.
+### O1: stop and inventory the existing installation
 
-The following paths, namespace and digest are intentional parameters. Run on
-the database host with its local operator configuration, not a client token.
-For a local recording the namespace is `session:<original-session-id>`; for a
-remote recording use its exact stored `svc1:<uploader-hash>:<session-hash>`.
-Never substitute another uploader's namespace or infer it from a user label.
+Inventory every local miner, central worker, uploader, direct DB client, active
+agent/MCP process and retained recording/spool. Stop capture, upload and mining
+on **every** listed host before the snapshot; retain that process list. Use the
+existing [verified backup and recovery procedure](../verification/issue58-service.md).
+Then install0.6.21 and run the public migration command on the DB host:
+
+```sh
+rag service --config /owned/operator.toml upgrade --source-version 0.6.20 \
+  --dump /owned/origin-pre-upgrade.dump --apply --writers-stopped
+```
+
+Expected: only `033_trusted_replacements.sql` applied, independent restore
+verified and original rows unchanged. An interrupted migration rolls back; use a
+new dump path for retry. Restart all listed Python/agent processes onto0.6.21
+before activation; reuse the per-environment process gate in
+[PB-067 B1](system/rag-067-extraction-policy.md#b1-mining-gate), expecting0.6.21.
+For editable installs or clock changes, restart unconditionally. Keep workers
+and uploaders stopped through O4. Unknown hosts or missing recordings block
+activation of their streams.
+
+### O2: export remote recordings and identify their exact namespaces
+
+For a local recording use `session:<original-session-id>`, never its filename.
+For a remote client, first list the stopped spool's `sources` rows on **that
+client host** with read-only SQLite. Replace `SPOOL`, `PARTITION`, `SESSION` and
+paths below with its inspected values; do not read or print its token.
+
+```sh
+python3 - SPOOL <<'PYLIST'
+import json, sqlite3, sys
+from pathlib import Path
+with sqlite3.connect(Path(sys.argv[1]).absolute().as_uri() + '?mode=ro', uri=True) as c:
+    rows = c.execute('SELECT partition,session,project,length(raw) bytes FROM sources ORDER BY partition,session').fetchall()
+print(json.dumps(rows))
+PYLIST
+```
+
+Export each selected row using the upgraded client Python environment. The
+exporter checks every pending local window, including blocked work, against the
+original bytes. It refuses missing prefixes, changed cursors or more than256
+pending windows. It never advances a cursor, acknowledges work or changes the
+spool. Both output paths must be new and inside an owner-only directory.
+
+```sh
+python3 - SPOOL PARTITION SESSION /owned/original.jsonl /owned/export.json <<'PYEXPORT'
+import sys
+from pathlib import Path
+from agentic_rag.source_origin import export_spool
+from agentic_rag.service.upgrade import private_json
+spool, partition, session, recording, report = sys.argv[1:]
+if Path(report).exists():
+    raise FileExistsError(report)
+result = export_spool(spool, partition, session, recording)
+private_json(report, result)
+PYEXPORT
+```
+
+Copy both private files unchanged to the DB host over the installation's
+existing SSH connection. Obtain namespaces from retained **server rows**, using
+its operator Python environment and configuration:
+
+```sh
+python3 - /owned/operator.toml /owned/streams.json <<'PYSTREAMS'
+import sys
+from pathlib import Path
+from agentic_rag import db
+from agentic_rag.config import load_config
+from agentic_rag.service.upgrade import private_json
+cfg = load_config(Path(sys.argv[1]))
+if cfg.service_mode == 'client':
+    raise ValueError('local operator config required')
+with db.connect(cfg) as c:
+    c.execute('SET TRANSACTION READ ONLY')
+    rows = [dict(r) for r in c.execute("SELECT session_id,owner_namespace,project,payload->>'session_id' client_session,count(*) windows FROM service_windows GROUP BY session_id,owner_namespace,project,payload->>'session_id' ORDER BY session_id LIMIT 1001")]
+if len(rows) > 1000:
+    raise ValueError('stream inventory overflow; keep uploaders stopped')
+private_json(sys.argv[2], rows)
+PYSTREAMS
+```
+
+Match `client_session` and `project` to `export.json`, and verify the enrolled
+uploader against the operator's client inventory. Use that row's **complete
+`session_id`** as the namespace; it starts with `svc1:`. Multiple matches require
+resolving the uploader; never pick one by a user label. An entirely offline
+stream has no server row: retain its spool and keep it stopped until the
+administrator explicitly identifies its enrollment and obtains a complete
+server-side inventory. This procedure does not guess a namespace.
+
+### O3: preview and quarantine each covered stream
+
+Run on the DB host with its local operator configuration. For remote work,
+replace the example namespace with the exact O2 `session_id`.
 
 ```sh
 rag service --config /owned/operator.toml source-origin \
-  --transcript /owned/original-session.jsonl \
-  --namespace 'session:original-session-id' --output /owned/origin-preview.json
+  --transcript /owned/original.jsonl --namespace 'session:original-session-id' \
+  --output /owned/origin-preview.json
 ```
 
-Inspect `generated_sources` and retain the private report's `recording_sha256`.
-This is a read-only preview. Confirm the original recording is complete and
-regular; incomplete, malformed, oversized or nonregular input is refused.
-After confirming the maintenance window and retaining the verified backup:
+Expected: `ready:true`, no `metadata_conflicts`, `uncovered_source_keys` or
+uncovered windows/batches, and `overflow:false`. The preview reads current DB
+state and changes nothing. It checks all retained windows of that stream, all
+accepted batches and every existing source identity against the recording.
+Compare the DB windows with the O2 inventory; `export.json` separately proves
+the stopped client's unacknowledged windows. Retain both reports and their
+matching `recording_sha256`. A green preview is bounded to this recording and
+namespace, not a census of other clients or unavailable histories.
 
 ```sh
 rag service --config /owned/operator.toml source-origin \
-  --transcript /owned/original-session.jsonl \
-  --namespace 'session:original-session-id' --output /owned/origin-applied.json \
-  --apply --writers-stopped --expected-sha256 '<recording_sha256 from preview>'
+  --transcript /owned/original.jsonl --namespace 'session:original-session-id' \
+  --output /owned/origin-applied.json --apply --writers-stopped \
+  --expected-sha256 '<recording_sha256 from preview>'
 ```
 
-The audited gateway marks only exact generated source identities `removed`.
-It also creates removed source tombstones for pending old batches. Original
-documents, quotes, source roles, queued envelopes and accepted batches remain.
-New inference filters these proven generated fragments out of old staged
-windows; already accepted batches replay without another provider call and
-cannot reactivate a tombstoned source. A claim with another valid independent
-source can remain eligible. Check affected claims with `rag evidence show` and
-their decisions with `rag evidence history --source` through a readable document.
+The gateway withdraws only proven generated sources, including tombstones for
+old batches. Accepted batches retain their replay identity and make no second
+provider call; assertions backed by an already inactive source enter `review`
+and create no replacement edge. New inference excludes quarantined fragments.
+An independently supported assertion can remain eligible.
 
-An interrupted audit is atomic. Retry with the same digest and a new report
-path; already inactive sources produce no duplicate source-state audit. A
-metadata conflict, missing/rewritten recording or uncertain namespace blocks
-activation for that stream. Preserve it for operator review: this command
-covers only the provided complete recording and explicit namespace, not a
-global census or unknown historical formats. Keep uncovered streams stopped.
-Before activation rehearse pending-window replay and the independent restore
-on an owned populated copy, and verify original-row and permission inventories.
+### O4: verify before restarting
 
-For code recovery retain032 and all removed sources. Returning to0.6.20 can
-misclassify newly generated records again: keep extraction stopped until the
-corrected capture/mining code is restored. Restoring the pre-upgrade backup
-also restores its old trust state and loses later writes; it requires another
-origin audit and the existing explicit restore/cutover procedure.
+Inspect `affected_claims` and `temporal_dependents` in the apply report. Compare
+`eligible_before` with `eligible_after`: a previously hidden original can
+resurface only through the migration033 exception above and its own truth/scope
+gates. Supersession with genuine independent evidence stays authoritative.
+Use each reported `document_id` or slug with `rag evidence show`. Use
+`generated_source_keys` (not `generated_source_ids`) for
+`rag evidence history DOCUMENT --source SOURCE_KEY`; retain the private history.
+Then rehearse pending-window replay on the owned populated copy, verify no
+second provider call for accepted work, and compare original rows and permissions
+against the migration inventory. Restart only the covered, upgraded streams.
+
+A metadata or coverage conflict refuses apply before any source write. Repair
+only by obtaining the correct original recording/enrollment; do not edit JSONL,
+split it with renumbered lines, clear queues or reset session IDs. Atomic audit
+failure can be retried with the same digest and a new output path. Already
+inactive sources produce no duplicate source-state audit. More than256 retained
+windows/batches/affected claims or64MiB of recording, or more than4096 generated
+records, is outside this bounded procedure: preserve it and keep that stream
+stopped for an explicit larger-history recovery plan.
+
+For code recovery retain033 and removed sources.0.6.20 can read the corrected
+predicate but can misclassify new host records and accept removed-source
+replacements: keep capture/mining stopped until0.6.21 is restored. Restoring the
+pre-upgrade backup also restores old trust and loses later writes; repeat this
+origin gate after the existing explicit restore/cutover procedure.
 
 ## Completion and maintenance
 

@@ -174,3 +174,136 @@ def test_origin_reader_refuses_nonregular_and_incomplete_recordings(tmp_path):
     incomplete.write_bytes(b'{"type":"user"}')
     with pytest.raises(ValueError, match='incomplete_recording'):
         scan(incomplete)
+
+
+@pytest.mark.parametrize('applied_before', [True, False])
+def test_quarantined_replacement_never_suppresses_original_on_apply_or_replay(
+        conn, cfg, tmp_path, monkeypatch, applied_before):
+    # Missing eligibility in the newer-assertion SQL or accepting a removed
+    # source on replay must both fail this real mining/gateway regression.
+    from agentic_rag import mining, source_origin
+    from agentic_rag.mining_window import MiningWindow
+    path, sources = recording(tmp_path)
+    records = [json.loads(line) for line in path.read_bytes().splitlines()]
+    records[1]['message']['content'] = 'Sensor mode is now red.'
+    path.write_bytes(b''.join(json.dumps(item).encode() + b'\n' for item in records))
+    sources[1]['quote'] = 'Sensor mode is now red.'
+    sources[1]['source_id'] = '1:' + hashlib.sha256(path.read_bytes()).hexdigest()
+    events = tuple({'source_id': s['source_id'], 'role': 'user',
+                    'text': '[user] ' + s['quote'], 'timestamp': s['timestamp'],
+                    'offset': 0, 'complete': True} for s in sources)
+    window = MiningWindow('\n'.join(e['text'] for e in events), 'end', events=events)
+    calls = []
+    output = {'assertions': [
+        {'entity': 'sensor', 'attribute': 'mode', 'value': value,
+         'domain': 'general', 'source_id': source['source_id'],
+         'quote': source['quote'], 'event_at': source['timestamp'],
+         'expires_at': None, 'relation': relation}
+        for source, value, relation in zip(sources, ['blue', 'red'], ['assertion', 'replacement'])]}
+    monkeypatch.setattr(mining, 'run_structured', lambda *a, **k: calls.append(1) or output)
+    args = dict(session_id='old-native', transcript_path='', last_uuid=None,
+                project='/synthetic/origin', provided_window=window)
+    def interrupted():
+        raise RuntimeError('accepted but not applied')
+    if applied_before:
+        mining.mine_session(conn, cfg, **args)
+        assert conn.execute("SELECT disposition FROM fact_assertions WHERE value='red'").fetchone()['disposition'] == 'accepted'
+    else:
+        with pytest.raises(RuntimeError, match='accepted but not applied'):
+            mining.mine_session(conn, cfg, **args, before_apply=interrupted)
+    before = conn.execute('SELECT id,body,provenance FROM documents ORDER BY id').fetchall()
+    source_origin.audit(cfg, path, 'session:old-native', apply=True, writers_stopped=True,
+                        expected_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    if not applied_before:
+        mining.mine_session(conn, cfg, **args)
+    rows = {r['value']: r for r in conn.execute(
+        'SELECT value,disposition,assertion_eligible(document_id) eligible FROM fact_assertions')}
+    assert rows['blue']['eligible'] is True
+    assert rows['red']['eligible'] is False
+    assert len(calls) == 1
+    if applied_before:
+        assert conn.execute('SELECT id,body,provenance FROM documents ORDER BY id').fetchall() == before
+        assert conn.execute("SELECT count(*) n FROM edges WHERE predicate='supersedes'").fetchone()['n'] == 1
+    else:
+        assert rows['red']['disposition'] == 'review'
+        assert conn.execute("SELECT count(*) n FROM edges WHERE predicate='supersedes'").fetchone()['n'] == 0
+
+
+def test_origin_preview_checks_database_conflicts_and_reports_source_keys(conn, cfg, tmp_path):
+    # A file-only preview would miss the conflict until the apply maintenance window.
+    from agentic_rag.source_origin import audit
+    path, sources = recording(tmp_path)
+    bad = {**sources[1], 'timestamp': '2026-11-01T01:00:00Z'}
+    doc = save(conn, cfg, bad, 'Conflicting source time')
+    preview = audit(cfg, path, 'session:old-native')
+    key = evidence.sources(conn, doc.doc_id)[0]['source_key']
+    assert preview['ready'] is False
+    assert preview['metadata_conflicts'] == [key]
+    assert preview['generated_source_keys'] == [key]
+    assert preview['affected_claims'][0]['document_id'] == doc.doc_id
+    assert evidence.sources(conn, doc.doc_id)[0]['state'] == 'active'
+
+
+def test_origin_never_revives_replacement_with_independent_refuted_evidence(conn, cfg, tmp_path):
+    from agentic_rag import source_origin, validity
+    path, sources = recording(tmp_path)
+    args = dict(entity='sensor', attribute='mode', domain='general', project='/synthetic/origin')
+    original = store.save_assertion(conn, cfg, **args, value='blue', event_at=sources[0]['timestamp'],
+        evidence={**sources[0], 'event_at': sources[0]['timestamp']})
+    replacement = store.save_assertion(conn, cfg, **args, value='red', relation='replacement',
+        event_at=sources[1]['timestamp'], evidence={**sources[1], 'event_at': sources[1]['timestamp']})
+    validity.retain_source(conn, replacement.doc_id,
+        {'source_id': 'independent', 'namespace': 'session:other', 'role': 'user',
+         'quote': 'mode is red', 'complete': True}, 'cli')
+    conn.commit()
+    source_origin.audit(cfg, path, 'session:old-native', apply=True, writers_stopped=True,
+                        expected_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    assert conn.execute('SELECT assertion_eligible(%s) e', (replacement.doc_id,)).fetchone()['e']
+    independent = next(s for s in evidence.sources(conn, replacement.doc_id) if s['source_id'] == 'independent')
+    evidence.source_state(conn, independent['source_key'], state='refuted', reason='genuine correction')
+    assert not conn.execute('SELECT assertion_eligible(%s) e', (original.doc_id,)).fetchone()['e']
+    assert not conn.execute('SELECT assertion_eligible(%s) e', (replacement.doc_id,)).fetchone()['e']
+
+
+def test_duplicate_assertion_does_not_invert_attachment_source_lock_order(conn, cfg):
+    # Taking the source lock before the existing claim lock deadlocks a replay
+    # against a concurrent ordinary attachment of that very source.
+    import concurrent.futures
+    import queue
+    import time
+    from agentic_rag import db
+    args = dict(entity='sensor', attribute='port', value='blue',
+                event_at='2026-11-01T00:00:00Z', domain='general', project='/synthetic/origin',
+                evidence={'namespace': 'session:lock-order', 'source_id': 'one',
+                          'role': 'user', 'quote': 'blue', 'complete': True})
+    original = store.save_assertion(conn, cfg, **args)
+    ready = queue.Queue()
+    def duplicate():
+        with db.connect(cfg) as other:
+            other.execute("SET LOCAL lock_timeout='3000ms'")
+            ready.put(other.info.backend_pid)
+            return store.save_assertion(other, cfg, **args).duplicate
+    with db.connect(cfg) as attachment:
+        attachment.execute("SET LOCAL lock_timeout='500ms'")
+        attachment.execute('SELECT document_id FROM claim_records WHERE document_id=%s FOR UPDATE',
+                           (original.doc_id,))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(duplicate)
+            pid = ready.get(timeout=3)
+            blocked = False
+            with db.connect(cfg) as observer:
+                for _ in range(100):
+                    observer.execute('SELECT pg_stat_clear_snapshot()')
+                    row = observer.execute('SELECT wait_event_type FROM pg_stat_activity WHERE pid=%s', (pid,)).fetchone()
+                    observer.commit()
+                    if row and row['wait_event_type'] == 'Lock':
+                        blocked = True
+                        break
+                    time.sleep(.01)
+            try:
+                assert blocked
+                evidence.attach(attachment, original.doc_id, [{**args['evidence'], 'timestamp': None}], 'cli')
+                attachment.commit()
+            finally:
+                attachment.rollback()
+            assert future.result(timeout=5) is True

@@ -1,6 +1,7 @@
 """Previewable native packaging with content ownership and retained recovery records."""
 from __future__ import annotations
 import hashlib
+from importlib.metadata import version
 import json
 import os
 from pathlib import Path
@@ -30,7 +31,7 @@ def files(host, *, python=None, config=None, read_only=False):
         'timeout':3000 if host=='gemini' else 3}]}] for event in events}
     mcp={'command':python,'args':['-m','agentic_rag.plugins.mcp']+(['--read-only'] if read_only else []),
          **({'env':{'AGENTIC_RAG_CONFIG':str(Path(config).absolute())}} if config else {})}
-    manifest={'name':'agentic-rag','version':'0.6.12','description':'Source-backed knowledge, durable compaction handoffs and bounded queued tools.'}
+    manifest={'name':'agentic-rag','version':version('agentic-rag'),'description':'Source-backed knowledge, durable compaction handoffs and bounded queued tools.'}
     result={'hooks/hooks.json':_json({'hooks':{} if read_only else hooks})}
     if host=='gemini':
         manifest['mcpServers']={'agentic-rag':mcp}

@@ -196,7 +196,7 @@ def test_populated_0_6_17_upgrade_retry_old_code_recovery_and_restore_limits(tmp
         started = time.perf_counter()
         changed = upgrade.local_upgrade(cfg, '0.6.17', tmp_path / 'upgrade.dump', apply=True, writers_stopped=True)
         report['upgrade_seconds'] = round(time.perf_counter() - started, 2)
-        assert changed['migrations_applied'] == ['030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
+        assert changed['migrations_applied'] == ['030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         assert upgrade.verify_preserved(cfg, original)['unchanged']
         retry = upgrade.local_upgrade(cfg, '0.6.17', tmp_path / 'retry.dump', apply=True, writers_stopped=True)
@@ -353,7 +353,7 @@ def test_operator_cli_and_central_service_on_populated_0_6_17(tmp_path, monkeypa
             outputs[name] = json.loads(capsys.readouterr().out)
         assert outputs['preflight']['ready'] and outputs['preflight']['inventory']['supported']
         assert outputs['plan']['applied'] is False
-        assert outputs['upgrade']['migrations_applied'] == ['030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
+        assert outputs['upgrade']['migrations_applied'] == ['030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert outputs['upgrade']['restore_verified'] and outputs['upgrade']['original_rows_unchanged']
         assert outputs['retry']['migrations_applied'] == []
         assert synthesis_counts(cfg) == dict.fromkeys(synthesis_counts(cfg), 0)

@@ -222,3 +222,38 @@ attachment, scoped service-writer attachment, wrong digest/stopped-writer gate,
 provider exclusion for old staged windows, and an injected audit failure with
 zero surviving source/history rows. Inference is mocked at its provider boundary;
 this is not a fresh full suite, independent review or production rollout.
+
+
+## RAG-068-A1 origin corrections (provisional, 2026-11-01)
+
+The source-origin review at `f8d69a6` found M1 and two Important operational
+gaps. The correction adds migration033 without changing published001–032:
+only replacements supported solely by proven generated-origin tombstones lose
+their suppressive effect. Ordinary refutation/removal/expiry keep the no-revival
+rule. Replayed assertions with an inactive source are review-only. The source
+lock follows an existing duplicate claim lock; a two-connection regression
+reproduced the inverted order before the fix.
+
+The bounded selection passed89 targeted tests in41.45s. This includes the
+actual archived0.6.20 code populating schema032, an interrupted033 migration,
+retry, preservation checks and real independent pre-/post-migration restores;
+remote-window coverage and unchanged SQLite raw export; the literal O2 Python
+snippets; current-fact no-revival regressions; and native package update/recovery.
+Native manifests now advertise the installed Python distribution version rather
+than the old fixed0.6.12. These are targeted proofs, not a full-suite result.
+
+The first attempted SQL correction checked general replacement eligibility;
+`test_temporal_source_refutation_does_not_revive_old_value` rejected that broad
+behavior. The published correction deliberately keeps normal no-revival and
+adds a regression with both generated and independently refuted real evidence.
+The first new replacement fixture lacked explicit replacement wording; that
+initial failure was a fixture error. The corrected blue/red regression then
+failed for the actual current-fact defect in both applied and pending cases.
+
+PB O1–O4 remains an acceptance draft pending independent correction review.
+The release is still an intermediate0.6.20 package; bumping all release references
+to0.6.21 and accepting its current-backup label remain delivery tasks. Native
+automatic compaction/online ACK, the reference latency/resource acceptance,
+full Python/Node/build/lock gates and production rollout are not proved here.
+Writing depth: small, one focused correction within this existing evidence page
+and its linked playbook; no documentation-set restructure.

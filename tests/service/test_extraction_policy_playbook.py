@@ -149,7 +149,7 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
         assert operator('preflight', '--source-version', '0.6.19', '--mode', 'local')['ready'] is True
         a4 = operator('upgrade', '--source-version', '0.6.19', '--dump', str(proofs / 'policy032.dump'),
                       '--apply', '--writers-stopped')
-        assert a4['migrations_applied'] == ['032_extraction_policy.sql']
+        assert a4['migrations_applied'] == ['032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert a4['restore_verified'] and a4['original_rows_unchanged']
         assert (proofs / 'policy032.dump.manifest.json').exists()
         a5 = operator('upgrade', '--source-version', '0.6.19', '--dump', str(proofs / 'retry.dump'),

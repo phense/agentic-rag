@@ -142,7 +142,7 @@ def test_pb066_upgrade_decide_refuse_correct_and_restore(tmp_path, monkeypatch, 
         assert operator('preflight', '--source-version', '0.6.18', '--mode', 'local')['ready'] is True
         a4 = operator('upgrade', '--source-version', '0.6.18', '--dump', str(proofs / 'lifecycle031.dump'),
                       '--apply', '--writers-stopped')
-        assert a4['migrations_applied'] == ['031_memory_lifecycle.sql', '032_extraction_policy.sql']
+        assert a4['migrations_applied'] == ['031_memory_lifecycle.sql', '032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert a4['restore_verified'] and a4['original_rows_unchanged']
         assert (proofs / 'lifecycle031.dump.manifest.json').exists()
         a5 = operator('upgrade', '--source-version', '0.6.18', '--dump', str(proofs / 'retry.dump'),

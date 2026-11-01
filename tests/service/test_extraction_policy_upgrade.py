@@ -242,7 +242,7 @@ def test_populated_0_6_19_upgrade_old_work_old_code_and_recovery(tmp_path, monke
         started = time.perf_counter()
         changed = upgrade.local_upgrade(cfg, '0.6.19', tmp_path / 'upgrade.dump', apply=True, writers_stopped=True)
         report['upgrade_seconds'] = round(time.perf_counter() - started, 2)
-        assert changed['migrations_applied'] == ['032_extraction_policy.sql']
+        assert changed['migrations_applied'] == ['032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         assert upgrade.verify_preserved(cfg, original)['unchanged']
         retry = upgrade.local_upgrade(cfg, '0.6.19', tmp_path / 'retry.dump', apply=True, writers_stopped=True)
