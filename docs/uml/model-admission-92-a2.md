@@ -1,10 +1,12 @@
 # Issue92 A2: optional background embedding isolation
 
 Purpose: reconcile the admission and identity boundaries changed by A2 with
-the implemented runtime. Source: runtime919cf0b, independent post-B3 review at2d8b79c,
+the implemented runtime. Sources: runtime919cf0b plus client correction41583cb,
+independent S06808 correction review at4828f1a and post-B3 review at2d8b79c,
 `docs/specs/6-10-agent-plugins/plan.md` A2. Requirements FR04..08, AC02/04/05.
 Date2026-11-01. Mode: as-built reconciliation after S06808 implementation.
-Independent integration review and actual-client acceptance remain pending. Mermaid source inspected
+Independent simulated-model integration and client correction are accepted;
+physical L2/L3 recovery and actual-client load acceptance remain pending. Mermaid source inspected
 semantically; not rendered. The absence of a renderer is not a runtime result.
 
 ```mermaid
@@ -64,7 +66,7 @@ Prove these through real client/queue/worker/SQL components, not diagram asserti
 
 ## As-built evidence and differences
 
-At919cf0b, `config.py` validates the optional lane settings and consumer count;
+At919cf0b (unchanged by41583cb), `config.py` validates the optional lane settings and consumer count;
 `requests.check_consumers` enforces the pool reserve before starting consumers.
 `embed.embed_texts` selects the lane only for a fenced central background call,
 `priority.model_slot` chooses its distinct advisory lock, and `_lane_embed`
@@ -72,7 +74,9 @@ checks both endpoints before and after inference. The gateway, worker authority,
 primary reuse identity and managed-profile route are unchanged.
 
 `client.RemoteClient` retains the durable envelope across pre-ACK retries and
-uses bounded server hints after ACK. Oversized integers, non-finite numbers and
+uses bounded server hints after ACK. Since41583cb, each valid hint also resets
+the fallback delay to the configured polling floor; interleaved429 responses
+therefore do not retain an earlier exponential delay. Oversized integers, non-finite numbers and
 non-numeric hints take the exponential fallback. Two small refinements preserve
 the retained handle: a permanent post-ACK4xx returns immediately, and the final
 10ms of the deadline do not cause an additional near-zero wait and poll.
@@ -81,5 +85,8 @@ The coordinator's source-bound seven-file selection at919cf0b passed151 tests
 (exit0,71.73s), including the populated0.6.21 upgrade, interrupted retry,
 independent source/target restores, actual-client queue round trips, lane outage,
 digest changes, accepted-output replay and default-setting recovery. Model HTTP
-was simulated. Independent ACF092-A2-S/R acceptance, full-input physical parity,
-the final40-client run and the full suite remain separate open gates.
+was simulated. Independent ACF092-A2-S/R acceptance with simulated model HTTP
+and the client reset correction were accepted at20e2bd4 and4828f1a. Physical
+L0/L1 passed the three-input rehearsal on590400a. Physical L2/L3 recovery,
+full-input physical parity, the final40-client run and the full suite remain
+separate open gates.

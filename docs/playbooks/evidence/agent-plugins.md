@@ -896,5 +896,18 @@ expected a process flag; the corrected observer uses Ollama's thread journal.
 This is a partial rehearsal, not delivery acceptance. L2/L3 with real model
 daemons and actual API/worker restarts, the complete acceptance-input parity
 matrix,40-client scoped/correct lossless load below11s and final full suite
-remain open. Renewed independent correction review is also pending. Low080–084
+remain open. Low080–084
 are recorded in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6563006840).
+
+The correction review on `4828f1a` accepted the client fix and the earlier
+playbook findings, with no Critical, High or Medium code finding. Its own
+eight client cases passed, including a failing control against the old client.
+It found one new Important playbook gap: early setup failures and a stopped
+worker after recovery had no explicit restart path. The current correction
+adds a shared early-exit path, requires an active worker after recovery or
+rollback, and retains an explicit pause when the primary model is unverified.
+It also checks resident primary memory, maps listener ports to unit PIDs,
+guards installation before writing a unit and renews unit-input discovery
+after updates. These are documentation corrections; L2/L3 physical rehearsal
+and focused content recheck are still open. The focused documentation check
+passed17 tests (exit0,0.45s); no runtime, test or migration file changed.

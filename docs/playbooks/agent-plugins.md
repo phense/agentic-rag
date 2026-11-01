@@ -471,9 +471,18 @@ uses other unit names, record the mapping before executing any command. Use
 `127.0.0.1:11436` listener private; first require no output from
 `ss -ltn 'sport = :11436' -H`.
 Configuration rejects an identical URL string, but does not resolve aliases
-such as `localhost` and `127.0.0.1`. After starting, compare the two units'
-`MainPID` values (`systemctl show UNIT -p MainPID`) and listener ports; require
-different running processes at the two configured addresses.
+such as `localhost` and `127.0.0.1`. Step 5 checks the actual listeners.
+
+**Leaving setup early (L0/L1):** do not leave extraction stopped after an
+aborted setup. If the server configuration and verified primary model are
+unchanged, stop the new background unit if it was started, then run
+`sudo systemctl start agentic-rag-worker.service` and require
+`systemctl is-active agentic-rag-worker.service` to report `active`. The lane
+keys are still unset, so extraction uses the original primary path. If keys
+have already been added, use L3 rollback first. If the primary model or binary
+has changed and has not passed the required checks, keep extraction paused,
+record that outage explicitly and restore a verified primary installation
+before resuming. Every setup failure below returns through this path.
 
 1. Stop extraction in the authorized window with
    `sudo systemctl stop agentic-rag-worker.service`. Require
@@ -486,15 +495,21 @@ different running processes at the two configured addresses.
    this procedure: require a3.5s quota (`CPUQuotaPerSecUSec=3.500000s`
    in `systemctl show` output) and both memory values
    `2147483648` for that reference. If they differ, keep the lane off and
-   arrange a separately authorized primary-unit change and restart. Require
-   at least4GiB `MemAvailable` before starting the second daemon (`free -b`);
+   arrange a separately authorized primary-unit change and restart; leave
+   setup through the early-exit path above. Before checking memory, run
+   `curl -fsS http://127.0.0.1:11434/api/ps` and require the configured
+   `[embed] model` tag to be listed as loaded. If it is absent, defer setup
+   through the early-exit path rather than measuring an unloaded primary.
+   Require at least4GiB `MemAvailable` while that model remains loaded and
+   immediately before starting the second daemon (`free -b`);
    this reserves its2GiB limit plus2GiB for the remaining host. A different
    model or host needs its own sizing evidence.
 3. Resolve the four unit inputs from the running primary using this read-only
    command. It prints only the selected paths and account names. Require a
    non-root primary account, an existing model directory readable by that
    account, and the same Ollama binary for both daemons. If discovery fails,
-   keep extraction paused and resolve the installation before continuing.
+   leave through the early-exit path and resolve the installation before
+   attempting setup again.
 
 ```sh
 sudo python3 - <<'PYMODELUNIT'
@@ -536,16 +551,36 @@ known. Record the primary unit settings and memory sample with the rehearsal.
    `sudo -u MODEL_USER test -r MODEL_STORE` after replacing those two inputs.
    Review the rendered file, then run
    `systemd-analyze verify ./agentic-rag-ollama-background.service`.
-   On any error, stop here. Install only the reviewed file:
-   `sudo install -m 0644 ./agentic-rag-ollama-background.service /etc/systemd/system/agentic-rag-ollama-background.service`,
-   then `sudo systemctl daemon-reload`. Do not overwrite a pre-existing unit;
-   compare and resolve it before installation.
+   On any error, use the early-exit path. Before installation, require
+   `systemctl show agentic-rag-ollama-background.service -p LoadState --value`
+   to report `not-found` and require the destination to be absent (including
+   dangling symlinks). Otherwise stop and compare the existing unit and
+   drop-ins; do not overwrite them. Install only the reviewed file with the
+   same guards:
+
+   ```sh
+   test "$(systemctl show agentic-rag-ollama-background.service -p LoadState --value)" = not-found &&
+     test ! -e /etc/systemd/system/agentic-rag-ollama-background.service &&
+     test ! -L /etc/systemd/system/agentic-rag-ollama-background.service &&
+     sudo install -m 0644 ./agentic-rag-ollama-background.service /etc/systemd/system/agentic-rag-ollama-background.service
+   ```
+
+   Require exit0, then run `sudo systemctl daemon-reload`. An unsuccessful
+   install returns through the early-exit path.
 5. Start only the new daemon with
    `sudo systemctl start agentic-rag-ollama-background.service`. Require
    `curl -fsS http://127.0.0.1:11436/api/tags` to list the `[embed] model` tag.
    If it does not, run
    `sudo systemctl stop agentic-rag-ollama-background.service`, retain
-   `journalctl -u agentic-rag-ollama-background.service` and keep the lane off.
+   `journalctl -u agentic-rag-ollama-background.service` and use the early-exit
+   path. After a successful start, run
+   `sudo ss -ltnpH '( sport = :11434 or sport = :11436 )'` and
+   `systemctl show ollama.service agentic-rag-ollama-background.service -p Id -p MainPID`.
+   Require the listener PID at11434 to match the primary unit's `MainPID`,
+   and the PID at11436 to match the background unit's different `MainPID`.
+   Reject any alias or mapping that reaches the same process. Record these
+   ports and use this exact background address as `LANE_URL` in step 6 and
+   `background_url` in step 7. A failed mapping check uses the early-exit path.
 6. Run the identity and parity probe from the prepared0.6.22 environment while
    extraction remains paused. `SERVER_CONFIG` is the private server configuration,
    `LANE_URL` the background address, and the two thread values are the planned
@@ -596,7 +631,8 @@ PYPARITY
 ```
 
    Require exit0 and `identical: True`. Any other result keeps the lane off:
-   stop the background unit and keep the evidence. This probe covers three
+   stop the background unit, keep the evidence and use the early-exit path.
+   This probe covers three
    synthetic inputs; it does not replace the complete-input parity gate of the
    acceptance run.
 
@@ -631,20 +667,31 @@ PYPARITY
   invalid vectors) is still
   pending. Nothing was stored for it, its attempt was not used up and its
   accepted extraction is replayed without a second provider call. Restore the
-  daemon or digest and the worker resumes after its backoff.
+  daemon or digest. If step 9 stopped the worker, explicitly run
+  `sudo systemctl start agentic-rag-worker.service` and require
+  `systemctl is-active agentic-rag-worker.service` to report `active`.
+  A running worker retries the retained window after its backoff.
   An unreachable daemon during a tag lookup also reports
   `background_model_identity`; check reachability before treating it as a
   changed model. If L1 cannot be restored, use the rollback below.
 - To roll back, stop the worker, remove all four `[ollama]` lane and thread keys
   and `request_consumers` together (a background setting without
-  `background_url` stops configuration loading), restart every API process and
-  the worker, then stop the background unit. Jobs, receipts, caches and
+  `background_url` stops configuration loading), restart every API process
+  with `sudo systemctl restart agentic-rag-api.service`, then run
+  `sudo systemctl start agentic-rag-worker.service` and require
+  `systemctl is-active agentic-rag-worker.service` to report `active`.
+  Stop the background unit. Jobs, receipts, caches and
   knowledge are not deleted; work continues on the primary daemon.
 
 Before a model pull, model-tag replacement or Ollama binary upgrade, stop the
 worker as in L0 and stop `agentic-rag-ollama-background.service`. Perform the
 separately authorized update through the primary installation, then restart
-both model daemons and repeat L1's parity probe before restarting extraction.
+the primary daemon. Repeat L0 step 3 discovery and compare all four inputs
+with `systemctl cat agentic-rag-ollama-background.service` and the saved
+rendered unit. If any input differs, stage and verify a revised unit as in
+L1 step 4; retain and compare the existing file before its separately reviewed
+replacement. Restart the background daemon only after these inputs agree,
+then repeat L1's parity probe before restarting extraction.
 Require unchanged digests throughout that probe and `identical: True`; otherwise
 keep extraction paused and follow L3 rollback. Sharing a binary and model store
 can change both digests together: matching digests alone do not renew the
