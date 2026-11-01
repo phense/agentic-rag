@@ -12,6 +12,8 @@ from agentic_rag import db, query_cache
 from agentic_rag.benchmark.database import isolated_database
 from agentic_rag.config import Config
 from agentic_rag.service import upgrade
+from agentic_rag.service.auth import Principal
+from agentic_rag.service.context import RequestScope, apply_connection
 from agentic_rag.service.schema import validate_schema
 
 SOURCE = '64f2104d7e8b542dbfb72c6fbb40196364afdc95'
@@ -67,7 +69,24 @@ def function_privileges(cfg):
             pg_get_function_identity_arguments(oid) arguments
             FROM pg_proc WHERE proname=ANY(%s) ORDER BY proname""", ([
                 'hybrid_search_candidates', 'hybrid_search_candidates_planned',
-                'contextual_search_candidates', 'contextual_search_candidates_planned'],)).fetchall()
+                'contextual_search_candidates', 'contextual_search_candidates_planned',
+                'rag_service_source_write'],)).fetchall()
+
+
+def assert_source_permissions_on_reused_connection(cfg):
+    with db.connect(cfg) as owner:
+        source = owner.execute("SELECT source_key,namespace FROM knowledge_sources WHERE namespace='session:lexical-general'").fetchone()
+        assert source is not None
+    with db.connect(cfg, role='reader') as conn:
+        for _ in range(12):
+            for domain, project, allowed in [('general', '/synthetic/a', True),
+                                             ('operations', '/synthetic/b', False)]:
+                who = Principal('restored-writer', 'owned', 'test', frozenset({domain}),
+                                frozenset({domain}), frozenset({project}), frozenset({project}))
+                apply_connection(conn, RequestScope(who, cfg, False))
+                actual = conn.execute('SELECT public.rag_service_source_write(%s,%s) ok',
+                                      (source['source_key'], source['namespace'])).fetchone()['ok']
+                assert actual is allowed
 
 
 def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path, monkeypatch):
@@ -96,7 +115,9 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
             return json.loads(result.stdout)
         old_results = old_read()
         privileges = function_privileges(cfg)
-        assert len(privileges) == 4 and not any(row['prosecdef'] or row['proleakproof'] for row in privileges)
+        assert len(privileges) == 5
+        assert {row['proname'] for row in privileges if row['prosecdef']} == {'rag_service_source_write'}
+        assert not any(row['proleakproof'] for row in privileges)
         before = upgrade.inventory(cfg, '0.6.21', identities=True)
         real_apply = db.apply_migrations
         def interrupted(*args, **kwargs):
@@ -121,11 +142,16 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
             owner.execute("SELECT '[1]'::halfvec")
             iterative = owner.execute("SELECT EXISTS(SELECT 1 FROM pg_settings WHERE name='hnsw.iterative_scan') available").fetchone()['available']
         for row in privileges:
-            settings = (row['proconfig'] or []) + ['jit=off']
+            settings = row['proconfig'] or []
+            if row['proname'] == 'rag_service_source_write':
+                expected_privileges.append(row)
+                continue
+            settings = settings + ['jit=off']
             if not row['proname'].endswith('_planned'):
                 settings += ['hnsw.iterative_scan=strict_order'] if iterative else []
             expected_privileges.append(row | {'proconfig': settings})
         assert function_privileges(cfg) == expected_privileges
+        assert_source_permissions_on_reused_connection(cfg)
         assert old_read() == old_results  # Genuine archived0.6.21 with schema034.
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         with db.connect(cfg) as c:
@@ -199,6 +225,9 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                                                              verification_template=template.db_name)
                             assert target['restore_verified']
                             assert target['manifest']['identity']['owner'] == role
+                            target_privileges = [{k: v for k, v in row.items() if k != 'oid'}
+                                                 for row in function_privileges(cfg)]
+                            assert_source_permissions_on_reused_connection(cfg)
                             with db.connect(cfg) as c:
                                 assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 34
                                 assert c.execute("SELECT count(*) n FROM mining_queue WHERE session_id='pending-lexical'").fetchone()['n'] == 1
@@ -207,6 +236,9 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                             with isolated_database(base, initialize=False, template=template.db_name) as restored:
                                 upgrade._restore_verification(cfg, restored, target['dump'], target['manifest'], prepared_template=True)
                                 assert upgrade.verify_preserved(restored, target['manifest'])['unchanged']
+                                assert [{k: v for k, v in row.items() if k != 'oid'}
+                                        for row in function_privileges(restored)] == target_privileges
+                                assert_source_permissions_on_reused_connection(restored)
                                 with db.connect(restored) as c:
                                     assert not c.execute('SELECT rolsuper FROM pg_roles WHERE rolname=current_user').fetchone()['rolsuper']
                                     assert c.execute("SELECT count(*) n FROM hybrid_search_candidates('blue')").fetchone()['n'] > 0

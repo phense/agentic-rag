@@ -296,8 +296,9 @@ origin gate after the existing explicit restore/cutover procedure.
 ## 0.6.21 to 0.6.22 lexical-search upgrade
 
 This step is independent of source-origin quarantine. Migration034 replaces
-four SQL search functions atomically; it changes no original rows, vectors,
-scopes, grants, installation configuration or wire fields. Its retrieval-local
+four SQL search functions and the existing source-write permission helper
+atomically. It changes no original rows, vectors, scopes, grants, installation
+configuration or wire fields. Its retrieval-local
 `jit=off` setting bounds compilation cost and is restored automatically on return;
 raw/contextual vector gates keep eligibility before ranking and limits. On
 pgvector0.8+ they continue the ANN scan past filtered neighbours. An incomplete
@@ -349,6 +350,14 @@ reconfigure them. Do not edit migration history to enable that optimization.
    a target backup with `rag service --config SERVER_CONFIG verified-backup --source-version 0.6.22 --output AFTER_DUMP`.
    For a restricted owner, append `--verification-template TEMPLATE` here too.
    Require its independent restore to succeed before retiring the old runtime.
+
+The source-write helper reuses its execution plan, while checking current
+permissions and every dependent document on each call. Its owner, grants and
+fixed search path remain unchanged. The populated rehearsal also checks scoped
+source permission changes on a reused connection after the upgrade and after
+restoring the target under a non-superuser owner. The bounded diagnostic and
+characterization results are in [source-permission plan reuse](../benchmarks/2026-11-01-lexical-eligibility/source-permission-plan-reuse.json);
+they do not establish the 40-client latency target.
 
 The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine
 archived0.6.21 creates the store, an injected interruption rolls back034, retry

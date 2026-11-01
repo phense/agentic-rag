@@ -377,3 +377,23 @@ BEGIN
    END IF;
  END LOOP;
 END $capability$;
+
+
+-- RAG-092: reuse the source-write predicate's execution plan, not its result.
+-- SQL SECURITY DEFINER reparsed this helper for each evidence-source lookup.
+-- The complete predicate is unchanged, including NULL and all-dependent gates.
+-- CREATE OR REPLACE retains owner and ACL; published migration021 is untouched.
+CREATE OR REPLACE FUNCTION public.rag_service_source_write(p_key text,p_namespace text)
+RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER
+SET search_path=pg_catalog,public,pg_temp AS $source_permission_plan$
+BEGIN
+ RETURN (
+SELECT NOT public.rag_service_active() OR (
+   NOT EXISTS(SELECT 1 FROM public.claim_evidence e JOIN public.documents d ON d.id=e.document_id
+    WHERE e.source_key=p_key AND NOT public.rag_service_document(d.domain,d.project_scope,true))
+   AND (public.rag_service_session(p_namespace) OR EXISTS(
+    SELECT 1 FROM public.claim_evidence e JOIN public.documents d ON d.id=e.document_id
+    WHERE e.source_key=p_key AND public.rag_service_document(d.domain,d.project_scope,true))))
+ );
+END
+$source_permission_plan$;
