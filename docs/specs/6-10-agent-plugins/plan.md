@@ -90,7 +90,7 @@ All production cutover gates remain.
 
 Status: conditional design, pending E-LANE-1. Runtime5667ee7 is unchanged. This
 amendment supersedes the fixed-consumer/shared-runner decisions above only when
-its optional configuration is selected. The10s AC05 target and4-vCPU/8-GiB
+its optional configuration is selected. The revised strictly <11s AC05 target and4-vCPU/8-GiB
 reference remain binding; no consumer, thread or model-lane setting is adopted
 by a diagnostic result alone. Owner: coordinator, one cohesive implementation
 slice after the experiment and architecture gate. Model and originals stay intact.
@@ -151,6 +151,13 @@ limits; do not create a duplicate Low issue merely for unimplemented-design risk
   Deliver these before lane activation; no production activation in this work.
 
 ### E-LANE-1: falsify before implementation
+
+The original experiment below froze the then-current <=10s boundary. Preserve
+that protocol and its failed numerical gates. The maintainer subsequently
+changed AC05 to strictly <11s; future acceptance uses the new boundary, with a
+separate reassessment of existing observations. B3 meets the revised numerical
+boundary but remains a diagnostic shim, not final-runtime or actual-client
+acceptance. See [the target disposition](../../benchmarks/2026-11-01-lexical-eligibility/latency-target-11s-disposition.json).
 
 Freeze controller/protocol hashes before execution. All processes are owned
 copies on the same reference. Never send copied private inputs to any model.

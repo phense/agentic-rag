@@ -69,8 +69,9 @@ remain compatible, full suite and applicable Node tests pass; independent review
 leaves no Critical/High/Medium defect, Low findings append to75.
 AC05: Real4-vCPU/8-GiB copy measures interactive p50/p95 and background progress,
 CPU/PSS/model residency/disk/backlogs under20–40clients; no throughput/SLA invention.
-Maintainer clarification2026-11-01: before Issue68/92 closure, successful search
-end-to-end p95 must be <=10seconds, including admission, queueing, execution and
+Maintainer revision2026-11-01: the earlier <=10-second target is superseded.
+Before Issue68/92 closure, successful search
+end-to-end p95 must be strictly <11seconds, including admission, queueing, execution and
 client observation, with40 active clients and background extraction enabled on
 that reference class. Preserve the existing mixed-tool workload and distinct
 queries; report each contended phase separately, failures and eventual lossless

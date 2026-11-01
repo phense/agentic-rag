@@ -68,20 +68,22 @@ and accepted extraction batches must replay without data rewriting. These are
 repairs to the existing ordering/admission contract, not new public options.
 
 
-## Convergence 3: maintainer10-second search target
+## Convergence 3: maintainer search target, revised to strictly <11seconds
 
 On2026-11-01 the maintainer rejected accepting r3's approximately60-second
-search p95 or deferring latency to another issue. The target is end-to-end
-successful-search p95 <=10seconds at40 active clients with extraction enabled
-on the existing4-vCPU/8-GiB reference. Keep68/92 open until measured acceptance.
+search p95 or deferring latency to another issue, initially requiring <=10seconds.
+The later explicit revision is end-to-end successful-search p95 strictly
+<11seconds at40 active clients with extraction enabled on the existing4-vCPU/8-GiB
+reference. Preserve earlier protocol thresholds and failed results as historical
+evidence; assess the new boundary separately. Keep68/92 open until measured acceptance.
 The stopped full4 on `0ec0ab1` is superseded, not passed (SIGTERM, exit-15,
 all1,330 tracked files and HEAD unchanged).
 
 ### Slice S06807: bounded compilation and vector work
 
-- [ ] T06819 [FR06/07, AC05, Issue92] Freeze and independently attribute remaining query cost on the owned reference. Retain the failed/no-result older runs. Separate model, query and queue costs; record the10-second target before changing code. No provider calls on copied private data.
+- [ ] T06819 [FR06/07, AC05, Issue92] Freeze and independently attribute remaining query cost on the owned reference. Retain the failed/no-result older runs and their original10-second protocols. Separate model, query and queue costs; record the revised strictly <11-second target before further changes. No provider calls on copied private data.
 - [ ] T06820 [FR04/07/08, AC02/04/05, Issue92] Add verified regression reds for generic vector-plan work. Preserve eligibility before ANN limits and exact full-response parity on the frozen fixtures. Bound retrieval compilation locally without leaking caller settings. Keep signatures, grants, source hashes, RLS and published001..033 unchanged. Rehearse the populated source upgrade, interruption/retry and independent restores with the final034 definition.
-- [ ] T06821 [FR06/07/09, AC01/05, Issue92] Repeat the same mixed-tool20/40-client reference phases, distinct queries and background contention with the final runtime. Require successful search total p95 <=10seconds in each40-client contended phase, report sample sizes/failures/resources/model identity, and verify lossless eventual drain. No faster error responses, disabled inference or weaker authorization count as acceptance.
+- [ ] T06821 [FR06/07/09, AC01/05, Issue92] Repeat the same mixed-tool20/40-client reference phases, distinct queries and background contention with the final runtime. Require successful search total p95 strictly <11seconds in each40-client contended phase, report sample sizes/failures/resources/model identity, and verify lossless eventual drain. No faster error responses, disabled inference or weaker authorization count as acceptance.
 - [ ] T06822 [FR08/09, AC01..05, Issue92] Reconcile the complete final bounded diff, architecture/upgrade evidence and independent0 C/H/M/Important review; run the final source-bound full suite and affected Node/build/lock/docs gates. Update T06811/T06818 only after actual acceptance; retain native12–14 and production cutover separately. Merge only after clean delivery gates under standing authorization.
 
 
