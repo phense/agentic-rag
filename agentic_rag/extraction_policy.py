@@ -139,7 +139,11 @@ class PolicyFile:
 class _Errors(list):
     def add(self, code, location):
         if len(self) < MAX_ERRORS:
-            self.append({'code': code, 'location': location})
+            from .secrets import strip_secrets
+            # Unknown TOML keys are user input too; errors may reach terminals/logs.
+            safe = strip_secrets(str(location))[0]
+            safe = _CONTROL.sub('?', safe).replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+            self.append({'code': code, 'location': safe[:160]})
 
 
 def _text(value, location, limit, errors):

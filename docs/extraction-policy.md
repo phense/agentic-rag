@@ -203,3 +203,9 @@ logs the error and admits nothing. No cursor is consumed in either case.
 - Policy changes never re-mine or rewrite stored knowledge.
 - The measured examples use a mock provider; they show enforcement and replay,
   not extraction quality ([benchmark](benchmarks/2026-11-01-extraction-policy/README.md)).
+
+Sample evaluation preserves line breaks and spacing for exact-quote grounding.
+Source identifiers must be bounded, secret-free strings, and timestamps must be
+valid optional ISO times. Invalid metadata is refused without echoing its value;
+recognized credentials in prose are redacted. Validation error locations are
+redacted and bounded too, including unknown quoted TOML keys.

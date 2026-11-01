@@ -107,3 +107,15 @@ schema, every earlier upgrade and playbook rehearsal, backup/restore, store,
 evidence and MCP): **626 passed, 0 failed, 1 known warning
 (`StarletteDeprecationWarning`), exit 0, 703.78 s** on PostgreSQL 17.10, port
 55460. The root full suite, Node, packaging and browser gates are pending at root.
+
+## Coordinator corrections before independent review
+
+At `115ea50` four new regression cases failed for two Medium boundary defects:
+CLI sample preparation collapsed exact source whitespace and forwarded secret-like
+source IDs/timestamps; validation error locations echoed unknown TOML keys even
+when they contained a recognizable credential. The coordinator preserves sample
+wording, validates sample metadata without echoing values, and redacts/bounds error
+locations. Four reds then **44 passed**, exit0 (safety, policy and public CLI
+suites),4.25s. Logs: owned `root-safety-red.log` / `root-safety-green.log` under
+`/dev/shm/rag67-20261101-tests/logs/`. These are targeted checks; full verification
+and independent acceptance remain pending.

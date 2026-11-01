@@ -150,6 +150,7 @@ def queued(cfg) -> dict:
 def _sample(path):
     from .mining_window import MiningWindow
     from .secrets import strip_secrets
+    from .validity import parse_time
     raw = Path(path).read_bytes()
     if len(raw) > MAX_SAMPLE_BYTES:
         raise Refused('sample_too_large')
@@ -163,14 +164,27 @@ def _sample(path):
     for index, item in enumerate(items):
         if not isinstance(item, dict) or item.get('role') not in ('user', 'assistant') or not isinstance(item.get('text'), str):
             raise Refused(f'invalid_sample: event {index} needs role user|assistant and text')
-        source = str(item.get('source_id') or f'sample-{index}')
+        source = item.get('source_id', f'sample-{index}')
+        timestamp = item.get('timestamp')
+        if (not isinstance(source, str) or not source or len(source) > 512
+                or any(ord(c) < 32 or ord(c) == 127 for c in source)
+                or strip_secrets(source)[1]):
+            raise Refused(f'invalid_sample: invalid source metadata at event {index}')
+        try:
+            if timestamp is not None:
+                if not isinstance(timestamp, str) or len(timestamp) > 128 or strip_secrets(timestamp)[1]:
+                    raise ValueError()
+                parse_time(timestamp)
+        except (ValueError, TypeError):
+            raise Refused(f'invalid_sample: invalid timestamp at event {index}') from None
         if source in seen:
             raise Refused(f'invalid_sample: duplicate source_id at event {index}')
         seen.add(source)
         body = item['text'][len(f"[{item['role']}] "):] if item['text'].startswith(f"[{item['role']}] ") else item['text']
-        clean, count = strip_secrets(' '.join(body.split()))
+        # Preserve source wording for exact-quote grounding, including whitespace.
+        clean, count = strip_secrets(body)
         redactions += count
-        events.append({'source_id': source, 'role': item['role'], 'timestamp': item.get('timestamp'),
+        events.append({'source_id': source, 'role': item['role'], 'timestamp': timestamp,
                        'text': f"[{item['role']}] {clean}", 'offset': 0, 'complete': True})
     text = '\n'.join(e['text'] for e in events)
     if len(text) > MAX_SAMPLE_CHARS:
