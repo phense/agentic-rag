@@ -668,3 +668,35 @@ populated upgrade/restore rehearsals. Pre-run input hashes remained unchanged.
 No authorization policy changed; the separate scope-policy experiment was rolled
 back and is not adopted. Independent review, the final40-client target and the
 final full suite remain open.
+
+### Restored statistics and remaining model contention
+
+The [controlled diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/restored-statistics-capacity-diagnostics.json)
+uses exact runtime5667ee7 on fresh owned copies of the same populated snapshot.
+Restored tables initially lacked planner statistics. With autoanalysis disabled
+only in the distinguishing experiment, explicit `ANALYZE` reduced the complete
+context median from1.357s to0.457s. The profile-fingerprint query stopped compiling
+107 JIT functions and fell from838ms to15ms. All six context packets had the same
+SHA-256, and original document rows were unchanged. This explains a setup
+confound in the newer capacity experiments; it does not invalidate the older
+0.6.20 diagnosis or establish a product-wide JIT repair. Future restored-copy
+measurements must record populated table statistics before measuring.
+
+After explicit analysis, three-round idle40 experiments completed120 requests
+per arm. Search p95 was16.425s with the two-consumer/default-model configuration,
+13.501s with two consumers/two model threads, and9.805s with four consumers/two
+model threads (39 searches each). These remain harness overrides, not deployed
+settings. The separate three-phase repetition completed360/360 requests and
+13/13 original-source windows, with117 foreground and28 background embedding
+calls and0 model errors. Its search p95 was9.407s idle,12.931s with new arrivals,
+and13.584s without new arrivals. Background HTTP calls lasted up to6.276s.
+The10s requirement therefore remains unmet. These short bursts also lack actual
+client delivery and scoped-result/citation verification under load; they are
+not final acceptance.
+
+The authorization-policy experiment was rolled back. It preserved the measured
+context packet but reduced median context cost by only about50ms; no policy
+change is selected. Individual connection/schema costs do not yet justify
+pooling. The next design must address non-preemptible background model occupancy
+and client observation delay while preserving full inputs, durable receipts,
+truth/access checks, finite resource budgets and eventual source drain.
