@@ -39,6 +39,10 @@ def add_parser(sub):
     choice.add_argument('--detail');choice.add_argument('--export',action='store_true')
     commands.add_parser('trace-prune',help='prune at most1000 expired operational rows')
     spool=commands.add_parser('spool');spool.add_argument('--retry-blocked',action='store_true');spool.add_argument('--flush',action='store_true')
+    origin=commands.add_parser('source-origin',help='audit/quarantine generated native records without deleting originals')
+    origin.add_argument('--transcript',type=Path,required=True);origin.add_argument('--namespace',required=True)
+    origin.add_argument('--output',type=Path,required=True);origin.add_argument('--apply',action='store_true')
+    origin.add_argument('--expected-sha256');origin.add_argument('--writers-stopped',action='store_true')
     inventory=commands.add_parser('inventory');inventory.add_argument('--source-version',required=True);inventory.add_argument('--identities',action='store_true');inventory.add_argument('--output',type=Path,required=True)
     preflight=commands.add_parser('preflight');preflight.add_argument('--source-version',required=True);preflight.add_argument('--mode',choices=['local','remote'],default='local')
     collision=commands.add_parser('collisions');collision.add_argument('inventories',nargs='+',type=Path);collision.add_argument('--output',type=Path,required=True)
@@ -175,6 +179,12 @@ def run(args,cfg):
                     # from retiring previously staged durable input.
                     client.flush()
                 result=client.spool.status()
+    elif command=='source-origin':
+        from ..source_origin import audit
+        if args.output.exists():raise FileExistsError(str(args.output))
+        result=audit(cfg,args.transcript,args.namespace,apply=args.apply,
+                     expected_sha256=args.expected_sha256,writers_stopped=args.writers_stopped)
+        upgrade.private_json(args.output,result)
     elif command=='inventory':
         result=upgrade.inventory(cfg,args.source_version,identities=args.identities);upgrade.private_json(args.output,result);result={'inventory':str(args.output),'supported':True}
     elif command=='preflight':result=upgrade.preflight(cfg,args.source_version,mode=args.mode)

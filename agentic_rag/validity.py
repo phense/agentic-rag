@@ -69,6 +69,23 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
             'SELECT a.*,d.slug FROM fact_assertions a JOIN documents d ON d.id=a.document_id'
             ' WHERE d.project_scope=%s AND d.domain=%s AND a.entity=%s AND a.attribute=%s ORDER BY a.event_at NULLS LAST,a.document_id LIMIT 51',
             (project_scope,domain,entity,attribute)).fetchall()
+        # Serialize with source withdrawal/attachment before deciding whether
+        # this immutable assertion may replace an existing fact. A previously
+        # accepted extraction can be replayed after its source was quarantined.
+        # A duplicate reuses an existing claim. Follow attach()'s claim-then-
+        # source order so concurrent attachment cannot deadlock this replay.
+        duplicate_ids = [c['document_id'] for c in candidates if c['disposition'] == 'accepted'
+                         and c['event_at'] == when and c['value'] == value
+                         and c['relation'] == relation and c['expires_at'] == expiry]
+        if duplicate_ids:
+            conn.execute('SELECT document_id FROM claim_records WHERE document_id=ANY(%s) '
+                         'ORDER BY document_id FOR UPDATE', (duplicate_ids,))
+        from . import evidence as evidence_store
+        source_key = evidence_store._hash(json.dumps(
+            [evidence.get('namespace', 'operator'), evidence['source_id']], ensure_ascii=False))
+        conn.execute('SELECT pg_advisory_xact_lock(%s)', (evidence_store._lock_key(source_key),))
+        source = conn.execute('SELECT state FROM knowledge_sources WHERE source_key=%s',
+                              (source_key,)).fetchone()
         reason = None
         if project_scope == 'unknown': reason = 'unknown project applicability'
         elif when is None: reason = 'missing explicit event time'
@@ -76,6 +93,7 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
         elif value not in evidence['quote']: reason = 'value is not quoted in source evidence'
         elif actor == 'mining' and evidence.get('grounding') != 'explicit_statement': reason = 'source does not explicitly affirm this change at the stated time'
         elif len(candidates) > 50: reason = 'candidate history exceeds safe comparison bound'
+        elif source is not None and source['state'] != 'active': reason = 'source is not active'
         if reason is None:
             for c in candidates:
                 if c['disposition'] != 'accepted': continue

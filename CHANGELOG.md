@@ -5,6 +5,13 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.21] - 2026-11-01
+
+- Preserve original authorship at native compaction boundaries: readers exclude generated Claude summaries/meta records and Codex API mirrors while retaining stable original IDs and compatible partial cursors. Audited, bounded source-origin quarantine includes database-backed preflight, retained remote-window coverage and read-only client-spool export.
+- Add migration033: a replacement supported only by quarantined generated-origin sources stops suppressing the original fact. Ordinary source refutation/removal/expiry keep their no-revival behavior. Accepted-output replay with an inactive source creates a review assertion without a replacement edge; original rows, quotes and edges are retained.
+- Advertise the installed distribution version in native manifests; reinstall editable environments before updating their owned packages. Support verified backups of0.6.21 and the populated0.6.20 upgrade/retry/independent-restore path in PB06801.
+- Record genuine Claude2.1.314 manual/automatic compaction, separate native resume and offline-to-online lost-ACK replay using frozen synthetic inputs. Other hosts and reference-load acceptance retain their explicitly measured boundaries.
+
 ## [0.6.20] - 2026-11-01
 
 - Add versioned extraction policies (Issue67): an optional, strict version-1 TOML file (`[mining] policy_file`) with a `[global]` fragment and up to 64 domain, project or exact domain+project rules. It sets advisory guidance and examples for the provider, the kept output categories, a per-category item limit (never above the built-in caps) and a maximum item text length. Field-wise precedence builtin, global, domain, project, exact; lists replace; domainless outputs (pin suggestions, pin contradictions, domain proposals) use only global and project rules. Unknown, reserved, duplicate, empty, malformed or credential-like settings fail with a code and location, never the value. Without a file the prompt, schema and retained output are unchanged.

@@ -383,6 +383,8 @@ def prepare_extraction(conn, cfg: Config, *, window: MiningWindow, session_id: s
     Returns (normalized extraction dict, enforcement report, skip reason, provider called).
     """
     from . import extraction_policy
+    from .source_origin import filter_window
+    window = filter_window(conn, _source_namespace(session_id), window)
     synthetic = window.synthetic
     disabled = extraction_policy.all_disabled(bundle, domain_names)
     called = False

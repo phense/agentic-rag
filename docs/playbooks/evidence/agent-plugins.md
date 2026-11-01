@@ -2,13 +2,14 @@
 title: PB06801 review and rehearsal evidence
 type: reference
 audience: administrators
-version: 0.6.11
+version: 0.6.21
 ---
 
 # PB06801 review and rehearsal evidence
 
-Version0.6.11/schema024; updated2026-10-30. This is an owned-copy development
-rehearsal, not production cutover or a maximum-capacity guarantee.
+The historical0.6.11/schema024 rehearsal below was recorded2026-10-30. The
+0.6.21/schema033 continuation follows it with separately scoped evidence. These
+are owned-copy development rehearsals, not production cutover or a maximum-capacity guarantee.
 
 ## Verification and review
 
@@ -191,3 +192,242 @@ the canonical worker's boot guard stays inactive. A day-long leak test, sustaine
 40-client model inference and acceptance of a numerical interactive latency
 budget remain unproved. Finite storage/retention guards and short workload
 measurements are the evidence supplied by this PR.
+
+## RAG-068-A1 source-origin correction: provisional evidence
+
+The source-origin section in PB06801 targets0.6.21/schema033. The correction review below accepts
+its bounded source-origin slice; final release and whole-feature gates remain open.
+The prior0.6.11 evidence above does not validate this new gate.
+
+Targeted command with owned PG55460 and owned temporary files:
+
+```sh
+PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 .venv/bin/python -m pytest -q \
+  tests/test_transcript_origin.py tests/test_transcript_origin_upgrade.py \
+  tests/test_mining.py tests/test_mining_window.py tests/test_evidence.py \
+  tests/test_validity.py tests/service/test_local_capture.py \
+  tests/service/test_source_worker.py tests/test_extraction_policy_mining.py \
+  --tb=short -p no:cacheprovider
+```
+
+Observed result:117 passed, one known Starlette warning, exit0 in47.55s.
+Regressions first failed on actual generated native shapes and on staged
+generated prose reaching inference. The first staged-window red had a missing
+test argument; only its corrected second red is behavior evidence. A later
+neighbor run had116 passes and one fixture authentication failure; supplying
+the fixture's missing credential revision produced the result above.
+
+Real SQL/gateway checks cover existing misattributed claims, unchanged original
+body/provenance rows, idempotent repeat, source tombstones before a pending old
+attachment, scoped service-writer attachment, wrong digest/stopped-writer gate,
+provider exclusion for old staged windows, and an injected audit failure with
+zero surviving source/history rows. Inference is mocked at its provider boundary;
+this is not a fresh full suite, independent review or production rollout.
+
+
+## RAG-068-A1 origin corrections (provisional, 2026-11-01)
+
+The source-origin review at `f8d69a6` found M1 and two Important operational
+gaps. The correction adds migration033 without changing published001–032:
+only replacements supported solely by proven generated-origin tombstones lose
+their suppressive effect. Ordinary refutation/removal/expiry keep the no-revival
+rule. Replayed assertions with an inactive source are review-only. The source
+lock follows an existing duplicate claim lock; a two-connection regression
+reproduced the inverted order before the fix.
+
+The bounded selection passed89 targeted tests in41.45s. This includes the
+actual archived0.6.20 code populating schema032, an interrupted033 migration,
+retry, preservation checks and real independent pre-/post-migration restores;
+remote-window coverage and unchanged SQLite raw export; the literal O2 Python
+snippets; current-fact no-revival regressions; and native package update/recovery.
+Native manifests now advertise the installed Python distribution version rather
+than the old fixed0.6.12. These are targeted proofs, not a full-suite result.
+
+The first attempted SQL correction checked general replacement eligibility;
+`test_temporal_source_refutation_does_not_revive_old_value` rejected that broad
+behavior. The published correction deliberately keeps normal no-revival and
+adds a regression with both generated and independently refuted real evidence.
+The first new replacement fixture lacked explicit replacement wording; that
+initial failure was a fixture error. The corrected blue/red regression then
+failed for the actual current-fact defect in both applied and pending cases.
+
+At this intermediate measurement snapshot, PB O1–O4 still awaited independent
+correction review and the package metadata still reported0.6.20. The later
+review, native observations, reference diagnosis and0.6.21 upgrade selection are
+recorded below. Neither this targeted run nor the later observations establish
+a full-suite pass, an agreed latency SLA or a production rollout.
+Writing depth: small, one focused correction within this existing evidence page
+and its linked playbook; no documentation-set restructure.
+
+
+The correction review at `93e455d` accepted M1/P1/P2/P3/P4 with0 C/H/M and0
+Important. Its59/59 fresh assertions used14 owned databases (all removed).
+The source-bound extended root selection finished with124 passed, one known
+Starlette warning, exit0; pytest142.81s, supervisor144.11s,389 source files
+unchanged, logSHA256 `9691de3d63a0f1dde8558973773bd2e970a4f33d7aafac9a74d998303de0c962`.
+This remains a targeted selection. The review's new Low-A (unreserved marker)
+and Low-B (current reason can be overwritten) go to Issue75; the three small
+playbook/canonical-guide clarifications are incorporated. The observed predicate
+cost at600 assertions was0.270s versus0.184s, best of5 on the test host; this is
+an observation for the open reference latency gate, not accepted performance.
+Editable environments must be reinstalled after the release bump so generated
+native manifests read the new installed metadata; restart alone is insufficient.
+
+
+## Native continuation observations, 2026-11-01
+
+Writing depth: small, one evidence update in this existing record. Claude
+Code2.1.314 ran only frozen synthetic prompts in an owned workspace, package,
+configuration and spool. Global settings and authentication were retained.
+Manual shortening emitted real PreCompact/manual, SessionStart/compact and
+PostCompact/manual. A separate native resume recalled all3 identifiers.
+
+The frozen multi-turn automatic protocol at `fd4fe99` crossed its controlled
+1% threshold on padding turn4, after4 completed assistant replies. It emitted
+PreCompact/auto, a native summary record, SessionStart/compact and
+PostCompact/auto. A separate native resume recalled3/3 identifiers; total81.04s.
+The reader emitted12 original source events and0 of5 generated records. Raw
+source and compacted checkpoint remained durable offline. Earlier two0.1%
+attempts emitted PreCompact without PostCompact; they remain failed observations,
+not successful compactions. The prefix line was a warning, and the decisive
+abort was the empty assistant summary set.
+
+The separate same-partition TCP admission probe at `a6b80fb` started offline,
+then brought up its own authenticated loopback service and isolated database.
+After committing the first window, the harness replaced its ACK with503; replay
+returned the same receipt. A genuine native resume recalled3/3 identifiers.
+All4 original event IDs reached2 unique windows/jobs, with0 pending local items;
+raw source remained retained. Total23.26s. No compaction occurred in this ACK-only
+session, so it created no checkpoint. No extraction worker/provider ran: these
+receipts prove durable admission, not applied memories. The first ACK attempt
+failed only because the harness expected200 instead of the correct202; its
+native initial turn and failed artifacts were preserved.
+
+Machine-readable observations and frozen protocols are in
+[the native acceptance directory](../../benchmarks/2026-11-01-native-plugin-acceptance/).
+They do not prove other hosts, ordinary automatic thresholds, TLS, cross-host
+outages, reference-load latency, a long soak or production rollout.
+
+The final target-release upgrade selection added a real0.6.21-labelled backup
+and independent restore to the populated archived0.6.20→033 scenario. It first
+failed with `unsupported_source_version`, then passed after the target label was
+supported. The release/upgrade/package selection completed38 tests, one known
+Starlette warning, exit0 in69.65s. Editable distribution metadata is now0.6.21.
+Node contracts completed7/7; these checks do not replace the final full suite.
+
+## Reference-host observations, 2026-11-01
+
+Writing depth: small, a measured-results section in this existing record.
+The owned copy retained24,505 documents from the read-only schema024 rehearsal
+snapshot and applied025–033 only in its private cluster. This load setup is
+separate from the populated0.6.20 upgrade/restore proof. The host has4 CPUs,
+8,134,742,016 bytes RAM and no swap. Other production services remained running;
+the existing loopback Ollama served real CPU `bge-m3-q8` embeddings. Extraction
+used scripted synthetic semantic output, not a real LLM.
+
+The conforming run used1.05s status polling after admission; temporary admission
+and status errors retried after0.3s. All140 offered requests completed across
+four principals. Both background phases overlapped an observed real embedding
+call (1.296s and0.505s respectively); all8 source windows eventually applied.
+These are short bursts, not sustained concurrent embedding load.
+
+| Phase | Clients | Metadata p95 total | Context p95 total | Search p95 total |
+|---|---:|---:|---:|---:|
+| Idle20 | 20 | 34.59s | 34.98s | 48.90s |
+| Idle40 | 40 | 55.90s | 61.45s | 87.75s |
+| Growing40 | 40 | 75.28s | 72.83s | 86.32s |
+| Draining40 | 40 | 62.62s | 80.87s | 87.37s |
+
+Queue waiting dominates these totals. Execution p95 ranged0.15–0.24s for metadata,
+0.98–1.87s for context and13.73–14.06s for search. This does not establish an
+acceptable interactive SLA; no numerical target was agreed. Avoid promising
+low-latency40-client operation from completion alone. A prior250ms-poll stress
+run also completed140 requests but lacked the recorded background-start
+precondition; it is retained separately, not pooled with these observations.
+
+There were322 resource samples with0 sampler errors: own-process peak PSS
+393,250,816 bytes, at most16 DB connections, one resident model
+(695,845,517 bytes), own database files at most1,290,008,595 bytes, and host
+available RAM at least4,359,868,416 bytes. The bounded supervisor exited0 in
+396.931s, reported1G peak cgroup memory,0 swap and732.908 CPU-seconds including
+setup/sampling but excluding the shared model process. Both owned children and
+PostgreSQL stopped. Production configuration/services were not changed.
+
+The imported product source was `9cc025f`, while installed dependency metadata
+still reported0.6.11; this was not a deployed0.6.21 release. Only the supported
+upgrade-version labels changed in product/SQL paths between that source and the
+target release. Aggregate-only results, limits and protocols are published in
+[the acceptance directory](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-conforming-result.json),
+with the [earlier stress run](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-stress-result.json)
+kept separate. Private copied result bodies and native account/debug data are
+excluded. Full-suite and final independent review remain delivery gates.
+
+### Bounded diagnosis after M-ACC1
+
+The six affected legacy test functions were corrected together after five more
+stale-version assertions reproduced red. Their full six-file selection passed36
+checks in108.52s, one known Starlette warning. The changes retain future-version
+rejection at0.6.22 and use the installed0.6.21 backup label. Full3 on `f213ae7`
+is running and is not a pass.
+
+The reference-copy diagnosis used the same source, RLS reader and fixed synthetic
+search, with no concurrent load. All22 relevant indexes were valid/ready, including
+the chunk HNSW and English/German GIN indexes. Automatic statistics already existed;
+explicit `ANALYZE` took2.893s, and the wrapper execution stayed10.839s versus10.025s.
+The full eligible-document count alone took3.26s/3.06s for6,507 eligible of24,513.
+An expanded-body `EXPLAIN ANALYZE` shows the vector branch using HNSW (~0.534s),
+while both lexical branches scan24,513 documents and retain6,507 before per-document
+chunk probes, returning0 lexical rows (~3.289s and3.214s). Thus repeated validity/RLS
+work and a documents-first join plan dominate this synthetic no-lexical-match case;
+missing indexes or statistics are not supported as the cause.
+
+The expanded body used a fixed midnight reference time and different plan caching;
+its7.130s is structural evidence, not a measured product speedup. No predicate,
+authorization, scheduler or production setting was relaxed. Two bounded foreground
+consumers serialize heavy searches and cheap metadata alike; this explains the
+queue buildup while retaining the existing finite compute budget. This is a
+correctable retrieval inefficiency, not an SLA acceptance or a claim that cheap calls are fast
+under a40-client burst. M-ACC1 remains pending independent disposition.
+
+The prior `growing40` label denotes8 windows already pending at burst start, not
+continuous arrivals. Model overlap was short and p95 samples per tool are small;
+no sustained-growth/contention or long-soak result is established. Aggregate
+[diagnosis plans and limits](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-diagnosis-result.json)
+exclude SQL text, vectors and result bodies. Both owned-cluster diagnosis runs
+stopped PostgreSQL in `finally`; production services were untouched. Native child
+suppression remains adapter-tested, not natively observed (LOW-064). CPU attribution
+is coarse (LOW-063). Both are recorded in Issue75.
+
+
+The final correction review at `b110d37` accepts H1 and the bounded M-ACC1
+diagnosis with0 C/H/M/Important. The confirmed lexical inefficiency and remaining
+T06811/AC05 acceptance are tracked in [Issue92](https://github.com/phense/agentic-rag/issues/92);
+Issue68 and T06811 stay open. The asserted third unbounded vector count is not
+established: `indexes._neighbors` already materializes at most4,097 eligible rows
+before counting, on both the base and current source. The whole-corpus count in
+the diagnosis was a separate timed probe, not a traced third scan in that search.
+Do not add its time to the measured query as though both were one operation.
+The033 overhead measured on synthetic replacement-superseded documents is
+recorded as LOW-065 in Issue75, with concurrent-host/noise limits. Full3 remains
+an independent delivery gate until its actual terminal result is available.
+
+
+## Source-origin delivery gate, 2026-11-01
+
+The complete Python suite on `f213ae76734c311bc49e10eca532511ded88491a`
+finished with **2,187 passed,1 skipped,1 known warning, exit0** in2,032.59s
+(supervisor2,034.57s). The skip is the macOS-only launchd install test. All392
+product/test/SQL/assets/version source hashes remained unchanged during the run;
+later changes are documentation only. Log SHA-256:
+`1b27a932dd6fc273c6057d37d78e4c6ec3d30d426790def732aadfa8c4fd40d9`.
+The [terminal summary](../../benchmarks/2026-11-01-native-plugin-acceptance/full-suite-result.json)
+records the command, source manifest digest and limits. Earlier full1/full2
+failures remain recorded; neither is counted as passing. Applicable Node7/7,
+offline lock check and0.6.21 wheel/sdist build passed on the same product tree.
+Independent source-origin/correction reviews leave0 C/H/M/Important; non-blocking
+LOW-059..065 are tracked in Issue75.
+
+This permits delivery of the0.6.21 source-origin correction with its tested
+populated upgrade/retry/restore path. It does not close Issue68: T06811/AC05
+repair and performance acceptance continue in Issue92, and unobserved native
+host criteria remain in Issues12–14. No production migration or cutover is implied.

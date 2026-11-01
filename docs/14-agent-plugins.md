@@ -38,7 +38,7 @@ hooks or cancellation tool. Department isolation also applies to result release.
 
 | Host | Native package | Capture and continuation | Observation boundary |
 |---|---|---|---|
-| Claude Code | `.claude-plugin/plugin.json`, `.mcp.json`, `hooks/hooks.json` | SessionStart, UserPromptSubmit, Stop, PreCompact/PostCompact manual or auto, SessionEnd | Native manifest validation plus real adapter tests; native interactive compression remains an explicit live scenario in #12–14 |
+| Claude Code | `.claude-plugin/plugin.json`, `.mcp.json`, `hooks/hooks.json` | SessionStart, UserPromptSubmit, Stop, PreCompact/PostCompact manual or auto, SessionEnd | Claude2.1.314: genuine manual/automatic compaction, separate native resume3/3 and same-partition offline/online lost-ACK replay observed with frozen synthetic inputs; other versions remain unobserved |
 | Codex CLI | `.codex-plugin/plugin.json` compatibility layout, `.mcp.json`, `hooks/hooks.json` | Same six real lifecycle events, preserving turn identity and silent compaction bookkeeping | Installed CLI capability and parser/adapter tests; do not infer native UI event delivery from fixtures |
 | Gemini CLI | `gemini-extension.json`, `hooks/hooks.json` | SessionStart/BeforeAgent recall; BeforeModel/AfterAgent source capture; PreCompress manual/auto snapshot; next BeforeAgent marks/restores handoff; SessionEnd fallback | Separate JSON/JSONL recording adapter; native extension install observed; model-authenticated compression UI is not inferred |
 | Antigravity (`agy`) | Existing `rag install --agy` adapter | SessionStart/PreInvocation/Stop; existing transcript-marker fallback for missing compression/end events | Its camelCase payloads and three-event API are different from Gemini CLI |

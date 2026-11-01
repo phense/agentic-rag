@@ -1,0 +1,209 @@
+{
+  "protocol_sha256": "b209c014a0cb502b466f6263d9be5f102f477ab563f34cf457eca6727a6365d2",
+  "reason": "native_compaction_observed",
+  "turns": [
+    {
+      "turn": 1,
+      "completed_assistant_before": 1,
+      "pre_auto": false,
+      "post_auto": false,
+      "session_start_compact": false,
+      "native_summaries": 0,
+      "prefix_overflow_warning": false
+    },
+    {
+      "turn": 2,
+      "completed_assistant_before": 2,
+      "pre_auto": false,
+      "post_auto": false,
+      "session_start_compact": false,
+      "native_summaries": 0,
+      "prefix_overflow_warning": false
+    },
+    {
+      "turn": 3,
+      "completed_assistant_before": 3,
+      "pre_auto": false,
+      "post_auto": false,
+      "session_start_compact": false,
+      "native_summaries": 0,
+      "prefix_overflow_warning": false
+    },
+    {
+      "turn": 4,
+      "completed_assistant_before": 4,
+      "pre_auto": true,
+      "post_auto": true,
+      "session_start_compact": true,
+      "native_summaries": 1,
+      "prefix_overflow_warning": false
+    }
+  ],
+  "native_auto_pre": true,
+  "native_auto_post": true,
+  "recall": {
+    "goal": true,
+    "blocker": true,
+    "next_action": true
+  },
+  "reader": {
+    "native_generated_records": 5,
+    "generated_source_ids_emitted": 0,
+    "original_source_events_emitted": 12,
+    "recording_sha256": "506e20e7fbf4f32584331f1f9baaf5608ae1abd00ee6d559504a8d5a4c3bc6f5"
+  },
+  "spool": {
+    "raw_retained": true,
+    "raw_bytes": 167687,
+    "checkpoint_retained": true,
+    "compacted": true,
+    "pending": 25
+  },
+  "seconds": 81.04,
+  "real_provider_synthetic_only": true,
+  "hook_events": [
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "startup"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "resume"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "resume"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "resume"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "resume"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "PreCompact",
+      "trigger": "auto",
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "compact"
+    },
+    {
+      "hook_event_name": "PostCompact",
+      "trigger": "auto",
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionStart",
+      "trigger": null,
+      "source": "resume"
+    },
+    {
+      "hook_event_name": "UserPromptSubmit",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "Stop",
+      "trigger": null,
+      "source": null
+    },
+    {
+      "hook_event_name": "SessionEnd",
+      "trigger": null,
+      "source": null
+    }
+  ],
+  "passed": true,
+  "source_head": "fd4fe99",
+  "native_host": "Claude Code 2.1.314",
+  "limits": [
+    "Synthetic session; controlled native automatic threshold, not normal-user threshold",
+    "Offline native compaction and native resume; online admission measured separately",
+    "Not full-suite, cross-host, TLS, load or production acceptance"
+  ]
+}

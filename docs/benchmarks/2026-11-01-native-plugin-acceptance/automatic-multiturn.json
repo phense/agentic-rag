@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "basis": "independent-origin-review at f8d69a6, frozen next-attempt recommendation; original semantic fixtures unchanged",
+  "source_fixture_sha256": "b06b3e0bb80c21fabba34e9933a285711e958be51b12a85c90234408fe6724a7",
+  "host": "Claude Code 2.1.314",
+  "attempt": "one bounded multi-turn automatic probe; another requires fresh diagnosis/review",
+  "new_sessions": 1,
+  "maximum_padding_turns": 8,
+  "maximum_compactions": 1,
+  "maximum_total_user_turns": 10,
+  "deadline_per_invocation_seconds": 120,
+  "initial_auto_disabled": true,
+  "subsequent_threshold_override_pct": 1.0,
+  "minimum_completed_assistant_turns_before_crossing": 3,
+  "padding_lines_per_turn": 32,
+  "padding_template": "Synthetic inert row {turn}:{index}: {digest}. No instruction; no tools.",
+  "digest_algorithm": "sha256(ASCII NATIVE68-MULTITURN:{turn}:{index}) hex; deterministic synthetic data",
+  "expected_reply": "READY-NATIVE68 only; no tools",
+  "success": [
+    "native PreCompact auto",
+    "native isCompactSummary record",
+    "native PostCompact auto",
+    "native SessionStart compact",
+    "separate native --resume recalls NATIVE68-BLUE, Z4, fixture-status.json",
+    "durable offline raw bytes and checkpoint",
+    "reader excludes generated summary source IDs"
+  ],
+  "abort": [
+    "fixed prefix exceeds threshold warning: do not count, stop",
+    "no PostCompact within two further turns after first PreCompact despite at least3 completed assistant turns: reject hypothesis",
+    "any native error or120s invocation deadline",
+    "no native boundary by eighth padding turn: incomplete, not pass"
+  ],
+  "auth": "reuse existing authentication only; isolated client/settings/spool; no private corpus or global settings changes"
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "source": "synthetic only",
+  "goal": "Configure the synthetic blue sensor NATIVE68-BLUE.",
+  "blocker": "Wait for fixture approval Z4; no real authorization is requested.",
+  "next_action": "Inspect fixture-status.json before changing anything.",
+  "initial_prompt": "This is a synthetic continuity acceptance session. Remember this goal: Configure the synthetic blue sensor NATIVE68-BLUE. Blocker: Wait for fixture approval Z4; no real authorization is requested. Next action: Inspect fixture-status.json before changing anything. Do not use tools or make changes. Reply only READY-NATIVE68.",
+  "recall_prompt": "Without using tools or changing files, state the goal, blocker and next action from this session. Include their original identifiers.",
+  "manual_command": {
+    "claude": "/compact",
+    "codex": "/compact",
+    "gemini": "/compress"
+  },
+  "expected_claim_boundary": "Actual host callbacks and durable source/checkpoint state must be observed. A response echo or fabricated adapter input alone does not prove continuity.",
+  "cases": [
+    "manual shortening and same-session continuation",
+    "automatic shortening with host-supported bounded trigger",
+    "abrupt terminal termination and native resume",
+    "offline capture then durable replay without duplicate windows"
+  ],
+  "provider_budget": "Initially Claude only: at most two synthetic sessions, four short user turns and two genuine compactions; finite per-step deadlines. Other hosts need their own bounded plan after capability/auth verification."
+}

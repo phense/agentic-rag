@@ -61,7 +61,8 @@ def test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_1
     from agentic_rag.service import upgrade
     # RAG-067 supports current-release backups; only a future release is refused.
     assert '0.6.17' in upgrade.SUPPORTED_VERSIONS and '0.6.20' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.21' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.21' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.22' not in upgrade.SUPPORTED_VERSIONS
 
 
 def test_default_off_ordinary_worker_and_reads_never_schedule_or_call_provider(conn, cfg, forbidden):

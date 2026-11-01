@@ -57,3 +57,17 @@ def test_interrupted_update_and_uninstall_recover_owned_generation(tmp_path,monk
     (tmp_path/package.RECORD).write_text(json.dumps(record));(tmp_path/'hooks/hooks.json').unlink()
     package.manage('claude',tmp_path,action='recover',apply=True)
     assert (tmp_path/'hooks/hooks.json').read_text()==original['hooks/hooks.json']
+
+
+@pytest.mark.parametrize('host,manifest', [('claude', '.claude-plugin/plugin.json'),
+    ('codex', '.codex-plugin/plugin.json'), ('gemini', 'gemini-extension.json')])
+def test_native_update_advertises_installed_release_without_resetting_foreign_files(tmp_path, host, manifest):
+    # A hardcoded old version lets the native host cache an obsolete generation.
+    from importlib.metadata import version
+    from agentic_rag.plugins.package import manage
+    manage(host, tmp_path, python=sys.executable, apply=True)
+    foreign = tmp_path / 'foreign.txt'
+    foreign.write_bytes(b'keep original bytes\n')
+    manage(host, tmp_path, action='update', python=sys.executable, apply=True)
+    assert json.loads((tmp_path / manifest).read_text())['version'] == version('agentic-rag')
+    assert foreign.read_bytes() == b'keep original bytes\n'

@@ -1,0 +1,45 @@
+{
+  "observed_at": "2026-11-01",
+  "source_head": "d26f2958df8ea668eb9185d47670fdf1409f6d4e",
+  "hosts": {
+    "claude": {
+      "version": "2.1.314",
+      "native_manual": true,
+      "native_auto": true,
+      "native_resume": true,
+      "native_offline_online_ack": true,
+      "scope": "Frozen synthetic owned sessions; no production/cross-host/TLS claim"
+    },
+    "codex": {
+      "version": "0.166.0",
+      "native_model_probe_this_slice": false,
+      "installed_cli_help_verified": true,
+      "capabilities": "Official release supports six lifecycle events; fixtures/native package installation remain prior evidence",
+      "isolation_note": "Version-tagged loader preserves an empty User config layer for --ignore-user-config, while hook discovery reads hooks.json beside active layers. Do not assume this flag alone isolates global hooks. No credentials copied or symlinked for a new probe.",
+      "release_source": "https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/config/src/loader/mod.rs",
+      "discovery_source": "https://github.com/openai/codex/blob/rust-v0.166.0/codex-rs/hooks/src/engine/discovery.rs"
+    },
+    "gemini_cli": {
+      "version": "0.66.0",
+      "extension_install_observed": true,
+      "authenticated_native_compression": false,
+      "limit": "Retained isolated CLI installation; no native model authentication configured for this probe"
+    },
+    "agy": {
+      "version": "1.4.11",
+      "native_compression": false,
+      "capabilities": "Separate SessionStart/PreInvocation/Stop adapter; no equivalent pre/post compact API"
+    },
+    "opencode": {
+      "installed_on_path": false,
+      "node_contracts_passed": 7,
+      "native_compression": false
+    }
+  },
+  "related_native_issues": "Keep12\u201314open; unavailable native scenarios are not inferred from parser or package tests",
+  "limits": [
+    "Installed capability and native observation are separate",
+    "No unsupported host callback is fabricated"
+  ],
+  "native_child_suppression": "Adapter-tested only; no native child session observed in this slice (LOW-064, Issue75)."
+}

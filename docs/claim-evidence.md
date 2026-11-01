@@ -50,7 +50,12 @@ Source trust composes with project scope and valid-time selection before candida
 limits and every selected graph hop. New atomic temporal sources participate in this
 registry. Old temporal evidence remains inspectable but has incomplete lifecycle
 coverage until attached through the new gateway. Refuting a newer temporal source does
-not resurrect a superseded old value. As-of queries use current source trust plus
+not resurrect a superseded old value. Migration033 adds one correction exception:
+if every source of an ineligible replacement was proven to be generated native
+context and quarantined with the origin gateway, that replacement no longer hides
+the older fact. The older fact still passes its own truth and scope gates. See
+[the origin upgrade gate](playbooks/agent-plugins.md#o4-verify-before-restarting).
+As-of queries use current source trust plus
 known validity at the requested time, not a reconstruction of old trust decisions.
 
 Migration012 adds tables and a shared predicate without rewriting legacy knowledge,

@@ -1,0 +1,50 @@
+{
+  "source": "owned existing populated rehearsal copy, never production mutations",
+  "host": "Hetzner4CPU8GiB",
+  "clients": [
+    20,
+    40,
+    40,
+    40
+  ],
+  "phases": [
+    "idle20",
+    "idle40",
+    "growing40",
+    "draining40"
+  ],
+  "source_windows": 8,
+  "foreground_tools": [
+    "metadata",
+    "context",
+    "hybrid search rerank off"
+  ],
+  "search_queries": "synthetic only; output bodies never published",
+  "model": "actual loopback bge-m3-q8 embeddings; scripted extraction semantic response",
+  "budgets": {
+    "per_request_seconds": 180,
+    "background_progress_seconds": 240,
+    "postgres_connections": 48,
+    "postgres_shared_buffers_MiB": 128,
+    "postgres_work_mem_MiB": 8,
+    "cgroup_memory_GiB": 3,
+    "cgroup_CPU_percent": 350
+  },
+  "isolation": {
+    "PG": "owned55468Unixsocketonly",
+    "API": "owned28768loopback",
+    "source_DB": "rag_plugins_rehearsal_20261030 read-only dump",
+    "target": "fresh private PostgreSQL cluster"
+  },
+  "evidence": [
+    "p50/p95 queue/execution/total",
+    "all owner progress",
+    "actual source states after foreground demand",
+    "process PSS/RSS/CPU,hostRAM,DBconnections,modelresident bytes,disk",
+    "actual response and cleanup exits"
+  ],
+  "acceptance": "Publish actual values; unagreed targets never reported as SLA accepted; no long soak claim",
+  "harness_sha256": "ca7fedc3567a863d26187353957a9f91b4b0388215cf9c2e82ecd6aa64722dbb",
+  "setup_attempt1": "Stopped before measurement: existing source cluster requires peer OS postgres for read-only dump; owned PG stopped. Corrected dump subprocess OS identity, no production change.",
+  "setup_attempt2": "Stopped before measurement: archived objects retain owner rag, missing in fresh isolated cluster. Source role names inspected read-only; create required roles only in own cluster. Reuse the completed read-only dump; failed artifacts retained."
+}

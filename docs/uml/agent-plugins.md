@@ -57,3 +57,46 @@ advisory/asynchronous semantics and agy's fallback must never be conflated.
 - A request deferred on source count/owner/byte pressure yields to the source
   worker that can relieve its dependency. Runnable retrieval and running writes
   still suppress new background work. Retry does not require cancellation/expiry.
+
+## RAG-068-A1 as-built: original evidence across native shortening
+
+Question: which component preserves original authorship before and after a host
+shortens context? Requirements FR02/08/09, AC03/04. Verified against
+`transcript_origin.py`, `mining_window.py`, `service/local.py`, `source_origin.py`,
+`validity.py` and migration033 on2026-11-01. Notation: sequence; arrows represent
+actual calls or durable state transitions. Semantic source review only; this
+addition has not been rendered.
+
+```mermaid
+sequenceDiagram
+ participant N as Native host
+ participant R as Original-source reader
+ participant L as Local durable spool
+ participant A as Authenticated source API
+ participant W as Serial extraction worker
+ participant O as Stopped-stream operator
+ participant D as Canonical PostgreSQL
+ N->>L: actual pre-compaction original bytes and checkpoint
+ N->>R: retained recording, including generated summary
+ R->>R: exclude generated IDs; advance compatible cursor
+ R->>L: original source window
+ L->>A: unchanged envelope until durable ACK
+ A->>D: atomic window, cursor, source job and audit
+ A-->>L:202 receipt; exact replay returns same receipt
+ W->>D: filter old quarantined source IDs before provider
+ W->>D: inactive assertion source becomes review, no supersedes edge
+ O->>D: DB-backed bounded preview; prove recording coverage
+ O->>D: audited quarantine, preserved original rows and quotes
+ D->>D:033 ignores only solely generated quarantined replacements
+```
+
+Differences from the earlier model: native compaction records are generated
+context, even when their transport role says user. Reader exclusion prevents new
+misattribution; it cannot repair already attached evidence. The explicit
+stopped-stream operator path handles retained local/server work without deleting
+originals. Migration033 narrows the temporal exception so ordinary refutation,
+removal and expiry still never revive an older value. A free-form reason marker
+and its later replacement remain the disclosed LOW-062/LOW-059 limits inIssue75.
+Source/claim locking follows the existing attach order; the correction review
+accepted its real gateway success/recovery probes at93e455d. Final full-suite and
+reference-host acceptance are separate gates.

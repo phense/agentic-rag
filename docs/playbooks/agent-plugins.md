@@ -2,7 +2,7 @@
 title: Install or recover a native agentic-rag client
 type: playbook
 audience: administrators
-version: 0.6.11
+version: 0.6.21
 ---
 
 # PB06801: Install or recover a native agentic-rag client
@@ -12,9 +12,9 @@ version: 0.6.11
 - Class: system.
 - Origin: Issue #68, FR01–09 in [the specification](../specs/6-10-agent-plugins/spec.md).
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
-- Target: 0.6.11/schema024; owned plugin directories and an explicitly enrolled client.
+- Target: 0.6.21/schema033; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-10-30.
+- Last edited: 2026-11-01 (procedures independently reviewed; final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -28,7 +28,7 @@ it does not justify copying another department's credentials.
 
 ## Before starting
 
-1. Choose an existing Python environment with agentic-rag0.6.11 and run
+1. Choose an existing Python environment with agentic-rag0.6.21 and run
    `rag --help` and `rag plugin --help` in it.
 2. Check the enrolled token's private permissions and intended domains/projects/
    teams with the administrator; do not print the token. Use the existing
@@ -112,6 +112,186 @@ request effects without a completed receipt, foreign data visibility or a
 package ownership conflict to the maintainer. Preserve version, event names,
 request/source IDs, stable error codes, timing, file hashes and owned test logs.
 Keep prompts, recordings, tokens and unrestricted results out of public issues.
+
+## 0.6.20 to 0.6.21: native source-origin gate
+
+Older capture code can classify a native compaction summary or API mirror as
+user testimony. Keep every original recording and spool. Migration033 corrects
+current selection when a replacement's **only** sources have been proven to be
+generated host context. Ordinary refutation, removal and expiry still do not
+revive an older value. No assertion, edge or evidence quote is rewritten.
+
+### O1: stop and inventory the existing installation
+
+Inventory every local miner, central worker, uploader, direct DB client, active
+agent/MCP process and retained recording/spool. Stop capture, upload and mining
+on **every** listed host before the snapshot; retain that process list. Use the
+existing [verified backup and recovery procedure](../verification/issue58-service.md).
+Then install0.6.21 and run the public migration command on the DB host:
+
+```sh
+rag service --config /owned/operator.toml upgrade --source-version 0.6.20 \
+  --dump /owned/origin-pre-upgrade.dump --apply --writers-stopped
+```
+
+Expected: only `033_trusted_replacements.sql` applied, independent restore
+verified and original rows unchanged. An interrupted migration rolls back; use a
+new dump path for retry. Restart all listed Python/agent processes onto0.6.21
+before activation; reuse the per-environment process gate in
+[PB-067 B1](system/rag-067-extraction-policy.md#b1-mining-gate), expecting0.6.21.
+For editable installs or clock changes, restart unconditionally. Keep workers
+and uploaders stopped through O4. Unknown hosts or missing recordings block
+activation of their streams.
+
+### O2: export remote recordings and identify their exact namespaces
+
+For a local recording use `session:<original-session-id>`, never its filename.
+For a remote client, first list the stopped spool's `sources` rows on **that
+client host** with read-only SQLite. Replace `SPOOL`, `PARTITION`, `SESSION` and
+paths below with its inspected values; do not read or print its token.
+
+```sh
+python3 - SPOOL <<'PYLIST'
+import json, sqlite3, sys
+from pathlib import Path
+with sqlite3.connect(Path(sys.argv[1]).absolute().as_uri() + '?mode=ro', uri=True) as c:
+    rows = c.execute('SELECT partition,session,project,length(raw) bytes FROM sources ORDER BY partition,session').fetchall()
+print(json.dumps(rows))
+PYLIST
+```
+
+Export each selected row using the upgraded client Python environment. The
+exporter checks every pending local window, including blocked work, against the
+original bytes. It refuses missing prefixes, changed cursors or more than256
+pending windows. It never advances a cursor, acknowledges work or changes the
+spool. Both output paths must be new and inside an owner-only directory.
+
+```sh
+python3 - SPOOL PARTITION SESSION /owned/original.jsonl /owned/export.json <<'PYEXPORT'
+import sys
+from pathlib import Path
+from agentic_rag.source_origin import export_spool
+from agentic_rag.service.upgrade import private_json
+spool, partition, session, recording, report = sys.argv[1:]
+if Path(report).exists():
+    raise FileExistsError(report)
+result = export_spool(spool, partition, session, recording)
+private_json(report, result)
+PYEXPORT
+```
+
+Copy both private files unchanged to the DB host over the installation's
+existing SSH connection. Obtain namespaces from retained **server rows**, using
+its operator Python environment and configuration:
+
+```sh
+python3 - /owned/operator.toml /owned/streams.json <<'PYSTREAMS'
+import sys
+from pathlib import Path
+from agentic_rag import db
+from agentic_rag.config import load_config
+from agentic_rag.service.upgrade import private_json
+cfg = load_config(Path(sys.argv[1]))
+if cfg.service_mode == 'client':
+    raise ValueError('local operator config required')
+with db.connect(cfg) as c:
+    c.execute('SET TRANSACTION READ ONLY')
+    rows = [dict(r) for r in c.execute("SELECT session_id,owner_namespace,project,payload->>'session_id' client_session,count(*) windows FROM service_windows GROUP BY session_id,owner_namespace,project,payload->>'session_id' ORDER BY session_id LIMIT 1001")]
+if len(rows) > 1000:
+    raise ValueError('stream inventory overflow; keep uploaders stopped')
+private_json(sys.argv[2], rows)
+PYSTREAMS
+```
+
+Match `client_session` and `project` to `export.json`, and verify the enrolled
+uploader against the operator's client inventory. Use that row's **complete
+`session_id`** as the namespace; it starts with `svc1:`. Multiple matches require
+resolving the uploader; never pick one by a user label. An entirely offline
+stream has no server row: retain its spool and keep it stopped until the
+administrator explicitly identifies its enrollment and obtains a complete
+server-side inventory. This procedure does not guess a namespace.
+
+### O3: preview and quarantine each covered stream
+
+Run on the DB host with its local operator configuration. For remote work,
+replace the example namespace with the exact O2 `session_id`.
+
+```sh
+rag service --config /owned/operator.toml source-origin \
+  --transcript /owned/original.jsonl --namespace 'session:original-session-id' \
+  --output /owned/origin-preview.json
+```
+
+Expected: `ready:true`, no `metadata_conflicts`, `uncovered_source_keys` or
+uncovered windows/batches, and `overflow:false`. The preview reads current DB
+state and changes nothing. It checks all retained windows of that stream, all
+accepted batches and every existing source identity against the recording.
+Compare the DB windows with the O2 inventory; `export.json` separately proves
+the stopped client's unacknowledged windows. Retain both reports and their
+matching `recording_sha256`: the export and DB preview SHA-256 values must be
+identical. Stop on a mismatch; obtain the correct original bytes before apply.
+A green preview is bounded to this recording and
+namespace, not a census of other clients or unavailable histories.
+
+```sh
+rag service --config /owned/operator.toml source-origin \
+  --transcript /owned/original.jsonl --namespace 'session:original-session-id' \
+  --output /owned/origin-applied.json --apply --writers-stopped \
+  --expected-sha256 '<recording_sha256 from preview>'
+```
+
+The gateway withdraws only proven generated sources, including tombstones for
+old batches. Accepted batches retain their replay identity and make no second
+provider call; assertions backed by an already inactive source enter `review`
+and create no replacement edge. New inference excludes quarantined fragments.
+An independently supported assertion can remain eligible.
+
+### O4: verify before restarting
+
+Inspect `affected_claims` and `temporal_dependents` in the apply report. Compare
+`eligible_before` with `eligible_after`: a previously hidden original can
+resurface only through the migration033 exception above and its own truth/scope
+gates. Supersession with genuine independent evidence stays authoritative.
+If an original expected to be current still has `eligible_after:false`, inspect
+its own status, scope, expiry and independent evidence first. An already
+refuted/removed generated source retains its earlier reason, so it does not
+receive the correction marker (LOW-059). Keep that stream stopped and preserve
+the report for explicit operator recovery; do not reactivate generated evidence
+as a shortcut. After quarantine, do not change the source state or reason through
+normal review: the current marker carries the correction, and overwriting it can
+hide the original again. Any necessary later change requires repeating the
+current-fact checks and reviewing LOW-059 before activation.
+Use each reported `document_id` or slug with `rag evidence show`. Use
+`generated_source_keys` (not `generated_source_ids`) for
+`rag evidence history DOCUMENT --source SOURCE_KEY`; retain the private history.
+Then rehearse pending-window replay on the owned populated copy, verify no
+second provider call for accepted work, and compare original rows and permissions
+against the migration inventory. Before restarting covered streams, create a
+post-quarantine recovery point with a new, private path:
+
+```sh
+rag service --config /owned/operator.toml verified-backup --source-version 0.6.21 \
+  --output /owned/origin-post-quarantine.dump
+```
+
+Require `restore_verified: true`; retain the dump and manifest with the private
+quarantine reports. Failure keeps the streams stopped. Restart only the covered,
+upgraded streams.
+
+A metadata or coverage conflict refuses apply before any source write. Repair
+only by obtaining the correct original recording/enrollment; do not edit JSONL,
+split it with renumbered lines, clear queues or reset session IDs. Atomic audit
+failure can be retried with the same digest and a new output path. Already
+inactive sources produce no duplicate source-state audit. More than256 retained
+windows/batches/affected claims or64MiB of recording, or more than4096 generated
+records, is outside this bounded procedure: preserve it and keep that stream
+stopped for an explicit larger-history recovery plan.
+
+For code recovery retain033 and removed sources.0.6.20 can read the corrected
+predicate but can misclassify new host records and accept removed-source
+replacements: keep capture/mining stopped until0.6.21 is restored. Restoring the
+pre-upgrade backup also restores old trust and loses later writes; repeat this
+origin gate after the existing explicit restore/cutover procedure.
 
 ## Completion and maintenance
 

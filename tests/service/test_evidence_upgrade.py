@@ -157,7 +157,7 @@ def test_populated028_upgrade_interrupt_retry_old_clients_and_restore_stable_ver
         changed = upgrade.local_upgrade(cfg, '0.6.15', tmp_path / 'upgrade.dump', apply=True, writers_stopped=True)
         report['upgrade_seconds'] = round(time.perf_counter() - started, 2)
         assert changed['restore_verified'] and changed['original_rows_unchanged']
-        assert changed['migrations_applied'] == ['029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
+        assert changed['migrations_applied'] == ['029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert upgrade.verify_preserved(cfg, original)['unchanged']
         with db.connect(cfg) as conn:
             validate_schema(conn)
@@ -241,7 +241,7 @@ def test_operator_cli_preflight_upgrade_retry_on_populated028(tmp_path, monkeypa
             outputs[name] = json.loads(capsys.readouterr().out)
         assert outputs['preflight']['ready'] and outputs['preflight']['inventory']['supported']
         assert outputs['plan']['applied'] is False and not (tmp_path / 'upgrade' / 'plan.dump').exists()
-        assert outputs['upgrade']['migrations_applied'] == ['029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql']
+        assert outputs['upgrade']['migrations_applied'] == ['029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql']
         assert outputs['upgrade']['restore_verified'] and outputs['upgrade']['original_rows_unchanged']
         assert (tmp_path / 'upgrade' / 'evidence029.dump.manifest.json').exists()
         assert outputs['retry']['migrations_applied'] == []

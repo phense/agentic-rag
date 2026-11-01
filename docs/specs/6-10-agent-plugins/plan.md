@@ -39,3 +39,48 @@ Testing: meaningful red behavior tests before each slice, real SQL/HTTP/transact
 mock inference only at provider boundaries. Bundle1–3 major full-range reviews/test
 rounds; independent Sol high, sparse use. Upgrade original-row/ACL comparisons,
 40-client queue benchmark, compaction traces and full Python/Node before PR.
+
+## RAG-068-A1: native origin correction and remaining acceptance
+
+Continue the merged implementation from29a2f44 (0.6.20/schema032) on the
+existing isolated acceptance branch; preserve the old RAG-068 run and evidence.
+The actual Claude2.1.314 manual probe revealed `isCompactSummary:true` inside a
+`user` message. Treat outer conversation type and generated-origin flags as
+authoritative before prose can become source evidence. Generated summaries,
+metadata and API request mirrors do not enter extraction or continuity digests.
+Raw recordings and historical normalized lengths remain available to advance
+old partial `mw1` cursors without rewinding or shifting subsequent originals.
+
+Use existing source trust rather than rewriting historical roles or documents:
+an operator previews a bounded complete recording and explicit local/service
+namespace, then applies its exact SHA-256 with writers stopped. The audited
+source gateway atomically marks proven generated source identities removed,
+including orphan tombstones for pending old batches. New inference filters
+those fragments out of old staged windows. Immutable accepted batches keep
+their existing replay identity and cannot restore removed source trust. This
+is per-recording evidence, never a claim to have censused unavailable histories.
+Review M1 requires additive migration033: only a replacement supported solely
+by proven generated-origin tombstones loses its suppressive effect. Ordinary
+refutation/removal/expiry and genuinely supported replacement keep the existing
+no-revival rule. Inactive-source replay is review-only, with no new edge. The
+DB-backed preview must cover retained windows, accepted batches and known sources;
+remote export must separately cover pending SQLite outbox windows. The target
+release0.6.21 still needs the populated upgrade,
+backup/restore, independent review and final suite gates in T06812..14.
+
+Native observations remain separate from adapter tests. Manual Claude compact
+and native restart/resume retained all three frozen identifiers. After two
+failed artificial-threshold attempts, the frozen multi-turn probe emitted a
+native automatic summary plus Pre/PostCompact and SessionStart compact, then
+recalled3/3 identifiers. The separate same-partition offline/reconnect probe
+retained4/4 originals in2 windows after a lost ACK, with0 pending. Other native
+hosts remain explicitly unobserved; Issues12–14 stay open.
+
+The reference VM was read-only verified as4 CPUs and8,134,742,016 bytes RAM.
+The owned copy completed140/140 foreground calls and8/8 background windows.
+High search execution time and head-of-line queue waiting need a bounded SQL
+and restored-index/statistics diagnosis (M-ACC1); the8-window phase is a fixed
+initial backlog, not continuous growth. No numerical SLA has been agreed.
+Keep performance acceptance open until diagnosis and independent disposition.
+Use no production service, credentials or data changes to manufacture acceptance.
+All production cutover gates remain.

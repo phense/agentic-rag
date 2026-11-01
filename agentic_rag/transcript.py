@@ -17,6 +17,7 @@ from pathlib import Path
 from .secrets import strip_secrets
 from .transcript_agy import is_step, step_identity, step_prose
 from .transcript_codex import response_identity, response_prose
+from .transcript_origin import conversation_record
 
 
 @dataclass(frozen=True)
@@ -76,6 +77,8 @@ def build_digest(path, *, after_uuid: str | None = None,
             if identity is not None:
                 last_uuid = identity
             lines.extend(response_prose(ev, per_block=per_block))
+            continue
+        if not conversation_record(ev):
             continue
         msg = ev.get("message")
         if not isinstance(msg, dict):
