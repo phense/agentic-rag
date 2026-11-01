@@ -188,12 +188,20 @@ configuration. Work already admitted keeps its policy (part C3).
 | Step | Situation | Action | Expected evidence | Failure / next step |
 |---|---|---|---|---|
 | C1 | Invalid file in use. Local hooks log `invalid extraction policy: <code> at <location>` and admit no new job; a central service answers new windows with `extraction_policy_invalid` (HTTP 503), clients keep them in their spool and retry | `mv POLICY.prev POLICY` (or fix the file), then `rag extraction validate` | `"valid": true`. Nothing was lost: a refused admission consumes no cursor; the next hook run or client retry admits the window | Already admitted work is unaffected; it never reads the file again |
-| C2 | You want to know which policy pending work will use | `rag extraction inspect --queued` on the database host (refused in client mode) | Per job or window: `admitted` digest, or `legacy-builtin` for work admitted without metadata, and `bound` once an attempt started. Equal digests identify the policy used | A new admission with a different digest or bound project fails with `extraction_policy_conflict` in local `mining_queue.last_error`; no provider call, batch or cursor movement. Follow the conflict decision below |
+| C2 | You want to know which policy pending work will use | `rag extraction inspect --queued` on the database host (refused in client mode) | Per job or window: `admitted` digest, or `legacy-builtin` for work admitted without metadata, and `bound` once an attempt started. The batch records the bound digest; legacy-builtin is a label, not a digest | A new admission with different effective rules or a bound project mismatch fails with `extraction_policy_conflict` in local `mining_queue.last_error`; no provider call, batch or cursor movement. Follow the conflict decision below |
 | C3 | A job or window failed after admission (provider outage, crash, blocked authority) | Retry it as usual: the local worker retries automatically; a central owner uses `rag service job-retry RECEIPT` | The retry uses the admitted and bound policy, even if the file changed or is invalid meanwhile; a result that was already accepted is applied without a second provider call (rehearsed) | A malformed stored snapshot stops the job and moves no cursor (local job `last_error` `policy_snapshot_invalid`; central receipt state `error`, code `processing_failed`): keep the job, escalate |
 | C4 | A domain was removed from a principal after admission | Nothing to do | The retry writes only domains that are both admitted and currently writable; with none left the window is blocked (`authorization_or_predecessor_blocked`) | Restore the authority and use C3 |
 | C5 | Every category disabled on purpose | Nothing to do | Mining accepts an empty batch, makes no provider call and advances the cursor (`skipped: extraction disabled by policy`) | |
 
 ### Conflict decision (C2)
+
+A domain-list change alone is compatible: domainless and common-domain policy
+hashes must match. The original bound domains and digest remain; newly added
+domains wait for a subsequent cursor, while revoked write permissions take
+effect immediately (C4). Thus admitted and bound digests can differ without an
+error. A legacy-builtin retry must reuse a builtin binding, regardless of the
+current domain list. A central conflict is surfaced as error/processing_failed;
+the queue last_error identifies extraction_policy_conflict.
 
 Keep the conflicting job and binding. Do not edit snapshots, delete bindings,
 advance cursors or replay the transcript under a new session ID. If the original
@@ -294,8 +302,8 @@ guidance or memory texts to public issues.
 Part A is complete when A4 and A5 succeeded, A6 shows no error, all processes on
 the list run 0.6.20 and the integrity check is clean. Part B is complete when B1
 passed on every listed host, B5 shows the validated identity, C2 reports no
-unresolved conflict, and the next mined batch names its admitted policy
-(`rag extraction inspect --queued` or the batch's
+unresolved conflict, and the next mined batch names its bound policy, with
+compatible effective rules from its admission (`rag extraction inspect --queued` or the batch's
 `_policy` digest). Keep the verified pre-upgrade dump until you decide never to
 return to the pre-upgrade state.
 

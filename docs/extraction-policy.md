@@ -140,11 +140,15 @@ position of the session to that snapshot, together with an audit row
 
 - A retry of the same admitted job reuses its bound policy. A changed or even
   invalid file is not read again. Direct retries must retain the same project.
-- A new admission that reaches an unaccepted cursor already bound to another
-  digest or project fails with `extraction_policy_conflict`, without a provider
+- A new admission that reaches an unaccepted cursor with different effective
+  rules or another project fails with `extraction_policy_conflict`, without a provider
   call or cursor movement. `inspect --queued` shows the admitted and bound
   digests; the worker records the error in `last_error`. The binding is never
-  replaced. See the recovery decision in [PB-067 C2](playbooks/system/rag-067-extraction-policy.md#part-c-invalid-files-queued-work-and-retries).
+  replaced. Domain additions or revocations alone do not conflict: common-domain
+  and domainless rules must match, the original domain set stays bound, and
+  current write authority is intersected on retry. Therefore admitted and bound
+  digests can differ while their surviving rules agree. A legacy retry requires
+  a builtin binding, even when the available domain set changes. See the recovery decision in [PB-067 C2](playbooks/system/rag-067-extraction-policy.md#part-c-invalid-files-queued-work-and-retries).
 - An already accepted result is applied without another provider call and is
   never filtered again by a newer policy.
 - A debounced local job that continues (`has_more`, or more turns while it waits)

@@ -121,6 +121,53 @@ def test_worker_binds_before_provider_enforces_and_keeps_policy_across_retry(cen
         assert process_source(conn, cfg, queued(cfg, receipt)).saved == 1
 
 
+@pytest.mark.parametrize('captured', [False, True])
+def test_retry_after_domain_revocation_keeps_binding_and_writes_only_current_authority(captured, central, monkeypatch):
+    from agentic_rag.service.worker import process_source
+    cfg, _, _, _, auth = central
+    cfg = replace(cfg, mine_policy_file=cfg.mine_policy_file if captured else None)
+    original = auth.read_text()
+    auth.write_text(original.replace('["general", "alpha"]', '["general", "alpha", "beta"]')
+                   .replace('["alpha"]', '["alpha", "beta"]'))
+    policy = Policy.load(auth)
+    principal = policy.authenticate_key(KEY)
+    session_name = f'domain-revoked-{captured}'
+    session_id = principal.session_id(session_name)
+    source_text = f'server port is now 9000 for revocation case {captured}'
+    data = envelope(session=session_name)
+    data['window']['text'] = data['window']['events'][0]['text'] = source_text
+    receipt = accept(cfg, principal, policy, data)['receipt']
+    calls = []
+
+    def flaky(prompt, *args, **kwargs):
+        calls.append(prompt)
+        if len(calls) == 1:
+            raise llm.LLMUnavailableError('synthetic outage')
+        return {'memories': [{**item, 'title': f"{item['title']} {captured}", 'body': source_text,
+                              'evidence': [{'source_id': 'event-1', 'quote': source_text}]}
+                             for item in output()['memories']]}
+    monkeypatch.setattr(mining, 'run_structured', flaky)
+    with db.connect(cfg) as conn:
+        with pytest.raises(llm.LLMUnavailableError):
+            process_source(conn, cfg, queued(cfg, receipt))
+    with db.connect(cfg) as conn:
+        before = dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings WHERE session_id=%s',
+                                   (session_id,)).fetchone())
+    auth.write_text(original)  # Revoke beta after binding, retaining alpha.
+    policy = Policy.load(auth)
+    principal = policy.authenticate_key(KEY)
+    retry_receipt(cfg, principal, policy, receipt)
+    with db.connect(cfg) as conn:
+        result = process_source(conn, cfg, queued(cfg, receipt))
+        assert result.saved == 1 and len(calls) == 2
+        assert dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings WHERE session_id=%s',
+                                 (session_id,)).fetchone()) == before
+        rows = conn.execute("SELECT title,domain FROM documents WHERE provenance->>'session_id'=%s",
+                            (session_id,)).fetchall()
+        assert [dict(r) for r in rows] == [{'title': f'Port declaration {captured}', 'domain': 'alpha'}]
+    assert window(cfg, receipt)['state'] == 'applied'
+
+
 def test_new_admission_after_change_uses_the_new_policy_and_all_disabled_skips_the_provider(central, monkeypatch):
     from agentic_rag.service.worker import process_source
     cfg, policy, principal, rules, _ = central

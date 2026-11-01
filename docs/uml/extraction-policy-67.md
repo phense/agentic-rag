@@ -127,9 +127,12 @@ filter and gateway call sites. Independent integration acceptance remains open.
 
 Review M1 rejected the original cross-job reuse behavior. A newly admitted
 snapshot must match both the work's canonical project and any existing cursor
-binding. An invalid admitted project raises policy_snapshot_invalid before
-binding. A different admitted digest or a bound project mismatch raises
-extraction_policy_conflict before the provider, acceptance or cursor movement.
+binding. CM1 corrected the digest comparison: domain-set changes alone are
+compatible when domainless and common-domain policy hashes match. Legacy work
+requires a builtin binding; the original domain set and snapshot are retained.
+Current authority still intersects that set. An invalid admitted project raises
+policy_snapshot_invalid before binding. An effective-rule or bound project
+mismatch raises extraction_policy_conflict before the provider, acceptance or cursor movement.
 The worker retains the job and records the error using its existing finite retry
 policy; the immutable binding remains intact. Direct retries reuse the existing
 binding without reading today's file, but cannot change its project. Accepted

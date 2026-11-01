@@ -97,3 +97,24 @@ The changed PB-067 commands and documentation continuity check were also
 rehearsed after the correction:18passed,1known warning,exit0,15.92s
 (root-review-pb-docs-green.log). Nonblocking findings LOW-050..055 are tracked in
 [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6553145423).
+
+## Domain-set correction (CM1 / PB-CI1)
+
+The independent correction review rejected624dce6: full-bundle comparison could
+strand builtin retries after domain additions or permission revocations, and
+unchanged-file recovery after adding a domain. The comparison now checks
+common-domain and domainless effective policy hashes; legacy retries require a
+builtin binding. Project checks, immutable binding and current-authority
+intersection remain. Newly available domains are not added to an existing
+binding. C2 distinguishes compatible domain-set changes from rule conflicts.
+
+Focused regressions reproduced three failures (local builtin retry, unchanged
+file recovery, central builtin retry) and one passing captured-policy control.
+After correction41affected tests passed,1known warning,exit0,19.61s. Three
+additional negative cases protect real common-domain rule changes, domainless
+rule changes and custom-to-builtin conflicts. The test harness initially reused
+a module-scoped central session and then duplicated earlier fixture content;
+unique session/source text corrected those test-only assumptions. Original
+failed logs are retained, not counted as product evidence. Full3 was interrupted
+on unchanged624dce6 for this repair and is not a pass. Independent focused
+acceptance and final full-suite verification remain pending.

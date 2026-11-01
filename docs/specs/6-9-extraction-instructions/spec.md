@@ -57,6 +57,11 @@ be restored for future work, independently of replaying already accepted work.
   fails with `extraction_policy_conflict`, without provider call or cursor movement.
   Every admitted and bound snapshot must match the work's canonical project.
   Retrying a direct call may reuse its binding only in that same project.
+  A changed domain set alone is not a policy conflict: compare effective policy
+  hashes for shared domains and domainless output, retaining the original bound
+  domain set. Legacy retries require a builtin binding. Current authority is
+  still intersected before each attempt; neither newly available domains nor
+  revoked authority may widen the bound work.
 - AC-006 — Existing queue windows/batches without custom-policy metadata have an
   explicit legacy/builtin interpretation. Missing configuration preserves existing
   mining prompt/schema/output behavior. Existing accepted batches are never

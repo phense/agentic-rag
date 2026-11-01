@@ -294,6 +294,64 @@ def test_direct_retry_cannot_apply_a_bound_policy_to_another_project(base, conn,
     assert conn.execute('SELECT count(*) n FROM mining_batches').fetchone()['n'] == 0
 
 
+@pytest.mark.parametrize('captured', [False, True])
+def test_domain_add_does_not_strand_builtin_retry_or_unchanged_policy_recovery(captured, base, conn, tmp_path, monkeypatch):
+    # Mutation caught: comparing the whole bundle digest, including domain set.
+    case = fx.case('R1')
+    cfg = replace(configured(base, 'policy-a.toml') if captured else base, worker_max_attempts=1)
+    first = admit(conn, cfg, case, tmp_path)
+    monkeypatch.setattr(mining, 'run_structured', lambda *a, **k: (_ for _ in ()).throw(RuntimeError('provider outage')))
+    assert worker.drain(conn, cfg, max_jobs=1)['failed'] == 1
+    before = dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings').fetchone())
+    domains.add_domain(conn, 'gamma')
+    conn.commit()
+    if captured:
+        # A newly admitted job captures the unchanged file over a larger set.
+        queued = admit(conn, cfg, case, tmp_path)
+        assert queued['payload']['extraction_policy']['digest'] != before['digest']
+    else:
+        # Retry the exact same legacy job, not merely a new admission.
+        queued = {**first, 'attempts': 2}
+    mock = provider(monkeypatch, 'R1')
+    result = worker.process_job(conn, cfg, queued)
+    worker._complete(conn, queued['id'], result)
+    assert result.saved >= 1 and mock.calls == 1
+    assert conn.execute('SELECT status FROM mining_queue WHERE id=%s', (queued['id'],)).fetchone()['status'] == 'done'
+    after = dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings').fetchone())
+    assert after == before
+    batch = conn.execute('SELECT domains,extraction FROM mining_batches').fetchone()
+    assert set(batch['domains']) == {'operations', 'programming'}
+    assert batch['extraction']['_policy']['digest'] == before['digest']
+
+
+@pytest.mark.parametrize('change', ['common_domain', 'domainless', 'legacy_downgrade'])
+def test_domain_set_tolerance_still_refuses_real_policy_changes(change, base, conn, tmp_path, monkeypatch):
+    case = fx.case('P1')
+    queued = admit(conn, base, case, tmp_path)
+    original = {'version': 1, 'rules': [{'domain': 'programming', 'categories': ['memories']}]}
+    first = ep.build_bundle(ep.parse_document(original), case['project'], ['operations', 'programming']).capture()
+    queued = {**queued, 'payload': {**queued['payload'], 'extraction_policy': first}}
+    mock = provider(monkeypatch, 'P1')
+    with pytest.raises(llm.LLMUnavailableError):
+        worker.process_job(conn, base, queued)
+    before = dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings').fetchone())
+    if change == 'legacy_downgrade':
+        payload = {'project': case['project']}
+    else:
+        altered = json.loads(json.dumps(original))
+        if change == 'common_domain':
+            altered['rules'][0]['categories'] = ['lessons']
+        else:
+            altered['global'] = {'guidance': 'Changed pin and domainless preferences.'}
+        second = ep.build_bundle(ep.parse_document(altered), case['project'], ['operations', 'programming', 'gamma']).capture()
+        payload = {**queued['payload'], 'extraction_policy': second}
+    with pytest.raises(ValueError, match='^extraction_policy_conflict$'):
+        worker.process_job(conn, base, {**queued, 'payload': payload})
+    assert mock.calls == 1
+    assert dict(conn.execute('SELECT xmin::text revision,* FROM extraction_policy_bindings').fetchone()) == before
+    assert conn.execute('SELECT count(*) n FROM mining_batches').fetchone()['n'] == 0
+
+
 def test_enforcement_filters_all_eight_channels_deterministically():
     policy = ep.parse_document({'version': 1, 'global': {'categories': ['memories', 'assertions', 'contradictions',
                                                                        'pin_suggestions'], 'max_items_per_category': 1,

@@ -79,9 +79,13 @@ supply this field. Worker passes the captured bundle to mine_session, which bind
 it before calling extraction. Queue/window entries lacking metadata mean explicit
 legacy builtin, not today's file. Direct new calls resolve once, then reuse the
 binding on retries within the same canonical project. An admitted snapshot from
-a different project is invalid. If a new admission differs from an existing
-unaccepted binding, refuse with extraction_policy_conflict before the provider;
-keep the binding and cursor unchanged. No silent replacement or policy reuse.
+a different project is invalid. For captured policies compare domainless and
+shared-domain effective policy hashes, not the whole bundle digest (which also
+encodes the domain list). For legacy work require a builtin binding. Changed
+domain sets alone reuse the original binding, preserving its admitted domain
+set; intersect it with current authority as before. A project or effective-rule
+conflict is extraction_policy_conflict before the provider; preserve binding
+and cursor. No replacement, rebind or authority widening.
 Existing mining_batches win before binding/resolution so old
 accepted data is applied untouched; new accepted output records its digest in
 reserved metadata/provenance and binds to the same snapshot.

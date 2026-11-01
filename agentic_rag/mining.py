@@ -428,14 +428,23 @@ def _policy_bundle(conn, cfg, *, session_id, last_uuid, project, policy, policy_
         admitted = None
     elif policy == extraction_policy.LEGACY:
         origin = 'legacy'
-        admitted = candidate = extraction_policy.builtin_bundle(key, domain_names)
+        admitted = None
+        candidate = lambda: extraction_policy.builtin_bundle(key, domain_names)
     else:
         origin = policy_origin
         admitted = candidate = extraction_policy.validate_capture(policy)
     if admitted is not None and admitted.snapshot['project'] != key:
         raise extraction_policy.PolicySnapshotError()
     bundle, _ = bind_policy(conn, session_id=session_id, input_cursor=last_uuid or "", bundle=candidate, origin=origin)
-    if bundle.snapshot['project'] != key or (admitted is not None and bundle.digest != admitted.digest):
+    conflict = origin == 'legacy' and not extraction_policy.is_builtin(bundle)
+    if admitted is not None:
+        old, new = bundle.snapshot, admitted.snapshot
+        common = old['domains'].keys() & new['domains'].keys()
+        # A bundle digest also includes the admitted domain set. Domain addition
+        # or revocation does not change the policy on the surviving domains.
+        conflict = old['domainless'] != new['domainless'] or any(
+            old['domains'][d] != new['domains'][d] for d in common)
+    if bundle.snapshot['project'] != key or conflict:
         # A direct retry may reuse its binding without reading today's file.
         # A new admission must not silently inherit a different policy or scope.
         # Retain the immutable binding and job; the worker records this code.
