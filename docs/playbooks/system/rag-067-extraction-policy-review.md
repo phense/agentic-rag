@@ -64,3 +64,16 @@ Known rehearsal fragility: the `PYGATE` comparison has one-second process
 start-time resolution. The structurally identical PB-065 gate rehearsal failed
 once under load during this slice and passed on immediate rerun
 (log preserved by the implementer, not caused by RAG-067).
+
+## Coordinator correction and renewed rehearsal before independent review
+
+The prior048a9f8 procedure labelled a post-upgrade dump0.6.19 because it refused
+the actual0.6.20 source. That workaround is withdrawn. The current procedure and
+operator code support truthful0.6.20 inventory/backup manifests and refuse the
+future0.6.21 label. A new actual verified-backup regression first failed, then
+passed with its source-version and binding-row manifest assertions. The changed
+PB-067 commands, schema tests and affected lifecycle/synthesis upgrade tests ran
+serially:13passed,1known warning,exit0,108.16s (`root-current-backup-green.log`).
+The current PB-067 rehearsal exercised the0.6.20-labelled dump/restore. It retains
+the central-mining and host limitations above; independent content and integration
+acceptance are still pending.

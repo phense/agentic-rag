@@ -358,7 +358,7 @@ def test_operator_cli_and_central_service_on_populated_0_6_17(tmp_path, monkeypa
         assert outputs['retry']['migrations_applied'] == []
         assert synthesis_counts(cfg) == dict.fromkeys(synthesis_counts(cfg), 0)
         # Unsupported labels stay refused; the actual target version is not a source.
-        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.20',
+        assert cli.main(['service', '--config', str(config), 'preflight', '--source-version', '0.6.21',
                          '--mode', 'local']) == 1
         capsys.readouterr()
         # Old 0.6.17 central API on the upgraded schema serves a scoped read.

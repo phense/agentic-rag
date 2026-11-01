@@ -119,3 +119,11 @@ locations. Four reds then **44 passed**, exit0 (safety, policy and public CLI
 suites),4.25s. Logs: owned `root-safety-red.log` / `root-safety-green.log` under
 `/dev/shm/rag67-20261101-tests/logs/`. These are targeted checks; full verification
 and independent acceptance remain pending.
+
+The coordinator also reproduced refusal of a truthful current-release backup:
+`verified_backup(..., '0.6.20', ...)` failed with `unsupported_source_version`.
+Supported sources now include0.6.20; the post-upgrade backup/restore procedure
+records that actual version. Future0.6.21 remains unsupported. The new real
+backup/independent-restore case and affected schema, PB-067, lifecycle and synthesis
+upgrade tests passed together: **13 passed**,1known warning,exit0,108.16s.
+Earlier evidence of0.6.20 refusal describes the pre-correction source only.

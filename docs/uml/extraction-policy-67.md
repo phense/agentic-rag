@@ -1,6 +1,8 @@
 # Extraction-policy ownership and replay
 
-Mode: design-time. RAG-067 /6.9. Verified2026-11-01 against baseline `01bc13bd`.
+Mode: as-built reconciliation before independent acceptance. RAG-067 /6.9.
+Verified2026-11-01 against implemented source `115ea50`, coordinator correction
+`57af780` and the current-release backup correction. Baseline `01bc13bd`.
 [Specification](../specs/6-9-extraction-instructions/spec.md),
 [plan](../specs/6-9-extraction-instructions/plan.md).
 
@@ -105,4 +107,38 @@ knowledge writes, then restore authority/input and recover.
 
 No Mermaid renderer is installed for this feature gate. Diagram directive,
 participants, arrows and alt/end pairing were inspected semantically; rendering
-is not claimed. As-built reconciliation is still required.
+is not claimed. The coordinator compared the model to the actual admission, binding, provider,
+filter and gateway call sites. Independent integration acceptance remains open.
+
+
+## As-built reconciliation and difference dispositions
+
+| Boundary | Actual code evidence | Disposition |
+|---|---|---|
+| File contract and deterministic precedence | extraction_policy.parse_document/resolve/resolve_domainless/build_bundle | Matches D1/D2; per-domain and domainless policies share a normalized digest map |
+| Atomic admission | jobs.enqueue_mine payload extraction_policy; service.ingest.accept private _extraction_policy inside the source transaction | Matches D2/D5; no custom file leaves no metadata and means builtin legacy |
+| Pre-call binding | mining._policy_bundle/bind_policy and SQL032 extraction_policy_bindings trigger/RLS | Matches D3; one immutable binding+audit precedes the provider, regardless of provider failure |
+| Accepted output and apply | mining.mine_session reads mining_batches first, then prepare_extraction, accepted commit, existing atomic apply | Matches D4; legacy JSON untouched, new _policy provenance records digest/rejections |
+| Deterministic output selection | extraction_policy.enforce over parsed Extraction, all eight channels, after unchanged grounding | Matches D6; parsed hard caps remain authoritative, guidance has no semantic guarantee |
+| Current authorization | service.worker.process_source principal scope, before_apply and existing commit checks | Matches D2; captured domains are intersected, never authority grants |
+| Read-only evaluation | extraction_cli.dry_run uses reader READ ONLY and prepare_extraction; client evaluation refused | Matches IC-004; root corrected exact sample whitespace and metadata/error-location confidentiality after four failing regressions |
+| Legacy compatibility and activation | test_extraction_policy_upgrade actual archived01bc13bd; PB-067 all-miner restart gate | Matches D8 subject to independent PB review; no live/native/multi-host claim |
+| Current-release backup | service.upgrade source list now includes actual0.6.20; PB post-upgrade dump uses0.6.20 | Corrected plan implementation: an0.6.20 dump must not be labelled0.6.19; actual backup regression plus affected PB/schema/upgrade rehearsal passed13tests |
+
+A pre-existing cursor binding takes precedence over a newly admitted local job's
+snapshot; mining._policy_bundle emits extraction_policy_reuse with both digests.
+This is the implementation's explicit interpretation of one meaning per cursor,
+not a claim that a new admission can reinterpret earlier work. The original
+implementer did not directly test that cross-job case. Independent review must
+probe it and decide whether further refusal/status behavior is required by
+AC-005/007; it is not silently declared accepted here.
+
+The implementer's PB rehearsal admitted a central window but did not mine it;
+central integration success/recovery must therefore be derived and exercised by
+the independent gate, rather than inferred from the rehearsal title. The
+one-second process gate and the file/sample read bounds are named review risks.
+
+AF-067-001..008 are implementation obligations addressed by S1 paths/tests, not
+independent acceptance. ACF-067-S/R are still required. Root has not run the full
+suite yet. Diagram semantics and error/retry order remain source-inspected only;
+no renderer or production execution is claimed.

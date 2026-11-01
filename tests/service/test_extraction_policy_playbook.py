@@ -45,7 +45,7 @@ COMMANDS = [
     'rag extraction dry-run --file POLICY.new --project PROJECT --sample SAMPLE',
     'mv POLICY.new POLICY', 'mv POLICY.prev POLICY', 'rag extraction inspect --queued',
     'rag service job-retry RECEIPT',
-    'rag service --config CONFIG verified-backup --source-version 0.6.19 --output DIR/current.dump',
+    'rag service --config CONFIG verified-backup --source-version 0.6.20 --output DIR/current.dump',
     "<<'PYFRESH'", "<<'PYGATE'", '-- PB067-CLIENTS', '-- PB067-INTEGRITY', '[mining] policy_file',
 ]
 
@@ -154,7 +154,7 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.20', '--dump',
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.21', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'bindings': 0, 'malformed_digests': 0, 'bindings_minus_audit': 0, 'batch_policy_mismatch': 0}
         assert integrity(load_config(config)) == zero
@@ -250,7 +250,7 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
         final = integrity(cfg)
         assert final['bindings'] >= 1 and {k: v for k, v in final.items() if k != 'bindings'} == dict.fromkeys(
             ['malformed_digests', 'bindings_minus_audit', 'batch_policy_mismatch'], 0)
-        current = operator('verified-backup', '--source-version', '0.6.19', '--output', str(proofs / 'current.dump'))
+        current = operator('verified-backup', '--source-version', '0.6.20', '--output', str(proofs / 'current.dump'))
         assert current['restore_verified']
         with isolated_database(cfg, initialize=False) as target:
             from agentic_rag import backup
