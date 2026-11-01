@@ -22,7 +22,7 @@ serial affected run recorded in [V-067](../../verification/issue67-extraction-po
 - A: inventory `supported: true`; preflight `ready: true`; upgrade applied
   `032_extraction_policy.sql` with `restore_verified` and
   `original_rows_unchanged` and wrote `policy032.dump.manifest.json`; the retry
-  applied nothing; `status` succeeded; the label `0.6.20` exited 1. The integrity
+  applied nothing; `status` succeeded; the future label `0.6.21` exited 1. The integrity
   check returned 0 in every column.
 - B1: `PYFRESH` printed `0.6.20` and the installed `METADATA` path. `PYGATE`
   exited 1 and named a process started before the installation marker; after a
@@ -146,4 +146,21 @@ execution and removed all owned databases. Unchanged paths explicitly inherit
 the earlier complete and correction reviews; those checks were not all repeated.
 C4 now says bound domains, consistent with the independently measured behavior.
 Low notes are tracked in Issue75comment6553401312. No full-suite or live-host
-acceptance is implied; final full4 must still terminate successfully.
+acceptance is implied; the final full-suite gate must still terminate successfully.
+
+## Full4 diagnosis and test-only correction
+
+The complete run at `ad937dd` ended with exit 1: 2,148 passed, three failed,
+one skipped and the known Starlette warning. All 385 source hashes remained
+unchanged. Two failures were obsolete assertions rejecting current-release
+backups, although the independently tested operator path supports 0.6.20.
+The third was reproduced with a process launched 1.200 seconds after the
+installation marker: `ps` rounded its start time back before the marker.
+The test now leaves 2.2 seconds between installation and restart; the same
+mechanical correction applies to the PB-065 and PB-066 rehearsals. The
+production process gate, policy code and SQL are unchanged.
+
+All five affected test files passed together: 26 passed, one known warning,
+exit 0 (104.90 seconds). Coordinator review covered the complete mechanical
+test diff. Independent product acceptance remains at `eadd2e5` / product
+`e88717f`; it does not stand in for the pending source-bound full5 run.

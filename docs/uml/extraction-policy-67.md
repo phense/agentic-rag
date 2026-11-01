@@ -1,8 +1,8 @@
 # Extraction-policy ownership and replay
 
-Mode: as-built reconciliation before independent acceptance. RAG-067 /6.9.
-Verified2026-11-01 against implemented source `115ea50`, coordinator correction
-`57af780` and the current-release backup correction. Baseline `01bc13bd`.
+Mode: independently accepted as-built reconciliation; final full-suite retry
+pending. RAG-067 /6.9. Verified2026-11-01 through reviewed `eadd2e5`,
+product fix `e88717f`. Baseline `01bc13bd`.
 [Specification](../specs/6-9-extraction-instructions/spec.md),
 [plan](../specs/6-9-extraction-instructions/plan.md).
 
@@ -108,7 +108,8 @@ knowledge writes, then restore authority/input and recover.
 No Mermaid renderer is installed for this feature gate. Diagram directive,
 participants, arrows and alt/end pairing were inspected semantically; rendering
 is not claimed. The coordinator compared the model to the actual admission, binding, provider,
-filter and gateway call sites. Independent integration acceptance remains open.
+filter and gateway call sites. Independent integration acceptance is recorded
+in [V-067](../verification/issue67-extraction-policy.md).
 
 
 ## As-built reconciliation and difference dispositions
@@ -122,7 +123,7 @@ filter and gateway call sites. Independent integration acceptance remains open.
 | Deterministic output selection | extraction_policy.enforce over parsed Extraction, all eight channels, after unchanged grounding | Matches D6; parsed hard caps remain authoritative, guidance has no semantic guarantee |
 | Current authorization | service.worker.process_source principal scope, before_apply and existing commit checks | Matches D2; captured domains are intersected, never authority grants |
 | Read-only evaluation | extraction_cli.dry_run uses reader READ ONLY and prepare_extraction; client evaluation refused | Matches IC-004; root corrected exact sample whitespace and metadata/error-location confidentiality after four failing regressions |
-| Legacy compatibility and activation | test_extraction_policy_upgrade actual archived01bc13bd; PB-067 all-miner restart gate | Matches D8 subject to independent PB review; no live/native/multi-host claim |
+| Legacy compatibility and activation | test_extraction_policy_upgrade actual archived01bc13bd; PB-067 all-miner restart gate | D8 independently accepted; no live/native/multi-host claim |
 | Current-release backup | service.upgrade source list now includes actual0.6.20; PB post-upgrade dump uses0.6.20 | Corrected plan implementation: an0.6.20 dump must not be labelled0.6.19; actual backup regression plus affected PB/schema/upgrade rehearsal passed13tests |
 
 Review M1 rejected the original cross-job reuse behavior. A newly admitted
@@ -139,11 +140,11 @@ binding without reading today's file, but cannot change its project. Accepted
 batches still replay unchanged before policy resolution.
 
 The implementer's PB rehearsal admitted a central window but did not mine it;
-central integration success/recovery must therefore be derived and exercised by
-the independent gate, rather than inferred from the rehearsal title. The
-one-second process gate and the file/sample read bounds are named review risks.
+the independent gate therefore exercised central integration separately. Its
+latest 36 checks passed, with earlier unchanged-path checks explicitly inherited.
+File/sample read bounds remain nonblocking follow-ups in Issue75.
 
-AF-067-001..008 are implementation obligations addressed by S1 paths/tests, not
-independent acceptance. ACF-067-S/R are still required. Root has not run the full
-suite yet. Diagram semantics and error/retry order remain source-inspected only;
-no renderer or production execution is claimed.
+AF-067-001..008 and ACF-067-S/R have independent acceptance through the complete
+and correction reviews. Full4 failed three mechanical test checks; final full5
+is still required after their correction. Diagram semantics remain inspected
+at source level; no renderer or production execution is claimed.

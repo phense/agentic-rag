@@ -9,7 +9,7 @@ version: 0.6.20 (schema032)
 depends_on: [../extraction-policy.md]
 assets: []
 last_reviewed: 2026-11-01
-summary: S1 implementation evidence for Issue67 - frozen EN/DE fixtures, mock-provider measurement, populated 0.6.19 upgrade and recovery, PB-067-OPS rehearsal, requirement dispositions, deviations and limits. Independent review, root full suite and production rollout are pending.
+summary: Independently accepted extraction-policy implementation and populated upgrade/recovery evidence. Final full-suite retry remains open after three mechanical test corrections; production rollout is separate.
 ---
 
 # Extraction policy verification
@@ -19,9 +19,10 @@ summary: S1 implementation evidence for Issue67 - frozen EN/DE fixtures, mock-pr
 [Issue67](https://github.com/phense/agentic-rag/issues/67) adds a versioned,
 file-configured extraction policy for session mining. Source is
 0.6.19/schema031 (`01bc13b`); the target is 0.6.20 with additive migration032.
-This record covers the implementation slice S1 (T067-001..007) on branch
-`feat/extraction-instructions-67`, base `11e5dc0`. Independent review (S2),
-the root full suite and convergence (S3) have not run yet.
+This record covers implementation and independently accepted integration on
+`feat/extraction-instructions-67`. The final full-suite retry and convergence
+remain open. The sections below retain evidence in revision order; earlier
+pending statements describe their historical stage, not the latest review.
 
 ## Commits
 
@@ -81,8 +82,8 @@ its binding and trigger; pre-upgrade restore loses later writes.
 | AC-006 | Implemented | legacy job/window tests, accepted legacy batch test, upgrade rehearsal |
 | AC-007 | Implemented | shared validator, service-owned central capture, per-admission read, bind audit with digest only |
 | AC-008 | Implemented | no re-mining command; replay tests; prospective rollback in PB rehearsal |
-| AC-009 | Implemented; independent review pending | upgrade rehearsal, PB-067-OPS rehearsal, activation gate |
-| AC-010 | Partially: fixtures, measurement and self-rehearsal done | independent review and fresh full suite are S2/S3 |
+| AC-009 | Independently accepted; final full retry pending | upgrade rehearsal, PB-067-OPS rehearsal, activation gate |
+| AC-010 | Fixtures, measurement and independent review complete; full retry pending | final gate below |
 | AF-067-001..008 | Addressed in S1 as mapped in tasks.md | see the slice report |
 
 ## Deviations and limits
@@ -203,3 +204,20 @@ LOW-056 stays in Issue75; LOW-057/058 wording/typography is corrected.
 The final full-suite gate remains open. The public review summary is
 [issue67-extraction-policy-review.json](issue67-extraction-policy-review.json).
 No production, TLS, systemd, macOS, multi-host or model-quality claim is made.
+
+## Full4 diagnosis and test-only correction
+
+The complete run at `ad937dd` ended with exit 1: 2,148 passed, three failed,
+one skipped and the known Starlette warning. All 385 source hashes remained
+unchanged. Two failures were obsolete assertions rejecting current-release
+backups, although the independently tested operator path supports 0.6.20.
+The third was reproduced with a process launched 1.200 seconds after the
+installation marker: `ps` rounded its start time back before the marker.
+The test now leaves 2.2 seconds between installation and restart; the same
+mechanical correction applies to the PB-065 and PB-066 rehearsals. The
+production process gate, policy code and SQL are unchanged.
+
+All five affected test files passed together: 26 passed, one known warning,
+exit 0 (104.90 seconds). Coordinator review covered the complete mechanical
+test diff. Independent product acceptance remains at `eadd2e5` / product
+`e88717f`; it does not stand in for the pending source-bound full5 run.

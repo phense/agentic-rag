@@ -31,11 +31,17 @@
     "cm1-probes-results.json": "cc57192ef5b9506517c186280535a298cb61a21663c1c20cbefa47b87ffb0e8f"
   },
   "retained_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6553401312",
-  "full_suite": "pending",
+  "full_suite": "full4 failed three mechanical test checks; full5 pending",
   "limits": [
     "synthetic mock provider only",
     "one Linux host",
     "no production rollout",
     "no TLS/systemd/macOS/multi-host or real-model quality evidence"
-  ]
+  ],
+  "mechanical_test_addendum": {
+    "scope": "Two current/future-version expectations and three process-gate restart waits; no product or SQL changes",
+    "coordinator_review": "complete bounded diff inspected",
+    "targeted_passed": 26,
+    "targeted_exit": 0
+  }
 }
