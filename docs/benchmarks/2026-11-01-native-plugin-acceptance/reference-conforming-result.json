@@ -1,0 +1,524 @@
+{
+  "source_head": "9cc025f5e07f98520116e6d39f7a113aa99f8bbf",
+  "cpu_count": 4,
+  "phases": [
+    {
+      "phase": "idle20",
+      "started_epoch": 1793519438.159841,
+      "finished_epoch": 1793519488.4809432,
+      "clients": 20,
+      "all_completed": true,
+      "tools": {
+        "metadata": {
+          "offered": 7,
+          "completed": 7,
+          "total_seconds": {
+            "n": 7,
+            "p50": 19.13791240309365,
+            "p95": 34.5915626124246,
+            "max": 35.71285840892233
+          },
+          "wait_seconds": {
+            "n": 7,
+            "p50": 17.55424,
+            "p95": 31.898030999999996,
+            "max": 32.784102
+          },
+          "execution_seconds": {
+            "n": 7,
+            "p50": 0.134188,
+            "p95": 0.16868909999999995,
+            "max": 0.182658
+          },
+          "retry_requests": 22,
+          "states": {
+            "completed": 7
+          }
+        },
+        "context": {
+          "offered": 7,
+          "completed": 7,
+          "total_seconds": {
+            "n": 7,
+            "p50": 6.0883638898376375,
+            "p95": 34.97504923366941,
+            "max": 36.42473266390152
+          },
+          "wait_seconds": {
+            "n": 7,
+            "p50": 3.644128,
+            "p95": 30.356974199999996,
+            "max": 31.526526
+          },
+          "execution_seconds": {
+            "n": 7,
+            "p50": 1.613244,
+            "p95": 1.8742492,
+            "max": 1.887556
+          },
+          "retry_requests": 20,
+          "states": {
+            "completed": 7
+          }
+        },
+        "search": {
+          "offered": 6,
+          "completed": 6,
+          "total_seconds": {
+            "n": 6,
+            "p50": 32.04523287399206,
+            "p95": 48.89783490484115,
+            "max": 50.31255533080548
+          },
+          "wait_seconds": {
+            "n": 6,
+            "p50": 16.6865115,
+            "p95": 32.174780500000004,
+            "max": 33.246014
+          },
+          "execution_seconds": {
+            "n": 6,
+            "p50": 13.616775,
+            "p95": 13.914785250000001,
+            "max": 13.975789
+          },
+          "retry_requests": 21,
+          "states": {
+            "completed": 6
+          }
+        }
+      },
+      "owners": {
+        "0": {
+          "offered": 5,
+          "completed": 5
+        },
+        "1": {
+          "offered": 5,
+          "completed": 5
+        },
+        "2": {
+          "offered": 5,
+          "completed": 5
+        },
+        "3": {
+          "offered": 5,
+          "completed": 5
+        }
+      }
+    },
+    {
+      "phase": "idle40",
+      "started_epoch": 1793519488.4882002,
+      "finished_epoch": 1793519580.5340953,
+      "clients": 40,
+      "all_completed": true,
+      "tools": {
+        "metadata": {
+          "offered": 14,
+          "completed": 14,
+          "total_seconds": {
+            "n": 14,
+            "p50": 39.95696385053452,
+            "p95": 55.90105683957226,
+            "max": 56.44347740220837
+          },
+          "wait_seconds": {
+            "n": 14,
+            "p50": 38.236448499999995,
+            "p95": 53.22042855,
+            "max": 53.270825
+          },
+          "execution_seconds": {
+            "n": 14,
+            "p50": 0.11688,
+            "p95": 0.23614894999999997,
+            "max": 0.27048
+          },
+          "retry_requests": 44,
+          "states": {
+            "completed": 14
+          }
+        },
+        "context": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 41.65107687097043,
+            "p95": 61.451021240279054,
+            "max": 70.85809570015408
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 38.986339,
+            "p95": 58.20119399999998,
+            "max": 67.031724
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 0.666298,
+            "p95": 0.985334399999999,
+            "max": 1.357056
+          },
+          "retry_requests": 40,
+          "states": {
+            "completed": 13
+          }
+        },
+        "search": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 52.73014497500844,
+            "p95": 87.75242888405919,
+            "max": 92.02178668207489
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 39.351437,
+            "p95": 71.16151659999998,
+            "max": 76.652947
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 12.554781,
+            "p95": 13.942874999999999,
+            "max": 14.04846
+          },
+          "retry_requests": 43,
+          "states": {
+            "completed": 13
+          }
+        }
+      },
+      "owners": {
+        "0": {
+          "offered": 10,
+          "completed": 10
+        },
+        "1": {
+          "offered": 10,
+          "completed": 10
+        },
+        "2": {
+          "offered": 10,
+          "completed": 10
+        },
+        "3": {
+          "offered": 10,
+          "completed": 10
+        }
+      }
+    },
+    {
+      "phase": "growing40",
+      "started_epoch": 1793519582.5093722,
+      "finished_epoch": 1793519673.2273088,
+      "clients": 40,
+      "all_completed": true,
+      "tools": {
+        "metadata": {
+          "offered": 14,
+          "completed": 14,
+          "total_seconds": {
+            "n": 14,
+            "p50": 43.358796129585244,
+            "p95": 75.28048228647094,
+            "max": 84.05050352308899
+          },
+          "wait_seconds": {
+            "n": 14,
+            "p50": 41.4517305,
+            "p95": 72.26383185,
+            "max": 80.863313
+          },
+          "execution_seconds": {
+            "n": 14,
+            "p50": 0.120278,
+            "p95": 0.15241634999999998,
+            "max": 0.184709
+          },
+          "retry_requests": 43,
+          "states": {
+            "completed": 14
+          }
+        },
+        "context": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 30.87440063082613,
+            "p95": 72.8340840754099,
+            "max": 76.47783630993217
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 28.502745,
+            "p95": 69.89823419999999,
+            "max": 74.102373
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 0.666774,
+            "p95": 1.0180595999999997,
+            "max": 1.150335
+          },
+          "retry_requests": 29,
+          "states": {
+            "completed": 13
+          }
+        },
+        "search": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 50.17351529491134,
+            "p95": 86.32025622674263,
+            "max": 90.68223506887443
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 34.750396,
+            "p95": 70.305605,
+            "max": 74.174408
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 12.268426,
+            "p95": 13.7304896,
+            "max": 13.774208
+          },
+          "retry_requests": 34,
+          "states": {
+            "completed": 13
+          }
+        }
+      },
+      "owners": {
+        "0": {
+          "offered": 10,
+          "completed": 10
+        },
+        "1": {
+          "offered": 10,
+          "completed": 10
+        },
+        "2": {
+          "offered": 10,
+          "completed": 10
+        },
+        "3": {
+          "offered": 10,
+          "completed": 10
+        }
+      }
+    },
+    {
+      "phase": "draining40",
+      "started_epoch": 1793519675.058842,
+      "finished_epoch": 1793519767.5673797,
+      "clients": 40,
+      "all_completed": true,
+      "tools": {
+        "metadata": {
+          "offered": 14,
+          "completed": 14,
+          "total_seconds": {
+            "n": 14,
+            "p50": 17.11333530396223,
+            "p95": 62.618275589798564,
+            "max": 84.70212291111238
+          },
+          "wait_seconds": {
+            "n": 14,
+            "p50": 15.508914,
+            "p95": 60.30730394999999,
+            "max": 82.05287
+          },
+          "execution_seconds": {
+            "n": 14,
+            "p50": 0.121191,
+            "p95": 0.15809505,
+            "max": 0.175855
+          },
+          "retry_requests": 42,
+          "states": {
+            "completed": 14
+          }
+        },
+        "context": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 17.836611786158755,
+            "p95": 80.86518725440837,
+            "max": 85.43383417581208
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 15.584131,
+            "p95": 77.1471466,
+            "max": 80.482837
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 0.678653,
+            "p95": 0.9813855999999992,
+            "max": 1.303489
+          },
+          "retry_requests": 47,
+          "states": {
+            "completed": 13
+          }
+        },
+        "search": {
+          "offered": 13,
+          "completed": 13,
+          "total_seconds": {
+            "n": 13,
+            "p50": 50.69391181599349,
+            "p95": 87.36850349120795,
+            "max": 92.4850747550372
+          },
+          "wait_seconds": {
+            "n": 13,
+            "p50": 34.837939,
+            "p95": 70.19206919999999,
+            "max": 74.95404
+          },
+          "execution_seconds": {
+            "n": 13,
+            "p50": 12.689084,
+            "p95": 14.0571262,
+            "max": 14.120734
+          },
+          "retry_requests": 46,
+          "states": {
+            "completed": 13
+          }
+        }
+      },
+      "owners": {
+        "0": {
+          "offered": 10,
+          "completed": 10
+        },
+        "1": {
+          "offered": 10,
+          "completed": 10
+        },
+        "2": {
+          "offered": 10,
+          "completed": 10
+        },
+        "3": {
+          "offered": 10,
+          "completed": 10
+        }
+      }
+    }
+  ],
+  "source_windows": 8,
+  "source_states": {
+    "applied": 8
+  },
+  "all_sources_applied": true,
+  "model_calls": {
+    "foreground": 55,
+    "background": 10,
+    "background_seconds": {
+      "n": 10,
+      "p50": 0.44775331020355225,
+      "p95": 0.953308689594268,
+      "max": 1.3097376823425293
+    },
+    "errors": 0
+  },
+  "observed_background_starts": [
+    1793519582.4952948,
+    1793519675.046135
+  ],
+  "poll_interval_seconds": 1.05,
+  "extraction_provider": "scripted synthetic result; not LLM quality/latency",
+  "limits": [
+    "Actual local CPU embeddings; shared pre-existing Ollama runtime",
+    "Other production services remained running; no production DB/config/service writes",
+    "Read-only populated schema024 source migrated only on own PG55468 copy",
+    "No long soak, TLS or cross-host traffic claim",
+    "Numerical targets are provisional; no user-agreed SLA"
+  ],
+  "all_clients_completed": true,
+  "measurement_run": "r4",
+  "cleanup": {
+    "owned_children_exited": true,
+    "owned_pg_stopped": true,
+    "production_services_touched": false
+  },
+  "copy": {
+    "source": "read-only old rehearsal schema024",
+    "documents_preserved_before_load": 24505,
+    "applied_to_owned_copy": [
+      "025_dashboard.sql",
+      "026_request_tracing.sql",
+      "027_provider_indexes.sql",
+      "028_reranker_settings.sql",
+      "029_source_evidence.sql",
+      "030_pattern_synthesis.sql",
+      "031_memory_lifecycle.sql",
+      "032_extraction_policy.sql",
+      "033_trusted_replacements.sql"
+    ],
+    "old_jobs_frozen_only_on_copy": 0,
+    "upgrade_acceptance": false
+  },
+  "installed_distribution_version": "0.6.11",
+  "source_release": "0.6.20 intermediate + schema033",
+  "target_release": "0.6.21",
+  "target_source_difference": "Only supported upgrade-version labels changed under agentic_rag/sql after the measured source. No remote release deployment claim.",
+  "resource_samples": {
+    "count": 322,
+    "errors": 0,
+    "host_memory_bytes": 8134742016,
+    "host_available_min_bytes": 4359868416,
+    "maxima": {
+      "pss_bytes": 393250816,
+      "rss_bytes": 899670016,
+      "processes": 21,
+      "db_connections": 16,
+      "unapplied_windows": 8,
+      "resident_models": 1,
+      "resident_model_bytes": 695845517,
+      "disk_bytes": 1290008595
+    },
+    "cpu_seconds_max_live_tree": 53.41,
+    "cpu_limit_note": "Live-tree process CPU excludes exited processes and shared Ollama. Cgroup CPU includes setup and sampler, not a per-request CPU measurement."
+  },
+  "supervisor": {
+    "exit_code": 0,
+    "seconds": 396.931,
+    "cgroup_cpu_seconds": 732.908,
+    "cgroup_peak_memory_display": "1G",
+    "swap_bytes": 0
+  },
+  "actual_contention": [
+    {
+      "phase": "growing40",
+      "observed_background_start": 1793519582.4952948,
+      "background_end": 1793519583.8050303,
+      "foreground_interval_overlap_seconds": 1.2956581115722656
+    },
+    {
+      "phase": "draining40",
+      "observed_background_start": 1793519675.046135,
+      "background_end": 1793519675.5638068,
+      "foreground_interval_overlap_seconds": 0.5049648284912109
+    }
+  ],
+  "protocol_sha256": "55bb8314951af09d70ceb91433b83b32a60dd55d02612b8291c8c52f2b986b28",
+  "private_raw_files_published": false
+}

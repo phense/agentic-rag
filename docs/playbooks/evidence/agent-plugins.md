@@ -313,3 +313,50 @@ failed with `unsupported_source_version`, then passed after the target label was
 supported. The release/upgrade/package selection completed38 tests, one known
 Starlette warning, exit0 in69.65s. Editable distribution metadata is now0.6.21.
 Node contracts completed7/7; these checks do not replace the final full suite.
+
+## Reference-host observations, 2026-11-01
+
+Writing depth: small, a measured-results section in this existing record.
+The owned copy retained24,505 documents from the read-only schema024 rehearsal
+snapshot and applied025–033 only in its private cluster. This load setup is
+separate from the populated0.6.20 upgrade/restore proof. The host has4 CPUs,
+8,134,742,016 bytes RAM and no swap. Other production services remained running;
+the existing loopback Ollama served real CPU `bge-m3-q8` embeddings. Extraction
+used scripted synthetic semantic output, not a real LLM.
+
+The conforming run used1.05s status polling after admission; temporary admission
+and status errors retried after0.3s. All140 offered requests completed across
+four principals. Both background phases overlapped an observed real embedding
+call (1.296s and0.505s respectively); all8 source windows eventually applied.
+These are short bursts, not sustained concurrent embedding load.
+
+| Phase | Clients | Metadata p95 total | Context p95 total | Search p95 total |
+|---|---:|---:|---:|---:|
+| Idle20 | 20 | 34.59s | 34.98s | 48.90s |
+| Idle40 | 40 | 55.90s | 61.45s | 87.75s |
+| Growing40 | 40 | 75.28s | 72.83s | 86.32s |
+| Draining40 | 40 | 62.62s | 80.87s | 87.37s |
+
+Queue waiting dominates these totals. Execution p95 ranged0.15–0.24s for metadata,
+0.98–1.87s for context and13.73–14.06s for search. This does not establish an
+acceptable interactive SLA; no numerical target was agreed. Avoid promising
+low-latency40-client operation from completion alone. A prior250ms-poll stress
+run also completed140 requests but lacked the recorded background-start
+precondition; it is retained separately, not pooled with these observations.
+
+There were322 resource samples with0 sampler errors: own-process peak PSS
+393,250,816 bytes, at most16 DB connections, one resident model
+(695,845,517 bytes), own database files at most1,290,008,595 bytes, and host
+available RAM at least4,359,868,416 bytes. The bounded supervisor exited0 in
+396.931s, reported1G peak cgroup memory,0 swap and732.908 CPU-seconds including
+setup/sampling but excluding the shared model process. Both owned children and
+PostgreSQL stopped. Production configuration/services were not changed.
+
+The imported product source was `9cc025f`, while installed dependency metadata
+still reported0.6.11; this was not a deployed0.6.21 release. Only the supported
+upgrade-version labels changed in product/SQL paths between that source and the
+target release. Aggregate-only results, limits and protocols are published in
+[the acceptance directory](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-conforming-result.json),
+with the [earlier stress run](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-stress-result.json)
+kept separate. Private copied result bodies and native account/debug data are
+excluded. Full-suite and final independent review remain delivery gates.
