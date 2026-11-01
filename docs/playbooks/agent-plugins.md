@@ -228,7 +228,9 @@ state and changes nothing. It checks all retained windows of that stream, all
 accepted batches and every existing source identity against the recording.
 Compare the DB windows with the O2 inventory; `export.json` separately proves
 the stopped client's unacknowledged windows. Retain both reports and their
-matching `recording_sha256`. A green preview is bounded to this recording and
+matching `recording_sha256`: the export and DB preview SHA-256 values must be
+identical. Stop on a mismatch; obtain the correct original bytes before apply.
+A green preview is bounded to this recording and
 namespace, not a census of other clients or unavailable histories.
 
 ```sh
@@ -250,6 +252,15 @@ Inspect `affected_claims` and `temporal_dependents` in the apply report. Compare
 `eligible_before` with `eligible_after`: a previously hidden original can
 resurface only through the migration033 exception above and its own truth/scope
 gates. Supersession with genuine independent evidence stays authoritative.
+If an original expected to be current still has `eligible_after:false`, inspect
+its own status, scope, expiry and independent evidence first. An already
+refuted/removed generated source retains its earlier reason, so it does not
+receive the correction marker (LOW-059). Keep that stream stopped and preserve
+the report for explicit operator recovery; do not reactivate generated evidence
+as a shortcut. After quarantine, do not change the source state or reason through
+normal review: the current marker carries the correction, and overwriting it can
+hide the original again. Any necessary later change requires repeating the
+current-fact checks and reviewing LOW-059 before activation.
 Use each reported `document_id` or slug with `rag evidence show`. Use
 `generated_source_keys` (not `generated_source_ids`) for
 `rag evidence history DOCUMENT --source SOURCE_KEY`; retain the private history.

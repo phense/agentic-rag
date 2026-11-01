@@ -194,8 +194,8 @@ measurements are the evidence supplied by this PR.
 
 ## RAG-068-A1 source-origin correction: provisional evidence
 
-The new source-origin section in PB06801 is drafted for0.6.21/schema032; its
-independent review and full populated backup/restore rehearsal remain open.
+The new source-origin section in PB06801 is drafted for0.6.21/schema033. The correction review below accepts
+its bounded source-origin slice; final release and whole-feature gates remain open.
 The prior0.6.11 evidence above does not validate this new gate.
 
 Targeted command with owned PG55460 and owned temporary files:
@@ -257,3 +257,17 @@ automatic compaction/online ACK, the reference latency/resource acceptance,
 full Python/Node/build/lock gates and production rollout are not proved here.
 Writing depth: small, one focused correction within this existing evidence page
 and its linked playbook; no documentation-set restructure.
+
+
+The correction review at `93e455d` accepted M1/P1/P2/P3/P4 with0 C/H/M and0
+Important. Its59/59 fresh assertions used14 owned databases (all removed).
+The source-bound extended root selection finished with124 passed, one known
+Starlette warning, exit0; pytest142.81s, supervisor144.11s,389 source files
+unchanged, logSHA256 `9691de3d63a0f1dde8558973773bd2e970a4f33d7aafac9a74d998303de0c962`.
+This remains a targeted selection. The review's new Low-A (unreserved marker)
+and Low-B (current reason can be overwritten) go to Issue75; the three small
+playbook/canonical-guide clarifications are incorporated. The observed predicate
+cost at600 assertions was0.270s versus0.184s, best of5 on the test host; this is
+an observation for the open reference latency gate, not accepted performance.
+Editable environments must be reinstalled after the release bump so generated
+native manifests read the new installed metadata; restart alone is insufficient.
