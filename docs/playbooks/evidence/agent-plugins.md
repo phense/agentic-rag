@@ -615,3 +615,34 @@ fallback. The empty restore template and vector preload are DBA-prepared
 installation prerequisites; no production configuration changed. Actual
 pgvector0.7, final independent correction review, the10s latency acceptance
 and the final full suite remain unverified.
+
+
+The independent N1 correction review accepted86d855d with0 C/H/M/Important.
+It freshly repeated the limited-owner upgrade, source/target independent restores,
+restored vector search and caller configuration preservation. Its ANN mutation
+probe distinguished256 calls from300 forced-exact calls, and verified the version
+guard and capped fallback. All four owned databases and the temporary role were
+removed. The remaining playbook template-flag/link/public-schema Minor is corrected.
+Coordinator logs predate the commit without captured input hashes; these fresh
+independent probes cover the essential paths on the reviewed HEAD.
+
+The [capacity/parser diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/capacity-and-parser-diagnostics.json)
+retains both completed diagnostic consumer arms. Their search p95 values remain
+approximately24–28s, so no consumer-count change is selected. Both owned database
+process trees exited and the model stopped, with no production change. The RLS
+membership experiment was rolled back. The next selected repair computes stable
+query-parser expressions once rather than per scanned chunk; its rollback-only
+SQL probe preserved all response fields while reducing approximately1.07s to0.58s.
+This is a single-query diagnostic with two repetitions, not40-client acceptance.
+
+
+The query-parser regression was committed in74db11c before the runtime repair.
+All eight cases failed on the expected128 or256 real parser calls (exit1,3.91s),
+while their complete responses still matched the published SQL. Scalar parser
+subqueries now compute the stable expression once per statement location. The
+110-test affected selection passed (exit0,97.43s): the8 parser work guards,
+100 existing lexical eligibility/parity cases and both genuine populated upgrade/
+restore rehearsals, including the limited owner. SQL/test hashes were captured
+during the run and remained identical at its end; they are not prior-start
+snapshot proof. No RLS policies or operators changed. Independent review, the
+source-bound load target and final full-suite acceptance remain open.

@@ -7,6 +7,8 @@
 -- materialized CTE. OFFSET0 prevents a documents-first predicate scan; the
 -- document bound does not depend on planner Memoize or chunks per document.
 -- Vector branches keep correlated truth/source gates before the ANN limit.
+-- Scalar parser subqueries become initplans: parse each language once per
+-- expression, not once per scanned or ranked chunk in the generic plan.
 -- Function-local jit=off avoids disproportionate compilation in scoped plans;
 -- PostgreSQL restores the caller settings on both return and cancellation.
 
@@ -19,11 +21,11 @@ CREATE OR REPLACE FUNCTION hybrid_search_candidates(
 LANGUAGE sql STABLE SET hnsw.ef_search = 256 SET jit=off AS $$
 WITH matches_en AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.tsv_en FROM chunks c
- WHERE c.tsv_en @@ websearch_to_tsquery('english',query_text)
+ WHERE c.tsv_en @@ (SELECT websearch_to_tsquery('english',query_text))
 ),
 matches_de AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.tsv_de FROM chunks c
- WHERE c.tsv_de @@ websearch_to_tsquery('german',query_text)
+ WHERE c.tsv_de @@ (SELECT websearch_to_tsquery('german',query_text))
 ),
 eligible_documents AS MATERIALIZED (
  SELECT d.* FROM (
@@ -81,8 +83,8 @@ ts_en AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_en c JOIN eligible_documents d ON d.id=c.document_id
    ) eligible WHERE within_document<=2
    ORDER BY metric DESC,slug,idx,id LIMIT 50
@@ -92,8 +94,8 @@ ts_de AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_de c JOIN eligible_documents d ON d.id=c.document_id
    ) eligible WHERE within_document<=2
    ORDER BY metric DESC,slug,idx,id LIMIT 50
@@ -118,12 +120,12 @@ LANGUAGE sql STABLE SET hnsw.ef_search = 256 SET jit=off AS $$
 WITH matches_en AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.content,x.source_hash,x.tsv_en
  FROM chunk_contexts x JOIN chunks c ON c.id=x.chunk_id
- WHERE x.version=1 AND x.tsv_en @@ websearch_to_tsquery('english',query_text)
+ WHERE x.version=1 AND x.tsv_en @@ (SELECT websearch_to_tsquery('english',query_text))
 ),
 matches_de AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.content,x.source_hash,x.tsv_de
  FROM chunk_contexts x JOIN chunks c ON c.id=x.chunk_id
- WHERE x.version=1 AND x.tsv_de @@ websearch_to_tsquery('german',query_text)
+ WHERE x.version=1 AND x.tsv_de @@ (SELECT websearch_to_tsquery('german',query_text))
 ),
 eligible_documents AS MATERIALIZED (
  SELECT d.* FROM (
@@ -191,8 +193,8 @@ ts_en AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_en c JOIN eligible_documents d ON d.id=c.document_id
      WHERE c.source_hash=chunk_context_source_hash(d.title,d.body,d.project_scope,c.content)
    ) eligible WHERE within_document<=2
@@ -203,8 +205,8 @@ ts_de AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_de c JOIN eligible_documents d ON d.id=c.document_id
      WHERE c.source_hash=chunk_context_source_hash(d.title,d.body,d.project_scope,c.content)
    ) eligible WHERE within_document<=2
@@ -231,11 +233,11 @@ CREATE OR REPLACE FUNCTION hybrid_search_candidates_planned(
 LANGUAGE sql STABLE SET hnsw.ef_search=256 SET jit=off AS $$
 WITH matches_en AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.tsv_en FROM chunks c
- WHERE c.tsv_en @@ websearch_to_tsquery('english',query_text)
+ WHERE c.tsv_en @@ (SELECT websearch_to_tsquery('english',query_text))
 ),
 matches_de AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.tsv_de FROM chunks c
- WHERE c.tsv_de @@ websearch_to_tsquery('german',query_text)
+ WHERE c.tsv_de @@ (SELECT websearch_to_tsquery('german',query_text))
 ),
 eligible_documents AS MATERIALIZED (
  SELECT d.* FROM (
@@ -256,8 +258,8 @@ ts_en AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_en c JOIN eligible_documents d ON d.id=c.document_id
    ) eligible WHERE within_document<=2
    ORDER BY metric DESC,slug,idx,id LIMIT 50
@@ -267,8 +269,8 @@ ts_de AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_de c JOIN eligible_documents d ON d.id=c.document_id
    ) eligible WHERE within_document<=2
    ORDER BY metric DESC,slug,idx,id LIMIT 50
@@ -295,12 +297,12 @@ LANGUAGE sql STABLE SET hnsw.ef_search=256 SET jit=off AS $$
 WITH matches_en AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.content,x.source_hash,x.tsv_en
  FROM chunk_contexts x JOIN chunks c ON c.id=x.chunk_id
- WHERE x.version=1 AND x.tsv_en @@ websearch_to_tsquery('english',query_text)
+ WHERE x.version=1 AND x.tsv_en @@ (SELECT websearch_to_tsquery('english',query_text))
 ),
 matches_de AS MATERIALIZED (
  SELECT c.id,c.document_id,c.idx,c.content,x.source_hash,x.tsv_de
  FROM chunk_contexts x JOIN chunks c ON c.id=x.chunk_id
- WHERE x.version=1 AND x.tsv_de @@ websearch_to_tsquery('german',query_text)
+ WHERE x.version=1 AND x.tsv_de @@ (SELECT websearch_to_tsquery('german',query_text))
 ),
 eligible_documents AS MATERIALIZED (
  SELECT d.* FROM (
@@ -321,8 +323,8 @@ ts_en AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, websearch_to_tsquery('english', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_en, (SELECT websearch_to_tsquery('english', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_en c JOIN eligible_documents d ON d.id=c.document_id
      WHERE c.source_hash=chunk_context_source_hash(d.title,d.body,d.project_scope,c.content)
    ) eligible WHERE within_document<=2
@@ -333,8 +335,8 @@ ts_de AS (
  SELECT id AS chunk_id,row_number() OVER(ORDER BY metric DESC,slug,idx,id) AS rank
  FROM (
    SELECT * FROM (
-     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) AS metric,
-       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, websearch_to_tsquery('german', query_text)) DESC,c.idx,c.id) AS within_document
+     SELECT c.id,d.slug,c.idx,ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) AS metric,
+       row_number() OVER(PARTITION BY d.id ORDER BY ts_rank_cd(c.tsv_de, (SELECT websearch_to_tsquery('german', query_text))) DESC,c.idx,c.id) AS within_document
      FROM matches_de c JOIN eligible_documents d ON d.id=c.document_id
      WHERE c.source_hash=chunk_context_source_hash(d.title,d.body,d.project_scope,c.content)
    ) eligible WHERE within_document<=2

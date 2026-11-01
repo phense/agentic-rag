@@ -83,3 +83,16 @@ all1,330 tracked files and HEAD unchanged).
 - [ ] T06820 [FR04/07/08, AC02/04/05, Issue92] Add verified regression reds for generic vector-plan work. Preserve eligibility before ANN limits and exact full-response parity on the frozen fixtures. Bound retrieval compilation locally without leaking caller settings. Keep signatures, grants, source hashes, RLS and published001..033 unchanged. Rehearse the populated source upgrade, interruption/retry and independent restores with the final034 definition.
 - [ ] T06821 [FR06/07/09, AC01/05, Issue92] Repeat the same mixed-tool20/40-client reference phases, distinct queries and background contention with the final runtime. Require successful search total p95 <=10seconds in each40-client contended phase, report sample sizes/failures/resources/model identity, and verify lossless eventual drain. No faster error responses, disabled inference or weaker authorization count as acceptance.
 - [ ] T06822 [FR08/09, AC01..05, Issue92] Reconcile the complete final bounded diff, architecture/upgrade evidence and independent0 C/H/M/Important review; run the final source-bound full suite and affected Node/build/lock/docs gates. Update T06811/T06818 only after actual acceptance; retain native12–14 and production cutover separately. Merge only after clean delivery gates under standing authorization.
+
+
+T06819/T06820 follow-up diagnosis after accepted N1 correction86d855d: two versus
+four foreground consumers both miss10s (approximately24–28s search p95); no
+consumer change is selected. Correlated-parent RLS membership rewriting gave
+only a small SQL reduction and is not selected. Generic retrieval functions
+instead parse the unchanged query for each scanned/ranked chunk: the8-case red
+selection observed128 or256 parser calls per query. A rollback-only reference
+probe computes each parser expression once and returns identical full responses
+in approximately0.58s versus1.07s. Repair only that repeated work with scalar
+initplans, preserve every operator/RLS/truth gate and score, and verify the real
+parser-call bound, complete EN/DE parity, populated upgrade/restore and actual
+reference load. This does not satisfy T06821 until the full acceptance run passes.

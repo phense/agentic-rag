@@ -387,5 +387,44 @@
       "input_hash_limit": "Coordinator logs predate commit without input hashes; essential paths freshly checked independently on HEAD",
       "playbook_minor": "Conditional template flags/link/public-schema requirement corrected in follow-up docs"
     }
+  },
+  "query_parser_correction": {
+    "regression_commit": "74db11c",
+    "red": {
+      "failed": 8,
+      "exit_code": 1,
+      "seconds": 3.91,
+      "calls_per_query": [
+        128,
+        256
+      ],
+      "log_sha256": "b375b0b301bf7fb52d07a5e26317143c0e625ffa6d59e4422a65950eaf5e1850"
+    },
+    "affected": {
+      "passed": 110,
+      "exit_code": 0,
+      "seconds": 97.43,
+      "log_sha256": "59ba87be2eede0ef91fe6cb455163e59d25cdfedcd22ad255f8e89b1a923b6a0",
+      "command": "PGPORT=55460 pytest -q tests/test_lexical_eligibility_work.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "coverage": "all4 generic retrieval functions parse calls<=8 with real parser and zero/broad matches; 100 pre-existing full EN/DE result/order/score/eligibility cases; both populated upgrade and actual restores including limited owner",
+      "source_hashes": {
+        "captured_epoch": 1793544388.8838615,
+        "phase": "captured during test, not prior-start proof",
+        "files": {
+          "sql/034_lexical_eligibility_work.sql": "32799d1ceb0839b19e96936e12b2f1991210eb0e3184175ad5507bd0864db569",
+          "tests/test_lexical_eligibility_work.py": "bad3b24b52f47554ded58e2994d5d02567f9d7a1385764a54692ded3816c9649",
+          "tests/service/test_lexical_upgrade.py": "3b9d523124fb46b7c21ff54a698d01d86fa9c82e1148c0cbd0330fcedcf7670a"
+        }
+      },
+      "source_hashes_unchanged_to_end": true
+    },
+    "diagnostic": "capacity-and-parser-diagnostics.json",
+    "status": "independent review pending; owned load diagnosis running, no latency/fullsuite acceptance",
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.71,
+      "log_sha256": "14197384a5a3ac788034ff939ad0455e094519bd380c0c597f28ed62ed704b94"
+    }
   }
 }
