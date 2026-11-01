@@ -48,7 +48,9 @@ class Ollama:
             raise httpx.ReadTimeout('synthetic lane timeout')
         if self.after_embed is not None:
             self.after_embed(self)
-        return httpx.Response(200, json={'embeddings': [list(self.output[host]) for _ in body['input']]})
+        # json.dumps keeps a NaN literal as a real daemon could emit it.
+        data = json.dumps({'embeddings': [list(self.output[host]) for _ in body['input']]})
+        return httpx.Response(200, content=data.encode(), headers={'content-type': 'application/json'})
 
     def embeds(self, host=None):
         return [c for c in self.calls if c[1] == 'embed' and (host is None or c[0] == host)]
@@ -257,7 +259,7 @@ def test_lane_vectors_use_primary_cache_identity_through_gateway(service_store, 
         saved = store.save_document(conn, cfg, title='Lane identity', body='Synthetic lane cache body.',
                                     domain='alpha', dtype='memory', project='/projects/a')
     primary_key = embedding_reuse._model(cfg, DIGEST)
-    lane_key = embedding_reuse._model(replace(cfg, ollama_url=LANE), DIGEST)
+    lane_key = embedding_reuse._model(replace(cfg, ollama_url=LANE, ollama_background_url=None), DIGEST)
     with db.connect(cfg) as conn:
         vectors = conn.execute('SELECT embedding::text v FROM chunks WHERE document_id=%s', (saved.doc_id,)).fetchall()
         assert vectors and all(json.loads(r['v']) == LANE_VECTOR for r in vectors)

@@ -7,6 +7,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 import threading
 import uuid
 
@@ -275,8 +276,27 @@ def run_one(cfg):
     return True
 
 
+def default_pool_size():
+    """CPython's default ThreadPoolExecutor size, used by asyncio.to_thread."""
+    count = os.process_cpu_count() if hasattr(os, 'process_cpu_count') else os.cpu_count()
+    return min(32, (count or 1) + 4)
+
+
+def check_consumers(consumers):
+    """Reserve at least half the default pool for HTTP, control and trace work.
+
+    The supported API runs on the event loop's default executor. A custom ASGI
+    host that replaces it must keep the same reserve; this check cannot see it.
+    """
+    pool = default_pool_size()
+    if type(consumers) is not int or not 1 <= consumers <= 4 or consumers * 2 > pool:
+        raise ValueError(f'service request_consumers={consumers!r} exceeds half of the '
+                         f'default thread pool ({pool} workers); use at most {min(4, pool // 2)}')
+    return consumers
+
+
 class Executor:
-    """Exactly two consumers per API process, irrespective of session count."""
+    """A fixed number of consumers per API process (default two, at most four)."""
     def __init__(self, cfg):
         self.cfg = cfg
         self.stop = asyncio.Event()
@@ -295,7 +315,9 @@ class Executor:
                     pass
 
     async def __aenter__(self):
-        self.tasks = [asyncio.create_task(self.consume()) for _ in range(2)]
+        # Validate before any consumer can claim work.
+        consumers = check_consumers(self.cfg.service_request_consumers)
+        self.tasks = [asyncio.create_task(self.consume()) for _ in range(consumers)]
         return self
 
     async def __aexit__(self, *args):

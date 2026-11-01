@@ -99,12 +99,23 @@ def test_consumers_above_half_default_pool_fail_before_any_work(monkeypatch, cpu
     assert state['calls'] == 0
 
 
-@pytest.mark.parametrize('cpu,consumers,process', [(1, 2, True), (2, 3, True), (2, 3, False), (28, 4, True)])
+@pytest.mark.parametrize('cpu,consumers,process', [(1, 2, True), (2, 3, True), (28, 4, True)])
 def test_consumers_within_reserve_start(monkeypatch, cpu, consumers, process):
     hold = threading.Event()
     cpus(monkeypatch, cpu, process=process)
     state = observe(monkeypatch, hold=hold)
     assert asyncio.run(run_executor(settings(consumers), state, hold, consumers)) == consumers
+
+
+def test_reserve_falls_back_to_cpu_count_without_process_cpu_count(monkeypatch):
+    # Python < 3.13 has no os.process_cpu_count; its default pool uses cpu_count.
+    # Only the check runs here: removing the attribute on 3.13 would also break
+    # CPython's own default executor, which a real older interpreter does not.
+    cpus(monkeypatch, 2, process=False)
+    assert requests.default_pool_size() == 6
+    assert requests.check_consumers(3) == 3
+    with pytest.raises(ValueError, match='request_consumers'):
+        requests.check_consumers(4)
 
 
 def test_reserve_uses_process_cpu_count_before_cpu_count(monkeypatch):
