@@ -410,3 +410,24 @@ Do not add its time to the measured query as though both were one operation.
 The033 overhead measured on synthetic replacement-superseded documents is
 recorded as LOW-065 in Issue75, with concurrent-host/noise limits. Full3 remains
 an independent delivery gate until its actual terminal result is available.
+
+
+## Source-origin delivery gate, 2026-11-01
+
+The complete Python suite on `f213ae76734c311bc49e10eca532511ded88491a`
+finished with **2,187 passed,1 skipped,1 known warning, exit0** in2,032.59s
+(supervisor2,034.57s). The skip is the macOS-only launchd install test. All392
+product/test/SQL/assets/version source hashes remained unchanged during the run;
+later changes are documentation only. Log SHA-256:
+`1b27a932dd6fc273c6057d37d78e4c6ec3d30d426790def732aadfa8c4fd40d9`.
+The [terminal summary](../../benchmarks/2026-11-01-native-plugin-acceptance/full-suite-result.json)
+records the command, source manifest digest and limits. Earlier full1/full2
+failures remain recorded; neither is counted as passing. Applicable Node7/7,
+offline lock check and0.6.21 wheel/sdist build passed on the same product tree.
+Independent source-origin/correction reviews leave0 C/H/M/Important; non-blocking
+LOW-059..065 are tracked in Issue75.
+
+This permits delivery of the0.6.21 source-origin correction with its tested
+populated upgrade/retry/restore path. It does not close Issue68: T06811/AC05
+repair and performance acceptance continue in Issue92, and unobserved native
+host criteria remain in Issues12–14. No production migration or cutover is implied.
