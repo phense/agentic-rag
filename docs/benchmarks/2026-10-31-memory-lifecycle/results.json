@@ -1,0 +1,1660 @@
+{
+ "deterministic_outcomes_identical": true,
+ "feature": "RAG-066 memory lifecycle (S1)",
+ "fixtures": {
+  "corpus.json": "d717507f2a82414a4abdf2ffba1ba0130d7f015e692853d720e4aa7109aa7e67",
+  "labels.json": "f5a98eaa7e4737edecde65a5de4ceb2e1424ea74e4192ab2edda6f290276fa11"
+ },
+ "limits": [
+  "synthetic hand-labelled corpus (frozen fixtures); not a private or production corpus",
+  "semantic labels are the author judgement; no model quality or semantic accuracy is measured",
+  "lexical retrieval only; embeddings, rerankers and context indexing are disabled",
+  "old curation time includes starting a Python subprocess",
+  "the scale section is a synthetic worst case (every broad match is a merged member), not a usage profile",
+  "timings come from one shared host with a local PostgreSQL and vary between runs"
+ ],
+ "old_curation_source": "d4d2372",
+ "postgres": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+ "provider_calls": 0,
+ "python": "3.13.13",
+ "repetitions": 3,
+ "runs": [
+  {
+   "concurrency": {
+    "edit_after_preview": "stale_version",
+    "injected_audit_failure": {
+     "audit": 0,
+     "decisions": 0,
+     "events": 0
+    },
+    "opposing_applies": {
+     "active": 1,
+     "audit": 1,
+     "decisions": 1,
+     "events": 1,
+     "outcomes": [
+      "ok",
+      "stale_version"
+     ]
+    },
+    "reader_role_apply": {
+     "audit": 0,
+     "decisions": 0,
+     "error": "InsufficientPrivilege",
+     "events": 0
+    },
+    "replay_after_correction": {
+     "member_current": true,
+     "replayed": true,
+     "state": "corrected"
+    },
+    "replay_new_transport_id": {
+     "decisions": 1,
+     "events": 1,
+     "replayed": true,
+     "same_decision": true
+    },
+    "request_key_other_payload": "replay_mismatch"
+   },
+   "curation_0.6.18": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3",
+     "T1-beta",
+     "T2-lesson",
+     "T3-b"
+    ],
+    "documents_after": 45,
+    "false_merges": [
+     "T1-beta"
+    ],
+    "matches_label": true,
+    "ms": 1231.23,
+    "same_knowledge_pairs_left_for_review": []
+   },
+   "curation_0.6.19": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3"
+    ],
+    "documents_after": 45,
+    "false_merges": [],
+    "matches_label": true,
+    "ms": 259.97,
+    "same_knowledge_pairs_left_for_review": [
+     "T2",
+     "T3"
+    ]
+   },
+   "decisions": {
+    "apply": {
+     "counts": {
+      "active": 9,
+      "audit": 10,
+      "decisions": 10,
+      "events": 10
+     },
+     "latency": {
+      "max_ms": 474.12,
+      "median_ms": 447.46,
+      "n": 10
+     }
+    },
+    "documents": 45,
+    "end_counts": {
+     "active": 8,
+     "audit": 11,
+     "decisions": 10,
+     "events": 11
+    },
+    "examples": {
+     "C1-a": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "C1-b",
+         "slug": "primary-dns-server-2",
+         "title": "Primary DNS server"
+        },
+        "created_at": "2026-11-01T02:09:54.454024+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "aca8d799-513b-4ed8-90fb-bcd967a5ad81",
+        "member_id": "C1-a",
+        "operation": "contradiction",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "judgement",
+        "reason": "measurement",
+        "relationship": "contested",
+        "revision": 1,
+        "state": "contested"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": true,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "C1-a",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "primary-dns-server",
+       "status": "active",
+       "title": "Primary DNS server"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:cf0e394eb148493c7bb14e21eac9249728009507e767f48d1be03c29dfc37e61"
+     },
+     "E1-copy": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "E1-keep",
+         "slug": "vpn-reconnect-procedure",
+         "title": "VPN reconnect procedure"
+        },
+        "created_at": "2026-11-01T02:09:52.679029+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "669dda53-5029-4858-870c-ea6c82c924df",
+        "member_id": "E1-copy",
+        "operation": "exact_duplicate",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "exact",
+        "reason": "measurement",
+        "relationship": "hiding",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "E1-copy",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "vpn-reconnect-procedure-2",
+       "status": "active",
+       "title": "VPN reconnect procedure"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:56fde3293feda71c323d109c6608b9d99bb6590faf83538c4ad6018a350499f7"
+     },
+     "P1-old": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "P1-new",
+         "slug": "wiki-backup-target-moved",
+         "title": "Wiki backup target moved"
+        },
+        "created_at": "2026-11-01T02:09:53.538961+00:00",
+        "domain": "general",
+        "effective_at": "2026-06-01T08:00:00+00:00",
+        "id": "6c718af2-5dea-4ada-b94b-7a1d2e7ffe2e",
+        "member_id": "P1-old",
+        "operation": "replacement",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "event_order",
+        "reason": "measurement",
+        "relationship": "replaced",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "P1-old",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "wiki-backup-target",
+       "status": "active",
+       "title": "Wiki backup target"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:633b10530bc6cc0a830486641701199b0c5479153dd077f6c58827ce8cd62295"
+     }
+    },
+    "ingest_ms": 1325.61,
+    "k1": {
+     "current": "E1-keep",
+     "include_merged": "E1-keep",
+     "omitted": "E1-keep"
+    },
+    "k1_expected_current": "E1-keep",
+    "postgres": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+    "preview": {
+     "checks": 31,
+     "latency": {
+      "max_ms": 188.41,
+      "median_ms": 174.97,
+      "n": 14
+     },
+     "matching": 31,
+     "mismatches": []
+    },
+    "retrieval_after": {
+     "current": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     },
+     "include_merged": {
+      "D1": {
+       "members_in_top8": [
+        "D1-copy"
+       ],
+       "top8": [
+        "D1-keep",
+        "D1-copy"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [
+        "E1-copy"
+       ],
+       "top8": [
+        "E1-keep",
+        "E1-copy"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [
+        "M1-copy1",
+        "M1-copy2"
+       ],
+       "top8": [
+        "M1-canon",
+        "M1-copy1",
+        "M1-copy2",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [
+        "R1-short"
+       ],
+       "top8": [
+        "R1-short",
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [
+        "X1-short"
+       ],
+       "top8": [
+        "X1-short",
+        "X1-rich"
+       ]
+      }
+     },
+     "omitted": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     }
+    },
+    "retrieval_before": {
+     "D1": {
+      "members_in_top8": [
+       "D1-copy"
+      ],
+      "top8": [
+       "D1-keep",
+       "D1-copy"
+      ]
+     },
+     "E1": {
+      "members_in_top8": [
+       "E1-copy"
+      ],
+      "top8": [
+       "E1-keep",
+       "E1-copy"
+      ]
+     },
+     "M1": {
+      "members_in_top8": [
+       "M1-copy1",
+       "M1-copy2"
+      ],
+      "top8": [
+       "M1-canon",
+       "M1-copy1",
+       "M1-copy2",
+       "M1-copy3"
+      ]
+     },
+     "P1": {
+      "members_in_top8": [
+       "P1-old"
+      ],
+      "top8": [
+       "P1-old",
+       "P1-new"
+      ]
+     },
+     "P2": {
+      "members_in_top8": [
+       "P2-older-late"
+      ],
+      "top8": [
+       "P2-newer",
+       "P2-older-late"
+      ]
+     },
+     "R1": {
+      "members_in_top8": [
+       "R1-short"
+      ],
+      "top8": [
+       "R1-short",
+       "R2-p2",
+       "R1-rich",
+       "R2-p3"
+      ]
+     },
+     "X1": {
+      "members_in_top8": [
+       "X1-short"
+      ],
+      "top8": [
+       "X1-short",
+       "X1-rich"
+      ]
+     }
+    },
+    "search_latency": {
+     "after_decisions": {
+      "max_ms": 73.43,
+      "median_ms": 65.64,
+      "n": 35
+     },
+     "before_decisions": {
+      "max_ms": 54.7,
+      "median_ms": 48.71,
+      "n": 35
+     }
+    },
+    "source_retention": {
+     "documents": 45,
+     "ev1_unchanged": true,
+     "original_rows_unchanged": true
+    },
+    "transitions": {
+     "checks": 8,
+     "matching": 8,
+     "mismatches": []
+    },
+    "views": {
+     "checks": 32,
+     "matching": 32,
+     "mismatches": []
+    }
+   },
+   "scale": {
+    "apply_total_ms": 24247.76,
+    "hidden_members": 300,
+    "pairs": 300,
+    "search_after_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 1031.9,
+      "median_ms": 953.27,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 28.89,
+      "median_ms": 26.8,
+      "n": 7
+     }
+    },
+    "search_before_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 365.01,
+      "median_ms": 303.1,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 30.59,
+      "median_ms": 28.18,
+      "n": 7
+     }
+    }
+   },
+   "wall_ms": 78641.6
+  },
+  {
+   "concurrency": {
+    "edit_after_preview": "stale_version",
+    "injected_audit_failure": {
+     "audit": 0,
+     "decisions": 0,
+     "events": 0
+    },
+    "opposing_applies": {
+     "active": 1,
+     "audit": 1,
+     "decisions": 1,
+     "events": 1,
+     "outcomes": [
+      "ok",
+      "stale_version"
+     ]
+    },
+    "reader_role_apply": {
+     "audit": 0,
+     "decisions": 0,
+     "error": "InsufficientPrivilege",
+     "events": 0
+    },
+    "replay_after_correction": {
+     "member_current": true,
+     "replayed": true,
+     "state": "corrected"
+    },
+    "replay_new_transport_id": {
+     "decisions": 1,
+     "events": 1,
+     "replayed": true,
+     "same_decision": true
+    },
+    "request_key_other_payload": "replay_mismatch"
+   },
+   "curation_0.6.18": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3",
+     "T1-beta",
+     "T2-lesson",
+     "T3-b"
+    ],
+    "documents_after": 45,
+    "false_merges": [
+     "T1-beta"
+    ],
+    "matches_label": true,
+    "ms": 1251.81,
+    "same_knowledge_pairs_left_for_review": []
+   },
+   "curation_0.6.19": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3"
+    ],
+    "documents_after": 45,
+    "false_merges": [],
+    "matches_label": true,
+    "ms": 69.68,
+    "same_knowledge_pairs_left_for_review": [
+     "T2",
+     "T3"
+    ]
+   },
+   "decisions": {
+    "apply": {
+     "counts": {
+      "active": 9,
+      "audit": 10,
+      "decisions": 10,
+      "events": 10
+     },
+     "latency": {
+      "max_ms": 478.1,
+      "median_ms": 445.12,
+      "n": 10
+     }
+    },
+    "documents": 45,
+    "end_counts": {
+     "active": 8,
+     "audit": 11,
+     "decisions": 10,
+     "events": 11
+    },
+    "examples": {
+     "C1-a": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "C1-b",
+         "slug": "primary-dns-server-2",
+         "title": "Primary DNS server"
+        },
+        "created_at": "2026-11-01T02:11:11.518194+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "6c36ed4a-0aef-4cc9-b1ed-8d2ef6d9a626",
+        "member_id": "C1-a",
+        "operation": "contradiction",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "judgement",
+        "reason": "measurement",
+        "relationship": "contested",
+        "revision": 1,
+        "state": "contested"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": true,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "C1-a",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "primary-dns-server",
+       "status": "active",
+       "title": "Primary DNS server"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:1707ffe64d25d958f36666252b8104adf6076921d73e1c59f020213bcf301609"
+     },
+     "E1-copy": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "E1-keep",
+         "slug": "vpn-reconnect-procedure",
+         "title": "VPN reconnect procedure"
+        },
+        "created_at": "2026-11-01T02:11:09.709529+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "0062312b-d60f-473f-bdd2-ba58d130c969",
+        "member_id": "E1-copy",
+        "operation": "exact_duplicate",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "exact",
+        "reason": "measurement",
+        "relationship": "hiding",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "E1-copy",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "vpn-reconnect-procedure-2",
+       "status": "active",
+       "title": "VPN reconnect procedure"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:4848a021b17e2219ecb10f1ab070c7eb17af417f5f9c3117f411c78d21e90482"
+     },
+     "P1-old": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "P1-new",
+         "slug": "wiki-backup-target-moved",
+         "title": "Wiki backup target moved"
+        },
+        "created_at": "2026-11-01T02:11:10.604015+00:00",
+        "domain": "general",
+        "effective_at": "2026-06-01T08:00:00+00:00",
+        "id": "970694af-46bd-4991-97a9-3a9f2512638e",
+        "member_id": "P1-old",
+        "operation": "replacement",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "event_order",
+        "reason": "measurement",
+        "relationship": "replaced",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "P1-old",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "wiki-backup-target",
+       "status": "active",
+       "title": "Wiki backup target"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:81153830ab0544bc11d1e121c9635118f79aecb54bcd7eb6bb61f22573d09ec7"
+     }
+    },
+    "ingest_ms": 1290.28,
+    "k1": {
+     "current": "E1-keep",
+     "include_merged": "E1-keep",
+     "omitted": "E1-keep"
+    },
+    "k1_expected_current": "E1-keep",
+    "postgres": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+    "preview": {
+     "checks": 31,
+     "latency": {
+      "max_ms": 193.92,
+      "median_ms": 175.6,
+      "n": 14
+     },
+     "matching": 31,
+     "mismatches": []
+    },
+    "retrieval_after": {
+     "current": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     },
+     "include_merged": {
+      "D1": {
+       "members_in_top8": [
+        "D1-copy"
+       ],
+       "top8": [
+        "D1-keep",
+        "D1-copy"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [
+        "E1-copy"
+       ],
+       "top8": [
+        "E1-keep",
+        "E1-copy"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [
+        "M1-copy1",
+        "M1-copy2"
+       ],
+       "top8": [
+        "M1-canon",
+        "M1-copy1",
+        "M1-copy2",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [
+        "R1-short"
+       ],
+       "top8": [
+        "R1-short",
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [
+        "X1-short"
+       ],
+       "top8": [
+        "X1-short",
+        "X1-rich"
+       ]
+      }
+     },
+     "omitted": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     }
+    },
+    "retrieval_before": {
+     "D1": {
+      "members_in_top8": [
+       "D1-copy"
+      ],
+      "top8": [
+       "D1-keep",
+       "D1-copy"
+      ]
+     },
+     "E1": {
+      "members_in_top8": [
+       "E1-copy"
+      ],
+      "top8": [
+       "E1-keep",
+       "E1-copy"
+      ]
+     },
+     "M1": {
+      "members_in_top8": [
+       "M1-copy1",
+       "M1-copy2"
+      ],
+      "top8": [
+       "M1-canon",
+       "M1-copy1",
+       "M1-copy2",
+       "M1-copy3"
+      ]
+     },
+     "P1": {
+      "members_in_top8": [
+       "P1-old"
+      ],
+      "top8": [
+       "P1-old",
+       "P1-new"
+      ]
+     },
+     "P2": {
+      "members_in_top8": [
+       "P2-older-late"
+      ],
+      "top8": [
+       "P2-newer",
+       "P2-older-late"
+      ]
+     },
+     "R1": {
+      "members_in_top8": [
+       "R1-short"
+      ],
+      "top8": [
+       "R1-short",
+       "R2-p2",
+       "R1-rich",
+       "R2-p3"
+      ]
+     },
+     "X1": {
+      "members_in_top8": [
+       "X1-short"
+      ],
+      "top8": [
+       "X1-short",
+       "X1-rich"
+      ]
+     }
+    },
+    "search_latency": {
+     "after_decisions": {
+      "max_ms": 75.78,
+      "median_ms": 67.19,
+      "n": 35
+     },
+     "before_decisions": {
+      "max_ms": 52.23,
+      "median_ms": 46.79,
+      "n": 35
+     }
+    },
+    "source_retention": {
+     "documents": 45,
+     "ev1_unchanged": true,
+     "original_rows_unchanged": true
+    },
+    "transitions": {
+     "checks": 8,
+     "matching": 8,
+     "mismatches": []
+    },
+    "views": {
+     "checks": 32,
+     "matching": 32,
+     "mismatches": []
+    }
+   },
+   "scale": {
+    "apply_total_ms": 22935.57,
+    "hidden_members": 300,
+    "pairs": 300,
+    "search_after_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 1061.43,
+      "median_ms": 814.4,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 12.7,
+      "median_ms": 11.43,
+      "n": 7
+     }
+    },
+    "search_before_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 360.51,
+      "median_ms": 340.7,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 24.31,
+      "median_ms": 22.65,
+      "n": 7
+     }
+    }
+   },
+   "wall_ms": 73965.89
+  },
+  {
+   "concurrency": {
+    "edit_after_preview": "stale_version",
+    "injected_audit_failure": {
+     "audit": 0,
+     "decisions": 0,
+     "events": 0
+    },
+    "opposing_applies": {
+     "active": 1,
+     "audit": 1,
+     "decisions": 1,
+     "events": 1,
+     "outcomes": [
+      "ok",
+      "stale_version"
+     ]
+    },
+    "reader_role_apply": {
+     "audit": 0,
+     "decisions": 0,
+     "error": "InsufficientPrivilege",
+     "events": 0
+    },
+    "replay_after_correction": {
+     "member_current": true,
+     "replayed": true,
+     "state": "corrected"
+    },
+    "replay_new_transport_id": {
+     "decisions": 1,
+     "events": 1,
+     "replayed": true,
+     "same_decision": true
+    },
+    "request_key_other_payload": "replay_mismatch"
+   },
+   "curation_0.6.18": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3",
+     "T1-beta",
+     "T2-lesson",
+     "T3-b"
+    ],
+    "documents_after": 45,
+    "false_merges": [
+     "T1-beta"
+    ],
+    "matches_label": true,
+    "ms": 1234.44,
+    "same_knowledge_pairs_left_for_review": []
+   },
+   "curation_0.6.19": {
+    "archived": [
+     "D1-copy",
+     "E1-copy",
+     "M1-copy1",
+     "M1-copy2",
+     "M1-copy3"
+    ],
+    "documents_after": 45,
+    "false_merges": [],
+    "matches_label": true,
+    "ms": 71.05,
+    "same_knowledge_pairs_left_for_review": [
+     "T2",
+     "T3"
+    ]
+   },
+   "decisions": {
+    "apply": {
+     "counts": {
+      "active": 9,
+      "audit": 10,
+      "decisions": 10,
+      "events": 10
+     },
+     "latency": {
+      "max_ms": 470.5,
+      "median_ms": 448.89,
+      "n": 10
+     }
+    },
+    "documents": 45,
+    "end_counts": {
+     "active": 8,
+     "audit": 11,
+     "decisions": 10,
+     "events": 11
+    },
+    "examples": {
+     "C1-a": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "C1-b",
+         "slug": "primary-dns-server-2",
+         "title": "Primary DNS server"
+        },
+        "created_at": "2026-11-01T02:12:25.103601+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "5ea59a71-5a80-4f34-bbf3-f67ec469d403",
+        "member_id": "C1-a",
+        "operation": "contradiction",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "judgement",
+        "reason": "measurement",
+        "relationship": "contested",
+        "revision": 1,
+        "state": "contested"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": true,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "C1-a",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "primary-dns-server",
+       "status": "active",
+       "title": "Primary DNS server"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:7ce2038f547ca5676954c11c3f1cc46c8d1a972201a22bc680a221852b114efd"
+     },
+     "E1-copy": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "E1-keep",
+         "slug": "vpn-reconnect-procedure",
+         "title": "VPN reconnect procedure"
+        },
+        "created_at": "2026-11-01T02:12:23.287446+00:00",
+        "domain": "general",
+        "effective_at": null,
+        "id": "6c53a998-798a-4dad-a5f4-5bbe650915b4",
+        "member_id": "E1-copy",
+        "operation": "exact_duplicate",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "exact",
+        "reason": "measurement",
+        "relationship": "hiding",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "E1-copy",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "vpn-reconnect-procedure-2",
+       "status": "active",
+       "title": "VPN reconnect procedure"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:e2d3b5cd70d17bd48c067110612cf04952870ed999eba9564137b9e34f51be17"
+     },
+     "P1-old": {
+      "as_canonical": {
+       "cursor": null,
+       "members": [],
+       "more": false
+      },
+      "as_member": [
+       {
+        "canonical": {
+         "id": "P1-new",
+         "slug": "wiki-backup-target-moved",
+         "title": "Wiki backup target moved"
+        },
+        "created_at": "2026-11-01T02:12:24.185371+00:00",
+        "domain": "general",
+        "effective_at": "2026-06-01T08:00:00+00:00",
+        "id": "4e95f66e-f451-49e7-bd88-14213968332d",
+        "member_id": "P1-old",
+        "operation": "replacement",
+        "project": "/synthetic/lifecycle-a",
+        "proof": "event_order",
+        "reason": "measurement",
+        "relationship": "replaced",
+        "revision": 1,
+        "state": "active"
+       }
+      ],
+      "as_member_more": false,
+      "assertion": null,
+      "current": false,
+      "document": {
+       "domain": "general",
+       "dtype": "memory",
+       "id": "P1-old",
+       "project": "/synthetic/lifecycle-a",
+       "slug": "wiki-backup-target",
+       "status": "active",
+       "title": "Wiki backup target"
+      },
+      "legacy": {
+       "duplicate_of": [],
+       "duplicates": []
+      },
+      "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
+      "version": "lv1:453b4766505f68dc20d37a5c4184811b486865ba51c11865a04930b2e8d77543"
+     }
+    },
+    "ingest_ms": 1251.81,
+    "k1": {
+     "current": "E1-keep",
+     "include_merged": "E1-keep",
+     "omitted": "E1-keep"
+    },
+    "k1_expected_current": "E1-keep",
+    "postgres": "17.10 (Ubuntu 17.10-1.pgdg26.04+1)",
+    "preview": {
+     "checks": 31,
+     "latency": {
+      "max_ms": 185.39,
+      "median_ms": 172.67,
+      "n": 14
+     },
+     "matching": 31,
+     "mismatches": []
+    },
+    "retrieval_after": {
+     "current": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     },
+     "include_merged": {
+      "D1": {
+       "members_in_top8": [
+        "D1-copy"
+       ],
+       "top8": [
+        "D1-keep",
+        "D1-copy"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [
+        "E1-copy"
+       ],
+       "top8": [
+        "E1-keep",
+        "E1-copy"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [
+        "M1-copy1",
+        "M1-copy2"
+       ],
+       "top8": [
+        "M1-canon",
+        "M1-copy1",
+        "M1-copy2",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [
+        "R1-short"
+       ],
+       "top8": [
+        "R1-short",
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [
+        "X1-short"
+       ],
+       "top8": [
+        "X1-short",
+        "X1-rich"
+       ]
+      }
+     },
+     "omitted": {
+      "D1": {
+       "members_in_top8": [],
+       "top8": [
+        "D1-keep"
+       ]
+      },
+      "E1": {
+       "members_in_top8": [],
+       "top8": [
+        "E1-keep"
+       ]
+      },
+      "M1": {
+       "members_in_top8": [],
+       "top8": [
+        "M1-canon",
+        "M1-copy3"
+       ]
+      },
+      "P1": {
+       "members_in_top8": [],
+       "top8": [
+        "P1-new"
+       ]
+      },
+      "P2": {
+       "members_in_top8": [],
+       "top8": [
+        "P2-newer"
+       ]
+      },
+      "R1": {
+       "members_in_top8": [],
+       "top8": [
+        "R2-p2",
+        "R1-rich",
+        "R2-p3"
+       ]
+      },
+      "X1": {
+       "members_in_top8": [],
+       "top8": [
+        "X1-rich"
+       ]
+      }
+     }
+    },
+    "retrieval_before": {
+     "D1": {
+      "members_in_top8": [
+       "D1-copy"
+      ],
+      "top8": [
+       "D1-keep",
+       "D1-copy"
+      ]
+     },
+     "E1": {
+      "members_in_top8": [
+       "E1-copy"
+      ],
+      "top8": [
+       "E1-keep",
+       "E1-copy"
+      ]
+     },
+     "M1": {
+      "members_in_top8": [
+       "M1-copy1",
+       "M1-copy2"
+      ],
+      "top8": [
+       "M1-canon",
+       "M1-copy1",
+       "M1-copy2",
+       "M1-copy3"
+      ]
+     },
+     "P1": {
+      "members_in_top8": [
+       "P1-old"
+      ],
+      "top8": [
+       "P1-old",
+       "P1-new"
+      ]
+     },
+     "P2": {
+      "members_in_top8": [
+       "P2-older-late"
+      ],
+      "top8": [
+       "P2-newer",
+       "P2-older-late"
+      ]
+     },
+     "R1": {
+      "members_in_top8": [
+       "R1-short"
+      ],
+      "top8": [
+       "R1-short",
+       "R2-p2",
+       "R1-rich",
+       "R2-p3"
+      ]
+     },
+     "X1": {
+      "members_in_top8": [
+       "X1-short"
+      ],
+      "top8": [
+       "X1-short",
+       "X1-rich"
+      ]
+     }
+    },
+    "search_latency": {
+     "after_decisions": {
+      "max_ms": 68.62,
+      "median_ms": 59.01,
+      "n": 35
+     },
+     "before_decisions": {
+      "max_ms": 56.04,
+      "median_ms": 47.37,
+      "n": 35
+     }
+    },
+    "source_retention": {
+     "documents": 45,
+     "ev1_unchanged": true,
+     "original_rows_unchanged": true
+    },
+    "transitions": {
+     "checks": 8,
+     "matching": 8,
+     "mismatches": []
+    },
+    "views": {
+     "checks": 32,
+     "matching": 32,
+     "mismatches": []
+    }
+   },
+   "scale": {
+    "apply_total_ms": 22131.04,
+    "hidden_members": 300,
+    "pairs": 300,
+    "search_after_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 931.94,
+      "median_ms": 684.77,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 13.02,
+      "median_ms": 11.62,
+      "n": 7
+     }
+    },
+    "search_before_decisions": {
+     "broad": {
+      "hits": 8,
+      "max_ms": 354.0,
+      "median_ms": 322.72,
+      "n": 7
+     },
+     "unrelated": {
+      "hits": 2,
+      "max_ms": 25.51,
+      "median_ms": 23.37,
+      "n": 7
+     }
+    }
+   },
+   "wall_ms": 72318.16
+  }
+ ],
+ "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+ "source_tree_clean": true
+}

@@ -1,0 +1,193 @@
+{
+  "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+  "source_tree_clean": true,
+  "prior_revision": "1fc062832e4d40051ad3a5833077e4b39d77512e",
+  "source_hashes": {
+    "agentic_rag/lifecycle.py": "f4ddadefe232d79c333cd397e090a0cc6cd34d4c232d5bb639ebca3a62f8bef6",
+    "sql/031_memory_lifecycle.sql": "3e75aaac7a21c0cc67184e0e90ae13f151db86cd7185ebd304856cf4b78367d4"
+  },
+  "other_pytest_pids": [],
+  "load_average_start": [
+    1.3173828125,
+    3.57373046875,
+    5.1171875
+  ],
+  "provider_calls": 0,
+  "pairs": 150,
+  "rounds": 7,
+  "phases": {
+    "empty_overlay": {
+      "current": {
+        "eligibility_count_ms": {
+          "median_ms": 64.326,
+          "samples_ms": [
+            76.293,
+            63.382,
+            64.326,
+            70.068,
+            51.62,
+            63.93,
+            66.55
+          ]
+        },
+        "lexical_ms": {
+          "median_ms": 180.624,
+          "samples_ms": [
+            197.447,
+            190.313,
+            152.469,
+            180.624,
+            138.907,
+            157.187,
+            185.102
+          ]
+        },
+        "nonmember_10000_ms": {
+          "median_ms": 619.686,
+          "samples_ms": [
+            610.883,
+            661.475,
+            612.771,
+            573.866,
+            619.686,
+            627.599,
+            688.785
+          ]
+        }
+      },
+      "prior": {
+        "eligibility_count_ms": {
+          "median_ms": 44.924,
+          "samples_ms": [
+            37.362,
+            32.537,
+            44.187,
+            56.788,
+            45.648,
+            44.924,
+            52.787
+          ]
+        },
+        "lexical_ms": {
+          "median_ms": 159.842,
+          "samples_ms": [
+            133.698,
+            113.821,
+            177.197,
+            174.352,
+            158.965,
+            159.842,
+            170.653
+          ]
+        },
+        "nonmember_10000_ms": {
+          "median_ms": 273.77,
+          "samples_ms": [
+            194.917,
+            203.709,
+            282.589,
+            296.321,
+            276.165,
+            262.434,
+            273.77
+          ]
+        }
+      },
+      "eligible_count": 343
+    },
+    "150_merged_members": {
+      "current": {
+        "eligibility_count_ms": {
+          "median_ms": 251.454,
+          "samples_ms": [
+            236.953,
+            251.454,
+            251.937,
+            259.583,
+            212.451,
+            258.475,
+            227.372
+          ]
+        },
+        "lexical_ms": {
+          "median_ms": 540.976,
+          "samples_ms": [
+            437.29,
+            544.507,
+            549.552,
+            540.976,
+            397.29,
+            545.832,
+            492.401
+          ]
+        },
+        "nonmember_10000_ms": {
+          "median_ms": 727.014,
+          "samples_ms": [
+            538.219,
+            727.014,
+            794.943,
+            727.995,
+            657.691,
+            757.144,
+            570.235
+          ]
+        }
+      },
+      "prior": {
+        "eligibility_count_ms": {
+          "median_ms": 152.134,
+          "samples_ms": [
+            96.879,
+            157.03,
+            146.124,
+            159.295,
+            155.105,
+            152.134,
+            67.231
+          ]
+        },
+        "lexical_ms": {
+          "median_ms": 355.503,
+          "samples_ms": [
+            251.4,
+            366.304,
+            327.835,
+            355.503,
+            359.056,
+            355.699,
+            169.169
+          ]
+        },
+        "nonmember_10000_ms": {
+          "median_ms": 340.233,
+          "samples_ms": [
+            342.487,
+            340.233,
+            330.875,
+            335.481,
+            350.002,
+            396.202,
+            150.582
+          ]
+        }
+      },
+      "eligible_count": 193
+    }
+  },
+  "limits": [
+    "synthetic data, owner-role comparison, PostgreSQL on one shared host",
+    "no competing pytest or review benchmark; other system load is uncontrolled",
+    "prior function is a pre-security-correction comparator, not an approved fallback",
+    "timings include local SQL/rollback or lexical-search overhead; not production latency"
+  ],
+  "postgres": "PostgreSQL 17.10 (Ubuntu 17.10-1.pgdg26.04+1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0, 64-bit",
+  "documents": 345,
+  "owned_database_removed": true,
+  "source_hashes_unchanged": true,
+  "load_average_end": [
+    1.27880859375,
+    3.24365234375,
+    4.9306640625
+  ]
+}

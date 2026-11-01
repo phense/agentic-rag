@@ -7,6 +7,7 @@ import json
 
 from . import context_gate, profiles
 from .config import MAX_CONTEXT_CHARS
+from .lifecycle import current_only
 
 PROFILE_CHARS = 2400
 PROMPT_CHARS = 4800  # Below the configured Codex prompt-hook limit of5000.
@@ -110,6 +111,7 @@ def _query_hits(conn,cfg,project,prompt):
     return [present(hit,query) for hit in diverse(hits,query,3)]
 
 
+@current_only
 def build(conn,cfg,*,project=None,mode='startup',prompt=None,session_id=None,source=None):
     if mode not in ('startup','prompt'):
         raise ValueError('context mode must be startup or prompt')

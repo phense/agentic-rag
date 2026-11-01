@@ -43,10 +43,43 @@ def search(
     reference: str | None = None,
     timezone: str | None = None,
     diagnostics: dict | None = None,
+    view: str | None = None,
 ) -> tuple[list[SearchHit], list[str]]:
     """temporal=None keeps library callers on the legacy path; client surfaces
     pass 'auto' (configuration decides), 'off', or explicit 'prefer'/'filter'.
-    diagnostics, when given, receives the additive temporal explanation."""
+    diagnostics, when given, receives the additive temporal explanation.
+    view (RAG-066) is optional: omitted keeps every existing default and payload;
+    current/latest, include_merged or historical select lifecycle membership in SQL
+    before each candidate LIMIT and add evidence.lifecycle labels."""
+    from . import lifecycle
+    view = lifecycle.normalize_view(view, history=history, as_of=as_of)
+    options = dict(domain=domain, k=k, project=project, scope=scope, graph_depth=graph_depth, reranker=reranker,
+                   baseline=baseline, strategy=strategy, query_cache=query_cache, rerank_mode=rerank_mode,
+                   context_mode=context_mode, temporal=temporal, reference=reference, timezone=timezone,
+                   diagnostics=diagnostics)
+    if view is None:
+        return _search(conn, cfg, query, as_of=as_of, history=history, **options)
+    if view == 'historical':
+        as_of, history = None, True
+    with lifecycle.view_scope(conn, view):
+        hits, warnings = _search(conn, cfg, query, as_of=as_of, history=history, **options)
+        from .validity import selection as time_selection
+        found = lifecycle.labels(conn, [h.document_id for h in hits], view, time_selection(as_of, False)[0])
+    return [replace(h, evidence={**h.evidence, 'lifecycle': found.get(h.document_id, {'view': view})}) for h in hits], warnings
+
+
+def _search(
+    conn, cfg: Config, query: str, domain: str | None = None, k: int = 8,
+    *, project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, reranker=None, baseline: bool = False,
+    strategy: str = "auto",
+    query_cache=None,
+    rerank_mode: str = "auto",
+    context_mode: str = "auto",
+    temporal: str | None = None,
+    reference: str | None = None,
+    timezone: str | None = None,
+    diagnostics: dict | None = None,
+) -> tuple[list[SearchHit], list[str]]:
     validate_strategy(strategy)
     validate_rerank_mode(rerank_mode)
     if context_mode not in ("auto", "off"):

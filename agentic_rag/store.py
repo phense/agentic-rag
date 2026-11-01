@@ -471,3 +471,15 @@ def recover_synthesis_run(conn, cfg, run_id, **kwargs):
     """Audited re-queue of parked accepted pattern work; no new provider call."""
     from .synthesis import recover
     return recover(conn, cfg, run_id, **kwargs)
+
+
+def apply_lifecycle(conn, cfg, **kwargs):
+    """Audited version-bound lifecycle decision (RAG-066); never rewrites originals."""
+    from .lifecycle import apply
+    return apply(conn, cfg, **kwargs)
+
+
+def correct_lifecycle(conn, cfg, **kwargs):
+    """Audited version-bound correction of one lifecycle decision; restores no truth."""
+    from .lifecycle import correct
+    return correct(conn, cfg, **kwargs)

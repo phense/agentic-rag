@@ -1,8 +1,9 @@
 """Bounded, justified curation (spec §7). Runs ONLY inside the single writer.
 
 Allowed actions: resolve dangling links (deterministic), merge exact
-duplicates (identical body within a domain — the newer copy is archived with
-a duplicate_of edge, content is identical so nothing is lost), review mined
+duplicates (identical title, body and dtype within a domain and known
+project — the newer copy is archived with a duplicate_of edge, content is
+identical so nothing is lost), review mined
 contradictions (one Haiku call each; refuting requires reason + evidence +
 edge + audit row — the 005 constraint trigger rejects anything less), and an
 audit stamp per pass. Pins are never touched. Hard deletion happens only in
@@ -61,8 +62,21 @@ def _lock_scope_pair(conn, first, second, expected_scope):
             and all(r['status']=='active' and r['project_scope']==expected_scope for r in rows))
 
 
+def _same_exact_content(conn, first, second) -> bool:
+    """Structural exact proof under the caller's locks: identical non-empty body,
+    title and dtype (RAG-066 AF-066-009). A shared body alone does not prove
+    that two differently titled documents describe the same entity."""
+    rows = conn.execute(
+        "SELECT title, body, dtype FROM documents WHERE id=ANY(%s::uuid[])",
+        ([str(first), str(second)],)).fetchall()
+    return (len(rows) == 2 and rows[0]['body'] != ''
+            and rows[0]['title'] == rows[1]['title'] and rows[0]['body'] == rows[1]['body']
+            and rows[0]['dtype'] == rows[1]['dtype'])
+
+
 def _merge_exact_duplicates(conn, budget: int) -> int:
-    """Archive newer exact-body copies within a domain (budgeted)."""
+    """Archive newer exact copies (same title, body and dtype) within a domain
+    and known project (budgeted)."""
     if budget <= 0:
         return 0
     rows = conn.execute(
@@ -70,6 +84,7 @@ def _merge_exact_duplicates(conn, budget: int) -> int:
         " d1.id AS keep_id, d1.project_scope AS expected_scope"
         " FROM documents d1 JOIN documents d2"
         "   ON d1.domain = d2.domain AND d1.body = d2.body"
+        "   AND d1.title = d2.title AND d1.dtype = d2.dtype"
         "   AND d1.project_scope = d2.project_scope AND d1.project_scope <> 'unknown'"
         "   AND d1.id <> d2.id AND d1.created_at <= d2.created_at"
         "   AND (d1.created_at < d2.created_at OR d1.id < d2.id)"
@@ -81,6 +96,8 @@ def _merge_exact_duplicates(conn, budget: int) -> int:
     applied = 0
     for r in rows:
         if not _lock_scope_pair(conn,r["dup_id"],r["keep_id"],r["expected_scope"]):
+            continue
+        if not _same_exact_content(conn, r["dup_id"], r["keep_id"]):
             continue
         conn.execute(
             "UPDATE documents SET status = 'archived' WHERE id = %s",
@@ -245,11 +262,12 @@ def review_report(conn, cfg: Config) -> dict:
     temporal_review = [dict(r) for r in conn.execute(
         "SELECT d.slug,a.* FROM fact_assertions a JOIN documents d ON d.id=a.document_id"
         " WHERE a.disposition='review' ORDER BY d.created_at DESC LIMIT 100").fetchall()]
+    from .lifecycle import review as lifecycle_review
     from .evidence import summary
     claim_review=[{'slug':r['slug'],**summary(conn,str(r['id']))} for r in conn.execute(
         "SELECT d.id,d.slug FROM documents d JOIN claim_records c ON c.document_id=d.id"
         " WHERE c.review_state<>'confirmed' OR NOT claim_eligible(d.id) ORDER BY d.created_at DESC LIMIT 100").fetchall()]
-    return {"claim_review":claim_review,"temporal_review": temporal_review, "unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
+    return {"lifecycle_review": lifecycle_review(conn), "claim_review":claim_review,"temporal_review": temporal_review, "unknown_scopes": unknown_scopes, "unknown_scope_count": unknown_count,
             "duplicate_candidates": duplicate_candidates,
             "dangling": dangling, "stale_pins": stale_pins,
             "suggestions": suggestions, "queue_errors": queue_errors}

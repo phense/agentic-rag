@@ -137,6 +137,8 @@ def _main(argv: list[str] | None = None) -> int:
 
     p_get = sub.add_parser("get")
     p_get.add_argument("id_or_slug")
+    p_get.add_argument("--view", choices=["current", "latest", "include_merged", "historical"],
+                       help="lifecycle view; omitted keeps original inspection")
     p_get.add_argument("--json", action="store_true")
 
     p_context = sub.add_parser("context", help="bounded advisory project context")
@@ -172,6 +174,8 @@ def _main(argv: list[str] | None = None) -> int:
                           help="time expressions: auto follows [temporal] enabled (default off)")
     p_search.add_argument("--reference", help="ISO timestamp with offset for yesterday/last week/next month")
     p_search.add_argument("--timezone", help="IANA zone for calendar days, e.g. Europe/Berlin")
+    p_search.add_argument("--view", choices=["current", "latest", "include_merged", "historical"],
+                          help="lifecycle view; omitted keeps the existing default")
     p_search.add_argument("--json", action="store_true")
 
     p_research = sub.add_parser("research", help="bounded read-only evidence research; provider calls require --provider")
@@ -301,6 +305,29 @@ def _main(argv: list[str] | None = None) -> int:
     pb.add_argument('--reason',required=True);pb.add_argument('--max-batches',type=int,default=1)
     prc=pt.add_parser('recover',help='re-queue parked accepted work; no new provider call')
     prc.add_argument('run_id');prc.add_argument('--reason',required=True)
+
+    p_life=sub.add_parser('lifecycle',help='source-preserving consolidation decisions (preview, apply, correct)')
+    lt=p_life.add_subparsers(dest='lifecycle_cmd',required=True)
+    lp=lt.add_parser('preview',help='classify two originals; no write, no provider call')
+    lp.add_argument('member');lp.add_argument('target')
+    lp.add_argument('--operation',choices=['exact_duplicate','semantic_duplicate','extension','replacement','contradiction'])
+    lp.add_argument('--json',action='store_true')
+    la=lt.add_parser('apply',help='apply one previewed decision through the audited gateway')
+    la.add_argument('member');la.add_argument('target')
+    la.add_argument('--operation',required=True,choices=['exact_duplicate','semantic_duplicate','extension','replacement','contradiction'])
+    la.add_argument('--member-version',required=True);la.add_argument('--target-version',required=True)
+    la.add_argument('--reason',required=True)
+    la.add_argument('--reviewed',action='store_true',help='operator reviewed a semantic/extension/replacement judgement')
+    la.add_argument('--request-key');la.add_argument('--json',action='store_true')
+    lc=lt.add_parser('correct',help='undo one decision (version-bound); restores no truth')
+    lc.add_argument('decision_id');lc.add_argument('--revision',type=int,required=True)
+    lc.add_argument('--reason',required=True);lc.add_argument('--request-key');lc.add_argument('--json',action='store_true')
+    ls=lt.add_parser('show',help='decisions, legacy duplicates and assertion relations of one original')
+    ls.add_argument('id_or_slug');ls.add_argument('--cursor');ls.add_argument('--limit',type=int,default=20)
+    ls.add_argument('--json',action='store_true')
+    lh=lt.add_parser('history',help='append-only lifecycle events of one original')
+    lh.add_argument('id_or_slug');lh.add_argument('--cursor');lh.add_argument('--limit',type=int,default=20)
+    lh.add_argument('--json',action='store_true')
 
     p_scope = sub.add_parser("scope", help="inspect or repair document applicability")
     ss = p_scope.add_subparsers(dest="scope_cmd", required=True)
@@ -470,6 +497,10 @@ def _main(argv: list[str] | None = None) -> int:
         return _evidence(args,cfg)
     if args.cmd == 'pattern':
         return _pattern(args,cfg)
+    if args.cmd == 'lifecycle':
+        return _lifecycle(args,cfg)
+    if args.cmd == 'get' and (args.view is not None or cfg.service_mode == 'client'):
+        return _get_view(args,cfg)
 
     if args.cmd == "scope":
         from .scope import backfill
@@ -756,7 +787,7 @@ def _main(argv: list[str] | None = None) -> int:
             query=args.query, domain=args.domain, k=args.k, project=args.project, scope=args.scope,
             as_of=args.as_of, history=args.history, graph_depth=args.graph_depth, strategy=args.strategy,
             rerank=args.rerank, context=args.context, temporal=args.temporal, reference=args.reference,
-            timezone=args.timezone)))
+            timezone=args.timezone, view=args.view)))
         _print_search(result["results"], result["warnings"], result.get("temporal"), args.json)
         return 0
 
@@ -850,7 +881,8 @@ def _main(argv: list[str] | None = None) -> int:
             hits, warnings = search_mod.search(
                 conn, cfg, args.query, domain=args.domain, k=args.k,
                 project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context,
-                temporal=args.temporal or "auto", reference=args.reference, timezone=args.timezone, diagnostics=diagnostics)
+                temporal=args.temporal or "auto", reference=args.reference, timezone=args.timezone, diagnostics=diagnostics,
+                view=args.view)
             _print_search(json.loads(json.dumps(hits, default=_json_default)), warnings,
                           diagnostics.get("temporal"), args.json)
             return 0
@@ -944,6 +976,9 @@ def _main(argv: list[str] | None = None) -> int:
             print("duplicate candidates:")
             for d in rep["duplicate_candidates"]:
                 print(f"  {d['src_slug']} duplicate_of {d['dst_slug']}")
+            print("lifecycle review:")
+            for d in rep["lifecycle_review"]:
+                print(f"  decision {d['id']}: {d['operation']} [{d['relationship']}] member {d['member_id']}")
             print("dangling links:")
             for d in rep["dangling"]:
                 print(f"  {d['src_slug']} -{d['predicate']}-> {d['dst_slug']}")
@@ -1198,6 +1233,111 @@ def _pattern(args,cfg):
         return 0
     result=_pattern_call(cfg,'memory_pattern_recover',{'run_id':args.run_id,'reason':args.reason})
     print(f"run {result['id']} re-queued ({result['state']})")
+    return 0
+
+
+def _lifecycle_call(cfg,name,arguments):
+    """One gateway for local (direct SQL) and central (service client) lifecycle calls."""
+    if cfg.service_mode=='client':
+        return _remote_call(cfg,name,arguments)
+    from . import lifecycle
+    from .mcp_server import _plain, get_payload
+    args=dict(arguments)
+    if name in ('memory_lifecycle_preview','memory_lifecycle','memory_get'):
+        with db.connect(cfg,role='reader') as connection:
+            # One snapshot: versions, relationships and pages describe the same state.
+            connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+            if name=='memory_get':
+                return get_payload(connection,args['id_or_slug'],lifecycle.normalize_view(args.get('view')))
+            if name=='memory_lifecycle_preview':
+                return _plain(lifecycle.preview(connection,args['member'],args['target'],operation=args.get('operation')))
+            return _plain(lifecycle.detail(connection,args.pop('id_or_slug'),**args))
+    with db.connect(cfg,role='writer') as connection:
+        if name=='memory_lifecycle_apply':
+            return _plain(store.apply_lifecycle(connection,cfg,actor='cli',**args))
+        return _plain(store.correct_lifecycle(connection,cfg,actor='cli',**args))
+
+
+def _get_view(args,cfg):
+    from .mcp_server import wire_arguments
+    result=_lifecycle_call(cfg,'memory_get',wire_arguments('memory_get',{'id_or_slug':args.id_or_slug,'view':args.view}))
+    if 'error' in result:
+        print('not found',file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(result,default=_json_default,indent=1))
+        return 0
+    life=result.get('lifecycle')
+    if life:
+        print(f"lifecycle view {life['view']}: {life.get('resolution',life.get('state'))}"
+              f" (requested {life['requested_id']}, canonical {life.get('canonical_id') or '-'})")
+    doc=result['document']
+    if doc is None:
+        return 0
+    print(f"# {doc['title']}  [{doc['domain']}/{doc['dtype']} · {doc['status']} · {doc['slug']}]\n")
+    print(doc['body'])
+    return 0
+
+
+def _lifecycle(args,cfg):
+    command=args.lifecycle_cmd
+    if command=='preview':
+        result=_lifecycle_call(cfg,'memory_lifecycle_preview',{'member':args.member,'target':args.target,
+                                                               'operation':args.operation})
+        if args.json:
+            print(json.dumps(result,default=_json_default,indent=1));return 0
+        print(f"classification: {result['classification']} (proof: {result['proof']})")
+        for side in ('member','target'):
+            ref=result[side]
+            print(f"{side}: {ref['slug']} [{ref['domain']} · {ref['project']}] version {ref['version']}")
+        if result['exact']['differs']:
+            print('exact proof fails on: '+', '.join(result['exact']['differs']))
+        order=result['event_order']
+        print(f"event order: {order['status']} (member {order['member_at'] or '-'}, target {order['target_at'] or '-'})")
+        for op,info in result['operations'].items():
+            print(f"  {op:<19} {'allowed' if info['allowed'] else info['code']:<21} proof={info['proof']} approval={info['approval']}")
+        print(result['statement']+' No write, no provider call.')
+        return 0
+    if command=='apply':
+        result=_lifecycle_call(cfg,'memory_lifecycle_apply',{'member':args.member,'target':args.target,
+            'operation':args.operation,'expected_member_version':args.member_version,
+            'expected_target_version':args.target_version,'reason':args.reason,'reviewed':args.reviewed,
+            'request_key':args.request_key})
+    elif command=='correct':
+        result=_lifecycle_call(cfg,'memory_lifecycle_correct',{'decision_id':args.decision_id,
+            'expected_revision':args.revision,'reason':args.reason,'request_key':args.request_key})
+    elif command=='show':
+        result=_lifecycle_call(cfg,'memory_lifecycle',{'id_or_slug':args.id_or_slug,'cursor':args.cursor,'limit':args.limit})
+        if args.json:
+            print(json.dumps(result,default=_json_default,indent=1));return 0
+        doc=result['document']
+        print(f"{doc['slug']} [{doc['domain']} · {doc['project']} · {doc['status']}] current={result['current']}")
+        for item in result['as_member']:
+            if item.get('resolution') == 'decision_unavailable':
+                print('  suppressed: decision_unavailable')
+                continue
+            canonical=item['canonical']['slug'] if item['canonical'] else 'canonical_unavailable'
+            print(f"  member of {item['id']}: {item['operation']} -> {canonical} [{item['relationship']}, revision {item['revision']}]")
+        for item in result['as_canonical']['members']:
+            print(f"  canonical for {item['member']['slug']}: {item['operation']} decision {item['id']} [{item['relationship']}]")
+        for item in result['legacy']['duplicate_of']+result['legacy']['duplicates']:
+            print(f"  legacy_duplicate: {json.dumps(item,default=str)}")
+        if result['assertion']:
+            print(f"  assertion: {result['assertion']['status']} (gateway memory_assert)")
+        return 0
+    else:
+        result=_lifecycle_call(cfg,'memory_lifecycle',{'id_or_slug':args.id_or_slug,'history':True,
+                                                       'cursor':args.cursor,'limit':args.limit})['history']
+        if args.json:
+            print(json.dumps(result,default=_json_default,indent=1));return 0
+        for item in result['items']:
+            print(f"{item['at']}  {item['event']:<9} {item['operation']:<18} decision {item['decision_id']}  {item['reason']}")
+        return 0
+    if args.json:
+        print(json.dumps(result,default=_json_default,indent=1));return 0
+    decision=result['decision']
+    print(f"decision {decision['id']}: {decision['operation']} {decision['state']}"
+          f"{' (existing, nothing written)' if result['replayed'] else ''}")
     return 0
 
 

@@ -1,0 +1,28 @@
+{
+ "documents": 19,
+ "ev1_src1_unchanged_by_decisions": true,
+ "ev1_src1_unchanged_by_migration": true,
+ "new_curation_archived": 1,
+ "old_after_decision": {
+  "get_inspects_original": true,
+  "history_unchanged": true,
+  "ordinary_write": true,
+  "search_hides_member": true
+ },
+ "old_curation": {
+  "budget_0_archived": 0,
+  "default_budget_archived_different_title_pair": true,
+  "verdict": "old workers and hook launchers must be upgraded and restarted"
+ },
+ "old_reads_identical_before_decisions": true,
+ "old_writer_edit_makes_relationship_stale": true,
+ "original_rows": 227,
+ "original_tables": 45,
+ "post_upgrade_writes_lost_on_pre_upgrade_restore": true,
+ "provider_calls": 0,
+ "source_commit": "d4d2372",
+ "source_schema": 30,
+ "source_version": "0.6.18",
+ "target_schema": 31,
+ "upgrade_seconds": 2.63
+}

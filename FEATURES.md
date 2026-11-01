@@ -108,6 +108,24 @@ assertions pass; Low limitations stay in Issue75. See the
 and [operator procedure](docs/playbooks/system/rag-065-pattern-synthesis.md).
 No production activation is included.
 
+## Source-preserving memory lifecycle (RAG-066 / issue #66)
+
+🔵 Implemented, independently reviewed and source-bound verified; PR integration
+and production rollout remain separate. Five explicit decisions link originals
+without moving their evidence. SQL current/include-merged/historical selection
+runs before limits; versioned correction, scope protection, bounded history and
+current derived outputs share the audited gateway. Existing exact curation now
+requires identical title, type and body; semantic judgement stays explicit.
+
+Populated0.6.18→0.6.19/schema031 upgrade/retry/restore preserves227original rows
+across45tables. Full2,063passed/1skip/1knownwarning,exit0; three frozen-fixture
+runs retain45originals and all ev1 versions, with0false automatic merges versus
+1for actual0.6.18 and2legitimate pairs left for review. Additional per-row
+security cost and Low045..049 are disclosed, not hidden as unchanged latency.
+See the [guide](docs/memory-lifecycle.md),
+[verification](docs/verification/issue66-memory-lifecycle.md) and
+[operator procedure](docs/playbooks/system/rag-066-memory-lifecycle.md).
+
 ## Memory platform
 
 - ✅ **Explicit project scope (issue #5).** Canonical project/global/unknown

@@ -141,9 +141,10 @@ def plain(hits):
 
 def test_populated_old_store_new_reads_and_actual_old_code_rollback(conn, cfg, tmp_path, monkeypatch):
     old = archive(tmp_path)
-    # 0.6.16 and 0.6.17 share schema029; migration030 (0.6.18) is purely additive.
+    # 0.6.16 and 0.6.17 share schema029; migration030 (0.6.18) and, since RAG-066,
+    # migration031 (0.6.19) are purely additive.
     assert set(p.name for p in db.SQL_DIR.iterdir()) - set(p.name for p in (old / 'sql').iterdir()) == {
-        '030_pattern_synthesis.sql'}
+        '030_pattern_synthesis.sql', '031_memory_lifecycle.sql'}
     config = tmp_path / 'config.toml'
     config.write_text(f'[db]\nname = "{cfg.db_name}"\n[ollama]\nurl = "http://127.0.0.1:1"\n'
                       '[rerank]\nurl = "http://127.0.0.1:1"\n')

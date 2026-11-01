@@ -429,3 +429,218 @@ Final Issue65 coordinator evidence: `ea6697b` full pytest 1974 passed/1 skip/1 k
 exit 0, 355 source hashes unchanged; restore correction 119 targeted + 28/28 probe
 assertions. AF-065-001..004 remain resolved; LOW038..044 remain in75.
 No additional architecture change or live rollout occurred.
+
+
+## RAG-066 design-time findings (2026-10-31)
+
+Gate: `memory-lifecycle-66.md` (design decisions D1..D8, three Mermaid views, semantic
+source review, no render claimed) and contract
+`../specs/6-8-memory-lifecycle/contracts/lifecycle-v1.md`. Base `d4d2372`, branch head
+`af7c9d8`. No product code or test was changed or run for this gate. Every entry stays
+Open until as-built reconciliation. ACF-066-S/R are the derived post-implementation
+acceptance flows.
+
+- **AF-066-001 — Open, operation semantics and automatic policy (requires coordinator
+  acknowledgement of two scope clarifications).** Question: which of the five operations
+  may hide, which is proof versus judgement, and may anything apply automatically?
+  US-001, AC-001/002/010, IC-001, FR-001/003. Evidence: `curation._merge_exact_duplicates`
+  excludes fact and claim documents and archives the newer copy; `validity.save` already
+  owns assertion replacement/extension and exact assertion dedup; `entity_aliases`
+  references `claim_records`. Impact: a second supersession engine over assertions or
+  aliases would contradict FR-001, and 0.6.18 `entities.py:312` would then show merged
+  facts. Decisions D4/D5: anchors exclude synthesis, assertion and alias documents; no new
+  automatic applier; legacy curation stays byte-identical. Contradiction is recorded and
+  never hides. Replacement requires a proven strictly increasing event basis.
+  Clarifications for the coordinator: (a) assertion/alias anchors return
+  `assertion_managed`, which directs callers to `memory_assert`; (b) `include_merged` does
+  not return legacy archived `duplicate_of` copies, which stay reachable through original
+  get/detail as `legacy_duplicate`. Required response: preview/classifier task with frozen
+  fixtures for all five classes, cross-entity, cross-scope, unknown-scope and
+  equal/unknown/future event order; zero writes and zero provider calls asserted;
+  documentation of both clarifications. Next: coordinator accepts or rejects (a)/(b)
+  before speckit-tasks.
+- **AF-066-002 — Open, versions, ABA and ev1 preservation.** Question: how do applies bind
+  content, evidence, scope and decision state without invalidating untouched ev1 values
+  and 6.7 patterns? AC-003/006/009, IC-002. Evidence: `rag_document_version` omits body
+  and `updated_at`; legacy bodies are mutable through `store._save_txn`; the
+  `updated_at` trigger comes from migration001; ev1 feeds `rag_pattern_current`. Impact:
+  extending ev1 would invalidate every existing pattern and evidence reference, while
+  using ev1 alone misses legacy body edits and apply/correct ABA. Decision: separate `lv1`
+  (ev1 + content hash + status/scope + `updated_at` + append-only anchor event count), and
+  overlay rows never touch `documents`. Required response: tests that ev1/src1 of every
+  document stay byte-identical across migration031, apply and correct; lv1 detects body
+  edits, scope/domain moves, status changes, source revision and apply→correct ABA.
+  Next: tasks.
+- **AF-066-003 — Open, cycles, locking, replay and correction.** Question: can concurrent
+  writers, replays with new transport IDs, or corrections create duplicate active
+  decisions, chains or cycles, possibly hidden by RLS? AC-005/006/008, US-003, IC-002.
+  Evidence: `curation._lock_scope_pair` (ordered row locks); the
+  `rag_synthesis_dependency_guard` definer pattern; `validity.save` advisory and
+  savepoint retry; `ServiceConnection.check_commit_authority`. Impact: two-sided
+  opposing merges, a lost correction, or a partial audit. Decision D3: flat invariant
+  (chain length 1), so cycles are structurally impossible. A definer guard and a partial
+  unique active-member index enforce it. Locks: anchors `ORDER BY id`, then the decision;
+  `lock_timeout` 2000 ms. Semantic `action_key` and `request_key` handle replay. The only
+  transition is `active|contested → corrected`. Required response: PostgreSQL tests for
+  A→B‖B→A, A→B‖B→C, replay with a new request ID, replay mismatch, lock timeout, injected
+  audit failure and revocation before commit (all-or-nothing), and correcting an earlier
+  decision after a later one. Next: tasks.
+- **AF-066-004 — Open, selection before LIMIT across all readers.** Question: how do raw,
+  contextual, managed, identity, graph and research candidates apply
+  current/include-merged/historical selection before their limits, without changing
+  omitted defaults? AC-004/005/008, US-002, IC-003. Evidence: every family filters through
+  `assertion_eligible` (sql/013/015/016, `indexes.py:218/273`, `search.py:383/413`,
+  `research.py:295/350`); graph keeps an omitted-history default (`graph.py:45`); and
+  `SET LOCAL` survives a released savepoint (`indexes._bounded` restores explicitly).
+  Impact: post-filtering starves results, and a leaked view setting would widen later
+  statements. Decisions D2/D6: same-signature redefinition over
+  `rag_assertion_eligible_base`, a view in a transaction-local setting set and restored by
+  one helper, and labels only when a view is given. Required response: k=1 starvation
+  tests per candidate family; byte-identical omitted-view payloads; an `invalid_view`
+  matrix; a setting-leak test across savepoints and an autocommit connection; `memory_get`
+  canonical resolution with requested/canonical identities; and the documented
+  legacy-duplicate limit (AF-066-001b). Next: tasks.
+- **AF-066-005 — Open, derived-output invalidation.** Question: do profiles, thematic
+  summaries, aliases, existing 6.7 patterns and caches stop presenting merged members as
+  current, without rewriting evidence? AC-007, US-003. Evidence: `profiles.revision`
+  fingerprints row xmins only and runs no eligibility function; `profiles.read` and
+  `thematic._state` revalidate through `assertion_eligible`; `rag_pattern_current` calls
+  `assertion_eligible` on dependencies; the query cache holds vectors only. Impact: the
+  profile can say `fresh` after a decision; under `include_merged` a withheld pattern could
+  reappear if the pattern check honored the view setting. Required response: a scope
+  lifecycle token in `profiles.revision()`; redefine `rag_pattern_current` with an
+  explicit hidden check that ignores the view; tests show profile/thematic `stale`,
+  pattern withheld after apply and restored after correction with unchanged ev1, and no
+  pattern re-exposure under `include_merged`. Entity/alias paths stay untouched by D4.
+  Next: tasks.
+- **AF-066-006 — Open, stale relationships and canonical failure (spec clarification;
+  coordinator acknowledgement required).** Question: what does `current` show when an
+  anchor is edited, moved, refuted, expired or purged after apply? AC-006, spec edge cases
+  (target edit/withdrawal/expiry/scope move, source deletion). Evidence: migration020
+  supersession ignores the newer row's later state; `curation.purge` hard-deletes refuted
+  documents; `documents.updated_at` changes on every gateway update. Impact: either
+  silent knowledge loss (member stays hidden behind an unavailable canonical) or revival
+  of a superseded value. Decision D7: duplicate/extension hide only while both anchors
+  are unchanged and the target is base-eligible at the selected time. Replacement hides
+  from `effective_at` while the target row exists. Anchors have no FKs, so purge works and
+  history remains. Stale or unavailable relationships appear in detail/history and
+  `review_report`. Required response: tests for each transition, in both directions where
+  reversible. Next: coordinator accepts D7 as the spec clarification before tasks.
+- **AF-066-007 — Open, populated upgrade and 0.6.18 code boundary.** Question: which
+  0.6.18 operations remain valid before and after first use, and what does rollback mean?
+  US-004, AC-009, IC-004, FR-005, PB-066-OPS. Evidence: `service.upgrade.SUPPORTED_VERSIONS
+  = range(18)` excludes 0.6.18; restore allowlist line 370 and `schema.SCOPED_TABLES`
+  lack the new tables; the schema check accepts a superset of migrations; the old-code
+  harness exists in `tests/service/test_synthesis_upgrade.py` (`SOURCE='81beaf6'`). The
+  plan's citation of a root-level `test_synthesis_upgrade.py` is a path slip. Decision D8:
+  no activation fence. Old readers honor decisions through SQL, with no labels or views,
+  and the profile status may read `fresh` until a refresh. Old writers only make
+  relationships stale. Old restore tooling refuses through `target_drift`. Dropping 031
+  is unsupported, and backup restore loses later writes. Required response: add 0.6.18 to
+  the supported versions; extend the allowlist, scoped-table and RLS checks; add a new
+  upgrade test pinned to `d4d2372` with populated multi-user/multi-domain data. It
+  exercises old search/get/graph/profile/curation/save before and after the first
+  decision, original-row/grant/owner hashes, interrupted and empty retry, and verified
+  backup restore with stated post-backup loss. PB-066-OPS records these limits and the
+  restart guidance. Next: tasks.
+- **AF-066-008 — Open, authorization and disclosure.** Question: do preview, detail,
+  errors and counts stay inside reader/writer and principal/domain/project authority over
+  local and central transports? AC-008, IC-001..003. Evidence: `READ_TOOLS`/`WRITE_TOOLS`
+  registration; `rag_service_document`; the synthesis RLS pattern; definer guard design.
+  Impact: preview or the guard reveals foreign IDs or counts, or an RO server gains a
+  write. Decision: preview/detail are read tools; apply/correct are write tools only. The
+  uniform `not_found` carries no counts. The same-scope invariant keeps guard messages
+  non-disclosing. Members per canonical are capped at 500 with pagination. Required
+  response: RO tool-list tests; foreign/invisible/missing parity over MCP, REST and CLI,
+  local and central; a revoked writer before commit; and an RLS test where a reader sees
+  the member iff it sees the decision. Next: tasks.
+
+Proportionality: no new worker, queue kind, event-delivery service, model call or
+dependency. The overlay is two tables, one guard, three SQL functions and one helper
+module. Blocking for task generation: the coordinator must accept or reject
+AF-066-001(a)/(b) and AF-066-006/D7. Everything else is a task-mapped design obligation.
+
+### RAG-066 coordinator design dispositions (2026-10-31)
+
+AF-066-001(a)/(b) accepted with explicit spec boundaries: overlay anchors exclude
+assertions/aliases/synthesis; detail still explains existing assertion relations and
+legacy archived duplicates. AF-066-006/D7 corrected: duplicate/extension may release
+members under their own truth gates, but replacement remains suppressive until
+correction even when the target disappears. AF-066-004 explicit include-merged
+bypasses only merged duplicate/extension links; explicit historical uses qualified
+past records while omitted legacy history keeps its old behavior. These dispositions
+supersede conflicting recommendations above and must be implemented/tested.
+
+- **AF-066-009 — Open, conservative exact automatic proof.** AC-002/010, IC-001/002.
+  Existing curation only matches same-domain/project body, even when titles identify
+  different entities. Require identical title/body/dtype for automatic archival and
+  new exact classification. Preserve existing archival/edge/audit semantics; reject
+  different-title pairs and measure legitimate differently titled non-merges. Meaningful
+  red/green and unchanged cross-scope/evidence immutability checks required.
+- **AF-066-010 — Open, immutable anchor snapshot versus action ABA.** AC-005/006/007,
+  IC-002/003. A lifecycle event count inside lv1 protects optimistic concurrency but
+  must not be used as the active-link base snapshot: insert would stale itself and
+  later group actions would stale siblings. Use a separate content/evidence/state/
+  scope snapshot excluding lifecycle event counts. Compare full snapshots, including
+  source revisions, to detect source ABA that updated_at misses. ev1/src1 remain
+  unchanged by overlay operations. Add tests for immediate effect, multiple members,
+  apply/correct ABA, source withdrawal/reinstatement and old writer edits.
+
+AF-066-007/009 compatibility refinement: new exact-title policy lives in Python,
+so old0.6.18 automatic workers cannot enforce it. Upgrade/restart all workers and
+hook launchers in PB-066-OPS; an old-code fallback must disable curation with
+curation_budget=0 and prove that behavior. Ordinary old reader/writer support is
+separate and must be measured.
+
+## RAG-066 as-built dispositions (2026-11-01, product82c031f)
+
+AF-066-001/009: implemented in preview/classifier and curation title/body/dtype
+checks; fixture-first b0f3bf5, measured at0b3ca4e with actual old0.6.18 code.
+AF-066-002/010: invoker ls1 snapshot plus append-only event-count lv1; ev1/src1
+unchanged in the populated upgrade and gateway tests. AF-066-003/006: ordered
+anchor/decision locks, flat guard, replay, persistent replacement and correction
+are implemented; independent concurrency/recovery acceptance remains pending.
+AF-066-004/005: SQL eligibility plus explicit view wrappers and derived current
+scopes are implemented. Coordinator regression fixed explicit-get selection and
+autocommit current-scope inheritance (4red→19green). Managed-index k=1 runtime
+coverage and public history pagination remain independent-review questions.
+AF-066-007: actuald4d2372 populated upgrade, interrupted/empty retry, verified
+restore and old worker budget0 fallback implemented and rehearsed; PB content
+review remains open. AF-066-008: application redaction/current authority are
+implemented, but moved-member RLS exposes raw decision target IDs and foreign
+request-key collisions may distinguish existence. Independent severity and
+acceptance are required; the implementation's Low label is not adopted.
+
+These dispositions replace the design-only next-task statuses above, without
+claiming final resolution. T066-011 derives fresh success/recovery probes from
+the reconciled views before running them; T066-012 supplies final full verification.
+
+
+### RAG-066 independent review corrections (2026-11-01)
+
+The complete review of `1fc0628` supersedes the pending-question dispositions:
+F1 Medium confirmed moved-member decision/event metadata disclosure. `a5f359c`
+keeps rows in their original scope and introduces a Boolean-only, fixed-search-
+path definer helper gated on caller-visible members. Detail/get use only a
+suppression placeholder across an inaccessible decision scope. F2 Medium
+confirmed repeated public history pages; `4365348` applies the cursor to the
+selected collection. F3 Low now has `as_member_more`; PB-I1 Important counts
+only active hiding chains. F4 Low now namespaces keys and both lookups by domain
+and project (`30b4064`). F5 Low remains the documented trusted direct-SQL writer
+boundary, to be collected in Issue75. Independent correction review is required
+for the new definer boundary; targeted tests alone do not close AF-066-008.
+
+Managed-index k=1 passed on the independent actual exact-pool generation;
+ANN above4096 was not exercised. The first full suite at `1fc0628` was
+intentionally interrupted (exit2, source unchanged), not accepted. New final
+verification must bind the corrected sources and populated upgrade/recovery.
+
+Final RAG-066 acceptance at4a7f925: independent correction review leaves no
+C/H/M/Important;50assertions48pass2Low,0probeerrors,3DBcleanup. Full2063passed,
+1skip,1knownwarning,exit0,371sourcehashesunchanged includes updated031 populated
+upgrade/retry/restore and PB rehearsal. Quiet repeated benchmark31/31preview,
+32/32views,8/8transitions,0falsemergesversusold1,original45documents/ev1
+unchanged; actual per-row security cost is published. Low045..049 are deferred
+in Issue75, including trusted writer/guard-oracle/display/performance limits.
+AF001..010 have current implementation/integration dispositions; no blocker
+remains for PR except the final documentation checks and merge workflow.

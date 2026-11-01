@@ -69,9 +69,11 @@ def test_curation_requires_equal_known_scopes(conn,cfg):
     cfg=replace(cfg,ollama_url='http://127.0.0.1:1')
     domains.add_domain(conn,'scope-test')
     def save(title,**kw):return store.save_document(conn,cfg,title=title,body='identical source fact',domain='scope-test',dtype='memory',**kw)
-    a=save('A',project='/scope/a');a2=save('A2',project='/scope/a')
-    b=save('B',project='/scope/b',actor='mining',edges=[store.EdgeSpec('contradicts',a.slug,evidence='foreign assertion')])
-    u=save('U');u2=save('U2')
+    # RAG-066: exact copies also need the same title, so every pair shares one;
+    # only the scope decides here.
+    a=save('A',project='/scope/a');a2=save('A',project='/scope/a')
+    b=save('A',project='/scope/b',actor='mining',edges=[store.EdgeSpec('contradicts',a.slug,evidence='foreign assertion')])
+    u=save('U');u2=save('U')
     assert curation._refute_candidates(conn,20)==[]
     assert curation._merge_exact_duplicates(conn,20)==1
     assert conn.execute("SELECT count(*) AS n FROM documents WHERE status='active'").fetchone()['n']==4
@@ -172,7 +174,7 @@ def test_additive_legacy_migration_and_reader_privileges(cfg,tmp_path,monkeypatc
             row=connection.execute("INSERT INTO documents(slug,domain,dtype,title,body,provenance) VALUES ('old','general','memory','Old','fact','{\"project\":\"/scope/a\"}') RETURNING id,updated_at").fetchone()
             connection.execute("INSERT INTO pins(body,scope) VALUES ('old pin','/scope/a')")
             connection.commit()
-            assert db.apply_migrations(connection,db.SQL_DIR)==['010_project_scope.sql', '011_fact_validity.sql', '012_claim_evidence.sql', '013_retrieval_quality.sql', '014_project_profiles.sql', '015_contextual_chunks.sql', '016_filter_aware_search.sql', '017_thematic_summaries.sql', '018_entity_identities.sql', '019_embedding_reuse.sql', '020_domain_assertions.sql', '021_service_scope.sql', '022_service_state.sql', '023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql']
+            assert db.apply_migrations(connection,db.SQL_DIR)==['010_project_scope.sql', '011_fact_validity.sql', '012_claim_evidence.sql', '013_retrieval_quality.sql', '014_project_profiles.sql', '015_contextual_chunks.sql', '016_filter_aware_search.sql', '017_thematic_summaries.sql', '018_entity_identities.sql', '019_embedding_reuse.sql', '020_domain_assertions.sql', '021_service_scope.sql', '022_service_state.sql', '023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql']
             assert db.apply_migrations(connection,db.SQL_DIR)==[]
             assert scope.backfill(connection)['documents_mapped']==1
             actual=connection.execute('SELECT updated_at,provenance,project_scope FROM documents WHERE id=%s',(row['id'],)).fetchone()

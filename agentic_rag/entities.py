@@ -13,6 +13,7 @@ from . import scope
 from .secrets import strip_secrets, strip_secrets_json
 from .validity import parse_time, selection
 from .thematic import _bounded
+from .lifecycle import current_only
 
 NAMESPACE = uuid.UUID('f3d3af6d-2d06-4d99-88d1-902aa4de6c51')
 LINK_LIMIT = 32
@@ -250,6 +251,7 @@ def _review_alias(conn, document_id, *, state, reason, actor='cli', commit=True)
         raise
 
 
+@current_only
 def read(conn, name, *, domain, project=None, scope=None, attribute=None,
          as_of=None, history=False, context_chars=4800):
     """Read original facts across a directly confirmed star, in one snapshot.

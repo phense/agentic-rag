@@ -28,8 +28,11 @@ def main():
                 authority[key]=frozenset(authority.get(key,[]))
         with (request_scope(Principal(**authority),cfg,read_only=True) if authority else nullcontext()), db.connect(cfg, role='reader') as conn:
             conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
-            result = _research(conn,cfg,payload['question'],budget=budget,
-                               progress=emit,**payload['options'])
+            options = dict(payload['options'])
+            from .lifecycle import view_scope
+            with view_scope(conn, options.pop('view', None)):
+                result = _research(conn,cfg,payload['question'],budget=budget,
+                                   progress=emit,**options)
     except Exception:
         result = _base(payload['question'],budget)
         result.update(termination='worker_failure',abstained=True)

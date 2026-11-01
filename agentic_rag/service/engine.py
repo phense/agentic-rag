@@ -13,6 +13,7 @@ from .context import request_scope
 from .schema import ServiceSchemaError
 from ..evidence_contract import EvidenceConflict, EvidenceUnavailable
 from ..synthesis import SynthesisUnavailable
+from ..lifecycle import LifecycleError
 
 
 class JobBlocked(Exception):
@@ -101,6 +102,8 @@ async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False
             raise ServiceError('incompatible_service_schema',503) from None
         except SynthesisUnavailable:
             raise ServiceError('synthesis_disabled',409) from None
+        except LifecycleError as error:
+            raise ServiceError(error.code,error.status) from None
         except EvidenceConflict:
             raise ServiceError('evidence_conflict',409) from None
         except EvidenceUnavailable:

@@ -101,7 +101,7 @@ def research(cfg: Config, question: str, **options) -> dict:
 
 async def research_async(cfg: Config, question: str, *, domain=None, project=None, scope=None,
                          as_of=None, history=False, provider=False, strategy='auto',
-                         budget: ResearchBudget | None = None, min_sources=2) -> dict:
+                         budget: ResearchBudget | None = None, min_sources=2, view=None) -> dict:
     """Run in an isolated rag_reader process. Explicit provider=True sends
     bounded redacted evidence to the configured provider. Defaults make no
     structured-provider call. Cancellation kills owned descendants and propagates.
@@ -111,8 +111,14 @@ async def research_async(cfg: Config, question: str, *, domain=None, project=Non
     """
     budget = budget or ResearchBudget()
     _validate(question, domain, project, scope, as_of, history, provider, strategy, min_sources,resolve=False)
+    from .lifecycle import normalize_view
+    view = normalize_view(view, history=history, as_of=as_of)
     options = dict(domain=domain, project=project, scope=scope, as_of=as_of,
                    history=history, provider=provider, strategy=strategy, min_sources=min_sources)
+    if view is not None:
+        # Explicit lifecycle view travels to the reader worker; historical uses the
+        # qualified SQL gates, so legacy history only disables edge-validity filters.
+        options.update(view=view, history=True if view == 'historical' else history)
     started = time.monotonic()
     result = _base(question, budget)
     timed_out = False
@@ -157,6 +163,8 @@ async def research_async(cfg: Config, question: str, *, domain=None, project=Non
         result.update(abstained=True,termination='worker_failure')
         result['warnings'].append('isolated reader worker failed; no diagnostic content exposed')
     result['usage']['elapsed_seconds'] = round(time.monotonic()-started,6)
+    if view is not None:
+        result['lifecycle'] = {'view': view}
     return result
 
 

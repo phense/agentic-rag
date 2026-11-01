@@ -9,9 +9,17 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.18-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.19-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.19 memory lifecycle:** an operator can mark one memory as a duplicate,
+extension, replaced version or contradiction of another after a read-only preview.
+The decision is a separate audited record: the memory itself, its evidence and its
+links stay untouched, search shows only the current one, and a correction makes it
+visible again. Automatic curation now merges only copies with the same title and
+type. Upgrade with the [operations playbook](docs/playbooks/system/rag-066-memory-lifecycle.md)
+and read [memory lifecycle](docs/memory-lifecycle.md).
 
 **0.6.18 pattern synthesis:** an operator can let a model suggest recurring
 patterns across at least three independent user reports in one domain and project.

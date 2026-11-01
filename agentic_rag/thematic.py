@@ -9,6 +9,7 @@ import time
 
 from . import scope
 from .secrets import strip_secrets
+from .lifecycle import current_only
 
 VERSION = 'thematic-v1'
 SOURCE_LIMIT = 24
@@ -204,6 +205,7 @@ def _present(packet, cache, candidates, capped, context_chars):
     return packet
 
 
+@current_only
 def read(conn, cfg, topic, *, project=None, domain=None, history=False, context_chars=4800):
     """Reader-safe derived view; SQL/cache failure retains the baseline transaction."""
     started = time.perf_counter()

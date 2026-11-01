@@ -6,6 +6,7 @@ import json
 import re
 
 from . import scope
+from .lifecycle import current_only
 
 VERSION = 'profile-v1'
 SECTION_LIMIT = 6
@@ -22,6 +23,7 @@ def config_key(cfg):
     return f'{VERSION}:{SECTION_LIMIT}:{TEXT_LIMIT}:{SOURCE_LIMIT}:{cfg.stale_days}'
 
 
+@current_only
 def revision(conn, cfg, project=None):
     """One scalar fingerprint; no canonical bodies or quotes cross this boundary.
 
@@ -44,7 +46,16 @@ def revision(conn, cfg, project=None):
         WHERE d.project_scope=ANY(%s)
       ) versions
       """,(cfg.stale_days,scopes)).fetchone()
-    return hashlib.sha256(json.dumps([config_key(cfg),scopes,row['digest']]).encode()).hexdigest()
+    parts = [config_key(cfg),scopes,row['digest']]
+    # RAG-066: lifecycle decisions change eligibility without touching documents.
+    # The token is appended only once a decision exists, so stored revisions of
+    # untouched scopes stay valid across the 031 upgrade.
+    if conn.execute("SELECT to_regclass('public.lifecycle_events') IS NOT NULL AS ok").fetchone()['ok']:
+        token = conn.execute('SELECT count(*) AS n, max(at) AS at FROM lifecycle_events WHERE project_scope=ANY(%s)',
+                             (scopes,)).fetchone()
+        if token['n']:
+            parts.append([token['n'], str(token['at'])])
+    return hashlib.sha256(json.dumps(parts).encode()).hexdigest()
 
 
 def _rows(conn,cfg,project,*,ids=None,stable=None,exclude=None):
@@ -119,6 +130,7 @@ def _eligible(row):
     return row['status']=='active' and row['eligible'] and bool(row['body'].strip())
 
 
+@current_only
 def read(conn, cfg, project=None):
     """Read cached IDs, resolving every item against live applicability and trust."""
     key = _identity(project)

@@ -470,6 +470,6 @@ def test_current_schema_correction_export_remains_read_only(conn,cfg,tmp_path):
     result=corrections.export_confirmed_corrections(cfg,domain='general',scope='global',output_path=path)
     assert result['application_writes']==0 and result['provider_calls']==0
     payload=json.loads(path.read_text())
-    assert payload['source_schema'][-1]=='030_pattern_synthesis.sql'
+    assert payload['source_schema'][-1]=='031_memory_lifecycle.sql'
     corrections._validate_export(payload)
     assert conn.execute('SELECT count(*) n FROM audit_log').fetchone()['n']==before
