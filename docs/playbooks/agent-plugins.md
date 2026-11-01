@@ -483,7 +483,8 @@ different running processes at the two configured addresses.
 2. Check the primary with
    `systemctl show ollama.service -p CPUQuotaPerSecUSec -p MemoryHigh -p MemoryMax`.
    The table describes the reference configuration, not values installed by
-   this procedure: require `CPUQuotaPerSecUSec=3.5s` and both memory values
+   this procedure: require a3.5s quota (`CPUQuotaPerSecUSec=3.500000s`
+   in `systemctl show` output) and both memory values
    `2147483648` for that reference. If they differ, keep the lane off and
    arrange a separately authorized primary-unit change and restart. Require
    at least4GiB `MemAvailable` before starting the second daemon (`free -b`);
