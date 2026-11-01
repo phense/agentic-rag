@@ -182,3 +182,14 @@ def test_config_reads_optional_policy_path(tmp_path):
         ep().capture(replace(Config(), mine_policy_file=POLICIES / 'policy-invalid.toml'), '/p', DOMAINS)
     captured = ep().capture(replace(Config(), mine_policy_file=POLICIES / 'policy-a.toml'), '/synthetic/team-a', DOMAINS)
     assert ep().validate_capture(captured).digest == captured['digest']
+
+
+def test_shared_text_validation_matches_file_validation(tmp_path):
+    text = (POLICIES / 'policy-a.toml').read_text()
+    assert ep().validate_source(text).identity == ep().load_file(POLICIES / 'policy-a.toml').identity
+    with pytest.raises(ep().PolicyError) as caught:
+        ep().validate_source((POLICIES / 'policy-invalid.toml').read_text())
+    assert caught.value.errors == frozen()[1]['cases']['V1']['errors']
+    with pytest.raises(ep().PolicyError) as caught:
+        ep().validate_source('#' * (ep().MAX_FILE_BYTES + 1))
+    assert caught.value.errors == [{'code': 'file_too_large', 'location': 'file'}]

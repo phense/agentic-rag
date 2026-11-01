@@ -318,6 +318,13 @@ def load_file(path) -> PolicyFile:
         raise PolicyError([{'code': 'file_unreadable', 'location': 'file'}]) from None
     finally:
         os.close(fd)
+    return validate_source(raw)
+
+
+def validate_source(raw) -> PolicyFile:
+    """The one shared validator for file text (str or bytes), e.g. a future dashboard editor."""
+    if isinstance(raw, str):
+        raw = raw.encode('utf-8')
     if len(raw) > MAX_FILE_BYTES:
         raise PolicyError([{'code': 'file_too_large', 'location': 'file'}])
     try:
