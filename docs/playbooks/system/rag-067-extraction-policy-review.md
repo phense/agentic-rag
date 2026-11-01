@@ -2,7 +2,7 @@
 
 Playbook: [rag-067-extraction-policy.md](rag-067-extraction-policy.md).
 State: **independently accepted at eadd2e5 after the M1 and CM1 corrections;
-final root full-suite gate remains open.** Live rollout is separate and not authorized by this record.
+final root full-suite passed at d0fe52e (2,151 passed, one skipped, one known warning, exit 0).** Live rollout is separate and not authorized by this record.
 
 ## Rehearsal
 
@@ -164,3 +164,12 @@ All five affected test files passed together: 26 passed, one known warning,
 exit 0 (104.90 seconds). Coordinator review covered the complete mechanical
 test diff. Independent product acceptance remains at `eadd2e5` / product
 `e88717f`; it does not stand in for the pending source-bound full5 run.
+
+## Final root verification
+
+Full5 at `d0fe52e` passed 2,151 tests, skipped one and emitted the known Starlette
+warning, exit 0. All 385 source hashes were unchanged. The real populated
+0.6.19 upgrade, retry and pre/post restore rehearsals ran in this suite, including
+PB-067 commands. Independent content/integration acceptance remains at `eadd2e5`
+(product `e88717f`); later changes corrected only mechanical tests and evidence.
+[Final evidence](../../verification/issue67-extraction-policy-final.json).

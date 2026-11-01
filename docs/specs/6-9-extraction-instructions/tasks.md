@@ -40,7 +40,7 @@ S2/S3 are coordinator-owned integration and acceptance. No parallel pytest.
 
 ### Slice S3: Converge, verify and deliver
 
-- [ ] T067-009 [AC-009/010] Run source-bound full pytest serially plus appropriate Node/lock/wheel/docs checks after final relevant fixes. Inspect terminal exits, warnings/skips/source hashes and actual populated upgrade/restore artifacts. Perform convergence against every AC/IC, current as-built, clean review and PB evidence; route gaps through this same work ID.
+- [x] T067-009 [AC-009/010] Run source-bound full pytest serially plus appropriate Node/lock/wheel/docs checks after final relevant fixes. Inspect terminal exits, warnings/skips/source hashes and actual populated upgrade/restore artifacts. Perform convergence against every AC/IC, current as-built, clean review and PB evidence; route gaps through this same work ID.
 - [ ] T067-010 Synchronize Issue67/BACKLOG/FEATURES, create focused PR with tested upgrade/recovery and2–3 measured examples; link full URL immediately after creation/each push. Verify exact head/base/checks and merge autonomously under explicit remaining6.x permission only after all gates. Watch/end turn if blocked on CI. Report step9of15 then continue Issue68, inspecting existing plugin branch/work first. No production rollout inferred.
 
 ## Dependencies and acceptance

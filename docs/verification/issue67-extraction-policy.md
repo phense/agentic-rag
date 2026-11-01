@@ -4,12 +4,12 @@ title: Extraction policy verification
 type: reference
 doc_id: standalone
 readers: [maintainer]
-status: draft
+status: accepted
 version: 0.6.20 (schema032)
 depends_on: [../extraction-policy.md]
 assets: []
 last_reviewed: 2026-11-01
-summary: Independently accepted extraction-policy implementation and populated upgrade/recovery evidence. Final full-suite retry remains open after three mechanical test corrections; production rollout is separate.
+summary: Independently accepted extraction-policy implementation; final full suite 2151 passed with unchanged sources, populated 0.6.19 upgrade/retry/restore verified. Production rollout remains separate.
 ---
 
 # Extraction policy verification
@@ -20,8 +20,8 @@ summary: Independently accepted extraction-policy implementation and populated u
 file-configured extraction policy for session mining. Source is
 0.6.19/schema031 (`01bc13b`); the target is 0.6.20 with additive migration032.
 This record covers implementation and independently accepted integration on
-`feat/extraction-instructions-67`. The final full-suite retry and convergence
-remain open. The sections below retain evidence in revision order; earlier
+`feat/extraction-instructions-67`. The final full suite passed at `d0fe52e`; convergence found no additional
+blocking work. The sections below retain evidence in revision order; earlier
 pending statements describe their historical stage, not the latest review.
 
 ## Commits
@@ -82,8 +82,8 @@ its binding and trigger; pre-upgrade restore loses later writes.
 | AC-006 | Implemented | legacy job/window tests, accepted legacy batch test, upgrade rehearsal |
 | AC-007 | Implemented | shared validator, service-owned central capture, per-admission read, bind audit with digest only |
 | AC-008 | Implemented | no re-mining command; replay tests; prospective rollback in PB rehearsal |
-| AC-009 | Independently accepted; final full retry pending | upgrade rehearsal, PB-067-OPS rehearsal, activation gate |
-| AC-010 | Fixtures, measurement and independent review complete; full retry pending | final gate below |
+| AC-009 | Independently accepted and full-suite verified | upgrade rehearsal, PB-067-OPS rehearsal, activation gate |
+| AC-010 | Accepted: fixtures, measurement, independent review and full suite | final gate below |
 | AF-067-001..008 | Addressed in S1 as mapped in tasks.md | see the slice report |
 
 ## Deviations and limits
@@ -221,3 +221,31 @@ All five affected test files passed together: 26 passed, one known warning,
 exit 0 (104.90 seconds). Coordinator review covered the complete mechanical
 test diff. Independent product acceptance remains at `eadd2e5` / product
 `e88717f`; it does not stand in for the pending source-bound full5 run.
+
+## Final acceptance at d0fe52e
+
+The source-bound full5 run completed on 2026-11-01 at 05:49:43Z: **2,151 passed,
+one skipped, one known Starlette deprecation warning, exit 0**. Wall time was
+2,396.37 seconds. All 385 product, SQL, test, asset and package metadata hashes
+matched before and after the run and still match this documentation-only update.
+Raw terminal and populated-upgrade results are published in
+[issue67-extraction-policy-final.json](issue67-extraction-policy-final.json).
+The log SHA-256 is
+`60b39be53788409caa2fe7746576c20c0691ec89d4745770a2a89d74fc543660`.
+
+The actual archived 0.6.19 source (`01bc13bd`) upgraded from schema031 to032 in
+2.50 seconds. All 177 original rows across 47 tables, source/evidence versions,
+pending/accepted work, grants, owners and sequences were preserved. Migration
+interruption, retry, old/new reads and writes, and post-upgrade restore passed.
+Upgrade invoked no provider. Old miners ignore custom policies: stop or upgrade
+all such processes before activating a file. A pre-upgrade restore loses later
+writes; prospective file rollback preserves already bound work.
+
+Convergence checked AC-001..010, IC-001..005, AF-067-001..008, as-built boundaries,
+independent success/recovery and playbook acceptance against this exact evidence.
+There are no open Critical/High/Medium or Important findings. Nonblocking follow-ups
+remain in Issue75, including file-replacement activation auditing (LOW-054) and
+the isolated domainless test-strength gap (LOW-056). Node, lock, wheel and three
+frozen EN/DE repetitions remain applicable because their product inputs did not
+change. This accepts the implementation and upgrade path; it does not authorize
+or demonstrate a production rollout or real-model extraction quality.

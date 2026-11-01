@@ -1,7 +1,7 @@
 # Extraction-policy ownership and replay
 
-Mode: independently accepted as-built reconciliation; final full-suite retry
-pending. RAG-067 /6.9. Verified2026-11-01 through reviewed `eadd2e5`,
+Mode: independently accepted as-built reconciliation and final full-suite
+verification. RAG-067 /6.9. Verified2026-11-01 through reviewed `eadd2e5`,
 product fix `e88717f`. Baseline `01bc13bd`.
 [Specification](../specs/6-9-extraction-instructions/spec.md),
 [plan](../specs/6-9-extraction-instructions/plan.md).
@@ -145,6 +145,6 @@ latest 36 checks passed, with earlier unchanged-path checks explicitly inherited
 File/sample read bounds remain nonblocking follow-ups in Issue75.
 
 AF-067-001..008 and ACF-067-S/R have independent acceptance through the complete
-and correction reviews. Full4 failed three mechanical test checks; final full5
-is still required after their correction. Diagram semantics remain inspected
+and correction reviews. Full4 failed three mechanical test checks; after their correction full5 at
+`d0fe52e` passed 2,151 tests with all 385 source hashes unchanged. Diagram semantics remain inspected
 at source level; no renderer or production execution is claimed.

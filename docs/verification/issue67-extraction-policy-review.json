@@ -5,7 +5,7 @@
   "reviewed_head": "eadd2e5bc913c0f2e64f1201631a95757109dd67",
   "product_fix": "e88717f759e995d45b84cea887e1c78368a64ee9",
   "complete_review_base": "01bc13bd7998851032c7f753bead8829faeb9d86",
-  "verdict": "independent_code_and_playbook_accepted_full_suite_pending",
+  "verdict": "independent_code_and_playbook_accepted_full_suite_passed",
   "open_critical": 0,
   "open_high": 0,
   "open_medium": 0,
@@ -31,7 +31,15 @@
     "cm1-probes-results.json": "cc57192ef5b9506517c186280535a298cb61a21663c1c20cbefa47b87ffb0e8f"
   },
   "retained_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6553401312",
-  "full_suite": "full4 failed three mechanical test checks; full5 pending",
+  "full_suite": {
+    "head": "d0fe52eaa3c4c74ac076224c61d0e99af667e837",
+    "passed": 2151,
+    "skipped": 1,
+    "warnings": 1,
+    "exit_code": 0,
+    "log_sha256": "60b39be53788409caa2fe7746576c20c0691ec89d4745770a2a89d74fc543660",
+    "evidence": "issue67-extraction-policy-final.json"
+  },
   "limits": [
     "synthetic mock provider only",
     "one Linux host",

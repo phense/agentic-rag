@@ -1,0 +1,48 @@
+{
+  "format": 1,
+  "issue": 67,
+  "head": "d0fe52eaa3c4c74ac076224c61d0e99af667e837",
+  "command": ".venv/bin/python -m pytest -q --tb=short -p no:cacheprovider",
+  "started": "2026-11-01T05:09:47.290879+00:00",
+  "finished": "2026-11-01T05:49:43.665517+00:00",
+  "exit_code": 0,
+  "seconds": 2396.37,
+  "passed": 2151,
+  "skipped": 1,
+  "warnings": 1,
+  "warning": "Known Starlette httpx/TestClient deprecation",
+  "source_files": 385,
+  "sources_unchanged": true,
+  "source_manifest_sha256": "463c94162181711ae79f31c72abe229cd23765e6082506c9883fb2b9c83d0334",
+  "log_sha256": "60b39be53788409caa2fe7746576c20c0691ec89d4745770a2a89d74fc543660",
+  "populated_upgrade": {
+    "ev1_src1_queue_batches_unchanged_by_migration": true,
+    "old_accepted_batch_applied_unchanged_without_file_read": true,
+    "old_miner_bypasses_custom_policy": {
+      "retained_disabled_categories": 2,
+      "verdict": "stop or upgrade every old miner before activation"
+    },
+    "old_pending_job_builtin": true,
+    "old_reads_identical_after_bindings": true,
+    "old_reads_identical_and_old_write": true,
+    "original_rows": 177,
+    "original_tables": 47,
+    "post_upgrade_restore_keeps_bindings": true,
+    "post_upgrade_writes_lost_on_pre_upgrade_restore": true,
+    "source_commit": "01bc13b",
+    "source_schema": 31,
+    "source_version": "0.6.19",
+    "target_schema": 32,
+    "upgrade_provider_calls": 0,
+    "upgrade_seconds": 2.5
+  },
+  "independent_latest_checks": 36,
+  "independent_open_chm": 0,
+  "independent_open_playbook_important": 0,
+  "node_passed": 7,
+  "wheel_sha256": "953cf5f60c3e3716690cde5dea2271590abbc54af71684c44512c47d57c26814",
+  "limits": [
+    "Mock-provider synthetic enforcement evidence, not model quality",
+    "Single Linux host; no production rollout or native/multi-host acceptance"
+  ]
+}
