@@ -150,12 +150,21 @@ END $$;
 -- bypasses only duplicate/extension hiding (include_merged), never replacement.
 -- Documents that are no member of an active decision pay one index probe.
 CREATE FUNCTION public.rag_lifecycle_hidden(p_id uuid, p_at timestamptz DEFAULT now(), p_merged_visible boolean DEFAULT false)
-RETURNS boolean LANGUAGE sql STABLE AS $$
-SELECT EXISTS (SELECT 1 FROM public.lifecycle_decisions ld
-  WHERE ld.member_id=p_id AND ld.state='active' AND (
+RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER
+SET search_path = pg_catalog, public, pg_temp AS $$
+BEGIN
+-- Only a Boolean crosses this boundary. A member's current reader must still
+-- honor a replacement recorded before a scope move, without gaining access to
+-- the decision's original scope, target, reason, actor or request key. Invisible
+-- member ids behave exactly like missing ids, including direct SQL calls.
+RETURN EXISTS (SELECT 1 FROM public.lifecycle_decisions ld
+  JOIN public.documents m ON m.id=ld.member_id
+  WHERE ld.member_id=p_id AND ld.state='active'
+    AND public.rag_service_document(m.domain,m.project_scope) AND (
     (ld.operation='replacement' AND ld.effective_at <= p_at)
     OR (ld.operation<>'replacement' AND NOT p_merged_visible
-        AND public.rag_lifecycle_merge_holds(ld.member_id, ld.target_id, ld.member_snapshot, ld.target_snapshot, p_at))))
+        AND public.rag_lifecycle_merge_holds(ld.member_id, ld.target_id, ld.member_snapshot, ld.target_snapshot, p_at))));
+END
 $$;
 
 -- Explicit historical view: qualified accepted past observations, including
@@ -343,20 +352,17 @@ GRANT UPDATE (state) ON public.lifecycle_decisions TO rag_writer;
 GRANT ALL ON public.lifecycle_decisions, public.lifecycle_events TO rag_admin;
 GRANT SELECT ON public.rag_lifecycle_snapshots TO rag_reader, rag_writer, rag_admin;
 
--- Service scope: a decision follows its anchors' domain/project. A caller who can
--- read the member also reads its decision (and so stays hidden from a replaced value
--- after a later scope move). Writes need write authority on the decision scope.
+-- Decision metadata stays in its original scope. The Boolean-only hidden helper
+-- above preserves replacement suppression after a member scope move.
 ALTER TABLE public.lifecycle_decisions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY service_lifecycle_decisions ON public.lifecycle_decisions
-    USING (public.rag_service_document(domain, project_scope)
-           OR EXISTS (SELECT 1 FROM public.documents d WHERE d.id = member_id))
+    USING (public.rag_service_document(domain, project_scope))
     WITH CHECK (public.rag_service_document(domain, project_scope, true));
 CREATE POLICY service_lifecycle_decisions_old_write ON public.lifecycle_decisions AS RESTRICTIVE FOR UPDATE
     USING (public.rag_service_document(domain, project_scope, true));
 ALTER TABLE public.lifecycle_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY service_lifecycle_events ON public.lifecycle_events
-    USING (public.rag_service_document(domain, project_scope)
-           OR EXISTS (SELECT 1 FROM public.documents d WHERE d.id = member_id))
+    USING (public.rag_service_document(domain, project_scope))
     WITH CHECK (public.rag_service_document(domain, project_scope, true));
 CREATE POLICY service_lifecycle_events_old_write ON public.lifecycle_events AS RESTRICTIVE FOR UPDATE
     USING (public.rag_service_document(domain, project_scope, true));

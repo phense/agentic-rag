@@ -168,14 +168,18 @@ def labels(conn, ids, view, at=None) -> dict[str, dict]:
       FROM public.documents d WHERE d.id = ANY(%(ids)s::uuid[])""", {'ids': ids, 'at': at}).fetchall()
     out = {}
     for r in rows:
-        if r['hidden']:
+        if r['hidden'] and r['decision'] is None:
+            state = 'suppressed'
+        elif r['hidden']:
             state = 'superseded' if r['operation'] == 'replacement' else 'merged'
         elif not r['base']:
             state = 'expired' if r['expired'] else 'superseded'
         else:
             state = 'current'
         label = {'view': view, 'state': state, 'role': 'canonical' if r['members'] else 'original'}
-        if r['hidden']:
+        if r['hidden'] and r['decision'] is None:
+            label['resolution'] = 'decision_unavailable'
+        elif r['hidden']:
             label.update(decision=r['decision'], operation=r['operation'], canonical_id=r['canonical'])
             if r['canonical'] is None:
                 label['resolution'] = 'canonical_unavailable'
@@ -191,6 +195,8 @@ def resolve_get(conn, document: dict, view: str) -> dict:
     requested = str(document['id'])
     label = labels(conn, [requested], view).get(requested, {'view': view, 'state': 'current', 'role': 'original'})
     block = {'requested_id': requested, **label}
+    if view == 'current' and label.get('resolution') == 'decision_unavailable':
+        return {'document': None, 'lifecycle': block}
     if view != 'current':
         eligible = (document.get('status') == 'active'
                     and conn.execute('SELECT assertion_eligible(%s) ok', (requested,)).fetchone()['ok'])
@@ -638,6 +644,8 @@ def detail(conn, id_or_slug, *, history=False, cursor=None, limit=DEFAULT_PAGE) 
             item['canonical'] = None
             item['resolution'] = 'canonical_unavailable'
         as_member.append(item)
+    if not as_member and conn.execute('SELECT rag_lifecycle_hidden(%s) hidden', (doc_id,)).fetchone()['hidden']:
+        as_member.append({'relationship': 'suppressed', 'resolution': 'decision_unavailable'})
     page = conn.execute(f"""SELECT ld.*, {_RELATIONSHIP} AS relationship, m.slug AS member_slug, m.title AS member_title,
             (SELECT count(*) FROM lifecycle_events e WHERE e.decision_id=ld.id) AS revision
           FROM lifecycle_decisions ld JOIN documents m ON m.id=ld.member_id

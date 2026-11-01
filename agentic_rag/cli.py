@@ -1313,6 +1313,9 @@ def _lifecycle(args,cfg):
         doc=result['document']
         print(f"{doc['slug']} [{doc['domain']} · {doc['project']} · {doc['status']}] current={result['current']}")
         for item in result['as_member']:
+            if item.get('resolution') == 'decision_unavailable':
+                print('  suppressed: decision_unavailable')
+                continue
             canonical=item['canonical']['slug'] if item['canonical'] else 'canonical_unavailable'
             print(f"  member of {item['id']}: {item['operation']} -> {canonical} [{item['relationship']}, revision {item['revision']}]")
         for item in result['as_canonical']['members']:
