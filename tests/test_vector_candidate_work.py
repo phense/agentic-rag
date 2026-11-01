@@ -93,6 +93,11 @@ def test_retrieval_settings_restore_after_success_and_cancel(vector_database, fu
     with db.connect(vector_database) as reader:
         reader.execute('SET jit=on')
         reader.execute('SET hnsw.ef_search=64')
+        reader.execute("SET rag.iterative_vectors='caller'")
+        reader.execute("SELECT '[1]'::halfvec")
+        settings_before = reader.execute("SELECT name,setting FROM pg_settings WHERE name=ANY(%s) ORDER BY name",
+            (['hnsw.iterative_scan','hnsw.max_scan_tuples','hnsw.scan_mem_multiplier',
+              'enable_indexscan','enable_bitmapscan','enable_seqscan'],)).fetchall()
         reader.execute('SET ROLE rag_reader')
         principal = Principal('vector-probe', 'owned', 'reader', frozenset({'general'}),
                               frozenset(), frozenset({'global'}), frozenset())
@@ -104,11 +109,17 @@ def test_retrieval_settings_restore_after_success_and_cancel(vector_database, fu
             placeholders += ',%s'
         statement = f'SELECT * FROM {function}({placeholders})'
         assert reader.execute(statement, args).fetchall() == []
+        assert reader.execute("SELECT name,setting FROM pg_settings WHERE name=ANY(%s) ORDER BY name",
+            ([row['name'] for row in settings_before],)).fetchall() == settings_before
+        assert reader.execute("SELECT current_setting('rag.iterative_vectors') value").fetchone()['value'] == 'caller'
         assert reader.execute('SHOW jit').fetchone()['jit'] == 'on'
         assert reader.execute('SHOW hnsw.ef_search').fetchone()['hnsw.ef_search'] == '64'
         with pytest.raises(QueryCanceled):
             with reader.transaction():
                 reader.execute("SET LOCAL statement_timeout='1ms'")
                 reader.execute(statement, args).fetchall()
+        assert reader.execute("SELECT name,setting FROM pg_settings WHERE name=ANY(%s) ORDER BY name",
+            ([row['name'] for row in settings_before],)).fetchall() == settings_before
+        assert reader.execute("SELECT current_setting('rag.iterative_vectors') value").fetchone()['value'] == 'caller'
         assert reader.execute('SHOW jit').fetchone()['jit'] == 'on'
         assert reader.execute('SHOW hnsw.ef_search').fetchone()['hnsw.ef_search'] == '64'

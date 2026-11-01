@@ -116,8 +116,16 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         # Only the documented, function-local compiler setting changes. All old
         # settings and OID/owner/grants/security/signature fields remain exact.
-        expected_privileges = [row | {'proconfig': (row['proconfig'] or []) + ['jit=off']}
-                               for row in privileges]
+        expected_privileges = []
+        with db.connect(cfg) as owner:
+            owner.execute("SELECT '[1]'::halfvec")
+            iterative = owner.execute("SELECT EXISTS(SELECT 1 FROM pg_settings WHERE name='hnsw.iterative_scan') available").fetchone()['available']
+        for row in privileges:
+            settings = (row['proconfig'] or []) + ['jit=off']
+            if not row['proname'].endswith('_planned'):
+                settings += (['rag.iterative_vectors=on', 'hnsw.iterative_scan=strict_order'] if iterative else
+                             ['rag.iterative_vectors=off'])
+            expected_privileges.append(row | {'proconfig': settings})
         assert function_privileges(cfg) == expected_privileges
         assert old_read() == old_results  # Genuine archived0.6.21 with schema034.
         assert upgrade.verify_preserved(cfg, before)['unchanged']

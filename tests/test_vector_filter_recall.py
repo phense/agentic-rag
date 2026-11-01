@@ -96,7 +96,7 @@ def gated_vectors(request):
 
 
 CASES = [(axis, mode) for axis in AXES for mode in ('restricted', 'filter', 'broad')]
-CASES += [('expired', 'history'), ('future', 'later')]
+CASES += [('expired', 'history'), ('future', 'later'), ('scope', 'capped'), ('stale', 'capped')]
 
 
 @pytest.mark.parametrize('contextual', [False, True], ids=['raw', 'contextual'])
@@ -129,6 +129,8 @@ def test_hidden_nearest_vectors_do_not_starve_allowed_results(gated_vectors, con
     expected_ids = originals[axis]['near' if near_allowed else 'far'][:50]
     with db.connect(cfg) as reader:
         reader.execute('SET jit=off')
+        if mode == 'capped':
+            reader.execute('SET hnsw.max_scan_tuples=1')
         reader.execute('SET ROLE rag_reader')
         apply_connection(reader, RequestScope(principal, cfg, True))
         statement = f'SELECT * FROM {function}({placeholders})'
@@ -139,3 +141,33 @@ def test_hidden_nearest_vectors_do_not_starve_allowed_results(gated_vectors, con
         assert [str(row['document_id']) for row in exact] == expected_ids
         assert actual == exact
         assert [str(row['document_id']) for row in actual] == expected_ids
+
+
+@pytest.mark.parametrize('gated_vectors', ['scope'], indirect=True, scope='module')
+def test_absent_iterative_capability_uses_exact_scoped_fallback(gated_vectors):
+    # Simulate only capability discovery, not query results or an old binary.
+    # The real migration branch and SQL functions execute on an isolated store.
+    cfg, originals, _ = gated_vectors
+    migration = (Path(__file__).resolve().parents[1] / 'sql/034_lexical_eligibility_work.sql').read_text()
+    simulated_legacy = migration.replace('IF can_iterate THEN', 'IF false THEN')
+    assert simulated_legacy != migration
+    principal = Principal('gated-vector', 'owned', 'reader', frozenset({'general'}),
+                          frozenset(), frozenset({'global'}), frozenset())
+    query = '[0,1,' + ','.join(['0'] * 1022) + ']'
+    args = ('unfindablevector92zz', query, None, 150, None, '2026-11-01T00:00:00Z', False)
+    with db.connect(cfg) as owner:
+        owner.execute('SET ROLE rag_reader')
+        apply_connection(owner, RequestScope(principal, cfg, True))
+        owner.execute('RESET ROLE')
+        with owner.transaction(force_rollback=True):
+            owner.execute(simulated_legacy)
+            configs = owner.execute("SELECT proconfig FROM pg_proc WHERE proname IN ('hybrid_search_candidates','contextual_search_candidates')").fetchall()
+            assert all('rag.iterative_vectors=off' in row['proconfig'] for row in configs)
+            assert all(not any(setting.startswith('enable_') for setting in row['proconfig']) for row in configs)
+            owner.execute('SET LOCAL ROLE rag_reader')
+            for contextual in (False, True):
+                name = 'contextual_search_candidates' if contextual else 'hybrid_search_candidates'
+                suffix = ',%s' if contextual else ''
+                rows = owner.execute(f'SELECT * FROM {name}(%s,%s::halfvec,%s,%s,%s,%s,%s{suffix})',
+                                     args + ((DIGEST,) if contextual else ())).fetchall()
+                assert [str(row['document_id']) for row in rows] == originals['scope']['far'][:50]

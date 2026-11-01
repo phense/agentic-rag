@@ -1,0 +1,558 @@
+{
+  "source_head": "665d44967fc668876aae81239141a463574cd213",
+  "protocol": {
+    "run": "owned-r4",
+    "frozen_before_run": true,
+    "source": "665d44967fc668876aae81239141a463574cd213",
+    "script_sha256": "1a70434be18b0526bb825d054d1f4d527356958a4c003c0d612d9247cfb0c5fb",
+    "target": {
+      "search_total_p95_seconds_max": 10,
+      "clients": 40,
+      "background_extraction": true,
+      "gate": "each40client phase completed without errors and p95<=10; growing and noarrivals start during actual background inference"
+    },
+    "reference": "same4vCPU8GiB host, same retained populated snapshot/model bge-m3-q8, separate ownedmodel11435/High=Max2GiB/parallel1/CPU350%",
+    "workload": "same mixed metadata/context/search, unique query each request, rerankoff asr3; same auth/readrights/k3/poll1.05s/actualCPUembeddings/scripted synthetic extraction",
+    "phases": [
+      {
+        "name": "idle20",
+        "clients": 20,
+        "rounds": 10,
+        "search_samples": 60
+      },
+      {
+        "name": "idle40",
+        "clients": 40,
+        "rounds": 10,
+        "search_samples": 130
+      },
+      {
+        "name": "growing40",
+        "clients": 40,
+        "rounds": 10,
+        "search_samples": 130
+      },
+      {
+        "name": "noarrivals40",
+        "clients": 40,
+        "rounds": 10,
+        "search_samples": 130
+      }
+    ],
+    "difference_from_r3": "10 rather than3 rounds for130search samples/40client phase; noarrivals40 is honest rename of formerdraining40; retain each request; enforce agreed target without pooling phases. No actual behavior changes to workload/budgets.",
+    "background": "oneinitial+12windowsadmitted duringgrowing at0.5s spacing; no new arrivals later; require13/13appliedafterFGstops",
+    "retained_failures": [
+      "r1fixturegrounding",
+      "r2LEASEcontext",
+      "r3failsnew10secondtarget"
+    ],
+    "production_changes": false,
+    "limits": [
+      "No production rollout",
+      "No real LLM quality/latency: extractionprovider isscripted, embeddingsreal",
+      "No longsoak/TLS/crosshostclaim"
+    ],
+    "source_head": "665d44967fc668876aae81239141a463574cd213",
+    "wheel_sha256": "7f1c0f37f826155c2cc4c651c64ba6f7ce0fee6a412ef3982b085af76353e25e"
+  },
+  "artifact_sha256": {
+    "protocol.json": "cbbf4e359240f7aa19ad51bf7a198bacb815cbec202351747cbf464b7e783266",
+    "result.json": "551ae5b5dd49b2ba800fee3676c1c00db81c3f64fca783bf90863190f08ec71c",
+    "cleanup.json": "e4710a573651589a24a01aacc09bc820a9e8d289bffa8d4fe7db11cd83586f15",
+    "phases.json": "334adcb731be1beee676eaf4f517ef6190412655985b8f2272d15b79b225ae11",
+    "arrivals.json": "a10ac13516b2484d4ecdcf12bd7db8a8fc9b5a0794341a35b3133aea8d327dc8",
+    "resources.json": "d80dd5b821a91618956fbecebeaf2160cc09c3bff77dd4fed5b14163aebd73b4",
+    "model-calls.jsonl": "b278f9e5264b588b20596d106e05e0b8595646811573d674f85530a54ff141af",
+    "provider-calls.jsonl": "78177e3ba0aece2771a338f373f6b928a8b7b6555713b3b71f5456fda39760fb"
+  },
+  "unit_terminal": "ExecMainStatus=0\nActiveState=inactive\nSubState=dead\n",
+  "cleanup": {
+    "owned_children_exited": true,
+    "owned_pg_stopped": true,
+    "production_services_touched": false
+  },
+  "result": {
+    "model_runtime": "owned11435 MemoryHigh=MemoryMax=2GiB, CPUQuota350%, one model/parallel1",
+    "installed_distribution": "0.6.22",
+    "source_head": "665d44967fc668876aae81239141a463574cd213",
+    "cpu_count": 4,
+    "phases": [
+      {
+        "phase": "idle20",
+        "started_epoch": 1793533287.9876235,
+        "finished_epoch": 1793533408.0514941,
+        "clients": 20,
+        "rounds": 10,
+        "offered": 200,
+        "owned_cgroup_cpu_seconds": 188.05814900000001,
+        "owned_model_cgroup_cpu_seconds": 141.84067,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 70,
+            "completed": 70,
+            "total_seconds": {
+              "n": 70,
+              "p50": 5.644065676955506,
+              "p95": 11.137732454598881,
+              "max": 13.029933416983113
+            },
+            "wait_seconds": {
+              "n": 70,
+              "p50": 3.7391550000000002,
+              "p95": 8.7361157,
+              "max": 10.569099
+            },
+            "execution_seconds": {
+              "n": 70,
+              "p50": 0.130589,
+              "p95": 0.1870995,
+              "max": 0.200755
+            },
+            "retry_requests": 224,
+            "states": {
+              "completed": 70
+            }
+          },
+          "context": {
+            "offered": 70,
+            "completed": 70,
+            "total_seconds": {
+              "n": 70,
+              "p50": 7.149296058458276,
+              "p95": 12.953111751272807,
+              "max": 14.513836750062183
+            },
+            "wait_seconds": {
+              "n": 70,
+              "p50": 4.205273,
+              "p95": 9.337324749999999,
+              "max": 10.986676
+            },
+            "execution_seconds": {
+              "n": 70,
+              "p50": 0.7155465,
+              "p95": 1.68698835,
+              "max": 1.985419
+            },
+            "retry_requests": 249,
+            "states": {
+              "completed": 70
+            }
+          },
+          "search": {
+            "offered": 60,
+            "completed": 60,
+            "total_seconds": {
+              "n": 60,
+              "p50": 7.153284308384173,
+              "p95": 12.153381686902135,
+              "max": 14.507419371977448
+            },
+            "wait_seconds": {
+              "n": 60,
+              "p50": 3.2945335,
+              "p95": 7.263548349999996,
+              "max": 10.006255
+            },
+            "execution_seconds": {
+              "n": 60,
+              "p50": 2.29347,
+              "p95": 3.0935935499999996,
+              "max": 3.914152
+            },
+            "retry_requests": 177,
+            "states": {
+              "completed": 60
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 50,
+            "completed": 50
+          },
+          "1": {
+            "offered": 50,
+            "completed": 50
+          },
+          "2": {
+            "offered": 50,
+            "completed": 50
+          },
+          "3": {
+            "offered": 50,
+            "completed": 50
+          }
+        }
+      },
+      {
+        "phase": "idle40",
+        "started_epoch": 1793533408.0612342,
+        "finished_epoch": 1793533630.6367965,
+        "clients": 40,
+        "rounds": 10,
+        "offered": 400,
+        "owned_cgroup_cpu_seconds": 381.784361,
+        "owned_model_cgroup_cpu_seconds": 269.155721,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 140,
+            "completed": 140,
+            "total_seconds": {
+              "n": 140,
+              "p50": 10.350199693115428,
+              "p95": 20.534246253792663,
+              "max": 23.239866201998666
+            },
+            "wait_seconds": {
+              "n": 140,
+              "p50": 8.647427,
+              "p95": 16.786941649999996,
+              "max": 19.417507
+            },
+            "execution_seconds": {
+              "n": 140,
+              "p50": 0.134354,
+              "p95": 0.23074809999999998,
+              "max": 0.313465
+            },
+            "retry_requests": 531,
+            "states": {
+              "completed": 140
+            }
+          },
+          "context": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 10.942989620496519,
+              "p95": 20.934641325019765,
+              "max": 22.819312236038968
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 8.5919305,
+              "p95": 16.9852917,
+              "max": 19.194949
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 0.7048099999999999,
+              "p95": 0.9058571999999999,
+              "max": 1.404685
+            },
+            "retry_requests": 509,
+            "states": {
+              "completed": 130
+            }
+          },
+          "search": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 12.93946543103084,
+              "p95": 22.082302816805896,
+              "max": 24.376518700039014
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 8.767384,
+              "p95": 17.01474815,
+              "max": 19.324152
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 2.160202,
+              "p95": 3.10839225,
+              "max": 3.445997
+            },
+            "retry_requests": 491,
+            "states": {
+              "completed": 130
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 100,
+            "completed": 100
+          },
+          "1": {
+            "offered": 100,
+            "completed": 100
+          },
+          "2": {
+            "offered": 100,
+            "completed": 100
+          },
+          "3": {
+            "offered": 100,
+            "completed": 100
+          }
+        }
+      },
+      {
+        "phase": "growing40",
+        "started_epoch": 1793533632.0344212,
+        "finished_epoch": 1793533858.2913527,
+        "clients": 40,
+        "rounds": 10,
+        "offered": 400,
+        "owned_cgroup_cpu_seconds": 396.9695999999999,
+        "owned_model_cgroup_cpu_seconds": 277.571731,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 140,
+            "completed": 140,
+            "total_seconds": {
+              "n": 140,
+              "p50": 11.325867259525694,
+              "p95": 20.781171377515413,
+              "max": 23.346402555005625
+            },
+            "wait_seconds": {
+              "n": 140,
+              "p50": 9.168336,
+              "p95": 17.19929774999999,
+              "max": 21.220226
+            },
+            "execution_seconds": {
+              "n": 140,
+              "p50": 0.13325150000000002,
+              "p95": 0.22096580000000002,
+              "max": 0.317759
+            },
+            "retry_requests": 545,
+            "states": {
+              "completed": 140
+            }
+          },
+          "context": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 11.71322235709522,
+              "p95": 20.806353843514806,
+              "max": 24.02198660513386
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 9.136826,
+              "p95": 16.58960745,
+              "max": 21.721909
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 0.6994525,
+              "p95": 0.9650013,
+              "max": 1.671193
+            },
+            "retry_requests": 508,
+            "states": {
+              "completed": 130
+            }
+          },
+          "search": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 13.311148941516876,
+              "p95": 22.197752150951416,
+              "max": 27.234388411976397
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 9.294182,
+              "p95": 17.0005438,
+              "max": 21.52778
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 2.1602505,
+              "p95": 3.2475471,
+              "max": 9.143207
+            },
+            "retry_requests": 528,
+            "states": {
+              "completed": 130
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 100,
+            "completed": 100
+          },
+          "1": {
+            "offered": 100,
+            "completed": 100
+          },
+          "2": {
+            "offered": 100,
+            "completed": 100
+          },
+          "3": {
+            "offered": 100,
+            "completed": 100
+          }
+        }
+      },
+      {
+        "phase": "noarrivals40",
+        "started_epoch": 1793533860.328091,
+        "finished_epoch": 1793534089.0935285,
+        "clients": 40,
+        "rounds": 10,
+        "offered": 400,
+        "owned_cgroup_cpu_seconds": 414.27496799999994,
+        "owned_model_cgroup_cpu_seconds": 278.38033200000007,
+        "all_completed": true,
+        "tools": {
+          "metadata": {
+            "offered": 140,
+            "completed": 140,
+            "total_seconds": {
+              "n": 140,
+              "p50": 9.931553368573077,
+              "p95": 22.38362971787573,
+              "max": 28.340781007893384
+            },
+            "wait_seconds": {
+              "n": 140,
+              "p50": 8.050555,
+              "p95": 19.20961634999999,
+              "max": 25.373561
+            },
+            "execution_seconds": {
+              "n": 140,
+              "p50": 0.14938649999999998,
+              "p95": 0.24412149999999988,
+              "max": 0.372495
+            },
+            "retry_requests": 533,
+            "states": {
+              "completed": 140
+            }
+          },
+          "context": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 12.05544181203004,
+              "p95": 21.984952990571035,
+              "max": 28.441271029878408
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 9.602144,
+              "p95": 18.604424799999997,
+              "max": 24.637645
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 0.703212,
+              "p95": 0.99671645,
+              "max": 2.081593
+            },
+            "retry_requests": 505,
+            "states": {
+              "completed": 130
+            }
+          },
+          "search": {
+            "offered": 130,
+            "completed": 130,
+            "total_seconds": {
+              "n": 130,
+              "p50": 13.469682401628233,
+              "p95": 22.481019930611364,
+              "max": 27.56847771210596
+            },
+            "wait_seconds": {
+              "n": 130,
+              "p50": 9.251222,
+              "p95": 17.2285408,
+              "max": 22.773111
+            },
+            "execution_seconds": {
+              "n": 130,
+              "p50": 2.2458834999999997,
+              "p95": 3.1531118,
+              "max": 7.565503
+            },
+            "retry_requests": 553,
+            "states": {
+              "completed": 130
+            }
+          }
+        },
+        "owners": {
+          "0": {
+            "offered": 100,
+            "completed": 100
+          },
+          "1": {
+            "offered": 100,
+            "completed": 100
+          },
+          "2": {
+            "offered": 100,
+            "completed": 100
+          },
+          "3": {
+            "offered": 100,
+            "completed": 100
+          }
+        }
+      }
+    ],
+    "source_windows": 13,
+    "arrival_count_during_growing": 12,
+    "source_states": {
+      "applied": 13
+    },
+    "all_sources_applied": true,
+    "model_calls": {
+      "foreground": 450,
+      "background": 28,
+      "background_seconds": {
+        "n": 28,
+        "p50": 3.851918339729309,
+        "p95": 5.424503958225247,
+        "max": 7.4815003871917725
+      },
+      "errors": 0
+    },
+    "observed_background_starts": [
+      1793533632.020308,
+      1793533860.3103805
+    ],
+    "poll_interval_seconds": 1.05,
+    "extraction_provider": "scripted synthetic result; not LLM quality/latency",
+    "limits": [
+      "Actual local CPU embeddings; owned Ollama runtime on11435, same read-only bge-m3-q8 model blobs",
+      "Other production services remained running; no production DB/config/service writes",
+      "Read-only populated schema024 source migrated only on own PG55468 copy",
+      "No long soak, TLS or cross-host traffic claim",
+      "Maintainer target: search total p95<=10seconds per40-client phase; bounded bursts, not a soak",
+      "Test and owned-model CPU accounted separately per phase; production Ollama outside both groups; no production service limit changed"
+    ],
+    "all_clients_completed": true,
+    "latency_target_seconds": 10,
+    "target_40client_phases_pass": false
+  },
+  "disposition": "Not acceptance: targetfalse andsource665d449hasindependently confirmedF1recallregression. All raw aggregates retained onownedVM andlocalshm; noprivatecontentexport.",
+  "limits": [
+    "RawapproxANNpoolwasunfilteredneighbourhood-limited; allwildcardreferencequeriescannotprove selectivecorrectness.",
+    "Reportedtargetbooleancheckscompletion+latencyonly; finalacceptancealso requirescorrectresults/backlog/modelerrors.",
+    "No productionchange/no SLA/soakclaim."
+  ]
+}

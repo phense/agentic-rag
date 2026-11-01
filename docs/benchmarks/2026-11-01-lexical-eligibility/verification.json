@@ -247,5 +247,66 @@
     "exit_code": 4,
     "tests_run": 0,
     "followup": "corrected selection137passed, no code changed because of patherror"
+  },
+  "filtered_vector_recall_correction": {
+    "state": "affected_selection_running_independent_review_pending",
+    "regression_commit": "1e79b23",
+    "rejected_runtime": "665d449",
+    "red": {
+      "log_sha256": "2a71f26ca33bcd6a9c101cfcbf8f591458e6fed95d35b40cfd772ac260d952b3",
+      "failed": 2,
+      "deselected": 44,
+      "exit_code": 1,
+      "seconds": 26.65,
+      "expected": "50 literal independently constructed allowed document IDs",
+      "actual": "0; nearest270 candidates hidden by scope"
+    },
+    "initial_green": {
+      "passed": 46,
+      "exit_code": 0,
+      "seconds": 289.46,
+      "limit": "before capability-marker refinement; not final-source proof"
+    },
+    "focused_final_green": {
+      "passed": 5,
+      "deselected": 53,
+      "exit_code": 0,
+      "seconds": 73.98,
+      "log_sha256": "a8e05df124611609d159158cfad7daaece40e55643367ebcae5bdfcfc911ee10",
+      "limit": "scan-cap and simulated capability absence only; global-k deselected work/upgrade tests"
+    },
+    "behavior": "pgvector>=0.8 iterative ANN, exact distance sorting when fewer than256 gated candidates; supported0.7 skips ANN by function-local capability marker",
+    "legacy_limit": "Capability discovery branch simulated on installed0.8.4; no real0.7 binary run",
+    "dense_work_limit": "384-check ceiling applies only to600all-eligible synthetic fixture; selective exact fallback may check the full visible corpus",
+    "cancellation_limit": "Post-cancel restoration is characterization; subtransaction rollback itself restores GUC, so it does not prove override mechanism. Successful-return assertions discriminate.",
+    "retained_setup_failures": [
+      "PG55460 stopped after host restart:46setup errors",
+      "invalid globally-disabled-index exact oracle: controlled exit2 after5timeouts; not product red"
+    ],
+    "remaining": [
+      "final affected selection",
+      "fresh independent review",
+      "target load with correctness/drain/error gates",
+      "final full suite"
+    ]
+  },
+  "reference_load_r4_rejected": {
+    "artifact": "reference-r4-failed-target.json",
+    "runtime": "665d449",
+    "all_foreground_completed": 1400,
+    "all_source_windows_applied": 13,
+    "model_errors": 0,
+    "latency_target_seconds": 10,
+    "search_p95_40client_seconds": [
+      22.082,
+      22.198,
+      22.481
+    ],
+    "acceptance": false,
+    "reasons": [
+      "p95 target failed",
+      "source has confirmed filtered-vector recall regression",
+      "controller target boolean omitted correctness/drain/model-error conjunction"
+    ]
   }
 }

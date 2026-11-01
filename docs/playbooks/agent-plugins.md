@@ -299,10 +299,18 @@ This step is independent of source-origin quarantine. Migration034 replaces
 four SQL search functions atomically; it changes no original rows, vectors,
 scopes, grants, installation configuration or wire fields. Its retrieval-local
 `jit=off` setting bounds compilation cost and is restored automatically on return;
-raw/contextual vector gates keep eligibility before ANN limits. Existing0.6.21 readers accept
+raw/contextual vector gates keep eligibility before ranking and limits. On
+pgvector0.8+ they continue the ANN scan past filtered neighbours. An incomplete
+256-candidate pool triggers exact sorting; supported0.7 installations use this
+exact path directly. Caller scan/memory caps remain unchanged. The fallback
+preserves filtered recall but can require checking the whole eligible corpus;
+the dense-fixture work bound is not a general latency guarantee. Existing0.6.21 readers accept
 schema034. New0.6.22 service processes refuse access until034 is installed.
 Prepare0.6.22 in its own environment and reinstall editable packages so their
 distribution metadata agrees with the source. Retain the0.6.21 environment.
+Rebuild disposable rehearsals that already applied an earlier unpublished034:
+the migration ledger records filenames and will not reapply an edited file.
+Do not clear ledger rows or replay SQL manually on an existing installation.
 
 1. Record the database identity and inventory with the0.6.22 operator CLI:
    `rag service --config SERVER_CONFIG inventory --source-version 0.6.21 --identities --output BEFORE_JSON`.

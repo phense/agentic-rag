@@ -559,3 +559,33 @@ pending work, the archived old reader, and independently restored source/target
 backups. An initial selection typo named a nonexistent test file and ran zero
 tests (exit 4); it is retained in the verification record. The 137-test command
 is the corrected run. Full-suite and 40-client target acceptance remain open.
+
+## Filtered-vector recall correction (unpublished034)
+
+Independent review of `665d449` found a recall regression: when the nearest270
+vectors fail access or truth gates, the ANN scan can stop before any of55 valid
+farther documents. The committed regression `1e79b23` first reproduced0 instead
+of the independently specified50 results (2 failures,44 deselected, exit1,
+26.65s). The new matrix covers scope, domain, archive, time, stale source hashes
+and model identity against an exact-sort control and literal document IDs.
+A previous failed setup after the host restart and a timed-out oracle that
+disabled every index are retained separately; neither is the regression red.
+
+The correction uses function-local strict iterative scans when supported and
+exact sorting if fewer than256 gated candidates are found. Capability absence
+skips ANN and uses the exact path, retaining B-tree/GIN access. The simulated
+legacy-capability and scan-cap selection passed5 tests (exit0,73.98s); this does
+not certify an actual0.7 binary. The dense600-document384-check bound remains a
+fixture-specific work regression, not a bound on selective exact fallback.
+The complete affected selection and independent re-review are still pending.
+The cancellation check characterizes restoration after a real abort; PostgreSQL
+rollback itself restores settings, so the successful-return check is the
+independent discriminator for leaked function settings.
+
+The [retained r4 result](../../benchmarks/2026-11-01-lexical-eligibility/reference-r4-failed-target.json)
+completed1,400 foreground requests and13 source windows with0 model errors,
+but its40-client search p95 remains22.08–22.48s. It fails the maintainer's10s
+target and runs the rejected `665d449` retrieval code. Its target boolean also
+omits the required correctness/drain/model-error conjunction. It cannot certify
+Issue68/92, even though its supervisor ended with exit0 and its owned processes
+were cleaned up. The next source-bound load must check all those gates together.
