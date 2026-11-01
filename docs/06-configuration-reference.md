@@ -162,7 +162,9 @@ digest, and the returned vectors must have the configured dimension and finite
 values. Otherwise nothing is stored: the job stays pending without using up an
 attempt, the window shows `background_model_identity` or, for timeouts and
 outages, `background_model_unavailable`, and an already accepted extraction is
-applied later without calling the extraction provider again. Reuse caches keep
+applied later without calling the extraction provider again. An unavailable
+digest lookup also reports `background_model_identity`; check both daemons'
+reachability before diagnosing a changed model. Reuse caches keep
 the identity of `url`, so prove that both daemons return identical vectors
 before enabling the lane. The steps are in
 [PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon).

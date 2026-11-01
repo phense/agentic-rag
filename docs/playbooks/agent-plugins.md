@@ -470,6 +470,10 @@ uses other unit names, record the mapping before executing any command. Use
 `agentic-rag-ollama-background.service` for the new daemon. Keep its
 `127.0.0.1:11436` listener private; first require no output from
 `ss -ltn 'sport = :11436' -H`.
+Configuration rejects an identical URL string, but does not resolve aliases
+such as `localhost` and `127.0.0.1`. After starting, compare the two units'
+`MainPID` values (`systemctl show UNIT -p MainPID`) and listener ports; require
+different running processes at the two configured addresses.
 
 1. Stop extraction in the authorized window with
    `sudo systemctl stop agentic-rag-worker.service`. Require
