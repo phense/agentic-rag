@@ -142,3 +142,79 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert after['restore_verified']
         assert after['manifest']['source_version'] == '0.6.22'
         assert upgrade.verify_preserved(cfg, after['manifest'])['unchanged']
+
+
+def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, monkeypatch):
+    # Mutation: a custom placeholder in CREATE/ALTER FUNCTION SET silently adds
+    # a superuser requirement to supported owner migrations and dump restores.
+    import uuid
+    import psycopg
+    from psycopg import sql
+
+    monkeypatch.setattr(query_cache, 'model_digest', lambda cfg: 'a' * 64)
+    root = Path(__file__).resolve().parents[2]
+    archive = tmp_path / 'limited-old.tar'
+    old = tmp_path / 'limited-old-0.6.21'
+    old.mkdir()
+    with archive.open('wb') as stream:
+        subprocess.run(['git', 'archive', SOURCE, 'agentic_rag', 'sql', 'pyproject.toml'],
+                       cwd=root, stdout=stream, check=True)
+    with tarfile.open(archive) as stream:
+        stream.extractall(old, filter='data')
+    role = 'rag92_owner_' + uuid.uuid4().hex[:12]
+    base = Config()
+    with psycopg.connect(db.dsn(base, dbname='postgres'), autocommit=True) as admin:
+        admin.execute(sql.SQL('CREATE ROLE {} LOGIN CREATEDB NOSUPERUSER NOCREATEROLE NOINHERIT NOBYPASSRLS').format(sql.Identifier(role)))
+        try:
+            # The documented deployment preloads vector. Apply that prerequisite
+            # only to this disposable role, never to the shared test cluster.
+            admin.execute(sql.SQL("ALTER ROLE {} SET session_preload_libraries='vector'").format(sql.Identifier(role)))
+            with isolated_database(base, initialize=False) as template:
+                with db.connect(template) as c:
+                    marker = c.execute('SELECT owner_id FROM benchmark_ownership').fetchone()['owner_id']
+                    c.execute('DROP TABLE benchmark_ownership')
+                    c.execute('CREATE EXTENSION vector')
+                admin.execute(sql.SQL('ALTER DATABASE {} OWNER TO {}').format(
+                    sql.Identifier(template.db_name), sql.Identifier(role)))
+                try:
+                    with monkeypatch.context() as limited:
+                        limited.setenv('PGUSER', role)
+                        with isolated_database(base, initialize=False, template=template.db_name) as cfg:
+                            env = {**os.environ, 'PYTHONPATH': str(old),
+                                   'LEXICAL_UPGRADE_DB': cfg.db_name, 'PYTHONDONTWRITEBYTECODE': '1'}
+                            made = subprocess.run([sys.executable, '-c', POPULATE], cwd=old, env=env,
+                                                  capture_output=True, text=True, timeout=60)
+                            assert made.returncode == 0, made.stderr
+                            assert json.loads(made.stdout)['schema'] == 33
+                            with db.connect(cfg) as c:
+                                privileges = c.execute('SELECT rolsuper,rolcreaterole,rolbypassrls FROM pg_roles WHERE rolname=current_user').fetchone()
+                                assert not any(privileges.values())
+                                assert c.execute("SELECT count(*) n FROM pg_parameter_acl WHERE parname='rag.iterative_vectors'").fetchone()['n'] == 0
+                            before = upgrade.inventory(cfg, '0.6.21', identities=True)
+                            upgraded = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'limited-upgrade.dump',
+                                apply=True, writers_stopped=True, verification_template=template.db_name)
+                            assert upgraded['migrations_applied'] == ['034_lexical_eligibility_work.sql']
+                            assert upgraded['restore_verified'] and upgraded['original_rows_unchanged']
+                            assert upgrade.verify_preserved(cfg, before)['unchanged']
+                            target = upgrade.verified_backup(cfg, '0.6.22', tmp_path / 'limited-target.dump',
+                                                             verification_template=template.db_name)
+                            assert target['restore_verified']
+                            assert target['manifest']['identity']['owner'] == role
+                            with db.connect(cfg) as c:
+                                assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 34
+                                assert c.execute("SELECT count(*) n FROM mining_queue WHERE session_id='pending-lexical'").fetchone()['n'] == 1
+                            # Also restore the real target archive into a separate
+                            # owner-created database and exercise the SQL there.
+                            with isolated_database(base, initialize=False, template=template.db_name) as restored:
+                                upgrade._restore_verification(cfg, restored, target['dump'], target['manifest'], prepared_template=True)
+                                assert upgrade.verify_preserved(restored, target['manifest'])['unchanged']
+                                with db.connect(restored) as c:
+                                    assert not c.execute('SELECT rolsuper FROM pg_roles WHERE rolname=current_user').fetchone()['rolsuper']
+                                    assert c.execute("SELECT count(*) n FROM hybrid_search_candidates('blue')").fetchone()['n'] > 0
+                                    assert c.execute("SELECT count(*) n FROM mining_queue WHERE session_id='pending-lexical'").fetchone()['n'] == 1
+                finally:
+                    with db.connect(template) as c:
+                        c.execute('CREATE TABLE benchmark_ownership(owner_id text PRIMARY KEY)')
+                        c.execute('INSERT INTO benchmark_ownership VALUES (%s)', (marker,))
+        finally:
+            admin.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))
