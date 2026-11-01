@@ -110,8 +110,9 @@ No production activation is included.
 
 ## Source-preserving memory lifecycle (RAG-066 / issue #66)
 
-🔵 Implemented, independently reviewed and source-bound verified; PR integration
-and production rollout remain separate. Five explicit decisions link originals
+Merged in [PR90](https://github.com/phense/agentic-rag/pull/90) at `01bc13bd`,
+independently reviewed and source-bound verified; production rollout remains
+separate. Five explicit decisions link originals
 without moving their evidence. SQL current/include-merged/historical selection
 runs before limits; versioned correction, scope protection, bounded history and
 current derived outputs share the audited gateway. Existing exact curation now
