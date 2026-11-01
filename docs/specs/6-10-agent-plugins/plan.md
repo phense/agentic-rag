@@ -88,12 +88,18 @@ All production cutover gates remain.
 
 ## A2: isolate admitted background inference (Issue92, design gate)
 
-Status: conditional design, pending E-LANE-1. Runtime5667ee7 is unchanged. This
+Status: implementation plan after the post-B3 independent design review. Runtime
+0a08785 is unchanged; B3 meets the revised numerical target as a diagnostic shim.
+This
 amendment supersedes the fixed-consumer/shared-runner decisions above only when
 its optional configuration is selected. The revised strictly <11s AC05 target and4-vCPU/8-GiB
 reference remain binding; no consumer, thread or model-lane setting is adopted
 by a diagnostic result alone. Owner: coordinator, one cohesive implementation
 slice after the experiment and architecture gate. Model and originals stay intact.
+
+The post-B3 review accepts implementation of the minimum below. No further
+performance experiment or optimization is required solely to reach the former
+10s target. B3's original protocol and failed 10s gate remain historical evidence.
 
 ### Evidence and decision
 
@@ -125,6 +131,13 @@ limits; do not create a duplicate Low issue merely for unimplemented-design risk
   admission. A separate legacy-background lock permits at most one background
   inference alongside one foreground inference. Keep foreground preference for
   starting every new background page/job, finite waits and existing worker pins.
+  Configuration keys: `[ollama] background_url`, `background_timeout_seconds`
+  (10..60, default60 for an enabled lane), `num_thread` and
+  `background_num_thread` (optional integers1..8), and `[service] request_consumers`
+  (integer1..4, default2). Thread keys are omitted from HTTP JSON when unset.
+  Background-only settings require the lane; reject malformed or credentialed
+  URLs. The reference uses primary threads2, background threads1 and timeout60,
+  matching B3. Managed profiles keep their own provider/thread configuration.
 - `query_cache.py`, `embedding_reuse.py`, `embed.py`: verify both endpoint tags and
   immutable digests before and after routed inference, validate dimension and
   vector shape, and refuse unknown/mismatched identity before persistence. Reuse
@@ -135,16 +148,35 @@ limits; do not create a duplicate Low issue merely for unimplemented-design risk
   with missing vectors. Accepted extraction output remains replayable without a
   new provider call. Count timeouts, fallback and dedup skips in the acceptance
   harness without disclosing inputs.
-- `service/requests.py`: configurable bounded consumer count, default2. An
-  explicitly configured capacity owns a bounded executor; propagate ContextVars
-  and never share live connections. Preserve the default path and shutdown's
-  execution-pin guarantee: wait for finite calls; do not abandon a live gateway
-  and start replacement execution. More consumers do not establish more capacity.
+- `service/requests.py`: configurable bounded consumer count, default2, reference4.
+  Keep `asyncio.to_thread` and its ContextVar propagation. Reject an explicit
+  count above half the default CPython executor capacity at API startup (capacity
+  `min(32, effective_cpu_count+4)`, using `os.process_cpu_count` when available).
+  This reserves at least half its workers for HTTP/control/trace work; four are
+  allowed on the reference's eight-worker pool. The supported API uses that
+  default pool; document the reserve requirement for a custom ASGI executor.
+  No own executor, pool resizing, authorization change or concurrency sweep is
+  selected. Never share live connections. Preserve shutdown's execution-pin
+  guarantee: wait for finite calls; do not abandon a live gateway and start a
+  replacement execution. More consumers do not establish more CPU capacity.
 - `service/client.py`: honor finite, bounded existing `retry_after` hints with
-  jitter and the caller's remaining deadline. Old servers without a valid hint
-  retain exponential fallback. Preserve pre-ACK/offline durable handles, lost-ACK
-  reconciliation, cancellation and terminal errors. Waiting is never successful
-  search. No new wire field or long-poll endpoint. Preserve per-namespace rate limits.
+  jitter and the caller's remaining deadline. After ACK, use a finite numeric
+  hint clamped to at most8s and at least `service_poll_seconds`, plus0..25% jitter;
+  an explicitly larger configured poll interval remains the lower bound. Invalid,
+  missing, boolean or non-finite hints retain bounded exponential fallback.
+  Before ACK, retry only transient contention/timeouts within the caller's
+  deadline, using0.3s plus0..25% jitter and the SAME durable envelope/idempotency
+  key. This includes capacity/write-capacity/rate contention429,408 and ambiguous
+  transport timeout/unavailability after discovery. Do not retry permanent4xx,
+  invalid receipts/responses, legacy synchronous calls or negotiation failure.
+  Preserve offline handles, lost-ACK reconciliation, cancellation and terminal
+  errors. At deadline return the same pending handle, never success. Clamp every
+  sleep and HTTP timeout to the remaining deadline.
+  All deployed queued-tools servers already send `retry_after:1`; client-first
+  rollout therefore changes polling to approximately1Hz on old servers too.
+  Retain the12/s per-namespace window, four control slots, auth and budgets.
+  Missing-hint fallback remains defensive compatibility, not evidence that
+  deployed old servers keep the old schedule. No new wire field or long-poll.
 - Configuration reference, central-service guide and PB06801: describe the
   opt-in daemon, read-only pinned blobs, finite per-lane/global CPU and memory,
   old/new coexistence, verified startup and a key-removal/restart recovery path.
@@ -198,6 +230,32 @@ poll fallback; rate-limited durable handle retained; kill background daemon;
 digest swap during inference; API/worker restart; config rollback; old/new
 worker exclusion; lost ACK/offline replay; authority revocation before commit.
 Use existing FR04/05 audit and result-publication checks in every applicable case.
+
+### Final-runtime acceptance after B3
+
+PB3-01..05 are implementation/acceptance obligations, not new defects in the
+accepted single-lane runtime. B3's9.607/10.621/10.801s satisfies the revised
+strict<11s numerical boundary only. The measured background-thread reduction
+justifies background threads1; preserve complete inputs and require exact
+vector parity for every actual synthetic inference input before final acceptance.
+
+T06821 uses the product `RemoteClient.invoke`,40 instances with separate spool
+directories, normal30s tool deadlines, four principals with ten clients each,
+the same metadata/context/search mix, distinct queries and13 original windows.
+Freeze phase sizes, principal/scope mapping and expected result/citation checks
+before execution. Include real restricted readers and an independent result
+oracle; record this mapping change from the wildcard-only B3 rather than calling
+the workloads identical. No successful `waiting` outcome or fallback is allowed.
+
+Passive instrumentation records per-attempt time/method/path class/status/error
+code and pre/post-ACK state, request ACK/publication-commit/terminal-observation
+times, round index, phase rejection counters, trace drops and default-executor
+queue delay by work type. No raw credentials or private excerpts are exported.
+Measure each contended40-client phase independently with strict `<11`, preserve
+resource/model identity checks and full eventual drain. Stop on the first failed
+or invalid gate, retain evidence and diagnose it; do not tune between phases or
+repeat a near miss until it passes. No additional pre-implementation attribution
+experiment or dedicated executor is selected.
 
 
 ### T06820 refinement: source-permission plan work

@@ -687,3 +687,24 @@ same acceptance cases. Findings describe risks of an unimplemented optional
 route; they do not reclassify the accepted single-lane runtime as newly broken.
 The diagram and exact experiment/abort rules are in model-admission-92-a2.md
 and the6.10 plan A2. No tasks are marked complete or regenerated at this gate.
+
+### Post-B3 disposition and task mapping (2026-11-01)
+
+The maintainer changed AC05 to strict<11s. B3 meets the numerical boundary but
+uses a diagnostic client and runtime overrides. Post-B3 independent review
+accepts minimum implementation, not feature delivery; no further attribution
+experiment or dedicated executor is needed. Original protocols remain unchanged.
+
+| Finding | Classification and current response | Required tasks | Status |
+|---|---|---|---|
+| AF092-A2-01..03 | Separate admission, finite attempt-preserving pressure and two-endpoint identity are unchanged design obligations | T06823/24/27/28 | Open for implementation/review |
+| AF092-A2-04, PB3-02 High / PB3-04 Medium | Actual-client hints plus bounded same-envelope pre-ACK retries; old queued servers already send hint1, so document mixed-version polling load | T06823/25/26/27 | Open |
+| PB3-03 High / PB3-05 Medium | Configurable1..4 consumers, default2/reference4, at most half the computed default pool; retain ContextVars and graceful shutdown, no separate executor selected | T06823/24/26/27 | Open |
+| AF092-A2-05, PB3-01 High / PB3-08 Info | Physical B3 result inherited; final-runtime complete-input parity, real-client scoped-result acceptance, populated0.6.21 upgrade/runtime recovery and full suite still owed | T06826..28, T06821/22 | Open |
+| PB3-06 Low | Stored timestamps omit publication commit and may blur re-execution; use passive per-attempt/commit/observation instrumentation in the acceptance run | T06821/28; collect75 | Open, nonblocking accounting limitation |
+| PB3-07 Low | B3 used four wildcard principals; freeze restricted-reader mapping and independent result oracle before final run, disclose change in evidence | T06821/28; collect75 | Open, evidence scope |
+
+These are obligations for an unimplemented optional route and its acceptance;
+they do not reclassify the accepted single-lane runtime as broken. The selected
+model and original data stay unchanged. A2's explicit success and recovery flows
+are in model-admission-92-a2.md; tasks S06808 owns their implementation and proof.
