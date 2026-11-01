@@ -39,8 +39,9 @@
     "seconds": 145.44
   },
   "gates_open": [
-    "corrected root full-suite terminal exit0 on final documentation tree",
-    "maintainer latency disposition before Issue68/92 closure"
+    "new complete independent review after generic-vector/JIT correction",
+    "final source-bound full-suite exit0",
+    "search total p95<=10s in actual40-client/background reference load"
   ],
   "limitations": [
     "Reference SQL AB has2 measurements per arm per case, no latency SLA",
@@ -155,7 +156,7 @@
     "high": 0,
     "medium": 0,
     "playbook_important": 0,
-    "scope": "Complete43-file bounded diff plus16-file correction;27 unchanged files inherited by hash. Delivery conditional on fresh full suite; later edits are documentation/evidence only.",
+    "scope": "Complete43-file bounded diff plus16-file correction;27 unchanged files inherited by hash. Delivery conditional on fresh full suite; later edits are documentation/evidence only. New vector/JIT runtime delta requires fresh complete independent review.",
     "probes": {
       "broad": "8 units equal;60 distinct-document checks each",
       "sql_extra": "320 cases pass",
@@ -176,5 +177,75 @@
     "progress": "about31percent",
     "accepted": false,
     "cause": "unproven; no pytest process or end artifact remained"
+  },
+  "latency_target": {
+    "p95_total_seconds": 10,
+    "clients": 40,
+    "background_extraction": "enabled",
+    "host_class": "4vCPU/8GiB",
+    "status": "not yet attained; maintain68/92 open",
+    "authority": "maintainer2026-11-01; https://github.com/phense/agentic-rag/issues/92#issuecomment-6557038032"
+  },
+  "full4_superseded": {
+    "head": "0ec0ab150a04a2fc5f02a147a3b6dac1d6365770",
+    "exit_code": -15,
+    "seconds": 1604.03,
+    "tracked_files": 1330,
+    "sources_unchanged": true,
+    "head_unchanged": true,
+    "accepted": false,
+    "reason": "controlled stop for the new maintainer latency criterion; further runtime changes required"
+  },
+  "generic_vector_regression_red": {
+    "frozen_commit": "a6747cd",
+    "exit_code": 1,
+    "failed": 2,
+    "seconds": 64.69,
+    "actual_calls_per_function": 600,
+    "maximum": 384,
+    "functions": [
+      "hybrid_search_candidates",
+      "contextual_search_candidates"
+    ],
+    "baseline_sql_sha256": "8a8c7da221b7f64c43281200cd6d9ba020c39a4180f340566fa4d7beb5176957"
+  },
+  "generic_vector_regression_green": {
+    "command": "PGPORT=55460 pytest -q tests/test_vector_candidate_work.py -p no:cacheprovider --tb=short",
+    "passed": 2,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 64.49,
+    "log_sha256": "5893e71fa1826d8cf6b7d7d18a22de912ef8cf9fc79b80c31cd1e94ecd52dc10",
+    "scope": "600synthetic documents each with raw/contextual vectors; exact full response parity against frozenpre-targetSQL; <=384 truthchecks; no inference; ownedDBcleaned",
+    "limitations": "Before four caller-setting characterizations were added; affected suite and real upgrade still running. Not end-to-end latency evidence."
+  },
+  "contextual_plan_diagnosis": {
+    "default_ms": 423.799,
+    "no_seqscan_diagnostic_ms": 436.493,
+    "coalesce_hash_diagnostic_ms": 224.897,
+    "selected_inner_hash_ms": 225.187,
+    "selected_change": "source-hash equality inside correlated document gate, before ANN limit; no coalesce/selectivity trick or forcedscan configuration",
+    "observation": "HNSW returns256 contexts; truth gate visits256 instead of600; synthetic600document generic plan",
+    "provider_calls": 0
+  },
+  "vector_jit_affected": {
+    "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 pytest -q tests/test_vector_candidate_work.py tests/test_lexical_eligibility_work.py tests/test_contextual_indexing.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+    "passed": 137,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 178.0,
+    "log_sha256": "ebc7217fac9a2d8dde79f90131d0d390572ed2b24d29146093e8bcdbe6840edd",
+    "coverage": [
+      "full response parity and generic work bound",
+      "caller jit/hnsw settings preserved aftersuccess andactualcancellation, all4functions",
+      "real archived0.6.21 populatedsource, interrupted034rollback/retry, oldreader parity",
+      "source andtarget backup withactual independentrestores, originalhashes/jobs/privileges preserved exceptdocumentedlocaljit"
+    ]
+  },
+  "retained_test_invocation_error": {
+    "command": "initial affected selection named nonexistent tests/test_filtered_vector_candidates.py",
+    "exit_code": 4,
+    "tests_run": 0,
+    "followup": "corrected selection137passed, no code changed because of patherror"
   }
 }

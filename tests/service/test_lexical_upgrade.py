@@ -114,7 +114,11 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
                                         apply=True, writers_stopped=True)
         assert changed['migrations_applied'] == ['034_lexical_eligibility_work.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
-        assert function_privileges(cfg) == privileges
+        # Only the documented, function-local compiler setting changes. All old
+        # settings and OID/owner/grants/security/signature fields remain exact.
+        expected_privileges = [row | {'proconfig': (row['proconfig'] or []) + ['jit=off']}
+                               for row in privileges]
+        assert function_privileges(cfg) == expected_privileges
         assert old_read() == old_results  # Genuine archived0.6.21 with schema034.
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         with db.connect(cfg) as c:

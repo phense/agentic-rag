@@ -15,7 +15,9 @@ hosted RAG service.**
 
 **0.6.22 lexical search:** selective full-text queries run expensive truth and
 lifecycle checks once per matching document, retaining the same scoped results
-and ranking. Service embedding preparation also retains worker priority and
+and ranking. Generic vector plans keep truth and source checks before the ANN
+limit, and retrieval functions avoid costly per-query JIT compilation without
+changing caller settings. Service embedding preparation also retains worker priority and
 background timeout rules. Upgrade existing0.6.21 stores with the
 [lexical-search upgrade procedure](docs/playbooks/agent-plugins.md#0621-to-0622-lexical-search-upgrade).
 

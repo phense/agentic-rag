@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 
 import pytest
+from psycopg.errors import QueryCanceled
 
 from agentic_rag import db, domains, embed, query_cache, store
 from agentic_rag.benchmark.database import isolated_database
@@ -83,3 +84,31 @@ def test_generic_vector_work_is_bounded_by_ann_candidates(vector_database, funct
         assert [row['slug'] for row in actual[:3]] == ['vector-marker-0001', 'vector-marker-0002', 'vector-marker-0003']
         assert len(actual) == 50
         assert after - before <= 384, {'function': function, 'calls': after-before, 'limit': 384}
+
+
+@pytest.mark.parametrize('function', FUNCTIONS + tuple(name + '_planned' for name in FUNCTIONS))
+def test_retrieval_settings_restore_after_success_and_cancel(vector_database, function):
+    # Mutation: a session-level JIT/ef_search override leaks into unrelated work;
+    # PostgreSQL function-local settings must restore even on cancellation.
+    with db.connect(vector_database) as reader:
+        reader.execute('SET jit=on')
+        reader.execute('SET hnsw.ef_search=64')
+        reader.execute('SET ROLE rag_reader')
+        principal = Principal('vector-probe', 'owned', 'reader', frozenset({'general'}),
+                              frozenset(), frozenset({'global'}), frozenset())
+        apply_connection(reader, RequestScope(principal, vector_database, True))
+        args = ('unfindablevector92', None, None, 150, None, '2026-11-01T00:00:00Z', False)
+        placeholders = '%s,%s::halfvec,%s,%s,%s,%s,%s'
+        if function.startswith('contextual'):
+            args += (DIGEST,)
+            placeholders += ',%s'
+        statement = f'SELECT * FROM {function}({placeholders})'
+        assert reader.execute(statement, args).fetchall() == []
+        assert reader.execute('SHOW jit').fetchone()['jit'] == 'on'
+        assert reader.execute('SHOW hnsw.ef_search').fetchone()['hnsw.ef_search'] == '64'
+        with pytest.raises(QueryCanceled):
+            with reader.transaction():
+                reader.execute("SET LOCAL statement_timeout='1ms'")
+                reader.execute(statement, args).fetchall()
+        assert reader.execute('SHOW jit').fetchone()['jit'] == 'on'
+        assert reader.execute('SHOW hnsw.ef_search').fetchone()['hnsw.ef_search'] == '64'

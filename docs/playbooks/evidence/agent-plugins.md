@@ -509,3 +509,53 @@ and no pytest process remained. It is not a pass; its cause is unproven. A new
 source-bound full suite is required before delivery. The maintainer latency
 disposition and T06811/T06818 reconciliation remain open; Issue68/92 closure and
 production rollout are separate from these measurements.
+
+
+## Maintainer10-second target continuation
+
+The maintainer requires successful search total p95 <=10seconds, including
+queueing, with40 active clients and background extraction enabled on the same
+4-vCPU/8-GiB reference. The existing r3 result fails that target;68/92 remain
+open. Full4 at `0ec0ab1` was deliberately stopped before further runtime work:
+exit-15 after1,604.03s, all1,330 tracked hashes and HEAD unchanged. It is not a
+pass. The final implementation needs a new full-suite terminal result.
+
+The [owned-copy diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/latency-target-diagnosis.json)
+uses no new model calls and exports aggregate timings/plans only. Full search
+with a retained synthetic vector and inference explicitly stubbed takes about
+5.5s; almost all of it is candidate SQL. The expanded reader plan spends
+1,460.977ms of1,968.673ms in JIT; it is not the generic wrapper's full runtime.
+A one-variable eight-unit JIT A/B reduces generic vector SQL from5.52–5.80s to
+4.27–4.30s with complete response equality. A separate four-unit generic-plan
+A/B, with JIT off in both arms, reduces eligibility calls from6,520 to166 and
+SQL time from4.05–4.20s to0.99–1.07s by correlating the document gate to ordered
+chunks. Full fields, score and order remain equal in all four units. These
+single-request SQL observations are not the40-client latency acceptance.
+
+The exact pre-target SQL fixture was frozen in `a6747cd` before runtime changes.
+Both new real-reader regressions fail with600 checks versus a384-check ceiling;
+only inference is substituted. They retain real gateway writes, HNSW, RLS,
+truth checks and complete raw/contextual result comparisons. The additional
+correction remains unpublished034;001..033 and the0.6.22 version are unchanged.
+Fresh targeted tests, populated upgrade/restore, independent review and the
+actual latency-target workload remain required.
+
+
+The frozen generic-plan regression subsequently passed for both raw and contextual
+vectors (2 passed, 64.49 s). Complete rows, order and scores match the pre-target
+SQL on 600 synthetic documents; each corrected branch stays below the independent
+384-check bound. The contextual plan retains HNSW when its source-hash predicate
+stays inside the correlated document gate, before the 256-candidate limit. An
+expanded-plan probe measured 225.187 ms versus 423.799 ms; this is synthetic SQL
+cost, not the 40-client latency result. Forced sequential-scan and COALESCE arms
+were diagnostic controls only and are absent from the implementation.
+
+The affected selection then passed all 137 tests in 178.00 s (exit 0): vector
+work and exact-response parity, lexical eligibility, contextual indexing and
+the genuine populated 0.6.21 upgrade. All four retrieval functions restore the
+caller's JIT and HNSW settings after normal return and a real statement
+cancellation. The upgrade rehearses interruption, retry, original-row hashes,
+pending work, the archived old reader, and independently restored source/target
+backups. An initial selection typo named a nonexistent test file and ran zero
+tests (exit 4); it is retained in the verification record. The 137-test command
+is the corrected run. Full-suite and 40-client target acceptance remain open.
