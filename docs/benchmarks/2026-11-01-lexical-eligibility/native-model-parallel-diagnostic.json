@@ -1,0 +1,133 @@
+{
+  "protocol": {
+    "hypothesis": "Same Ollama model with two native parallel slots can complete a short foreground input before an earlier long background input; otherwise separate model admission locks cannot solve non-preemption",
+    "source_head": "5667ee7 (no product code invoked or changed)",
+    "arms": [
+      1,
+      2
+    ],
+    "threads": 2,
+    "model_digest": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+    "memory_max_bytes": 3221225472,
+    "cpu_quota_percent": 350,
+    "limits": [
+      "Model-only no SQL/API/control overhead; not target acceptance",
+      "Raised owned model diagnostic memory budget3GiB, not deployed setting",
+      "Only synthetic exact full inputs; no truncation or model change",
+      "No product source/priority/authority changes"
+    ],
+    "created_before_execution": true,
+    "inputs": {
+      "background": {
+        "characters": 3215,
+        "sha256": "6410c9ceeae4ac2a84ff22259919cb91338e1ab3f3fbcf4f44b751df6397007a"
+      },
+      "foreground": {
+        "characters": 49,
+        "sha256": "ea6e6bc8267540ca46c821390515e8290ce89642dac6e35813feeb94feaacc7d"
+      }
+    }
+  },
+  "result": {
+    "diagnostic_only": true,
+    "production_changed": false,
+    "arms": [
+      {
+        "native_parallel": 1,
+        "rows": [
+          {
+            "kind": "background",
+            "start_offset_seconds": 8.840207010507584e-05,
+            "end_offset_seconds": 5.65917709399946,
+            "seconds": 5.659088921966031,
+            "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682"
+          },
+          {
+            "kind": "foreground",
+            "start_offset_seconds": 0.15070117288269103,
+            "end_offset_seconds": 5.75032642390579,
+            "seconds": 5.599625481059775,
+            "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a"
+          }
+        ],
+        "resources": {
+          "memory_bytes": 1999814656,
+          "memory_peak_bytes": 2001850368,
+          "memory_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "cpu_stat": {
+            "usage_usec": "13783239",
+            "user_usec": "13176329",
+            "system_usec": "606909",
+            "nice_usec": "0",
+            "nr_periods": "83",
+            "nr_throttled": "0",
+            "throttled_usec": "0",
+            "nr_bursts": "0",
+            "burst_usec": "0"
+          }
+        }
+      },
+      {
+        "native_parallel": 2,
+        "rows": [
+          {
+            "kind": "background",
+            "start_offset_seconds": 5.3944066166877747e-05,
+            "end_offset_seconds": 5.687967380974442,
+            "seconds": 5.687913677887991,
+            "vector_sha256": "e0a6b2490e576ec0d40b574a1e92180bf270d7df875cb3f4dfa0d90926b79682"
+          },
+          {
+            "kind": "foreground",
+            "start_offset_seconds": 0.15082735801115632,
+            "end_offset_seconds": 5.773796004941687,
+            "seconds": 5.622968898154795,
+            "vector_sha256": "980a63cd2a09a7dc5f8f3940a35893ee90e6277415b393b1f563dd4c04232f4a"
+          }
+        ],
+        "resources": {
+          "memory_bytes": 1653833728,
+          "memory_peak_bytes": 1654222848,
+          "memory_events": {
+            "low": "0",
+            "high": "0",
+            "max": "0",
+            "oom": "0",
+            "oom_kill": "0",
+            "oom_group_kill": "0"
+          },
+          "cpu_stat": {
+            "usage_usec": "13742029",
+            "user_usec": "13263491",
+            "system_usec": "478538",
+            "nice_usec": "0",
+            "nr_periods": "81",
+            "nr_throttled": "0",
+            "throttled_usec": "0",
+            "nr_bursts": "0",
+            "burst_usec": "0"
+          }
+        }
+      }
+    ],
+    "cross_arm_vectors": {
+      "background": {
+        "equal": true,
+        "max_abs_difference": 0.0
+      },
+      "foreground": {
+        "equal": true,
+        "max_abs_difference": 0.0
+      }
+    },
+    "complete": true,
+    "owned_model_inactive": true
+  }
+}

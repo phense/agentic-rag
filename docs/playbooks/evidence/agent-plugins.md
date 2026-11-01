@@ -700,3 +700,13 @@ change is selected. Individual connection/schema costs do not yet justify
 pooling. The next design must address non-preemptible background model occupancy
 and client observation delay while preserving full inputs, durable receipts,
 truth/access checks, finite resource budgets and eventual source drain.
+
+The [model-only overlap counter-test](../../benchmarks/2026-11-01-lexical-eligibility/native-model-parallel-diagnostic.json)
+also rejects native two-slot parallelism as an assumed repair: with two CPU
+threads, a short request started150ms after a complete3,215-character synthetic
+original still waited5.600s with one configured slot and5.623s with two. Both returned
+bit-identical vectors across arms. The owned diagnostic used a3GiB model cap,
+had no OOM events, and stopped both sequential service runs; it did not invoke
+the product, establish a deployment budget or test40 clients. A separate
+foreground/background execution-lane proposal is under design review, not
+implemented or accepted.
