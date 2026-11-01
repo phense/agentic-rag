@@ -293,6 +293,46 @@ replacements: keep capture/mining stopped until0.6.21 is restored. Restoring the
 pre-upgrade backup also restores old trust and loses later writes; repeat this
 origin gate after the existing explicit restore/cutover procedure.
 
+## 0.6.21 to 0.6.22 lexical-search upgrade
+
+This step is independent of source-origin quarantine. Migration034 replaces
+four SQL search functions atomically; it changes no original rows, vectors,
+scopes, grants, configuration or wire fields. Existing0.6.21 readers accept
+schema034. New0.6.22 service processes refuse access until034 is installed.
+Prepare0.6.22 in its own environment and reinstall editable packages so their
+distribution metadata agrees with the source. Retain the0.6.21 environment.
+
+1. Record the database identity and inventory with the0.6.22 operator CLI:
+   `rag service --config SERVER_CONFIG inventory --source-version 0.6.21 --identities --output BEFORE_JSON`.
+   Resolve `SERVER_CONFIG`, `BEFORE_JSON` and the following dump paths for the
+   intended installation. Use new private paths; never overwrite recovery proof.
+2. Pause capture/mining and other writers using the installation's service
+   procedure; retain their spools and queued work. Keep readers available if
+   their connection budget permits the migration's short function-lock wait.
+3. Run `rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
+   Require `restore_verified` and `original_rows_unchanged`, with only
+   `034_lexical_eligibility_work.sql` applied. The command verifies its backup by
+   independent restore before changing the database. A failed apply rolls back;
+   repeat with a fresh dump path. A successful repeat applies no migrations.
+4. Start the0.6.22 services and adapters, resume writers, and check authenticated
+   scoped search, client capture/replay and queued extraction progress. Create
+   a target backup with `rag service --config SERVER_CONFIG verified-backup --source-version 0.6.22 --output AFTER_DUMP`.
+   Require its independent restore to succeed before retiring the old runtime.
+
+The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine
+archived0.6.21 creates the store, an injected interruption rolls back034, retry
+preserves originals and function privileges, the old scoped reader still returns
+identical responses, and both source and target backups restore independently.
+Production service restarts and cross-host routing require their own rollout checks.
+
+For code recovery keep schema034 and the verified0.6.22 backup tooling;
+0.6.21 readers remain compatible. Do not remove a migration marker or replace
+functions manually. To restore pre-upgrade state, follow the verified restore
+and explicit database cutover in the
+[source-evidence recovery procedure](system/rag-063-source-evidence-upgrade.md).
+That snapshot excludes later writes; stop writers and account for retained
+spools before cutover. No lossless downgrade after new writes is implied.
+
 ## Completion and maintenance
 
 The operation completes when the host discovers the package, current knowledge

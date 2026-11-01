@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.22] - 2026-11-01
+
+- Add migration034 for Issue92: lexical matching precedes per-document truth/lifecycle work in raw and contextual candidate functions, including their planned variants. Retain reader RLS, all source/status/scope/temporal predicates, source hashes, ranking, diversity and vector planning. Matching does not bypass PostgreSQL security barriers to force a GIN index.
+- Support verified backups labelled0.6.22 and the populated0.6.21→0.6.22 upgrade/retry/independent-restore path. Migration034 replaces four invoker functions without rewriting stored knowledge, embeddings, access rules, queued work or audit history. New service processes require034; existing0.6.21 readers keep working.
+- Preserve the outstanding20–40-client performance acceptance in Issue68/92 until fresh reference-load measurements and final review/verification complete. A merge is not a production rollout.
+
 ## [0.6.21] - 2026-11-01
 
 - Preserve original authorship at native compaction boundaries: readers exclude generated Claude summaries/meta records and Codex API mirrors while retaining stable original IDs and compatible partial cursors. Audited, bounded source-origin quarantine includes database-backed preflight, retained remote-window coverage and read-only client-spool export.
