@@ -197,6 +197,7 @@ Every refusal writes nothing: no decision, event or audit row.
 | C7 | `rag review` or `show` lists `stale` | Member or target changed after the decision, or the target is no longer current: a duplicate or extension stops hiding by itself. To merge again: C6 on the stale decision, then B2–B3 | The member is visible until you decide again | |
 | C8 | `show` lists `canonical_unavailable` | The target of a replacement was refuted or deleted. The member stays hidden because it was replaced. Correct the decision (C6) if the member should answer again | | |
 | C9 | Apply fails without a code (database permission, audit write) | Nothing was written. Fix the permission and repeat B3 | `decision … active` | Escalate with the error text |
+| C10 | `show` prints `suppressed: decision_unavailable` | The replacement decision belongs to an inaccessible original scope after a move. Ask an operator with write access to that original scope (or the local maintainer) to inspect it and run C6 there; do not try to repair it from the new scope | Audited correction restores visibility only through the member's own truth gates | If detail shows only corrected relationships after multiple scope moves, use `rag get MEMBER --view current` to check suppression; LOW-046 tracks that display gap |
 
 ### Integrity check
 

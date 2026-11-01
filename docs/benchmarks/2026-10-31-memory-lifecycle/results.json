@@ -72,7 +72,7 @@
      "T1-beta"
     ],
     "matches_label": true,
-    "ms": 1257.51,
+    "ms": 1231.23,
     "same_knowledge_pairs_left_for_review": []
    },
    "curation_0.6.19": {
@@ -86,7 +86,7 @@
     "documents_after": 45,
     "false_merges": [],
     "matches_label": true,
-    "ms": 258.39,
+    "ms": 259.97,
     "same_knowledge_pairs_left_for_review": [
      "T2",
      "T3"
@@ -101,8 +101,8 @@
       "events": 10
      },
      "latency": {
-      "max_ms": 497.69,
-      "median_ms": 451.56,
+      "max_ms": 474.12,
+      "median_ms": 447.46,
       "n": 10
      }
     },
@@ -127,10 +127,10 @@
          "slug": "primary-dns-server-2",
          "title": "Primary DNS server"
         },
-        "created_at": "2026-10-31T23:52:51.266970+00:00",
+        "created_at": "2026-11-01T02:09:54.454024+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "db9946d1-01fd-4142-9c2d-10009487b377",
+        "id": "aca8d799-513b-4ed8-90fb-bcd967a5ad81",
         "member_id": "C1-a",
         "operation": "contradiction",
         "project": "/synthetic/lifecycle-a",
@@ -141,6 +141,7 @@
         "state": "contested"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": true,
       "document": {
@@ -157,7 +158,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:4cb8c85b4085dca4199d86cbd4c63f56db3bd3a53c14ac5781d1064a2ac07023"
+      "version": "lv1:cf0e394eb148493c7bb14e21eac9249728009507e767f48d1be03c29dfc37e61"
      },
      "E1-copy": {
       "as_canonical": {
@@ -172,10 +173,10 @@
          "slug": "vpn-reconnect-procedure",
          "title": "VPN reconnect procedure"
         },
-        "created_at": "2026-10-31T23:52:49.468061+00:00",
+        "created_at": "2026-11-01T02:09:52.679029+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "44e4e7fc-66eb-4e7e-8a6f-4876bf82b966",
+        "id": "669dda53-5029-4858-870c-ea6c82c924df",
         "member_id": "E1-copy",
         "operation": "exact_duplicate",
         "project": "/synthetic/lifecycle-a",
@@ -186,6 +187,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -202,7 +204,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:627950dadd72dc556c5e88cac09bdafb0ee7fb7d1679a06134eab05733e2acfe"
+      "version": "lv1:56fde3293feda71c323d109c6608b9d99bb6590faf83538c4ad6018a350499f7"
      },
      "P1-old": {
       "as_canonical": {
@@ -217,10 +219,10 @@
          "slug": "wiki-backup-target-moved",
          "title": "Wiki backup target moved"
         },
-        "created_at": "2026-10-31T23:52:50.326224+00:00",
+        "created_at": "2026-11-01T02:09:53.538961+00:00",
         "domain": "general",
         "effective_at": "2026-06-01T08:00:00+00:00",
-        "id": "9786aa25-db6d-4ce4-87d4-1d23fe605cfb",
+        "id": "6c718af2-5dea-4ada-b94b-7a1d2e7ffe2e",
         "member_id": "P1-old",
         "operation": "replacement",
         "project": "/synthetic/lifecycle-a",
@@ -231,6 +233,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -247,10 +250,10 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:01c2954d9b9cf002db70c0878e83be29ee75eef5061bb88d70c2028ec1492bd5"
+      "version": "lv1:633b10530bc6cc0a830486641701199b0c5479153dd077f6c58827ce8cd62295"
      }
     },
-    "ingest_ms": 1268.77,
+    "ingest_ms": 1325.61,
     "k1": {
      "current": "E1-keep",
      "include_merged": "E1-keep",
@@ -261,8 +264,8 @@
     "preview": {
      "checks": 31,
      "latency": {
-      "max_ms": 209.68,
-      "median_ms": 182.13,
+      "max_ms": 188.41,
+      "median_ms": 174.97,
       "n": 14
      },
      "matching": 31,
@@ -500,13 +503,13 @@
     },
     "search_latency": {
      "after_decisions": {
-      "max_ms": 65.25,
-      "median_ms": 56.11,
+      "max_ms": 73.43,
+      "median_ms": 65.64,
       "n": 35
      },
      "before_decisions": {
-      "max_ms": 48.38,
-      "median_ms": 45.09,
+      "max_ms": 54.7,
+      "median_ms": 48.71,
       "n": 35
      }
     },
@@ -527,39 +530,39 @@
     }
    },
    "scale": {
-    "apply_total_ms": 23319.21,
+    "apply_total_ms": 24247.76,
     "hidden_members": 300,
     "pairs": 300,
     "search_after_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 710.78,
-      "median_ms": 654.01,
+      "max_ms": 1031.9,
+      "median_ms": 953.27,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 26.17,
-      "median_ms": 24.57,
+      "max_ms": 28.89,
+      "median_ms": 26.8,
       "n": 7
      }
     },
     "search_before_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 288.78,
-      "median_ms": 269.84,
+      "max_ms": 365.01,
+      "median_ms": 303.1,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 28.42,
-      "median_ms": 25.61,
+      "max_ms": 30.59,
+      "median_ms": 28.18,
       "n": 7
      }
     }
    },
-   "wall_ms": 73647.52
+   "wall_ms": 78641.6
   },
   {
    "concurrency": {
@@ -614,7 +617,7 @@
      "T1-beta"
     ],
     "matches_label": true,
-    "ms": 1378.45,
+    "ms": 1251.81,
     "same_knowledge_pairs_left_for_review": []
    },
    "curation_0.6.19": {
@@ -628,7 +631,7 @@
     "documents_after": 45,
     "false_merges": [],
     "matches_label": true,
-    "ms": 85.7,
+    "ms": 69.68,
     "same_knowledge_pairs_left_for_review": [
      "T2",
      "T3"
@@ -643,8 +646,8 @@
       "events": 10
      },
      "latency": {
-      "max_ms": 663.47,
-      "median_ms": 521.08,
+      "max_ms": 478.1,
+      "median_ms": 445.12,
       "n": 10
      }
     },
@@ -669,10 +672,10 @@
          "slug": "primary-dns-server-2",
          "title": "Primary DNS server"
         },
-        "created_at": "2026-10-31T23:54:07.340160+00:00",
+        "created_at": "2026-11-01T02:11:11.518194+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "6362095b-3faa-4e8e-8ed3-c285f3b15c93",
+        "id": "6c36ed4a-0aef-4cc9-b1ed-8d2ef6d9a626",
         "member_id": "C1-a",
         "operation": "contradiction",
         "project": "/synthetic/lifecycle-a",
@@ -683,6 +686,7 @@
         "state": "contested"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": true,
       "document": {
@@ -699,7 +703,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:2bf4cb3422ef271197a750bb6ee1d165381039e3c7d3fbcc4d8f50885eb4b3f6"
+      "version": "lv1:1707ffe64d25d958f36666252b8104adf6076921d73e1c59f020213bcf301609"
      },
      "E1-copy": {
       "as_canonical": {
@@ -714,10 +718,10 @@
          "slug": "vpn-reconnect-procedure",
          "title": "VPN reconnect procedure"
         },
-        "created_at": "2026-10-31T23:54:05.116868+00:00",
+        "created_at": "2026-11-01T02:11:09.709529+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "7158031e-b05f-444d-a0a8-949914d82c34",
+        "id": "0062312b-d60f-473f-bdd2-ba58d130c969",
         "member_id": "E1-copy",
         "operation": "exact_duplicate",
         "project": "/synthetic/lifecycle-a",
@@ -728,6 +732,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -744,7 +749,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:eeabe8e6d096add7a79cc58dfb7fa694e4cfed4424603de83d4aa853b4b7a91b"
+      "version": "lv1:4848a021b17e2219ecb10f1ab070c7eb17af417f5f9c3117f411c78d21e90482"
      },
      "P1-old": {
       "as_canonical": {
@@ -759,10 +764,10 @@
          "slug": "wiki-backup-target-moved",
          "title": "Wiki backup target moved"
         },
-        "created_at": "2026-10-31T23:54:06.146510+00:00",
+        "created_at": "2026-11-01T02:11:10.604015+00:00",
         "domain": "general",
         "effective_at": "2026-06-01T08:00:00+00:00",
-        "id": "f9ad15dd-e845-4b61-a51d-2197282d766f",
+        "id": "970694af-46bd-4991-97a9-3a9f2512638e",
         "member_id": "P1-old",
         "operation": "replacement",
         "project": "/synthetic/lifecycle-a",
@@ -773,6 +778,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -789,10 +795,10 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:ff97076575d0b771923035d683a54ea4b8a9f0f1dbda7183a165266ce820a3f8"
+      "version": "lv1:81153830ab0544bc11d1e121c9635118f79aecb54bcd7eb6bb61f22573d09ec7"
      }
     },
-    "ingest_ms": 1602.07,
+    "ingest_ms": 1290.28,
     "k1": {
      "current": "E1-keep",
      "include_merged": "E1-keep",
@@ -803,8 +809,8 @@
     "preview": {
      "checks": 31,
      "latency": {
-      "max_ms": 320.08,
-      "median_ms": 209.07,
+      "max_ms": 193.92,
+      "median_ms": 175.6,
       "n": 14
      },
      "matching": 31,
@@ -1042,13 +1048,13 @@
     },
     "search_latency": {
      "after_decisions": {
-      "max_ms": 71.66,
-      "median_ms": 55.79,
+      "max_ms": 75.78,
+      "median_ms": 67.19,
       "n": 35
      },
      "before_decisions": {
-      "max_ms": 62.62,
-      "median_ms": 51.3,
+      "max_ms": 52.23,
+      "median_ms": 46.79,
       "n": 35
      }
     },
@@ -1069,39 +1075,39 @@
     }
    },
    "scale": {
-    "apply_total_ms": 25615.99,
+    "apply_total_ms": 22935.57,
     "hidden_members": 300,
     "pairs": 300,
     "search_after_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 751.2,
-      "median_ms": 652.88,
+      "max_ms": 1061.43,
+      "median_ms": 814.4,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 27.01,
-      "median_ms": 24.93,
+      "max_ms": 12.7,
+      "median_ms": 11.43,
       "n": 7
      }
     },
     "search_before_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 410.85,
-      "median_ms": 301.74,
+      "max_ms": 360.51,
+      "median_ms": 340.7,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 31.48,
-      "median_ms": 27.94,
+      "max_ms": 24.31,
+      "median_ms": 22.65,
       "n": 7
      }
     }
    },
-   "wall_ms": 78965.46
+   "wall_ms": 73965.89
   },
   {
    "concurrency": {
@@ -1156,7 +1162,7 @@
      "T1-beta"
     ],
     "matches_label": true,
-    "ms": 1341.42,
+    "ms": 1234.44,
     "same_knowledge_pairs_left_for_review": []
    },
    "curation_0.6.19": {
@@ -1170,7 +1176,7 @@
     "documents_after": 45,
     "false_merges": [],
     "matches_label": true,
-    "ms": 70.62,
+    "ms": 71.05,
     "same_knowledge_pairs_left_for_review": [
      "T2",
      "T3"
@@ -1185,8 +1191,8 @@
       "events": 10
      },
      "latency": {
-      "max_ms": 491.49,
-      "median_ms": 450.19,
+      "max_ms": 470.5,
+      "median_ms": 448.89,
       "n": 10
      }
     },
@@ -1211,10 +1217,10 @@
          "slug": "primary-dns-server-2",
          "title": "Primary DNS server"
         },
-        "created_at": "2026-10-31T23:55:23.657436+00:00",
+        "created_at": "2026-11-01T02:12:25.103601+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "9dfcf65b-aed2-407b-b4ee-190abea3e19c",
+        "id": "5ea59a71-5a80-4f34-bbf3-f67ec469d403",
         "member_id": "C1-a",
         "operation": "contradiction",
         "project": "/synthetic/lifecycle-a",
@@ -1225,6 +1231,7 @@
         "state": "contested"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": true,
       "document": {
@@ -1241,7 +1248,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:8ef756b898b25049b04048de5260c7b163db52444ff62a81e994512e2dcb86c3"
+      "version": "lv1:7ce2038f547ca5676954c11c3f1cc46c8d1a972201a22bc680a221852b114efd"
      },
      "E1-copy": {
       "as_canonical": {
@@ -1256,10 +1263,10 @@
          "slug": "vpn-reconnect-procedure",
          "title": "VPN reconnect procedure"
         },
-        "created_at": "2026-10-31T23:55:21.854755+00:00",
+        "created_at": "2026-11-01T02:12:23.287446+00:00",
         "domain": "general",
         "effective_at": null,
-        "id": "72857e6b-8204-47e6-96b6-4e8e26b84a9e",
+        "id": "6c53a998-798a-4dad-a5f4-5bbe650915b4",
         "member_id": "E1-copy",
         "operation": "exact_duplicate",
         "project": "/synthetic/lifecycle-a",
@@ -1270,6 +1277,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -1286,7 +1294,7 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:aaea655f7f6418a10eb42ea4ee3c708b350086ce41b4ecad3b8b372b68f92fe4"
+      "version": "lv1:e2d3b5cd70d17bd48c067110612cf04952870ed999eba9564137b9e34f51be17"
      },
      "P1-old": {
       "as_canonical": {
@@ -1301,10 +1309,10 @@
          "slug": "wiki-backup-target-moved",
          "title": "Wiki backup target moved"
         },
-        "created_at": "2026-10-31T23:55:22.724161+00:00",
+        "created_at": "2026-11-01T02:12:24.185371+00:00",
         "domain": "general",
         "effective_at": "2026-06-01T08:00:00+00:00",
-        "id": "2bd0fd7f-c6e3-4da9-9ba0-929698915578",
+        "id": "4e95f66e-f451-49e7-bd88-14213968332d",
         "member_id": "P1-old",
         "operation": "replacement",
         "project": "/synthetic/lifecycle-a",
@@ -1315,6 +1323,7 @@
         "state": "active"
        }
       ],
+      "as_member_more": false,
       "assertion": null,
       "current": false,
       "document": {
@@ -1331,10 +1340,10 @@
        "duplicates": []
       },
       "statement": "Structural checks prove only identical title, body, dtype and claim identity, or the order of qualifying source events. Semantic equivalence, extension and contradiction are operator judgement and are not proven.",
-      "version": "lv1:a37b84dc59e1c64061a958dc06122f852dbda7cbcc560e19b9c835d4d44cfea2"
+      "version": "lv1:453b4766505f68dc20d37a5c4184811b486865ba51c11865a04930b2e8d77543"
      }
     },
-    "ingest_ms": 1367.38,
+    "ingest_ms": 1251.81,
     "k1": {
      "current": "E1-keep",
      "include_merged": "E1-keep",
@@ -1345,8 +1354,8 @@
     "preview": {
      "checks": 31,
      "latency": {
-      "max_ms": 199.59,
-      "median_ms": 179.97,
+      "max_ms": 185.39,
+      "median_ms": 172.67,
       "n": 14
      },
      "matching": 31,
@@ -1584,13 +1593,13 @@
     },
     "search_latency": {
      "after_decisions": {
-      "max_ms": 66.41,
-      "median_ms": 54.26,
+      "max_ms": 68.62,
+      "median_ms": 59.01,
       "n": 35
      },
      "before_decisions": {
-      "max_ms": 56.12,
-      "median_ms": 47.73,
+      "max_ms": 56.04,
+      "median_ms": 47.37,
       "n": 35
      }
     },
@@ -1611,41 +1620,41 @@
     }
    },
    "scale": {
-    "apply_total_ms": 23112.22,
+    "apply_total_ms": 22131.04,
     "hidden_members": 300,
     "pairs": 300,
     "search_after_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 679.92,
-      "median_ms": 660.31,
+      "max_ms": 931.94,
+      "median_ms": 684.77,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 23.77,
-      "median_ms": 19.46,
+      "max_ms": 13.02,
+      "median_ms": 11.62,
       "n": 7
      }
     },
     "search_before_decisions": {
      "broad": {
       "hits": 8,
-      "max_ms": 290.42,
-      "median_ms": 270.42,
+      "max_ms": 354.0,
+      "median_ms": 322.72,
       "n": 7
      },
      "unrelated": {
       "hits": 2,
-      "max_ms": 34.43,
-      "median_ms": 25.94,
+      "max_ms": 25.51,
+      "median_ms": 23.37,
       "n": 7
      }
     }
    },
-   "wall_ms": 72825.12
+   "wall_ms": 72318.16
   }
  ],
- "source_revision": "0b3ca4e9f3da2268c54de07752cb1e1ba90ea4a1",
+ "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
  "source_tree_clean": true
 }

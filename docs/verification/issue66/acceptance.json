@@ -1,0 +1,387 @@
+{
+  "feature": "RAG-066 / 6.8",
+  "issue": "https://github.com/phense/agentic-rag/issues/66",
+  "roadmap_position": "8/15",
+  "base_revision": "d4d2372dbb36a930eb5d7f7358d8963ba0efdfba",
+  "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+  "version": "0.6.19",
+  "schema": 31,
+  "full_suite": {
+    "head": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "command": [
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "started": "2026-11-01T01:33:55.855937+00:00",
+    "finished": "2026-11-01T02:09:30.374981+00:00",
+    "exit_code": 0,
+    "seconds": 2134.52,
+    "source_files": 371,
+    "sources_unchanged": true,
+    "log_sha256": "1ad363eb4047e8d8bec1eba823bba5d0bd6737d4c270051085ca5e73e6c405db",
+    "passed": 2063,
+    "skipped": 1,
+    "warnings": 1,
+    "skip": "macOS-only launchd test",
+    "warning": "Starlette TestClient httpx deprecation"
+  },
+  "upgrade": {
+    "documents": 19,
+    "ev1_src1_unchanged_by_decisions": true,
+    "ev1_src1_unchanged_by_migration": true,
+    "new_curation_archived": 1,
+    "old_after_decision": {
+      "get_inspects_original": true,
+      "history_unchanged": true,
+      "ordinary_write": true,
+      "search_hides_member": true
+    },
+    "old_curation": {
+      "budget_0_archived": 0,
+      "default_budget_archived_different_title_pair": true,
+      "verdict": "old workers and hook launchers must be upgraded and restarted"
+    },
+    "old_reads_identical_before_decisions": true,
+    "old_writer_edit_makes_relationship_stale": true,
+    "original_rows": 227,
+    "original_tables": 45,
+    "post_upgrade_writes_lost_on_pre_upgrade_restore": true,
+    "provider_calls": 0,
+    "source_commit": "d4d2372",
+    "source_schema": 30,
+    "source_version": "0.6.18",
+    "target_schema": 31,
+    "upgrade_seconds": 2.63,
+    "tested_target_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "preservation": "all original row, owner, grant and sequence inventories tested by the source-bound suite",
+    "retry_restore_and_public_playbook": "passed inside the full suite; no live execution"
+  },
+  "independent_review": {
+    "first_review_head": "1fc062832e4d40051ad3a5833077e4b39d77512e",
+    "complete_files": 68,
+    "correction_head": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "correction_files": 12,
+    "correction_manifest": {
+      "base": "1fc062832e4d40051ad3a5833077e4b39d77512e",
+      "head": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+      "files": {
+        "agentic_rag/cli.py": "b66d7aae909ff107e15c98ca55b72b559b22ac418f665091435ee2bb3d7343bb",
+        "agentic_rag/lifecycle.py": "f4ddadefe232d79c333cd397e090a0cc6cd34d4c232d5bb639ebca3a62f8bef6",
+        "docs/memory-lifecycle.md": "e356538516e4d5ecde28998b15a3cde13ccbfdb832c9175d37dba3f8d9916d26",
+        "docs/playbooks/system/rag-066-memory-lifecycle-review.md": "1a5e8c03302b8fd3037ffc91bbff400c8ec613a23cf427b5db2ab7394a004598",
+        "docs/playbooks/system/rag-066-memory-lifecycle.md": "d29edacd3ecc7ec3f331d6a07869cff3f2c966420b41fcf60136355ac72965c5",
+        "docs/specs/6-8-memory-lifecycle/contracts/lifecycle-v1.md": "44eef69aefaefbdbbcdff135d33cf3cc0025d73e4d763383b6406c7672c473e9",
+        "docs/uml/findings.md": "dd8a8d16cd05cf84276986d5cfb3cfd1bcb251d32d142727388f1b8bef159030",
+        "docs/uml/memory-lifecycle-66.md": "3abefe3fdb9132191dc024cb0a3e184f5cb3cb5ab38b3d132bb73c6a1f19be85",
+        "docs/verification/issue66-memory-lifecycle.md": "268d869926d95070b3eece9719bb4620f777004d31e54c5ec25bd2255c5ccd92",
+        "sql/031_memory_lifecycle.sql": "3e75aaac7a21c0cc67184e0e90ae13f151db86cd7185ebd304856cf4b78367d4",
+        "tests/service/test_lifecycle_corrections.py": "60cdac70448ec1beeaec7f0e184ba7d439e69ef9e99620d77fbef837518f2eea",
+        "tests/service/test_lifecycle_pagination.py": "c881c2aa41bb885caa94be5401a861138aa669b4f96b9ffb5172b65bbf38ca4b"
+      },
+      "aggregate_sha256": "57f5c9a3d79a9259e54294627dde4042e1db67ffec54bea5ad855346436169fe"
+    },
+    "open_critical_high_medium": 0,
+    "open_playbook_important": 0,
+    "fresh_probe_assertions": 50,
+    "fresh_probe_passed": 48,
+    "fresh_probe_failed_low": [
+      "P12-moved-target-guard-oracle: moved target of an inaccessible decision answers like an ordinary beta document (no guard oracle)",
+      "P10-mixed-scope-member: mixed: detail signals the inaccessible active suppression (placeholder present)"
+    ],
+    "probe_errors": 0,
+    "own_databases_removed": 3,
+    "report_sha256": "8b54f389873854f4bc108c6c1884528ac3d0edd3ed0b08596af2174647f319f6",
+    "probe_sha256": "fe5ee8b79ac7b551964885bafeeec417143745def627a07c25e6d5157727da45",
+    "result_sha256": "b44fc0edbcad49e4de6a77f3605e6473b8e4c5344b0df23987a196d672fd8c63",
+    "inherited": "unchanged retention/atomicity/ABA/truth gates, actual managed k1 exact pool, old-code paths from complete first review; upgraded031 re-rehearsed by final full suite",
+    "limits": "ANN above4096 not exercised; no live/systemd/TLS/macOS/multihost acceptance"
+  },
+  "measurement": {
+    "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "repetitions": 3,
+    "provider_calls": 0,
+    "frozen_outcomes_identical": true,
+    "documents": 45,
+    "preview_checks": 31,
+    "view_checks": 32,
+    "transition_checks": 8,
+    "new_false_merges": 0,
+    "old_false_merges": 1,
+    "new_legitimate_pairs_left_for_review": 2,
+    "broad_300_members_before_ms": 322.7,
+    "broad_300_members_after_ms": 814.4,
+    "unrelated_before_ms": 23.4,
+    "unrelated_after_ms": 11.6,
+    "results_sha256": "08c25adc8da2a918ae5dff77f65e4cd29021d189f0dbadf2880cf0f93698bb1e",
+    "security_results_sha256": "25c4426ca9418d1c8cc488b9a0c5bf46640f87604f26b804cfde3dcea780945d",
+    "security_comparison": {
+      "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+      "source_tree_clean": true,
+      "prior_revision": "1fc062832e4d40051ad3a5833077e4b39d77512e",
+      "source_hashes": {
+        "agentic_rag/lifecycle.py": "f4ddadefe232d79c333cd397e090a0cc6cd34d4c232d5bb639ebca3a62f8bef6",
+        "sql/031_memory_lifecycle.sql": "3e75aaac7a21c0cc67184e0e90ae13f151db86cd7185ebd304856cf4b78367d4"
+      },
+      "other_pytest_pids": [],
+      "load_average_start": [
+        1.3173828125,
+        3.57373046875,
+        5.1171875
+      ],
+      "provider_calls": 0,
+      "pairs": 150,
+      "rounds": 7,
+      "phases": {
+        "empty_overlay": {
+          "current": {
+            "eligibility_count_ms": {
+              "median_ms": 64.326,
+              "samples_ms": [
+                76.293,
+                63.382,
+                64.326,
+                70.068,
+                51.62,
+                63.93,
+                66.55
+              ]
+            },
+            "lexical_ms": {
+              "median_ms": 180.624,
+              "samples_ms": [
+                197.447,
+                190.313,
+                152.469,
+                180.624,
+                138.907,
+                157.187,
+                185.102
+              ]
+            },
+            "nonmember_10000_ms": {
+              "median_ms": 619.686,
+              "samples_ms": [
+                610.883,
+                661.475,
+                612.771,
+                573.866,
+                619.686,
+                627.599,
+                688.785
+              ]
+            }
+          },
+          "prior": {
+            "eligibility_count_ms": {
+              "median_ms": 44.924,
+              "samples_ms": [
+                37.362,
+                32.537,
+                44.187,
+                56.788,
+                45.648,
+                44.924,
+                52.787
+              ]
+            },
+            "lexical_ms": {
+              "median_ms": 159.842,
+              "samples_ms": [
+                133.698,
+                113.821,
+                177.197,
+                174.352,
+                158.965,
+                159.842,
+                170.653
+              ]
+            },
+            "nonmember_10000_ms": {
+              "median_ms": 273.77,
+              "samples_ms": [
+                194.917,
+                203.709,
+                282.589,
+                296.321,
+                276.165,
+                262.434,
+                273.77
+              ]
+            }
+          },
+          "eligible_count": 343
+        },
+        "150_merged_members": {
+          "current": {
+            "eligibility_count_ms": {
+              "median_ms": 251.454,
+              "samples_ms": [
+                236.953,
+                251.454,
+                251.937,
+                259.583,
+                212.451,
+                258.475,
+                227.372
+              ]
+            },
+            "lexical_ms": {
+              "median_ms": 540.976,
+              "samples_ms": [
+                437.29,
+                544.507,
+                549.552,
+                540.976,
+                397.29,
+                545.832,
+                492.401
+              ]
+            },
+            "nonmember_10000_ms": {
+              "median_ms": 727.014,
+              "samples_ms": [
+                538.219,
+                727.014,
+                794.943,
+                727.995,
+                657.691,
+                757.144,
+                570.235
+              ]
+            }
+          },
+          "prior": {
+            "eligibility_count_ms": {
+              "median_ms": 152.134,
+              "samples_ms": [
+                96.879,
+                157.03,
+                146.124,
+                159.295,
+                155.105,
+                152.134,
+                67.231
+              ]
+            },
+            "lexical_ms": {
+              "median_ms": 355.503,
+              "samples_ms": [
+                251.4,
+                366.304,
+                327.835,
+                355.503,
+                359.056,
+                355.699,
+                169.169
+              ]
+            },
+            "nonmember_10000_ms": {
+              "median_ms": 340.233,
+              "samples_ms": [
+                342.487,
+                340.233,
+                330.875,
+                335.481,
+                350.002,
+                396.202,
+                150.582
+              ]
+            }
+          },
+          "eligible_count": 193
+        }
+      },
+      "limits": [
+        "synthetic data, owner-role comparison, PostgreSQL on one shared host",
+        "no competing pytest or review benchmark; other system load is uncontrolled",
+        "prior function is a pre-security-correction comparator, not an approved fallback",
+        "timings include local SQL/rollback or lexical-search overhead; not production latency"
+      ],
+      "postgres": "PostgreSQL 17.10 (Ubuntu 17.10-1.pgdg26.04+1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0, 64-bit",
+      "documents": 345,
+      "owned_database_removed": true,
+      "source_hashes_unchanged": true,
+      "load_average_end": [
+        1.27880859375,
+        3.24365234375,
+        4.9306640625
+      ]
+    }
+  },
+  "node": {
+    "command": "node --test tests/test_opencode_plugin.mjs",
+    "passed": 7,
+    "failed": 0,
+    "exit_code": 0,
+    "log_sha256": "2d75cd6f3eeb736c10ca9c8e35f32475a2d9292e79fcad74503b6be95732bd50"
+  },
+  "lock": {
+    "command": "uv lock --check --offline",
+    "packages": 55,
+    "exit_code": 0
+  },
+  "package": {
+    "head": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "wheel": "agentic_rag-0.6.19-py3-none-any.whl",
+    "wheel_sha256": "88a0f7970ea168da12789d4a479cd7616072fc6b3d34e08030a7384830b1ceed",
+    "wheel_entries": 187,
+    "payload_files_checked": 182,
+    "payload_missing": 0,
+    "payload_mismatch": 0,
+    "smoke": {
+      "version": "0.6.19",
+      "sql_migrations": 31,
+      "readonly_tools": 18,
+      "synthesis_default_off": true,
+      "lifecycle_tables_empty": true,
+      "lifecycle_definer_callable": true,
+      "nullable_backfill_waiting": true,
+      "owned_database_removed": true
+    },
+    "exit_code": 0
+  },
+  "versions": {
+    "source_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "target_base_revision": "d4d2372dbb36a930eb5d7f7358d8963ba0efdfba",
+    "base_version": "0.6.18",
+    "new_version": "0.6.19",
+    "exact_patch_increment": true,
+    "four_version_files_consistent": true
+  },
+  "deferred_low_findings": {
+    "ids": [
+      "LOW-045",
+      "LOW-046",
+      "LOW-047",
+      "LOW-048",
+      "LOW-049"
+    ],
+    "issue": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6552085171"
+  },
+  "retained_failed_full_suite": {
+    "head": "1fc0628",
+    "exit_code": 2,
+    "reason": "coordinator SIGINT after confirmed review blockers; not a pass",
+    "source_unchanged": true,
+    "log_sha256": "c4dc91e2c5ebc6206e7e7d8031bcf0ffbb0afeb1e1a0b3fd2e39c9f501b2a68d"
+  },
+  "production_rollout": false,
+  "documentation": {
+    "relative_links_checked": 255,
+    "broken": [],
+    "source_bound_revision": "4a7f925dbbb9a4f69fec9eb26cef03accf3e84f0",
+    "post_review_changes": "Only documents and benchmark evidence; all371 source-bound product/SQL/tests/assets/dependency hashes unchanged.",
+    "post_evidence_smoke": {
+      "command": "pytest -q --tb=short -p no:cacheprovider tests/test_docs_continuity.py",
+      "passed": 17,
+      "exit_code": 0,
+      "log_sha256": "567196731b6304177f02157e4d6b8dd8f7562e082ffb278d8a710e71d98616d4"
+    }
+  },
+  "current_source_hashes_match_final_run": true
+}

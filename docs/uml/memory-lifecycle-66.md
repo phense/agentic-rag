@@ -1,6 +1,6 @@
 # Source-preserving lifecycle overlay (RAG-066)
 
-- Work: RAG-066 / feature 6.8 / Issue66; mode: **as-built**, correction product `30b4064`; independent correction gates pending.
+- Work: RAG-066 / feature 6.8 / Issue66; mode: **as-built**, correction product `4a7f925`; independent correction and source-bound gates passed.
 - Questions: Q1 operation semantics and automatic policy; Q2 where version, flat-chain,
   scope and authority gates run; Q3 how every reader distinguishes current from intentional
   history before `LIMIT`; Q4 how derived outputs invalidate without touching `ev1`;
@@ -28,7 +28,7 @@
 - Reconciled on 2026-11-01 against migration031, lifecycle.py, store gateways,
   search/graph/research wrappers, derived-reader decorators and service transports
   at `82c031f`. S1 affected run:1188 passed at351b6f4; coordinator view regressions:
-  4 red, then19 passed/exit0. Independent/full gates remain pending.
+  4 red, then19 passed/exit0. The final independent/full gates are recorded below.
 - Diagram notation checked by semantic source review of directives, identifiers, block
   pairing and labels. **No renderer was run; no render is claimed.** No runtime test was run
   for the original design gate; runtime evidence is distinguished above.
@@ -226,7 +226,7 @@ The diagrams illustrate duplicate/extension availability transitions; replacemen
 has no automatic Stale/TargetUnavailable-to-visible transition. Assertions/aliases
 keep their existing gateways and must remain explained by detail. AF-066-009/010
 capture the curation/snapshot obligations. These dispositions supersede conflicting
-phrasing in the original design-time report; runtime proof is still pending.
+phrasing in the original design-time report; final runtime proof is recorded below.
 
 Worker compatibility refinement: the automatic exact policy is Python code. An old
 0.6.18 worker cannot enforce the title/type guard merely by running against031.
@@ -234,7 +234,7 @@ PB-066-OPS must inventory/update/restart worker launchers before normal operatio
 old-code fallback must disable curation with `curation_budget=0` and prove that path.
 No new schema feature can be claimed to protect an unmodified old curation loop.
 
-## As-built reconciliation and pending acceptance
+## As-built reconciliation and acceptance
 
 Product `82c031f` implements D1–D8 through additive031, the flat decision/event
 guards, invoker ls1 snapshots, optimistic lv1, store entry points delegating to
@@ -251,7 +251,8 @@ check that treated contested relationships as hiding chains (PB-I1 Important).
 Correction: original-scope-only RLS plus the Boolean-only definer `H`; history
 cursor selects events; `as_member_more` reports the bounded detail list;
 request-key uniqueness is per domain/project; integrity counts only active
-hiding chains. These corrections need independent re-review before acceptance.
+hiding chains. The independent correction review at `4a7f925` accepted them: 50 assertions,
+48passed, two disclosed Low findings, zero probe errors; no C/H/M/Important.
 The actual managed-index k=1 success probe passed for the exact pool through
 4096 candidates; the larger ANN branch was not exercised. Direct trusted SQL
 writers can still create unaudited decisions (F5 Low); the integrity check
@@ -262,5 +263,8 @@ current-scope defects before review (four failing cases, then19 tests passed).
 Contract differences now state the five additional error codes, version-before-
 proof ordering, event anchor columns, ls1-based lv1 and actual transaction owner.
 The historical design report is retained; this reconciliation supersedes its
-implementation claims. AC/IC/AF coverage remains in tasks.md and must be judged
-by T066-011 and T066-012 before PR creation.
+implementation claims. AC/IC/AF coverage remains in tasks.md. T066-011 acceptance is recorded;
+T066-012 full suite passed2063/1skip/1knownwarning, exit0,371sourcehashes
+unchanged. The populated current031 upgrade/retry/restore and public PB rehearsal
+passed in that suite. Quiet post-correction measurements replace prior timings;
+Low045..049 remain in Issue75. No deployment is inferred.

@@ -1,7 +1,8 @@
 # Contract lifecycle-v1 (RAG-066, schema031)
 
 Status: correction reconciliation after review of `1fc0628` (2026-11-01);
-independent correction review and final verification pending. Rationale and
+independent correction review accepted at `4a7f925`; source-bound final suite
+2063passed/1skipped/1knownwarning, exit0. Deferred Low findings stay in Issue75. Rationale and
 diagrams: `../../../uml/memory-lifecycle-66.md`. Findings: AF-066-001..010. Why a separate
 contract: implementation, transports, upgrade and tests need one place for the exact
 budgets, codes and predicates. The spec deliberately leaves these to design.

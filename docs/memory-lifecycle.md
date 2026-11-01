@@ -4,7 +4,7 @@ title: Memory lifecycle
 type: reference
 doc_id: standalone
 readers: [operators who consolidate memories, agent users who read search results]
-status: draft
+status: verified
 version: 0.6.19 (schema031)
 depends_on: [claim-evidence.md, fact-validity.md, 05-session-mining-and-curation.md]
 assets: []

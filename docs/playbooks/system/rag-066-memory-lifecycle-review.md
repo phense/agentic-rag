@@ -1,9 +1,9 @@
 # PB-066-OPS review and rehearsal evidence
 
 Playbook: [rag-066-memory-lifecycle.md](rag-066-memory-lifecycle.md).
-State: **author rehearsal recorded; first independent content review required
-changes at `1fc0628`; correction acceptance (T066-011) pending.** The historical
-rehearsal below is not a verdict on the corrected playbook.
+State: **independent content corrections accepted at `4a7f925`; corrected
+populated rehearsal passed in the source-bound full suite (2,063 passed, exit0).**
+Historical evidence remains identified below; live rollout is separate.
 
 ## Rehearsal
 
@@ -81,6 +81,13 @@ escalation-only handling of `decision_without_event`. A real gateway fixture
 with a contested relationship plus hiding decision failed the old query (two
 chains) and passed the corrected query (zero). The same three-test regression
 run verifies history paging and detail overflow. `30b4064` scopes request keys
-per domain/project and updates C2/C6 advice. The populated rehearsal must run
-again for the corrected system; independent content recheck remains pending.
+per domain/project and updates C2/C6 advice. The independent correction review accepted these changes at `4a7f925`.
+The populated rehearsal ran again in the final suite: 2,063 passed, one skipped,
+one known warning, exit0, all371 source hashes unchanged.
 No real service restart, TLS, macOS or multi-host rehearsal is inferred.
+
+PB-M4 Minor: part C now explains `suppressed: decision_unavailable` and directs
+correction to an operator of the original scope. This focused documentation
+clarification uses the independent P3 recovery probe (REST200, member visible
+again); no new operation or authority is introduced. The coordinator checked
+the row against that probe. The mixed-scope display gap remains LOW-046.

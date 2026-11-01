@@ -7,8 +7,9 @@ search and both curation versions on owned PostgreSQL databases that the script
 creates and drops. No model or provider is called (`provider_calls: 0`), so the
 figures say nothing about semantic accuracy or any model's quality.
 
-- Source: `0b3ca4e` (clean tree), package 0.6.19, migration031. Later commits
-  change only the `rag review` output, tests, documents and the version number.
+- Source: `4a7f925` (clean tree), package 0.6.19, migration031, after
+  the independently accepted scope and pagination corrections. This replaces
+  the pre-correction timing run at `0b3ca4e`; frozen labels are unchanged.
 - Comparison: the automatic curation of the actual 0.6.18 code (`git archive` of
   `d4d2372`), run in a subprocess on the same ingested corpus.
 - Environment: Python 3.13.13, PostgreSQL 17.10 with pgvector, one shared host.
@@ -80,18 +81,48 @@ an order of magnitude):
 
 | Operation | Median |
 |---|---|
-| Preview (14 pairs, own reader connection each) | 182 ms |
-| Apply (10 decisions, preview plus apply, own connection each) | 452 ms |
-| Lexical search on the fixture corpus, before / after decisions | 48 ms / 56 ms |
-| New automatic curation pass | 86 ms (first repetition 258 ms) |
-| 0.6.18 curation pass, including the Python subprocess start | 1.34 s |
-| Worst case: broad query whose 300 matches are all merged members, before / after | 270 ms / 654 ms |
-| Same store, unrelated query, before / after | 26 ms / 25 ms |
+| Preview (14 pairs, own reader connection each) | 175.0 ms |
+| Apply (10 decisions, preview plus apply, own connection each) | 447.5 ms |
+| Lexical search on the fixture corpus, before / after | 47.4 ms / 65.6 ms |
+| New automatic curation pass | 71.0 ms |
+| 0.6.18 curation pass, including the Python subprocess start | 1234.4 ms |
+| Worst case: broad query whose 300 matches are merged members, before / after | 322.7 ms / 814.4 ms |
+| Same store, unrelated query, before / after | 23.4 ms / 11.6 ms |
+
+Values are medians of the three run medians. Each scale-search median contains seven
+samples; fixture-search medians each contain 35 samples. The run started after the full suite and independent review finished;
+other system load on the shared host is uncontrolled.
 
 The worst-case row comes from an extra section of the script (300 identical pairs
 plus 300 decisions). It led to a fix before this measurement: the first version
 re-planned two nested SQL functions per hidden hit, and the same query took
 2.7 s (commit `ce1c8bf`).
+
+
+## Security-boundary cost after correction
+
+The Boolean-only definer helper preserves suppression across scope moves
+without exposing the old decision. It adds per-row work even with an empty
+overlay. The earlier claim that queries without merged members are unaffected
+is withdrawn. [Raw samples](security-results.json) compare the corrected helper
+with the pre-correction `1fc0628` function in one disposable database. The old
+function is an unapproved timing comparator, never a rollback recommendation.
+
+| Overlay / operation | Corrected | Prior function |
+|---|---|---|
+| empty_overlay / eligibility_count_ms | 64.326 ms | 44.924 ms |
+| empty_overlay / lexical_ms | 180.624 ms | 159.842 ms |
+| empty_overlay / nonmember_10000_ms | 619.686 ms | 273.77 ms |
+| 150_merged_members / eligibility_count_ms | 251.454 ms | 152.134 ms |
+| 150_merged_members / lexical_ms | 540.976 ms | 355.503 ms |
+| 150_merged_members / nonmember_10000_ms | 727.014 ms | 340.233 ms |
+
+Seven interleaved paired rounds on 345 synthetic documents,
+150 candidate pairs; no competing pytest or review benchmark. Eligibility counts
+matched in both implementations. The store was removed and source hashes stayed
+unchanged. Full scans and 10,000 direct calls are constructed workloads; their
+ratios do not describe ordinary production query latency. Remaining optimization
+work stays in [LOW-049](https://github.com/phense/agentic-rag/issues/75#issuecomment-6552085171).
 
 ## Examples, inspected by hand
 
@@ -138,4 +169,6 @@ env -u PGHOST -u PGHOSTADDR -u PGSERVICE -u PGSERVICEFILE PGPORT=55460 \
   --repetitions 3 --output docs/benchmarks/2026-10-31-memory-lifecycle/results.json
 ```
 
-One repetition takes about 75 s; the 300-pair section takes most of it.
+The 300-pair section takes most of the run. The separate cost comparison
+uses `measure-security.py --output security-results.json` with the same local
+PostgreSQL environment and refuses to run while pytest is active.

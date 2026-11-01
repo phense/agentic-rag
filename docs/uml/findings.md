@@ -634,3 +634,13 @@ Managed-index k=1 passed on the independent actual exact-pool generation;
 ANN above4096 was not exercised. The first full suite at `1fc0628` was
 intentionally interrupted (exit2, source unchanged), not accepted. New final
 verification must bind the corrected sources and populated upgrade/recovery.
+
+Final RAG-066 acceptance at4a7f925: independent correction review leaves no
+C/H/M/Important;50assertions48pass2Low,0probeerrors,3DBcleanup. Full2063passed,
+1skip,1knownwarning,exit0,371sourcehashesunchanged includes updated031 populated
+upgrade/retry/restore and PB rehearsal. Quiet repeated benchmark31/31preview,
+32/32views,8/8transitions,0falsemergesversusold1,original45documents/ev1
+unchanged; actual per-row security cost is published. Low045..049 are deferred
+in Issue75, including trusted writer/guard-oracle/display/performance limits.
+AF001..010 have current implementation/integration dispositions; no blocker
+remains for PR except the final documentation checks and merge workflow.
