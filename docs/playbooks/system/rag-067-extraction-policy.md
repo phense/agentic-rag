@@ -95,7 +95,7 @@ Work queued before the upgrade, or admitted while no file
 is configured, always uses these builtin rules, even after you add a file.
 
 `--source-version 0.6.19` names the version the store came from. The label
-`0.6.21` is refused. The current0.6.20 label is supported for post-upgrade inventories and backups.
+`0.6.20` and the later0.6.21 label are supported for post-upgrade inventories and backups; future0.6.22 is refused by0.6.21 tooling. Use the installed release label.
 
 ## Part B: activate a custom policy
 

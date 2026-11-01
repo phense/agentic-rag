@@ -40,5 +40,6 @@
   "limits": [
     "Installed capability and native observation are separate",
     "No unsupported host callback is fabricated"
-  ]
+  ],
+  "native_child_suppression": "Adapter-tested only; no native child session observed in this slice (LOW-064, Issue75)."
 }

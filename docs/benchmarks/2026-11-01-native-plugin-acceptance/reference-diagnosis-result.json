@@ -1,0 +1,979 @@
+{
+  "source_head": "9cc025f5e07f98520116e6d39f7a113aa99f8bbf",
+  "production_changes": false,
+  "query": "fixed synthetic RAG68A1 search; private result bodies excluded",
+  "arms": [
+    {
+      "arm": "restored_statistics",
+      "explain_wall_seconds": 10.839681040029973,
+      "execution_ms": 10838.533,
+      "planning_ms": 0.017,
+      "plan": {
+        "Node Type": "Function Scan",
+        "Plan Rows": 1000,
+        "Actual Startup Time": 10838.439,
+        "Actual Total Time": 10838.443,
+        "Actual Rows": 50,
+        "Actual Loops": 1,
+        "Shared Hit Blocks": 877643,
+        "Shared Read Blocks": 13488,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": []
+      },
+      "eligibility_seconds": 3.259838453028351,
+      "eligible_documents": 6507
+    },
+    {
+      "arm": "after_analyze",
+      "explain_wall_seconds": 10.025989308953285,
+      "execution_ms": 10024.906,
+      "planning_ms": 0.021,
+      "plan": {
+        "Node Type": "Function Scan",
+        "Plan Rows": 1000,
+        "Actual Startup Time": 10024.8,
+        "Actual Total Time": 10024.804,
+        "Actual Rows": 50,
+        "Actual Loops": 1,
+        "Shared Hit Blocks": 863669,
+        "Shared Read Blocks": 7934,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": []
+      },
+      "eligibility_seconds": 3.0603301089722663,
+      "eligible_documents": 6507
+    }
+  ],
+  "indexes": [
+    {
+      "table_name": "chunks",
+      "index_name": "chunks_document_id_idx_key",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "chunks",
+      "index_name": "chunks_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "chunks",
+      "index_name": "idx_chunks_embedding",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "hnsw"
+    },
+    {
+      "table_name": "chunks",
+      "index_name": "idx_chunks_tsv_de",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "gin"
+    },
+    {
+      "table_name": "chunks",
+      "index_name": "idx_chunks_tsv_en",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "gin"
+    },
+    {
+      "table_name": "claim_evidence",
+      "index_name": "claim_evidence_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "claim_evidence",
+      "index_name": "claim_evidence_source",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "claim_records",
+      "index_name": "claim_records_content",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "claim_records",
+      "index_name": "claim_records_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "documents_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "documents_project_scope",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "documents_slug_key",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "idx_documents_domain",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "documents",
+      "index_name": "idx_documents_status",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "fact_assertions",
+      "index_name": "fact_assertions_key",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "fact_assertions",
+      "index_name": "fact_assertions_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_action_key_key",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_active_member",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_active_target",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_member",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_pkey",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    },
+    {
+      "table_name": "lifecycle_decisions",
+      "index_name": "lifecycle_decisions_target",
+      "indisvalid": true,
+      "indisready": true,
+      "amname": "btree"
+    }
+  ],
+  "statistics_before": [
+    {
+      "relname": "chunks",
+      "n_live_tup": 30084,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-11-01 08:51:15.641562+01"
+    },
+    {
+      "relname": "claim_evidence",
+      "n_live_tup": 15808,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-11-01 08:51:15.940642+01"
+    },
+    {
+      "relname": "claim_records",
+      "n_live_tup": 17999,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-11-01 08:51:21.04355+01"
+    },
+    {
+      "relname": "documents",
+      "n_live_tup": 24513,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-11-01 08:51:21.963068+01"
+    },
+    {
+      "relname": "fact_assertions",
+      "n_live_tup": 4928,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-11-01 08:51:27.440828+01"
+    },
+    {
+      "relname": "lifecycle_decisions",
+      "n_live_tup": 0,
+      "last_analyze": null,
+      "last_autoanalyze": null
+    }
+  ],
+  "embedding_seconds": 2.6820624091196805,
+  "analyze_seconds": 2.893226678017527,
+  "complete": true,
+  "owned_pg_stopped": true,
+  "expanded_body_probe": {
+    "arm": "expanded_function_body",
+    "explain_wall_seconds": 7.140742558985949,
+    "execution_ms": 7130.254,
+    "planning_ms": 6.109,
+    "plan": {
+      "Node Type": "Limit",
+      "Plan Rows": 52,
+      "Actual Startup Time": 7108.387,
+      "Actual Total Time": 7108.414,
+      "Actual Rows": 50,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 567582,
+      "Shared Read Blocks": 16211,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0,
+      "Plans": [
+        {
+          "Node Type": "Sort",
+          "Plan Rows": 52,
+          "Actual Startup Time": 7037.908,
+          "Actual Total Time": 7037.93,
+          "Actual Rows": 50,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 567582,
+          "Shared Read Blocks": 16211,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Plan Rows": 52,
+              "Actual Startup Time": 7036.854,
+              "Actual Total Time": 7037.836,
+              "Actual Rows": 50,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 567573,
+              "Shared Read Blocks": 16211,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Nested Loop",
+                  "Plan Rows": 52,
+                  "Actual Startup Time": 7036.822,
+                  "Actual Total Time": 7037.377,
+                  "Actual Rows": 50,
+                  "Actual Loops": 1,
+                  "Shared Hit Blocks": 567414,
+                  "Shared Read Blocks": 16211,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": [
+                    {
+                      "Node Type": "Aggregate",
+                      "Plan Rows": 52,
+                      "Actual Startup Time": 7036.776,
+                      "Actual Total Time": 7036.854,
+                      "Actual Rows": 50,
+                      "Actual Loops": 1,
+                      "Shared Hit Blocks": 567155,
+                      "Shared Read Blocks": 16170,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Plans": [
+                        {
+                          "Node Type": "Sort",
+                          "Plan Rows": 52,
+                          "Actual Startup Time": 7036.733,
+                          "Actual Total Time": 7036.757,
+                          "Actual Rows": 50,
+                          "Actual Loops": 1,
+                          "Shared Hit Blocks": 567155,
+                          "Shared Read Blocks": 16170,
+                          "Temp Read Blocks": 0,
+                          "Temp Written Blocks": 0,
+                          "Plans": [
+                            {
+                              "Node Type": "Append",
+                              "Plan Rows": 52,
+                              "Actual Startup Time": 533.802,
+                              "Actual Total Time": 7036.739,
+                              "Actual Rows": 50,
+                              "Actual Loops": 1,
+                              "Shared Hit Blocks": 567155,
+                              "Shared Read Blocks": 16170,
+                              "Temp Read Blocks": 0,
+                              "Temp Written Blocks": 0,
+                              "Plans": [
+                                {
+                                  "Node Type": "Subquery Scan",
+                                  "Plan Rows": 50,
+                                  "Actual Startup Time": 533.8,
+                                  "Actual Total Time": 533.837,
+                                  "Actual Rows": 50,
+                                  "Actual Loops": 1,
+                                  "Shared Hit Blocks": 10399,
+                                  "Shared Read Blocks": 6949,
+                                  "Temp Read Blocks": 0,
+                                  "Temp Written Blocks": 0,
+                                  "Plans": [
+                                    {
+                                      "Node Type": "WindowAgg",
+                                      "Plan Rows": 50,
+                                      "Actual Startup Time": 533.797,
+                                      "Actual Total Time": 533.829,
+                                      "Actual Rows": 50,
+                                      "Actual Loops": 1,
+                                      "Shared Hit Blocks": 10399,
+                                      "Shared Read Blocks": 6949,
+                                      "Temp Read Blocks": 0,
+                                      "Temp Written Blocks": 0,
+                                      "Plans": [
+                                        {
+                                          "Node Type": "Subquery Scan",
+                                          "Plan Rows": 50,
+                                          "Actual Startup Time": 533.792,
+                                          "Actual Total Time": 533.81,
+                                          "Actual Rows": 50,
+                                          "Actual Loops": 1,
+                                          "Shared Hit Blocks": 10399,
+                                          "Shared Read Blocks": 6949,
+                                          "Temp Read Blocks": 0,
+                                          "Temp Written Blocks": 0,
+                                          "Plans": [
+                                            {
+                                              "Node Type": "Limit",
+                                              "Plan Rows": 50,
+                                              "Actual Startup Time": 533.789,
+                                              "Actual Total Time": 533.802,
+                                              "Actual Rows": 50,
+                                              "Actual Loops": 1,
+                                              "Shared Hit Blocks": 10399,
+                                              "Shared Read Blocks": 6949,
+                                              "Temp Read Blocks": 0,
+                                              "Temp Written Blocks": 0,
+                                              "Plans": [
+                                                {
+                                                  "Node Type": "Sort",
+                                                  "Plan Rows": 256,
+                                                  "Actual Startup Time": 533.784,
+                                                  "Actual Total Time": 533.792,
+                                                  "Actual Rows": 50,
+                                                  "Actual Loops": 1,
+                                                  "Shared Hit Blocks": 10399,
+                                                  "Shared Read Blocks": 6949,
+                                                  "Temp Read Blocks": 0,
+                                                  "Temp Written Blocks": 0,
+                                                  "Plans": [
+                                                    {
+                                                      "Node Type": "Subquery Scan",
+                                                      "Plan Rows": 256,
+                                                      "Actual Startup Time": 533.718,
+                                                      "Actual Total Time": 533.77,
+                                                      "Actual Rows": 62,
+                                                      "Actual Loops": 1,
+                                                      "Shared Hit Blocks": 10399,
+                                                      "Shared Read Blocks": 6949,
+                                                      "Temp Read Blocks": 0,
+                                                      "Temp Written Blocks": 0,
+                                                      "Plans": [
+                                                        {
+                                                          "Node Type": "WindowAgg",
+                                                          "Plan Rows": 256,
+                                                          "Actual Startup Time": 533.716,
+                                                          "Actual Total Time": 533.761,
+                                                          "Actual Rows": 62,
+                                                          "Actual Loops": 1,
+                                                          "Shared Hit Blocks": 10399,
+                                                          "Shared Read Blocks": 6949,
+                                                          "Temp Read Blocks": 0,
+                                                          "Temp Written Blocks": 0,
+                                                          "Plans": [
+                                                            {
+                                                              "Node Type": "Sort",
+                                                              "Plan Rows": 256,
+                                                              "Actual Startup Time": 533.684,
+                                                              "Actual Total Time": 533.693,
+                                                              "Actual Rows": 64,
+                                                              "Actual Loops": 1,
+                                                              "Shared Hit Blocks": 10399,
+                                                              "Shared Read Blocks": 6949,
+                                                              "Temp Read Blocks": 0,
+                                                              "Temp Written Blocks": 0,
+                                                              "Plans": [
+                                                                {
+                                                                  "Node Type": "Subquery Scan",
+                                                                  "Plan Rows": 256,
+                                                                  "Actual Startup Time": 473.52,
+                                                                  "Actual Total Time": 533.63,
+                                                                  "Actual Rows": 64,
+                                                                  "Actual Loops": 1,
+                                                                  "Shared Hit Blocks": 10399,
+                                                                  "Shared Read Blocks": 6949,
+                                                                  "Temp Read Blocks": 0,
+                                                                  "Temp Written Blocks": 0,
+                                                                  "Plans": [
+                                                                    {
+                                                                      "Node Type": "Limit",
+                                                                      "Plan Rows": 256,
+                                                                      "Actual Startup Time": 473.512,
+                                                                      "Actual Total Time": 533.599,
+                                                                      "Actual Rows": 64,
+                                                                      "Actual Loops": 1,
+                                                                      "Shared Hit Blocks": 10399,
+                                                                      "Shared Read Blocks": 6949,
+                                                                      "Temp Read Blocks": 0,
+                                                                      "Temp Written Blocks": 0,
+                                                                      "Plans": [
+                                                                        {
+                                                                          "Node Type": "Nested Loop",
+                                                                          "Plan Rows": 14911,
+                                                                          "Actual Startup Time": 473.509,
+                                                                          "Actual Total Time": 533.578,
+                                                                          "Actual Rows": 64,
+                                                                          "Actual Loops": 1,
+                                                                          "Shared Hit Blocks": 10399,
+                                                                          "Shared Read Blocks": 6949,
+                                                                          "Temp Read Blocks": 0,
+                                                                          "Temp Written Blocks": 0,
+                                                                          "Plans": [
+                                                                            {
+                                                                              "Node Type": "Index Scan",
+                                                                              "Index Name": "idx_chunks_embedding",
+                                                                              "Relation Name": "chunks",
+                                                                              "Plan Rows": 29980,
+                                                                              "Actual Startup Time": 392.743,
+                                                                              "Actual Total Time": 396.001,
+                                                                              "Actual Rows": 313,
+                                                                              "Actual Loops": 1,
+                                                                              "Rows Removed by Filter": 0,
+                                                                              "Shared Hit Blocks": 1162,
+                                                                              "Shared Read Blocks": 6160,
+                                                                              "Temp Read Blocks": 0,
+                                                                              "Temp Written Blocks": 0,
+                                                                              "Plans": [
+                                                                                {
+                                                                                  "Node Type": "Seq Scan",
+                                                                                  "Relation Name": "documents",
+                                                                                  "Plan Rows": 24391,
+                                                                                  "Actual Startup Time": 0.281,
+                                                                                  "Actual Total Time": 60.926,
+                                                                                  "Actual Rows": 24513,
+                                                                                  "Actual Loops": 1,
+                                                                                  "Rows Removed by Filter": 0,
+                                                                                  "Shared Hit Blocks": 0,
+                                                                                  "Shared Read Blocks": 2536,
+                                                                                  "Temp Read Blocks": 0,
+                                                                                  "Temp Written Blocks": 0,
+                                                                                  "Plans": []
+                                                                                }
+                                                                              ]
+                                                                            },
+                                                                            {
+                                                                              "Node Type": "Memoize",
+                                                                              "Plan Rows": 1,
+                                                                              "Actual Startup Time": 0.434,
+                                                                              "Actual Total Time": 0.434,
+                                                                              "Actual Rows": 0,
+                                                                              "Actual Loops": 313,
+                                                                              "Shared Hit Blocks": 9110,
+                                                                              "Shared Read Blocks": 701,
+                                                                              "Temp Read Blocks": 0,
+                                                                              "Temp Written Blocks": 0,
+                                                                              "Plans": [
+                                                                                {
+                                                                                  "Node Type": "Index Scan",
+                                                                                  "Index Name": "documents_pkey",
+                                                                                  "Relation Name": "documents",
+                                                                                  "Plan Rows": 1,
+                                                                                  "Actual Startup Time": 0.439,
+                                                                                  "Actual Total Time": 0.439,
+                                                                                  "Actual Rows": 0,
+                                                                                  "Actual Loops": 308,
+                                                                                  "Rows Removed by Filter": 1,
+                                                                                  "Shared Hit Blocks": 9110,
+                                                                                  "Shared Read Blocks": 701,
+                                                                                  "Temp Read Blocks": 0,
+                                                                                  "Temp Written Blocks": 0,
+                                                                                  "Plans": []
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Node Type": "Subquery Scan",
+                                  "Plan Rows": 1,
+                                  "Actual Startup Time": 3289.344,
+                                  "Actual Total Time": 3289.35,
+                                  "Actual Rows": 0,
+                                  "Actual Loops": 1,
+                                  "Shared Hit Blocks": 274128,
+                                  "Shared Read Blocks": 7111,
+                                  "Temp Read Blocks": 0,
+                                  "Temp Written Blocks": 0,
+                                  "Plans": [
+                                    {
+                                      "Node Type": "WindowAgg",
+                                      "Plan Rows": 1,
+                                      "Actual Startup Time": 3289.344,
+                                      "Actual Total Time": 3289.349,
+                                      "Actual Rows": 0,
+                                      "Actual Loops": 1,
+                                      "Shared Hit Blocks": 274128,
+                                      "Shared Read Blocks": 7111,
+                                      "Temp Read Blocks": 0,
+                                      "Temp Written Blocks": 0,
+                                      "Plans": [
+                                        {
+                                          "Node Type": "Subquery Scan",
+                                          "Plan Rows": 1,
+                                          "Actual Startup Time": 3289.343,
+                                          "Actual Total Time": 3289.348,
+                                          "Actual Rows": 0,
+                                          "Actual Loops": 1,
+                                          "Shared Hit Blocks": 274128,
+                                          "Shared Read Blocks": 7111,
+                                          "Temp Read Blocks": 0,
+                                          "Temp Written Blocks": 0,
+                                          "Plans": [
+                                            {
+                                              "Node Type": "Limit",
+                                              "Plan Rows": 1,
+                                              "Actual Startup Time": 3289.343,
+                                              "Actual Total Time": 3289.347,
+                                              "Actual Rows": 0,
+                                              "Actual Loops": 1,
+                                              "Shared Hit Blocks": 274128,
+                                              "Shared Read Blocks": 7111,
+                                              "Temp Read Blocks": 0,
+                                              "Temp Written Blocks": 0,
+                                              "Plans": [
+                                                {
+                                                  "Node Type": "Sort",
+                                                  "Plan Rows": 1,
+                                                  "Actual Startup Time": 3289.34,
+                                                  "Actual Total Time": 3289.344,
+                                                  "Actual Rows": 0,
+                                                  "Actual Loops": 1,
+                                                  "Shared Hit Blocks": 274128,
+                                                  "Shared Read Blocks": 7111,
+                                                  "Temp Read Blocks": 0,
+                                                  "Temp Written Blocks": 0,
+                                                  "Plans": [
+                                                    {
+                                                      "Node Type": "Subquery Scan",
+                                                      "Plan Rows": 1,
+                                                      "Actual Startup Time": 3289.322,
+                                                      "Actual Total Time": 3289.325,
+                                                      "Actual Rows": 0,
+                                                      "Actual Loops": 1,
+                                                      "Shared Hit Blocks": 274125,
+                                                      "Shared Read Blocks": 7111,
+                                                      "Temp Read Blocks": 0,
+                                                      "Temp Written Blocks": 0,
+                                                      "Plans": [
+                                                        {
+                                                          "Node Type": "WindowAgg",
+                                                          "Plan Rows": 1,
+                                                          "Actual Startup Time": 3289.321,
+                                                          "Actual Total Time": 3289.324,
+                                                          "Actual Rows": 0,
+                                                          "Actual Loops": 1,
+                                                          "Shared Hit Blocks": 274125,
+                                                          "Shared Read Blocks": 7111,
+                                                          "Temp Read Blocks": 0,
+                                                          "Temp Written Blocks": 0,
+                                                          "Plans": [
+                                                            {
+                                                              "Node Type": "Sort",
+                                                              "Plan Rows": 1,
+                                                              "Actual Startup Time": 3289.319,
+                                                              "Actual Total Time": 3289.321,
+                                                              "Actual Rows": 0,
+                                                              "Actual Loops": 1,
+                                                              "Shared Hit Blocks": 274125,
+                                                              "Shared Read Blocks": 7111,
+                                                              "Temp Read Blocks": 0,
+                                                              "Temp Written Blocks": 0,
+                                                              "Plans": [
+                                                                {
+                                                                  "Node Type": "Nested Loop",
+                                                                  "Plan Rows": 1,
+                                                                  "Actual Startup Time": 3289.315,
+                                                                  "Actual Total Time": 3289.317,
+                                                                  "Actual Rows": 0,
+                                                                  "Actual Loops": 1,
+                                                                  "Shared Hit Blocks": 274125,
+                                                                  "Shared Read Blocks": 7111,
+                                                                  "Temp Read Blocks": 0,
+                                                                  "Temp Written Blocks": 0,
+                                                                  "Plans": [
+                                                                    {
+                                                                      "Node Type": "Seq Scan",
+                                                                      "Relation Name": "documents",
+                                                                      "Plan Rows": 12192,
+                                                                      "Actual Startup Time": 2.672,
+                                                                      "Actual Total Time": 3134.982,
+                                                                      "Actual Rows": 6507,
+                                                                      "Actual Loops": 1,
+                                                                      "Rows Removed by Filter": 18006,
+                                                                      "Shared Hit Blocks": 208870,
+                                                                      "Shared Read Blocks": 1020,
+                                                                      "Temp Read Blocks": 0,
+                                                                      "Temp Written Blocks": 0,
+                                                                      "Plans": []
+                                                                    },
+                                                                    {
+                                                                      "Node Type": "Index Scan",
+                                                                      "Index Name": "chunks_document_id_idx_key",
+                                                                      "Relation Name": "chunks",
+                                                                      "Plan Rows": 1,
+                                                                      "Actual Startup Time": 0.023,
+                                                                      "Actual Total Time": 0.023,
+                                                                      "Actual Rows": 0,
+                                                                      "Actual Loops": 6507,
+                                                                      "Rows Removed by Filter": 2,
+                                                                      "Shared Hit Blocks": 65255,
+                                                                      "Shared Read Blocks": 6091,
+                                                                      "Temp Read Blocks": 0,
+                                                                      "Temp Written Blocks": 0,
+                                                                      "Plans": [
+                                                                        {
+                                                                          "Node Type": "Index Scan",
+                                                                          "Index Name": "documents_pkey",
+                                                                          "Relation Name": "documents",
+                                                                          "Plan Rows": 1,
+                                                                          "Actual Startup Time": 0.004,
+                                                                          "Actual Total Time": 0.004,
+                                                                          "Actual Rows": 1,
+                                                                          "Actual Loops": 12078,
+                                                                          "Rows Removed by Filter": 0,
+                                                                          "Shared Hit Blocks": 36234,
+                                                                          "Shared Read Blocks": 0,
+                                                                          "Temp Read Blocks": 0,
+                                                                          "Temp Written Blocks": 0,
+                                                                          "Plans": []
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "Node Type": "Subquery Scan",
+                                  "Plan Rows": 1,
+                                  "Actual Startup Time": 3213.538,
+                                  "Actual Total Time": 3213.542,
+                                  "Actual Rows": 0,
+                                  "Actual Loops": 1,
+                                  "Shared Hit Blocks": 282628,
+                                  "Shared Read Blocks": 2110,
+                                  "Temp Read Blocks": 0,
+                                  "Temp Written Blocks": 0,
+                                  "Plans": [
+                                    {
+                                      "Node Type": "WindowAgg",
+                                      "Plan Rows": 1,
+                                      "Actual Startup Time": 3213.537,
+                                      "Actual Total Time": 3213.541,
+                                      "Actual Rows": 0,
+                                      "Actual Loops": 1,
+                                      "Shared Hit Blocks": 282628,
+                                      "Shared Read Blocks": 2110,
+                                      "Temp Read Blocks": 0,
+                                      "Temp Written Blocks": 0,
+                                      "Plans": [
+                                        {
+                                          "Node Type": "Subquery Scan",
+                                          "Plan Rows": 1,
+                                          "Actual Startup Time": 3213.536,
+                                          "Actual Total Time": 3213.539,
+                                          "Actual Rows": 0,
+                                          "Actual Loops": 1,
+                                          "Shared Hit Blocks": 282628,
+                                          "Shared Read Blocks": 2110,
+                                          "Temp Read Blocks": 0,
+                                          "Temp Written Blocks": 0,
+                                          "Plans": [
+                                            {
+                                              "Node Type": "Limit",
+                                              "Plan Rows": 1,
+                                              "Actual Startup Time": 3213.536,
+                                              "Actual Total Time": 3213.538,
+                                              "Actual Rows": 0,
+                                              "Actual Loops": 1,
+                                              "Shared Hit Blocks": 282628,
+                                              "Shared Read Blocks": 2110,
+                                              "Temp Read Blocks": 0,
+                                              "Temp Written Blocks": 0,
+                                              "Plans": [
+                                                {
+                                                  "Node Type": "Sort",
+                                                  "Plan Rows": 1,
+                                                  "Actual Startup Time": 3213.507,
+                                                  "Actual Total Time": 3213.509,
+                                                  "Actual Rows": 0,
+                                                  "Actual Loops": 1,
+                                                  "Shared Hit Blocks": 282628,
+                                                  "Shared Read Blocks": 2110,
+                                                  "Temp Read Blocks": 0,
+                                                  "Temp Written Blocks": 0,
+                                                  "Plans": [
+                                                    {
+                                                      "Node Type": "Subquery Scan",
+                                                      "Plan Rows": 1,
+                                                      "Actual Startup Time": 3213.5,
+                                                      "Actual Total Time": 3213.502,
+                                                      "Actual Rows": 0,
+                                                      "Actual Loops": 1,
+                                                      "Shared Hit Blocks": 282628,
+                                                      "Shared Read Blocks": 2110,
+                                                      "Temp Read Blocks": 0,
+                                                      "Temp Written Blocks": 0,
+                                                      "Plans": [
+                                                        {
+                                                          "Node Type": "WindowAgg",
+                                                          "Plan Rows": 1,
+                                                          "Actual Startup Time": 3213.499,
+                                                          "Actual Total Time": 3213.501,
+                                                          "Actual Rows": 0,
+                                                          "Actual Loops": 1,
+                                                          "Shared Hit Blocks": 282628,
+                                                          "Shared Read Blocks": 2110,
+                                                          "Temp Read Blocks": 0,
+                                                          "Temp Written Blocks": 0,
+                                                          "Plans": [
+                                                            {
+                                                              "Node Type": "Sort",
+                                                              "Plan Rows": 1,
+                                                              "Actual Startup Time": 3213.497,
+                                                              "Actual Total Time": 3213.498,
+                                                              "Actual Rows": 0,
+                                                              "Actual Loops": 1,
+                                                              "Shared Hit Blocks": 282628,
+                                                              "Shared Read Blocks": 2110,
+                                                              "Temp Read Blocks": 0,
+                                                              "Temp Written Blocks": 0,
+                                                              "Plans": [
+                                                                {
+                                                                  "Node Type": "Nested Loop",
+                                                                  "Plan Rows": 1,
+                                                                  "Actual Startup Time": 3213.493,
+                                                                  "Actual Total Time": 3213.495,
+                                                                  "Actual Rows": 0,
+                                                                  "Actual Loops": 1,
+                                                                  "Shared Hit Blocks": 282628,
+                                                                  "Shared Read Blocks": 2110,
+                                                                  "Temp Read Blocks": 0,
+                                                                  "Temp Written Blocks": 0,
+                                                                  "Plans": [
+                                                                    {
+                                                                      "Node Type": "Seq Scan",
+                                                                      "Relation Name": "documents",
+                                                                      "Plan Rows": 12192,
+                                                                      "Actual Startup Time": 2.868,
+                                                                      "Actual Total Time": 3077.707,
+                                                                      "Actual Rows": 6507,
+                                                                      "Actual Loops": 1,
+                                                                      "Rows Removed by Filter": 18006,
+                                                                      "Shared Hit Blocks": 209890,
+                                                                      "Shared Read Blocks": 0,
+                                                                      "Temp Read Blocks": 0,
+                                                                      "Temp Written Blocks": 0,
+                                                                      "Plans": []
+                                                                    },
+                                                                    {
+                                                                      "Node Type": "Index Scan",
+                                                                      "Index Name": "chunks_document_id_idx_key",
+                                                                      "Relation Name": "chunks",
+                                                                      "Plan Rows": 1,
+                                                                      "Actual Startup Time": 0.02,
+                                                                      "Actual Total Time": 0.02,
+                                                                      "Actual Rows": 0,
+                                                                      "Actual Loops": 6507,
+                                                                      "Rows Removed by Filter": 2,
+                                                                      "Shared Hit Blocks": 72738,
+                                                                      "Shared Read Blocks": 2110,
+                                                                      "Temp Read Blocks": 0,
+                                                                      "Temp Written Blocks": 0,
+                                                                      "Plans": [
+                                                                        {
+                                                                          "Node Type": "Index Scan",
+                                                                          "Index Name": "documents_pkey",
+                                                                          "Relation Name": "documents",
+                                                                          "Plan Rows": 1,
+                                                                          "Actual Startup Time": 0.004,
+                                                                          "Actual Total Time": 0.004,
+                                                                          "Actual Rows": 1,
+                                                                          "Actual Loops": 12078,
+                                                                          "Rows Removed by Filter": 0,
+                                                                          "Shared Hit Blocks": 36234,
+                                                                          "Shared Read Blocks": 0,
+                                                                          "Temp Read Blocks": 0,
+                                                                          "Temp Written Blocks": 0,
+                                                                          "Plans": []
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Node Type": "Index Scan",
+                      "Index Name": "chunks_pkey",
+                      "Relation Name": "chunks",
+                      "Plan Rows": 1,
+                      "Actual Startup Time": 0.01,
+                      "Actual Total Time": 0.01,
+                      "Actual Rows": 1,
+                      "Actual Loops": 50,
+                      "Rows Removed by Filter": 0,
+                      "Shared Hit Blocks": 259,
+                      "Shared Read Blocks": 41,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Plans": [
+                        {
+                          "Node Type": "Index Scan",
+                          "Index Name": "documents_pkey",
+                          "Relation Name": "documents",
+                          "Plan Rows": 1,
+                          "Actual Startup Time": 0.004,
+                          "Actual Total Time": 0.005,
+                          "Actual Rows": 1,
+                          "Actual Loops": 50,
+                          "Rows Removed by Filter": 0,
+                          "Shared Hit Blocks": 150,
+                          "Shared Read Blocks": 0,
+                          "Temp Read Blocks": 0,
+                          "Temp Written Blocks": 0,
+                          "Plans": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Node Type": "Index Scan",
+                  "Index Name": "documents_pkey",
+                  "Relation Name": "documents",
+                  "Plan Rows": 1,
+                  "Actual Startup Time": 0.004,
+                  "Actual Total Time": 0.004,
+                  "Actual Rows": 1,
+                  "Actual Loops": 50,
+                  "Rows Removed by Filter": 0,
+                  "Shared Hit Blocks": 150,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "eligibility_seconds": 3.1872169910930097,
+    "eligible_documents": 6507
+  },
+  "expanded_body_reference_time": "2026-11-01T00:00:00Z (outer wrapper used now); structural diagnosis, not an apples-to-apples speedup",
+  "expanded_body_owned_pg_stopped": true,
+  "harness_sha256": {
+    "reference_diagnose.py": "3822272104dbf693239cb9e8af1a58e27cd30651de005d8937ab0a2c276bf345",
+    "reference_diagnose_inner.py": "929704926cb9a7c325480964f233f5991dde4e987fa87e776046e5645e2d8274"
+  },
+  "limits": [
+    "One synthetic search, no concurrent foreground/background load during diagnosis.",
+    "Already auto-analyzed during original r4; explicit ANALYZE is not a missing-statistics fix.",
+    "Expanded SQL body preserves predicates/RLS but changes plan caching and reference time; do not compare its timing as a product improvement.",
+    "Only owned PG55468 was restarted for diagnosis; production DB/config/services untouched.",
+    "No accepted SLA; all prior high burst latencies remain valid; no tuning was deployed."
+  ]
+}

@@ -2,7 +2,7 @@
 title: Install or recover a native agentic-rag client
 type: playbook
 audience: administrators
-version: 0.6.11
+version: 0.6.21
 ---
 
 # PB06801: Install or recover a native agentic-rag client
@@ -12,9 +12,9 @@ version: 0.6.11
 - Class: system.
 - Origin: Issue #68, FR01–09 in [the specification](../specs/6-10-agent-plugins/spec.md).
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
-- Target: 0.6.11/schema024; owned plugin directories and an explicitly enrolled client.
+- Target: 0.6.21/schema033; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-11-01 (origin continuation remains draft).
+- Last edited: 2026-11-01 (procedures independently reviewed; final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -28,7 +28,7 @@ it does not justify copying another department's credentials.
 
 ## Before starting
 
-1. Choose an existing Python environment with agentic-rag0.6.11 and run
+1. Choose an existing Python environment with agentic-rag0.6.21 and run
    `rag --help` and `rag plugin --help` in it.
 2. Check the enrolled token's private permissions and intended domains/projects/
    teams with the administrator; do not print the token. Use the existing
@@ -113,7 +113,7 @@ package ownership conflict to the maintainer. Preserve version, event names,
 request/source IDs, stable error codes, timing, file hashes and owned test logs.
 Keep prompts, recordings, tokens and unrestricted results out of public issues.
 
-## 0.6.20 to 0.6.21: native source-origin gate (acceptance draft)
+## 0.6.20 to 0.6.21: native source-origin gate
 
 Older capture code can classify a native compaction summary or API mirror as
 user testimony. Keep every original recording and spool. Migration033 corrects
@@ -266,7 +266,17 @@ Use each reported `document_id` or slug with `rag evidence show`. Use
 `rag evidence history DOCUMENT --source SOURCE_KEY`; retain the private history.
 Then rehearse pending-window replay on the owned populated copy, verify no
 second provider call for accepted work, and compare original rows and permissions
-against the migration inventory. Restart only the covered, upgraded streams.
+against the migration inventory. Before restarting covered streams, create a
+post-quarantine recovery point with a new, private path:
+
+```sh
+rag service --config /owned/operator.toml verified-backup --source-version 0.6.21 \
+  --output /owned/origin-post-quarantine.dump
+```
+
+Require `restore_verified: true`; retain the dump and manifest with the private
+quarantine reports. Failure keeps the streams stopped. Restart only the covered,
+upgraded streams.
 
 A metadata or coverage conflict refuses apply before any source write. Repair
 only by obtaining the correct original recording/enrollment; do not edit JSONL,

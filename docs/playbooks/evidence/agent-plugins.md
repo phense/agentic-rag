@@ -360,3 +360,39 @@ target release. Aggregate-only results, limits and protocols are published in
 with the [earlier stress run](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-stress-result.json)
 kept separate. Private copied result bodies and native account/debug data are
 excluded. Full-suite and final independent review remain delivery gates.
+
+### Bounded diagnosis after M-ACC1
+
+The six affected legacy test functions were corrected together after five more
+stale-version assertions reproduced red. Their full six-file selection passed36
+checks in108.52s, one known Starlette warning. The changes retain future-version
+rejection at0.6.22 and use the installed0.6.21 backup label. Full3 on `f213ae7`
+is running and is not a pass.
+
+The reference-copy diagnosis used the same source, RLS reader and fixed synthetic
+search, with no concurrent load. All22 relevant indexes were valid/ready, including
+the chunk HNSW and English/German GIN indexes. Automatic statistics already existed;
+explicit `ANALYZE` took2.893s, and the wrapper execution stayed10.839s versus10.025s.
+The full eligible-document count alone took3.26s/3.06s for6,507 eligible of24,513.
+An expanded-body `EXPLAIN ANALYZE` shows the vector branch using HNSW (~0.534s),
+while both lexical branches scan24,513 documents and retain6,507 before per-document
+chunk probes, returning0 lexical rows (~3.289s and3.214s). Thus repeated validity/RLS
+work and a documents-first join plan dominate this synthetic no-lexical-match case;
+missing indexes or statistics are not supported as the cause.
+
+The expanded body used a fixed midnight reference time and different plan caching;
+its7.130s is structural evidence, not a measured product speedup. No predicate,
+authorization, scheduler or production setting was relaxed. Two bounded foreground
+consumers serialize heavy searches and cheap metadata alike; this explains the
+queue buildup while retaining the existing finite compute budget. This is a
+capacity limitation, not an SLA acceptance or a claim that cheap calls are fast
+under a40-client burst. M-ACC1 remains pending independent disposition.
+
+The prior `growing40` label denotes8 windows already pending at burst start, not
+continuous arrivals. Model overlap was short and p95 samples per tool are small;
+no sustained-growth/contention or long-soak result is established. Aggregate
+[diagnosis plans and limits](../../benchmarks/2026-11-01-native-plugin-acceptance/reference-diagnosis-result.json)
+exclude SQL text, vectors and result bodies. Both owned-cluster diagnosis runs
+stopped PostgreSQL in `finally`; production services were untouched. Native child
+suppression remains adapter-tested, not natively observed (LOW-064). CPU attribution
+is coarse (LOW-063). Both are recorded in Issue75.

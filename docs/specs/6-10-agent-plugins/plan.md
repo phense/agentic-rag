@@ -69,15 +69,18 @@ release0.6.21 still needs the populated upgrade,
 backup/restore, independent review and final suite gates in T06812..14.
 
 Native observations remain separate from adapter tests. Manual Claude compact
-and native restart/resume retained all three frozen identifiers. Two automatic
-attempts emitted `PreCompact auto` but no native summary or `PostCompact`; they
-are failures, not completed compactions. The second attempt's native debug
-trace reports a fixed prefix larger than the artificial threshold and no
-assistant messages in its reactive summarize set. Obtain a fresh review before
-another automatic probe; do not patch host callbacks or count recall alone.
-The larger synthetic trigger extension was hashed before use, after the
-original semantic fixture freeze; it does not change expected identifiers.
+and native restart/resume retained all three frozen identifiers. After two
+failed artificial-threshold attempts, the frozen multi-turn probe emitted a
+native automatic summary plus Pre/PostCompact and SessionStart compact, then
+recalled3/3 identifiers. The separate same-partition offline/reconnect probe
+retained4/4 originals in2 windows after a lost ACK, with0 pending. Other native
+hosts remain explicitly unobserved; Issues12–14 stay open.
 
-The reference VM was read-only verified as4vCPU/7757MiB. Numerical latency
-acceptance is still pending; use no production service, credentials or data
-changes to manufacture reference acceptance. All production cutover gates remain.
+The reference VM was read-only verified as4 CPUs and8,134,742,016 bytes RAM.
+The owned copy completed140/140 foreground calls and8/8 background windows.
+High search execution time and head-of-line queue waiting need a bounded SQL
+and restored-index/statistics diagnosis (M-ACC1); the8-window phase is a fixed
+initial backlog, not continuous growth. No numerical SLA has been agreed.
+Keep performance acceptance open until diagnosis and independent disposition.
+Use no production service, credentials or data changes to manufacture acceptance.
+All production cutover gates remain.
