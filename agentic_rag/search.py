@@ -118,7 +118,7 @@ def _search(
         if context_mode == 'auto' and not baseline and strategy != 'hybrid' and not strong_symbols(query) and contextual.available(conn):
             if qvec is not None:
                 from . import vector_plan
-                if vector_plan.available(conn):
+                if cfg.retrieval_planned_vectors and vector_plan.available(conn):
                     return vector_plan.candidates(conn,(query,qvec,domain,150,scopes,at,history,query_model))
             return conn.execute('SELECT * FROM hybrid_search_contextual(%s,%s::halfvec,%s,%s,%s,%s,%s,%s)',
                 (query,qvec,domain,150,scopes,at,history,query_model)).fetchall()

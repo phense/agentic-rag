@@ -22,6 +22,28 @@ def test_cli_normal_save_retains_required_argument_exit_code(monkeypatch):
     assert exc.value.code==2
 
 
+def test_operator_optout_keeps_contextual_results_when_planner_times_out(indexed, conn, cfg, monkeypatch, tmp_path):
+    """An existing false switch must prevent the observed production timeout."""
+    import psycopg
+    from agentic_rag import vector_plan
+    from agentic_rag.config import load_config
+    saved, fields = indexed
+    store.save_document(conn, cfg, **fields)
+    monkeypatch.setattr(search, 'try_embed_texts', lambda texts, config: [[1.0] + [0.0] * 1023])
+    def timeout(*args):
+        raise psycopg.errors.QueryCanceled('planned vector statement timeout')
+    monkeypatch.setattr(vector_plan, 'candidates', timeout)
+    path = tmp_path / 'config.toml'
+    path.write_text('[retrieval]\nplanned_vectors = false\n')
+    configured = load_config(path)
+    hits, warnings = search.search(conn, configured, 'Orion listener', rerank_mode='off')
+    assert saved.doc_id in {hit.document_id for hit in hits}
+    assert warnings == []
+    # Omission preserves the enabled planner and its fail-closed timeout.
+    with pytest.raises(psycopg.errors.QueryCanceled, match='planned vector'):
+        search.search(conn, cfg, 'Orion listener', rerank_mode='off')
+
+
 def test_queued_reembedding_retains_contextual_lexical_coverage(indexed,conn,cfg,monkeypatch):
     saved,_=indexed
     monkeypatch.setattr(store,'embed_texts',lambda texts,cfg:[[1.0]+[0.0]*1023 for _ in texts])

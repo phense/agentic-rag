@@ -462,3 +462,19 @@ backups get restore-tested rather than trusted blindly.
 ## OpenCode integration
 
 The OpenCode target owns only its loader, adds read-only MCP when absent and preserves provider/model/permission settings. No compaction threshold is overridden. See [configuration and limits](opencode.md).
+
+## Optional contextual vector planner
+
+```toml
+[retrieval]
+planned_vectors = true
+```
+
+The default enables the optional bounded planner for automatic contextual vector
+search. Set this boolean to `false` when a populated-store check hits the
+planner's fixed two-second deadline. Searches then use the existing contextual
+hybrid function, retaining vector matching, source hashes, eligibility and RLS.
+This setting does not select lexical-only search or change managed embedding
+spaces. Restart the CLI/MCP or API processes to load the setting. Re-enable only
+after a representative populated-copy check succeeds. Removing the setting
+restores the enabled default. Configuration and stored data need no migration.
