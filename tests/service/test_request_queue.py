@@ -78,3 +78,29 @@ def test_submit_reuses_admission_session_and_commits_receipt(service_store,tmp_p
     with real(cfg) as conn:
         row=conn.execute('SELECT state FROM service_requests WHERE id=%s',(identity,)).fetchone()
         assert row is None if fail_after_insert else row['state']=='pending'
+
+
+@pytest.mark.parametrize('fail_after_insert',[False,True])
+def test_submit_holds_admission_until_commit_or_rollback(service_store,tmp_path,monkeypatch,fail_after_insert):
+    from agentic_rag import db
+    from agentic_rag.service import requests as queue
+    from agentic_rag.service.auth import Policy
+    from agentic_rag.service.engine import ResourcePressure
+    cfg,_=service_store
+    _,path=app_fixture(tmp_path,cfg)
+    principal=Policy.load(path).authenticate_key(KEYS[0])
+    seen=[]
+    def before_commit(*args,**kwargs):
+        with db.connect(cfg) as other:
+            assert not other.execute('SELECT pg_try_advisory_xact_lock(%s) ok',(5840919371552461,)).fetchone()['ok']
+        with pytest.raises(ResourcePressure,match='write_capacity_exceeded'):
+            queue.submit(cfg,principal,packet())
+        seen.append(True)
+        if fail_after_insert:raise RuntimeError('abort before commit')
+    monkeypatch.setattr(queue.tracing,'link_job',before_commit)
+    if fail_after_insert:
+        with pytest.raises(RuntimeError,match='abort before commit'):queue.submit(cfg,principal,packet())
+    else:queue.submit(cfg,principal,packet())
+    assert seen==[True]
+    with db.connect(cfg) as other:
+        assert other.execute('SELECT pg_try_advisory_xact_lock(%s) ok',(5840919371552461,)).fetchone()['ok']
