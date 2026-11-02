@@ -1,0 +1,163 @@
+{
+ "work": "RAG-068-A1 S06808 / Issue92 A2",
+ "date": "2026-11-01",
+ "base": "0587aed2223c0c9a2c0139424740e5ffd27522d0",
+ "red_commit": "fa154a856ae492a329e012e7221ed8e8da35773e",
+ "final_source": "eb0ca1089595030f142704801b4b7ead780e43b3",
+ "environment": {
+  "postgresql": "owned PG17 copy, port 55460",
+  "model": "simulated Ollama HTTP doubles",
+  "provider": "scripted extraction output",
+  "production_changed": false,
+  "network_or_model_calls": false
+ },
+ "baseline": {
+  "label": "baseline-affected",
+  "head": "0587aed2223c0c9a2c0139424740e5ffd27522d0",
+  "exit": 0,
+  "summary": "105 passed, 1 warning in 46.62s",
+  "log_sha256": "ae498028549a3d521f191fc093e51f49eccd35758a448b61bc69dbc68477b072",
+  "inputs_sha256": {
+   "agentic_rag/config.py": "c1577af630a8686ad6fde269b122e5babb72638629777784efe9b749615c1ae2",
+   "agentic_rag/embed.py": "af169494a2c8fcf81c8eed471442dabca6402e76de90fa19a3df02cb048846d4",
+   "agentic_rag/embedding_reuse.py": "adfc49f37e560117fd84eeb23cb04f71ad93578a5cfb31ddd586c0a4a858a17f",
+   "agentic_rag/query_cache.py": "b242ccaec265a0918523ca2e7b90939629db322655a56dd26b87332b73545440",
+   "agentic_rag/service/client.py": "db74b87058ec60ae812aae2e86c55834264218d3fdc3622252205a70b4187d71",
+   "agentic_rag/service/priority.py": "d81394a9d2fb738bd73b8245765f0f6961d61ce7e0bdf412b986555efc3d88c9",
+   "agentic_rag/service/requests.py": "93089db52a96f5b1f376e8fca5cd37ca1dab9c67af4861ae7458d657e7b6d86d",
+   "tests/service/test_lexical_upgrade.py": "2fb8d02944044c079e09e39791c77d71bb48375664e96c1b045a4d00136c1dbb"
+  }
+ },
+ "red": {
+  "label": "red-T06823-r2",
+  "head": "0587aed2223c0c9a2c0139424740e5ffd27522d0",
+  "exit": 1,
+  "summary": "81 failed, 35 passed in 30.64s",
+  "log_sha256": "0cc313e4c48d717f458e90a639bacf85c6f7b496cceecc442f6121153ff8c38e",
+  "inputs_sha256": {
+   "agentic_rag/config.py": "c1577af630a8686ad6fde269b122e5babb72638629777784efe9b749615c1ae2",
+   "agentic_rag/embed.py": "af169494a2c8fcf81c8eed471442dabca6402e76de90fa19a3df02cb048846d4",
+   "agentic_rag/embedding_reuse.py": "adfc49f37e560117fd84eeb23cb04f71ad93578a5cfb31ddd586c0a4a858a17f",
+   "agentic_rag/query_cache.py": "b242ccaec265a0918523ca2e7b90939629db322655a56dd26b87332b73545440",
+   "agentic_rag/service/client.py": "db74b87058ec60ae812aae2e86c55834264218d3fdc3622252205a70b4187d71",
+   "agentic_rag/service/priority.py": "d81394a9d2fb738bd73b8245765f0f6961d61ce7e0bdf412b986555efc3d88c9",
+   "agentic_rag/service/requests.py": "93089db52a96f5b1f376e8fca5cd37ca1dab9c67af4861ae7458d657e7b6d86d",
+   "tests/service/test_client_polling.py": "9f97a750066e82b94848eff8f9097b5f938b579959dbe882f3bcc1d1afc059c5",
+   "tests/service/test_lexical_upgrade.py": "2fb8d02944044c079e09e39791c77d71bb48375664e96c1b045a4d00136c1dbb",
+   "tests/service/test_model_lane.py": "ab6bba15fc1a6478a4d8295073f361c05916ee896dcf03b1dc6aef65aaae8c86",
+   "tests/service/test_request_consumers.py": "f74e7fb065b985d9b4830e09a4c96edae86f1d95685f38130ac575d2cc75a507",
+   "tests/test_lane_config.py": "92976f6a8f5574905908340d62a648a4d6b567ba3f02062bfbcc629d34eff932"
+  }
+ },
+ "red_counts": {
+  "new_tests": 116,
+  "behavioral_failures": 81,
+  "characterizations_passing": 35
+ },
+ "mutations": [
+  {
+   "label": "mutation-M1-no-post-check",
+   "head": "8252a3d3d92609f8fd844a5f5c1e9bbfc655ed2b",
+   "exit": 1,
+   "summary": "3 failed, 28 passed, 1 warning in 31.51s",
+   "log_sha256": "e8cbcd5e9b80b87203d72fb0fdfe7531745e1d465592732f6189ad0637f1e22a",
+   "inputs_sha256": {
+    "agentic_rag/config.py": "d9932efa93b4f7ee607b5fc24ce7527c5872c3301478f24ceaef6a2918313a37",
+    "agentic_rag/embed.py": "427a38e5d96ac629088ae10d0f9acc899185230d747cebe7135e38c5de6031f4",
+    "agentic_rag/embedding_reuse.py": "adfc49f37e560117fd84eeb23cb04f71ad93578a5cfb31ddd586c0a4a858a17f",
+    "agentic_rag/query_cache.py": "9d245018a748b2ae47022171f1af2908858db816719dbac3fd073845e7b9d0d9",
+    "agentic_rag/service/client.py": "ef57b1b17332a6a150fb70eb0dbef94986156870d30a0605bd5204802f0690eb",
+    "agentic_rag/service/priority.py": "351eb5549ceb6ac616253ba2326595e7c6255afd81f7f3a05a15c2851cee3640",
+    "agentic_rag/service/requests.py": "423fa05632d5922686b93793676db1b12aa0b2ae8f18a9680c12d2e5407756ee",
+    "tests/service/test_client_polling.py": "9f97a750066e82b94848eff8f9097b5f938b579959dbe882f3bcc1d1afc059c5",
+    "tests/service/test_lexical_upgrade.py": "2fb8d02944044c079e09e39791c77d71bb48375664e96c1b045a4d00136c1dbb",
+    "tests/service/test_model_lane.py": "29a0221256c4d5ad8c6c174b11df7cc06f357d028709bc9fe65efc3431016e1d",
+    "tests/service/test_model_lane_runtime.py": "9f1e298d20ae270363498d54491e5740f1167b166794ab90949c3aa31a7fd54b",
+    "tests/service/test_request_consumers.py": "1de340b410944054279a2b80696cd0a7297a66ca97a86d1328e5ea0881282318",
+    "tests/test_lane_config.py": "92976f6a8f5574905908340d62a648a4d6b567ba3f02062bfbcc629d34eff932"
+   }
+  },
+  {
+   "label": "mutation-M2-best-effort",
+   "head": "8252a3d3d92609f8fd844a5f5c1e9bbfc655ed2b",
+   "exit": 1,
+   "summary": "3 failed, 28 passed, 1 warning in 30.16s",
+   "log_sha256": "c5003664ed9b631ca0aedbe3d691cef4e80b97a1deb9e85434fef3979431dfa5",
+   "inputs_sha256": {
+    "agentic_rag/config.py": "d9932efa93b4f7ee607b5fc24ce7527c5872c3301478f24ceaef6a2918313a37",
+    "agentic_rag/embed.py": "a0f0fd33ad723ff7616aa43068661be085acd88ddee4860449797122ff6b47c7",
+    "agentic_rag/embedding_reuse.py": "adfc49f37e560117fd84eeb23cb04f71ad93578a5cfb31ddd586c0a4a858a17f",
+    "agentic_rag/query_cache.py": "9d245018a748b2ae47022171f1af2908858db816719dbac3fd073845e7b9d0d9",
+    "agentic_rag/service/client.py": "ef57b1b17332a6a150fb70eb0dbef94986156870d30a0605bd5204802f0690eb",
+    "agentic_rag/service/priority.py": "351eb5549ceb6ac616253ba2326595e7c6255afd81f7f3a05a15c2851cee3640",
+    "agentic_rag/service/requests.py": "423fa05632d5922686b93793676db1b12aa0b2ae8f18a9680c12d2e5407756ee",
+    "tests/service/test_client_polling.py": "9f97a750066e82b94848eff8f9097b5f938b579959dbe882f3bcc1d1afc059c5",
+    "tests/service/test_lexical_upgrade.py": "2fb8d02944044c079e09e39791c77d71bb48375664e96c1b045a4d00136c1dbb",
+    "tests/service/test_model_lane.py": "29a0221256c4d5ad8c6c174b11df7cc06f357d028709bc9fe65efc3431016e1d",
+    "tests/service/test_model_lane_runtime.py": "9f1e298d20ae270363498d54491e5740f1167b166794ab90949c3aa31a7fd54b",
+    "tests/service/test_request_consumers.py": "1de340b410944054279a2b80696cd0a7297a66ca97a86d1328e5ea0881282318",
+    "tests/test_lane_config.py": "92976f6a8f5574905908340d62a648a4d6b567ba3f02062bfbcc629d34eff932"
+   }
+  }
+ ],
+ "final_affected": {
+  "label": "final-affected",
+  "head": "eb0ca1089595030f142704801b4b7ead780e43b3",
+  "exit": 0,
+  "summary": "432 passed, 1 warning in 306.92s (0:05:06)",
+  "log_sha256": "8443c94b8a6ec73b19c063e5eb1c84434accbff924f8ede1815b0a4828259749",
+  "inputs_sha256": {
+   "agentic_rag/config.py": "d9932efa93b4f7ee607b5fc24ce7527c5872c3301478f24ceaef6a2918313a37",
+   "agentic_rag/embed.py": "973f61fbf7ead0d0d659b89679c4cff023a315f95c2a9d14cd4b5bae49362e14",
+   "agentic_rag/embedding_reuse.py": "adfc49f37e560117fd84eeb23cb04f71ad93578a5cfb31ddd586c0a4a858a17f",
+   "agentic_rag/query_cache.py": "9d245018a748b2ae47022171f1af2908858db816719dbac3fd073845e7b9d0d9",
+   "agentic_rag/service/client.py": "ef57b1b17332a6a150fb70eb0dbef94986156870d30a0605bd5204802f0690eb",
+   "agentic_rag/service/priority.py": "351eb5549ceb6ac616253ba2326595e7c6255afd81f7f3a05a15c2851cee3640",
+   "agentic_rag/service/requests.py": "423fa05632d5922686b93793676db1b12aa0b2ae8f18a9680c12d2e5407756ee",
+   "tests/service/test_client_polling.py": "9f97a750066e82b94848eff8f9097b5f938b579959dbe882f3bcc1d1afc059c5",
+   "tests/service/test_lexical_upgrade.py": "c64f31ec5940e3adf3218a559383dc6d38913fedb4a4f3f14108803838d16374",
+   "tests/service/test_model_lane.py": "29a0221256c4d5ad8c6c174b11df7cc06f357d028709bc9fe65efc3431016e1d",
+   "tests/service/test_model_lane_runtime.py": "d9dc6ee36089378979f8874021dfd61168048012d2b5a79a91ca835f9deb0b0e",
+   "tests/service/test_request_consumers.py": "1de340b410944054279a2b80696cd0a7297a66ca97a86d1328e5ea0881282318",
+   "tests/test_lane_config.py": "92976f6a8f5574905908340d62a648a4d6b567ba3f02062bfbcc629d34eff932"
+  }
+ },
+ "new_test_counts": {
+  "tests/test_lane_config.py": 37,
+  "tests/service/test_model_lane.py": 21,
+  "tests/service/test_request_consumers.py": 14,
+  "tests/service/test_client_polling.py": 44,
+  "tests/service/test_model_lane_runtime.py": 14,
+  "tests/service/test_lexical_upgrade.py (extended)": 2
+ },
+ "recovery_cases": {
+  "lane_success": 1,
+  "lane_digest_swap_lane": 1,
+  "lane_digest_swap_primary": 1,
+  "lane_daemon_outage": 1,
+  "config_key_removal_rollback": 1,
+  "singleton_owner_lock_new_vs_new": 1,
+  "singleton_owner_lock_old_0_6_21_vs_new": 1,
+  "key_revocation_before_inference": 1,
+  "actual_client_rate_limit_four_consumers": 1,
+  "actual_client_lost_ack": 1,
+  "api_startup_reserve_rejection": 1,
+  "parity_probe_snippet": 4,
+  "populated_upgrade_interruption_retry_restores": 1,
+  "populated_upgrade_runtime_steps": 6,
+  "passed": "all"
+ },
+ "not_established": [
+  "physical model inference or cross-daemon vector parity for every actual input",
+  "resource budgets of the optional daemon on the reference host",
+  "actual 40-client AC05 latency (T06821)",
+  "full suite and complete independent review (T06822/T06828)",
+  "playbook review and real-daemon rehearsal"
+ ],
+ "post_final_correction": {
+  "finding": "parity probe did not compare threaded vectors with unthreaded stored-vector identity",
+  "fix": "probe embeds primary without and with num_thread plus lane; all must be identical",
+  "red_against_old_probe_text": "1 failed, 3 passed",
+  "rerun_scope": "probe snippet and documentation tests"
+ }
+}

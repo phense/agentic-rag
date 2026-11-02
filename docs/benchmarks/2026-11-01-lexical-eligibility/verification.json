@@ -1,0 +1,483 @@
+{
+  "fixture_commit": "0eb950c",
+  "regression_red": {
+    "command": "pytest tests/test_lexical_eligibility_work.py -q --tb=short -p no:cacheprovider",
+    "exit_code": 1,
+    "failed": 12,
+    "seconds": 10.86,
+    "reason": "324 real truth/lifecycle calls per reader query; literal outputs already correct"
+  },
+  "regression_green": {
+    "exit_code": 0,
+    "passed": 12,
+    "seconds": 8.48
+  },
+  "parity": {
+    "exit_code": 0,
+    "passed": 92,
+    "seconds": 83.66,
+    "includes": "literal current/as-of boundaries and full-field old/new equality; fixture was corrected to exercise generated replacement before final run"
+  },
+  "populated_upgrade": {
+    "exit_code": 0,
+    "passed": 1,
+    "seconds": 15.28,
+    "source": "archived64f2104/0.6.21/schema033",
+    "target": "0.6.22/schema034",
+    "checks": [
+      "original-row identity and hashes",
+      "function oid/owner/grants/security/config retained",
+      "interruption rollback and retry",
+      "actual archived0.6.21 scoped readers unchanged",
+      "verified source and target backups independently restored"
+    ]
+  },
+  "targeted": {
+    "command": "pytest tests/test_lexical_eligibility_work.py tests/service/test_lexical_upgrade.py tests/test_contextual_indexing.py tests/test_lifecycle_views.py tests/test_transcript_origin_upgrade.py tests/test_search.py tests/test_docs_continuity.py -q -x --tb=short -p no:cacheprovider",
+    "exit_code": 0,
+    "passed": 173,
+    "seconds": 145.44
+  },
+  "gates_open": [
+    "new complete independent review after generic-vector/JIT correction",
+    "final source-bound full-suite exit0",
+    "search total p95<=10s in actual40-client/background reference load"
+  ],
+  "limitations": [
+    "Reference SQL AB has2 measurements per arm per case, no latency SLA",
+    "Vector threshold remains bounded4097; no vector-plan change",
+    "RLS may prevent GIN; the fix does not mark operators leakproof or bypass it",
+    "Performance copy/model is distinct from production rollout"
+  ],
+  "log_sha256": {
+    "issue92-regression-red.log": "f9cabaa7056dd65c5b9f4db8353423f5d9d62d0c46c6c1818caad2b805c23ed5",
+    "issue92-regression-green.log": "dba287b17a9875c451843979952cda72bb5b5d9e850a42d9430d070960485de0",
+    "issue92-parity-final.log": "2f09b2e0eb1ac9c8c62c3e66ed5ca8b67707f38bc2b5909189cea78d25974c12",
+    "issue92-upgrade-final.log": "e4c9d20ff57f489c2d579827b4149c277ddf6259ff64e411977d7c46cd48584e",
+    "issue92-targeted.log": "4ff29c1f2756c73227c8d588eb3cc4f8ce469b9a2772db2d2a64b268cca52774",
+    "issue92-background-red-valid.log": "156c845d2013e472b942ba14381142cb58c7c445b811c8930351125f1968a766",
+    "issue92-broad-red.log": "220fe6f8ea4156e86458393eaaec610308c86fe3a273733d100f9c7e8a65ee7c",
+    "issue92-correction-green.log": "9770ee7ac011a1aebf7070fb934624c0288010a293ac07b4c1d66e7af5447b5e",
+    "issue92-correction-upgrade.log": "464e10c247825f7bd97dccde900166c2eaf62ba18329ae543fa5d2c58d26a11c",
+    "issue92-correction-docs-final.log": "aaac26eb1d35c963d9eb0ae0d75ab753fe267fc303320af8f74e203e7fe1c73f",
+    "issue92-corrected-node.log": "aa39b7414d8dd04f4cb1a29b072e10900d66456e5a0344185e401a339b2d7b25",
+    "issue92-corrected-lock.log": "3941654c2351f6c42eb1287a95ce72badd3c80001d26b85a92bfcb5a9224f4cc",
+    "issue92-corrected-build.log": "6742f637f213b2c3d6649f1e87850416f5d3d2e32bff9c24b474e97c5e672b3e",
+    "issue92-correction-docs-handoff.log": "9daf8c8a9c3ab7d749cba828058ba813f1c74db5a48d6786c1a347ed9fb8980a"
+  },
+  "pre_correction_source_head": "e883f43509a57450f1014e23c86ece6ca7b72e35",
+  "runtime_correction_head": "5395f369e079051a75761054df9fc3dc5701e3e6",
+  "configuration_correction_head": "bc7ccf73559e46e0d0685132340878d37df6f394",
+  "pre_correction_full_suite": {
+    "head": "26184b96f8a1881b87ad0531c36934c51fe4fdcc",
+    "command": [
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-x",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "started": "2026-11-01T09:16:43.967177+00:00",
+    "finished": "2026-11-01T09:52:39.602033+00:00",
+    "exit_code": 0,
+    "seconds": 2155.63,
+    "source_files": 396,
+    "sources_unchanged": true,
+    "log_sha256": "d48005bb1e6d3ce57b6537716666ffa4b51e6e4f1071f3edc686c4e26ed70f62",
+    "passed": 2280,
+    "skipped": 1,
+    "warnings": 1,
+    "scope": "before correction, not a final pass"
+  },
+  "corrections": {
+    "regression_red_background": {
+      "failed": 3,
+      "exit_code": 1,
+      "note": "valid nonzero HTTP vectors; lost background priority and paging/timeout/thread ownership"
+    },
+    "regression_red_broad": {
+      "failed": 8,
+      "exit_code": 1,
+      "note": "128 truth calls for8 multi-chunk documents, with Memoize on/off"
+    },
+    "targeted_green": {
+      "passed": 134,
+      "seconds": 88.26,
+      "exit_code": 0,
+      "scope": "priority, embedding reuse, lexical full-row parity and multi-chunk bounds"
+    },
+    "upgrade_priority_docs": {
+      "passed": 23,
+      "seconds": 14.93,
+      "exit_code": 0,
+      "scope": "real archived populated upgrade, interruption/retry, old reader, verified source/target independent restore; priority and docs"
+    },
+    "final_docs": {
+      "passed": 17,
+      "seconds": 0.73,
+      "exit_code": 0,
+      "note": "exact duration retained in log"
+    },
+    "node": {
+      "passed": 7,
+      "exit_code": 0
+    },
+    "lock": {
+      "exit_code": 0
+    },
+    "build": {
+      "exit_code": 0,
+      "distribution": "0.6.22"
+    },
+    "model_budget": "model-budget-ab.json; bounded owned-only same-input A/B; no production limit changed"
+  },
+  "retained_failed_loads": [
+    {
+      "run": "r1",
+      "error": "no_actual_background_embedding_observed",
+      "cause": "quote over grounding bound; original artifacts retained",
+      "accepted": false
+    },
+    {
+      "run": "r2",
+      "error": "no_actual_background_embedding_observed",
+      "cause": "valid source grounding, but background context lost in inference thread; original artifacts retained",
+      "accepted": false
+    }
+  ],
+  "known_lows": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6556493316 LOW071..073: Issue75 comment6558890575 (cancellation characterization, rejectedr4 gate omissions, unpublished034 rehearsal drift).",
+  "corrected_reference_sql": "reference-ab-corrected.json",
+  "independent_correction_review": {
+    "head": "656ea278bb762d189af4df1061541123db1de766",
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "playbook_important": 0,
+    "scope": "Complete43-file bounded diff plus16-file correction;27 unchanged files inherited by hash. Delivery conditional on fresh full suite; later edits are documentation/evidence only. New vector/JIT runtime delta requires fresh complete independent review.",
+    "probes": {
+      "broad": "8 units equal;60 distinct-document checks each",
+      "sql_extra": "320 cases pass",
+      "worker": "15/15",
+      "stale_replacement": "5/5"
+    },
+    "limits": [
+      "Original corr-probe25/26 includes one invalid stale design, replaced by5/5 valid checks",
+      "Probe plan timestamp is not accepted as prospective freezing",
+      "One reader foreign subcheck is vacuous; separate foreign_denial_reader_a covers denial"
+    ]
+  },
+  "corrected_reference_load": "reference-load-r3-analysis.json",
+  "full_suite_attempt3": {
+    "head": "656ea278bb762d189af4df1061541123db1de766",
+    "state": "terminated_without_terminal_artifact",
+    "exit_code": null,
+    "progress": "about31percent",
+    "accepted": false,
+    "cause": "unproven; no pytest process or end artifact remained"
+  },
+  "latency_target": {
+    "p95_total_seconds": 10,
+    "clients": 40,
+    "background_extraction": "enabled",
+    "host_class": "4vCPU/8GiB",
+    "status": "not yet attained; maintain68/92 open",
+    "authority": "maintainer2026-11-01; https://github.com/phense/agentic-rag/issues/92#issuecomment-6557038032"
+  },
+  "full4_superseded": {
+    "head": "0ec0ab150a04a2fc5f02a147a3b6dac1d6365770",
+    "exit_code": -15,
+    "seconds": 1604.03,
+    "tracked_files": 1330,
+    "sources_unchanged": true,
+    "head_unchanged": true,
+    "accepted": false,
+    "reason": "controlled stop for the new maintainer latency criterion; further runtime changes required"
+  },
+  "generic_vector_regression_red": {
+    "frozen_commit": "a6747cd",
+    "exit_code": 1,
+    "failed": 2,
+    "seconds": 64.69,
+    "actual_calls_per_function": 600,
+    "maximum": 384,
+    "functions": [
+      "hybrid_search_candidates",
+      "contextual_search_candidates"
+    ],
+    "baseline_sql_sha256": "8a8c7da221b7f64c43281200cd6d9ba020c39a4180f340566fa4d7beb5176957"
+  },
+  "generic_vector_regression_green": {
+    "command": "PGPORT=55460 pytest -q tests/test_vector_candidate_work.py -p no:cacheprovider --tb=short",
+    "passed": 2,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 64.49,
+    "log_sha256": "5893e71fa1826d8cf6b7d7d18a22de912ef8cf9fc79b80c31cd1e94ecd52dc10",
+    "scope": "600synthetic documents each with raw/contextual vectors; exact full response parity against frozenpre-targetSQL; <=384 truthchecks; no inference; ownedDBcleaned",
+    "limitations": "Before four caller-setting characterizations were added; affected suite and real upgrade still running. Not end-to-end latency evidence."
+  },
+  "contextual_plan_diagnosis": {
+    "default_ms": 423.799,
+    "no_seqscan_diagnostic_ms": 436.493,
+    "coalesce_hash_diagnostic_ms": 224.897,
+    "selected_inner_hash_ms": 225.187,
+    "selected_change": "source-hash equality inside correlated document gate, before ANN limit; no coalesce/selectivity trick or forcedscan configuration",
+    "observation": "HNSW returns256 contexts; truth gate visits256 instead of600; synthetic600document generic plan",
+    "provider_calls": 0
+  },
+  "vector_jit_affected": {
+    "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 pytest -q tests/test_vector_candidate_work.py tests/test_lexical_eligibility_work.py tests/test_contextual_indexing.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+    "passed": 137,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 178.0,
+    "log_sha256": "ebc7217fac9a2d8dde79f90131d0d390572ed2b24d29146093e8bcdbe6840edd",
+    "coverage": [
+      "full response parity and generic work bound",
+      "caller jit/hnsw settings preserved aftersuccess andactualcancellation, all4functions",
+      "real archived0.6.21 populatedsource, interrupted034rollback/retry, oldreader parity",
+      "source andtarget backup withactual independentrestores, originalhashes/jobs/privileges preserved exceptdocumentedlocaljit"
+    ]
+  },
+  "retained_test_invocation_error": {
+    "command": "initial affected selection named nonexistent tests/test_filtered_vector_candidates.py",
+    "exit_code": 4,
+    "tests_run": 0,
+    "followup": "corrected selection137passed, no code changed because of patherror"
+  },
+  "filtered_vector_recall_correction": {
+    "state": "188affected_passed_independent_review_pending",
+    "regression_commit": "1e79b23",
+    "rejected_runtime": "665d449",
+    "red": {
+      "log_sha256": "2a71f26ca33bcd6a9c101cfcbf8f591458e6fed95d35b40cfd772ac260d952b3",
+      "failed": 2,
+      "deselected": 44,
+      "exit_code": 1,
+      "seconds": 26.65,
+      "expected": "50 literal independently constructed allowed document IDs",
+      "actual": "0; nearest270 candidates hidden by scope"
+    },
+    "initial_green": {
+      "passed": 46,
+      "exit_code": 0,
+      "seconds": 289.46,
+      "limit": "before capability-marker refinement; not final-source proof"
+    },
+    "focused_final_green": {
+      "passed": 5,
+      "deselected": 53,
+      "exit_code": 0,
+      "seconds": 73.98,
+      "log_sha256": "a8e05df124611609d159158cfad7daaece40e55643367ebcae5bdfcfc911ee10",
+      "limit": "scan-cap and simulated capability absence only; global-k deselected work/upgrade tests"
+    },
+    "behavior": "pgvector>=0.8 iterative ANN, exact distance sorting when fewer than256 gated candidates; supported0.7 skips ANN by function-local capability marker",
+    "legacy_limit": "Capability discovery branch simulated on installed0.8.4; no real0.7 binary run",
+    "dense_work_limit": "384-check ceiling applies only to600all-eligible synthetic fixture; selective exact fallback may check the full visible corpus",
+    "cancellation_limit": "Post-cancel restoration is characterization; subtransaction rollback itself restores GUC, so it does not prove override mechanism. Successful-return assertions discriminate.",
+    "retained_setup_failures": [
+      "PG55460 stopped after host restart:46setup errors",
+      "invalid globally-disabled-index exact oracle: controlled exit2 after5timeouts; not product red"
+    ],
+    "remaining": [
+      "fresh independent review",
+      "target load with correctness/drain/error gates",
+      "final full suite"
+    ],
+    "affected_final": {
+      "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_vector_filter_recall.py tests/test_vector_candidate_work.py tests/test_lexical_eligibility_work.py tests/test_contextual_indexing.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "passed": 188,
+      "exit_code": 0,
+      "seconds": 600.51,
+      "log_sha256": "5d8abee77ad44c9a329f58cf0ed6413b3862ff520e843598f63164889c7ca3cd",
+      "coverage": [
+        "51adversarial recall cases with literal cohorts and exact oracle",
+        "6dense work/settings cases",
+        "lexical parity/work and contextual indexing",
+        "genuine populated0.6.21 source interruption/retry/source and target actual independent restores"
+      ]
+    },
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.91,
+      "log_sha256": "580688cb1ffbcd40e0b9e1d5745009dd0f57eaaf2613d95a11ccacc5abdee76c"
+    },
+    "input_sha256": {
+      "sql/034_lexical_eligibility_work.sql": "d8b25c8d185113cd49f4977208c0cc4d5390428e15867169d49ddfa617f4c480",
+      "tests/test_vector_filter_recall.py": "65ddcc98ce939cfe2112d1bc46771eab16119dfda3d8efa8d9f0f285e16c4be6",
+      "tests/test_vector_candidate_work.py": "29972d67885b6a12acae9d59a5e59a18b921d1a3641c7817dd2294a3726681dd",
+      "tests/test_lexical_eligibility_work.py": "83e858064768c6a72409eb8f491219ad854a8d4aa319ac203c15223b7e67fd9a",
+      "tests/test_contextual_indexing.py": "767ebffd667bc27eba099f1852a27292f3ca7f9451bb808cd95684e094e92351",
+      "tests/service/test_lexical_upgrade.py": "84394074e7f7d1d426a3f067b12ef79c04b3dad85ef77c3c16e934ad0bc0b433"
+    }
+  },
+  "reference_load_r4_rejected": {
+    "artifact": "reference-r4-failed-target.json",
+    "runtime": "665d449",
+    "all_foreground_completed": 1400,
+    "all_source_windows_applied": 13,
+    "model_errors": 0,
+    "latency_target_seconds": 10,
+    "search_p95_40client_seconds": [
+      22.082,
+      22.198,
+      22.481
+    ],
+    "acceptance": false,
+    "reasons": [
+      "p95 target failed",
+      "source has confirmed filtered-vector recall regression",
+      "controller target boolean omitted correctness/drain/model-error conjunction"
+    ]
+  },
+  "limited_owner_correction": {
+    "state": "independently_accepted",
+    "base": "f65c19b",
+    "red_commit": "e4ea872",
+    "red": {
+      "failed": 1,
+      "exit_code": 1,
+      "seconds": 4.73,
+      "log_sha256": "f4088e5929477beb514c72f6f0ef1f2d4b3c1c36208f1f31666e25735315a6e4",
+      "expected_failure": "permission denied to set parameter rag.iterative_vectors during actual034 after source backup/restore succeeds"
+    },
+    "retained_invalid_red": {
+      "seconds": 4.29,
+      "reason": "Missing documented vector preload in disposable role, old0.6.21 source restore failed at hnsw.ef_search; not N1 product red"
+    },
+    "green": {
+      "passed": 2,
+      "exit_code": 0,
+      "seconds": 18.95,
+      "log_sha256": "6e3f46a5169df1de8fdb2a28e4b196a80da6705f242c2b505b93182cf386b480",
+      "scope": "existing real0.6.21 populated interruption/retry and new NOSUPERUSER/NOCREATEROLE/NOINHERIT/NOBYPASSRLS owner migration, verified source/target backups and extra real restored target search/pending job/hash checks"
+    },
+    "repair": "Remove custom placeholder functionGUC; use registered hnsw.iterative_scan and installed version guard. No new parameter/superuser grants. Older unsupported capability retains exact fallback.",
+    "limits": [
+      "No actual pgvector0.7 binary run",
+      "Capability decision at migration time; later extension upgrade alone does not add local iterative config",
+      "Independent correction review, <=10s reference acceptance and final full suite remain open"
+    ],
+    "affected": {
+      "command": "PGPORT=55460 TMPDIR=/dev/shm/rag68-a1 PYTHONDONTWRITEBYTECODE=1 pytest -q tests/test_vector_filter_recall.py tests/test_vector_candidate_work.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "passed": 59,
+      "exit_code": 0,
+      "seconds": 504.61,
+      "log_sha256": "219c04f72e05b79464c74a793c4a70b0e4004f7f16412d1bd8f54319fb54a3fd",
+      "coverage": "51 recall cases including 300 permitted farther documents and ANN work counter, 6 dense/settings checks, 2 populated upgrade/restore cases including limited owner"
+    },
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.82,
+      "log_sha256": "bae87bf7d2a00b06bc748f7b9f82feb41da8928b9099148e1be7e1f4caf11f5a"
+    },
+    "independent_review": {
+      "head": "86d855dd0901fd42115f3dd3ccb95cab366c65db",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "important": 0,
+      "fresh_probes": "Limited-owner genuine populated upgrade and independent source/target restores; restored vector search/config, caller preservation; ANN256 vs forced exact300, version guard and cap fallback",
+      "input_hash_limit": "Coordinator logs predate commit without input hashes; essential paths freshly checked independently on HEAD",
+      "playbook_minor": "Conditional template flags/link/public-schema requirement corrected in follow-up docs"
+    }
+  },
+  "query_parser_correction": {
+    "regression_commit": "74db11c",
+    "red": {
+      "failed": 8,
+      "exit_code": 1,
+      "seconds": 3.91,
+      "calls_per_query": [
+        128,
+        256
+      ],
+      "log_sha256": "b375b0b301bf7fb52d07a5e26317143c0e625ffa6d59e4422a65950eaf5e1850"
+    },
+    "affected": {
+      "passed": 110,
+      "exit_code": 0,
+      "seconds": 97.43,
+      "log_sha256": "59ba87be2eede0ef91fe6cb455163e59d25cdfedcd22ad255f8e89b1a923b6a0",
+      "command": "PGPORT=55460 pytest -q tests/test_lexical_eligibility_work.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "coverage": "all4 generic retrieval functions parse calls<=8 with real parser and zero/broad matches; 100 pre-existing full EN/DE result/order/score/eligibility cases; both populated upgrade and actual restores including limited owner",
+      "source_hashes": {
+        "captured_epoch": 1793544388.8838615,
+        "phase": "captured during test, not prior-start proof",
+        "files": {
+          "sql/034_lexical_eligibility_work.sql": "32799d1ceb0839b19e96936e12b2f1991210eb0e3184175ad5507bd0864db569",
+          "tests/test_lexical_eligibility_work.py": "bad3b24b52f47554ded58e2994d5d02567f9d7a1385764a54692ded3816c9649",
+          "tests/service/test_lexical_upgrade.py": "3b9d523124fb46b7c21ff54a698d01d86fa9c82e1148c0cbd0330fcedcf7670a"
+        }
+      },
+      "source_hashes_unchanged_to_end": true
+    },
+    "diagnostic": "capacity-and-parser-diagnostics.json",
+    "status": "independently accepted on46ed6f3;40client diagnostic still fails10s; no final full suite",
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.71,
+      "log_sha256": "14197384a5a3ac788034ff939ad0455e094519bd380c0c597f28ed62ed704b94"
+    },
+    "independent": {
+      "head": "46ed6f36235497afe0e8da83302c56b0e97d23e0",
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "important": 0,
+      "fresh": "real parser auto_explain InitPlan loops1;100fullrecordcases;24single-expression mutations discriminate"
+    }
+  },
+  "thematic_selection_correction": {
+    "regression_commit": "f80587b",
+    "frozen_sql_sha256": "c358ec24e25f730dfe2cf8d7ff312a2b855ccbb763d57358ac8e63c0ebbc5e22",
+    "red": {
+      "failed": 8,
+      "exit_code": 1,
+      "seconds": 3.72,
+      "log_sha256": "cf64e9c9904a7183f5a579f5d754510b9fad18b9df6b0a18e760a93212c714d0",
+      "real_claim_calls_per_query": [
+        62,
+        124
+      ]
+    },
+    "green_initial": {
+      "passed": 8,
+      "exit_code": 0,
+      "seconds": 3.15,
+      "note": "Before reference probe added cheap scope/status/domain matching filter; final affected selection covers final code"
+    },
+    "affected": {
+      "passed": 117,
+      "exit_code": 0,
+      "seconds": 68.69,
+      "log_sha256": "8225c511b63f1837efd05e6c9230e923b1d9649f137121460184ea350bbef185",
+      "command": "PGPORT=55460 pytest -q tests/test_thematic_eligibility_work.py tests/test_thematic.py tests/test_profiles.py tests/test_project_context.py tests/test_hook_session_start.py tests/test_lifecycle_views.py tests/service/test_lexical_upgrade.py -p no:cacheprovider --tb=short",
+      "inputs": {
+        "at": 1793545626.5912569,
+        "files": {
+          "agentic_rag/thematic.py": "507774da308fd2bda5ca97688cf9fe1214f2a0c2e66921d601193ff6cc068208",
+          "tests/test_thematic_eligibility_work.py": "cf4cabc6d2f5ebab2dea85c1c95fad881d22ac1b4932fb756dbb81c817821f63",
+          "tests/fixtures/thematic-work-92/before.sql": "c358ec24e25f730dfe2cf8d7ff312a2b855ccbb763d57358ac8e63c0ebbc5e22"
+        }
+      },
+      "source_hashes_unchanged_to_end": true
+    },
+    "diagnostic": "context-selection-diagnostics.json",
+    "status": "independent review pending; own2vs4capacity diagnosis running; latency/fullsuite not accepted",
+    "docs": {
+      "passed": 17,
+      "exit_code": 0,
+      "seconds": 0.97,
+      "log_sha256": "7c87ff231193266922c0097127c7e08f9d169966f2b14c91da04881335c7ffec"
+    }
+  }
+}

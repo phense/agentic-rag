@@ -9,9 +9,19 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.21-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.22-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.22 lexical search:** selective full-text queries run expensive truth and
+lifecycle checks once per matching document, retaining the same scoped results
+and ranking. Generic vector plans continue past filtered nearest neighbours on
+pgvector0.8+, with an exact fallback when the scan cannot fill its candidate
+pool. Supported0.7 installations use that exact path. Truth and source checks
+remain before ranking and limits; retrieval settings restore on return.
+Service embedding preparation also retains worker priority and
+background timeout rules. Upgrade existing0.6.21 stores with the
+[lexical-search upgrade procedure](docs/playbooks/agent-plugins.md#0621-to-0622-lexical-search-upgrade).
 
 **0.6.21 native source continuity:** generated compaction summaries no longer
 become original user evidence. A bounded, audited quarantine repairs old source

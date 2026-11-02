@@ -1,0 +1,589 @@
+{
+  "purpose": "diagnostic only; consumer override is harness-only, not product implementation or acceptance",
+  "protocol": {
+    "created_by": "coordinator before run",
+    "arms": [
+      2,
+      4
+    ],
+    "rounds": 3,
+    "clients": 40,
+    "phases": [
+      "idle40",
+      "growing40",
+      "noarrivals40"
+    ],
+    "model": "unchangedbge-m3-q8/CPU350%/High=Max2GiB/parallel1",
+    "workload": "Same mixedmetadata/context/search uniquequeries,k3,rerankoff,auth,finitequeues/modelslot; thirteen actualsynthetic windows, no private provider input",
+    "differences_from_acceptance": [
+      "3not10rounds",
+      "executorconsumer override in test harness only",
+      "source665d449 runtime with currentN1SQL copied to owned source",
+      "no release/targetacceptance claim"
+    ],
+    "controller_sha256": "31d6b1976609c0a2f4cb5b4facd01b056b377dda39880df647570d2a74c940a9",
+    "migration_sha256": "0ebad2e1a27d302fae48eea59178d97b8c7d9054343f9911337b2999316adc96",
+    "invariant": "No product/production config/service changes, preserve all arms and failures; clean ownedmodel/PG/API/worker",
+    "hypothesis": "Additional consumers overlap SQL and serial model waits to reduce foreground queuing without more resources"
+  },
+  "supervisor": {
+    "arms": [
+      {
+        "consumers": 2,
+        "exit_code": 0,
+        "seconds": 406.71099853515625
+      },
+      {
+        "consumers": 4,
+        "exit_code": 0,
+        "seconds": 387.33109402656555
+      }
+    ],
+    "diagnostic_only": true,
+    "production_changes": false,
+    "complete": true,
+    "owned_model_inactive": true
+  },
+  "arms": [
+    {
+      "consumers": 2,
+      "source_head": "665d449 runtime + N1SQL 0ebad2e1a27d302fae48eea59178d97b8c7d9054343f9911337b2999316adc96 + diagnostic consumer override 2",
+      "phases": [
+        {
+          "phase": "idle40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 12.403841512394138,
+                "p95": 25.18602289876435,
+                "max": 25.495412167860195
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.1269325,
+                "p95": 0.2174680499999999,
+                "max": 0.296203
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 10.276657499999999,
+                "p95": 22.13809735,
+                "max": 23.080371
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 10.795271527953446,
+                "p95": 25.19350052205846,
+                "max": 26.411490161903203
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.788845,
+                "p95": 1.9945707000000001,
+                "max": 2.253623
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 8.06464,
+                "p95": 20.9002488,
+                "max": 22.127897
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 16.08265140792355,
+                "p95": 26.523785656946714,
+                "max": 29.012862602015957
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 2.542371,
+                "p95": 3.232908,
+                "max": 4.036535
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 11.257235,
+                "p95": 21.173712000000002,
+                "max": 23.953333
+              }
+            }
+          }
+        },
+        {
+          "phase": "growing40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 11.493390212999657,
+                "p95": 22.09895038490649,
+                "max": 26.640360156074166
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.1348255,
+                "p95": 0.2808982999999997,
+                "max": 0.345724
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 9.734521,
+                "p95": 19.914187799999993,
+                "max": 24.387543
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 9.670899545075372,
+                "p95": 27.182605225779117,
+                "max": 27.95620185113512
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.7069,
+                "p95": 1.6284237000000004,
+                "max": 1.835749
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 7.447522,
+                "p95": 23.3697418,
+                "max": 24.722343
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 14.846270750975236,
+                "p95": 24.71368336470332,
+                "max": 27.928560103988275
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 2.473664,
+                "p95": 3.669375700000003,
+                "max": 5.557801
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 9.752097,
+                "p95": 19.915589900000004,
+                "max": 22.077428
+              }
+            }
+          }
+        },
+        {
+          "phase": "noarrivals40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 14.12544299743604,
+                "p95": 22.086387836851646,
+                "max": 24.867030393099412
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.137216,
+                "p95": 0.2185285,
+                "max": 0.259649
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 12.301986,
+                "p95": 19.623484649999998,
+                "max": 22.033093
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 9.865431583020836,
+                "p95": 23.69129436046351,
+                "max": 26.919516082154587
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.744344,
+                "p95": 1.3124669000000004,
+                "max": 1.867212
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 6.848358,
+                "p95": 20.881929700000004,
+                "max": 23.325489
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 16.221517679980025,
+                "p95": 26.672658971999777,
+                "max": 30.251303715165704
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 2.62665,
+                "p95": 3.7762203000000003,
+                "max": 8.63827
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 11.593172,
+                "p95": 21.763156400000003,
+                "max": 23.995341
+              }
+            }
+          }
+        }
+      ],
+      "cleanup": {
+        "owned_children_exited": true,
+        "owned_pg_stopped": true,
+        "production_services_touched": false
+      },
+      "raw_sha256": {
+        "result.json": "9a4b10dbe7b9b304fc2423ff7a0a53f2db61d9f6a58845918ba68f332a73df70",
+        "phases.json": "35fb51b6bad1d2baeb021f02db8f5f5730802cea3a7cb8afde3b6431ff0237e6",
+        "cleanup.json": "e4710a573651589a24a01aacc09bc820a9e8d289bffa8d4fe7db11cd83586f15",
+        "model-calls.jsonl": "b6d3e28bfccb88dd1fb934c19a31dc91d8f33bf71cd1205b92849045a0c397f6"
+      },
+      "model_ends": 145,
+      "model_errors": 0
+    },
+    {
+      "consumers": 4,
+      "source_head": "665d449 runtime + N1SQL 0ebad2e1a27d302fae48eea59178d97b8c7d9054343f9911337b2999316adc96 + diagnostic consumer override 4",
+      "phases": [
+        {
+          "phase": "idle40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 11.908462760969996,
+                "p95": 21.464891217905098,
+                "max": 24.383196875220165
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.194867,
+                "p95": 0.44615344999999995,
+                "max": 0.47519
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 9.488121,
+                "p95": 18.71995595,
+                "max": 20.574341
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 10.486146786948666,
+                "p95": 21.994139451975936,
+                "max": 24.74952101195231
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 2.353214,
+                "p95": 3.3210723,
+                "max": 3.386748
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 6.474767,
+                "p95": 17.287796200000003,
+                "max": 19.572006
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 15.569678894942626,
+                "p95": 23.844789502350615,
+                "max": 25.01974920416251
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 4.133782,
+                "p95": 5.9637031,
+                "max": 6.280446
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 9.507545,
+                "p95": 16.9859638,
+                "max": 19.088318
+              }
+            }
+          }
+        },
+        {
+          "phase": "growing40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 13.395996104576625,
+                "p95": 20.009947184112388,
+                "max": 24.799964727135375
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.212883,
+                "p95": 0.46012904999999993,
+                "max": 0.479561
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 11.241010500000002,
+                "p95": 17.03332325,
+                "max": 19.389643
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 15.034345729043707,
+                "p95": 21.876180285727607,
+                "max": 24.118749156128615
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 1.298606,
+                "p95": 2.1868042000000005,
+                "max": 3.000065
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 10.637669,
+                "p95": 18.0958592,
+                "max": 18.715389
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 15.39103347202763,
+                "p95": 27.793201160174796,
+                "max": 29.774132465943694
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 4.173997,
+                "p95": 9.460644499999999,
+                "max": 10.746129
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 8.138798,
+                "p95": 18.747159800000002,
+                "max": 19.872811
+              }
+            }
+          }
+        },
+        {
+          "phase": "noarrivals40",
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "total_seconds": {
+                "n": 42,
+                "p50": 11.212426918908022,
+                "p95": 22.285791130235882,
+                "max": 25.771610150113702
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.24438300000000002,
+                "p95": 0.47535714999999984,
+                "max": 0.49213
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 9.0472775,
+                "p95": 18.60270485,
+                "max": 22.889481
+              }
+            },
+            "context": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 13.040156139992177,
+                "p95": 23.50440256567672,
+                "max": 24.755384537158534
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 1.276023,
+                "p95": 2.5224879000000002,
+                "max": 2.67736
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 9.574385,
+                "p95": 19.3754856,
+                "max": 21.68581
+              }
+            },
+            "search": {
+              "total_seconds": {
+                "n": 39,
+                "p50": 17.278987715020776,
+                "p95": 25.886677940515806,
+                "max": 28.928996990900487
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 4.862188,
+                "p95": 8.1267149,
+                "max": 8.790091
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 10.530349,
+                "p95": 19.039338,
+                "max": 21.781157
+              }
+            }
+          }
+        }
+      ],
+      "cleanup": {
+        "owned_children_exited": true,
+        "owned_pg_stopped": true,
+        "production_services_touched": false
+      },
+      "raw_sha256": {
+        "result.json": "9937e323109aa9b2f4254a9131364aa66ae215c7b0d1ab63a57178f7881d2bc1",
+        "phases.json": "59d18f8c1f33086cab5c80150a7d8ed4fd0998f0b692636168bff7febe487ff8",
+        "cleanup.json": "e4710a573651589a24a01aacc09bc820a9e8d289bffa8d4fe7db11cd83586f15",
+        "model-calls.jsonl": "3a2db975e7b0a97a1d0781fe31a5b69688a9b269472d060aac7cf1911b41acf1"
+      },
+      "model_ends": 146,
+      "model_errors": 0
+    }
+  ],
+  "sql_probes": [
+    {
+      "plan_sha256": "285224d44e38bf1683e3c24d2158501ffa9edfdccf6f8c34a27f92a7cb1ec4a7",
+      "units": [
+        {
+          "arm": "baseline",
+          "repeat": 0,
+          "seconds": 1.287376730935648,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "baseline",
+          "repeat": 1,
+          "seconds": 1.0870017209090292,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "membership",
+          "repeat": 0,
+          "seconds": 1.023319694912061,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "membership",
+          "repeat": 1,
+          "seconds": 1.0215322289150208,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        }
+      ],
+      "definitions_unchanged": true,
+      "policies_unchanged": true,
+      "complete": true,
+      "owned_pg_stopped": true,
+      "production_changes": false,
+      "name": "rls-membership-diag",
+      "raw_sha256": "054fa2739cc5a4d2a6ed6b24c7d919fca40dc93ecc4f8c33bda51f5906d3a7cc"
+    },
+    {
+      "plan_sha256": "7a621d7ca2d9299628c7e5828441935eeae46b0001efbda3872ab88ec98fab6f",
+      "units": [
+        {
+          "arm": "baseline",
+          "repeat": 0,
+          "seconds": 1.1750567578710616,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "baseline",
+          "repeat": 1,
+          "seconds": 1.0653304981533438,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "tsquery_once",
+          "repeat": 0,
+          "seconds": 0.5768607531208545,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        },
+        {
+          "arm": "tsquery_once",
+          "repeat": 1,
+          "seconds": 0.5788319350685924,
+          "rows": 50,
+          "response_sha256": "26ca30f12188706cde3c1315c507f94b9f443ba34ed30aebec8aae4664998f6e"
+        }
+      ],
+      "definitions_unchanged": true,
+      "policies_unchanged": true,
+      "complete": true,
+      "owned_pg_stopped": true,
+      "production_changes": false,
+      "name": "tsquery-initplan-diag",
+      "raw_sha256": "3e41cb3cd5e28833f9e4deca207292b398a89e72e781a1c5e38b0c083fd5b219"
+    }
+  ],
+  "limitations": [
+    "3 rounds/39 search samples per phase, not final10-round acceptance",
+    "Sequential diagnostic arms; model timing and corpus state noise, no causal throughput promise",
+    "Only SQL parser optimization selected; membership policies and consumer override not adopted",
+    "Source wheel665d449 plus corrected N1 SQL; final source-bound runtime load still required"
+  ]
+}

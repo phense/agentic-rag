@@ -1,0 +1,151 @@
+{
+  "source_head": "5395f36",
+  "foreground_offered": 420,
+  "foreground_completed": 420,
+  "source_windows": 13,
+  "applied": 13,
+  "model_calls": {
+    "foreground": 135,
+    "background": 28,
+    "background_seconds": {
+      "n": 28,
+      "p50": 3.8583085536956787,
+      "p95": 6.305490517616267,
+      "max": 7.8022847175598145
+    },
+    "errors": 0
+  },
+  "synthetic_provider_calls": 13,
+  "all_provider_calls_synthetic": true,
+  "samples": 723,
+  "sampler_errors": 0,
+  "phases": {
+    "idle20": {
+      "resource_samples": 91,
+      "backlog_first": 0,
+      "backlog_min": 0,
+      "backlog_max": 0,
+      "backlog_last": 0,
+      "new_arrivals": 0,
+      "background_intervals_intersecting_foreground_phase": 0,
+      "background_started_before_phase_still_running": false,
+      "test_cpu_seconds": 158.07426700000002,
+      "owned_model_cpu_seconds": 100.054694,
+      "search_total_p95": 31.988948104309376
+    },
+    "idle40": {
+      "resource_samples": 171,
+      "backlog_first": 0,
+      "backlog_min": 0,
+      "backlog_max": 0,
+      "backlog_last": 0,
+      "new_arrivals": 0,
+      "background_intervals_intersecting_foreground_phase": 0,
+      "background_started_before_phase_still_running": false,
+      "test_cpu_seconds": 344.78948699999995,
+      "owned_model_cpu_seconds": 182.71274799999998,
+      "search_total_p95": 60.038020698563194
+    },
+    "growing40": {
+      "resource_samples": 176,
+      "backlog_first": 1,
+      "backlog_min": 1,
+      "backlog_max": 13,
+      "backlog_last": 13,
+      "new_arrivals": 12,
+      "background_intervals_intersecting_foreground_phase": 1,
+      "background_started_before_phase_still_running": true,
+      "test_cpu_seconds": 359.99244799999997,
+      "owned_model_cpu_seconds": 192.58288899999997,
+      "search_total_p95": 62.46993387695402,
+      "sampling_note": "Phase-tagged samples begin at1; timestamp-bounded independent selection begins at2. Both grow to13 after12 actual arrivals."
+    },
+    "draining40": {
+      "resource_samples": 175,
+      "backlog_first": 13,
+      "backlog_min": 13,
+      "backlog_max": 13,
+      "backlog_last": 13,
+      "new_arrivals": 0,
+      "background_intervals_intersecting_foreground_phase": 1,
+      "background_started_before_phase_still_running": true,
+      "test_cpu_seconds": 372.57377099999985,
+      "owned_model_cpu_seconds": 189.56923200000006,
+      "search_total_p95": 61.63192230302375,
+      "meaning": "No arrivals with foreground demand: backlog held at13. Draining occurs only after foreground ends."
+    }
+  },
+  "backlog_final": 0,
+  "max_test_pss_bytes": 485090304,
+  "max_test_rss_bytes": 1169395712,
+  "max_connections": 17,
+  "max_owned_model_memory_bytes": 1693536256,
+  "owned_model_oom_delta": 0,
+  "host_min_available_bytes": 3425341440,
+  "test_disk_growth_bytes": 25098628,
+  "model_background_page_items": [
+    1
+  ],
+  "model_calls_serial": true,
+  "checks": {
+    "all420_completed": true,
+    "all13_windows_applied": true,
+    "actual_growing_arrivals12": true,
+    "actual_growing_backlog_increase": true,
+    "actual_background_at_growing_start": true,
+    "actual_background_at_draining_start": true,
+    "all_model_calls_matched": true,
+    "no_model_errors": true,
+    "single_input_background_pages": true,
+    "no_model_oom": true,
+    "all_extraction_synthetic": true,
+    "cleanup": true
+  },
+  "all_checks": true,
+  "limits": [
+    "Actual local CPU embeddings; owned Ollama runtime on11435, same read-only bge-m3-q8 model blobs",
+    "Other production services remained running; no production DB/config/service writes",
+    "Read-only populated schema024 source migrated only on own PG55468 copy",
+    "No long soak, TLS or cross-host traffic claim",
+    "No user-agreed SLA; this is a bounded burst comparison, not a soak",
+    "Test and owned-model CPU accounted separately per phase; production Ollama outside both groups; no production service limit changed",
+    "Overlap means foreground demand starts while an actual background call is in flight; HTTP inference is serialized by the shared model slot.",
+    "Short bursts; no response-time SLA or day-long capacity claim.",
+    "Full-load baseline also differs in model runtime budget; use paired SQL AB for isolated SQL timing."
+  ],
+  "drain_after_foreground": {
+    "samples": 110,
+    "first_backlog": 13,
+    "last_backlog": 0,
+    "observed_seconds": 116.5153238773346,
+    "during_foreground_draining_label": "no new arrivals; backlog held at13, not draining yet",
+    "seconds_from_last_foreground_end": 116.65684223175049
+  },
+  "cleanup_live": {
+    "owned_cgroup_remaining_pids": [],
+    "owned_ports_listening": {
+      "11435": false,
+      "28768": false
+    },
+    "owned_pg_pid_exists": false,
+    "production_changes": false
+  },
+  "raw_artifact_sha256": {
+    "issue92-reference-r3-cleanup-live.json": "a58b1ab8741b77cde962458317e8061997a3acf5bfb2278b3bfd1fe77bfb72be",
+    "issue92-reference-r3-provider-calls.jsonl": "e74c3e16ffa6be147f502ef1680067ebbfaac8edaa573249e94d67ed4c2c1f07",
+    "issue92-reference-r3-cleanup.json": "e4710a573651589a24a01aacc09bc820a9e8d289bffa8d4fe7db11cd83586f15",
+    "issue92-reference-r3-arrivals.json": "e7e649a53c5d96588caad9dade718d4ccf3853b021f893817894d6fb9d92138a",
+    "issue92-reference-r3-model-calls.jsonl": "992c534ab12201fff92fd0cdacccf11f22c4715ca5df56356c9555397710afee",
+    "issue92-reference-r3-resources.json": "6e214fa9f62f88f6351fa08787da369c23a7bb0af340d770aeb7307396af81d2",
+    "issue92-reference-r3-result.json": "c8bb695c161f106e65a122f981a5df6c26e75c4aebdda013ad3ba7c9092db4f4"
+  },
+  "historical_model_memory_peak_bytes": 2147483648,
+  "historical_model_limit_events": {
+    "high": 7410,
+    "max": 624,
+    "oom": 0,
+    "oom_kill": 0,
+    "change_during_r3": 0
+  },
+  "memory_interpretation": "Historical peak and limit counters predate r3. Actual sampled memory.current maximum during r3 is max_owned_model_memory_bytes; no new limit/OOM events occurred."
+}

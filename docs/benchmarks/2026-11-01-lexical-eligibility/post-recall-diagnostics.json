@@ -1,0 +1,299 @@
+{
+  "source": "1e79b23 plus uncommitted034recall repair, exact migration hash in plan",
+  "diagnostic_only": true,
+  "target_acceptance": false,
+  "provider_content": "synthetic queries only; retained synthetic vector; copied private content never sent to model",
+  "experiments": {
+    "same_reference_sql": {
+      "raw_sha256": "9edb88009a3c922a0b3e991930ffe3650e946e021ed6eb323942e64839885f85",
+      "result": {
+        "plan_sha256": "1d53fc6b531a95290d5c86fcf9e6a5fda61bb61f44976e02ed0eb01bcb4f1ac1",
+        "definitions_unchanged": true,
+        "complete": true,
+        "owned_pg_stopped": true,
+        "production_changes": false
+      },
+      "units": [
+        {
+          "arm": "old_function",
+          "repeat": 0,
+          "seconds": 1.1397830189671367,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "old_function",
+          "repeat": 1,
+          "seconds": 1.0345402739476413,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "corrected_function",
+          "repeat": 0,
+          "seconds": 1.0471087449695915,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "corrected_function",
+          "repeat": 1,
+          "seconds": 1.0869590719230473,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "corrected_expanded",
+          "repeat": 0,
+          "seconds": 0.5722487980965525,
+          "execution_ms": 559.086
+        },
+        {
+          "arm": "corrected_expanded",
+          "repeat": 1,
+          "seconds": 0.5915972450748086,
+          "execution_ms": 579.427
+        }
+      ]
+    },
+    "single_lexical_scan_diagnostic": {
+      "raw_sha256": "22446bdd980e2f828b2ba41badd7ae63c2a3d87760078d0ecf0e03ccf9d9deba",
+      "result": {
+        "plan_sha256": "2f8ce422ef515e7d6f1eec346f3bebfd4fd5ef9463e0bbce690435cf26ce573b",
+        "definitions_unchanged": true,
+        "complete": true,
+        "owned_pg_stopped": true,
+        "production_changes": false
+      },
+      "units": [
+        {
+          "arm": "corrected_function",
+          "repeat": 0,
+          "seconds": 1.1216005811002105,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "corrected_function",
+          "repeat": 1,
+          "seconds": 1.0627184638287872,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "shared_lexical_scan",
+          "repeat": 0,
+          "seconds": 0.9758068339433521,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        },
+        {
+          "arm": "shared_lexical_scan",
+          "repeat": 1,
+          "seconds": 0.8453865668270737,
+          "rows": 50,
+          "response_sha256": "94d4840bcc5254b5bc713c052001cc96826d95eadacad26a7cb868cd2341f78b"
+        }
+      ]
+    },
+    "synthetic_model_threads": {
+      "raw_sha256": "adf8d0bf939407ac4ab4e402b4c98ae9f53cc81a2b7653889b1debb4ef3ca441",
+      "result": {
+        "model_digest": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+        "digest_unchanged": true,
+        "complete": true,
+        "owned_model_inactive": true,
+        "production_changes": false
+      },
+      "units": [
+        {
+          "threads": null,
+          "repeat": -1,
+          "warmup": true,
+          "seconds": 2.4700094861909747,
+          "total_duration_ns": 2468680239,
+          "load_duration_ns": 2345983552,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": null,
+          "repeat": 0,
+          "warmup": false,
+          "seconds": 0.35277516208589077,
+          "total_duration_ns": 351510651,
+          "load_duration_ns": 234555467,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": null,
+          "repeat": 1,
+          "warmup": false,
+          "seconds": 0.3256498558912426,
+          "total_duration_ns": 324333253,
+          "load_duration_ns": 203806684,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": null,
+          "repeat": 2,
+          "warmup": false,
+          "seconds": 0.31497770198620856,
+          "total_duration_ns": 313631571,
+          "load_duration_ns": 215263609,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": null,
+          "repeat": 3,
+          "warmup": false,
+          "seconds": 0.37752998480573297,
+          "total_duration_ns": 376071876,
+          "load_duration_ns": 229149705,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 1,
+          "repeat": -1,
+          "warmup": true,
+          "seconds": 2.3547006838489324,
+          "total_duration_ns": 2353333725,
+          "load_duration_ns": 2101750819,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 1,
+          "repeat": 0,
+          "warmup": false,
+          "seconds": 0.4581320071592927,
+          "total_duration_ns": 456397154,
+          "load_duration_ns": 227131724,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 1,
+          "repeat": 1,
+          "warmup": false,
+          "seconds": 0.4537841468118131,
+          "total_duration_ns": 452161873,
+          "load_duration_ns": 223019791,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 1,
+          "repeat": 2,
+          "warmup": false,
+          "seconds": 0.5241889369208366,
+          "total_duration_ns": 522756390,
+          "load_duration_ns": 277199828,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 1,
+          "repeat": 3,
+          "warmup": false,
+          "seconds": 0.5184525339864194,
+          "total_duration_ns": 517022472,
+          "load_duration_ns": 258807546,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 2,
+          "repeat": -1,
+          "warmup": true,
+          "seconds": 2.2914406799245626,
+          "total_duration_ns": 2290022860,
+          "load_duration_ns": 2139375966,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 2,
+          "repeat": 0,
+          "warmup": false,
+          "seconds": 0.3744719580281526,
+          "total_duration_ns": 372895531,
+          "load_duration_ns": 227644809,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 2,
+          "repeat": 1,
+          "warmup": false,
+          "seconds": 0.37275972682982683,
+          "total_duration_ns": 371338982,
+          "load_duration_ns": 226447848,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 2,
+          "repeat": 2,
+          "warmup": false,
+          "seconds": 0.4035189519636333,
+          "total_duration_ns": 401880934,
+          "load_duration_ns": 245015972,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 2,
+          "repeat": 3,
+          "warmup": false,
+          "seconds": 0.38820597785525024,
+          "total_duration_ns": 386851843,
+          "load_duration_ns": 231358291,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 4,
+          "repeat": -1,
+          "warmup": true,
+          "seconds": 2.2210088551510125,
+          "total_duration_ns": 2219726319,
+          "load_duration_ns": 2088577201,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 4,
+          "repeat": 0,
+          "warmup": false,
+          "seconds": 0.3389922499191016,
+          "total_duration_ns": 337118858,
+          "load_duration_ns": 220805298,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 4,
+          "repeat": 1,
+          "warmup": false,
+          "seconds": 0.31044371402822435,
+          "total_duration_ns": 309183009,
+          "load_duration_ns": 214271969,
+          "prompt_eval_count": 17
+        },
+        {
+          "threads": 4,
+          "repeat": 2,
+          "warmup": false,
+          "seconds": 0.34154041297733784,
+          "total_duration_ns": 340229039,
+          "load_duration_ns": 224256740,
+          "prompt_eval_count": 18
+        },
+        {
+          "threads": 4,
+          "repeat": 3,
+          "warmup": false,
+          "seconds": 0.38014093111269176,
+          "total_duration_ns": 378793939,
+          "load_duration_ns": 247961505,
+          "prompt_eval_count": 17
+        }
+      ]
+    }
+  },
+  "dispositions": [
+    "Current repair preserves the checked synthetic-vector response; no broad recall/latency acceptance inferred.",
+    "Fewer model CPU threads slower than default; no thread option change adopted.",
+    "Single lexical scan modest saving only; diagnostic SQL rolled back, not product implementation.",
+    "Owned reference functions restored and own model/PG stopped; production unchanged."
+  ],
+  "migration_sha256": "d8b25c8d185113cd49f4977208c0cc4d5390428e15867169d49ddfa617f4c480"
+}

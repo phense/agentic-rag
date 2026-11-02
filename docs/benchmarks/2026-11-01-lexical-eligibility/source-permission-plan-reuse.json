@@ -1,0 +1,81 @@
+{
+  "change": "Reuse execution plans for the complete existing rag_service_source_write predicate; never cache permission results",
+  "characterization_commit": "96766347a9d70b614e451cdf7fbf809088ed7880",
+  "original_migrations_001_to_033_changed": false,
+  "target": "0.6.22/schema034",
+  "original_select_text_identical": true,
+  "diagnostic_runtime_source": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+  "diagnostic_scope": "Rolled-back counterfactual on an owned populated reference copy; no model calls or production changes",
+  "diagnostic": {
+    "arms": [
+      {
+        "arm": "original_sql",
+        "packets": 9,
+        "median_seconds": 0.5891957741696388,
+        "source_guard_query_stats": [
+          {
+            "calls": 1071,
+            "plans": 1071,
+            "total_exec_time": 21.18822400000003,
+            "total_plan_time": 537.8615020000001,
+            "query_sha256": "cf04cf3295b7135db83cc21eefb992aa13a1788aa2d2414a616d9da67a1adc41"
+          }
+        ]
+      },
+      {
+        "arm": "cached_plpgsql",
+        "packets": 9,
+        "median_seconds": 0.5469966209493577,
+        "source_guard_query_stats": [
+          {
+            "calls": 1071,
+            "plans": 6,
+            "total_exec_time": 14.126170000000005,
+            "total_plan_time": 3.588468,
+            "query_sha256": "460eeb7d5dd8a871513113dc2f012cfcdab67b0f35006215c688375a9c20d9ab"
+          }
+        ]
+      }
+    ],
+    "all_18_packets_equal": true,
+    "original_function_restored": true,
+    "owned_pg_inactive": true,
+    "raw_safe_artifact_sha256": "7ee1b34f00c572236f80c04ce664ac5ab67b6c07e3fff086b626af43eb652b4c"
+  },
+  "checks": {
+    "frozen_characterization_before": {
+      "command": "pytest tests/service/test_source_guard_plan.py -q --tb=short -p no:cacheprovider",
+      "passed": 10,
+      "seconds": 15.04,
+      "log_sha256": "b2d2eb3495f2750d408685d2638cd47e8a0cdd76cedd66a1a9c39c2073d93ca2",
+      "exit_code": 0
+    },
+    "characterization_and_source_scope_after": {
+      "command": "pytest tests/service/test_source_guard_plan.py tests/service/test_evidence_scope.py -q --tb=short -p no:cacheprovider",
+      "passed": 22,
+      "seconds": 29.46,
+      "log_sha256": "e453238f680e690b068218759d9cee59bf89aafe238f2aaa6b36b43c1bc18906",
+      "exit_code": 0
+    },
+    "populated_upgrade_after": {
+      "command": "pytest tests/service/test_lexical_upgrade.py -q --tb=short -p no:cacheprovider",
+      "passed": 2,
+      "seconds": 27.02,
+      "log_sha256": "220548a29e26be9818de4848bfbc3d544a77bdb10b0f4e8bd0c207344588e364",
+      "exit_code": 0
+    },
+    "affected_after": {
+      "command": "pytest tests/service/test_scope.py tests/test_scope.py tests/test_evidence_revisions.py tests/test_lexical_eligibility_work.py tests/test_vector_filter_recall.py tests/test_docs_continuity.py -q --tb=short -p no:cacheprovider",
+      "passed": 205,
+      "seconds": 563.16,
+      "log_sha256": "d74301054f9f89aadc31906148fbc7eff344348b0b6083ca8daaa111f365be27",
+      "exit_code": 0
+    }
+  },
+  "limits": [
+    "Counterfactual timing does not measure the final migration or 40-client acceptance",
+    "Logs have no pre-start complete source-tree hashes; final committed files and independent review remain separate evidence",
+    "No complete final suite, real-client latency or p95<=10s reference acceptance",
+    "A2 optional model lanes, consumer counts and model-thread options remain conditional, not product implementation"
+  ]
+}

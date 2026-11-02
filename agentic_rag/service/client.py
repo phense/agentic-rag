@@ -5,6 +5,7 @@ import hashlib
 from importlib.metadata import version
 import ipaddress
 import json
+import math
 import random
 import time
 import uuid
@@ -15,6 +16,30 @@ import httpx
 from .auth import protected_file
 from .ingest import normalize
 from .spool import Spool
+
+
+# After ACK: finite numeric server hints are clamped to [poll interval, 8 s].
+MAX_POLL_SECONDS = 8
+# Before ACK: transient contention/ambiguous transport only, same envelope.
+PRE_ACK_RETRY_SECONDS = .3
+_TRANSIENT_STATUS = frozenset({408, 429})
+_TRANSIENT_TRANSPORT = frozenset({'network_unavailable', 'response_timeout'})
+
+
+def _retry_hint(value):
+    """A finite JSON number; booleans, strings, NaN and infinities are invalid."""
+    if type(value) in (int, float):
+        try:
+            number = float(value)
+        except OverflowError:
+            return None
+        if math.isfinite(number):
+            return number
+    return None
+
+
+def _transient(exc):
+    return exc.status in _TRANSIENT_STATUS or (exc.status == 0 and exc.code in _TRANSIENT_TRANSPORT)
 
 
 class RemoteError(Exception):
@@ -98,10 +123,19 @@ class RemoteClient(RemoteConnection):
         seconds=self.cfg.service_tool_wait_seconds if seconds is None else seconds
         deadline=time.monotonic()+seconds
         handle=self.spool.stage_request(name,arguments)  # durable before discovery
-        try:self.negotiate(seconds=max(.01,min(1,seconds)))
-        except RemoteError as exc:
-            self.spool.request_error(handle,exc.code)
-            return {'request_id':handle,'local_request_id':handle,'state':'pending','waiting':True,'durable':False,'code':exc.code}
+        while True:
+            try:
+                self.negotiate(seconds=max(.01,min(1,deadline-time.monotonic())))
+                break
+            except RemoteError as exc:
+                self.spool.request_error(handle,exc.code)
+                # Discovery is an idempotent GET but only a recognized control-
+                # slot refusal is retryable. Keep all other negotiation errors.
+                retry=exc.status==429 and exc.code=='capacity_exceeded'
+                delay=PRE_ACK_RETRY_SECONDS*(1+random.random()*.25) if retry else 0
+                if not retry or delay+.01>deadline-time.monotonic():
+                    return {'request_id':handle,'local_request_id':handle,'state':'pending','waiting':True,'durable':False,'code':exc.code}
+                time.sleep(delay)
         if not self.queued_tools:
             # Legacy writes have no idempotency protocol: an ambiguous failure
             # must never be auto-replayed as a queued operation.
@@ -109,9 +143,10 @@ class RemoteClient(RemoteConnection):
             result=self.request('POST','/v1/tools/'+name,arguments,seconds=max(.01,deadline-time.monotonic()))
             self.spool.request_finish(handle)
             return result
-        poll_delay=self.cfg.service_poll_seconds
+        floor=self.cfg.service_poll_seconds
+        poll_delay=floor
         while True:
-            result=self.request_status(handle,seconds=max(.01,min(1,deadline-time.monotonic())))
+            result,retryable=self._request_status(handle,seconds=max(.01,min(1,deadline-time.monotonic())))
             if result.get('code')=='result_expired':
                 self.spool.request_finish(handle)
                 raise RemoteError('result_expired')
@@ -122,24 +157,46 @@ class RemoteClient(RemoteConnection):
                 self.spool.request_finish(handle)
                 raise RemoteError(result.get('code','request_'+result['state']))
             remaining=deadline-time.monotonic()
-            if remaining<=.2 or not result.get('durable'):
+            if not result.get('durable'):
+                # Before ACK only transient contention/timeouts are retried, with
+                # the SAME staged envelope and idempotency key, inside the
+                # caller's deadline. Otherwise the durable local handle remains.
+                delay=PRE_ACK_RETRY_SECONDS*(1+random.random()*.25)
+                if not retryable or delay+.01>remaining:
+                    return {**result,'waiting':True,'local_request_id':handle}
+                time.sleep(delay)
+                continue
+            if remaining<=.21 or result.get('state')=='blocked':
+                # Waiting at the deadline is a retained handle, never success.
+                # (No near-zero sleep and extra poll in the final 10 ms.)
                 return {**result,'waiting':True,'local_request_id':handle}
-            time.sleep(min(poll_delay*(1+random.random()*.25),max(0,remaining-.2)))
-            poll_delay=min(8,max(self.cfg.service_poll_seconds,poll_delay*2))
+            hint=_retry_hint(result.get('retry_after'))
+            if hint is None:
+                # Missing/invalid hints keep the bounded exponential fallback.
+                delay=poll_delay
+                poll_delay=min(MAX_POLL_SECONDS,max(floor,poll_delay*2))
+            else:
+                delay=max(floor,min(MAX_POLL_SECONDS,hint))
+                poll_delay=floor
+            time.sleep(min(delay*(1+random.random()*.25),max(0,remaining-.2)))
 
     def request_status(self,handle,*,cancel=False,seconds=1,consume=True):
+        return self._request_status(handle,cancel=cancel,seconds=seconds,consume=consume)[0]
+
+    def _request_status(self,handle,*,cancel=False,seconds=1,consume=True):
+        """Status plus whether an unacknowledged envelope may be resent now."""
         deadline=time.monotonic()+seconds
         if not isinstance(handle,str) or len(handle)>80:raise ValueError('invalid request handle')
         if not handle.startswith('local.'):
             try:identity=str(uuid.UUID(handle))
             except ValueError:raise ValueError('invalid request handle') from None
             local=self.spool.request_by_server(identity)
-            if local:return self.request_status(local,cancel=cancel,seconds=seconds,consume=consume)
-            return self.request('POST' if cancel else 'GET','/v1/requests/'+identity+('/cancel' if cancel else ''),seconds=seconds)
+            if local:return self._request_status(local,cancel=cancel,seconds=seconds,consume=consume)
+            return self.request('POST' if cancel else 'GET','/v1/requests/'+identity+('/cancel' if cancel else ''),seconds=seconds),False
         row=self.spool.request_record(handle)
         self.spool.request_touch(handle)
         if row['code']=='legacy_outcome_unknown':
-            return {'request_id':handle,'state':'blocked','durable':False,'code':'legacy_outcome_unknown','waiting':True}
+            return {'request_id':handle,'state':'blocked','durable':False,'code':'legacy_outcome_unknown','waiting':True},False
         if cancel and row['server_id'] is None:
             # Lost ACK may already have committed the request. Reconcile before
             # cancellation; never claim that deleting a local envelope stopped it.
@@ -152,20 +209,21 @@ class RemoteClient(RemoteConnection):
                 row=self.spool.request_record(handle)
                 if result.get('state') in {'completed','failed','cancelled','expired'}:
                     if consume:self.spool.request_finish(handle)
-                    return result
+                    return result,False
             remaining=deadline-time.monotonic()
-            if remaining<=0:return {'request_id':row['server_id'],'state':'pending','durable':True,'waiting':True}
+            if remaining<=0:return {'request_id':row['server_id'],'state':'pending','durable':True,'waiting':True},False
             result=self.request('POST' if cancel else 'GET','/v1/requests/'+row['server_id']+('/cancel' if cancel else ''),seconds=remaining)
             if consume and result.get('state') in {'completed','failed','cancelled','expired'}:self.spool.request_finish(handle)
-            return result
+            return result,False
         except RemoteError as exc:
             self.spool.request_error(handle,exc.code)
             if exc.status==404 and row['server_id'] is not None:
                 if consume:self.spool.request_finish(handle)
-                return {'request_id':row['server_id'],'state':'expired','durable':True,'code':'result_expired'}
+                return {'request_id':row['server_id'],'state':'expired','durable':True,'code':'result_expired'},False
             terminal=400<=exc.status<500 and exc.status not in {408,429}
-            return {'request_id':row['server_id'] or handle,'state':'blocked' if terminal else 'pending',
-                    'durable':row['server_id'] is not None,'code':exc.code,'waiting':True}
+            return ({'request_id':row['server_id'] or handle,'state':'blocked' if terminal else 'pending',
+                     'durable':row['server_id'] is not None,'code':exc.code,'waiting':True},
+                    row['server_id'] is None and _transient(exc))
 
     def flush_requests(self,*,max_items=8,seconds=2):
         started=time.monotonic();completed=0

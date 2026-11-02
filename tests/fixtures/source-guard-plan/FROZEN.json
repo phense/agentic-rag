@@ -1,0 +1,6 @@
+{
+  "source_revision": "fc57d8a",
+  "original_migration": "sql/021_service_scope.sql",
+  "before_sha256": "1d3f560f7bb470c787addf707f68b843d4da2d65399e77ea25e4c66c838501ce",
+  "purpose": "Literal source permission predicate before plan reuse refactor; immutable compatibility arm"
+}

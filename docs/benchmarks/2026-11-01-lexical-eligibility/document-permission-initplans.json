@@ -1,0 +1,62 @@
+{
+  "change": "document-permission-initplans",
+  "release": "0.6.22",
+  "schema": 35,
+  "baseline": "17479b17ff1bb14764dd66c7b481c42e2d1994c4",
+  "fixture_sha256": "885a62d47044adcaac775edac16720a51f25c79f7e2a0866510189b84bb647ed",
+  "scope": "Local synthetic PG17 tests and populated archived0.6.21 upgrade/retry/independent restore/rollback/reapply; includes non-superuser owner. Providers simulated, no production change.",
+  "red": "Frozen plan-work regression on034 fails for missing InitPlan before035. One post-code shadowing characterization added; no TDD claim for it.",
+  "author_test_corrections": [
+    "021 restrictive UPDATE policy filters non-writable OLD rows; assert this baseline/current outcome explicitly.",
+    "Dump can normalize explicit default ACL to NULL: compare expanded effective grantees/grantors/privileges/grant options."
+  ],
+  "checks": [
+    {
+      "head": "55ddf83b8c3babca6e56e2aded8bcedc3eeb80ed",
+      "command": [
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--tb=short",
+        "tests/service/test_document_permission_initplans.py",
+        "tests/service/test_lexical_upgrade.py"
+      ],
+      "started": "2026-11-02T06:32:32.674687+00:00",
+      "finished": "2026-11-02T06:33:32.106960+00:00",
+      "exit_code": 0,
+      "seconds": 59.43,
+      "log_sha256": "a55c5e7dda6d74fe91119783a75979481769c3107a664fdc19d9adda1e01502c",
+      "sources_unchanged": true,
+      "passed": 80,
+      "input_hashes_aggregate_sha256": "28de45db244a69efa1f4ef596a63f1d5b15ff8cef5a0d97855298092ff8d83c3"
+    },
+    {
+      "head": "55ddf83b8c3babca6e56e2aded8bcedc3eeb80ed",
+      "command": [
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--tb=short",
+        "tests/test_docs_continuity.py"
+      ],
+      "started": "2026-11-02T06:31:04.348394+00:00",
+      "finished": "2026-11-02T06:31:06.597212+00:00",
+      "exit_code": 0,
+      "seconds": 2.25,
+      "log_sha256": "567196731b6304177f02157e4d6b8dd8f7562e082ffb278d8a710e71d98616d4",
+      "sources_unchanged": true,
+      "passed": 17,
+      "input_hashes_aggregate_sha256": "63e22001b67449c353905384a0a1b8aba5d101e271e3af9a5251a3b1a267cee6"
+    }
+  ],
+  "full_suite": "OPEN: previous2515 pass is on17479b1 before035",
+  "effectiveness_benchmark": "OPEN: no savings claimed",
+  "physical": "FAIL: previous valididle40 p95=11.42878s; target remains strict<11s in every40-client phase",
+  "independent_security_and_playbook_review": "OPEN"
+}

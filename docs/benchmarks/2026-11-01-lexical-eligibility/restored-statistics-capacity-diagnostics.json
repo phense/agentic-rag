@@ -1,0 +1,1394 @@
+{
+  "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+  "diagnostic_only": true,
+  "acceptance": false,
+  "production_changed": false,
+  "restored_statistics": {
+    "protocol": {
+      "hypothesis": "Absent restored statistics explain profile fingerprint planning work; fixed fresh copy, autoanalyze disabled ONLY here to distinguish before/after explicit ANALYZE",
+      "created_before_execution": true,
+      "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; old diagnostic dist-info label only, exact Git runtime; no wheel acceptance",
+      "source_dump_sha256": "22093ddf8149cc5a02a2d0c02282fffdc0b2290356cf1032c9b75e222ee59f60",
+      "synthetic_query_only": true,
+      "provider_calls": 0,
+      "production_changed": false
+    },
+    "result": {
+      "diagnostic_only": true,
+      "arms": [
+        {
+          "arm": "restored_without_statistics",
+          "table_statistics": [
+            {
+              "relname": "assertion_sources",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 4928,
+              "n_mod_since_analyze": 4928
+            },
+            {
+              "relname": "chunks",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 30076,
+              "n_mod_since_analyze": 30076
+            },
+            {
+              "relname": "claim_evidence",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 15800,
+              "n_mod_since_analyze": 15800
+            },
+            {
+              "relname": "claim_records",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 17991,
+              "n_mod_since_analyze": 17991
+            },
+            {
+              "relname": "documents",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 24505,
+              "n_mod_since_analyze": 24505
+            },
+            {
+              "relname": "fact_assertions",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 4928,
+              "n_mod_since_analyze": 4928
+            },
+            {
+              "relname": "knowledge_sources",
+              "analyzed": false,
+              "autoanalyzed": false,
+              "n_live_tup": 3689,
+              "n_mod_since_analyze": 3689
+            }
+          ],
+          "runs": [
+            {
+              "context_seconds": 1.4231100098695606,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 814.071,
+              "revision_planning_ms": 1.836,
+              "jit": {
+                "Functions": 107,
+                "Options": {
+                  "Inlining": true,
+                  "Optimization": true,
+                  "Expressions": true,
+                  "Deforming": true
+                },
+                "Timing": {
+                  "Generation": {
+                    "Deform": 1.62,
+                    "Total": 4.907
+                  },
+                  "Inlining": 19.402,
+                  "Optimization": 422.749,
+                  "Emission": 351.472,
+                  "Total": 798.529
+                }
+              }
+            },
+            {
+              "context_seconds": 1.3566589569672942,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 865.588,
+              "revision_planning_ms": 1.852,
+              "jit": {
+                "Functions": 107,
+                "Options": {
+                  "Inlining": true,
+                  "Optimization": true,
+                  "Expressions": true,
+                  "Deforming": true
+                },
+                "Timing": {
+                  "Generation": {
+                    "Deform": 1.553,
+                    "Total": 4.977
+                  },
+                  "Inlining": 19.96,
+                  "Optimization": 462.562,
+                  "Emission": 362.028,
+                  "Total": 849.528
+                }
+              }
+            },
+            {
+              "context_seconds": 1.3477021290455014,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 838.417,
+              "revision_planning_ms": 1.971,
+              "jit": {
+                "Functions": 107,
+                "Options": {
+                  "Inlining": true,
+                  "Optimization": true,
+                  "Expressions": true,
+                  "Deforming": true
+                },
+                "Timing": {
+                  "Generation": {
+                    "Deform": 1.584,
+                    "Total": 4.921
+                  },
+                  "Inlining": 19.659,
+                  "Optimization": 447.905,
+                  "Emission": 350.517,
+                  "Total": 823.002
+                }
+              }
+            }
+          ]
+        },
+        {
+          "arm": "after_analyze",
+          "table_statistics": [
+            {
+              "relname": "assertion_sources",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 4928,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "chunks",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 30076,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "claim_evidence",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 15800,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "claim_records",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 17991,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "documents",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 24505,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "fact_assertions",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 4928,
+              "n_mod_since_analyze": 0
+            },
+            {
+              "relname": "knowledge_sources",
+              "analyzed": true,
+              "autoanalyzed": false,
+              "n_live_tup": 3689,
+              "n_mod_since_analyze": 0
+            }
+          ],
+          "runs": [
+            {
+              "context_seconds": 0.47810147190466523,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 14.953,
+              "revision_planning_ms": 2.022,
+              "jit": null
+            },
+            {
+              "context_seconds": 0.45716076996177435,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 15.159,
+              "revision_planning_ms": 2.148,
+              "jit": null
+            },
+            {
+              "context_seconds": 0.4452679438982159,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "revision_execution_ms": 14.633,
+              "revision_planning_ms": 1.928,
+              "jit": null
+            }
+          ]
+        }
+      ],
+      "provider_calls": 0,
+      "production_changed": false,
+      "originals_unchanged": true,
+      "context_equal": true,
+      "complete": true
+    },
+    "cleanup": {
+      "owned_pg_stopped": true,
+      "production_changed": false
+    }
+  },
+  "analyzed_capacity": {
+    "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+    "diagnostic_only": true,
+    "acceptance": false,
+    "production_changed": false,
+    "arms": [
+      {
+        "label": "analyzed_two",
+        "supervisor_arm": {
+          "consumers": 2,
+          "model_threads": 0,
+          "exit_code": 0,
+          "seconds": 107.24278211593628
+        },
+        "protocol": {
+          "purpose": "Discriminate restored statistics and model CPU contention; diagnostic, not final acceptance",
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+          "created_before_execution": true,
+          "arms": [
+            {
+              "consumers": 2,
+              "model_threads": "default/no override"
+            },
+            {
+              "consumers": 2,
+              "model_threads": 2
+            }
+          ],
+          "clients": 40,
+          "rounds": 3,
+          "phases": [
+            "idle40"
+          ],
+          "setup": "Fresh owned schema024 restore then migrations034 then explicit ANALYZE, assert seven key table stats present before launching API",
+          "limits": [
+            "No background acceptance",
+            "Polling harness differs from actual client",
+            "No product setting or deployment change",
+            "No private input to provider",
+            "Preserve failures, owned processes stopped"
+          ],
+          "source_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+          "controller_sha256": "840e2b7ac74daef3ebcf338ba350ac11904aea6dbd33c65cd520ddb16ac5831a"
+        },
+        "result": {
+          "diagnostic_only": true,
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; diagnostic harness only: ANALYZE/consumers2/num_thread0",
+          "model_threads": 0,
+          "consumers": 2,
+          "phases": [
+            {
+              "phase": "idle40",
+              "started_epoch": 1793549625.9243093,
+              "finished_epoch": 1793549676.4504466,
+              "clients": 40,
+              "rounds": 3,
+              "offered": 120,
+              "owned_cgroup_cpu_seconds": 82.83143199999999,
+              "owned_model_cgroup_cpu_seconds": 60.130038,
+              "all_completed": true,
+              "tools": {
+                "metadata": {
+                  "offered": 42,
+                  "completed": 42,
+                  "total_seconds": {
+                    "n": 42,
+                    "p50": 8.62820302741602,
+                    "p95": 13.806259779375974,
+                    "max": 15.719819150865078
+                  },
+                  "wait_seconds": {
+                    "n": 42,
+                    "p50": 6.6369545,
+                    "p95": 11.307873449999997,
+                    "max": 13.276232
+                  },
+                  "execution_seconds": {
+                    "n": 42,
+                    "p50": 0.13124750000000002,
+                    "p95": 0.20436035,
+                    "max": 0.229232
+                  },
+                  "retry_requests": 158,
+                  "states": {
+                    "completed": 42
+                  }
+                },
+                "context": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 8.966617288067937,
+                    "p95": 15.168361011333765,
+                    "max": 16.70627537299879
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 6.78045,
+                    "p95": 11.808034900000001,
+                    "max": 12.457388
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 0.577115,
+                    "p95": 0.6915455,
+                    "max": 0.765245
+                  },
+                  "retry_requests": 142,
+                  "states": {
+                    "completed": 39
+                  }
+                },
+                "search": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 9.749143969034776,
+                    "p95": 16.424817172903566,
+                    "max": 17.644581521861255
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 6.432769,
+                    "p95": 11.9019365,
+                    "max": 13.148219
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 1.515876,
+                    "p95": 2.0659840000000003,
+                    "max": 2.547079
+                  },
+                  "retry_requests": 159,
+                  "states": {
+                    "completed": 39
+                  }
+                }
+              },
+              "owners": {
+                "0": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "1": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "2": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "3": {
+                  "offered": 30,
+                  "completed": 30
+                }
+              }
+            }
+          ],
+          "model_calls": {
+            "ended": 39,
+            "errors": 0,
+            "seconds": {
+              "n": 39,
+              "p50": 0.7526521682739258,
+              "p95": 1.0847905635833743,
+              "max": 1.2688627243041992
+            }
+          },
+          "background_tested": false,
+          "acceptance": false
+        },
+        "cleanup": {
+          "owned_children_exited": true,
+          "owned_pg_stopped": true,
+          "production_services_touched": false
+        },
+        "statistics": [
+          {
+            "relname": "assertion_sources",
+            "analyzed": true
+          },
+          {
+            "relname": "chunks",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_evidence",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_records",
+            "analyzed": true
+          },
+          {
+            "relname": "documents",
+            "analyzed": true
+          },
+          {
+            "relname": "fact_assertions",
+            "analyzed": true
+          },
+          {
+            "relname": "knowledge_sources",
+            "analyzed": true
+          }
+        ]
+      },
+      {
+        "label": "analyzed_two",
+        "supervisor_arm": {
+          "consumers": 2,
+          "model_threads": 2,
+          "exit_code": 0,
+          "seconds": 96.67324495315552
+        },
+        "protocol": {
+          "purpose": "Discriminate restored statistics and model CPU contention; diagnostic, not final acceptance",
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+          "created_before_execution": true,
+          "arms": [
+            {
+              "consumers": 2,
+              "model_threads": "default/no override"
+            },
+            {
+              "consumers": 2,
+              "model_threads": 2
+            }
+          ],
+          "clients": 40,
+          "rounds": 3,
+          "phases": [
+            "idle40"
+          ],
+          "setup": "Fresh owned schema024 restore then migrations034 then explicit ANALYZE, assert seven key table stats present before launching API",
+          "limits": [
+            "No background acceptance",
+            "Polling harness differs from actual client",
+            "No product setting or deployment change",
+            "No private input to provider",
+            "Preserve failures, owned processes stopped"
+          ],
+          "source_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+          "controller_sha256": "840e2b7ac74daef3ebcf338ba350ac11904aea6dbd33c65cd520ddb16ac5831a"
+        },
+        "result": {
+          "diagnostic_only": true,
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; diagnostic harness only: ANALYZE/consumers2/num_thread2",
+          "model_threads": 2,
+          "consumers": 2,
+          "phases": [
+            {
+              "phase": "idle40",
+              "started_epoch": 1793549732.3327088,
+              "finished_epoch": 1793549773.1371624,
+              "clients": 40,
+              "rounds": 3,
+              "offered": 120,
+              "owned_cgroup_cpu_seconds": 80.030777,
+              "owned_model_cgroup_cpu_seconds": 20.451723,
+              "all_completed": true,
+              "tools": {
+                "metadata": {
+                  "offered": 42,
+                  "completed": 42,
+                  "total_seconds": {
+                    "n": 42,
+                    "p50": 6.806456817896105,
+                    "p95": 12.394566330662926,
+                    "max": 12.735784257994965
+                  },
+                  "wait_seconds": {
+                    "n": 42,
+                    "p50": 5.1345905,
+                    "p95": 9.184894449999998,
+                    "max": 10.044784
+                  },
+                  "execution_seconds": {
+                    "n": 42,
+                    "p50": 0.1246255,
+                    "p95": 0.14966734999999998,
+                    "max": 0.187897
+                  },
+                  "retry_requests": 166,
+                  "states": {
+                    "completed": 42
+                  }
+                },
+                "context": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 6.568349499022588,
+                    "p95": 13.014263865770772,
+                    "max": 13.513230358948931
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 3.866386,
+                    "p95": 9.0679314,
+                    "max": 9.989751
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 0.554129,
+                    "p95": 0.7093644,
+                    "max": 0.736774
+                  },
+                  "retry_requests": 153,
+                  "states": {
+                    "completed": 39
+                  }
+                },
+                "search": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 8.496979351853952,
+                    "p95": 13.500862431456335,
+                    "max": 13.637718414887786
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 4.765443,
+                    "p95": 8.900513100000001,
+                    "max": 10.211179
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 1.180232,
+                    "p95": 1.4034857,
+                    "max": 1.599083
+                  },
+                  "retry_requests": 169,
+                  "states": {
+                    "completed": 39
+                  }
+                }
+              },
+              "owners": {
+                "0": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "1": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "2": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "3": {
+                  "offered": 30,
+                  "completed": 30
+                }
+              }
+            }
+          ],
+          "model_calls": {
+            "ended": 39,
+            "errors": 0,
+            "seconds": {
+              "n": 39,
+              "p50": 0.39972424507141113,
+              "p95": 0.44819343090057373,
+              "max": 0.524543046951294
+            }
+          },
+          "background_tested": false,
+          "acceptance": false
+        },
+        "cleanup": {
+          "owned_children_exited": true,
+          "owned_pg_stopped": true,
+          "production_services_touched": false
+        },
+        "statistics": [
+          {
+            "relname": "assertion_sources",
+            "analyzed": true
+          },
+          {
+            "relname": "chunks",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_evidence",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_records",
+            "analyzed": true
+          },
+          {
+            "relname": "documents",
+            "analyzed": true
+          },
+          {
+            "relname": "fact_assertions",
+            "analyzed": true
+          },
+          {
+            "relname": "knowledge_sources",
+            "analyzed": true
+          }
+        ]
+      },
+      {
+        "label": "analyzed_four",
+        "supervisor_arm": {
+          "consumers": 4,
+          "model_threads": 2,
+          "exit_code": 0,
+          "seconds": 86.14604473114014
+        },
+        "protocol": {
+          "purpose": "Discriminate restored statistics and model CPU contention; diagnostic, not final acceptance",
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+          "created_before_execution": true,
+          "arms": [
+            {
+              "consumers": 4,
+              "model_threads": 2
+            }
+          ],
+          "clients": 40,
+          "rounds": 3,
+          "phases": [
+            "idle40"
+          ],
+          "setup": "Fresh owned schema024 restore then migrations034 then explicit ANALYZE, assert seven key table stats present before launching API",
+          "limits": [
+            "No background acceptance",
+            "Polling harness differs from actual client",
+            "No product setting or deployment change",
+            "No private input to provider",
+            "Preserve failures, owned processes stopped"
+          ],
+          "source_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+          "controller_sha256": "840e2b7ac74daef3ebcf338ba350ac11904aea6dbd33c65cd520ddb16ac5831a",
+          "hypothesis": "Two consumers leave available CPU idle with analyzed copy and two model threads; four consumers may increase throughput without additional CPU work per request."
+        },
+        "result": {
+          "diagnostic_only": true,
+          "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; diagnostic harness only: ANALYZE/consumers4/num_thread2",
+          "model_threads": 2,
+          "consumers": 4,
+          "phases": [
+            {
+              "phase": "idle40",
+              "started_epoch": 1793549870.2937155,
+              "finished_epoch": 1793549900.4418306,
+              "clients": 40,
+              "rounds": 3,
+              "offered": 120,
+              "owned_cgroup_cpu_seconds": 75.42314800000001,
+              "owned_model_cgroup_cpu_seconds": 21.191322,
+              "all_completed": true,
+              "tools": {
+                "metadata": {
+                  "offered": 42,
+                  "completed": 42,
+                  "total_seconds": {
+                    "n": 42,
+                    "p50": 4.271957977907732,
+                    "p95": 7.934490006917622,
+                    "max": 9.69321606005542
+                  },
+                  "wait_seconds": {
+                    "n": 42,
+                    "p50": 2.1805075,
+                    "p95": 5.0801952,
+                    "max": 6.321728
+                  },
+                  "execution_seconds": {
+                    "n": 42,
+                    "p50": 0.182192,
+                    "p95": 0.27518075,
+                    "max": 0.302457
+                  },
+                  "retry_requests": 139,
+                  "states": {
+                    "completed": 42
+                  }
+                },
+                "context": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 5.020059757865965,
+                    "p95": 9.503553261305205,
+                    "max": 9.738225230015814
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 2.554534,
+                    "p95": 5.9823019,
+                    "max": 6.698702
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 0.761357,
+                    "p95": 1.0236045000000003,
+                    "max": 1.126099
+                  },
+                  "retry_requests": 140,
+                  "states": {
+                    "completed": 39
+                  }
+                },
+                "search": {
+                  "offered": 39,
+                  "completed": 39,
+                  "total_seconds": {
+                    "n": 39,
+                    "p50": 6.668365749064833,
+                    "p95": 9.804520923295058,
+                    "max": 10.265566933900118
+                  },
+                  "wait_seconds": {
+                    "n": 39,
+                    "p50": 3.087072,
+                    "p95": 5.4709943,
+                    "max": 6.121149
+                  },
+                  "execution_seconds": {
+                    "n": 39,
+                    "p50": 1.624866,
+                    "p95": 2.0695774000000005,
+                    "max": 2.409951
+                  },
+                  "retry_requests": 157,
+                  "states": {
+                    "completed": 39
+                  }
+                }
+              },
+              "owners": {
+                "0": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "1": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "2": {
+                  "offered": 30,
+                  "completed": 30
+                },
+                "3": {
+                  "offered": 30,
+                  "completed": 30
+                }
+              }
+            }
+          ],
+          "model_calls": {
+            "ended": 39,
+            "errors": 0,
+            "seconds": {
+              "n": 39,
+              "p50": 0.4477086067199707,
+              "p95": 0.5502089262008667,
+              "max": 0.5592737197875977
+            }
+          },
+          "background_tested": false,
+          "acceptance": false
+        },
+        "cleanup": {
+          "owned_children_exited": true,
+          "owned_pg_stopped": true,
+          "production_services_touched": false
+        },
+        "statistics": [
+          {
+            "relname": "assertion_sources",
+            "analyzed": true
+          },
+          {
+            "relname": "chunks",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_evidence",
+            "analyzed": true
+          },
+          {
+            "relname": "claim_records",
+            "analyzed": true
+          },
+          {
+            "relname": "documents",
+            "analyzed": true
+          },
+          {
+            "relname": "fact_assertions",
+            "analyzed": true
+          },
+          {
+            "relname": "knowledge_sources",
+            "analyzed": true
+          }
+        ]
+      }
+    ],
+    "rolled_back_policy_probe": {
+      "diagnostic_only": true,
+      "arms": [
+        {
+          "arm": "baseline",
+          "runs": [
+            {
+              "context_seconds": 0.6398759440053254,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 54.108
+            },
+            {
+              "context_seconds": 0.4715906500350684,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 53.48
+            },
+            {
+              "context_seconds": 0.4629892320372164,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 53.319
+            }
+          ]
+        },
+        {
+          "arm": "initplan",
+          "runs": [
+            {
+              "context_seconds": 0.4294481270480901,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 20.327
+            },
+            {
+              "context_seconds": 0.41559724998660386,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 15.273
+            },
+            {
+              "context_seconds": 0.41869103792123497,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 23.691
+            }
+          ]
+        },
+        {
+          "arm": "baseline_restored",
+          "runs": [
+            {
+              "context_seconds": 0.47944823605939746,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 55.781
+            },
+            {
+              "context_seconds": 0.45982748200185597,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 55.789
+            },
+            {
+              "context_seconds": 0.46856192708946764,
+              "packet_sha256": "6ae1ab9191b7f8d1d984efd0cd984540683a0aa9f296e9917d4d0a3fcb4852f2",
+              "count_execution_ms": 56.737
+            }
+          ]
+        }
+      ],
+      "provider_calls": 0,
+      "production_changed": false,
+      "context_equal": true,
+      "complete": true
+    },
+    "rolled_back_policy_probe_cleanup": {
+      "owned_pg_stopped": true,
+      "policy_restored": true,
+      "production_changed": false
+    },
+    "limits": [
+      "3 rounds, 39 successful search samples per arm, idle only",
+      "Four consumers/model thread options remain harness overrides",
+      "No complete response or authorization acceptance under load",
+      "No actual RemoteClient delivery-latency acceptance",
+      "RLS experiment restored and not adopted; roughly 50ms context reduction alone does not demonstrate target attainment"
+    ]
+  },
+  "analyzed_background": {
+    "supervisor": {
+      "arms": [
+        {
+          "consumers": 4,
+          "model_threads": 2,
+          "exit_code": 0,
+          "seconds": 313.46316385269165
+        }
+      ],
+      "diagnostic_only": true,
+      "production_changes": false,
+      "complete": true,
+      "owned_model_inactive": true
+    },
+    "protocol": {
+      "purpose": "Discriminate restored statistics and model CPU contention; diagnostic, not final acceptance",
+      "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+      "created_before_execution": true,
+      "arms": [
+        {
+          "consumers": 4,
+          "model_threads": 2
+        }
+      ],
+      "clients": 40,
+      "rounds": 3,
+      "phases": [
+        "idle40",
+        "growing40",
+        "noarrivals40"
+      ],
+      "setup": "Fresh owned schema024 restore then migrations034 then explicit ANALYZE, assert seven key table stats present before launching API",
+      "limits": [
+        "Diagnostic not acceptance: 3rounds and harness polling",
+        "No product setting or deployment change",
+        "No private input to model",
+        "Preserve all failures and eventual source drain",
+        "Policy experiment not adopted; all canonical policies unchanged"
+      ],
+      "source_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+      "controller_sha256": "9b6b55686f02291915ef1abd0789a6f43f8d34c4ba17be6f5a59b79ce911f11a",
+      "hypothesis": "Measure background non-preemption cost after analyzed setup at four diagnostic consumers/two model threads; preserve same13 synthetic originals and actual in-flight background overlap."
+    },
+    "result": {
+      "model_runtime": "owned11435 MemoryHigh=MemoryMax=2GiB, CPUQuota350%, one model/parallel1",
+      "installed_distribution": "0.6.22",
+      "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a; diagnostic harness only: ANALYZE/consumers4/num_thread2",
+      "cpu_count": 4,
+      "phases": [
+        {
+          "phase": "idle40",
+          "started_epoch": 1793550121.9191515,
+          "finished_epoch": 1793550150.8123846,
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "owned_cgroup_cpu_seconds": 73.17931000000002,
+          "owned_model_cgroup_cpu_seconds": 20.995575,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "offered": 42,
+              "completed": 42,
+              "total_seconds": {
+                "n": 42,
+                "p50": 3.6562561409082264,
+                "p95": 8.930425994133111,
+                "max": 9.199951596092433
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 1.8853810000000002,
+                "p95": 5.64956545,
+                "max": 6.79946
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.184469,
+                "p95": 0.23940579999999997,
+                "max": 0.259735
+              },
+              "retry_requests": 158,
+              "states": {
+                "completed": 42
+              }
+            },
+            "context": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 4.045323014026508,
+                "p95": 9.062346637621522,
+                "max": 10.124601289164275
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 1.71606,
+                "p95": 5.392734600000001,
+                "max": 6.013916
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.722342,
+                "p95": 0.9434899000000001,
+                "max": 1.01437
+              },
+              "retry_requests": 133,
+              "states": {
+                "completed": 39
+              }
+            },
+            "search": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 6.898346198955551,
+                "p95": 9.406946147442795,
+                "max": 9.792545915814117
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 3.197531,
+                "p95": 5.2064849,
+                "max": 5.622972
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 1.587768,
+                "p95": 1.9786918000000002,
+                "max": 1.997425
+              },
+              "retry_requests": 170,
+              "states": {
+                "completed": 39
+              }
+            }
+          },
+          "owners": {
+            "0": {
+              "offered": 30,
+              "completed": 30
+            },
+            "1": {
+              "offered": 30,
+              "completed": 30
+            },
+            "2": {
+              "offered": 30,
+              "completed": 30
+            },
+            "3": {
+              "offered": 30,
+              "completed": 30
+            }
+          }
+        },
+        {
+          "phase": "growing40",
+          "started_epoch": 1793550152.011664,
+          "finished_epoch": 1793550186.746317,
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "owned_cgroup_cpu_seconds": 81.593908,
+          "owned_model_cgroup_cpu_seconds": 31.948432,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "offered": 42,
+              "completed": 42,
+              "total_seconds": {
+                "n": 42,
+                "p50": 5.720442991121672,
+                "p95": 12.385555265739095,
+                "max": 13.531433962052688
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 3.6028124999999998,
+                "p95": 9.8810884,
+                "max": 10.694144
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.185488,
+                "p95": 0.30471699999999996,
+                "max": 0.347955
+              },
+              "retry_requests": 169,
+              "states": {
+                "completed": 42
+              }
+            },
+            "context": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 6.430084662977606,
+                "p95": 10.329496564343572,
+                "max": 12.879560789093375
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 3.862189,
+                "p95": 7.1357666,
+                "max": 9.616527
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.759958,
+                "p95": 1.1519181000000003,
+                "max": 1.528069
+              },
+              "retry_requests": 144,
+              "states": {
+                "completed": 39
+              }
+            },
+            "search": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 8.456298884935677,
+                "p95": 12.931179482466542,
+                "max": 14.276409134967253
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 3.36319,
+                "p95": 8.844413,
+                "max": 10.0702
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 1.697478,
+                "p95": 5.479912500000001,
+                "max": 7.145399
+              },
+              "retry_requests": 151,
+              "states": {
+                "completed": 39
+              }
+            }
+          },
+          "owners": {
+            "0": {
+              "offered": 30,
+              "completed": 30
+            },
+            "1": {
+              "offered": 30,
+              "completed": 30
+            },
+            "2": {
+              "offered": 30,
+              "completed": 30
+            },
+            "3": {
+              "offered": 30,
+              "completed": 30
+            }
+          }
+        },
+        {
+          "phase": "noarrivals40",
+          "started_epoch": 1793550188.8454096,
+          "finished_epoch": 1793550223.8444512,
+          "clients": 40,
+          "rounds": 3,
+          "offered": 120,
+          "owned_cgroup_cpu_seconds": 79.44319899999999,
+          "owned_model_cgroup_cpu_seconds": 32.459990999999995,
+          "all_completed": true,
+          "tools": {
+            "metadata": {
+              "offered": 42,
+              "completed": 42,
+              "total_seconds": {
+                "n": 42,
+                "p50": 5.608641456463374,
+                "p95": 13.782530330633744,
+                "max": 14.1168109360151
+              },
+              "wait_seconds": {
+                "n": 42,
+                "p50": 3.39015,
+                "p95": 11.315751999999998,
+                "max": 11.513348
+              },
+              "execution_seconds": {
+                "n": 42,
+                "p50": 0.17206100000000002,
+                "p95": 0.28533804999999995,
+                "max": 0.312824
+              },
+              "retry_requests": 155,
+              "states": {
+                "completed": 42
+              }
+            },
+            "context": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 5.068080825963989,
+                "p95": 14.608255015290343,
+                "max": 14.80691157002002
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 2.32673,
+                "p95": 11.464028200000001,
+                "max": 11.975073
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 0.762395,
+                "p95": 1.0017181000000004,
+                "max": 1.36852
+              },
+              "retry_requests": 142,
+              "states": {
+                "completed": 39
+              }
+            },
+            "search": {
+              "offered": 39,
+              "completed": 39,
+              "total_seconds": {
+                "n": 39,
+                "p50": 8.044166170991957,
+                "p95": 13.583668204816059,
+                "max": 15.885223617078736
+              },
+              "wait_seconds": {
+                "n": 39,
+                "p50": 3.388976,
+                "p95": 10.277882700000001,
+                "max": 11.724394
+              },
+              "execution_seconds": {
+                "n": 39,
+                "p50": 1.556599,
+                "p95": 6.5121424,
+                "max": 6.681816
+              },
+              "retry_requests": 145,
+              "states": {
+                "completed": 39
+              }
+            }
+          },
+          "owners": {
+            "0": {
+              "offered": 30,
+              "completed": 30
+            },
+            "1": {
+              "offered": 30,
+              "completed": 30
+            },
+            "2": {
+              "offered": 30,
+              "completed": 30
+            },
+            "3": {
+              "offered": 30,
+              "completed": 30
+            }
+          }
+        }
+      ],
+      "source_windows": 13,
+      "arrival_count_during_growing": 12,
+      "source_states": {
+        "applied": 13
+      },
+      "all_sources_applied": true,
+      "model_calls": {
+        "foreground": 117,
+        "background": 28,
+        "background_seconds": {
+          "n": 28,
+          "p50": 5.48194944858551,
+          "p95": 5.907116222381592,
+          "max": 6.276072978973389
+        },
+        "errors": 0
+      },
+      "observed_background_starts": [
+        1793550152.0026627,
+        1793550188.8342671
+      ],
+      "poll_interval_seconds": 1.05,
+      "extraction_provider": "scripted synthetic result; not LLM quality/latency",
+      "limits": [
+        "Actual local CPU embeddings; owned Ollama runtime on11435, same read-only bge-m3-q8 model blobs",
+        "Other production services remained running; no production DB/config/service writes",
+        "Read-only populated schema024 source migrated only on own PG55468 copy",
+        "No long soak, TLS or cross-host traffic claim",
+        "Maintainer target: search total p95<=10seconds per40-client phase; bounded bursts, not a soak",
+        "Test and owned-model CPU accounted separately per phase; production Ollama outside both groups; no production service limit changed"
+      ],
+      "all_clients_completed": true,
+      "diagnostic_only": true,
+      "consumer_override": 4,
+      "acceptance": false,
+      "latency_target_seconds": 10,
+      "target_40client_phases_pass": false
+    },
+    "cleanup": {
+      "owned_children_exited": true,
+      "owned_pg_stopped": true,
+      "production_services_touched": false
+    },
+    "statistics": [
+      {
+        "relname": "assertion_sources",
+        "analyzed": true
+      },
+      {
+        "relname": "chunks",
+        "analyzed": true
+      },
+      {
+        "relname": "claim_evidence",
+        "analyzed": true
+      },
+      {
+        "relname": "claim_records",
+        "analyzed": true
+      },
+      {
+        "relname": "documents",
+        "analyzed": true
+      },
+      {
+        "relname": "fact_assertions",
+        "analyzed": true
+      },
+      {
+        "relname": "knowledge_sources",
+        "analyzed": true
+      }
+    ]
+  },
+  "limits": [
+    "All references are short diagnostic bursts, not final acceptance",
+    "No real-client or under-load scoped-result/citation acceptance",
+    "Consumer/thread alternatives remain harness-only",
+    "Policy experiment fully restored and not adopted",
+    "Final full suite pending",
+    "Shared default executor, pre-ACK durable-wait behavior, and fallback-warning checks need final protocol coverage"
+  ]
+}

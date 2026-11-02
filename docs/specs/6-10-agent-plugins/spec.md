@@ -37,11 +37,17 @@ shortening context and extracted by one lower-priority central worker.
   fair dispatch across owners/departments, finite polling and garbage collection.
   Full admission remains explicit backpressure. Expose aggregate diagnostics
   without prompt/result/credential disclosure.
+  A fresh queued client must survive transient discovery-slot contention within
+  its existing caller deadline, preserving one durable request identity; a
+  pending handle is never a completed result (plan A3).
 - FR07: Interactive knowledge/context first, capture next, extraction last.
   One central extraction worker; foreground demand pauses new background jobs
   and model batches, including indirect shared database/Ollama work. Keep model
   residency/concurrency finite; bound already-running background model work.
   Resume background progress after foreground pressure subsides.
+  An optional, resource-bounded local background embedding lane may isolate
+  already-running inference; retain full inputs, the same verified model identity,
+  default single-lane compatibility and eventual lossless background progress.
 - FR08: Standalone remains default. Additive populated023→024 upgrade preserves
   original knowledge, embeddings, ACLs, pending source jobs and history; require
   verified backup and documented staged server/client upgrade/code rollback.
@@ -66,3 +72,10 @@ remain compatible, full suite and applicable Node tests pass; independent review
 leaves no Critical/High/Medium defect, Low findings append to75.
 AC05: Real4-vCPU/8-GiB copy measures interactive p50/p95 and background progress,
 CPU/PSS/model residency/disk/backlogs under20–40clients; no throughput/SLA invention.
+Maintainer revision2026-11-01: the earlier <=10-second target is superseded.
+Before Issue68/92 closure, successful search
+end-to-end p95 must be strictly <11seconds, including admission, queueing, execution and
+client observation, with40 active clients and background extraction enabled on
+that reference class. Preserve the existing mixed-tool workload and distinct
+queries; report each contended phase separately, failures and eventual lossless
+backlog progress. This is a bounded acceptance target, not a production SLA.

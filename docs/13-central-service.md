@@ -375,8 +375,20 @@ for an explicit reviewed replay plan. No automatic rebind is provided.
 | Client |16MiB logical pending/raw/handoff budget;2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
 | Central writes |8GiB database budget,2GiB free-space reserve,1,000 pending jobs,100 pending source windows per owner,64MiB pending source payloads; explicit429/507/503 pressure |
 | Worker | One database-fenced inference worker; retry with backoff; SIGTERM stops after current job; process group killed after330s by example unit |
+| Queued tools | Default two consumers per API process, `[service] request_consumers` 1–4; startup fails above half of the default thread pool; 12 control requests/s per namespace and four control slots unchanged |
+| Model admission | One shared embedding lock by default; optional `[ollama] background_url` gives extraction embeddings a second daemon with its own lock and a 10–60s deadline ([PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon)) |
+| Client polling | After acknowledgement: server `retry_after` within poll interval..8s, +0–25% jitter; before acknowledgement: same request resent after 0.3s on 429/408/timeouts until the caller's deadline; capability discovery retries only HTTP429 `capacity_exceeded` within that same deadline |
 | Logs | Four1MiB worker/client files;8KiB UTF-8 records; namespace journal64MiB persistent/16MiB runtime in supplied example |
 | Backup | Finite configured counts, conservative free-space check before dump/restore rehearsal; unique private artifacts; previous backups survive pressure |
+
+Fresh clients can encounter full control slots during capability discovery.
+Version0.6.22 retries that specific capacity refusal with0–25% jitter without
+staging another request. Other discovery failures remain immediate and keep
+the pending local handle. Install the updated client and restart its process;
+existing protocol1 servers, admission limits and pending spools need no change.
+Client-code rollback uses the same spool; retain pending handles rather than
+deleting or restaging them. This requires no additional database migration
+beyond the documented0.6.21→0.6.22 upgrade and verified-backup procedure.
 
 Canonical writes recheck the original credential, session and permissions before
 each commit. A logout, expired session, rotated key or changed scope rolls back
@@ -407,13 +419,27 @@ The API has CPU weight200; the serial background worker has weight20, nice10
 and a one-CPU quota. These controls cover the worker and its CLI children,
 while PostgreSQL and shared Ollama work require separate measured budgets.
 They prioritize current-work retrieval over Python/CLI extraction; they do not
-establish priority inside a shared embedding service. The broader queued-client
+establish priority inside a shared embedding service. In0.6.22 the optional
+background embedding daemon separates already admitted extraction embeddings
+from interactive ones. It needs its own measured CPU and memory budget, a
+verified identical model and a restart of every API and worker process; the
+procedure, limits and rollback are in
+[PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon).
+Without its keys nothing changes. The broader queued-client
 and model-scheduling extension is tracked in roadmap6.10 / Issue68.
 
 The example API/worker memory caps are384MiB/1GiB; database, reranker and model
 processes require their own measured budgets. Ollama's2GiB example can reject
 an oversized model; it is not proof that a particular model fits. Before buying
 or sizing a4-vCPU/8-GiB host, measure actual model residency and cold/warm load.
+The0.6.22 example aligns `MemoryHigh` with the unchanged2GiB `MemoryMax`.
+An owned same-model/input A/B found that the former1536MiB soft limit caused
+sustained reclaim and a10-second embedding timeout despite available host RAM;
+the2GiB arm completed. This is a bounded budget diagnosis, not proof that every
+input fits2GiB. On an existing installation inspect `memory.events` and memory
+pressure under its own workload. Apply a measured budget during an authorized
+model-service maintenance window, then verify embeddings and queued progress;
+copying the updated example alone does not change a running unit.
 The recorded40-connection API rehearsal used synthetic capability/domain requests,
 separate from populated retrieval and real-model extraction tests. The reference
 host completed30synthetic source jobs, including recovery after a killed worker.

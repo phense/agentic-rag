@@ -1,0 +1,480 @@
+{
+  "runtime_source": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+  "diagnostic_only": true,
+  "acceptance": false,
+  "production_changed": false,
+  "protocol": {
+    "purpose": "Attribute remaining non-model work after lane alone missed10s; no runtime repair or acceptance",
+    "source_head": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+    "runtime_source": "5667ee7eed39a33b49b74cef0cf6b792d67c859a",
+    "source_head_description": "exact5667ee7 archive; label-only old dist-info, not a release build",
+    "created_before_execution": true,
+    "source_archive_sha256": "9af135886f7360c15721c278bb4ac907cc11683dc8e1e1bc7f3c7cb7a4cea5eb",
+    "controller_sha256": "5b91acba1116a8d1fd00060986b76447963fcaabaa9ac318ae599c0b6cd73291",
+    "supervisor_sha256": "8e152ff3cf5fa22ff27a81b4c14fa051483c3742477845179c2b611f0e700ebf",
+    "hypothesis": "After explicit ANALYZE and lane separation, repeated non-model SQL/planning plus HTTP/connection work materially constrain40-client capacity. Measure actual CPU by process group and per-operation query work before selecting a repair.",
+    "prerequisite": "E-LANE B terminal and all owned API/PG/models inactive; no concurrent diagnostic",
+    "configuration": "4 diagnostic consumers/2modelthreads as B idle path; lane unset; exact otherwise unchanged runtime; snapshot fresh024->034 and ANALYZE7tables",
+    "measurements": [
+      "existing20/30unitcosts plus6directcalls/tool,12serialrequests and120at40clients",
+      "separate owned PG/API/model/harness cgroups CPU,PGsessions/HTTPstatuscounts",
+      "pg_stat_statements all and track_planning, per-phase reset and top100 normalized query hashes/categories; no rawquerytext/privateparams",
+      "in-process db/schema/trace/model counters periodically persisted every2s to avoid prior lost-on-shutdown evidence"
+    ],
+    "limitations": [
+      "pg_stat_statements planning instrumentation adds overhead; this run cannot certify10s target",
+      "Nested query timings are inclusive and must not be summed into CPU totals",
+      "Bounded bursts, no background work; B already discriminated non-preemption",
+      "No deployment or production changes, no external provider; only synthetic inputs reach local embedding daemon"
+    ]
+  },
+  "phases": [
+    {
+      "label": "serial",
+      "clients": 1,
+      "rounds": 4,
+      "offered": 12,
+      "all_completed": true,
+      "wall_seconds": 17.3118577003479,
+      "cpu_seconds": {
+        "harness": 0.09419700000000031,
+        "postgres": 9.469459999999998,
+        "model": 1.965871,
+        "api": 1.023772
+      },
+      "pg_sessions_delta": 441,
+      "tools": {
+        "memory_domains": {
+          "n": 4,
+          "sum": 4.346310426946729,
+          "p50": 1.0829304830403998,
+          "p95": 1.099978049029596,
+          "max": 1.1026145778596401
+        },
+        "memory_context": {
+          "n": 4,
+          "sum": 4.347657988080755,
+          "p50": 1.0874468944966793,
+          "p95": 1.0919000369263814,
+          "max": 1.0923602930270135
+        },
+        "memory_search": {
+          "n": 4,
+          "sum": 8.592738145031035,
+          "p50": 2.1471062320051715,
+          "p95": 2.1520945627591574,
+          "max": 2.152819550829008
+        }
+      },
+      "http_counts": {
+        "submit:202": 12,
+        "status:200": 16
+      }
+    },
+    {
+      "label": "idle40",
+      "clients": 40,
+      "rounds": 3,
+      "offered": 120,
+      "all_completed": true,
+      "wall_seconds": 32.19778847694397,
+      "cpu_seconds": {
+        "harness": 2.65541,
+        "postgres": 75.49981700000001,
+        "model": 20.988035,
+        "api": 7.253313
+      },
+      "pg_sessions_delta": 2599,
+      "tools": {
+        "memory_domains": {
+          "n": 42,
+          "sum": 236.49795889412053,
+          "p50": 5.720028047100641,
+          "p95": 9.72333423544187,
+          "max": 10.01674676197581
+        },
+        "memory_context": {
+          "n": 39,
+          "sum": 237.95922945486382,
+          "p50": 6.383091614814475,
+          "p95": 9.388846902525984,
+          "max": 9.668624377110973
+        },
+        "memory_search": {
+          "n": 39,
+          "sum": 265.66668524756096,
+          "p50": 6.573033327003941,
+          "p95": 10.693426276021638,
+          "max": 11.380032102111727
+        }
+      },
+      "http_counts": {
+        "submit:429": 502,
+        "submit:202": 120,
+        "status:200": 515,
+        "status:429": 33
+      }
+    }
+  ],
+  "api_instrumentation": {
+    "db_connect": {
+      "calls": 2131,
+      "wall_seconds": 13.238516729092225,
+      "thread_cpu_seconds": 1.4708966539999977
+    },
+    "schema_validation": {
+      "calls": 132,
+      "wall_seconds": 2.9488028057385236,
+      "thread_cpu_seconds": 0.40280747500000025
+    },
+    "trace_record": {
+      "calls": 855,
+      "wall_seconds": 22.080075604608282,
+      "thread_cpu_seconds": 1.1735041960000019
+    },
+    "model_slot_wait": {
+      "calls": 43,
+      "wall_seconds": 4.736658854642883
+    },
+    "model_http": {
+      "calls": 42,
+      "wall_seconds": 19.78287820937112,
+      "thread_cpu_seconds": 0.07360430599999998
+    }
+  },
+  "top_queries": [
+    {
+      "calls": 39,
+      "total_exec_time": 45116.10425099999,
+      "total_plan_time": 1.159038,
+      "rows": 1950,
+      "query_sha256": "a62160ba02affca790cc93b9aa1f5a084940ea3cea30c7d917ad2dfce78c20ca",
+      "category": "search"
+    },
+    {
+      "calls": 39,
+      "total_exec_time": 44535.724816,
+      "total_plan_time": 422.455593,
+      "rows": 1950,
+      "query_sha256": "7b81d9101c9cc4689873da442ae762f179a1c53f781752686152f3d789f91b7a",
+      "category": "schema_catalog"
+    },
+    {
+      "calls": 117,
+      "total_exec_time": 14240.00299300001,
+      "total_plan_time": 1196.5248190000004,
+      "rows": 117,
+      "query_sha256": "1ce3616bd191eb70e442ab51476b6df385976e3d3c2729739556a3c008d47c2e",
+      "category": "thematic"
+    },
+    {
+      "calls": 91574,
+      "total_exec_time": 14345.976907999879,
+      "total_plan_time": 627.235007,
+      "rows": 91574,
+      "query_sha256": "b5fcbabc65f1cb1f5d0ff024bad506fbb0b7a72726b674bb3ee7cfe0c56e4760",
+      "category": "other"
+    },
+    {
+      "calls": 9711,
+      "total_exec_time": 7989.173613999992,
+      "total_plan_time": 169.1051970000001,
+      "rows": 9711,
+      "query_sha256": "ff9770be8af7aaf6fd1e00eef3922a37ed76e44a4b6dbc1d35ba8040a5f2b9cc",
+      "category": "other"
+    },
+    {
+      "calls": 9711,
+      "total_exec_time": 236.5220129999995,
+      "total_plan_time": 6261.437140999989,
+      "rows": 9711,
+      "query_sha256": "cf04cf3295b7135db83cc21eefb992aa13a1788aa2d2414a616d9da67a1adc41",
+      "category": "other"
+    },
+    {
+      "calls": 1196,
+      "total_exec_time": 5637.849801,
+      "total_plan_time": 70.90396799999999,
+      "rows": 1196,
+      "query_sha256": "4c93380abebe4682f280bc3cc0add2878746496a25db7ea50d857658c49a931f",
+      "category": "other"
+    },
+    {
+      "calls": 39,
+      "total_exec_time": 4419.8961739999995,
+      "total_plan_time": 0.439295,
+      "rows": 39,
+      "query_sha256": "a06e1d9f6f95e4c4c2b98310ebddcc9d963cc033582bf2e945e8bf3a301b4247",
+      "category": "other"
+    },
+    {
+      "calls": 39,
+      "total_exec_time": 4233.741519,
+      "total_plan_time": 65.37590499999999,
+      "rows": 195,
+      "query_sha256": "e9e819dda0e60ec293cd00f1556b56041f95791598810a03fa928740013e335e",
+      "category": "truth"
+    },
+    {
+      "calls": 115169,
+      "total_exec_time": 1071.9637920000343,
+      "total_plan_time": 205.70108000000027,
+      "rows": 47087,
+      "query_sha256": "1be1289c8a64577a9eb830f297ad89f75601a1830225b93ad65dc06bd8f5e379",
+      "category": "other"
+    },
+    {
+      "calls": 955,
+      "total_exec_time": 1129.5173950000012,
+      "total_plan_time": 13.463840999999993,
+      "rows": 955,
+      "query_sha256": "35525571d4b4793ca35a27655a9fba6547b60e6fe16dea81fd0368bef94f3b7a",
+      "category": "storage_budget"
+    },
+    {
+      "calls": 39,
+      "total_exec_time": 915.9489090000001,
+      "total_plan_time": 132.909295,
+      "rows": 39,
+      "query_sha256": "1349eaaf23c0a3622443a5d44dd70fa2ef23643878fedd59b26374b05eb40745",
+      "category": "other"
+    },
+    {
+      "calls": 835,
+      "total_exec_time": 270.6649090000001,
+      "total_plan_time": 669.4590149999984,
+      "rows": 0,
+      "query_sha256": "f7634257fd862149016a3bdaf1d249f3dd772ccc25b99264b65118597263ffef",
+      "category": "tracing"
+    },
+    {
+      "calls": 40221,
+      "total_exec_time": 701.1601789999984,
+      "total_plan_time": 78.62016299999995,
+      "rows": 40221,
+      "query_sha256": "5c0d393864b2f5f57387ac899f2bd872d5b314110a442e08590979b9551e3edd",
+      "category": "other"
+    },
+    {
+      "calls": 312,
+      "total_exec_time": 3.194022999999997,
+      "total_plan_time": 476.04581899999994,
+      "rows": 0,
+      "query_sha256": "3ec5277897049db1ca31b3461bba3ae09d67835a53fd77d04437a4f6dee06d0b",
+      "category": "other"
+    }
+  ],
+  "file_sha256": {
+    "result.json": "c1afd8eb1c645740d22114c96511e1e3aaf4358b706d4ab93192538ef7e75c01",
+    "unit-costs.json": "cbd2772323046a85a27da052fec019722d4b7779277c4edd6d133ad96aa1d49e",
+    "attributed-phases.json": "65c8b3b83015e80174aa3f95e2ec85bb6bdec507d9ba7e8b3fe33c3cba4cd75c",
+    "idle40-query-costs.json": "c3777b8b944f559751e4744dfc484450c400db9a2f604623aa7b2e6b5a9646ac",
+    "serial-query-costs.json": "fcf101fdfbf2c2f8cfac2e4349131d6fa4a61e697d003fa0e2b4cfbe4abd672e",
+    "api-instrumentation.json": "8c44299805ee6c48c0b8ad09111d23a51ab65bde990eef6cadde9965b72be8d8",
+    "cleanup.json": "6ce8b61b8101aa65be1eccc9707854345e9d0083fb080f37a17b22f068b28bf4",
+    "supervisor-cleanup.json": "db26292465a9b68bee32a082509abd8f55475221fc77842f6a52ea0bb0eb68f5",
+    "protocol.json": "fc6b3a23e8f91fe1035b58f051049d7739b1ee8e26e0f2994788569eee24d855",
+    "top-query-structure.json": "c4a8b8466a9709ffd2d92d35d474fef5afa26308edbadbd355a3b145eb4d4faa"
+  },
+  "cleanup": {
+    "owned_api_stopped": true,
+    "owned_pg_stopped": true,
+    "production_touched": false
+  },
+  "supervisor_cleanup": {
+    "owned_model_inactive": true,
+    "production_changed": false
+  },
+  "observed_exit_code": 0,
+  "source_guard_counterfactual": {
+    "diagnostic_only": true,
+    "production_changed": false,
+    "acceptance": false,
+    "arms": [
+      {
+        "arm": "original_sql",
+        "measurements": [
+          {
+            "repeat": 0,
+            "vector_index": 0,
+            "seconds": 0.5891957741696388,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 0,
+            "vector_index": 1,
+            "seconds": 0.8762632159050554,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 0,
+            "vector_index": 2,
+            "seconds": 0.5871089061256498,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 0,
+            "seconds": 0.5104227510746568,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 1,
+            "seconds": 0.818062640959397,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 2,
+            "seconds": 0.5875997180119157,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 0,
+            "seconds": 0.517644174862653,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 1,
+            "seconds": 0.8019474979955703,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 2,
+            "seconds": 0.6282727590296417,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          }
+        ],
+        "source_guard_query_stats": [
+          {
+            "calls": 1071,
+            "plans": 1071,
+            "total_exec_time": 21.18822400000003,
+            "total_plan_time": 537.8615020000001,
+            "query_sha256": "cf04cf3295b7135db83cc21eefb992aa13a1788aa2d2414a616d9da67a1adc41"
+          }
+        ]
+      },
+      {
+        "arm": "cached_plpgsql",
+        "measurements": [
+          {
+            "repeat": 0,
+            "vector_index": 0,
+            "seconds": 0.5207752080168575,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 0,
+            "vector_index": 1,
+            "seconds": 0.6866886920761317,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 0,
+            "vector_index": 2,
+            "seconds": 0.5347893279977143,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 0,
+            "seconds": 0.5555725630838424,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 1,
+            "seconds": 0.6696249088272452,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 1,
+            "vector_index": 2,
+            "seconds": 0.5469966209493577,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 0,
+            "seconds": 0.5204387749545276,
+            "rows": 50,
+            "sha256": "ebdf35d78fe07d3a389c6255ef84ebe331af981600b6e8f5b4f8b991c7525fdb",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 1,
+            "seconds": 0.6484858698677272,
+            "rows": 50,
+            "sha256": "c286288bf1a4ecda8fbed11d72b557110ebee4642f5ed086b738c2da0e784ee4",
+            "equal_to_base": true
+          },
+          {
+            "repeat": 2,
+            "vector_index": 2,
+            "seconds": 0.5335330199450254,
+            "rows": 50,
+            "sha256": "da7aecabfe19ca01849c6ade6b5362ab38f96b8408da6141c9c722bb9c726f0c",
+            "equal_to_base": true
+          }
+        ],
+        "source_guard_query_stats": [
+          {
+            "calls": 1071,
+            "plans": 6,
+            "total_exec_time": 14.126170000000005,
+            "total_plan_time": 3.588468,
+            "query_sha256": "460eeb7d5dd8a871513113dc2f012cfcdab67b0f35006215c688375a9c20d9ab"
+          }
+        ]
+      }
+    ],
+    "original_function_restored": true,
+    "all_results_equal": true,
+    "complete": true,
+    "owned_pg_inactive": true
+  },
+  "limits": [
+    "Query times are inclusive elapsed times, not additive CPU costs",
+    "Heuristic query category schema_catalog can include nested retrieval SQL; use the identified function and query hash, not the category to assign cost",
+    "Diagnostic4consumer/2thread override, ANALYZE7tables, no adopted setting",
+    "pg_stat_statements planning instrumentation adds overhead; no latency acceptance",
+    "One wildcard reader and3localvector directions only in counterfactual; restricted/readwrite/namespace/NULL/revocation characterization required before refactor",
+    "All18full result packet hashes agree; temporary function change rolled back including exactdefinition/owner/ACL/config"
+  ]
+}

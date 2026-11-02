@@ -138,6 +138,23 @@ def _infer(texts, cfg, loader):
 
 
 def _compute(texts, cfg, loader):
+    from .service.context import CURRENT
+    from .service.fence import LEASE
+    if cfg.service_mode == 'server' or CURRENT.get() is not None or LEASE.get() is not None:
+        # Service admission already serializes model access. Keep inference on
+        # the caller so worker priority, finite timeouts and request authority
+        # survive preparation. Never copy a live database/fence connection into
+        # concurrent executor contexts.
+        output = []
+        for start in range(0, len(texts), BATCH):
+            batch = texts[start:start+BATCH]
+            _count('embedding_calls', 1)
+            _count('generated_inputs', len(batch))
+            vectors = _infer(batch, cfg, loader)
+            if not _valid(vectors, len(batch), cfg.embed_dim):
+                return None
+            output.extend(vectors)
+        return output
     # Only two futures (each <=16 inputs) exist at once. No unbounded submission.
     output = []
     with ThreadPoolExecutor(max_workers=2, thread_name_prefix='rag-embed') as pool:

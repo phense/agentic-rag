@@ -283,11 +283,12 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
                     gateway.rejections[exc.code]=min(2**63-1,gateway.rejections.get(exc.code,0)+1)
                     while len(gateway.rejections)>16:gateway.rejections.popitem(last=False)
                 raise
-            if request.headers.get('prefer')=='wait=0.1':
-                deadline=time.monotonic()+.1
-                while result['state'] in {'pending','running'} and time.monotonic()<deadline:
-                    await asyncio.sleep(.01)
-                    result=await asyncio.to_thread(queue.status,cfg,request.state.principal,result['request_id'])
+            if request.headers.get('prefer')=='wait=0.1' and result['state'] in {'pending','running'}:
+                # One bounded observation after the preference window. Each
+                # status check opens and authenticates an owner DB session;
+                # polling every10ms multiplies control-plane work under load.
+                await asyncio.sleep(.1)
+                result=await asyncio.to_thread(queue.status,cfg,request.state.principal,result['request_id'])
             return JSONResponse(result,status_code=200 if result['state']=='completed' and request.headers.get('prefer')=='wait=0.1' else 202,headers={'Retry-After':'1'})
         result=await asyncio.to_thread(queue.status,cfg,request.state.principal,
             request.path_params['identity'],cancel=request.method=='POST')

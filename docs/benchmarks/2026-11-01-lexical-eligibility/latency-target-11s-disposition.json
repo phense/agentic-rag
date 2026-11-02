@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-01",
+  "authority": "Explicit maintainer instruction: Kleiner 11 Sekunden ist ausreichend",
+  "supersedes": {
+    "operator": "<=",
+    "seconds": 10
+  },
+  "current_target": {
+    "operator": "<",
+    "seconds": 11,
+    "metric": "successful search end-to-end p95 including admission, queueing, execution and client observation",
+    "clients": 40,
+    "background_extraction": true,
+    "reference": "4vCPU/8GiB"
+  },
+  "existing_observation": {
+    "artifact": "background-one-thread-reference-B3.json",
+    "sha256": "1344aef6a8825e90417ead3e8d3a04ad41048526d9b40c9f1e53e43b0c023792",
+    "runtime_source": "0a0878524f2d4fc61ee8418b61b476c64a4d11af",
+    "actual_supervisor_exit_code": 0,
+    "phases": [
+      {
+        "phase": "idle40",
+        "samples": 39,
+        "search_end_to_end_p95_seconds": 9.60661857253872,
+        "strictly_less_than_11": true
+      },
+      {
+        "phase": "growing40",
+        "samples": 39,
+        "search_end_to_end_p95_seconds": 10.621337259165012,
+        "strictly_less_than_11": true
+      },
+      {
+        "phase": "noarrivals40",
+        "samples": 39,
+        "search_end_to_end_p95_seconds": 10.801030920026824,
+        "strictly_less_than_11": true
+      }
+    ],
+    "revised_numerical_boundary_pass": true,
+    "original_stage_B_pass_preserved": false
+  },
+  "final_acceptance": false,
+  "remaining_gates": [
+    "Implemented final runtime rather than diagnostic lane/consumer/thread shims",
+    "Actual durable client completion and namespace rate-limit safety",
+    "Scoped result/citation correctness and complete-input model parity",
+    "Complete original backlog drain, zero model errors/fallback/skipped dedup",
+    "Final populated0.6.21 upgrade, interruption/retry, independent backup/restores and runtime recovery",
+    "Independent final review and fresh complete final-runtime suite/Node/build/lock/docs"
+  ],
+  "production_authorized": false
+}

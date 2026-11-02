@@ -661,3 +661,50 @@ not an observed shipped defect. All have implementation evidence, independent ac
 | AF-067-006 | What does dry-run execute? AC-003/004,IC-004 | existing extraction has provider and gateway effects in one entrypoint | shared pure preparation/filtering, default no-call, explicit evaluation no writes, safe client-mode behavior | Accepted; full5 verified |
 | AF-067-007 | Can old miners bypass activation? AC-009,IC-005 | old code ignores additional payload metadata | additive032, real populated old-code/retry/restore tests, all-miner restart gate before custom activation | Accepted; full5 verified |
 | AF-067-008 | Are measurements and recovery current? AC-009/010 | prior frozen fixtures test other features only | freeze EN/DE labels first, three inspected examples and call counts, PB-067-OPS review/rehearsal, as-built success/recovery gates | Accepted; full5 verified |
+
+
+## RAG-068 A2 / Issue92 model admission (design, 2026-11-01)
+
+- AF092-A2-01 (High, open conditional design obligation; MAD-01, FR07): changing
+  only an endpoint retains global MODEL_LOCK blocking. A2 requires distinct
+  legacy-background admission and preserves singleton/execution-pin semantics.
+- AF092-A2-02 (High, open conditional design obligation; MAD-02, FR05/07): a
+  CPU-bounded background runner may exceed10s. Require finite lane deadline,
+  attempt-preserving ResourcePressure and accepted-output replay, proved by R1/R3.
+- AF092-A2-03 (High, open conditional design obligation; MAD-03, FR04/08): primary
+  digest/cache identity cannot certify another endpoint. Verify both before and
+  after inference; unknown or mismatched identity must write nothing (R2/R7).
+- AF092-A2-04 (Medium, open acceptance; MAD-04/05, FR06/AC05): actual-client
+  observation and configured consumer/executor bounds must be measured. Preserve
+  old-server polling and durable replay; waiting/fallback cannot satisfy AC05.
+- AF092-A2-05 (Medium, open evidence; MAD-06..08, FR08/AC04/05): vector parity,
+  physical4-vCPU/8-GiB feasibility and populated upgrade/runtime recovery remain
+  unproved. Run E-LANE-1 A before B or any runtime implementation. Full original
+  inputs and independent source/target restores remain required.
+
+The remaining MAD-09/10 items are degradation/orphan-compute counters in these
+same acceptance cases. Findings describe risks of an unimplemented optional
+route; they do not reclassify the accepted single-lane runtime as newly broken.
+The diagram and exact experiment/abort rules are in model-admission-92-a2.md
+and the6.10 plan A2. No tasks are marked complete or regenerated at this gate.
+
+### Post-B3 disposition and task mapping (2026-11-01)
+
+The maintainer changed AC05 to strict<11s. B3 meets the numerical boundary but
+uses a diagnostic client and runtime overrides. Post-B3 independent review
+accepts minimum implementation, not feature delivery; no further attribution
+experiment or dedicated executor is needed. Original protocols remain unchanged.
+
+| Finding | Classification and current response | Required tasks | Status |
+|---|---|---|---|
+| AF092-A2-01..03 | Separate admission, finite attempt-preserving pressure and two-endpoint identity are unchanged design obligations | T06823/24/27/28 | Open for implementation/review |
+| AF092-A2-04, PB3-02 High / PB3-04 Medium | Actual-client hints plus bounded same-envelope pre-ACK retries; old queued servers already send hint1, so document mixed-version polling load | T06823/25/26/27 | Open |
+| PB3-03 High / PB3-05 Medium | Configurable1..4 consumers, default2/reference4, at most half the computed default pool; retain ContextVars and graceful shutdown, no separate executor selected | T06823/24/26/27 | Open |
+| AF092-A2-05, PB3-01 High / PB3-08 Info | Physical B3 result inherited; final-runtime complete-input parity, real-client scoped-result acceptance, populated0.6.21 upgrade/runtime recovery and full suite still owed | T06826..28, T06821/22 | Open |
+| PB3-06 Low | Stored timestamps omit publication commit and may blur re-execution; use passive per-attempt/commit/observation instrumentation in the acceptance run | T06821/28; collect75 | Open, nonblocking accounting limitation |
+| PB3-07 Low | B3 used four wildcard principals; freeze restricted-reader mapping and independent result oracle before final run, disclose change in evidence | T06821/28; collect75 | Open, evidence scope |
+
+These are obligations for an unimplemented optional route and its acceptance;
+they do not reclassify the accepted single-lane runtime as broken. The selected
+model and original data stay unchanged. A2's explicit success and recovery flows
+are in model-admission-92-a2.md; tasks S06808 owns their implementation and proof.

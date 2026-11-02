@@ -31,10 +31,15 @@ if hasattr(os, 'register_at_fork'):
 
 def model_digest(cfg):
     """Unknown/unavailable identity never authorizes reusing a query vector."""
+    return endpoint_digest(cfg, cfg.ollama_url)
+
+
+def endpoint_digest(cfg, url):
+    """Digest of the configured embedding tag at one Ollama endpoint, or None."""
     name = cfg.embed_model if ':' in cfg.embed_model else cfg.embed_model + ':latest'
     try:
         with embed._client() as client:
-            response = client.get(cfg.ollama_url + '/api/tags', timeout=2)
+            response = client.get(url + '/api/tags', timeout=2)
             response.raise_for_status()
             models = response.json()['models']
         digests = {row['digest'] for row in models if row.get('name', row.get('model')) == name}

@@ -54,6 +54,7 @@ class Config:
     service_tool_wait_seconds: float = 30
     service_hook_wait_seconds: float = 1
     service_poll_seconds: float = 1
+    service_request_consumers: int = 2  # 1..4; at most half the default thread pool
     service_mode: str = "standalone"
     service_url: str = ""
     service_token_file: Path | None = None
@@ -64,6 +65,12 @@ class Config:
     embed_model: str = "bge-m3"
     embed_dim: int = 1024
     ollama_url: str = "http://localhost:11434"
+    # Issue92 A2: optional separate daemon for fenced central legacy background
+    # embeddings. Unset keeps the single shared endpoint, lock and 10 s deadline.
+    ollama_background_url: str | None = None
+    ollama_background_timeout_seconds: float | None = None  # 10..60, lane default 60
+    ollama_num_thread: int | None = None             # primary request option, 1..8
+    ollama_background_num_thread: int | None = None  # lane request option, 1..8
     rerank_url: str = "http://127.0.0.1:8766"
     rerank_policy: str = "focused-v1"
     rerank_model: str = "agentic-rag-mmarco-int8"
@@ -175,6 +182,9 @@ class Config:
                 raise ValueError(name+' must be a finite bounded duration')
         if self.service_mode not in {"standalone","client","server"}:
             raise ValueError("invalid service mode")
+        if type(self.service_request_consumers) is not int or not 1<=self.service_request_consumers<=4:
+            raise ValueError('service request_consumers must be an integer between 1 and 4')
+        self._validate_model_lane()
         if (
             not isinstance(self.mine_max_digest_chars, int)
             or isinstance(self.mine_max_digest_chars, bool)
@@ -202,6 +212,37 @@ class Config:
                 "continuity context_max_chars must be an integer between "
                 f"{MIN_CONTEXT_CHARS} and {MAX_CONTEXT_CHARS}"
             )
+
+
+    def _validate_model_lane(self) -> None:
+        for name in ('ollama_num_thread','ollama_background_num_thread'):
+            value=getattr(self,name)
+            if value is not None and (type(value) is not int or not 1<=value<=8):
+                raise ValueError(name.replace('ollama_','ollama ')+' must be an integer between 1 and 8')
+        timeout=self.ollama_background_timeout_seconds
+        if timeout is not None and (type(timeout) not in (int,float) or not math.isfinite(timeout)
+                                    or not 10<=timeout<=60):
+            raise ValueError('ollama background_timeout_seconds must be between 10 and 60 seconds')
+        url=self.ollama_background_url
+        if url is None:
+            if timeout is not None or self.ollama_background_num_thread is not None:
+                raise ValueError('ollama background settings require background_url')
+            return
+        # Never accept (and later log or send) credentials, queries or fragments.
+        from urllib.parse import urlsplit
+        try:
+            parts=urlsplit(url) if isinstance(url,str) else None
+            if parts is not None:
+                parts.port  # raises ValueError for a malformed port
+        except ValueError:
+            parts=None
+        if (parts is None or parts.scheme not in ('http','https') or not parts.hostname
+                or parts.username is not None or parts.password is not None
+                or parts.query or parts.fragment or '@' in parts.netloc
+                or any(c.isspace() for c in url)):
+            raise ValueError('ollama background_url must be an http(s) origin without credentials, query or fragment')
+        if url.rstrip('/')==str(self.ollama_url).rstrip('/'):
+            raise ValueError('ollama background_url must name a separate daemon')
 
 
 _PATH_FIELDS = {"mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}

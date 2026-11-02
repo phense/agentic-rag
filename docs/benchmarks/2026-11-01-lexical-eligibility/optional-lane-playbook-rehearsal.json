@@ -1,0 +1,139 @@
+{
+  "scope": "PB06801 L0/L1 owned real-daemon rehearsal; no production or whole-feature acceptance",
+  "source_head": "590400aa394a35739fd34833d0d8614388af4939",
+  "runtime_source": "41583cb07661747fbe65bc76bceb0217fa016222",
+  "model": {
+    "tag": "bge-m3-q8:latest",
+    "digest": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+    "dimension": 1024
+  },
+  "rehearsal_protocol": {
+    "controller_sha256": "b2e1d591d56b250b589515e05cc1b88a967d5b04abebe1dd86b816ae62b96947",
+    "archive_sha256": "4984d40a982596dafd48b700d01d5d8d76fe77056b516969fa4d7a8433411e0f",
+    "document_sha256": "c7f5268b5f4f9beefea2ff812d1bee866ed5d9cd208ed238ed5865a3d179fee9",
+    "unit_template_sha256": "d332a77ed59b8243c1e905dbd21ef8ee60cb58f65b1402d3cd59d4049efa69fc",
+    "frozen_before_execution": true,
+    "only_mapping_changes": "new owned unit/state names, primary loopback11435 instead of11434; no production unit touched"
+  },
+  "failed_first_probe": {
+    "actual_exit": 1,
+    "retained": true,
+    "parity_exit": 0,
+    "reason": "Observer expected --threads process flags; Ollama0.31.2 publishes n_threads in journal. Not a product or vector failure. Before-model hash snapshot was not persisted by run1, so no byte-level model-store preservation claim for run1.",
+    "all_owned_stopped": true
+  },
+  "successful_rehearsal": {
+    "source_head": "590400aa394a35739fd34833d0d8614388af4939",
+    "production_changed": false,
+    "acceptance": false,
+    "scope": "PB L0/L1 unit/discovery/three-input real-model parity only",
+    "full_input_parity": false,
+    "complete": true,
+    "prior_run_retained": "/var/lib/rag92-a2-pb-20261101; invalid thread observer expected CLI flags, actual Ollama reports threads in journal; no product change",
+    "host_before": {
+      "MemAvailable": 5497004032,
+      "SwapTotal": 0,
+      "SwapFree": 0
+    },
+    "discovery": {
+      "MODEL_USER": "rag",
+      "MODEL_GROUP": "rag",
+      "MODEL_STORE": "/var/lib/agentic-rag/models",
+      "OLLAMA_BIN": "/usr/local/bin/ollama"
+    },
+    "primary_effective_settings": "CPUWeight=100\nCPUQuotaPerSecUSec=3.500000s\nMemoryHigh=2147483648\nMemoryMax=2147483648\nUser=rag\nGroup=rag\nReadOnlyPaths=/var/lib/agentic-rag/models\n",
+    "background_effective_settings": "CPUWeight=1\nCPUQuotaPerSecUSec=1s\nMemoryHigh=2147483648\nMemoryMax=2147483648\nUser=rag\nGroup=rag\nReadOnlyPaths=/var/lib/agentic-rag/models\n",
+    "ollama_version": "0.31.2",
+    "parity_exit": 0,
+    "parity_seconds": 38.65711748902686,
+    "parity_output": "{'digest': '7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d', 'inputs': 3, 'identical': True}",
+    "models": {
+      "primary": {
+        "memory.current": 850407424,
+        "memory.peak": 1776336896,
+        "events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "runner_threads": [],
+        "journal_threads": [
+          4,
+          2,
+          4,
+          2,
+          4,
+          2
+        ]
+      },
+      "background": {
+        "memory.current": 1766711296,
+        "memory.peak": 1769013248,
+        "events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "runner_threads": [],
+        "journal_threads": [
+          1
+        ]
+      }
+    },
+    "host_after": {
+      "MemAvailable": 2864209920,
+      "SwapTotal": 0,
+      "SwapFree": 0
+    },
+    "model_store_unchanged": true,
+    "model_store_files": 10,
+    "owned_units_inactive": true,
+    "owned_ports_closed": true
+  },
+  "actual_exit": 0,
+  "service_runtime_seconds": 41.664,
+  "affected_verification": {
+    "head": "590400aa394a35739fd34833d0d8614388af4939",
+    "command": [
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--tb=short",
+      "tests/test_lane_config.py",
+      "tests/service/test_model_lane.py",
+      "tests/service/test_request_consumers.py",
+      "tests/service/test_client_polling.py",
+      "tests/service/test_model_lane_runtime.py",
+      "tests/service/test_lexical_upgrade.py",
+      "tests/test_docs_continuity.py"
+    ],
+    "exit_code": 0,
+    "seconds": 53.65,
+    "started": "2026-11-01T19:51:01.055441+00:00",
+    "finished": "2026-11-01T19:51:54.710460+00:00",
+    "log_sha256": "3386f0c655cfadbbb41450f7b9b0133c3b677acc2ea59da1f6b2e1e85affa383",
+    "sources_unchanged": true
+  },
+  "affected_pytest_result": "152 passed,1 known Starlette warning in52.54s",
+  "remaining_open": [
+    "PB independent correction acceptance",
+    "L2/L3 real-model worker/API restart and rollback rehearsal",
+    "Bit-exact parity for every actual acceptance input",
+    "Actual40-client end-to-end p95 strictly<11s; authorized scoped correctness, zero fallback/errors, lossless13-original drain",
+    "Final fullsuite/Node/build/lock/docs/PR gates"
+  ],
+  "limits": [
+    "Nine direct embed requests from exact printed three-input probe; no database/API/client load in this rehearsal",
+    "No sustained resource or latency result; memory.peak is per fresh model cgroup, MemAvailable only before/after snapshots",
+    "Ollama thread honoring observed as primary journal4/2 switches and background1 for these requests; no claim about other versions"
+  ]
+}

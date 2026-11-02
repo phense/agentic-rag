@@ -2,7 +2,7 @@
 title: PB06801 review and rehearsal evidence
 type: reference
 audience: administrators
-version: 0.6.21
+version: 0.6.22
 ---
 
 # PB06801 review and rehearsal evidence
@@ -431,3 +431,675 @@ This permits delivery of the0.6.21 source-origin correction with its tested
 populated upgrade/retry/restore path. It does not close Issue68: T06811/AC05
 repair and performance acceptance continue in Issue92, and unobserved native
 host criteria remain in Issues12–14. No production migration or cutover is implied.
+
+## 0.6.22/schema034 lexical-search continuation
+
+The populated rehearsal in `tests/service/test_lexical_upgrade.py` uses archived
+0.6.21 (`64f2104`) to create a multi-domain/project store with original assertions,
+a pin and pending work. The verified0.6.21 backup restores independently before an
+injected migration failure; the034 transaction rolls back. A new attempt applies
+only034, preserves original-row hashes and function OIDs/owners/grants, and keeps
+the old scoped reader response identical. Repeating applies no migrations. A
+truthfully labelled0.6.22 backup also restores independently. After the corrections, the upgrade, priority and documentation selection passed
+23 tests in14.93s. The inference, priority and full lexical-parity selection passed
+134 tests in88.26s; eight new broad multi-chunk cases also bound actual work with
+Memoize enabled and disabled. Three worker regressions were observed failing
+before the correction, then passed through real model admission and mocked HTTP.
+
+The full suite on `26184b9` passed2,280 tests,1 skipped and1 known upstream
+Starlette warning (exit0,2,153.68s);396 source files stayed unchanged. This result
+predates the correction of review M1 and the worker-context defect and does not
+certify the corrected tree. The first review found contextual eligibility work
+repeated per matching chunk. The retained reference r1 and r2 load attempts ended
+with `no_actual_background_embedding_observed`; neither is a contention pass.
+The bounded replay showed inference running in a thread without worker context,
+so it was classified and admitted as foreground. The subsequent correction review and reference r3 are recorded below; a fresh
+terminal full-suite result remains required.
+
+See [bounded comparison evidence](../../benchmarks/2026-11-01-lexical-eligibility/verification.json).
+No live rollout, production lock-duration guarantee or agreed latency SLA is
+established by these owned-copy rehearsals.
+
+The corrected paired SQL comparison completed12 before/after units on the
+24,513-document owned reference: every private full response, score and order
+matched. Original function definitions were restored and the owned database
+stopped before the separate load run. This does not certify that load run.
+
+The model-budget A/B used one owned Ollama instance with identical model/input:
+1536MiB `MemoryHigh` produced a10-second timeout and7,392 new high-limit events;
+2GiB completed in0.705s with no additional high-limit events. Both arms kept the
+2GiB hard cap, and no OOM occurred. This is one bounded trial under shared-host
+load, not a universal latency ratio. The reference load now uses that owned model
+instance with separate CPU/memory accounting; the old baseline used the shared
+instance, so total load latency changes cannot be attributed solely to SQL.
+
+
+The independent correction acceptance at `656ea27` leaves0 Critical, High,
+Medium or playbook Important findings. Its320 extra SQL cases preserve complete
+responses, and each broad60-document case makes60 eligibility checks regardless
+of chunk count or Memoize. The worker probes pass15/15 with real admission and
+HTTP doubles. One earlier stale probe was invalid and replaced by5/5 checks;
+the probe-plan timestamp does not establish prospective freezing.
+
+The [corrected r3 load](../../benchmarks/2026-11-01-lexical-eligibility/reference-load-r3-analysis.json)
+on runtime `5395f36` completes420/420 foreground requests and13/13 synthetic
+source windows. All163 actual model calls match their completions (135
+foreground,28 background), with0 errors and no simultaneous HTTP inference.
+Foreground demand starts with a background call in flight in both contended
+phases; background pages contain one input and take at most7.802s.
+
+Twelve real arrivals increase the growing backlog to13. The recorded
+`draining40` phase has no arrivals but holds all13 while foreground demand
+continues; it is not evidence of draining under load. After foreground ends,
+the backlog reaches0 in116.66s. All723 resource samples are valid, at most17
+DB connections are open and available host RAM stays above3.425GB. Sampled
+model residency peaks at1.694GB; the2GiB `memory.peak` and624 hard-limit events
+were already present before r3 and do not increase during it. No OOM occurs.
+Owned model/API/database processes are stopped and their listeners absent.
+
+Search total p95 is31.99s with20clients and60.04/62.47/61.63s in the three
+40-client phases. These short bursts establish no agreed response-time target
+or soak result. The full-load baseline used a different model instance and soft
+budget; use the paired SQL A/B, not total-load differences, to attribute the
+query repair. Raw aggregate hashes and an independent recomputation accompany
+the public results; private source/result text and vectors are excluded.
+
+The full-suite attempt on `656ea27` stopped near31% without a terminal result
+and no pytest process remained. It is not a pass; its cause is unproven. A new
+source-bound full suite is required before delivery. The maintainer latency
+disposition and T06811/T06818 reconciliation remain open; Issue68/92 closure and
+production rollout are separate from these measurements.
+
+
+## Maintainer10-second target continuation
+
+The maintainer requires successful search total p95 <=10seconds, including
+queueing, with40 active clients and background extraction enabled on the same
+4-vCPU/8-GiB reference. The existing r3 result fails that target;68/92 remain
+open. Full4 at `0ec0ab1` was deliberately stopped before further runtime work:
+exit-15 after1,604.03s, all1,330 tracked hashes and HEAD unchanged. It is not a
+pass. The final implementation needs a new full-suite terminal result.
+
+The [owned-copy diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/latency-target-diagnosis.json)
+uses no new model calls and exports aggregate timings/plans only. Full search
+with a retained synthetic vector and inference explicitly stubbed takes about
+5.5s; almost all of it is candidate SQL. The expanded reader plan spends
+1,460.977ms of1,968.673ms in JIT; it is not the generic wrapper's full runtime.
+A one-variable eight-unit JIT A/B reduces generic vector SQL from5.52–5.80s to
+4.27–4.30s with complete response equality. A separate four-unit generic-plan
+A/B, with JIT off in both arms, reduces eligibility calls from6,520 to166 and
+SQL time from4.05–4.20s to0.99–1.07s by correlating the document gate to ordered
+chunks. Full fields, score and order remain equal in all four units. These
+single-request SQL observations are not the40-client latency acceptance.
+
+The exact pre-target SQL fixture was frozen in `a6747cd` before runtime changes.
+Both new real-reader regressions fail with600 checks versus a384-check ceiling;
+only inference is substituted. They retain real gateway writes, HNSW, RLS,
+truth checks and complete raw/contextual result comparisons. The additional
+correction remains unpublished034;001..033 and the0.6.22 version are unchanged.
+Fresh targeted tests, populated upgrade/restore, independent review and the
+actual latency-target workload remain required.
+
+
+The frozen generic-plan regression subsequently passed for both raw and contextual
+vectors (2 passed, 64.49 s). Complete rows, order and scores match the pre-target
+SQL on 600 synthetic documents; each corrected branch stays below the independent
+384-check bound. The contextual plan retains HNSW when its source-hash predicate
+stays inside the correlated document gate, before the 256-candidate limit. An
+expanded-plan probe measured 225.187 ms versus 423.799 ms; this is synthetic SQL
+cost, not the 40-client latency result. Forced sequential-scan and COALESCE arms
+were diagnostic controls only and are absent from the implementation.
+
+The affected selection then passed all 137 tests in 178.00 s (exit 0): vector
+work and exact-response parity, lexical eligibility, contextual indexing and
+the genuine populated 0.6.21 upgrade. All four retrieval functions restore the
+caller's JIT and HNSW settings after normal return and a real statement
+cancellation. The upgrade rehearses interruption, retry, original-row hashes,
+pending work, the archived old reader, and independently restored source/target
+backups. An initial selection typo named a nonexistent test file and ran zero
+tests (exit 4); it is retained in the verification record. The 137-test command
+is the corrected run. Full-suite and 40-client target acceptance remain open.
+
+## Filtered-vector recall correction (unpublished034)
+
+Independent review of `665d449` found a recall regression: when the nearest270
+vectors fail access or truth gates, the ANN scan can stop before any of55 valid
+farther documents. The committed regression `1e79b23` first reproduced0 instead
+of the independently specified50 results (2 failures,44 deselected, exit1,
+26.65s). The new matrix covers scope, domain, archive, time, stale source hashes
+and model identity against an exact-sort control and literal document IDs.
+A previous failed setup after the host restart and a timed-out oracle that
+disabled every index are retained separately; neither is the regression red.
+
+The correction uses function-local strict iterative scans when supported and
+exact sorting if fewer than256 gated candidates are found. Capability absence
+skips ANN and uses the exact path, retaining B-tree/GIN access. The simulated
+legacy-capability and scan-cap selection passed5 tests (exit0,73.98s); this does
+not certify an actual0.7 binary. The dense600-document384-check bound remains a
+fixture-specific work regression, not a bound on selective exact fallback.
+The final affected selection passed188 tests (exit0,600.51s), including all51
+recall cases, dense-work/settings guards, lexical/contextual parity and the
+genuine populated0.6.21 upgrade with interruption, retry and independent source/
+target restores. All six SQL/test input hashes remained unchanged. Documentation
+checks passed17 tests (exit0,0.91s). The independent review accepted recall
+and found the non-superuser upgrade defect described below.
+The cancellation check characterizes restoration after a real abort; PostgreSQL
+rollback itself restores settings, so the successful-return check is the
+independent discriminator for leaked function settings.
+
+The [retained r4 result](../../benchmarks/2026-11-01-lexical-eligibility/reference-r4-failed-target.json)
+completed1,400 foreground requests and13 source windows with0 model errors,
+but its40-client search p95 remains22.08–22.48s. It fails the maintainer's10s
+target and runs the rejected `665d449` retrieval code. Its target boolean also
+omits the required correctness/drain/model-error conjunction. It cannot certify
+Issue68/92, even though its supervisor ended with exit0 and its owned processes
+were cleaned up. The next source-bound load must check all those gates together.
+
+
+The next independent review found that the custom function setting required
+superuser privileges during migration and archive restore. The limited-owner
+regression was committed in `e4ea872` before the runtime repair: the genuine
+0.6.21 source backup and restore succeeded, then034 failed with permission denied
+for `rag.iterative_vectors` (1 failure, exit1,4.73s). An earlier setup failure
+omitted the documented vector preload prerequisite and is retained as invalid
+red evidence.
+
+The repair uses the registered `hnsw.iterative_scan` setting and the installed
+extension version. It grants no new privileges. Both populated upgrade tests
+passed (exit0,18.95s), including a NOSUPERUSER/NOCREATEROLE/NOBYPASSRLS owner,
+verified source/target backups and a separate restored target with preserved
+row hashes, pending work and a successful search. The affected selection then
+passed59 tests (exit0,504.61s). Its scope fixture now has300 allowed farther
+documents and checks actual ANN work, covering continuation as well as exact
+fallback. The empty restore template and vector preload are DBA-prepared
+installation prerequisites; no production configuration changed. Actual
+pgvector0.7, final independent correction review, the10s latency acceptance
+and the final full suite remain unverified.
+
+
+The independent N1 correction review accepted86d855d with0 C/H/M/Important.
+It freshly repeated the limited-owner upgrade, source/target independent restores,
+restored vector search and caller configuration preservation. Its ANN mutation
+probe distinguished256 calls from300 forced-exact calls, and verified the version
+guard and capped fallback. All four owned databases and the temporary role were
+removed. The remaining playbook template-flag/link/public-schema Minor is corrected.
+Coordinator logs predate the commit without captured input hashes; these fresh
+independent probes cover the essential paths on the reviewed HEAD.
+
+The [capacity/parser diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/capacity-and-parser-diagnostics.json)
+retains both completed diagnostic consumer arms. Their search p95 values remain
+approximately24–28s, so no consumer-count change is selected. Both owned database
+process trees exited and the model stopped, with no production change. The RLS
+membership experiment was rolled back. The next selected repair computes stable
+query-parser expressions once rather than per scanned chunk; its rollback-only
+SQL probe preserved all response fields while reducing approximately1.07s to0.58s.
+This is a single-query diagnostic with two repetitions, not40-client acceptance.
+
+
+The query-parser regression was committed in74db11c before the runtime repair.
+All eight cases failed on the expected128 or256 real parser calls (exit1,3.91s),
+while their complete responses still matched the published SQL. Scalar parser
+subqueries now compute the stable expression once per statement location. The
+110-test affected selection passed (exit0,97.43s): the8 parser work guards,
+100 existing lexical eligibility/parity cases and both genuine populated upgrade/
+restore rehearsals, including the limited owner. SQL/test hashes were captured
+during the run and remained identical at its end; they are not prior-start
+snapshot proof. No RLS policies or operators changed. Independent review, the
+source-bound load target and final full-suite acceptance remain open.
+
+
+The parser independent review accepted46ed6f3 with0 findings. Fresh probes checked
+100 full-response cases and every individual parser-expression mutation; actual
+nested plans retain RLS and use one-loop initplans. The subsequent3-round owned
+load still fails10s (search p95 approximately20.5–22.5s); its supervisor exit0
+only proves completion/cleanup. The [context diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/context-selection-diagnostics.json)
+records this failed target and the remaining thematic cost. Further JIT-off
+changes did not help and are not selected.
+
+The frozen thematic SQL regression in f80587b failed8 cases (exit1,3.72s),
+observing62/124 claim checks on unrelated originals. The selected reader query
+materializes scoped matches before distinct-document truth checks. Its first,
+unscoped prototype reduced calls but doubled reference latency, so that prototype
+was rejected; the scoped variant preserves the full context hash and reduces
+1974 lifecycle checks to932, approximately0.69→0.53s in two repetitions. The
+117-test affected selection passed (exit0,68.69s), including current/history
+source withdrawal and expiry, context/profile/lifecycle behavior and both actual
+populated upgrade/restore rehearsals. Pre-run input hashes remained unchanged.
+No authorization policy changed; the separate scope-policy experiment was rolled
+back and is not adopted. Independent review, the final40-client target and the
+final full suite remain open.
+
+### Restored statistics and remaining model contention
+
+The [controlled diagnosis](../../benchmarks/2026-11-01-lexical-eligibility/restored-statistics-capacity-diagnostics.json)
+uses exact runtime5667ee7 on fresh owned copies of the same populated snapshot.
+Restored tables initially lacked planner statistics. With autoanalysis disabled
+only in the distinguishing experiment, explicit `ANALYZE` reduced the complete
+context median from1.357s to0.457s. The profile-fingerprint query stopped compiling
+107 JIT functions and fell from838ms to15ms. All six context packets had the same
+SHA-256, and original document rows were unchanged. This explains a setup
+confound in the newer capacity experiments; it does not invalidate the older
+0.6.20 diagnosis or establish a product-wide JIT repair. Future restored-copy
+measurements must record populated table statistics before measuring.
+
+After explicit analysis, three-round idle40 experiments completed120 requests
+per arm. Search p95 was16.425s with the two-consumer/default-model configuration,
+13.501s with two consumers/two model threads, and9.805s with four consumers/two
+model threads (39 searches each). These remain harness overrides, not deployed
+settings. The separate three-phase repetition completed360/360 requests and
+13/13 original-source windows, with117 foreground and28 background embedding
+calls and0 model errors. Its search p95 was9.407s idle,12.931s with new arrivals,
+and13.584s without new arrivals. Background HTTP calls lasted up to6.276s.
+The10s requirement therefore remains unmet. These short bursts also lack actual
+client delivery and scoped-result/citation verification under load; they are
+not final acceptance.
+
+The authorization-policy experiment was rolled back. It preserved the measured
+context packet but reduced median context cost by only about50ms; no policy
+change is selected. Individual connection/schema costs do not yet justify
+pooling. The next design must address non-preemptible background model occupancy
+and client observation delay while preserving full inputs, durable receipts,
+truth/access checks, finite resource budgets and eventual source drain.
+
+The [model-only overlap counter-test](../../benchmarks/2026-11-01-lexical-eligibility/native-model-parallel-diagnostic.json)
+also rejects native two-slot parallelism as an assumed repair: with two CPU
+threads, a short request started150ms after a complete3,215-character synthetic
+original still waited5.600s with one configured slot and5.623s with two. Both returned
+bit-identical vectors across arms. The owned diagnostic used a3GiB model cap,
+had no OOM events, and stopped both sequential service runs; it did not invoke
+the product, establish a deployment budget or test40 clients. A separate
+foreground/background execution-lane proposal is under design review, not
+implemented or accepted.
+
+
+### E-LANE-1: isolated background model experiment (2026-11-01)
+
+Source archive: `5667ee7eed39a33b49b74cef0cf6b792d67c859a`; planning HEAD
+`ba9648d`. This is a harness experiment, not adopted runtime configuration or a
+release. The prospective protocols, hashes and aggregate results are in
+[model-lane-feasibility.json](../../benchmarks/2026-11-01-lexical-eligibility/model-lane-feasibility.json).
+
+Stage A passed with an actual supervisor exit 0: ten complete-input pairs,
+foreground p95 0.603 s, longest background 24.713 s. Default-thread, two-thread and
+cross-daemon vectors were bit-identical; all ten model files were unchanged.
+Minimum available host memory was 2,107,383,808bytes, with no swap delta, OOM or
+memory-limit event. The first attempt failed before inference because PrivateTmp
+hid its var/tmp home (226/NAMESPACE); that artifact is retained. The second attempt
+changed only the owned diagnostic root, retaining the sandbox and thresholds.
+All owned model and burner services stopped after the run.
+
+Stage B completed with supervisor exit 0, but **failed its numerical gate**.
+Three rounds per phase, 40 clients, four diagnostic consumers and two model threads
+produced search total p95 9.908 s idle, 11.642 s growing and 11.485 s without further
+arrivals. Search execution p95 exceeded idle by 0.528 s and 0.723 s in the background
+phases, above the prospective 0.5 s margin. The background endpoint used a separate
+SQL lock, 100% CPU quota and CPUWeight 1; the primary retained 350%. Each model had a
+2 GiB limit and shared read-only pinned blobs. No product configuration changed.
+
+All 360 foreground requests completed. All 13 complete original-source windows
+were applied with matching text hashes and complete quote evidence. The 117 search
+responses contained 351 hits: no empty response, warning, invalid citation
+coordinate or ineligible returned document. All 117 foreground and 28 background
+model calls completed without error; cache fallback and skipped-dedup counters
+were zero. Minimum available memory was 2,622,685,184bytes; no swap delta, OOM,
+limit event or sampler error occurred. The owned API/worker, PostgreSQL and both
+model services stopped; production services and data were untouched.
+
+The isolation candidate removes the measured model serialization but is not
+sufficient for AC05. Further work must attribute PostgreSQL/API cost before a
+repair is selected. This experiment used harness polling, wildcard readers and
+a populated 024 diagnostic copy; it does not replace actual-client observation,
+a restricted-reader result oracle, a real 0.6.21 upgrade/recovery rehearsal or the
+final full suite. Issues 68 and 92 and tasks T06811/T06818 remain open.
+
+### Source-permission plan reuse: source-bound B2 (2026-11-01)
+
+The independent review accepted the bounded source-permission refactor at
+`0a08785` with no findings. Its fresh probes included 19,200 original/new call
+pairs across automatic, generic and custom plans, with no mismatches. The
+populated 0.6.21 upgrade, interruption/retry and limited-owner independent restore
+remain separate passing author evidence. This acceptance covers the SQL slice.
+
+The [source-bound B2 result](../../benchmarks/2026-11-01-lexical-eligibility/source-permission-reference-B2.json)
+verified all 188 archived source files before execution. It retained the earlier
+prospective lane, four-consumer and two-thread harness settings. Supervisor exit
+was 0, but search total p95 was 9.213 s idle, 10.646 s growing and 11.111 s without
+new arrivals: the 10 s target still failed. All 360 foreground calls completed;
+all 13 originals were applied. The 117 search responses had 351 checked hits and
+no invalid citations, ineligible hits, empty responses or warnings. The 117
+foreground and 27 background model calls had no errors; fallback and skipped-dedup
+counters were zero. Resource and cleanup checks passed.
+
+The background model consumed approximately 19.49 and 24.29 CPU seconds within
+the sampled background phases. The next model-only experiment compares one and
+two background threads under the same CPU quota, using complete synthetic input
+and exact vector parity. It must show lower CPU work before another load trial.
+No lane or thread setting is adopted by these experiments. Actual-client,
+restricted-reader, final full-suite and AC05 acceptance remain open.
+
+The [background-thread experiment E-EFF-1](../../benchmarks/2026-11-01-lexical-eligibility/background-thread-efficiency.json)
+completed with supervisor exit 0. Five measured pairs per arm, after warmup,
+used the same CPU quota and complete synthetic input. Median background CPU
+was 22.084 s with two threads and 10.158 s with one. Measured vectors remained
+bit-identical to the primary default-thread reference, and all model/resource
+checks passed. The result justifies B3 with only the background thread count
+changed. It does not prove final-input parity or the 40-client target.
+
+The [source-bound B3 result and paired timing attribution](../../benchmarks/2026-11-01-lexical-eligibility/background-one-thread-reference-B3.json)
+completed with supervisor exit 0 in 437.816 s. Compared with B2, only the
+background request thread count changed from two to one. Search total p95 was
+9.607 s idle, 10.621 s growing and 10.801 s without new arrivals; the last two
+phases still failed the 10 s gate. Execution p95 exceeded idle by only 0.046 s
+and 0.170 s. All 360 foreground calls and 13 complete originals finished. The
+117 searches contained 351 checked hits, with zero citation, eligibility, source
+hash or evidence errors. All 117 foreground and 28 background model calls
+completed without error; fallback and skipped-dedup counters were zero. No
+resource-limit, OOM, swap or sampler error occurred. All owned services stopped.
+
+A subsequent read-only probe on the stopped diagnostic copy paired all 360
+client durations with their stored request timestamps, then stopped its own
+PostgreSQL again (exit 0). The search residual outside stored server wait and
+execution had medians 2.146/1.668/1.617 s and p95 3.073/3.315/3.086 s. This
+combines admission, retries, publication and result observation; it does not
+locate their individual costs or measure CPU. The p95 of each request's stored
+wait plus execution was 6.605/8.276/8.097 s. These are paired calculations;
+separate percentiles must not be added or subtracted to attribute latency.
+
+B3 still uses four wildcard principals, harness polling and the shared HTTP
+thread pool. It does not prove the actual durable client's observation time,
+restricted-reader result equality or a final-input model-parity matrix. Before
+another load trial, review the admission, consumer and polling boundaries against
+A2. Neither A2 adoption nor feature acceptance follows from B3; AC05, T06811,
+T06818 and Issues 68/92 remain open.
+
+## S06808: optional model lane and client polling
+
+Implementation of the A2 minimum (T06823–T06827) on base `0587aed`, recorded
+2026-11-01. Machine-readable summary:
+[s06808-a2-implementation-evidence.json](../../benchmarks/2026-11-01-lexical-eligibility/s06808-a2-implementation-evidence.json).
+All runs used an owned PostgreSQL17 copy on port55460, serially. Ollama, the
+extraction provider and model identity were simulated; no model, provider,
+remote host or production system was contacted.
+
+Test-first record. Before any runtime edit, 116 new tests were run: 81 failed on
+behavior (ignored settings, default route, shared lock, missing identity checks,
+two fixed consumers, ignored `retry_after`, no pre-acknowledgement resend) and 35
+characterizations passed (default payload, default background route and lock,
+standalone and managed-profile routes, fallback polling, terminal and permanent
+failures, negotiation and old synchronous calls, ContextVars, graceful shutdown).
+Commit `fa154a8` freezes exactly those inputs. Four test-harness corrections
+followed and are listed in commit `8252a3d`; none weakened an assertion.
+
+Real-component rehearsal (`tests/service/test_model_lane_runtime.py`, 14 tests):
+lane success through the gateway; digest swap on either daemon and a daemon
+outage each keep the job pending with its attempt and accepted batch, write no
+document or audit row, then apply without a second provider call; key removal
+and restart apply on the primary daemon with the unchanged10s deadline; lane
+and default workers share the singleton lock; a revoked key blocks before any
+inference; the actual client completes through four consumers after the12/s
+window and replays a lost acknowledgement as one queued request; the API refuses
+to start above the pool reserve; and the PB06801 parity probe text accepts
+identical doubles and rejects differing vectors or digests, and a primary
+thread setting whose vectors differ from the unthreaded ones behind stored
+chunks and reuse keys (the earlier probe text accepted that case; corrected in
+self-review after the final affected run). Two mutations
+(removing the post-inference identity check; turning an outage into a
+best-effort save) each failed three tests.
+
+Populated upgrade (`tests/service/test_lexical_upgrade.py`): genuine0.6.21 also
+creates an accepted source window and a queued request. Interruption rolls
+back034, the retry preserves every table hash, and source and target backups
+restore independently. On the upgraded store the pending request blocks new
+background pages, then completes on the consumer path; genuine0.6.21 worker
+code is excluded by the singleton lock; a lane digest swap publishes nothing;
+the default lane then applies the retained extraction. Original documents,
+pins and the pending legacy job stay unchanged.
+
+The final affected run on `eb0ca10` passed 432 tests (exit0, 306.9s; one
+pre-existing Starlette deprecation warning). After the probe correction the
+probe and documentation tests were rerun on the committed source. Remaining limits: no physical
+model, cross-daemon vector parity for every actual input, resource budget,
+actual40-client load, complete independent review or full suite was run here.
+The PB06801 section is drafted, not independently reviewed or rehearsed on a
+real daemon.
+
+### S06808 review corrections and real-daemon L0/L1 rehearsal
+
+The independent review at `20e2bd4` found no Critical, High or Medium code
+findings, four Low findings and two Important playbook findings. Its real
+client/queue/worker/SQL probes passed the derived success and recovery flows;
+the model endpoints were loopback HTTP doubles. Of59 assertions,58 passed and
+one diagnostic-code observation failed; the script exited1. It was not an
+all-green probe run.
+
+Corrections `41583cb` and `590400a` add the rendered-unit inputs and template,
+pause extraction before testing, require renewed parity after model/runtime
+updates, document reachable failure/rollback decisions and clarify daemon
+aliases. The client now resets fallback waiting after a valid hint. The real
+client regression failed first; all47 client tests then passed. The final
+seven-file selection on `590400a` passed152 tests in52.54s, exit0, including
+populated0.6.21 upgrade/retry and independently restored source/target backups.
+All386 Python/SQL input hashes stayed unchanged during that selection.
+
+The [physical rehearsal record](../../benchmarks/2026-11-01-lexical-eligibility/optional-lane-playbook-rehearsal.json)
+binds L0/L1 to `590400a` on the owned4-vCPU/8-GiB Hetzner copy. The printed
+discovery and three-input parity snippets ran against two real Ollama0.31.2
+daemons using the new unit template: three vectors matched exactly across
+unthreaded primary, two-thread primary and one-thread background requests.
+The daemon journals confirm the requested thread settings. Fresh model-cgroup
+peaks were1,776,336,896 and1,769,013,248 bytes, with no hard-limit or OOM events;
+available host memory after the probe was2,864,209,920 bytes. All10 model files
+were byte-identical before/after and both owned units stopped with closed ports.
+The first probe is retained: parity passed but its observer incorrectly
+expected a process flag; the corrected observer uses Ollama's thread journal.
+
+This is a partial rehearsal, not delivery acceptance. L2/L3 with real model
+daemons and actual API/worker restarts, the complete acceptance-input parity
+matrix,40-client scoped/correct lossless load below11s and final full suite
+remain open. Low080–084
+are recorded in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6563006840).
+
+The correction review on `4828f1a` accepted the client fix and the earlier
+playbook findings, with no Critical, High or Medium code finding. Its own
+eight client cases passed, including a failing control against the old client.
+It found one new Important playbook gap: early setup failures and a stopped
+worker after recovery had no explicit restart path. The current correction
+adds a shared early-exit path, requires an active worker after recovery or
+rollback, and retains an explicit pause when the primary model is unverified.
+It also checks resident primary memory, maps listener ports to unit PIDs,
+guards installation before writing a unit and renews unit-input discovery
+after updates. These are documentation corrections; L2/L3 physical rehearsal
+and focused content recheck are still open. The focused documentation check
+passed17 tests (exit0,0.45s); no runtime, test or migration file changed.
+
+The focused content review on `f4b1afe` accepted PB-R01–05 and the as-built
+update. It found a conflicting update/rollback branch (PB-R06, Important):
+rollback could restart extraction on an unverified changed primary. The next
+correction makes verified primary identity/runtime a precondition for every
+L3 worker-start command. Its safe failure remains a recorded outage until a
+verified primary is restored. PB-R07 (Minor) is addressed by a bounded
+synthetic primary warm-up, normalized tag lookup and memory reading immediately
+before starting the second daemon. The new warm-up has not been physically
+rehearsed. Documentation tests alone do not exercise these decisions; focused
+content acceptance remains open.
+
+
+### Resource-workspace correction: diagnostic only
+
+Full-suite r4 on `57b1f51` passed2508 tests with1 skip and the known Starlette
+warning (exit0,2717.44s). The observed original managed-ANN query took0.352s.
+A separate fresh corpus after explicit `ANALYZE` passed its original regression
+without changing the2s timeout; its query took0.226s. The earlier full-r3 ANN
+failure remains unreproduced, not evidence of a repaired product defect.
+
+The owned diagnostic `6b63961b9b80` completed with controller/supervisor exit0
+and52 controller checks. After a deliberately long synthetic primary input,
+the fixed unload/check path preserved the daemon PID and released its runner.
+With API and copied PG active, worker paused and BG absent, available memory
+was4,466,782,208 bytes; the next pre-BG check measured4,444,504,064 bytes.
+With both models resident, including long-input BG workspace, it measured
+2,807,529,472 bytes. Both model identities/reference vectors matched; all six
+owned units were inactive after cleanup, and model-store/snapshot hashes were
+unchanged. Production services were not changed. This is bounded feasibility,
+not40-client latency, full parity, L2/L3 or feature acceptance.
+
+The preceding diagnostic `44eb28f98d60` stopped before capacity measurement:
+the kit compared JSON-encoded vector hashes with its float64-little-endian
+encoding. The actual vectors matched the retained full-parity reference.
+Two regression assertions failed before the correction;49 offline kit tests
+passed afterward. Both diagnostic reports are retained. After this measurement, the maintainer
+authorized deletion of disposable test files while keeping active test DBs.
+The old physical runs' stopped PG copies were removed; their compact reports,
+protocols and synthetic vector references remain available. The source dump
+and live test DBs were preserved.
+
+The new L1/L2/L3 maintenance sections and kit reset points need independent
+review and a fresh frozen full physical run. Earlier partial rehearsals do
+not establish this revised procedure. The4GiB/2GiB floors and strict search
+p95 below11s remain unchanged. The resource claim is bounded to the frozen
+foreground queries of at most73 characters; longer production inputs are
+not limited by this release and can enlarge the primary workspace.
+
+
+### Focused resource-kit correction before refreeze
+
+The fixed-unload review accepted the resource mechanism and prior ANN/full-suite
+evidence, but withheld a new physical run for two kit defects. Three lane-enabled
+rehearsal worker starts lacked their own reset/both-resident check, and the1s
+sampler recursively inventoried the host inside the client-measurement process.
+The corrected kit declares and tests all three reset points; single-primary
+key-removal recovery keeps its separate identity check. Recursive inventories
+remain at memory guards and phase boundaries. Periodic samples read resolved
+paths, retain idle production model units and nested PostgreSQL, and report
+their own elapsed time. Memory floors and sampling interval are unchanged.
+
+The first focused tests reproduced the missing worker guards and expensive
+sampler path. The final offline kit run passed53 tests. A local read-only
+characterization (10 samples) measured medians of0.107s for the full inventory
+and0.0058s for the bounded sample; this is not target-host latency evidence.
+The bounded correction still needs independent acceptance before refreeze.
+The next physical run must prove parity, L2/L3, both memory gates, all40-client
+phases below11s and all13 originals applied. No such pass is claimed here.
+
+
+### Migration035 document-permission rehearsal (bounded)
+
+The0.6.22 target now includes035 after unchanged034. The new policy's arguments
+are lazy per-statement inputs; its invoker helper has explicit PUBLIC EXECUTE
+and a catalog-qualified operator, without a search-path setting or elevated
+privileges. Existing other RLS policies remain unchanged. The frozen021 policy
+is retained under `tests/fixtures/document-permission-initplans/`.
+
+The work-contract regression was red before035 because EXPLAIN had no InitPlan.
+On2026-11-02 the final focused command covering
+`tests/service/test_document_permission_initplans.py` and
+`tests/service/test_lexical_upgrade.py` passed80 tests, exit0,57.86s. Before/after
+hashes were equal for all recorded Python/test/SQL inputs; log SHA256
+`a55c5e7dda6d74fe91119783a75979481769c3107a664fdc19d9adda1e01502c`.
+It exercises all three RLS roles, prepared live revocation, nested visibility,
+write/error parity, lazy parsing, helper inlining, point access and an actual
+caller-operator shadow. The populated archived0.6.21 path covers atomic
+interruption/retry, source and target verified backups, old-reader compatibility,
+retained original and queued work, and policy rollback/reapply under ordinary
+and non-superuser owners. The separately restored limited-owner target checks
+the policy, effective helper ACL and reused scoped reads.
+
+Two test-authoring mistakes were corrected openly. UPDATE may filter an old row
+through021's restrictive write policy instead of raising42501; both baseline and
+candidate are now checked for that zero-row outcome. The first extended-upgrade
+run passed78 tests and failed one new raw-ACL comparison: pg_dump may normalize
+an explicit default function ACL to NULL. The final comparison expands effective
+ACL entries on both sides, retaining privilege, grantee, grantor and grant option.
+The earlier failed logs remain recorded and are not green evidence.
+
+Independent SQL035 security/semantic/upgrade review accepted the bounded code
+with C0/H0/M0 and four Low observations on2026-11-02. Full verification on
+`f270752` passed2600 tests, with1 skipped and1 known Starlette warning, exit0
+in2831.94s; all388 recorded inputs remained unchanged. The log SHA256 is
+`e30f11baaccb00d25dcfaecde0f2f7fbf0fba217385289521ffd85951d3bf5d8`.
+The same-database CPU effectiveness benchmark, corrected playbook acceptance
+and the new physical run remain open.
+Neither INVALID RLS characterization supplies savings evidence. The last valid
+actual-client result remains FAIL at idle40 p95=11.42878s; the unchanged target
+is strictly less than11s in every40-client phase. No production change is claimed.
+
+#### Recovery-command correction rehearsal (2026-11-02)
+
+PB-I1/I2 prompted concrete inventory, marker and scoped-role commands and an
+explicit failure branch retaining the appropriate pre-action verified backup.
+The literal Python heredocs and rollback SQL were extracted from PB06801 and
+executed on one owned synthetic PostgreSQL17 database on port55460. Current035,
+rolled-back021 and explicitly reapplied035 each passed allowed reads, foreign
+denial, reader write denial and writer/admin gateway writes followed by rollback.
+Application-table hashes and marker035 were unchanged after each stage. An
+absent foreign UUID and a missing035 marker each failed as required. All10
+command outcomes matched their expected exit codes, and the owned DB was removed.
+No model, production database or production service was used.
+
+The literal psql paths in this correction were rehearsed as the local superuser.
+Limited-owner policy rollback/reapply and independent backup restore remain
+inherited from `test_lexical_upgrade.py`; they used psycopg and the frozen fixture,
+not these new literal shell commands. The failure-to-cutover branch is a written
+operator decision path, not a production restoration claim. PostgreSQL sequences
+may retain gaps after rollback; the probe claims no persisted application/audit
+rows, not unchanged sequence counters.
+
+Local result artifact: `document-permission-initplans/pb-correction/results.json`,
+SHA256 `758a09768f1ba9279b4a8ccbbe9932698efedcfa76745648721b797e37f7b24d`. The separate review remains pending.
+The cursor-binding limit is explicit in the requirement and playbook; write-path
+savings are not assumed because the restrictive021 UPDATE policy is unchanged.
+
+#### Control selection and quiescence correction
+
+The focused review accepted the earlier executable checks and failure branches
+but identified PB-N1 (inventory identities lack scope metadata) and PB-N2
+(live reader traces invalidate full-table comparisons). The coordinator corrected
+these bounded documentation defects: an owner query now selects actual ordinary
+documents and existing foreign controls; the scoped probe runs before policy
+changes. Full maintenance stops readers as well as writers before inventories,
+and the owner requires zero other client backends. Baseline/control failure
+blocks preflight without initiating restore. This maintenance procedure was not
+executed on production.
+
+The updated literal snippets passed14 expected command outcomes on an owned
+PG17 database: metadata selection, current/rollback/reapply for both scope
+directions, inventory comparisons and two negative controls. The missing-marker
+case now fails specifically at `marker035 missing`. An initial probe-only
+assertion wrongly expected two eligible controls; the foreign document itself
+was also eligible in its own domain. That expectation was corrected without
+changing the playbook query. Both owned databases were cleaned up. Inventory
+values in this rehearsal still come from the product Python inventory function;
+the CLI binding is source-reviewed, not newly rehearsed.
+
+The reader write denial is explicitly a GRANT test; negative RLS writes remain
+covered by the accepted SQL035 matrix. The initial upgrade now sets the safe
+search path, and restore guidance specifies0.6.22 tooling and schema035 instead
+of inheriting the linked procedure's historical version label. These mechanical
+corrections were checked by the coordinator against the focused review and
+source; no new product or SQL change and no new physical acceptance is claimed.
+
+#### C006 implemented-policy effectiveness (2026-11-02)
+
+Frozen run `84cfda604846` at `fb7774c` completed with exit0 in137.34s including
+cleanup. On one owned restored database/index, three paired rounds (AB, BA, AB)
+compared the frozen021 document policy with installed035. Each arm measured12
+metadata,12 context and12 search bodies under four fixed principals, after a
+warm-up per kind. All216 result hashes matched their36 input baselines. Stored
+verified synthetic vectors replaced model calls; no API, worker or model daemon
+was started. Parallel query and autovacuum were disabled only on this copy,
+after VACUUM ANALYZE and CHECKPOINT. This is serial SQL effectiveness evidence,
+not end-to-end throughput or a physical latency pass.
+
+The prospective gate passed: weighted CPU savings were positive in every round
+and no job kind was slower in any round. Raw backend CPU and owned PostgreSQL
+cgroup totals agree within the predeclared coverage bound. Input, output and
+policy hashes were checked; original rows were preserved. All owned units ended,
+production unit state/PIDs were unchanged, and the memory floor passed.
+The coordinator recomputed the gate from raw rows without repeating the run.
+See [raw result](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-result.json),
+[arithmetic](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-recomputed.json)
+and [frozen plan](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-plan.json).
+The range of three rounds is not a confidence interval. The abandoned0.15CPU-s
+locating heuristic was not passed or reinstated; this result uses the explicitly
+superseding design gate frozen before execution. The unchanged parent physical
+acceptance remains required.

@@ -7,6 +7,9 @@ from .engine import ResourcePressure
 
 ACTIVE = ContextVar('rag_foreground_active', default=False)
 MODEL_LOCK = 684096810
+# Issue92 A2: separate admission for the optional legacy background daemon.
+# At most one lane inference runs alongside one foreground inference.
+BACKGROUND_MODEL_LOCK = 684096811
 
 
 @contextmanager
@@ -48,9 +51,15 @@ def check_background(cfg):
 
 
 @contextmanager
-def model_slot(cfg, *, background=False):
-    """One embedding call on the shared Ollama; no 20-session batch fan-out."""
+def model_slot(cfg, *, background=False, lane=False):
+    """One embedding call on the shared Ollama; no 20-session batch fan-out.
+
+    `lane=True` (only the fenced legacy background route with a configured
+    background daemon) uses its own lock; managed profiles never set it.
+    """
     from .requests import owner
+    if lane and not background:
+        raise ValueError('the background lane admits only background work')
     if background:
         check_background(cfg)
     with owner(cfg) as conn:
@@ -58,7 +67,8 @@ def model_slot(cfg, *, background=False):
         # call. Background never queues ahead of new foreground demand.
         conn.execute("SELECT set_config('lock_timeout',%s,true)", ('1ms' if background else '15000',))
         if background:
-            if not conn.execute('SELECT pg_try_advisory_xact_lock(%s) ok', (MODEL_LOCK,)).fetchone()['ok']:
+            key = BACKGROUND_MODEL_LOCK if lane else MODEL_LOCK
+            if not conn.execute('SELECT pg_try_advisory_xact_lock(%s) ok', (key,)).fetchone()['ok']:
                 raise ResourcePressure('model_busy', 429)
             check_background(cfg)
         else:
