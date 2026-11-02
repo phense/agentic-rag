@@ -97,3 +97,26 @@ def timeline(conn, doc_id: str) -> list[TimelineEdge]:
                      r["predicate"], r["valid_from"], r["valid_to"])
         for r in rows
     ]
+
+
+def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8):
+    """Bounded one-hop originals for research, with BOTH endpoints gated before
+    LIMIT. Unlike general recursive graph tools this also applies domain selection.
+    Invoker-only: no new privilege or SQL function is introduced.
+    """
+    if type(limit) is not int or not 1 <= limit <= 8:
+        raise ValueError('research neighbor limit must be between 1 and 8')
+    return conn.execute('''SELECT e.id edge_id,e.predicate,left(e.evidence,600) edge_evidence,e.confidence,
+               d.id,d.title,d.slug,d.domain,d.dtype,d.verified_at,d.provenance,e.src_id,e.dst_id
+               FROM edges e JOIN documents src ON src.id=e.src_id JOIN documents dst ON dst.id=e.dst_id
+               JOIN documents d ON d.id=CASE WHEN e.src_id=%s::uuid THEN e.dst_id ELSE e.src_id END
+               WHERE (e.src_id=%s::uuid OR e.dst_id=%s::uuid) AND src.id<>dst.id
+               AND e.predicate=ANY(%s) AND nullif(btrim(e.evidence),'') IS NOT NULL
+               AND src.status='active' AND dst.status='active'
+               AND assertion_eligible(src.id,%s,%s) AND assertion_eligible(dst.id,%s,%s)
+               AND (%s OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
+               AND (%s::text IS NULL OR (src.domain=%s AND dst.domain=%s))
+               AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
+               ORDER BY e.predicate,d.slug,d.id,e.id LIMIT %s''',
+        (doc_id,doc_id,doc_id,['references','depends_on','extends','derived_from','contradicts','contrasts_with'],
+         at,history,at,history,history,at,at,domain,domain,domain,scopes,scopes,scopes,limit+1)).fetchall()
