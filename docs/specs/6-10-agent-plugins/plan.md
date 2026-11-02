@@ -356,3 +356,15 @@ non-capacity errors. Independently review the bounded delta, rerun affected
 client/upgrade checks and the complete suite, then freeze one new physical
 acceptance run. The failed run and its protocol remain evidence; no adaptive
 retry, relaxed warm-up, weaker memory floor or changed p95 target is allowed.
+
+
+## Bounded document-permission work change after idle40
+
+The actual-client run4bc7a705cd49 failed idle40 at search p95=11.42878s against
+strictly less than11s. The separate [document-permission-initplans change](../../openspec/changes/document-permission-initplans/proposal.md)
+adds035 without changing the A2 architecture. Its design explicitly supersedes
+the earlier0.15CPU-s selection heuristic prospectively; both INVALID RLS
+characterizations remain INVALID. Three fresh paired rounds must each save
+weighted CPU, with no job kind slower in any round, before another physical run.
+All parent acceptance and memory gates remain unchanged. A physical FAIL leaves
+#68/#92 and T06821 open; standalone shipping would require a maintainer decision.

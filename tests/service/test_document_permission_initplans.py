@@ -126,10 +126,17 @@ def test_scoped_insert_and_update_keep_error_contract(permission_db,role,wd,wp,d
                     # Policy-only writes are deliberately rolled back. Persistent
                     # fixtures above use the real audited gateway.
                     if operation=='insert':conn.execute("INSERT INTO documents(title,slug,body,domain,dtype,project_scope) VALUES ('Permission transient','permission-transient','synthetic',%s,'memory',%s)",(domain,project))
-                    else:conn.execute('UPDATE documents SET domain=%s,project_scope=%s WHERE id=%s',(domain,project,docs[0]['id']))
+                    else:
+                        changed=conn.execute('UPDATE documents SET domain=%s,project_scope=%s WHERE id=%s RETURNING id',(domain,project,docs[0]['id'])).fetchall()
+                        if not changed:
+                            outcomes.append('filtered');continue
                     outcomes.append('ok')
             except psycopg.Error as exc:outcomes.append(exc.sqlstate)
-        assert outcomes==[expected,expected],(operation,role,outcomes)
+        # 021 also has a RESTRICTIVE UPDATE policy for the OLD row.
+        # An unreadable-for-write old row is filtered (zero rows), while a
+        # forbidden proposed value on a writable old row raises42501.
+        result='filtered' if operation=='update' and (wd in ('[]','null') or wp=='[]') else expected
+        assert outcomes==[result,result],(operation,role,outcomes)
 
 
 def test_policy_inputs_are_lazy_inlined_and_keep_point_access(permission_db):
@@ -163,3 +170,20 @@ def test_helper_is_pure_hardened_and_executable_for_existing_roles(permission_db
         # Input-only helper keeps PUBLIC execution like the original helper,
         # preserving extra deployment roles without adding table authority.
         assert conn.execute("SELECT EXISTS(SELECT FROM aclexplode(proacl) WHERE grantee=0 AND privilege_type='EXECUTE') ok FROM pg_proc WHERE oid=to_regprocedure(%s)",(HELPER,)).fetchone()['ok']
+
+
+def test_caller_operator_shadow_cannot_change_permissions(permission_db):
+    cfg,_=permission_db
+    with db.connect(cfg) as conn:
+        try:
+            conn.execute('CREATE SCHEMA permission_shadow')
+            conn.execute("CREATE FUNCTION permission_shadow.match_all(jsonb,text[]) RETURNS boolean LANGUAGE sql IMMUTABLE AS 'SELECT true'")
+            conn.execute('CREATE OPERATOR permission_shadow.?| (FUNCTION=permission_shadow.match_all,LEFTARG=jsonb,RIGHTARG=text[])')
+            conn.execute('GRANT USAGE ON SCHEMA permission_shadow TO rag_reader')
+            conn.execute('SET LOCAL ROLE rag_reader')
+            conn.execute('SET LOCAL search_path=permission_shadow,public,pg_catalog')
+            bind(conn,rd='[]')
+            assert conn.execute("SELECT '[]'::jsonb ?| ARRAY['alpha'] matched").fetchone()['matched'] is True
+            assert conn.execute("SELECT public.rag_service_permission('alpha','[]') allowed").fetchone()['allowed'] is False
+            assert conn.execute('SELECT id FROM public.documents').fetchall()==[]
+        finally:conn.rollback()

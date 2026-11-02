@@ -12,7 +12,7 @@ version: 0.6.22
 - Class: system.
 - Origin: Issue #68, FR01–09 in [the specification](../specs/6-10-agent-plugins/spec.md).
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
-- Target: 0.6.22/schema034; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
+- Target: 0.6.22/schema035; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
 - Last edited: 2026-11-01 (optional daemon section corrected after S06808 review; L0/L1 physically rehearsed on owned copies. Renewed content review, L2/L3 real-model rehearsal and final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
@@ -297,8 +297,13 @@ origin gate after the existing explicit restore/cutover procedure.
 
 This step is independent of source-origin quarantine. Migration034 replaces
 four SQL search functions and the existing source-write permission helper
-atomically. It changes no original rows, vectors, scopes, grants, installation
-configuration or wire fields. Its retrieval-local
+atomically. Migration035 changes only the existing document policy expressions
+and adds a pure, invoker permission helper. Permission JSON is read lazily once
+per statement input, including each execution of a prepared generic plan. The
+helper deliberately permits PUBLIC execution: it evaluates caller-supplied
+arguments and reads no data. Existing table grants, roles and the other RLS
+policies stay in force. Neither migration changes original rows, vectors, scopes,
+installation configuration or wire fields. Its retrieval-local
 `jit=off` setting bounds compilation cost and is restored automatically on return;
 raw/contextual vector gates keep eligibility before ranking and limits. On
 pgvector0.8+ they continue the ANN scan past filtered neighbours. An incomplete
@@ -306,12 +311,14 @@ pgvector0.8+ they continue the ANN scan past filtered neighbours. An incomplete
 exact path directly. Caller scan/memory caps remain unchanged. The fallback
 preserves filtered recall but can require checking the whole eligible corpus;
 the dense-fixture work bound is not a general latency guarantee. Existing0.6.21 readers accept
-schema034. New0.6.22 service processes refuse access until034 is installed.
+schema035. New0.6.22 service processes refuse access until034 and035 are installed.
 Prepare0.6.22 in its own environment and reinstall editable packages so their
 distribution metadata agrees with the source. Retain the0.6.21 environment.
 Rebuild disposable rehearsals that already applied an earlier unpublished034:
 the migration ledger records filenames and will not reapply an edited file.
-Do not clear ledger rows or replay SQL manually on an existing installation.
+Do not clear ledger rows or replay edited migration files on an existing
+installation. The narrowly scoped035 recovery below is the only explicit SQL
+reapplication in this procedure.
 
 A non-superuser deployment owner needs the existing DBA-prepared vector
 extension/preload setup from the [service installation procedure](../13-central-service.md#start-and-verify-the-central-service).
@@ -339,7 +346,8 @@ reconfigure them. Do not edit migration history to enable that optimization.
 3. Run `rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
    For a restricted owner, append `--verification-template TEMPLATE` using the
    prepared template described above. Require `restore_verified` and
-   `original_rows_unchanged`, with only `034_lexical_eligibility_work.sql` applied. The command verifies its backup by
+   `original_rows_unchanged`, with exactly `034_lexical_eligibility_work.sql` and
+   `035_document_permission_initplans.sql` applied, in that order. The command verifies its backup by
    independent restore before changing the database. A failed apply rolls back;
    inspect the error and schema inventory, then retry once with a fresh dump
    path after correcting the cause. If the retry fails, keep writers paused and
@@ -360,9 +368,10 @@ characterization results are in [source-permission plan reuse](../benchmarks/202
 they do not establish the 40-client latency target.
 
 The populated rehearsal is `tests/service/test_lexical_upgrade.py`: genuine
-archived0.6.21 creates the store, an injected interruption rolls back034, retry
+archived0.6.21 creates the store, an injected interruption rolls back034/035, retry
 preserves originals and function privileges, the old scoped reader still returns
 identical responses, and both source and target backups restore independently.
+
 Restart all0.6.22 API processes for the scoped thematic selection repair as well;
 it changes only the reader query, with no stored cache, knowledge or pending-job
 rewrite. Existing0.6.21 readers retain their previous results and query costs.
@@ -424,13 +433,58 @@ one sizing check, not a sustained-load or latency-SLA acceptance.
 
 Production service restarts and cross-host routing require their own rollout checks.
 
-For code recovery keep schema034 and the verified0.6.22 backup tooling;
+For code recovery keep schema035 and the verified0.6.22 backup tooling;
 0.6.21 readers remain compatible. Do not remove a migration marker or replace
-functions manually. To restore pre-upgrade state, follow the verified restore
+functions outside the bounded035 recovery below. To restore pre-upgrade state, follow the verified restore
 and explicit database cutover in the
 [source-evidence recovery procedure](system/rag-063-source-evidence-upgrade.md).
 That snapshot excludes later writes; stop writers and account for retained
 spools before cutover. No lossless downgrade after new writes is implied.
+
+### Recovery from a document-policy plan regression
+
+Use this path only after the verified0.6.21→0.6.22 upgrade has completed and
+investigation has isolated a plan regression to035. It restores the exact021
+document policy expressions, retaining034 and every original, history row and
+queued job. It does not downgrade the schema or remove migration markers.
+
+1. Pause writers as in upgrade step2. Record a current inventory and create a
+   verified0.6.22 backup with the step4 command, using a new dump path. If either
+   operation fails, retain its error and keep writers paused; stop here.
+2. Resolve `DB_SERVICE` to the installation's existing owner-accessible libpq
+   service entry for that same database. Confirm its identity with
+   `psql -X "service=DB_SERVICE" -c 'SELECT current_database(),current_user'`.
+   Run the following SQL through that connection with
+   `psql -X -v ON_ERROR_STOP=1 "service=DB_SERVICE"`. It is one transaction:
+
+   ```sql
+   BEGIN;
+   ALTER POLICY service_documents ON public.documents
+     USING (public.rag_service_document(domain,project_scope))
+     WITH CHECK (public.rag_service_document(domain,project_scope,true));
+   DROP FUNCTION public.rag_service_permission(text,jsonb);
+   COMMIT;
+   ```
+
+   Any error rolls back when the connection closes. Retain the error, confirm
+   the inventory and keep writers paused; do not drop other helpers or policies.
+3. Confirm inventory still lists035. Using real scoped reader, writer and admin
+   principals, check an allowed read, a denied foreign read, and a permitted
+   write. Resume writers only after these checks pass. Preserve both inventories
+   and the backup. Code0.6.22 and archived0.6.21 readers work in this state; it
+   restores the previous query costs, not a measured latency target.
+4. Re-enable035 only after the cause is resolved and the exact release SQL has
+   passed the populated rehearsal. Pause writers again and create another
+   verified backup. Resolve `RELEASE_ROOT` to the retained0.6.22 release directory;
+   then run `psql -X -v ON_ERROR_STOP=1 --single-transaction "service=DB_SERVICE" --file RELEASE_ROOT/sql/035_document_permission_initplans.sql`.
+   Repeat step3's inventory and scoped checks before resuming writers. Ordinary
+   `upgrade --apply` retains035's marker and deliberately does not reapply it.
+   A failed reapplication leaves the previous expressions intact: retain the
+   error and escalate, without deleting the marker or retrying blindly.
+
+The populated upgrade rehearsal exercises this rollback and explicit reapply,
+including an owner without superuser privileges and an independently restored
+target. No production execution or40-client performance pass is implied.
 
 ## Optional background embedding daemon
 

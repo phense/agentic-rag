@@ -8,13 +8,13 @@
 
 ## Tests
 
-- [ ] C001 Freeze the 021 policy fixture; characterize role/settings/read/write/nested and error parity, full-scope generic-plan revocation and point paths. Observe a failing once-per-statement plan-work test before 035. Catches missing admin EXECUTE, eager JSON parsing, stale prepared permissions and non-inlining.
+- [x] C001 Freeze the 021 policy fixture; characterize role/settings/read/write/nested and error parity, full-scope generic-plan revocation and point paths. Observe a failing once-per-statement plan-work test before 035. Catches missing admin EXECUTE, eager JSON parsing, stale prepared permissions and non-inlining.
 
 ## Implementation
 
-- [ ] C002 Add only migration 035's pure helper and document-policy expressions; qualify the operator, explicitly retain PUBLIC EXECUTE and every existing role. Preserve 001–034. Depends C001.
-- [ ] C003 Pass parity, lazy evaluation, shadowing/inlining and live revocation checks; retain test evidence for the actual baseline and current expressions. Depends C002.
-- [ ] C004 Extend populated 0.6.21 upgrade/retry/source+target independent restore and limited-owner tests; prove rollback/reapply and original-row/queued-work invariants. Reconcile migration-count assertions without weakening them. Depends C003.
+- [x] C002 Add only migration 035's pure helper and document-policy expressions; qualify the operator, explicitly retain PUBLIC EXECUTE and every existing role. Preserve 001–034. Depends C001.
+- [x] C003 Pass parity, lazy evaluation, shadowing/inlining and live revocation checks; retain test evidence for the actual baseline and current expressions. Depends C002.
+- [x] C004 Extend populated 0.6.21 upgrade/retry/source+target independent restore and limited-owner tests; prove rollback/reapply and original-row/queued-work invariants. Reconcile migration-count assertions without weakening them. Depends C003.
 - [ ] C005 Independently review the complete RLS/migration/upgrade diff; resolve C/H/M and record Low. Depends C004.
 - [ ] C006 Freeze and run the fresh effectiveness benchmark under the prospective design gate; any invalid or ineffective run stops delivery. Depends C005.
 

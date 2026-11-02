@@ -980,3 +980,40 @@ and0.0058s for the bounded sample; this is not target-host latency evidence.
 The bounded correction still needs independent acceptance before refreeze.
 The next physical run must prove parity, L2/L3, both memory gates, all40-client
 phases below11s and all13 originals applied. No such pass is claimed here.
+
+
+### Migration035 document-permission rehearsal (bounded)
+
+The0.6.22 target now includes035 after unchanged034. The new policy's arguments
+are lazy per-statement inputs; its invoker helper has explicit PUBLIC EXECUTE
+and a catalog-qualified operator, without a search-path setting or elevated
+privileges. Existing other RLS policies remain unchanged. The frozen021 policy
+is retained under `tests/fixtures/document-permission-initplans/`.
+
+The work-contract regression was red before035 because EXPLAIN had no InitPlan.
+On2026-11-02 the final focused command covering
+`tests/service/test_document_permission_initplans.py` and
+`tests/service/test_lexical_upgrade.py` passed80 tests, exit0,57.86s. Before/after
+hashes were equal for all recorded Python/test/SQL inputs; log SHA256
+`a55c5e7dda6d74fe91119783a75979481769c3107a664fdc19d9adda1e01502c`.
+It exercises all three RLS roles, prepared live revocation, nested visibility,
+write/error parity, lazy parsing, helper inlining, point access and an actual
+caller-operator shadow. The populated archived0.6.21 path covers atomic
+interruption/retry, source and target verified backups, old-reader compatibility,
+retained original and queued work, and policy rollback/reapply under ordinary
+and non-superuser owners. The separately restored limited-owner target checks
+the policy, effective helper ACL and reused scoped reads.
+
+Two test-authoring mistakes were corrected openly. UPDATE may filter an old row
+through021's restrictive write policy instead of raising42501; both baseline and
+candidate are now checked for that zero-row outcome. The first extended-upgrade
+run passed78 tests and failed one new raw-ACL comparison: pg_dump may normalize
+an explicit default function ACL to NULL. The final comparison expands effective
+ACL entries on both sides, retaining privilege, grantee, grantor and grant option.
+The earlier failed logs remain recorded and are not green evidence.
+
+The same-database CPU effectiveness benchmark, independent security/playbook
+acceptance, broad/full verification and the new physical run remain open.
+Neither INVALID RLS characterization supplies savings evidence. The last valid
+actual-client result remains FAIL at idle40 p95=11.42878s; the unchanged target
+is strictly less than11s in every40-client phase. No production change is claimed.

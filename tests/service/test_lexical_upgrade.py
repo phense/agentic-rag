@@ -124,6 +124,70 @@ def assert_source_permissions_on_reused_connection(cfg):
                 assert actual is allowed
 
 
+
+def document_permission_state(cfg):
+    with db.connect(cfg) as conn:
+        helper=conn.execute("""SELECT pg_get_userbyid(proowner) owner,
+            (SELECT jsonb_agg(jsonb_build_array(
+                CASE WHEN grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(grantee) END,
+                pg_get_userbyid(grantor),privilege_type,is_grantable)
+                ORDER BY grantee,grantor,privilege_type,is_grantable)
+             FROM aclexplode(COALESCE(proacl,acldefault('f',proowner)))) acl,provolatile,
+            prosecdef,proleakproof,proisstrict,proparallel,proconfig,prosrc
+            FROM pg_proc WHERE oid=to_regprocedure('public.rag_service_permission(text,jsonb)')""").fetchone()
+        assert helper is not None
+        assert not helper['prosecdef'] and not helper['proleakproof'] and not helper['proisstrict']
+        assert helper['proparallel']=='u' and helper['proconfig'] is None
+        for role in ('rag_reader','rag_writer','rag_admin'):
+            assert conn.execute("SELECT has_function_privilege(%s,'public.rag_service_permission(text,jsonb)','EXECUTE') ok",(role,)).fetchone()['ok']
+        policy=conn.execute("""SELECT polname,polcmd,polpermissive,polroles::text,
+            pg_get_expr(polqual,polrelid) using_expr,pg_get_expr(polwithcheck,polrelid) check_expr
+            FROM pg_policy WHERE polname='service_documents'""").fetchone()
+        assert 'rag_service_permission' in policy['using_expr']
+        assert 'read_domains' in policy['using_expr'] and 'write_domains' in policy['check_expr']
+        return dict(helper=dict(helper),policy=dict(policy))
+
+
+def assert_document_permissions_on_reused_connection(cfg):
+    for role in ('reader','writer','admin'):
+        with db.connect(cfg,role=role) as conn:
+            conn.execute('SET plan_cache_mode=force_generic_plan')
+            conn.execute('PREPARE upgraded_document_read AS SELECT id,domain,project_scope FROM documents ORDER BY id')
+            initial=None
+            for domain,project in [('general','/synthetic/a'),('operations','/synthetic/b'),('general','/synthetic/a')]:
+                who=Principal('upgraded-reader','owned','test',frozenset({domain}),frozenset(),frozenset({project}),frozenset())
+                apply_connection(conn,RequestScope(who,cfg,True))
+                seen=conn.execute('EXECUTE upgraded_document_read').fetchall()
+                assert seen and all(r['domain']==domain and r['project_scope']==project for r in seen)
+                if initial is None:initial=seen
+            assert seen==initial
+
+
+def exercise_document_policy_rollback_reapply(cfg,archived=None):
+    before=upgrade.inventory(cfg,'0.6.22',identities=True)
+    original=document_permission_state(cfg)
+    fixture=Path(__file__).parents[1]/'fixtures/document-permission-initplans/before.sql'
+    with db.connect(cfg) as conn:
+        conn.execute(fixture.read_text())
+        conn.execute('DROP FUNCTION public.rag_service_permission(text,jsonb)')
+        conn.commit()
+        assert conn.execute("SELECT count(*) n FROM schema_migrations WHERE filename='035_document_permission_initplans.sql'").fetchone()['n']==1
+        validate_schema(conn)
+    assert_document_permissions_on_reused_connection(cfg)
+    if archived is not None:
+        read,expected=archived
+        assert read()==expected
+    assert upgrade.verify_preserved(cfg,before)['unchanged']
+    # Marker is intentionally retained; the operator explicitly reapplies the
+    # owned release SQL, rather than deleting migration history or user data.
+    with db.connect(cfg) as conn:
+        conn.execute((db.SQL_DIR/'035_document_permission_initplans.sql').read_text())
+        conn.commit()
+        validate_schema(conn)
+    assert document_permission_state(cfg)==original
+    assert_document_permissions_on_reused_connection(cfg)
+    assert upgrade.verify_preserved(cfg,before)['unchanged']
+
 def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path, monkeypatch, ollama):
     monkeypatch.setattr(query_cache, 'model_digest', lambda cfg: 'a' * 64)
     root = Path(__file__).resolve().parents[2]
@@ -170,7 +234,7 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         changed = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'upgrade.dump',
                                         apply=True, writers_stopped=True)
-        assert changed['migrations_applied'] == ['034_lexical_eligibility_work.sql']
+        assert changed['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         # Only the documented, function-local compiler setting changes. All old
         # settings and OID/owner/grants/security/signature fields remain exact.
@@ -189,11 +253,14 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
             expected_privileges.append(row | {'proconfig': settings})
         assert function_privileges(cfg) == expected_privileges
         assert_source_permissions_on_reused_connection(cfg)
-        assert old_read() == old_results  # Genuine archived0.6.21 with schema034.
+        assert_document_permissions_on_reused_connection(cfg)
+        document_permission_state(cfg)
+        exercise_document_policy_rollback_reapply(cfg,archived=(old_read,old_results))
+        assert old_read() == old_results  # Genuine archived0.6.21 with schema035.
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         with db.connect(cfg) as c:
             validate_schema(c)
-            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 34
+            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 35
             assert c.execute("SELECT count(*) n FROM mining_queue WHERE kind='mine' AND session_id='pending-lexical'").fetchone()['n'] == 1
         retry = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'retry.dump',
                                       apply=True, writers_stopped=True)
@@ -337,7 +404,7 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                             before = upgrade.inventory(cfg, '0.6.21', identities=True)
                             upgraded = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'limited-upgrade.dump',
                                 apply=True, writers_stopped=True, verification_template=template.db_name)
-                            assert upgraded['migrations_applied'] == ['034_lexical_eligibility_work.sql']
+                            assert upgraded['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql']
                             assert upgraded['restore_verified'] and upgraded['original_rows_unchanged']
                             assert upgrade.verify_preserved(cfg, before)['unchanged']
                             target = upgrade.verified_backup(cfg, '0.6.22', tmp_path / 'limited-target.dump',
@@ -347,8 +414,10 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                             target_privileges = [{k: v for k, v in row.items() if k != 'oid'}
                                                  for row in function_privileges(cfg)]
                             assert_source_permissions_on_reused_connection(cfg)
+                            permission_state=document_permission_state(cfg)
+                            exercise_document_policy_rollback_reapply(cfg)
                             with db.connect(cfg) as c:
-                                assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 34
+                                assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 35
                                 assert c.execute("SELECT count(*) n FROM mining_queue WHERE session_id='pending-lexical'").fetchone()['n'] == 1
                             # Also restore the real target archive into a separate
                             # owner-created database and exercise the SQL there.
@@ -358,6 +427,8 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                                 assert [{k: v for k, v in row.items() if k != 'oid'}
                                         for row in function_privileges(restored)] == target_privileges
                                 assert_source_permissions_on_reused_connection(restored)
+                                assert document_permission_state(restored)==permission_state
+                                assert_document_permissions_on_reused_connection(restored)
                                 with db.connect(restored) as c:
                                     assert not c.execute('SELECT rolsuper FROM pg_roles WHERE rolname=current_user').fetchone()['rolsuper']
                                     assert c.execute("SELECT count(*) n FROM hybrid_search_candidates('blue')").fetchone()['n'] > 0
