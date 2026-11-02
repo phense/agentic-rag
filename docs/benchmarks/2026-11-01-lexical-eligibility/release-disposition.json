@@ -1,0 +1,47 @@
+{
+  "release": "0.6.22",
+  "source_head": "d8be2a749e9eda624231a5773b74fed5a54de8dc",
+  "maintainer_direction": "2026-11-02: prioritize completing the PR with verified correct behavior; stop further speculative performance work.",
+  "scope": "Reviewed retrieval, permission-plan, client polling and optional model-lane changes; no connection pool prototype.",
+  "verification": {
+    "full_suite": {
+      "tested_head": "f270752f20aad4acdafeec04241031a2bf9e71db",
+      "passed": 2600,
+      "skipped": 1,
+      "known_warnings": 1,
+      "exit_code": 0,
+      "log_sha256": "e30f11baaccb00d25dcfaecde0f2f7fbf0fba217385289521ffd85951d3bf5d8",
+      "current_input_hashes_verified": 388
+    },
+    "upgrade": "Populated archived0.6.21 to0.6.22, retry, independent source/target restores under limited owner, original rows/ACL/jobs preserved; schema035 rollback/reapply tested.",
+    "independent_reviews": "Bounded runtime deltas accepted without Critical/High/Medium findings. Recovery playbook findings corrected with executable owned-copy checks.",
+    "other": "Node, offline lock, wheel content and documentation checks passed; evidence retained in repository and run artifacts."
+  },
+  "physical": {
+    "run": "6c6aaa6d778b",
+    "status": "FAIL",
+    "first_failed_gate": "phase:noarrivals40:search_p95_strict_lt_11",
+    "search_p95_seconds": 11.057008561911061,
+    "threshold": "strictly below11seconds",
+    "later_gates_not_run": [
+      "drain",
+      "negative_controls_after",
+      "inference_audit",
+      "oracle",
+      "originals",
+      "resources",
+      "source_unchanged"
+    ],
+    "limitations": [
+      "Physical result is not a correctness or lossless-drain acceptance.",
+      "Trace recorder degraded under load; background retry can repeat an embedding.",
+      "No production rollout, SLA or feature6.10 acceptance is claimed."
+    ]
+  },
+  "issue_disposition": {
+    "68": "Remain open; native/performance acceptance incomplete.",
+    "92": "Remain open; strict latency and complete physical acceptance incomplete.",
+    "75": "Retains nonblocking findings."
+  },
+  "production": "Separate authorization and documented upgrade procedure required."
+}
