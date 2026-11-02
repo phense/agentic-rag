@@ -1,0 +1,76 @@
+{
+  "feature": "RAG-069 / Issue69 / backlog6.11",
+  "baseline_revision": "c33e11fd5ccc4fa1e11c92fbcd16e9fee0cbdcd9",
+  "reviewed_runtime_revision": "1036e1041b242ebf14a996616994a261680fa321",
+  "full_suite_revision": "e8169ccb3463752508dad05f63cdb51feea17450",
+  "runtime_tests_sql_unchanged_since_review": true,
+  "version": "0.6.24",
+  "schema": "001..035 unchanged",
+  "full_suite": {
+    "command": [
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--tb=short",
+      "--durations=20"
+    ],
+    "started": "2026-11-02T16:05:26.948233+00:00",
+    "finished": "2026-11-02T16:56:31.125875+00:00",
+    "exit_code": 0,
+    "passed": 2623,
+    "skipped": 1,
+    "known_warnings": 1,
+    "pytest_seconds": 3061.68,
+    "runner_seconds": 3064.16,
+    "source_aggregate": "410ac1003855c9ce964d00a000f4ed4ccce049120730b2683044d1ccc88d9b2c",
+    "log_sha256": "d5590b2814a762e50f2afe833d789c514c77958ca6f7d8010ecfb81fdacca933",
+    "sources_unchanged": true,
+    "input_files": 392,
+    "result_sha256": "14ced4ba337aa45568344fa994e94aae46b7fd050f795e42d0f6c3e7d4827948"
+  },
+  "focused_suite": {
+    "passed": 154,
+    "exit_code": 0,
+    "log_sha256": "f7ae6fa0a45ede021e210634edbf4588a5657722ac83bc2b280923d487dc64a1"
+  },
+  "independent_review": {
+    "report_sha256": "972efc347341eb4138e1320981adb74da7ad286dca6cf93214e6c3812030a589",
+    "initial_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "low": 5
+    },
+    "medium_disposition": "Resolved by repeated source-bound measurement on reviewed runtime; no runtime edit",
+    "remaining_blocking_findings": 0,
+    "low_followup": "https://github.com/phense/agentic-rag/issues/75#issuecomment-6580996256",
+    "playbook_important": 0,
+    "playbook_minor_corrected": 2,
+    "independent_integrations": [
+      "alias original",
+      "three-hop original",
+      "hidden RLS bridge",
+      "withdrawn source and restoration",
+      "call budget and independent retry",
+      "pure-read table hashes unchanged"
+    ]
+  },
+  "measurement_sha256": "c24fda2f289a89bfdd00eebc52d7239aa14ce3b75277d9e3eb28def02dc3375b",
+  "release_checks": {
+    "node_tests_passed": 7,
+    "lock_check_exit": 0,
+    "sdist_and_wheel_build_exit": 0,
+    "wheel_sql_files_byte_equal": 35,
+    "wheel_research_modules_byte_equal": 3
+  },
+  "interrupted_run": {
+    "exit_code": 143,
+    "counted_as_pass": false,
+    "replacement": "persistent user unit with2h limit"
+  },
+  "production_adoption": false,
+  "issue68_92_acceptance": false
+}

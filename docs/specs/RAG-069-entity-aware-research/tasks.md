@@ -25,10 +25,10 @@ Base c33e11f. Complete bounded independent review remains mandatory before PR.
   AC006, SC001/002. Depends: T069-003.
 - [x] T069-006: Update PB-5.6 with playbook-authoring/review; synchronize0.6.24 release
   metadata and supported source label; reconcile architecture. Depends: T069-004/005.
-- [ ] T069-007: Independent complete bounded review including PB-5.6 and derived
+- [x] T069-007: Independent complete bounded review including PB-5.6 and derived
   integration tests; fix confirmed findings, final full suite and package/lock checks.
   SC003. Depends: T069-006.
-- [ ] T069-008: Converge AC/IC/AF evidence, publish PR linked to69 with measured
+- [x] T069-008: Converge AC/IC/AF evidence, publish PR linked to69 with measured
   before/after, request specific merge approval. No production change inferred.
   Depends: T069-007.
 
@@ -40,5 +40,8 @@ Independent architect-derived alias/three-hop/RLS/source-withdrawal/budget-retry
 probes pass; pure-read table hashes are unchanged. PB review has0 Important;
 both Minor findings are corrected. The sole Medium provenance finding is
 resolved by a fresh source-bound measurement on1036e10. Five nonblocking Low
-findings are tracked in Issue75 (LOW111..115). T069-007 awaits the full suite;
-T069-008 awaits convergence and final PR approval.
+findings are tracked in Issue75 (LOW111..115). Final full suite:2623passed,
+1skipped,1knownwarning,exit0,3061.68s; all392 inputs unchanged.7Node tests,
+lock,source/wheel build and35SQL/3module wheel parity passed. AC/IC/AF evidence
+is reconciled. PR97 is published and ready for the required specific merge
+approval; neither merge nor production adoption is claimed.

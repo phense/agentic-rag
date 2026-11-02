@@ -6,12 +6,12 @@ doc_id: standalone
 readers: [repository-maintainers]
 depends_on: []
 assets: []
-last_reviewed: unreviewed
+last_reviewed: 2026-11-02
 summary: Original-evidence coverage, limits and compatibility evidence for Issue69.
 audience: repository maintainers
 version: 0.6.24
 last_verified: 2026-11-02
-status: independent review disposition verified; full suite pending
+status: verified; specific PR merge approval pending
 ---
 
 # Entity-aware research verification
@@ -57,6 +57,29 @@ Observed: **154 passed**, one existing Starlette deprecation warning, exit0,
 83.43s pytest time (85.12s including runner overhead). All392 recorded Python/SQL
 inputs were unchanged during the run. This is focused verification, not a full
 suite result. No production store or inference provider was used.
+
+## Final full-suite verification
+
+The complete Python suite passed on `e8169ccb3463752508dad05f63cdb51feea17450`:
+**2623 passed,1 skipped,1 known Starlette deprecation warning**, exit0,3061.68s
+pytest time (3064.16s including runner overhead). All392 Python/SQL input hashes
+are unchanged and match the reviewed runtime. The aggregate equals the measurement
+source aggregate above. Later changes only reconcile documentation and evidence.
+
+```sh
+LD_LIBRARY_PATH=/path/to/browser-libs/usr/lib/x86_64-linux-gnu \
+PGPORT=55460 PGUSER=administrator .venv/bin/python -m pytest -q \
+  -p no:cacheprovider --tb=short --durations=20
+```
+
+The [verification record](../benchmarks/2026-11-02-entity-research/verification.json)
+contains the exact command, times, source aggregate and log SHA256
+`d5590b2814a762e50f2afe833d789c514c77958ca6f7d8010ecfb81fdacca933`.
+The first interactive full run was externally terminated with143 near its end;
+it has no terminal test result and is not counted. The replacement ran in a
+persistent user service with a two-hour limit. No product, test or SQL correction
+occurred between those runs. The slowest test was the4096-chunk vector boundary
+case (471.01s); several vector recall fixture setups required30–61s each.
 
 ## Held-out comparison
 
@@ -145,7 +168,8 @@ budget-exhaustion retry through the actual reader subprocess. Pure read phases
 preserved table hashes. A faulty probe expectation incorrectly disallowed literal
 support during semantic abstention; the report explicitly corrects that expectation.
 Both playbook Minor findings (editable code adoption and named worker termination
-values) are corrected. The final full Python suite is still running. Package
-build,35SQL/3module wheel parity,7Node tests and lock checks have passed. This
-record does not close Issue68/92 or relax their physical performance gate. Issue69
-is ready for merge approval only after its own remaining gates have passed.
+values) are corrected. The final full Python suite, package build,35SQL/3module
+wheel parity,7Node tests and lock checks have passed. The AC/IC/as-built evidence
+is reconciled with no remaining blocking gap. [PR97](https://github.com/phense/agentic-rag/pull/97)
+is ready for specific merge approval. This record does not close Issue68/92, relax
+their physical performance gate, or authorize production adoption.

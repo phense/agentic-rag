@@ -463,9 +463,10 @@ Held-out synthetic comparison: relevant originals9/15→15/15, zero unsupported
 statements or span errors; serial engine p95 increases0.0770→0.1698s. Populated
 0.6.23 source/target backup restores and old-reader rollback pass. Independent
 review has no remaining C/H/M after the measurement-provenance correction;
-five Low findings are tracked in Issue75. Final full-suite verification and
-specific PR approval remain open. This is not a live rollout or production-latency
-claim. [Evidence](docs/verification/entity-aware-research.md),
+five Low findings are tracked in Issue75. Full suite:2623passed,1skipped,
+1knownwarning,exit0;7Node tests and package/lock checks passed.
+[PR97](https://github.com/phense/agentic-rag/pull/97) awaits specific merge approval.
+This is not a live rollout or production-latency claim. [Evidence](docs/verification/entity-aware-research.md),
 [operation](docs/bounded-research.md).
 
 ## Incremental thematic profiles (issue #32)

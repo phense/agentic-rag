@@ -4,7 +4,7 @@
 
 - Feature ID: RAG-069; stable backlog ID: 6.11.
 - Source request: [Issue69](https://github.com/phense/agentic-rag/issues/69).
-- Status: Implemented; independent review disposition recorded, final verification pending.
+- Status: Implemented and verified; PR97 awaits specific merge approval.
 
 ## User scenarios
 
