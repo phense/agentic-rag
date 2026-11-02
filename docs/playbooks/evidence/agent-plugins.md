@@ -1012,8 +1012,39 @@ an explicit default function ACL to NULL. The final comparison expands effective
 ACL entries on both sides, retaining privilege, grantee, grantor and grant option.
 The earlier failed logs remain recorded and are not green evidence.
 
-The same-database CPU effectiveness benchmark, independent security/playbook
-acceptance, broad/full verification and the new physical run remain open.
+Independent SQL035 security/semantic/upgrade review accepted the bounded code
+with C0/H0/M0 and four Low observations on2026-11-02. Full verification on
+`f270752` passed2600 tests, with1 skipped and1 known Starlette warning, exit0
+in2831.94s; all388 recorded inputs remained unchanged. The log SHA256 is
+`e30f11baaccb00d25dcfaecde0f2f7fbf0fba217385289521ffd85951d3bf5d8`.
+The same-database CPU effectiveness benchmark, corrected playbook acceptance
+and the new physical run remain open.
 Neither INVALID RLS characterization supplies savings evidence. The last valid
 actual-client result remains FAIL at idle40 p95=11.42878s; the unchanged target
 is strictly less than11s in every40-client phase. No production change is claimed.
+
+#### Recovery-command correction rehearsal (2026-11-02)
+
+PB-I1/I2 prompted concrete inventory, marker and scoped-role commands and an
+explicit failure branch retaining the appropriate pre-action verified backup.
+The literal Python heredocs and rollback SQL were extracted from PB06801 and
+executed on one owned synthetic PostgreSQL17 database on port55460. Current035,
+rolled-back021 and explicitly reapplied035 each passed allowed reads, foreign
+denial, reader write denial and writer/admin gateway writes followed by rollback.
+Application-table hashes and marker035 were unchanged after each stage. An
+absent foreign UUID and a missing035 marker each failed as required. All10
+command outcomes matched their expected exit codes, and the owned DB was removed.
+No model, production database or production service was used.
+
+The literal psql paths in this correction were rehearsed as the local superuser.
+Limited-owner policy rollback/reapply and independent backup restore remain
+inherited from `test_lexical_upgrade.py`; they used psycopg and the frozen fixture,
+not these new literal shell commands. The failure-to-cutover branch is a written
+operator decision path, not a production restoration claim. PostgreSQL sequences
+may retain gaps after rollback; the probe claims no persisted application/audit
+rows, not unchanged sequence counters.
+
+Local result artifact: `document-permission-initplans/pb-correction/results.json`,
+SHA256 `758a09768f1ba9279b4a8ccbbe9932698efedcfa76745648721b797e37f7b24d`. The separate review remains pending.
+The cursor-binding limit is explicit in the requirement and playbook; write-path
+savings are not assumed because the restrictive021 UPDATE policy is unchanged.

@@ -8,6 +8,8 @@ Preserve the existing service document authorization contract while reducing rep
 
 The policy SHALL read its domain/project permission JSON lazily per statement, through an inlined pure invoker helper. Read and write results, row visibility, SQLSTATEs and legacy behavior MUST remain identical to the 021 policy for all existing roles, including rag_admin. Helper EXECUTE SHALL remain available to every caller subject to the policy without granting data authority. No definer, leakproof, strict or parallel-safety change is permitted.
 
+Bindings SHALL remain fixed for the lifetime of a statement/portal. Direct SQL callers MUST close open cursors before rebinding permissions and execute a new statement. Mid-FETCH rebinding is outside this contract; service `apply_connection` commits before reuse and closes ordinary portals.
+
 #### Scenario: Prepared-plan revocation
 
 - **WHEN** a reused connection executes a generic prepared read, changes its domain or project permission, and executes again

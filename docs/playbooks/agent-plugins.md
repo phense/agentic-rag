@@ -14,7 +14,7 @@ version: 0.6.22
 - Owner/audience: deployment administrator; agent user for status/cancel recovery.
 - Target: 0.6.22/schema035; inherited plugin protocol024, owned plugin directories and an explicitly enrolled client.
 - Readiness deadline: before activating a new client or upgrading a central server.
-- Last edited: 2026-11-01 (optional daemon section corrected after S06808 review; L0/L1 physically rehearsed on owned copies. Renewed content review, L2/L3 real-model rehearsal and final delivery/performance gates remain open).
+- Last edited: 2026-11-02 (optional daemon section corrected after S06808 review; L0/L1 physically rehearsed on owned copies. Renewed content review, L2/L3 real-model rehearsal and final delivery/performance gates remain open).
 - Evidence: [review and rehearsal record](evidence/agent-plugins.md).
 
 ## When to use / when not to use
@@ -448,39 +448,150 @@ investigation has isolated a plan regression to035. It restores the exact021
 document policy expressions, retaining034 and every original, history row and
 queued job. It does not downgrade the schema or remove migration markers.
 
-1. Pause writers as in upgrade step2. Record a current inventory and create a
-   verified0.6.22 backup with the step4 command, using a new dump path. If either
-   operation fails, retain its error and keep writers paused; stop here.
-2. Resolve `DB_SERVICE` to the installation's existing owner-accessible libpq
-   service entry for that same database. Confirm its identity with
-   `psql -X "service=DB_SERVICE" -c 'SELECT current_database(),current_user'`.
-   Run the following SQL through that connection with
-   `psql -X -v ON_ERROR_STOP=1 "service=DB_SERVICE"`. It is one transaction:
+1. Pause writers as in upgrade step2. Use new private paths for `RECOVERY_BEFORE`,
+   `RECOVERY_AFTER` and `RECOVERY_DUMP`. Record and independently verify the
+   current state before changing policy:
 
-   ```sql
+   ```sh
+   rag service --config SERVER_CONFIG inventory --source-version 0.6.22 --identities --output RECOVERY_BEFORE
+   rag service --config SERVER_CONFIG verified-backup --source-version 0.6.22 --output RECOVERY_DUMP
+   ```
+
+   For a restricted owner, append `--verification-template TEMPLATE` to the
+   backup command. Require exit0 and successful independent restore. If either
+   command fails, preserve the error, keep writers paused and stop here.
+2. Resolve `DB_SERVICE` to the installation's owner-accessible libpq service
+   entry for this database. Confirm identity with
+   `psql -X "service=DB_SERVICE" -c 'SELECT current_database(),current_user'`.
+   Policy replacement takes a table lock: use the installation's approved
+   lock-wait budget and monitor existing readers as in upgrade step2. Run this
+   non-interactive transaction; any SQL failure aborts the script and rollback
+   occurs when its connection closes:
+
+   ```sh
+   psql -X -v ON_ERROR_STOP=1 "service=DB_SERVICE" <<'SQL035ROLLBACK'
    BEGIN;
+   SET LOCAL search_path = pg_catalog, public;
    ALTER POLICY service_documents ON public.documents
      USING (public.rag_service_document(domain,project_scope))
      WITH CHECK (public.rag_service_document(domain,project_scope,true));
    DROP FUNCTION public.rag_service_permission(text,jsonb);
    COMMIT;
+   SQL035ROLLBACK
    ```
 
-   Any error rolls back when the connection closes. Retain the error, confirm
-   the inventory and keep writers paused; do not drop other helpers or policies.
-3. Confirm inventory still lists035. Using real scoped reader, writer and admin
-   principals, check an allowed read, a denied foreign read, and a permitted
-   write. Resume writers only after these checks pass. Preserve both inventories
-   and the backup. Code0.6.22 and archived0.6.21 readers work in this state; it
-   restores the previous query costs, not a measured latency target.
+   On failure, keep writers paused and follow **Recovery check failure** below.
+3. Record the resulting inventory, require marker035 and unchanged application
+   table hashes, then run the scoped probe below:
+
+   ```sh
+   rag service --config SERVER_CONFIG inventory --source-version 0.6.22 --identities --output RECOVERY_AFTER
+   .venv/bin/python - RECOVERY_BEFORE RECOVERY_AFTER <<'PY035INVENTORY'
+   import json, sys
+   before, after = [json.load(open(p)) for p in sys.argv[1:]]
+   assert before['identity'] == after['identity'], 'wrong database'
+   assert before['migrations'] == after['migrations'], 'migration ledger changed'
+   assert '035_document_permission_initplans.sql' in after['migrations']
+   assert before['tables'] == after['tables'], 'application rows changed'
+   print('inventory: PASS; marker035 and application rows preserved')
+   PY035INVENTORY
+   ```
+
+   Resolve `ALLOWED_ID` to an existing ordinary document (no claim/assertion)
+   in `global` or `unknown` scope, and `FOREIGN_ID` to an existing document in
+   another domain. Obtain both UUIDs from the private inventory as the operator;
+   do not use an absent UUID as the negative control. The following local
+   operator probe binds real reader/writer/admin database roles to the allowed
+   domain and the two scopes `global`/`unknown`. It tests database policy, not
+   API credential enrollment. All writes use the audited gateway and are
+   rolled back, including audit rows; no provider is called. It needs the same
+   role login configuration as the installed service. If suitable documents
+   are absent, stop and rehearse with approved synthetic fixtures on a copy;
+   do not invent a passing control or add fixtures to production.
+
+   ```sh
+   .venv/bin/python - SERVER_CONFIG ALLOWED_ID FOREIGN_ID <<'PY035SCOPED'
+   import sys
+   from pathlib import Path
+   import psycopg
+   from agentic_rag import db, store
+   from agentic_rag.config import load_config
+   from agentic_rag.service.auth import Principal
+   from agentic_rag.service.context import RequestScope, apply_connection
+   cfg = load_config(Path(sys.argv[1]))
+   allowed, foreign = sys.argv[2:]
+   with db.connect(cfg) as owner:
+       original = owner.execute('SELECT domain,project_scope FROM documents WHERE id=%s', (allowed,)).fetchone()
+       other = owner.execute('SELECT domain FROM documents WHERE id=%s', (foreign,)).fetchone()
+       assert original and other and original['domain'] != other['domain'], 'invalid controls'
+       assert original['project_scope'] in ('global', 'unknown'), 'unsupported probe scope'
+       assert not owner.execute('SELECT 1 FROM claim_records WHERE document_id=%s UNION ALL SELECT 1 FROM fact_assertions WHERE document_id=%s', (allowed, allowed)).fetchone(), 'ordinary document required'
+   domain = frozenset({original['domain']})
+   scopes = frozenset({'global', 'unknown'})
+   target = 'unknown' if original['project_scope'] == 'global' else 'global'
+   for role in ('reader', 'writer', 'admin'):
+       principal = Principal('policy-recovery', 'operator', 'probe', domain, domain, scopes, scopes)
+       with db.connect(cfg, role=role) as conn:
+           apply_connection(conn, RequestScope(principal, cfg, role == 'reader'))
+           try:
+               assert conn.execute('SELECT id FROM documents WHERE id=%s', (allowed,)).fetchone(), 'allowed read denied'
+               assert conn.execute('SELECT id FROM documents WHERE id=%s', (foreign,)).fetchone() is None, 'foreign read leaked'
+               try:
+                   changed = store.set_project_scope(conn, allowed, scope=target,
+                       expected_scope=original['project_scope'], actor='policy-recovery', commit=False)
+               except psycopg.errors.InsufficientPrivilege:
+                   assert role == 'reader', 'permitted write denied'
+               else:
+                   assert role != 'reader' and changed, 'unexpected write result'
+                   assert conn.execute('SELECT project_scope FROM documents WHERE id=%s', (allowed,)).fetchone()['project_scope'] == target
+           finally:
+               conn.rollback()
+       print(role + ': allowed read, foreign denial and write permission PASS; rolled back')
+   with db.connect(cfg) as owner:
+       assert owner.execute('SELECT domain,project_scope FROM documents WHERE id=%s', (allowed,)).fetchone() == original
+   PY035SCOPED
+   ```
+
+   Require exit0 from both scripts and all three role PASS lines. Capture a new
+   inventory after the probe and repeat the table-hash comparison to prove that
+   no gateway or audit write persisted. Resume writers only after all checks
+   pass; otherwise follow **Recovery check failure**. Preserve inventories and
+   backup. Compatible0.6.21 readers still work; this restores previous query
+   costs, not a latency guarantee.
 4. Re-enable035 only after the cause is resolved and the exact release SQL has
-   passed the populated rehearsal. Pause writers again and create another
-   verified backup. Resolve `RELEASE_ROOT` to the retained0.6.22 release directory;
-   then run `psql -X -v ON_ERROR_STOP=1 --single-transaction "service=DB_SERVICE" --file RELEASE_ROOT/sql/035_document_permission_initplans.sql`.
-   Repeat step3's inventory and scoped checks before resuming writers. Ordinary
-   `upgrade --apply` retains035's marker and deliberately does not reapply it.
-   A failed reapplication leaves the previous expressions intact: retain the
-   error and escalate, without deleting the marker or retrying blindly.
+   passed the populated rehearsal. Pause writers again. Repeat step1 with new
+   inventory/dump paths; this new verified backup is the **pre-reapply backup**.
+   Set `RELEASE_ROOT` to the retained0.6.22 release directory. The explicit
+   search path below prevents apply-time function shadowing; use it for the
+   initial upgrade as well when the owner has a customized search path.
+
+   ```sh
+   PGOPTIONS='-c search_path=pg_catalog,public' psql -X -v ON_ERROR_STOP=1 --single-transaction "service=DB_SERVICE" --file RELEASE_ROOT/sql/035_document_permission_initplans.sql
+   ```
+
+   Repeat all step3 checks against the pre-reapply inventory before resuming
+   writers. Ordinary `upgrade --apply` keeps marker035 and will not reapply it.
+   SQL failure leaves the previous expressions intact. Any failed check takes
+   the failure branch below, even if the SQL command itself exited0.
+
+**Recovery check failure:** Keep capture, mining and all other writers paused.
+Retain the failing command/output, before/after inventories, verified backup
+manifest, exact release revision and policy SQL. Do not delete marker035,
+retry blindly or resume because only the migration command succeeded. Escalate
+these artifacts to the installation maintainer. After rollback failure, the
+recovery source is step1's `RECOVERY_DUMP`; after reapply failure it is the new
+pre-reapply backup from step4. Restore that specific verified backup into a
+separate target using the linked source-evidence recovery procedure, validate
+its inventory and scoped checks, then obtain the normal explicit database
+cutover authorization. Do not overwrite the current database. If the restored
+copy also fails, leave writers paused and escalate without cutover. Retained
+spools and any writes that escaped the pause must be reconciled before cutover;
+no lossless recovery is claimed for such writes.
+
+Permissions are bound on first evaluation within each statement/portal. Close
+an open cursor before changing its binding and start a new statement; rebinding
+mid-FETCH is unsupported. The service's `apply_connection` commits before reuse,
+which closes ordinary portals. This is not a cross-statement permission cache.
 
 The populated upgrade rehearsal exercises this rollback and explicit reapply,
 including an owner without superuser privileges and an independently restored
