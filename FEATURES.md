@@ -450,6 +450,24 @@ queue/batch IDs were retained; strict restore compared17 public tables and grant
 No migration, reinstall, configuration edit or service interruption was required.
 [Adoption record](https://github.com/phense/agentic-rag/issues/31#issuecomment-5973683496).
 
+## Entity-aware bounded research (issue #69)
+
+The0.6.24 candidate extends the existing research operation with confirmed aliases,
+an unvisited three-hop graph frontier, original-source paths and per-facet coverage.
+Literal support remains separate from semantic assessment; local mode abstains.
+Every path is filtered and rehydrated under existing source, temporal and access
+rules. Fixed SQL/row/frontier limits supplement the parent deadline. No migration
+or persistent state is added; ordinary search is unchanged.
+
+Held-out synthetic comparison: relevant originals9/15→15/15, zero unsupported
+statements or span errors; serial engine p95 increases0.0770→0.1698s. Populated
+0.6.23 source/target backup restores and old-reader rollback pass. Independent
+review has no remaining C/H/M after the measurement-provenance correction;
+five Low findings are tracked in Issue75. Final full-suite verification and
+specific PR approval remain open. This is not a live rollout or production-latency
+claim. [Evidence](docs/verification/entity-aware-research.md),
+[operation](docs/bounded-research.md).
+
 ## Incremental thematic profiles (issue #32)
 
 Feature7 adds local extractive summaries to bounded profiles, with

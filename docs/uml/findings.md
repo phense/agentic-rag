@@ -711,15 +711,15 @@ are in model-admission-92-a2.md; tasks S06808 owns their implementation and proo
 
 ## RAG-069 entity-aware research (as-built, 2026-11-02)
 
-- AF069-001 (implemented; review pending; AC002/003): Can intermediate metadata leak without a valid original?
+- AF069-001 (verified by independent reader/RLS probes; AC002/003): Can intermediate metadata leak without a valid original?
   `research-exploration-69.md`, entities.py:read and research.py:add_hits establish
   separate discovery and publication boundaries. Security impact: names, IDs and
   provenance must be rechecked before exposure. T069-001/002/004 add original-backed
   discovery, rehydration, foreign bridge and ambiguity tests.
-- AF069-002 (implemented; review pending; AC004): Can logical calls hide unbounded expansion? Existing expand
+- AF069-002 (verified by independent budget/retry probes; AC004): Can logical calls hide unbounded expansion? Existing expand
   loops over three seeds and up to64 chunks per neighbor inside one counted call.
   T069-001/002 bound and count every seed, cap frontier/hops/candidates and enforce
   SQL remaining-time limits. Parent process deadline remains authoritative.
-- AF069-003 (implemented; review pending; AC001/005): Does more literal evidence imply an answered question?
+- AF069-003 (verified by independent original-span/abstention probes; AC001/005): Does more literal evidence imply an answered question?
   Existing local_check and publish correctly abstain. T069-001/002 preserve them and
   expose literal coverage separately from semantic assessment, including conflicts.

@@ -11,7 +11,7 @@ summary: Original-evidence coverage, limits and compatibility evidence for Issue
 audience: repository maintainers
 version: 0.6.24
 last_verified: 2026-11-02
-status: implementation verified; independent review and full suite pending
+status: independent review disposition verified; full suite pending
 ---
 
 # Entity-aware research verification
@@ -32,7 +32,13 @@ The candidate is the0.6.24 research implementation in this change. Measurement
 input hashes, command, exit status and log hash are retained in the ignored
 RAG-069 run directory; the public synthetic measurements are
 [results.json](../benchmarks/2026-11-02-entity-research/results.json), SHA256
-`18b6c9a77ac40caa53da778a86ae358621b2ce2765ae35cae5f79a29f3907e3b`.
+`c24fda2f289a89bfdd00eebc52d7239aa14ce3b75277d9e3eb28def02dc3375b`.
+This corrected measurement records candidate revision `1036e1041b242ebf14a996616994a261680fa321`,
+all392 Python/SQL input hashes before execution, and an unchanged-input check
+afterwards. The source aggregate is `410ac1003855c9ce964d00a000f4ed4ccce049120730b2683044d1ccc88d9b2c`.
+It runs the unchanged benchmark test body directly on its own disposable database;
+the full suite was concurrently running on a different database. Serial timings
+are observational. The earlier unbound numeric results are superseded.
 
 Run from the candidate checkout against a disposable test installation:
 
@@ -67,13 +73,14 @@ against the original source bindings. No structured provider or embedding call r
 | Relevant originals retained / expected |9/15 |15/15 |
 | Unsupported supported statements |0 |0 |
 | Original-span errors |0 |0 |
-| Serial engine p50 |0.0698s |0.1337s |
-| Serial engine p95, nearest rank |0.1003s |0.1713s |
-| Total Python process CPU |0.1959s |0.4450s |
+| Serial engine p50 |0.0535s |0.0960s |
+| Serial engine p95, nearest rank |0.0770s |0.1698s |
+| Total Python process CPU |0.1463s |0.4369s |
 
 Candidate work reaches at most48 metered SQL statements and5 logical calls in
-this corpus. The shared test-process peak RSS is90,804KiB; it is cumulative across
-both engines and cannot establish an incremental memory cost. Process CPU/RSS
+this corpus. The measurement-process peak RSS is505,120KiB; it includes database/fixture
+initialization and is cumulative across both engines. It cannot establish an
+incremental reader memory cost. Process CPU/RSS
 exclude PostgreSQL and worker startup. These serial engine times do not measure
 CLI/API end-to-end latency or a multi-client workload. The extension adds work;
 it makes no throughput or general model-quality improvement claim.
@@ -122,13 +129,23 @@ then produces its original result against the same store. A0.6.24 target backup
 is independently restored and its inventory verified as well.
 
 No migration, configuration change, write-side change or new dependency is required.
-Already running processes retain their loaded code until restarted or reconnected;
-code rollback selects0.6.23 and needs no data rewrite. This rehearsal does not
+Versioned runtime paths require switching/reconnecting the affected process. An
+editable in-place replacement affects the next freshly spawned research worker;
+avoid replacing it during requests. Code rollback selects0.6.23 and needs no data rewrite. This rehearsal does not
 constitute production adoption or permission to interrupt active clients.
 
 ## Delivery gates
 
-The complete independent review, architect-derived success/recovery probes, final
-full Python suite and package/lock checks remain pending at this writing. This
+The complete independent review found C0/H0/M1/L5, with no Important playbook
+findings. Its sole Medium was measurement provenance; the corrected source-bound
+measurement above resolves it without changing runtime code. Five Low findings
+are [follow-up work in Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6580996256). The independent architect exercised alias and
+three-hop success, a hidden RLS bridge, source withdrawal/restoration and a
+budget-exhaustion retry through the actual reader subprocess. Pure read phases
+preserved table hashes. A faulty probe expectation incorrectly disallowed literal
+support during semantic abstention; the report explicitly corrects that expectation.
+Both playbook Minor findings (editable code adoption and named worker termination
+values) are corrected. The final full Python suite is still running. Package
+build,35SQL/3module wheel parity,7Node tests and lock checks have passed. This
 record does not close Issue68/92 or relax their physical performance gate. Issue69
 is ready for merge approval only after its own remaining gates have passed.

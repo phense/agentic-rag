@@ -17,13 +17,13 @@ Base c33e11f. Complete bounded independent review remains mandatory before PR.
 
 ### Slice S069-2: Integration, evidence and delivery
 
-- [ ] T069-004: Real RLS local/central/CLI/MCP success and recovery; populated0.6.23
+- [x] T069-004: Real RLS local/central/CLI/MCP success and recovery; populated0.6.23
   backup/restore/adoption/old-reader rollback with unchanged row hashes. AC003/007.
   Depends: T069-003. Architect derives success/recovery checks after as-built.
 - [x] T069-005: Frozen held-out baseline/candidate measurement and three inspected
   examples; coverage, supported/unsupported, quorum, calls, p50/p95 and resources.
   AC006, SC001/002. Depends: T069-003.
-- [ ] T069-006: Update PB-5.6 with playbook-authoring/review; synchronize0.6.24 release
+- [x] T069-006: Update PB-5.6 with playbook-authoring/review; synchronize0.6.24 release
   metadata and supported source label; reconcile architecture. Depends: T069-004/005.
 - [ ] T069-007: Independent complete bounded review including PB-5.6 and derived
   integration tests; fix confirmed findings, final full suite and package/lock checks.
@@ -36,5 +36,9 @@ Base c33e11f. Complete bounded independent review remains mandatory before PR.
 
 154 focused tests passed (exit0); held-out15-run-per-engine comparison and
 populated0.6.23 adoption/source-and-target independent restores passed.
-T069-004 awaits the independent architect-derived integration checks. T069-006
-awaits PB review; T069-007/008 remain open.
+Independent architect-derived alias/three-hop/RLS/source-withdrawal/budget-retry
+probes pass; pure-read table hashes are unchanged. PB review has0 Important;
+both Minor findings are corrected. The sole Medium provenance finding is
+resolved by a fresh source-bound measurement on1036e10. Five nonblocking Low
+findings are tracked in Issue75 (LOW111..115). T069-007 awaits the full suite;
+T069-008 awaits convergence and final PR approval.

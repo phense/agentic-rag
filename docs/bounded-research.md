@@ -156,8 +156,9 @@ retain their existing six-tool write privilege difference.
 ## Interruption, recovery and rollback
 
 Every request is independent. Two consecutive operation failures, the call
-or step cap, the SQL-work cap, or the parent deadline stop collection with explicit missing
-evidence and abstention. Cancellation propagates to the caller after process
+or step cap, the SQL-work cap (`sql_budget`), or the worker time cap
+(`time_budget`) stop collection with explicit missing evidence and abstention.
+The parent deadline has its own deadline termination and process cleanup. Cancellation propagates to the caller after process
 cleanup. The parent owns a private temporary directory and kills/reaps the
 worker process group, including nested CLI processes. Existing PostgreSQL,
 Ollama or remote provider services are outside that group; already-dispatched
@@ -172,14 +173,17 @@ The current supported upgrade is **code only** from0.6.23 (`c33e11f`) with schem
 no new dependency, migration, backfill, configuration, hook or job change.
 Existing users, domains, pins, checkpoints, audit history and queued work stay
 in the same store. Old clients retain their old tool list until reconnect;
-ordinary search contracts continue to work across old/new clients. Reconnect
-MCP clients or restart the affected API process to load the updated reader; the
-operation keeps its existing arguments. No database maintenance window is required. No service interruption was used for the candidate verification.
+ordinary search contracts continue to work across old/new clients. With immutable,
+versioned runtime directories, select the new runtime and reconnect MCP clients
+or restart the affected API process. With an editable checkout replaced in place,
+the next request already spawns its research worker from that directory; avoid
+changing that directory during requests. The operation keeps its existing arguments. No database maintenance window is required. No service interruption was used for the candidate verification.
 
 For an authorized rollout, record the deployed code revision, existing schema
 list, reader/writer tool lists and a verified existing backup before adoption.
 Keep the previous code available. If post-adoption checks fail, restore the
-previous0.6.23 code and reconnect affected clients; leave schema035 and data intact.
+previous0.6.23 runtime and reconnect affected clients, or restore the editable
+checkout before the next request; leave schema035 and data intact.
 The current isolated rehearsal exercises genuine0.6.23 source code, candidate
 research and old-reader rollback on a populated multi-domain store, with independently
 restored source and target backups. Separate tests cover CLI, MCP and central authority. It does not authorize live deployment or restore.

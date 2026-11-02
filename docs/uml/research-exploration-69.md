@@ -47,3 +47,11 @@ bounds. `add_hits` revalidates spans and source support, and `publish` separates
 literal from semantic coverage. No migration or persistent cache was introduced.
 The specialization replaces the former inline research graph query because general
 recursive neighbors has no domain argument; general graph tools are unchanged.
+
+Independent as-built integration verification on1036e10: source-backed alias and
+three-hop originals passed under the public reader subprocess and a scoped
+principal. Hidden bridge, source withdrawal/restoration and call-budget retry
+passed; pure-read table hashes were unchanged. The reviewer corrected its own
+incorrect expectation that semantic abstention forbids literal supported excerpts.
+The read-only behavior follows the sequence above. Source-bound held-out evidence
+resolves the review's numeric-provenance finding without changing this architecture.
