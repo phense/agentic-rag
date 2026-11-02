@@ -168,7 +168,8 @@ limits; do not create a duplicate Low issue merely for unimplemented-design risk
   deadline, using0.3s plus0..25% jitter and the SAME durable envelope/idempotency
   key. This includes capacity/write-capacity/rate contention429,408 and ambiguous
   transport timeout/unavailability after discovery. Do not retry permanent4xx,
-  invalid receipts/responses, legacy synchronous calls or negotiation failure.
+  invalid receipts/responses, legacy synchronous calls or negotiation failure
+  (except the narrowly defined discovery-capacity correction in A3 below).
   Preserve offline handles, lost-ACK reconciliation, cancellation and terminal
   errors. At deadline return the same pending handle, never success. Clamp every
   sleep and HTTP timeout to the remaining deadline.
@@ -320,3 +321,38 @@ dependents change. Keep published 001..033 unchanged; append the replacement to
 unpublished 034. Require the populated source upgrade and limited-owner independent
 restore again. This localized refactor adds no configuration or new admission
 lane and does not adopt A2's conditional consumer/thread/endpoint settings.
+
+## A3: Fresh-client discovery capacity correction
+
+The frozen actual-client run `488792ab23a2` passed parity (454 inputs in four
+arms), L2/L3 recovery and startup identity, then failed `warmup_completed`:
+14 of 40 fresh clients received HTTP429 `capacity_exceeded` while discovering
+capabilities. All 66 admitted warm-up requests completed; no measured phase ran.
+The four control slots worked as designed. A2's unconditional exclusion of
+negotiation failures prevented a fresh client from surviving that transient
+contention. This is a bounded correction to that exclusion, not a change to
+server capacity or the acceptance workload.
+
+Retry only a parsed HTTP429 `capacity_exceeded` from capability discovery,
+inside `RemoteClient.invoke`, with the existing 0.3-second plus 0–25% jitter
+and the caller's original deadline. Stage exactly one durable envelope before
+discovery and retain its identity across retries. Clamp each discovery HTTP
+timeout to the remaining deadline. At the deadline retain the same pending
+local handle; never claim completion. Authentication failures, malformed or
+unsupported capabilities, offline/503 errors, unrelated429 codes and legacy
+synchronous tool calls keep their existing immediate-failure behavior. Direct
+`RemoteConnection.negotiate` consumers are unchanged.
+
+No schema, spool migration, server configuration, admission/rate limit or
+model change is required. New clients work with existing protocol1 servers;
+old clients retain their previous failure behavior until restarted on the new
+code. Recovery is a client-code rollback with the same spool; do not replay
+legacy writes or delete pending envelopes. Rehearse the existing populated
+0.6.21 upgrade/retry/verified source and target restores on the corrected tree.
+
+Before runtime edits, freeze the regression red and tests. Prove same-envelope
+success after finite contention, bounded permanent contention and unchanged
+non-capacity errors. Independently review the bounded delta, rerun affected
+client/upgrade checks and the complete suite, then freeze one new physical
+acceptance run. The failed run and its protocol remain evidence; no adaptive
+retry, relaxed warm-up, weaker memory floor or changed p95 target is allowed.

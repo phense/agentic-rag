@@ -147,3 +147,13 @@ resource diagnostic passed on an owned copy; it is not T06821. Its preceding
 reference-encoding failure is retained. The original full-suite r4 passed
 2508 tests with1 skip on57b1f51; product/tests/SQL remain unchanged by this
 procedure refinement. Full physical acceptance and closure remain open.
+
+### Slice S06809: Deadline-bounded fresh-client discovery
+
+The physical run `488792ab23a2` failed before measured phases: 14 fresh-client
+discoveries received transient HTTP429 capacity refusals. Preserve that failed
+run and its successful parity/recovery evidence; do not count it as T06821.
+
+- [ ] T06829 [FR03/06, AC01/05, plan A3] Freeze regression tests before runtime changes: parsed discovery HTTP429 capacity refusal followed by success must retain one envelope; persistent refusal must stop at the caller deadline with its original handle. Authentication, malformed/unsupported responses, offline/503 and unrelated429 failures remain immediate.
+- [ ] T06830 [FR03/06/08, AC01/04/05, plan A3] Implement only that bounded discovery retry, retaining current server/control/rate gates and direct negotiation consumers. Verify client-first/old-server compatibility, pending-spool retention and the populated0.6.21 upgrade/retry/independent source and target restores; document client restart/code rollback.
+- [ ] T06831 [FR03..09, AC01..05, plan A3] Independently review the complete correction, resolve C/H/M, collect Low in75, run affected checks and the final full suite. Only then refreeze and run T06821 once with the unchanged physical criteria. Reconcile T06828; no acceptance from warm-up or partial phases.

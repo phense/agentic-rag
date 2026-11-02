@@ -247,6 +247,48 @@ def test_negotiation_failure_is_not_retried(tmp_path, clock, capabilities):
     assert result['waiting'] is True and result['durable'] is False and len(outbox) == 1
 
 
+@pytest.mark.parametrize('busy_replies', [1, 3])
+def test_discovery_capacity_retry_completes_same_durable_request(tmp_path, clock, busy_replies):
+    """A transient discovery-slot refusal must not strand a fresh queued client."""
+    observed = []
+    def discovery():
+        rows = remote.spool.pending_requests()
+        assert len(rows) == 1
+        observed.append((rows[0]['id'], rows[0]['envelope']))
+        if len(observed) <= busy_replies:
+            return httpx.Response(429, json={'error': 'capacity_exceeded'})
+        return httpx.Response(200, json={'protocol': 1, 'extensions': {'queued_tools': 1}})
+    server = Server(posts=[ack()], gets=[completed()], capabilities=discovery)
+    with httpx.Client(transport=httpx.MockTransport(server)) as sender, \
+            RemoteClient(config(tmp_path), sender=sender) as remote:
+        assert remote.invoke('memory_domains', {}) == {'domains': []}
+        assert remote.spool.pending_requests() == []
+    assert len(observed) == busy_replies + 1 and len(set(observed)) == 1
+    assert server.envelopes == [json.loads(observed[0][1])]
+    assert clock.sleeps == pytest.approx([.3375] * busy_replies)
+
+
+def test_persistent_discovery_capacity_keeps_original_handle_at_deadline(tmp_path, clock):
+    """Retry must stop at the caller deadline without duplicate staging or submission."""
+    server = Server(capabilities=lambda: httpx.Response(429, json={'error': 'capacity_exceeded'}))
+    result, outbox = invoke(tmp_path, server, seconds=.5)
+    assert server.paths == [('GET', '/v1/capabilities')] * 2
+    assert clock.sleeps == pytest.approx([.3375]) and clock.now <= 1000.5
+    assert len(outbox) == 1 and result['request_id'] == outbox[0]['id']
+    assert result['state'] == 'pending' and result['waiting'] is True and result['durable'] is False
+    assert result['code'] == 'capacity_exceeded' and server.envelopes == []
+
+
+@pytest.mark.parametrize('status,body', [(401, {'error': 'invalid_key'}), (403, {'error': 'scope_denied'}),
+    (429, b'not-json'), (429, {'error': 'different_failure'})])
+def test_other_discovery_errors_remain_immediate(tmp_path, clock, status, body):
+    """The capacity fix must not retry authentication, malformed or unrelated failures."""
+    server = Server(capabilities=lambda: Server.reply((status, body)))
+    result, outbox = invoke(tmp_path, server)
+    assert server.paths == [('GET', '/v1/capabilities')] and clock.sleeps == []
+    assert result['waiting'] is True and result['durable'] is False and len(outbox) == 1
+
+
 def test_legacy_synchronous_call_is_never_retried(tmp_path, clock):
     server = Server(posts=[(429, {'error': 'capacity_exceeded'}), (200, {'domains': []})], queued=False)
     with pytest.raises(RemoteError, match='capacity_exceeded'):

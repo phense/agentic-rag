@@ -37,6 +37,9 @@ shortening context and extracted by one lower-priority central worker.
   fair dispatch across owners/departments, finite polling and garbage collection.
   Full admission remains explicit backpressure. Expose aggregate diagnostics
   without prompt/result/credential disclosure.
+  A fresh queued client must survive transient discovery-slot contention within
+  its existing caller deadline, preserving one durable request identity; a
+  pending handle is never a completed result (plan A3).
 - FR07: Interactive knowledge/context first, capture next, extraction last.
   One central extraction worker; foreground demand pauses new background jobs
   and model batches, including indirect shared database/Ollama work. Keep model
