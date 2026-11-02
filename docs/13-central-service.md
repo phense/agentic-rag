@@ -377,9 +377,18 @@ for an explicit reviewed replay plan. No automatic rebind is provided.
 | Worker | One database-fenced inference worker; retry with backoff; SIGTERM stops after current job; process group killed after330s by example unit |
 | Queued tools | Default two consumers per API process, `[service] request_consumers` 1–4; startup fails above half of the default thread pool; 12 control requests/s per namespace and four control slots unchanged |
 | Model admission | One shared embedding lock by default; optional `[ollama] background_url` gives extraction embeddings a second daemon with its own lock and a 10–60s deadline ([PB06801](playbooks/agent-plugins.md#optional-background-embedding-daemon)) |
-| Client polling | After acknowledgement: server `retry_after` within poll interval..8s, +0–25% jitter; before acknowledgement: same request resent after 0.3s on 429/408/timeouts until the caller's deadline |
+| Client polling | After acknowledgement: server `retry_after` within poll interval..8s, +0–25% jitter; before acknowledgement: same request resent after 0.3s on 429/408/timeouts until the caller's deadline; capability discovery retries only HTTP429 `capacity_exceeded` within that same deadline |
 | Logs | Four1MiB worker/client files;8KiB UTF-8 records; namespace journal64MiB persistent/16MiB runtime in supplied example |
 | Backup | Finite configured counts, conservative free-space check before dump/restore rehearsal; unique private artifacts; previous backups survive pressure |
+
+Fresh clients can encounter full control slots during capability discovery.
+Version0.6.22 retries that specific capacity refusal with0–25% jitter without
+staging another request. Other discovery failures remain immediate and keep
+the pending local handle. Install the updated client and restart its process;
+existing protocol1 servers, admission limits and pending spools need no change.
+Client-code rollback uses the same spool; retain pending handles rather than
+deleting or restaging them. This requires no additional database migration
+beyond the documented0.6.21→0.6.22 upgrade and verified-backup procedure.
 
 Canonical writes recheck the original credential, session and permissions before
 each commit. A logout, expired session, rotated key or changed scope rolls back

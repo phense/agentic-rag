@@ -123,10 +123,19 @@ class RemoteClient(RemoteConnection):
         seconds=self.cfg.service_tool_wait_seconds if seconds is None else seconds
         deadline=time.monotonic()+seconds
         handle=self.spool.stage_request(name,arguments)  # durable before discovery
-        try:self.negotiate(seconds=max(.01,min(1,seconds)))
-        except RemoteError as exc:
-            self.spool.request_error(handle,exc.code)
-            return {'request_id':handle,'local_request_id':handle,'state':'pending','waiting':True,'durable':False,'code':exc.code}
+        while True:
+            try:
+                self.negotiate(seconds=max(.01,min(1,deadline-time.monotonic())))
+                break
+            except RemoteError as exc:
+                self.spool.request_error(handle,exc.code)
+                # Discovery is an idempotent GET but only a recognized control-
+                # slot refusal is retryable. Keep all other negotiation errors.
+                retry=exc.status==429 and exc.code=='capacity_exceeded'
+                delay=PRE_ACK_RETRY_SECONDS*(1+random.random()*.25) if retry else 0
+                if not retry or delay+.01>deadline-time.monotonic():
+                    return {'request_id':handle,'local_request_id':handle,'state':'pending','waiting':True,'durable':False,'code':exc.code}
+                time.sleep(delay)
         if not self.queued_tools:
             # Legacy writes have no idempotency protocol: an ambiguous failure
             # must never be auto-replayed as a queued operation.
