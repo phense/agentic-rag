@@ -33,6 +33,7 @@ _SECTION_PREFIX = {
     "service": "service",
     "temporal": "temporal",
     "synthesis": "synthesis",
+    "retrieval": "retrieval",
 }
 
 
@@ -88,6 +89,7 @@ class Config:
     stale_days: int = 30
     pin_budget_chars: int = 16000
     context_docs: int = 5
+    retrieval_planned_vectors: bool = True
     llm_provider: str = "claude"
     llm_model: str = "haiku"
     llm_reasoning_effort: str = "high"
@@ -129,6 +131,8 @@ class Config:
     synthesis_max_runs_per_tick: int = 2
 
     def __post_init__(self) -> None:
+        if type(self.retrieval_planned_vectors) is not bool:
+            raise ValueError('retrieval planned_vectors must be boolean')
         if self.rerank_policy not in ('legacy-v1', 'focused-v1'):
             raise ValueError('invalid rerank policy')
         if not isinstance(self.rerank_model,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,79}',self.rerank_model):

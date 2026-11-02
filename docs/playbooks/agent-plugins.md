@@ -343,7 +343,7 @@ reconfigure them. Do not edit migration history to enable that optimization.
    wait behind existing transactions; there is no measured production lock-time
    bound. Monitor the upgrade and the installation's normal lock budget. If it
    must be cancelled, retain the failed attempt and check the schema before retry.
-3. Run `PGOPTIONS='-c search_path=pg_catalog,public' rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
+3. Run `PGOPTIONS='-c search_path=public' rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
    For a restricted owner, append `--verification-template TEMPLATE` using the
    prepared template described above. Require `restore_verified` and
    `original_rows_unchanged`, with exactly `034_lexical_eligibility_work.sql` and

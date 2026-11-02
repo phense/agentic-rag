@@ -5,6 +5,21 @@ import pytest
 from agentic_rag.config import MIN_DIGEST_CHARS, Config, load_config
 
 
+@pytest.mark.parametrize('enabled', [True, False])
+def test_planned_vector_operator_switch(tmp_path, enabled):
+    path = tmp_path / 'config.toml'
+    path.write_text('[retrieval]\nplanned_vectors = ' + str(enabled).lower() + '\n')
+    assert load_config(path).retrieval_planned_vectors is enabled
+
+
+@pytest.mark.parametrize('value', ['"false"', '0', '1'])
+def test_planned_vector_switch_rejects_non_boolean(tmp_path, value):
+    path = tmp_path / 'config.toml'
+    path.write_text('[retrieval]\nplanned_vectors = ' + value + '\n')
+    with pytest.raises(ValueError, match='planned_vectors'):
+        load_config(path)
+
+
 def test_defaults_when_file_missing(tmp_path):
     cfg = load_config(tmp_path / "nope.toml")
     assert cfg.db_name == "agentic_rag"
@@ -14,6 +29,7 @@ def test_defaults_when_file_missing(tmp_path):
     assert cfg.backup_cloud_dir is None          # opt-in: unset by default
     assert cfg.pg_bin_dir is None                # auto-detected unless set
     assert cfg.backup_keep_daily == 14
+    assert cfg.retrieval_planned_vectors is True
 
 
 def test_load_from_toml(tmp_path):

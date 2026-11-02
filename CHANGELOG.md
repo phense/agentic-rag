@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.23] - 2026-11-02
+
+- Restore the boolean `[retrieval] planned_vectors` operator switch (default true). Existing false settings retain contextual hybrid retrieval without entering the optional planner and its two-second statement limit. Eligibility, RLS, contextual source hashes and vector identity checks remain in the existing SQL functions; no automatic lexical fallback or timeout increase is introduced. Restart clients and services after updating code. No schema or data migration is needed; code rollback retains all stored data.
+- Correct the upgrade command to use `search_path=public`: PostgreSQL still resolves built-in functions through its implicit pg_catalog lookup, while independent restore checks can create their ownership table in public.
+
 ## [0.6.22] - 2026-11-01
 
 - Reuse the admission check's private owner connection when submitting queued work; commit the receipt and release the admission lock together, rolling both back on error. Connections remain per-call, with no cross-request pooling or schema change. Restart the API to apply; code rollback retains queued handles.
