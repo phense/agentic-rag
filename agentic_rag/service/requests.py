@@ -40,12 +40,12 @@ def permissions(principal):
 
 
 @contextmanager
-def owner(cfg):
+def owner(cfg, *, connection=None):
     token = CURRENT.set(None)
     group = GROUP.set(None)
     execution = EXECUTION.set(None)
     try:
-        with db.connect(cfg) as conn:
+        with (connection if connection is not None else db.connect(cfg)) as conn:
             yield conn
     finally:
         EXECUTION.reset(execution)
@@ -104,7 +104,10 @@ def submit(cfg, principal, value):
     identity = uuid.uuid5(uuid.NAMESPACE_URL, principal.namespace + ':' + key)
     team = min(principal.session_teams) if principal.session_teams else principal.user_id
     from .resources import admission
-    with admission(cfg, lock=5840919371552461) as budget, owner(cfg) as conn:
+    # Admission already owns a private owner connection for this call. Its
+    # connection context commits the receipt before admission releases the gate;
+    # errors roll back both checks and writes. No cross-request pooling.
+    with admission(cfg, lock=5840919371552461) as budget, owner(cfg, connection=budget.conn) as conn:
         conn.execute("SELECT pg_advisory_xact_lock(hashtext('foreground_queue_admission'))")
         cleanup(conn)
         existing = conn.execute('SELECT * FROM service_requests WHERE id=%s', (identity,)).fetchone()
