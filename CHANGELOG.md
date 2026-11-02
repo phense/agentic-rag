@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.24] - 2026-11-02
+
+- Extend bounded research with original-backed entity/confirmed-alias lookup and a visited graph frontier (up to three hops). Each entity resolution and graph seed consumes the existing call budget; fixed SQL, document, neighbor and chunk limits bound nested work. Ordinary search, provider routing, source quorum and read-only authority remain unchanged.
+- Add research plan, per-facet literal/semantic coverage, exploration decisions and original edge/alias provenance. Local mode still abstains from semantic completeness; ambiguous or unavailable identities are never expanded. Adopt from0.6.23 with schema035 unchanged; reconnect readers or restart services for new code, and roll back code without reverting stored knowledge.
+
 ## [0.6.23] - 2026-11-02
 
 - Restore the boolean `[retrieval] planned_vectors` operator switch (default true). Existing false settings retain contextual hybrid retrieval without entering the optional planner and its two-second statement limit. Eligibility, RLS, contextual source hashes and vector identity checks remain in the existing SQL functions; no automatic lexical fallback or timeout increase is introduced. Restart clients and services after updating code. No schema or data migration is needed; code rollback retains all stored data.

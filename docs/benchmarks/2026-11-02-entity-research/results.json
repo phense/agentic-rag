@@ -1,0 +1,749 @@
+{
+  "source_revision": "c33e11fd5ccc4fa1e11c92fbcd16e9fee0cbdcd9",
+  "baseline_sha256": "4c72d9b173629f6596830202c443e7a4806517c1f42f837c5883796937ffc1f6",
+  "methodology": "Five held-out synthetic families; three repeats per engine, alternating order; real lexical SQL and gateways; no provider. Serial engine timings, not public endpoint latency. Process CPU/RSS exclude PostgreSQL.",
+  "rows": [
+    {
+      "case": "single-hop",
+      "engine": "baseline",
+      "repeat": 0,
+      "elapsed_seconds": 0.09733626199886203,
+      "process_cpu_seconds": 0.014596900000000801,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "single-hop",
+      "engine": "candidate",
+      "repeat": 0,
+      "elapsed_seconds": 0.1239193330402486,
+      "process_cpu_seconds": 0.02835300000000096,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "single-hop",
+      "engine": "candidate",
+      "repeat": 1,
+      "elapsed_seconds": 0.13371384900528938,
+      "process_cpu_seconds": 0.023770999999999987,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "single-hop",
+      "engine": "baseline",
+      "repeat": 1,
+      "elapsed_seconds": 0.06978369900025427,
+      "process_cpu_seconds": 0.012454099999999357,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "single-hop",
+      "engine": "baseline",
+      "repeat": 2,
+      "elapsed_seconds": 0.07193238101899624,
+      "process_cpu_seconds": 0.01391600000000004,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "single-hop",
+      "engine": "candidate",
+      "repeat": 2,
+      "elapsed_seconds": 0.13166006602114066,
+      "process_cpu_seconds": 0.028188300000000055,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# single-hop-resolution\n\nLyraBeacon final resolution replaces the socket.",
+          "citation": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95#0d3ed009-1d5a-420f-a60a-456003341f4d:0-73",
+          "document_id": "1e7f8a1a-44f4-426d-82dd-dba1e2b83c95",
+          "chunk_id": "0d3ed009-1d5a-420f-a60a-456003341f4d",
+          "start": 0,
+          "end": 73
+        }
+      ]
+    },
+    {
+      "case": "multi-hop",
+      "engine": "baseline",
+      "repeat": 0,
+      "elapsed_seconds": 0.07747743302024901,
+      "process_cpu_seconds": 0.014149999999998997,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "multi-hop",
+      "engine": "candidate",
+      "repeat": 0,
+      "elapsed_seconds": 0.1712776250205934,
+      "process_cpu_seconds": 0.03572130000000051,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 4,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 5,
+      "sql_statements": 48,
+      "examples": [
+        {
+          "text": "# multi-hop-resolution\n\nVelaBeacon final resolution replaces the socket.",
+          "citation": "0ba8cf9e-1f5e-475f-ab30-107d4d501368#84db00b1-f480-4bdf-a76f-dfd5c830c8a3:0-72",
+          "document_id": "0ba8cf9e-1f5e-475f-ab30-107d4d501368",
+          "chunk_id": "84db00b1-f480-4bdf-a76f-dfd5c830c8a3",
+          "start": 0,
+          "end": 72
+        }
+      ]
+    },
+    {
+      "case": "multi-hop",
+      "engine": "candidate",
+      "repeat": 1,
+      "elapsed_seconds": 0.16246870096074417,
+      "process_cpu_seconds": 0.03210360000000101,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 4,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 5,
+      "sql_statements": 48,
+      "examples": [
+        {
+          "text": "# multi-hop-resolution\n\nVelaBeacon final resolution replaces the socket.",
+          "citation": "0ba8cf9e-1f5e-475f-ab30-107d4d501368#84db00b1-f480-4bdf-a76f-dfd5c830c8a3:0-72",
+          "document_id": "0ba8cf9e-1f5e-475f-ab30-107d4d501368",
+          "chunk_id": "84db00b1-f480-4bdf-a76f-dfd5c830c8a3",
+          "start": 0,
+          "end": 72
+        }
+      ]
+    },
+    {
+      "case": "multi-hop",
+      "engine": "baseline",
+      "repeat": 1,
+      "elapsed_seconds": 0.07275487401057035,
+      "process_cpu_seconds": 0.013128500000000543,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "multi-hop",
+      "engine": "baseline",
+      "repeat": 2,
+      "elapsed_seconds": 0.07503265398554504,
+      "process_cpu_seconds": 0.016106300000000573,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 2,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "multi-hop",
+      "engine": "candidate",
+      "repeat": 2,
+      "elapsed_seconds": 0.16262160002952442,
+      "process_cpu_seconds": 0.03603099999999948,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 4,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 5,
+      "sql_statements": 48,
+      "examples": [
+        {
+          "text": "# multi-hop-resolution\n\nVelaBeacon final resolution replaces the socket.",
+          "citation": "0ba8cf9e-1f5e-475f-ab30-107d4d501368#84db00b1-f480-4bdf-a76f-dfd5c830c8a3:0-72",
+          "document_id": "0ba8cf9e-1f5e-475f-ab30-107d4d501368",
+          "chunk_id": "84db00b1-f480-4bdf-a76f-dfd5c830c8a3",
+          "start": 0,
+          "end": 72
+        }
+      ]
+    },
+    {
+      "case": "alias",
+      "engine": "baseline",
+      "repeat": 0,
+      "elapsed_seconds": 0.033730509981978685,
+      "process_cpu_seconds": 0.006499400000000932,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 1,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "alias",
+      "engine": "candidate",
+      "repeat": 0,
+      "elapsed_seconds": 0.15060230396920815,
+      "process_cpu_seconds": 0.030526400000001175,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 39,
+      "examples": [
+        {
+          "text": "# lyra: port\n\n8766",
+          "citation": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9#01a3f017-458f-481a-b42a-d7703b204baa:0-18",
+          "document_id": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9",
+          "chunk_id": "01a3f017-458f-481a-b42a-d7703b204baa",
+          "start": 0,
+          "end": 18
+        }
+      ]
+    },
+    {
+      "case": "alias",
+      "engine": "candidate",
+      "repeat": 1,
+      "elapsed_seconds": 0.14952031301800162,
+      "process_cpu_seconds": 0.03581970000000112,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 39,
+      "examples": [
+        {
+          "text": "# lyra: port\n\n8766",
+          "citation": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9#01a3f017-458f-481a-b42a-d7703b204baa:0-18",
+          "document_id": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9",
+          "chunk_id": "01a3f017-458f-481a-b42a-d7703b204baa",
+          "start": 0,
+          "end": 18
+        }
+      ]
+    },
+    {
+      "case": "alias",
+      "engine": "baseline",
+      "repeat": 1,
+      "elapsed_seconds": 0.03600518999155611,
+      "process_cpu_seconds": 0.00738630000000029,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 1,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "alias",
+      "engine": "baseline",
+      "repeat": 2,
+      "elapsed_seconds": 0.034717101021669805,
+      "process_cpu_seconds": 0.007320199999998778,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 1,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "alias",
+      "engine": "candidate",
+      "repeat": 2,
+      "elapsed_seconds": 0.13806591200409457,
+      "process_cpu_seconds": 0.02902099999999841,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 1,
+      "expected_originals": 1,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 39,
+      "examples": [
+        {
+          "text": "# lyra: port\n\n8766",
+          "citation": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9#01a3f017-458f-481a-b42a-d7703b204baa:0-18",
+          "document_id": "edb0a3a9-f73a-47c8-bc9b-9337a098ced9",
+          "chunk_id": "01a3f017-458f-481a-b42a-d7703b204baa",
+          "start": 0,
+          "end": 18
+        }
+      ]
+    },
+    {
+      "case": "ambiguous",
+      "engine": "baseline",
+      "repeat": 0,
+      "elapsed_seconds": 0.057511304039508104,
+      "process_cpu_seconds": 0.012302299999999988,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "ambiguous",
+      "engine": "candidate",
+      "repeat": 0,
+      "elapsed_seconds": 0.12824139499571174,
+      "process_cpu_seconds": 0.024948799999998883,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 37,
+      "examples": []
+    },
+    {
+      "case": "ambiguous",
+      "engine": "candidate",
+      "repeat": 1,
+      "elapsed_seconds": 0.1302213789895177,
+      "process_cpu_seconds": 0.026519699999999702,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 37,
+      "examples": []
+    },
+    {
+      "case": "ambiguous",
+      "engine": "baseline",
+      "repeat": 1,
+      "elapsed_seconds": 0.05337704002158716,
+      "process_cpu_seconds": 0.010394099999999185,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "ambiguous",
+      "engine": "baseline",
+      "repeat": 2,
+      "elapsed_seconds": 0.057726703002117574,
+      "process_cpu_seconds": 0.012754599999999172,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": []
+    },
+    {
+      "case": "ambiguous",
+      "engine": "candidate",
+      "repeat": 2,
+      "elapsed_seconds": 0.13015217904467136,
+      "process_cpu_seconds": 0.02704119999999932,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 0,
+      "expected_originals": 0,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 0,
+      "calls": 4,
+      "sql_statements": 37,
+      "examples": []
+    },
+    {
+      "case": "contradictory",
+      "engine": "baseline",
+      "repeat": 0,
+      "elapsed_seconds": 0.0697290999814868,
+      "process_cpu_seconds": 0.01345300000000016,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    },
+    {
+      "case": "contradictory",
+      "engine": "candidate",
+      "repeat": 0,
+      "elapsed_seconds": 0.1195483700139448,
+      "process_cpu_seconds": 0.025806799999999797,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    },
+    {
+      "case": "contradictory",
+      "engine": "candidate",
+      "repeat": 1,
+      "elapsed_seconds": 0.13287205598317087,
+      "process_cpu_seconds": 0.02919340000000048,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    },
+    {
+      "case": "contradictory",
+      "engine": "baseline",
+      "repeat": 1,
+      "elapsed_seconds": 0.100296635995619,
+      "process_cpu_seconds": 0.024410299999999552,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    },
+    {
+      "case": "contradictory",
+      "engine": "baseline",
+      "repeat": 2,
+      "elapsed_seconds": 0.09096621698699892,
+      "process_cpu_seconds": 0.01704059999999963,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 2,
+      "sql_statements": null,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    },
+    {
+      "case": "contradictory",
+      "engine": "candidate",
+      "repeat": 2,
+      "elapsed_seconds": 0.1493719139834866,
+      "process_cpu_seconds": 0.031957699999999534,
+      "process_peak_rss_kib": 90804,
+      "relevant_originals": 2,
+      "expected_originals": 2,
+      "supported": 0,
+      "unsupported": 0,
+      "original_span_errors": 0,
+      "distinct_qualified_sources": 2,
+      "calls": 4,
+      "sql_statements": 34,
+      "examples": [
+        {
+          "text": "# carina-new\n\nCarinaBeacon dependency handles deployment using red.",
+          "citation": "567c4aa8-4747-4b85-bedb-37ac0086627b#cf1a1e78-d786-4c80-8e14-b171b3818f95:0-67",
+          "document_id": "567c4aa8-4747-4b85-bedb-37ac0086627b",
+          "chunk_id": "cf1a1e78-d786-4c80-8e14-b171b3818f95",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "text": "# carina-old\n\nCarinaBeacon deployment uses blue.",
+          "citation": "1a555946-57ae-49c5-b955-85a398635e3e#4ab1cd95-99ee-4fca-8819-13adf9676431:0-48",
+          "document_id": "1a555946-57ae-49c5-b955-85a398635e3e",
+          "chunk_id": "4ab1cd95-99ee-4fca-8819-13adf9676431",
+          "start": 0,
+          "end": 48
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "n": 15,
+      "p50_seconds": 0.06978369900025427,
+      "p95_seconds": 0.100296635995619,
+      "process_cpu_seconds": 0.195912599999998,
+      "relevant_originals": 9,
+      "expected_originals": 15,
+      "unsupported": 0,
+      "original_span_errors": 0
+    },
+    "candidate": {
+      "n": 15,
+      "p50_seconds": 0.13371384900528938,
+      "p95_seconds": 0.1712776250205934,
+      "process_cpu_seconds": 0.4450029000000004,
+      "relevant_originals": 15,
+      "expected_originals": 15,
+      "unsupported": 0,
+      "original_span_errors": 0
+    }
+  }
+}

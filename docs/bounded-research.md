@@ -3,12 +3,12 @@
 ## Identity and scope
 
 - Class: system operation, with code upgrade and rollback checks.
-- Origin: [Issue31](https://github.com/phense/agentic-rag/issues/31), [RAG-5.6 requirements](specs/RAG-5.6-bounded-research/spec.md).
+- Origin: [Issue69](https://github.com/phense/agentic-rag/issues/69) extends [Issue31](https://github.com/phense/agentic-rag/issues/31), [RAG-5.6 requirements](specs/RAG-5.6-bounded-research/spec.md).
 - Audience and owner: CLI/MCP operators; repository maintainer owns rollout approval.
-- Target: Feature6 code on the existing source `19ed09c1b3c46d907254f63a1370586ea3213966`, schema001–016, one shared PostgreSQL store.
+- Target:0.6.24 on an existing0.6.23/schema035 store, one shared PostgreSQL store.
 - Readiness deadline: before code adoption or operational use.
-- Last edited: 2026-10-30 (provider-profile disclosure addendum).
-- Review and rehearsal evidence: [verification record](verification/bounded-research.md); practical results [here](benchmarks/2026-10-03-bounded-research/README.md).
+- Last edited: 2026-11-02 (entity-aware exploration).
+- Review and rehearsal evidence: [current entity-aware verification](verification/entity-aware-research.md); [original research verification](verification/bounded-research.md); practical results [here](benchmarks/2026-10-03-bounded-research/README.md).
 
 ## When to use / when not to use
 
@@ -56,17 +56,56 @@ field counts structured assessment/planning, not nested embedding requests.
 | Input | Default | Accepted bounds |
 |---|---:|---|
 | `--steps` | 4 | 1–8 collect/check rounds |
-| `--calls` | 16 | 1–40 logical search, graph and provider operations |
+| `--calls` | 16 | 1–40 logical search, entity, graph-seed and provider operations |
 | `--seconds` | 30 | finite 0.1–180 seconds |
 | `--context-chars` | 12000 | 512–32000 serialized evidence characters |
 | `--min-sources` | 2 | 2–8 distinct qualified source keys per statement |
 | `--strategy` | auto | auto or lexical; lexical skips query embedding |
 
-Calls count logical operations, not every nested SQL statement or HTTP request.
+Calls count each search, entity discovery/resolution, graph seed and provider operation.
+The separate SQL-work counter includes guarded execute/cursor calls, including timeout
+setup/restoration; driver transaction commands are outside that counter. Nested SQL
+has a five-second statement cap and a500ms lock cap, shortened by the caller's limits
+and the remaining time when each operation starts. The parent enforces the whole-request deadline.
 The parent deadline includes worker startup, scope resolution, retrieval and
 provider work. Process termination/reaping adds OS cleanup time. The context
 cap covers the serialized evidence packet, not the full result or provider
 instructions; extra records are omitted whole, with a warning.
+
+## Inspect entity and graph exploration
+
+An entity is a named subject of stored assertions. A confirmed alias is a reviewed,
+source-backed alternate name; research uses the existing entity reader and never
+invents equivalence from similar names. It matches up to512 question phrases from
+the first160 words, each phrase at most five words long. Names can span a known
+project or explicit global boundary. Ambiguous and over-limit identity results
+are withheld, and unavailable resolution leaves ordinary search evidence available.
+
+The result adds these fields to the existing packet:
+
+| Field | What to inspect |
+|---|---|
+| `plan.facets` | At most four question facets; identical to `questions`. |
+| `coverage` | Retained evidence IDs, `literal_supported`, and `semantic_covered` for each facet. Local mode always leaves semantic coverage false. |
+| `decisions` | Actual search queries and bounded entity/graph outcomes. A graph seed is visited once; an edge needs eligible original endpoints. |
+| `evidence[].paths` | Search origin, original graph edge and seed ID/hop, or confirmed alias document IDs/source keys. Original citations still identify chunk spans. |
+| `exploration` | SQL-work count, retained document count, remaining frontier, hop-limit signal, truncation and the fixed limits. |
+
+Research resolves at most four entity candidates and expands at most three new
+seeds per round. Each seed yields at most eight eligible neighbors, with a ninth
+row used only to signal overflow. Paths stop at three hops. At most24 candidate
+documents are hydrated and24 distinct documents retained; each candidate ranks
+at most64 returned chunks after the database relevance ordering. The existing
+entity reader separately bounds facts to100 and relations to32 and withholds
+incomplete identity answers. SQL work stops at384 guarded executions. A large
+visible graph can therefore remain incomplete even when collection terminates
+normally. `truncated`, `frontier_remaining` and `hop_limit_reached` describe those
+limits; none of them certifies complete semantic coverage.
+
+A route passage with no question terms can connect two relevant originals. It is
+retained as route evidence without becoming literal support for that facet. Exact
+quotation quorum and explicit contradictory edges still govern supported statements.
+Use `--strategy lexical` without `--provider` when no model request is authorized.
 
 ## Decision paths and actions
 
@@ -76,7 +115,7 @@ instructions; extra records are omitted whole, with a warning.
 | R2 | Operator, configured provider | With request-specific transfer authorization, add `--provider`. | Usage includes provider calls; exact quoted claims retain source quorum. | Planning/check failure falls back to local abstention; do not infer completion. |
 | R3 | Operator, result | Inspect `termination`, `abstained`, missing facets, disagreements and warnings. | Complete answer assessment requires provider success and coverage of all facets without unresolved conflicts. | Follow cited sources or narrow the question; R4 for interruption. |
 | R4 | Operator, interrupted call | Cancel or allow the deadline to expire. | Worker descendants are reaped; deadline returns available partial evidence with abstention. | Preserve aggregate diagnostics; retry independently after correcting the cause. |
-| R5 | Maintainer, candidate code | After specific merge approval and separate rollout authorization, adopt the reviewed code in the existing environment. | Source/candidate/rollback contracts and preserved state match verification. | Stop if schema differs from016 or runtime provider flags are unsupported. |
+| R5 | Maintainer, candidate code | After specific merge approval and separate rollout authorization, adopt the reviewed code in the existing environment. | Source/candidate/rollback contracts and preserved state match verification. | Stop if schema differs from035 or runtime provider flags are unsupported. |
 
 For R1, a normal command is:
 
@@ -85,7 +124,7 @@ rag research 'What is the storage decision? What constraints apply?' \
   --project /path/to/project --domain programming --json
 ```
 
-Read `usage.search_calls`, `usage.graph_calls`, `usage.provider_calls`,
+Read `usage.search_calls`, `usage.entity_calls`, `usage.graph_calls`, `usage.provider_calls`,
 `usage.steps`, and `termination`. A successful process exit only means that a
 result packet was returned; `abstained=true` is a valid, conservative outcome.
 `complete` in local mode means local collection/checking stopped normally,
@@ -117,7 +156,7 @@ retain their existing six-tool write privilege difference.
 ## Interruption, recovery and rollback
 
 Every request is independent. Two consecutive operation failures, the call
-or step cap, or the parent deadline stop collection with explicit missing
+or step cap, the SQL-work cap, or the parent deadline stop collection with explicit missing
 evidence and abstention. Cancellation propagates to the caller after process
 cleanup. The parent owns a private temporary directory and kills/reaps the
 worker process group, including nested CLI processes. Existing PostgreSQL,
@@ -129,21 +168,21 @@ restore a database to recover a failed research request. Failed provider
 planning/checking latches local mode for that request; a later round cannot
 silently upgrade it to provider completion.
 
-The supported upgrade is **code only** from `19ed09c` with schema016. There is
+The current supported upgrade is **code only** from0.6.23 (`c33e11f`) with schema035. There is
 no new dependency, migration, backfill, configuration, hook or job change.
 Existing users, domains, pins, checkpoints, audit history and queued work stay
 in the same store. Old clients retain their old tool list until reconnect;
 ordinary search contracts continue to work across old/new clients. Reconnect
-an MCP client to expose `memory_research`; no database maintenance window is
-required. No service interruption was used for the candidate verification.
+MCP clients or restart the affected API process to load the updated reader; the
+operation keeps its existing arguments. No database maintenance window is required. No service interruption was used for the candidate verification.
 
 For an authorized rollout, record the deployed code revision, existing schema
 list, reader/writer tool lists and a verified existing backup before adoption.
 Keep the previous code available. If post-adoption checks fail, restore the
-previous code and reconnect affected clients; leave schema016 and data intact.
-The isolated rehearsal exercises actual source, candidate and old-code rollback
-CLI/MCP calls on one populated installation, plus a strict backup restore into
-a separate empty database. It does not authorize live deployment or restore.
+previous0.6.23 code and reconnect affected clients; leave schema035 and data intact.
+The current isolated rehearsal exercises genuine0.6.23 source code, candidate
+research and old-reader rollback on a populated multi-domain store, with independently
+restored source and target backups. Separate tests cover CLI, MCP and central authority. It does not authorize live deployment or restore.
 
 ## Escalation and preserved evidence
 

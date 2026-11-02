@@ -1,7 +1,7 @@
 """Read-only, source-checked research with parent-owned wall-time isolation.
 
-Ordinary search stays untouched. Logical calls count search, graph collection
-and structured provider operations, not the SQL/HTTP requests inside them.
+Ordinary search stays untouched. Logical calls count search, each graph seed,
+entity resolution and provider operations. SQL work has a separate finite cap.
 Only research() is the public execution entry: the worker's cooperative engine
 cannot by itself interrupt a blocked third-party dependency.
 """
@@ -26,6 +26,7 @@ from .llm import run_structured
 from .retrieval import evidence_span, terms
 from .search import SearchHit, search
 from .secrets import strip_secrets, strip_secrets_json
+from .research_exploration import LIMITS, ReadLimit, ResearchReads, entity_candidates
 
 
 @dataclass(frozen=True)
@@ -77,8 +78,11 @@ def _base(question, budget):
     return dict(question=question, questions=[question], supported=[], disagreement=[],
                 missing_evidence=[{'question_index': 0, 'reason': 'evidence not assessed'}],
                 evidence=[], context='[]', abstained=True, termination='complete', warnings=[],
-                budgets=asdict(budget), usage={'steps': 0, 'calls': 0, 'provider_calls':0, 'search_calls':0, 'graph_calls':0, 'elapsed_seconds': 0, 'context_chars': 2},
-                assessment='local source excerpts; semantic coverage not assessed')
+                budgets=asdict(budget), usage={'steps': 0, 'calls': 0, 'provider_calls':0, 'search_calls':0, 'graph_calls':0, 'entity_calls':0, 'elapsed_seconds': 0, 'context_chars': 2},
+                assessment='local source excerpts; semantic coverage not assessed',
+                plan={'facets':[question], 'strategy':'bounded original-backed exploration'},
+                coverage=[], decisions=[],
+                exploration={'limits':dict(LIMITS), 'sql_statements':0, 'documents':0, 'truncated':False})
 
 
 def _worker_command():
@@ -260,6 +264,16 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
     started = clock()
     termination = None
     follow_up = []
+    raw_conn = conn
+    conn = ResearchReads(conn, state, budget, started, clock)
+    visited = set()
+    depths = {}
+    attempted_documents = set()
+    entities_done = False
+
+    def decision(kind, **details):
+        if len(state['decisions']) < 80:
+            state['decisions'].append(dict(kind=kind, **details))
 
     def call(kind, fn):
         nonlocal failures, termination
@@ -278,18 +292,24 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
             state['usage']['elapsed_seconds'] = round(clock()-started,6)
             progress(state)
         try:
-            with conn.transaction():
+            with raw_conn.transaction(), conn.operation():
                 value = fn()
             failures = 0
             return value
+        except ReadLimit as exc:
+            termination = exc.reason
+            return None
         except Exception as exc:
+            if conn.exhausted:
+                termination = conn.exhausted
+                return None
             failures += 1
             state['warnings'].append(f'{kind} failed ({type(exc).__name__}); evidence remains unconfirmed')
             if failures >= 2:
                 termination = 'repeated_failure'
             return None
 
-    def add_hits(hits, facet):
+    def add_hits(hits, facet, path=None):
         """Rehydrate original spans and upstream proof; SearchHit.summary alone
         cannot prove reviewed/complete sources or active claim review state.
         """
@@ -317,12 +337,22 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
                 continue
             existing = next((e for e in records if e['citation'] == hit.citation), None)
             if existing is not None:
-                facet_ids.setdefault(facet, set()).add(existing['id'])
+                if facet is not None:
+                    facet_ids.setdefault(facet, set()).add(existing['id'])
+                if path and path not in existing.get('paths', []):
+                    existing.setdefault('paths', []).append(path)
+                    if len(_json(records)) > budget.context_chars:
+                        existing['paths'].pop()
+                        state['exploration']['truncated'] = True
+                continue
+            if str(row['document_id']) not in {e['document_id'] for e in records} and len({e['document_id'] for e in records}) >= LIMITS['documents']:
+                state['exploration']['truncated'] = True
                 continue
             item = {'id': len(records), 'document_id': str(row['document_id']), 'chunk_id': hit.chunk_id,
                     'title': row['title'][:200], 'slug': row['slug'], 'domain': row['domain'],
                     'text': hit.snippet, 'start': hit.snippet_start, 'end': hit.snippet_end,
-                    'citation': hit.citation, 'source_keys': [], 'source_spans': []}
+                    'citation': hit.citation, 'source_keys': [], 'source_spans': [],
+                    'paths': [path] if path else []}
             for source in sources:
                 if str(source['document_id']) != str(row['document_id']):
                     continue
@@ -331,10 +361,13 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
                     item['source_spans'].append({'key':source['source_key'],'start':match.a,'end':match.a+match.size})
             item['source_keys'] = sorted({span['key'] for span in item['source_spans']})
             if len(_json(records + [item])) > budget.context_chars:
+                state['exploration']['truncated'] = True
                 state['warnings'].append('context budget omitted additional evidence')
                 continue
             records.append(item)
-            facet_ids.setdefault(facet, set()).add(item['id'])
+            depths.setdefault(item['document_id'], path.get('hop',0) if path else 0)
+            if facet is not None:
+                facet_ids.setdefault(facet, set()).add(item['id'])
 
     def collect(query, facet):
         hits, warnings = retrieve(conn, cfg, query, domain=domain, project=project, scope=scope,
@@ -342,50 +375,114 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         # Fixed local warnings only: avoid reflecting arbitrary diagnostics.
         if warnings:
             state['warnings'].append('retrieval reported fallback; inspect evidence coverage')
-        add_hits(hits, facet)
+        add_hits(hits, facet, {'kind':'search', 'question_index':facet})
+        decision('search', question_index=facet, query=query, evidence_ids=sorted(facet_ids.get(facet, set())))
         return True
 
-    def expand():
-        seeds = list(dict.fromkeys(e['document_id'] for e in records))[:3]
-        for seed in seeds:
-            rows = conn.execute('''SELECT e.predicate,d.id,d.title,d.slug,d.domain,d.dtype,d.verified_at,d.provenance,
-                       e.src_id,e.dst_id FROM edges e
-                       JOIN documents src ON src.id=e.src_id JOIN documents dst ON dst.id=e.dst_id
-                       JOIN documents d ON d.id=CASE WHEN e.src_id=%s::uuid THEN e.dst_id ELSE e.src_id END
-                       WHERE (e.src_id=%s::uuid OR e.dst_id=%s::uuid)
-                       AND e.predicate=ANY(%s) AND nullif(btrim(e.evidence),'') IS NOT NULL
-                       AND src.status='active' AND dst.status='active'
-                       AND assertion_eligible(src.id,%s,%s) AND assertion_eligible(dst.id,%s,%s)
-                       AND (%s OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
-                       AND (%s::text IS NULL OR (src.domain=%s AND dst.domain=%s))
-                       AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
-                       ORDER BY e.predicate,d.slug,d.id,e.id LIMIT 8''',
-                (seed,seed,seed,['references','depends_on','extends','derived_from','contradicts','contrasts_with'],
-                 at,historical,at,historical,historical,at,at,domain,domain,domain,scopes,scopes,scopes)).fetchall()
-            for row in rows:
-                graph_tokens = sorted(set().union(*(terms(q) for q in state['questions'])))
-                # One shared candidate set per graph document, ranked before
-                # limiting, so late passages and the cumulative64 cap coexist.
-                chunks = conn.execute("""SELECT id,left(content,4000) content FROM chunks
-                    WHERE document_id=%s ORDER BY
-                    (SELECT count(*) FROM unnest(%s::text[]) t(token)
-                     WHERE strpos(lower(content),t.token)>0) DESC,idx,id LIMIT 64""",
-                    (row['id'],graph_tokens)).fetchall()
-                if not chunks:
-                    continue
-                for facet, query in enumerate(state['questions']):
-                    tokens = terms(query)
-                    ranked = sorted(chunks, key=lambda c: (-sum(t in c['content'].casefold() for t in tokens), str(c['id'])))
-                    chunk = ranked[0]
-                    if not any(t in chunk['content'].casefold() for t in tokens):
-                        continue
-                    text, start, end = evidence_span(chunk['content'], query,budget=600)
-                    citation = f"{row['id']}#{chunk['id']}:{start}-{end}"
-                    add_hits([SearchHit(str(row['id']),str(chunk['id']),row['title'],row['slug'],row['domain'],row['dtype'],
-                        text,0,row['verified_at'],row['provenance'],snippet_start=start,snippet_end=end,citation=citation)],facet)
-                if row['predicate'] == 'contradicts':
-                    conflicts.append((str(row['src_id']),str(row['dst_id'])))
+    def document_hits(document_id, path):
+        if document_id in attempted_documents:
+            return
+        if len(attempted_documents) >= LIMITS['candidate_documents']:
+            state['exploration']['truncated'] = True
+            return
+        attempted_documents.add(document_id)
+        row = conn.execute("""SELECT id,title,slug,domain,dtype,verified_at,provenance FROM documents
+            WHERE id=%s AND status='active' AND assertion_eligible(id,%s,%s)
+            AND (%s::text IS NULL OR domain=%s)
+            AND (%s::text[] IS NULL OR project_scope=ANY(%s))""",
+            (document_id,at,historical,domain,domain,scopes,scopes)).fetchone()
+        if not row:
+            return
+        graph_tokens = sorted(set().union(*(terms(q) for q in state['questions'])))
+        chunks = conn.execute("""SELECT id,left(content,4000) content FROM chunks
+            WHERE document_id=%s ORDER BY
+            (SELECT count(*) FROM unnest(%s::text[]) t(token)
+             WHERE strpos(lower(content),t.token)>0) DESC,idx,id LIMIT 64""",
+            (document_id,graph_tokens)).fetchall()
+        if not chunks:
+            return
+        matched = False
+        for facet, query in enumerate(state['questions']):
+            tokens = terms(query)
+            chunk = min(chunks, key=lambda c: (-sum(t in c['content'].casefold() for t in tokens),str(c['id'])))
+            text,start,end = evidence_span(chunk['content'],query,budget=600)
+            citation = f"{document_id}#{chunk['id']}:{start}-{end}"
+            if not any(t in chunk['content'].casefold() for t in tokens):
+                continue
+            matched = True
+            add_hits([SearchHit(document_id,str(chunk['id']),row['title'],row['slug'],row['domain'],row['dtype'],
+                text,0,row['verified_at'],row['provenance'],snippet_start=start,snippet_end=end,citation=citation)],facet,path)
+        if not matched:
+            chunk = chunks[0]
+            text,start,end = evidence_span(chunk['content'],question,budget=600)
+            add_hits([SearchHit(document_id,str(chunk['id']),row['title'],row['slug'],row['domain'],row['dtype'],
+                text,0,row['verified_at'],row['provenance'],snippet_start=start,snippet_end=end,
+                citation=f"{document_id}#{chunk['id']}:{start}-{end}")],None,path)
+        if any(e['document_id']==document_id for e in records):
+            depths[document_id] = min(depths.get(document_id, LIMITS['hops']), path.get('hop', 0))
+
+    def resolve_entities():
+        nonlocal entities_done
+        entities_done = True
+        candidates = call('entity', lambda: entity_candidates(conn, question,domain=domain,
+                           scopes=scopes,at=at,history=historical))
+        if candidates is None:
+            return
+        if len(candidates)>LIMITS['entity_resolutions']:
+            state['exploration']['truncated'] = True
+        for candidate in candidates[:LIMITS['entity_resolutions']]:
+            def resolve(candidate=candidate):
+                from .entities import read
+                packet = read(conn,candidate['name'],domain=candidate['domain'],
+                    project=candidate['project_scope'] if candidate['project_scope']!='global' else None,
+                    scope='global' if candidate['project_scope']=='global' else None,
+                    as_of=selected_time,history=historical)
+                # Never publish the catalog, its names/counts, or unsupported suggestions.
+                if packet['status'] != 'resolved':
+                    decision('entity',status='unavailable_or_ambiguous')
+                    return True
+                links = packet['links']
+                ids = [l['document_id'] for l in links]
+                eligible = conn.execute("""SELECT id FROM documents WHERE id=ANY(%s::uuid[])
+                    AND status='active' AND assertion_eligible(id,%s,%s)
+                    AND domain=%s AND project_scope=%s""",
+                    (ids,at,historical,candidate['domain'],candidate['project_scope'])).fetchall() if ids else []
+                if {str(r['id']) for r in eligible} != set(ids):
+                    decision('entity',status='unavailable_or_ambiguous')
+                    return True
+                for fact in packet['facts']:
+                    document_hits(fact['document_id'], {'kind':'entity',
+                        'mention':candidate['name'], 'alias_document_ids':ids, 'alias_sources':[l['source_key'] for l in links]})
+                retained = [e['id'] for e in records if any(p.get('kind')=='entity' for p in e.get('paths', []))]
+                decision('entity',status='resolved' if retained else 'no_new_evidence',evidence_ids=retained)
+                return True
+            call('entity',resolve)
+            if termination:
+                break
+
+    def expand(seed):
+        from .graph import research_neighbors
+        visited.add(seed)
+        hop = depths[seed]+1
+        rows = research_neighbors(conn,seed,domain=domain,scopes=scopes,at=at,history=historical)
+        if len(rows)>LIMITS['neighbors_per_seed']:
+            state['exploration']['truncated'] = True
+        added = []
+        for row in rows[:LIMITS['neighbors_per_seed']]:
+            target = str(row['id'])
+            if row['predicate']=='contradicts':
+                conflicts.append((str(row['src_id']),str(row['dst_id'])))
+            if target in depths or target in attempted_documents:
+                continue
+            document_hits(target, {'kind':'graph','hop':hop,'seed_document_id':seed,
+                'edge_id':str(row['edge_id']),'predicate':row['predicate'],
+                'evidence':row['edge_evidence'],'confidence':row['confidence']})
+            added += [e['id'] for e in records if e['document_id']==target]
+        decision('graph',seed_document_id=seed,hop=hop,evidence_ids=added,overflow=len(rows)>8)
         return True
+
+    def frontier():
+        return [d for d in depths if d not in visited and depths[d]<LIMITS['hops']]
 
     def local_check():
         disagreement = []
@@ -419,6 +516,13 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         state['missing_evidence'] = [{'question_index': i, 'reason':
             'semantic coverage not assessed locally' if not assessed and i in covered else 'insufficient independent source-backed support'}
             for i in range(len(state['questions'])) if not assessed or i not in covered]
+        state['plan']['facets'] = list(state['questions'])
+        state['coverage'] = [{'question_index':i, 'evidence_ids':sorted(facet_ids.get(i,set())),
+            'literal_supported':i in covered, 'semantic_covered':assessed and i in covered}
+            for i in range(len(state['questions']))]
+        state['exploration']['documents'] = len({e['document_id'] for e in records})
+        state['exploration']['frontier_remaining'] = len(frontier())
+        state['exploration']['hop_limit_reached'] = any(d>=LIMITS['hops'] for d in depths.values())
         state['assessment'] = 'configured provider coverage assessment; exact quotes and sources checked locally' if assessed else 'local source excerpts; semantic coverage not assessed'
         state['abstained'] = bool(state['missing_evidence'] or state['disagreement'] or termination)
         state['evidence'] = records
@@ -507,19 +611,25 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
     pending = list(enumerate(state['questions']))
     seen_queries = set()
     for step in range(budget.steps):
-        if termination or not pending:
+        if termination or (not pending and not frontier()):
             break
         state['usage']['steps'] = step+1
+        collected = False
         for facet, query in pending:
             key = (facet,query.casefold())
             if key in seen_queries:
                 continue
             seen_queries.add(key)
-            call('search',lambda q=query,i=facet:collect(q,i))
+            collected = call('search',lambda q=query,i=facet:collect(q,i)) is True or collected
             if termination:
                 break
-        if records and not termination:
-            call('graph',expand)
+        if collected and not entities_done and not termination:
+            resolve_entities()
+        for _ in range(LIMITS['graph_seeds_per_step']):
+            available = frontier()
+            if not available or termination:
+                break
+            call('graph',lambda seed=available[0]:expand(seed))
         publish()
         if provider and records and not termination:
             if call('provider check',check) is None:
@@ -533,7 +643,7 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         pending = follow_up if provider and follow_up else [(i,' '.join(sorted(terms(q)-scaffolding)))
             for i,q in enumerate(state['questions']) if i not in covered]
         pending = [(i,q) for i,q in pending if q and (i,q.casefold()) not in seen_queries]
-    if pending and state['abstained'] and not termination and state['usage']['steps'] >= budget.steps:
+    if (pending or frontier()) and state['abstained'] and not termination and state['usage']['steps'] >= budget.steps:
         termination = 'step_budget'
     if termination:
         state['termination'] = termination

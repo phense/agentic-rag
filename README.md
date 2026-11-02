@@ -9,7 +9,7 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.23-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.24-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
@@ -122,7 +122,7 @@ Mining prompts can also include all matching pin bodies; mining secret-strips
 the provider-bound copies without mutating stored pin text.
 Embeddings default to **local Ollama**. Selecting an external managed generation
 sends future search queries and semantic duplicate candidate title/body to its
-provider; explicit bounded builds send stored chunks. Default research skips structured assessment; its retrieval uses the selected embedding profile. [Bounded research](docs/bounded-research.md)
+provider; explicit bounded builds send stored chunks. Default research skips structured assessment; its retrieval uses the selected embedding profile. [Bounded research](docs/bounded-research.md) follows eligible entity aliases and up to three graph hops, with per-facet literal/semantic coverage and original-source paths.
 collects evidence for compound questions and reports disagreement or missing
 support; `--provider` explicitly enables configured-provider assessment.
 An optional [local multilingual reranker](docs/local-reranker.md)

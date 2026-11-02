@@ -1,6 +1,6 @@
 # Bounded research exploration trust boundary
 
-- Mode: design; verified2026-11-02 against c33e11f and RAG-069 plan.
+- Mode: as-built; verified2026-11-02 against research.py, research_exploration.py, graph.py and RAG-069 plan.
 - Purpose: AC002–005, IC002/003. Which component prevents hidden intermediate
   identities or graph candidates from becoming evidence, and who stops blocked work?
 - Notation: Mermaid sequence. Semantic source review; no renderer dependency added.
@@ -38,3 +38,12 @@ before original excerpts enter the packet. Derived integration cases: a two-hop
 read under real RLS, and identity/graph failure followed by an independent successful
 read with unchanged canonical rows. The independent final reviewer derives additional
 success/recovery cases after as-built reconciliation.
+
+As-built disposition: `ResearchReads` counts guarded SQL and bounds operation timeouts;
+`entity_candidates` requires an eligible original before calling existing entities.read;
+`research_neighbors` is an invoker one-hop specialization with both endpoint gates
+before LIMIT. The request-local frontier in research.py enforces visited/hop/work
+bounds. `add_hits` revalidates spans and source support, and `publish` separates
+literal from semantic coverage. No migration or persistent cache was introduced.
+The specialization replaces the former inline research graph query because general
+recursive neighbors has no domain argument; general graph tools are unchanged.
