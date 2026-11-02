@@ -1048,3 +1048,32 @@ Local result artifact: `document-permission-initplans/pb-correction/results.json
 SHA256 `758a09768f1ba9279b4a8ccbbe9932698efedcfa76745648721b797e37f7b24d`. The separate review remains pending.
 The cursor-binding limit is explicit in the requirement and playbook; write-path
 savings are not assumed because the restrictive021 UPDATE policy is unchanged.
+
+#### Control selection and quiescence correction
+
+The focused review accepted the earlier executable checks and failure branches
+but identified PB-N1 (inventory identities lack scope metadata) and PB-N2
+(live reader traces invalidate full-table comparisons). The coordinator corrected
+these bounded documentation defects: an owner query now selects actual ordinary
+documents and existing foreign controls; the scoped probe runs before policy
+changes. Full maintenance stops readers as well as writers before inventories,
+and the owner requires zero other client backends. Baseline/control failure
+blocks preflight without initiating restore. This maintenance procedure was not
+executed on production.
+
+The updated literal snippets passed14 expected command outcomes on an owned
+PG17 database: metadata selection, current/rollback/reapply for both scope
+directions, inventory comparisons and two negative controls. The missing-marker
+case now fails specifically at `marker035 missing`. An initial probe-only
+assertion wrongly expected two eligible controls; the foreign document itself
+was also eligible in its own domain. That expectation was corrected without
+changing the playbook query. Both owned databases were cleaned up. Inventory
+values in this rehearsal still come from the product Python inventory function;
+the CLI binding is source-reviewed, not newly rehearsed.
+
+The reader write denial is explicitly a GRANT test; negative RLS writes remain
+covered by the accepted SQL035 matrix. The initial upgrade now sets the safe
+search path, and restore guidance specifies0.6.22 tooling and schema035 instead
+of inheriting the linked procedure's historical version label. These mechanical
+corrections were checked by the coordinator against the focused review and
+source; no new product or SQL change and no new physical acceptance is claimed.

@@ -343,7 +343,7 @@ reconfigure them. Do not edit migration history to enable that optimization.
    wait behind existing transactions; there is no measured production lock-time
    bound. Monitor the upgrade and the installation's normal lock budget. If it
    must be cancelled, retain the failed attempt and check the schema before retry.
-3. Run `rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
+3. Run `PGOPTIONS='-c search_path=pg_catalog,public' rag service --config SERVER_CONFIG upgrade --source-version 0.6.21 --dump BEFORE_DUMP --apply --writers-stopped`.
    For a restricted owner, append `--verification-template TEMPLATE` using the
    prepared template described above. Require `restore_verified` and
    `original_rows_unchanged`, with exactly `034_lexical_eligibility_work.sql` and
@@ -448,7 +448,51 @@ investigation has isolated a plan regression to035. It restores the exact021
 document policy expressions, retaining034 and every original, history row and
 queued job. It does not downgrade the schema or remove migration markers.
 
-1. Pause writers as in upgrade step2. Use new private paths for `RECOVERY_BEFORE`,
+1. Arrange an authorized full maintenance window for this recovery. Unlike the
+   ordinary upgrade above, stop API/dashboard access, workers, capture/mining,
+   local MCP processes and other clients before recording the baseline. Reader
+   requests also write traces and dashboard presence; they cannot remain active
+   during the full table-hash comparison. Keep PostgreSQL available for the
+   operator commands only. Use the installation's registered unit names and
+   shutdown procedure; if this window is not authorized, stop here. Confirm all
+   application sessions have drained using the owner connection:
+
+   ```sh
+   psql -X -v ON_ERROR_STOP=1 "service=DB_SERVICE" -c "SELECT pid,usename,application_name,state FROM pg_stat_activity WHERE datname=current_database() AND backend_type='client backend' AND pid<>pg_backend_pid()"
+   ```
+
+   Require zero other client backends and keep application endpoints stopped
+   until every after-check completes. Resolve `DB_SERVICE` as in step2 before
+   running this check. Select controls with this read-only operator query; it
+   reports metadata only, never document contents:
+
+   ```sh
+   .venv/bin/python - SERVER_CONFIG <<'PY035CONTROLS'
+   import json, sys
+   from pathlib import Path
+   from agentic_rag import db
+   from agentic_rag.config import load_config
+   with db.connect(load_config(Path(sys.argv[1]))) as conn:
+       rows = conn.execute("""SELECT d.id allowed_id,d.domain,d.project_scope,f.id foreign_id,f.domain foreign_domain
+           FROM documents d CROSS JOIN LATERAL
+             (SELECT id,domain FROM documents WHERE domain<>d.domain ORDER BY id LIMIT 1) f
+           WHERE d.project_scope IN ('global','unknown')
+             AND NOT EXISTS(SELECT 1 FROM claim_records WHERE document_id=d.id)
+             AND NOT EXISTS(SELECT 1 FROM fact_assertions WHERE document_id=d.id)
+           ORDER BY d.id LIMIT 20""").fetchall()
+       if not rows:
+           raise SystemExit('no suitable controls: stop before policy change; rehearse on a copy')
+       print(json.dumps(rows,default=str))
+   PY035CONTROLS
+   ```
+
+   Choose one returned pair as `ALLOWED_ID`/`FOREIGN_ID` and run step3's scoped
+   probe now, before changing policy. Require all three PASS lines. A control
+   selection or baseline-probe failure means **preflight blocked**: do not alter
+   policy or restore a backup; retain the error and resolve the inputs with the
+   maintainer. If no changes were made, end the maintenance window through the
+   installation's normal restart procedure. After successful preflight, keep
+   all application processes stopped. Use new private paths for `RECOVERY_BEFORE`,
    `RECOVERY_AFTER` and `RECOVERY_DUMP`. Record and independently verify the
    current state before changing policy:
 
@@ -490,8 +534,8 @@ queued job. It does not downgrade the schema or remove migration markers.
    import json, sys
    before, after = [json.load(open(p)) for p in sys.argv[1:]]
    assert before['identity'] == after['identity'], 'wrong database'
+   assert '035_document_permission_initplans.sql' in after['migrations'], 'marker035 missing'
    assert before['migrations'] == after['migrations'], 'migration ledger changed'
-   assert '035_document_permission_initplans.sql' in after['migrations']
    assert before['tables'] == after['tables'], 'application rows changed'
    print('inventory: PASS; marker035 and application rows preserved')
    PY035INVENTORY
@@ -499,11 +543,13 @@ queued job. It does not downgrade the schema or remove migration markers.
 
    Resolve `ALLOWED_ID` to an existing ordinary document (no claim/assertion)
    in `global` or `unknown` scope, and `FOREIGN_ID` to an existing document in
-   another domain. Obtain both UUIDs from the private inventory as the operator;
+   another domain. Use the pair selected and validated in step1;
    do not use an absent UUID as the negative control. The following local
    operator probe binds real reader/writer/admin database roles to the allowed
    domain and the two scopes `global`/`unknown`. It tests database policy, not
-   API credential enrollment. All writes use the audited gateway and are
+   API credential enrollment. Reader write denial tests its GRANT; the existing
+   SQL035 role matrix separately proves negative RLS write checks. All writes use
+   the audited gateway and are
    rolled back, including audit rows; no provider is called. It needs the same
    role login configuration as the installed service. If suitable documents
    are absent, stop and rehearse with approved synthetic fixtures on a copy;
@@ -559,7 +605,8 @@ queued job. It does not downgrade the schema or remove migration markers.
    backup. Compatible0.6.21 readers still work; this restores previous query
    costs, not a latency guarantee.
 4. Re-enable035 only after the cause is resolved and the exact release SQL has
-   passed the populated rehearsal. Pause writers again. Repeat step1 with new
+   passed the populated rehearsal. Repeat the full maintenance and preflight
+   sequence in step1, keeping readers and writers stopped. Repeat step1 with new
    inventory/dump paths; this new verified backup is the **pre-reapply backup**.
    Set `RELEASE_ROOT` to the retained0.6.22 release directory. The explicit
    search path below prevents apply-time function shadowing; use it for the
@@ -574,14 +621,23 @@ queued job. It does not downgrade the schema or remove migration markers.
    SQL failure leaves the previous expressions intact. Any failed check takes
    the failure branch below, even if the SQL command itself exited0.
 
-**Recovery check failure:** Keep capture, mining and all other writers paused.
+**Recovery check failure:** Keep all application endpoints, readers, capture,
+mining and other writers stopped. If SQL failed atomically before commit and the
+before/after inventory and scoped checks still pass, no restore is needed:
+retain the failure and ask the maintainer whether to end maintenance in the
+unchanged state. Do not retry without resolving the cause. The restoration
+branch below applies to failed checks after commit or an uncertain state.
 Retain the failing command/output, before/after inventories, verified backup
 manifest, exact release revision and policy SQL. Do not delete marker035,
 retry blindly or resume because only the migration command succeeded. Escalate
 these artifacts to the installation maintainer. After rollback failure, the
 recovery source is step1's `RECOVERY_DUMP`; after reapply failure it is the new
 pre-reapply backup from step4. Restore that specific verified backup into a
-separate target using the linked source-evidence recovery procedure, validate
+separate target using the linked source-evidence recovery procedure's verified
+restore and cutover flow. That procedure's historical0.6.15 source label does
+not apply here: keep0.6.22 tooling, set `--source-version 0.6.22`, use this
+step's verified0.6.22 backup, and require schema035 in the target inventory.
+Do not replay source-origin quarantine or downgrade schema. Validate
 its inventory and scoped checks, then obtain the normal explicit database
 cutover authorization. Do not overwrite the current database. If the restored
 copy also fails, leave writers paused and escalate without cutover. Retained
