@@ -1,0 +1,79 @@
+{
+  "method": "coordinator independent arithmetic from raw rows, not rerunning measurement",
+  "head": "fb7774c5c5dc1e6d960e5d1cd0afd6777cf4be23",
+  "valid": true,
+  "effective": true,
+  "same_result_sets": 36,
+  "measurements": 216,
+  "rounds": [
+    {
+      "round": 0,
+      "kinds": {
+        "metadata": {
+          "before": 0.09083333333333334,
+          "after": 0.03583333333333333,
+          "saving": 0.05500000000000001
+        },
+        "context": {
+          "before": 0.4816666666666667,
+          "after": 0.3491666666666666,
+          "saving": 0.13250000000000006
+        },
+        "search": {
+          "before": 0.6575000000000001,
+          "after": 0.41750000000000004,
+          "saving": 0.24000000000000005
+        }
+      },
+      "weighted_saving": 0.14219531250000003
+    },
+    {
+      "round": 1,
+      "kinds": {
+        "metadata": {
+          "before": 0.09249999999999996,
+          "after": 0.03333333333333336,
+          "saving": 0.0591666666666666
+        },
+        "context": {
+          "before": 0.4741666666666668,
+          "after": 0.3458333333333334,
+          "saving": 0.1283333333333334
+        },
+        "search": {
+          "before": 0.6333333333333334,
+          "after": 0.39666666666666694,
+          "saving": 0.23666666666666647
+        }
+      },
+      "weighted_saving": 0.14109114583333326
+    },
+    {
+      "round": 2,
+      "kinds": {
+        "metadata": {
+          "before": 0.08999999999999986,
+          "after": 0.031666666666666586,
+          "saving": 0.05833333333333327
+        },
+        "context": {
+          "before": 0.4833333333333331,
+          "after": 0.34749999999999986,
+          "saving": 0.13583333333333325
+        },
+        "search": {
+          "before": 0.6558333333333337,
+          "after": 0.43416666666666676,
+          "saving": 0.22166666666666696
+        }
+      },
+      "weighted_saving": 0.13835156250000005
+    }
+  ],
+  "result_sha256": "3b1a19ae2b7c423e939a84864abbd3ec1db70d42c66375b4b87c77cc77f5beed",
+  "limits": [
+    "serial database bodies only, no network/model/API throughput measured",
+    "same frozen index across arms, max_parallel_workers_per_gather=0",
+    "not a physical latency acceptance"
+  ]
+}

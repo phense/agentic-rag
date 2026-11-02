@@ -1,0 +1,30 @@
+{
+  "id": "C006-035-effectiveness",
+  "run_id": "84cfda604846",
+  "head": "fb7774c5c5dc1e6d960e5d1cd0afd6777cf4be23",
+  "script_sha256": "7b1c96f939a4b098f3c7c54b918af60aec00f6947eac1e480d34f4dd050640d6",
+  "selftest_sha256": "c22f4f1e20e3f3f54288894c41bb778aa778c9d3f416e102a3c56902375a9338",
+  "kit_files": {
+    "actual_client_acceptance_controller.py": "2c11fd36859e62d8d21f5dd13eecc586e3298c30f9a6fa0edf60af536aa9dded",
+    "actual_client_acceptance_supervisor.py": "fe0888b607e0e394481058c559d77bc9554e8f9382945c4cafe4255dc9a844f3",
+    "actual_client_acceptance_lib.py": "3f9e391d3280aef9cc889030352f6acb56579c515dcf4388ec6776894d8d1318",
+    "actual_client_acceptance_selftest.py": "75a14c2f2ffc0bca45927087643bce170b4af53a260f9d4bb2b14e26ae2faf6d",
+    "actual_client_acceptance_provider.py": "ad266b82bc57bf80060d6e45cf2fd2f9a41c9d2b30fa0376617fa7404615fd1e",
+    "actual_client_acceptance_observer.py": "24c6b29c6c900b84aa6f8cfd7e3a7bd56227e89d1956c3e9947a9f1428a90dd0"
+  },
+  "offline_inputs": {
+    "private/reference-vectors.synthetic.json": "03a5a6754016f214852ae671c99a971bf0afdcebf16dbd14b56c8307e2a64122",
+    "matrix/reference.json": "46bbc9f91b3bc5bfae8da49341797744ab16832ee6b2b0092fa112cafa4ebbf0"
+  },
+  "accounting_amendment": {
+    "design": "docs/openspec/changes/document-permission-initplans/design.md",
+    "design_sha256": "ee74873719f154a857539c85a775def471fbb5d9029f87142dce5f234a446f74",
+    "gate": "three paired rounds AB BA AB; strictly positive weighted107/107/106 CPU saving each; no jobkind slower anyround; no .15 heuristic",
+    "coverage": "raw backend ticks vs ownedPGcgroup within max(.5s,5%) perarm; parallel0; autovacuumoff after VACUUMANALYZE/CHECKPOINT; current installed035 vs exact frozen021 rollback-only",
+    "inputs": "12 metadata/context/search eachround/arm,1warmup perkind/arm; four frozen principals;216 ordered hash comparisons; storedvectorsidentitychecked; no newmodelcalls",
+    "inherited": "security/role/write/error/rebind matrix and upgrade independently accepted; not repeated in benchmark"
+  },
+  "wall_budget_seconds": 600,
+  "no_retry": true,
+  "physical_acceptance": false
+}

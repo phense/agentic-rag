@@ -16,7 +16,7 @@
 - [x] C003 Pass parity, lazy evaluation, shadowing/inlining and live revocation checks; retain test evidence for the actual baseline and current expressions. Depends C002.
 - [x] C004 Extend populated 0.6.21 upgrade/retry/source+target independent restore and limited-owner tests; prove rollback/reapply and original-row/queued-work invariants. Reconcile migration-count assertions without weakening them. Depends C003.
 - [x] C005 Independently review the complete RLS/migration/upgrade diff; resolve C/H/M and record Low. Depends C004.
-- [ ] C006 Freeze and run the fresh effectiveness benchmark under the prospective design gate; any invalid or ineffective run stops delivery. Depends C005.
+- [x] C006 Freeze and run the fresh effectiveness benchmark under the prospective design gate; any invalid or ineffective run stops delivery. Depends C005.
 
 ## Delivery and playbook
 

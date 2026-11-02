@@ -1077,3 +1077,29 @@ search path, and restore guidance specifies0.6.22 tooling and schema035 instead
 of inheriting the linked procedure's historical version label. These mechanical
 corrections were checked by the coordinator against the focused review and
 source; no new product or SQL change and no new physical acceptance is claimed.
+
+#### C006 implemented-policy effectiveness (2026-11-02)
+
+Frozen run `84cfda604846` at `fb7774c` completed with exit0 in137.34s including
+cleanup. On one owned restored database/index, three paired rounds (AB, BA, AB)
+compared the frozen021 document policy with installed035. Each arm measured12
+metadata,12 context and12 search bodies under four fixed principals, after a
+warm-up per kind. All216 result hashes matched their36 input baselines. Stored
+verified synthetic vectors replaced model calls; no API, worker or model daemon
+was started. Parallel query and autovacuum were disabled only on this copy,
+after VACUUM ANALYZE and CHECKPOINT. This is serial SQL effectiveness evidence,
+not end-to-end throughput or a physical latency pass.
+
+The prospective gate passed: weighted CPU savings were positive in every round
+and no job kind was slower in any round. Raw backend CPU and owned PostgreSQL
+cgroup totals agree within the predeclared coverage bound. Input, output and
+policy hashes were checked; original rows were preserved. All owned units ended,
+production unit state/PIDs were unchanged, and the memory floor passed.
+The coordinator recomputed the gate from raw rows without repeating the run.
+See [raw result](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-result.json),
+[arithmetic](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-recomputed.json)
+and [frozen plan](../../benchmarks/2026-11-01-lexical-eligibility/document-permission-effectiveness-plan.json).
+The range of three rounds is not a confidence interval. The abandoned0.15CPU-s
+locating heuristic was not passed or reinstated; this result uses the explicitly
+superseding design gate frozen before execution. The unchanged parent physical
+acceptance remains required.
