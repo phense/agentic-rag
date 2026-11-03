@@ -60,6 +60,10 @@ when a client cycles scopes; counters, signal/event and audit commit atomically.
 No source IDs or content are exposed by this accounting table.
 
 Signal RLS requires immutable namespace plus existing domain/project rules.
+Feedback `fb1:` versions bind canonical `ev1:` plus a title/body digest, so plain
+legacy memory edits also invalidate a captured reference. Canonical evidence
+versions and their consumers remain unchanged. No raw text is retained.
+
 Idempotency keys are actor/client-scoped. Aggregation uses stable user identity,
 so a second machine is not a second independent actor. Approvals bind signal
 revision and expected-source versions; update/retract/source withdrawal makes

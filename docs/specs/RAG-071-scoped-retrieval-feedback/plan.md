@@ -89,6 +89,13 @@ Accounting RLS uses current namespace/actor only; content-bearing event/signal
 RLS additionally requires existing domain/project visibility. No new definer
 helper or owner-side accounting connection is needed.
 
+Feedback document versions are opaque `fb1:` tokens binding the unchanged
+canonical `ev1:` evidence version and a digest of current title/body. This also
+detects changes to plain legacy memories without claim records, whose canonical
+evidence token does not cover their text. Store the canonical evidence token
+separately for provenance; compare feedback tokens only through the feedback
+snapshot seam. No raw title/body enters retained snapshots.
+
 For scoped connections, event/signal RLS requires both the current namespace and
 the existing domain/project visibility/write helpers. Their namespace and actor
 are derived from CURRENT. Local CLI derives identity from the OS, with no
