@@ -1,0 +1,277 @@
+{
+ "cases": [
+  {
+   "case": "tiny",
+   "character_error_rate": 0.0,
+   "exact_normalized": true,
+   "kind": "ocr",
+   "pixels": [
+    448,
+    112
+   ],
+   "regions_inside_image": true,
+   "required_found": 2,
+   "required_total": 2,
+   "seconds_max": 0.785,
+   "seconds_p50": 0.782,
+   "sha256": "e484741e9a913a1421b3f140f38aef6ad4288fa4d6635733b37f56da1a150602",
+   "warnings": [],
+   "words": 5
+  },
+  {
+   "case": "screenshot",
+   "character_error_rate": 0.0,
+   "exact_normalized": true,
+   "kind": "ocr",
+   "pixels": [
+    1100,
+    460
+   ],
+   "regions_inside_image": true,
+   "required_found": 4,
+   "required_total": 4,
+   "seconds_max": 1.133,
+   "seconds_p50": 1.031,
+   "sha256": "8c8786bb91bec1383c4008afc73c0d5dad94a70d138525408460fc607776ea35",
+   "warnings": [],
+   "words": 12
+  },
+  {
+   "case": "invoice",
+   "character_error_rate": 0.0,
+   "exact_normalized": true,
+   "kind": "ocr",
+   "pixels": [
+    1100,
+    460
+   ],
+   "regions_inside_image": true,
+   "required_found": 5,
+   "required_total": 5,
+   "seconds_max": 1.283,
+   "seconds_p50": 1.081,
+   "sha256": "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+   "warnings": [],
+   "words": 20
+  },
+  {
+   "case": "scan",
+   "character_error_rate": 0.0,
+   "exact_normalized": true,
+   "kind": "ocr",
+   "pixels": [
+    1100,
+    460
+   ],
+   "regions_inside_image": true,
+   "required_found": 5,
+   "required_total": 5,
+   "seconds_max": 1.233,
+   "seconds_p50": 1.032,
+   "sha256": "2d95f12f095d1aa72bea1c4ee677c777167297ab887ae2eb6739079c3f4faee7",
+   "warnings": [],
+   "words": 16
+  },
+  {
+   "case": "literal",
+   "character_error_rate": 0.0,
+   "embedded_instruction_followed": false,
+   "embedded_instruction_transcribed_as_data": true,
+   "exact_normalized": true,
+   "kind": "ocr",
+   "pixels": [
+    1100,
+    460
+   ],
+   "regions_inside_image": true,
+   "required_found": 3,
+   "required_total": 3,
+   "seconds_max": 1.283,
+   "seconds_p50": 0.979,
+   "sha256": "cbd2ecdcffd04c0d81f10fbc92b0957058c08e5b3b46d8142e900ce49912df2d",
+   "warnings": [],
+   "words": 18
+  },
+  {
+   "case": "blank",
+   "character_error_rate": 0.0,
+   "exact_normalized": true,
+   "kind": "blank",
+   "pixels": [
+    256,
+    256
+   ],
+   "regions_inside_image": true,
+   "required_found": 0,
+   "required_total": 0,
+   "seconds_max": 0.681,
+   "seconds_p50": 0.625,
+   "sha256": "13c0915d226521fb56bba264c92a227dbdebcf9a4add3a4957fd9c810582dbe8",
+   "warnings": [
+    "no_text"
+   ],
+   "words": 0
+  },
+  {
+   "case": "scene",
+   "character_error_rate": 1.0,
+   "exact_normalized": false,
+   "kind": "scene",
+   "pixels": [
+    384,
+    256
+   ],
+   "regions_inside_image": true,
+   "required_found": 0,
+   "required_total": 1,
+   "seconds_max": 0.731,
+   "seconds_p50": 0.679,
+   "sha256": "61b3015a4b05362d63b2d56c05a455eaa7cbbf591836278140006d32953ede2c",
+   "warnings": [
+    "no_text"
+   ],
+   "words": 0
+  }
+ ],
+ "corpus": "tests/fixtures/images70 (synthetic, 7 images)",
+ "engine_runs_per_image": 5,
+ "examples": [
+  {
+   "document_id": "abd7d047-1484-46e7-b8e2-d7c224351da5",
+   "regions": [
+    {
+     "box": [
+      191,
+      98,
+      194,
+      20
+     ],
+     "confidence": 91.884758,
+     "text": "RE-2026-0471"
+    },
+    {
+     "box": [
+      160,
+      346,
+      93,
+      24
+     ],
+     "confidence": 96.365822,
+     "text": "128,90"
+    }
+   ],
+   "review_state_before": "unreviewed",
+   "transport": "central_http"
+  },
+  {
+   "document_id": "abd7d047-1484-46e7-b8e2-d7c224351da5",
+   "found_after_confirmation": true,
+   "found_before_review": false,
+   "query": "RE-2026-0471",
+   "text": "Musterrechnung - keine echten Kundendaten\nRechnung: RE-2026-0471\n\nDatum: 02.11.2026\n\nNetto: 108,32 EUR\n\nMwSt. 19 %: 20,58 EUR\n\nGesamt: 128,90 EUR",
+   "transport": "local_cli"
+  },
+  {
+   "document_id": "e56a00a8-68ca-4133-8a26-d2be409e99a7",
+   "found_after_confirmation": true,
+   "found_before_review": false,
+   "query": "E-1042",
+   "text": "Systemprüfung erfolgreich\n\nServer: TEST-SERVER-07\n\nPort: 8766\n\nFehlercode: E-1042\n\nNächster Schritt: Verbindung prüfen",
+   "transport": "local_cli"
+  }
+ ],
+ "format": 1,
+ "gates": {
+  "control_state_changed_by_image_text": false,
+  "empty_derivations_without_claim": 3,
+  "unreviewed_image_claims_eligible": 0
+ },
+ "host": {
+  "cpus": 8,
+  "machine": "x86_64",
+  "ocr_threads": 1,
+  "python": "3.13.13"
+ },
+ "interpretation": {
+  "claim": {
+   "eligible": false,
+   "kind": "inference",
+   "review_state": "unreviewed"
+  },
+  "generate_calls": 1,
+  "model": "owned loopback fake (no real model measured)",
+  "state": "published",
+  "unsupported_statement_auto_confirmed": false
+ },
+ "ocr_identity": {
+  "binary_sha256": "644efa639b77a21b1096a6ced155112f0c730d05c7db871d52f4b2eb16bdf42a",
+  "engine": "tesseract",
+  "engine_version": "tesseract 5.5.0",
+  "languages": "deu+eng",
+  "oem": 1,
+  "output": "tsv-words-v1",
+  "pipeline": "rag-image-ocr-1",
+  "preprocessing": "none",
+  "psm": 6,
+  "traineddata": {
+   "deu": "19d219bbb6672c869d20a9636c6816a81eb9a71796cb93ebe0cb1530e2cdb22d",
+   "eng": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  }
+ },
+ "ocr_identity_hash": "ef6a00dd453d425afeff998b1a9a86796bb1869490ca182f209f743e052c99cf",
+ "transports": {
+  "central_http": {
+   "images": 3,
+   "original_download_sha256_matches": true,
+   "seconds": {
+    "blank": 1.162,
+    "invoice": 2.045,
+    "screenshot": 1.564
+   },
+   "separate_scope_namespace": true,
+   "states": {
+    "blank": [
+     "empty"
+    ],
+    "invoice": [
+     "published"
+    ],
+    "screenshot": [
+     "published"
+    ]
+   }
+  },
+  "local_cli": {
+   "exit_codes": [
+    0
+   ],
+   "idempotent_retry_seconds": 0.545,
+   "idempotent_retry_state": "existing",
+   "images": 7,
+   "seconds_total": 12.107,
+   "states": {
+    "blank": [
+     "empty"
+    ],
+    "invoice": [
+     "published"
+    ],
+    "literal": [
+     "published"
+    ],
+    "scan": [
+     "published"
+    ],
+    "scene": [
+     "empty"
+    ],
+    "screenshot": [
+     "published"
+    ],
+    "tiny": [
+     "published"
+    ]
+   }
+  }
+ }
+}
