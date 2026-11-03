@@ -201,7 +201,9 @@ def bounded_run(argv, *, timeout, max_output, workdir, env=None, memory=None, cp
                                        env=env if env is not None else {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8'},
                                        close_fds=True, start_new_session=True,
                                        preexec_fn=_limits(max_output, memory, cpu_seconds or timeout))
-        except OSError:
+        except (OSError, subprocess.SubprocessError):
+            # A rejected pre-exec resource limit must fail closed, just like an
+            # unavailable executable. Never retry without the resource limits.
             return RunResult(None, b'', b'', False, False)
         timed_out = False
         try:
