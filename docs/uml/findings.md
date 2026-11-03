@@ -795,9 +795,12 @@ All seven design findings hold in the implementation; deviations and additions:
 - AF070-011 (as-built; operations): `restore-target` keeps its pre-existing
   embedding-model digest precondition; PB07001 E2 names it after the rehearsal hit
   `embedding_identity_mismatch`.
-- AF070-012 (as-built; limits): interpretation was exercised only against an owned
-  loopback fake; no real vision model, production host or central CLI rehearsal on
-  a real service host. Independent review is still required.
+- AF070-012 (as-built; limits, updated at0.6.27): independent correction and macOS
+  reviews accepted C0/H0/M0. Both production hosts passed actual-source restore and
+  OCR/runtime checks. A separate real Qwen3-VL 2B probe on the Mac passed three
+  synthetic local gateway cases with exact originals, unreviewed inference and
+  foreign denial. Its embeddings were synthetic; no fresh real-host central CLI
+  vision or vector-quality result is claimed. Production vision stays disabled.
 - AF070-013 (as-built; AF070-001, compatibility): the image policies use
   `rag_service_document(domain, project_scope[, true])` from migration021 instead of
   the migration035 `rag_service_permission` initplan helper. The full suite showed

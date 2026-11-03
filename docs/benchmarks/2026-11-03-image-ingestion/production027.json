@@ -1,0 +1,70 @@
+{
+  "runtime_revision": "289b8bcecb3ad02fa7c4d4d13a2a70efcb51d520",
+  "version": "0.6.27",
+  "schema_count": 36,
+  "production_databases": [
+    {
+      "host": "Hetzner",
+      "store": "main",
+      "documents": 24428,
+      "images_before": 0,
+      "restore_verified": true,
+      "original_rows_acl_owners_sequences_unchanged": true
+    },
+    {
+      "host": "Hetzner",
+      "store": "dashboard",
+      "documents": 24505,
+      "images_before": 0,
+      "restore_verified": true,
+      "original_rows_acl_owners_sequences_unchanged": true
+    },
+    {
+      "host": "Peter Mac",
+      "store": "main",
+      "documents": 14845,
+      "images_before": 0,
+      "restore_verified": true,
+      "original_rows_acl_owners_sequences_unchanged": true
+    }
+  ],
+  "runtime_probes": {
+    "Hetzner main": {
+      "version": "0.6.27",
+      "health": 200,
+      "unauthenticated_capabilities": 401,
+      "scoped_rows": 10000,
+      "scoped_search_hits": 3,
+      "foreign_denial": true,
+      "images_enabled": true,
+      "vision_enabled": false
+    },
+    "Hetzner dashboard": {
+      "version": "0.6.27",
+      "health": 200,
+      "unauthenticated_capabilities": 401,
+      "scoped_rows": 0,
+      "scoped_search_hits": 0,
+      "foreign_denial": true,
+      "images_enabled": true,
+      "vision_enabled": false
+    },
+    "Peter Mac": {
+      "version": "0.6.27",
+      "health": 200,
+      "unauthenticated_capabilities": 401,
+      "scoped_rows": 10000,
+      "scoped_search_hits": 3,
+      "foreign_denial": true,
+      "images_enabled": true,
+      "vision_enabled": false
+    }
+  },
+  "mac_native_resource_tests": 11,
+  "mac_real_ocr_and_strict_review_and_search": true,
+  "schema_migrations_during027": 0,
+  "reencoded_rows": 0,
+  "production_images_ingested": 0,
+  "production_vision_enabled": false,
+  "full_suite": "Historical2693pass/1fail/1skip is preserved; no fresh full-suite pass claimed. Targeted tests and independent reviews supported maintainer-approved merges."
+}
