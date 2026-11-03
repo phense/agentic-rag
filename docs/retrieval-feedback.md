@@ -4,11 +4,11 @@ title: Record and evaluate scoped retrieval feedback
 type: task
 doc_id: retrieval-feedback
 readers: [authorized-writer, local-operator]
-status: drafted
+status: reviewed
 version: 0.6.28
 depends_on: [central-service, private-confirmed-corrections]
 assets: []
-last_reviewed: 2026-11-03 (independent whole-content review; correction recheck pending)
+last_reviewed: 2026-11-03 (independent complete content and focused correction review; Ready)
 summary: Capture an explicit search, revise its usefulness signal and privately evaluate an operator-approved failure.
 ---
 

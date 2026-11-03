@@ -79,6 +79,14 @@ on the four new tables, refuses unexpected approval-registry access and binds
 retrieval plus all version reads to one scoped repeatable-read snapshot. The
 original writer transaction retains feedback/audit/receipt commit authority.
 The old schema validator predicate is shared, with no changed policy or role.
-The command count is corrected to14. Focused independent correction review and
-the single pre-PR full suite remain pending. Runtime delivery and production
+The command count is corrected to14. The focused independent review on58e7484
+resolves every finding: Critical0, High0, Medium0, Low0; affected playbook
+Important0/Minor0. Fresh isolated PostgreSQL probes independently confirm custom
+ACL denial, coherent scoped and queued snapshots, one audit/origin, worker
+execution pins and rollback after credential revocation. The final correction
+module has9 passing tests;76 earlier passing affected cases retain unchanged
+runtime inputs. The combined run had one erroneous test expectation and is
+explicitly not counted as a passing suite.
+
+The single pre-PR full suite remains pending. Runtime delivery and production
 feedback enablement are separate; neither has occurred for0.6.28.

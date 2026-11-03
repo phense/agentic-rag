@@ -57,7 +57,7 @@ byte-identical. Complete independent review remains T071-010.
   labels (release-label component before T071-007), preserve historical references,
   update future-refusal tests, README,
   FEATURES and config reference. Lock/wheel and Node checks as applicable.
-- [ ] T071-010: Coordinator reconciles as-built architecture and derived success/
+- [x] T071-010: Coordinator reconciles as-built architecture and derived success/
   recovery probes, obtains independent complete bounded review, resolves C/H/M
   and Important playbook findings and tracks Low issues separately.
 - [ ] T071-011: Final relevant tests and one full suite before PR on unchanged
@@ -72,3 +72,11 @@ interruption/retry and independent source/target restore preserve75 original
 rows in50 tables, ACLs/owners/sequences and vectors/pins/pending work. The final
 CLI rehearsal on9d31fe9 passes14 commands in31.405s. Final independent review and delivery
 remain in S071-3.
+
+S071-3 review acceptance: complete bounded4a51ce4 review plus focused58e7484
+correction review resolves H1/M1/M2/L1 with C0/H0/M0/L0. PB07101 content is Ready,
+Important0/Minor0. Fresh independent PostgreSQL probes verify scoped/queued
+snapshot binding, arbitrary-default-ACL protection, local privacy guard, receipt
+origins, audit/usage rollback and worker execution pins. The final9-case module
+passes;76 unchanged-input passing cases are retained, not relabeled as a green
+combined suite. T071-011 and delivery remain open.

@@ -847,3 +847,9 @@ atomicity, user/source-family independence and owner-only private approval.
 The populated archived027 interruption/retry and two independent restores retain
 originals, jobs, vectors, ACLs, owners and sequences. Full independent acceptance
 is pending; this implementation status is not a readiness or rollout verdict.
+
+RAG-071 independent acceptance at58e7484: AF071-001–006 agree with the
+implemented topology after correction9d31fe9. Whole bounded review and focused
+correction acceptance leave C0/H0/M0/L0; PB07101 Important0/Minor0. Fresh scoped,
+queued and worker-lease PostgreSQL probes confirm the ownership and transaction
+boundaries. Final full verification and delivery remain separate open gates.

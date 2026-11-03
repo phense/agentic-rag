@@ -52,6 +52,7 @@
   },
   "evidence_sha256": {
     "agent-reports/s071-2.json": "63d1a86a279b0847fef93b9739e6e863f3916401453f761aec46b4943ab38aac",
+    "first-correction-review/report.json": "3149a587f43e7ecb868dacb8fab051db1b9575fe6d54222c85d16f86d3cf587e",
     "playbook/rehearsal-inputs.json": "e47f8ac0c45e3e2b409d000ba037f1a7561967e0e1f2f3d00b4c289642bbeb0e",
     "playbook/rehearsal-terminal.json": "762239648e807998287ca3a35f507084b7787e3e0998d89ccf08faaa35717cd5",
     "playbook/rehearsal.log": "da6241fd3c8c39980cbe6a6184d29243bc8efe688bf3072703a24ceb8aa5514f"
@@ -89,7 +90,7 @@
   "limits": [
     "The two CLI negative cases both fall in dev; separate six-case integration covers three dev and three test families.",
     "No provider/model or production workload, automatic training/ranking or measured retrieval improvement.",
-    "Whole review found ACL and snapshot defects, corrected in9d31fe9; focused correction review, full suite and production rollout remain pending."
+    "Independent complete review plus focused correction acceptance: Critical0/High0/Medium0/Low0. Final full suite and production rollout remain pending."
   ],
   "owned_database_removed": true,
   "private_modes": {
@@ -111,6 +112,19 @@
   "schema": 37,
   "synthetic_embeddings": true,
   "targeted_integration": {
+    "correction": {
+      "combined_run_exit": 1,
+      "combined_run_not_counted_as_pass": true,
+      "final_module_exit": 0,
+      "fresh_module_passed": 9,
+      "independent_counts": {
+        "Critical": 0,
+        "High": 0,
+        "Low": 0,
+        "Medium": 0
+      },
+      "retained_unchanged_passing_cases": 76
+    },
     "private_six_case_example": {
       "independent_summary": {
         "copied_source_documents": 2,

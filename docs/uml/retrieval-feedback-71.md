@@ -135,5 +135,6 @@ revocation at the audited boundary rolls back event, audit and usage while the
 accepted queue receipt becomes failed without a result.
 
 The fresh14-command CLI rehearsal on9d31fe9 passes in31.405s with all50 original
-public tables unchanged. Independent correction acceptance and full verification
-are still pending. The earlier S1/S2 figures above remain historical evidence.
+public tables unchanged. Independent correction acceptance at58e7484 is C0/H0/M0/L0; the actual
+worker-lease pin and queued revocation probes agree with this topology. Full
+verification remains pending. The earlier S1/S2 figures above remain historical evidence.
