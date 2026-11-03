@@ -72,12 +72,22 @@ Upgrade source/target backups require independently restored row/ACL/owner check
   comment, active/retracted state, optimistic revision and bounded JSON history.
   Snapshot fields are immutable; update permitted only to signal fields. Each
   update/retract appends history and an audit in the same transaction.
+- `retrieval_feedback_usage`: namespace/actor-only accounting metadata. Retained
+  event/signal counts and conservative byte charges remain visible after a domain
+  or project permission is revoked, so cycling scopes cannot reset namespace
+  quotas. Update atomically with the event/signal and audit under the same
+  namespace transaction lock. No source IDs, query, bodies or scoped content live
+  here; there is no scope widening for event/signal rows.
 - `retrieval_feedback_approvals`: operator-only local table, signal/revision,
   exact safe reconstructed query, expected eligible document/version, family
   identities and approval timestamp. No grants to reader/writer/admin roles.
   Approval is current only while signal revision/state and all cited versions
   match. Mutating a signal invalidates approval by revision mismatch, without
   granting writers access to the private query.
+
+Accounting RLS uses current namespace/actor only; content-bearing event/signal
+RLS additionally requires existing domain/project visibility. No new definer
+helper or owner-side accounting connection is needed.
 
 For scoped connections, event/signal RLS requires both the current namespace and
 the existing domain/project visibility/write helpers. Their namespace and actor

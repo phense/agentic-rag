@@ -16,6 +16,8 @@ range; a passing report is not substituted for actual integration checks.
   AC-001..006; AF071-001..004.
 - [ ] T071-002: Add migration037, expected grants/RLS/identity guards and schema
   validation; implement `feedback.py` gateway and disabled-by-default config.
+  Retain namespace accounting independently of scoped content visibility; test
+  quota enforcement after domain/project grants are revoked.
   Preserve001..036, search behavior and all knowledge hashes. Depends:T071-001.
 - [ ] T071-003: Add MCP write tools for search/submit/update/retract and read
   tools for own get/list; reuse existing authenticated REST tool route. Add CLI

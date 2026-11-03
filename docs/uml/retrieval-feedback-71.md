@@ -17,6 +17,7 @@ flowchart LR
   E --> M
   M --> R[(Feedback signal and bounded history)]
   M --> A[(Existing audit log)]
+  M --> U[(Namespace-only accounting counters)]
   O[Local operator] --> P[Approve current expected source and safe query]
   R --> P
   K --> P
@@ -53,6 +54,11 @@ sequenceDiagram
   end
 ```
 
+Accounting metadata remains namespace-visible when a domain/project grant is
+revoked. Retained counts and conservative byte charges therefore cannot reset
+when a client cycles scopes; counters, signal/event and audit commit atomically.
+No source IDs or content are exposed by this accounting table.
+
 Signal RLS requires immutable namespace plus existing domain/project rules.
 Idempotency keys are actor/client-scoped. Aggregation uses stable user identity,
 so a second machine is not a second independent actor. Approvals bind signal
@@ -61,7 +67,7 @@ them stale without changing knowledge. Never use a cached permission decision.
 
 ## Q3: What survives upgrade and rollback?
 
-Migration037 adds event/signal/approval tables only. Existing knowledge, vectors,
+Migration037 adds event/signal/approval and namespace-accounting tables only. Existing knowledge, vectors,
 jobs and policies are unchanged. Upgrade invokes no model or capture. Old027
 readers continue against036-compatible knowledge; old schema-aware operators may
 refuse the newer migration list. Disabling feedback and returning to027 code
