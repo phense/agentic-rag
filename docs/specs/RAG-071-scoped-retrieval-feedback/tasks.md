@@ -60,7 +60,7 @@ byte-identical. Complete independent review remains T071-010.
 - [x] T071-010: Coordinator reconciles as-built architecture and derived success/
   recovery probes, obtains independent complete bounded review, resolves C/H/M
   and Important playbook findings and tracks Low issues separately.
-- [ ] T071-011: Final relevant tests and one full suite before PR on unchanged
+- [x] T071-011: Final relevant tests and one full suite before PR on unchanged
   runtime inputs. Record terminal exit/results; no running-log pass claim.
 - [ ] T071-012: Create focused PR, respect CI and review gates, merge and deploy
   under current autonomy only after verified populated upgrade/restore; preserve
@@ -80,3 +80,9 @@ snapshot binding, arbitrary-default-ACL protection, local privacy guard, receipt
 origins, audit/usage rollback and worker execution pins. The final9-case module
 passes;76 unchanged-input passing cases are retained, not relabeled as a green
 combined suite. T071-011 and delivery remain open.
+
+Final verification: the one full run on451f472 reports2,736 passed,12 macOS-only
+skips and4 obsolete MCP inventory expectations, exit1. Test-only704e3c9 repairs
+exactly those expectations;14 focused MCP checks pass, exit0. Runtime, SQL and
+all other runtime/test inputs remain byte-identical. Independent mechanical review
+C0/H0/M0/L0; no second full run and no full-exit0 claim. T071-012 remains open.

@@ -88,5 +88,16 @@ module has9 passing tests;76 earlier passing affected cases retain unchanged
 runtime inputs. The combined run had one erroneous test expectation and is
 explicitly not counted as a passing suite.
 
-The single pre-PR full suite remains pending. Runtime delivery and production
-feedback enablement are separate; neither has occurred for0.6.28.
+The one pre-PR full run on451f472 completed with2,736 passed,12 macOS-only
+skips and4 failures in obsolete MCP tool-inventory expectations, exit1,
+3416.61s. It found no other failures. The unchanged runtime exposes21 read tools
+and17 additional write tools. Commit704e3c9 updates only those four old test
+contracts, preserves their prior privilege/wire assertions and explicitly denies
+feedback mutations on the read-only surface. The independent mechanical review
+has C0/H0/M0/L0. The four corrected tests plus existing MCP tests pass14/14 in
+7.86s, exit0. Input hashes bind the tested working tree to704e3c9; all other runtime, SQL and test
+inputs remain unchanged. The full process retains
+its recorded exit1; it is not relabeled or repeated for test-only maintenance.
+
+Runtime delivery and production feedback enablement are separate; neither has
+occurred for0.6.28.
