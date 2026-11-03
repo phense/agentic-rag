@@ -85,11 +85,15 @@ sequenceDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> Preview: explicit manifest (paths or stored original IDs)
-    Preview --> Preview: selected / unchanged / changed / missing / unauthorized / invalid
+    Preview --> Preview: selected / unchanged / changed / missing / unauthorized / invalid / withdrawn
     Preview --> Apply: --apply --limit N
     Apply --> Apply: one item, cursor fsync after each outcome
-    Apply --> Canceled: SIGINT/SIGTERM or cancel marker
-    Canceled --> Apply: rerun same manifest resumes at cursor
+    Apply --> Paused: limit reached
+    Paused --> Apply: rerun --apply
+    Apply --> Canceled: SIGINT/SIGTERM between items, or --cancel marker
+    Canceled --> Apply: rerun --apply (signal) or --apply --resume (marker)
+    Apply --> Interrupted: unavailable engine or transport outage stops the run
+    Interrupted --> Apply: rerun --apply
     Apply --> Complete: cursor at end
     Complete --> [*]
 ```

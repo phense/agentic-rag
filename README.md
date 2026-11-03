@@ -13,6 +13,14 @@ hosted RAG service.**
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
+**0.6.25 source-backed images:** screenshots, receipts and scans can become
+reviewable knowledge. agentic-rag keeps the exact image in PostgreSQL, reads its
+text with a Tesseract you install yourself, and records where each word sits;
+an optional local Ollama model can describe the picture. Nothing is searchable
+before you confirm it against the original. It is off by default, adds
+migration036 without touching existing data, and calls no image engine during
+the upgrade. Follow the [image playbook](docs/image-ingestion.md).
+
 **0.6.22 lexical search:** selective full-text queries run expensive truth and
 lifecycle checks once per matching document, retaining the same scoped results
 and ranking. Generic vector plans continue past filtered nearest neighbours on

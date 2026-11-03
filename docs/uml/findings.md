@@ -775,3 +775,27 @@ Answers to the plan's three questions; view in `image-ingestion-70.md`.
   operator inventory tooling refuses a schema newer than its migration list, which
   is the explicit downgrade boundary after image writes. pg_dump carries originals
   atomically with all references.
+
+## RAG-070 as-built reconciliation (2026-11-03)
+
+All seven design findings hold in the implementation; deviations and additions:
+
+- AF070-008 (as-built; AF070-001): derived claim slugs are deterministic and
+  source-bound (`<title>-<sha256(source_key, kind, text_sha)[:16]>`). A title-only
+  slug collided under RLS when a foreign scope held the same title; the new slug
+  never reveals foreign rows. `evidence.save` gained an optional `slug` argument.
+- AF070-009 (as-built; AF070-003): claim reuse is limited to the same original and
+  kind with identical text digest; evidence-gateway deduplication can additionally
+  bind local and central uploads of the same image in the same scope to one claim
+  document (observed in the evaluation). Reviews are never reset.
+- AF070-010 (as-built; AF070-007): old 0.6.17/0.6.23 readers see one more document
+  per published derivation in raw counts, but never in search results before
+  confirmation (asserted in `test_image_upgrade.py`). `SUPPORTED_VERSIONS` covers
+  0.6.0–0.6.25; 0.6.26 is refused.
+- AF070-011 (as-built; operations): `restore-target` keeps its pre-existing
+  embedding-model digest precondition; PB07001 E2 names it after the rehearsal hit
+  `embedding_identity_mismatch`.
+- AF070-012 (as-built; limits): interpretation was exercised only against an owned
+  loopback fake; no real vision model, production host or central CLI rehearsal on
+  a real service host. Independent review is still required.
+

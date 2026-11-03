@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.25] - 2026-11-03
+
+- Add opt-in source-backed image ingestion (Issue70): `rag image add|show|original|backfill|references`, REST `/v1/images`, and the read-only MCP tool `memory_image`. One explicit static PNG/JPEG/WebP file (≤4MiB, ≤8192px per side, ≤16M pixels, one frame) is validated in a bounded child process, retained byte-exactly in PostgreSQL and read by a locally configured Tesseract with per-word boxes. Optional loopback-only Ollama interpretation requires a pinned model digest that is checked before and after every call. OCR becomes a machine-transcribed stated claim and interpretation becomes an inference; neither is returned by search or context before a strict confirmation. Each derivation is bound to its exact engine identity, so an engine change adds a derivation and never rewrites earlier text or reviews.
+- Add migration036 with `image_originals` and `image_derivations`, grants and row-level policies on the migration035 predicate. Upgrading performs no image call and rewrites no row; the populated 0.6.17/schema029 and 0.6.23/schema035 upgrade, interruption, image-write, independent restore and code-rollback paths are rehearsed on owned copies. Withdrawal reuses the existing source-state review. Pillow is the optional `images` extra; Tesseract and models are never installed or downloaded. With `[images]` absent or disabled, nothing changes. PB07001 documents install, use, backfill, withdrawal, backup/restore and rollback.
+
 ## [0.6.24] - 2026-11-02
 
 - Extend bounded research with original-backed entity/confirmed-alias lookup and a visited graph frontier (up to three hops). Each entity resolution and graph seed consumes the existing call budget; fixed SQL, document, neighbor and chunk limits bound nested work. Ordinary search, provider routing, source quorum and read-only authority remain unchanged.
