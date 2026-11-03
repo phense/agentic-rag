@@ -614,6 +614,16 @@ scoped row-level policies and rewrites nothing.
 Synthetic measurements with real Tesseract 5 on five text fixtures: 5/5 exact
 transcriptions, character error rate 0, engine time 0.78–1.08s per image; blank
 and scene fixtures publish no claim, and an embedded instruction is transcribed
-as data. Interpretation was tested only against an owned loopback fake, not a
-real vision model. [Measurements](docs/benchmarks/2026-11-03-image-ingestion/results.json).
+as data. [OCR measurements](docs/benchmarks/2026-11-03-image-ingestion/results.json).
+
+Version0.6.27 is deployed on Hetzner and Peter’s Mac with German/English OCR
+enabled and optional vision disabled. Fresh independently restored backups
+preserved all original rows in three populated stores; no existing text or
+vectors were re-encoded. An isolated native Mac test with real Tesseract and
+`qwen3-vl:2b-instruct` passed3/3 synthetic cases in15.229s. It described the
+scene correctly and retained all invoice identifiers, but made two spelling
+errors on instruction text that OCR transcribed exactly. Outputs remain
+unreviewed inferences; this is bounded integration evidence, not universal
+vision accuracy. The test daemon/database and1.93GB model store were removed.
+[Native examples and rollout limits](docs/verification/image-ingestion.md).
 
