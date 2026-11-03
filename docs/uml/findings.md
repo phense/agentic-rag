@@ -810,3 +810,32 @@ All seven design findings hold in the implementation; deviations and additions:
   per-row helper costs little because image access is by key. Regression:
   `test_migration036_keeps_the_documented_035_policy_rollback_valid`.
 
+
+## RAG-071 design gate (2026-11-03)
+
+- AF071-001 (security; AC-001/003/004): new feedback tools are explicit writer
+  operations; ordinary search and read-only MCP stay read-only. Feedback metadata
+  has no path to claim review, source state or rank. Response: separate audited
+  gateway, immutable owner fields, no new definer/leakproof helper. Design resolved;
+  implementation and negative tests required.
+- AF071-002 (privacy; AC-001/005): request receipts expire and traces deliberately
+  omit bodies. Response: immutable bounded ID/version snapshots, query/settings
+  digests only; local owner-only approved query reconstruction for private export.
+  Never copy prompts or results into traces. Design resolved; tests required.
+- AF071-003 (atomicity; AC-002/003): key replay, concurrent updates and revocation
+  must not produce duplicate or unauthorized signals. Response: namespace lock,
+  key digest, optimistic revision/history/audit in one transaction and existing
+  ServiceConnection commit check. Design resolved; fault/race tests required.
+- AF071-004 (resources; AC-006): event/history amplification must stay finite.
+  Response: event/source/result bounds, namespace byte/row/rate quotas and revision
+  cap; fail explicitly without dropping acknowledged records. Existing limits
+  unchanged. Design resolved; boundary tests required.
+- AF071-005 (semantics; AC-007): usefulness is not truth; copied sources and multiple
+  clients must not create independent votes or leak across held-out splits.
+  Response: group by stable authenticated user/source family, approve current
+  expected evidence explicitly, separate sealed private format and whole-source
+  family splits; no profile/rank activation. Design resolved; evaluation tests required.
+- AF071-006 (compatibility; AC-008): preserve active027/036 installations and jobs.
+  Response: additive037, default-off, no source mutation/backfill/model calls,
+  populated027 interruption/retry/independent restore and old reader; code rollback
+  retains tables. Design resolved; rehearsal required before delivery.
