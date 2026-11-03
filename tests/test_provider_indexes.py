@@ -297,7 +297,13 @@ def test_large_generation_ann_and_filters_preserve_second_document(conn,managed,
     # All vectors pass the real audited gateway in finite pages.
     while ix.build(conn,cfg,'one',limit=32,allow_corpus=True)['remaining']:pass
     ix.activate(conn,cfg,'one')
-    rows=ix.candidates(conn,ix.query_vector(generation,cfg,'quasar'),'quasar',scopes=['global'])
+    # Autoanalyze cannot see this uncommitted bulk fixture. Refresh statistics
+    # in the fixture transaction after activation holds the table locks.
+    for table in ('documents','chunks','embedding_vectors'):
+        conn.execute('ANALYZE '+table)
+    warnings=[]
+    rows=ix.candidates(conn,ix.query_vector(generation,cfg,'quasar'),'quasar',scopes=['global'],warnings=warnings)
+    assert warnings==[], warnings
     assert {r['document_id'] for r in rows}=={doc,second}
     assert len(rows)<=3
 
