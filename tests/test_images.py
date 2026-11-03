@@ -126,6 +126,26 @@ def test_migration036_is_additive_insert_only_and_scope_protected(owned):
             conn.execute('UPDATE image_originals SET mime=mime')
 
 
+def test_migration036_keeps_the_documented_035_policy_rollback_valid(owned):
+    # PB (agent-plugins, 0.6.22 recovery) rolls 035 back by restoring the 021
+    # document policy and dropping rag_service_permission. Image policies must
+    # therefore not depend on that function.
+    with db.connect(owned) as conn:
+        dependents = conn.execute(
+            "SELECT count(*) n FROM pg_depend d JOIN pg_policy p ON p.oid=d.objid"
+            " WHERE d.classid='pg_policy'::regclass AND p.polname LIKE 'service_image_%%'"
+            " AND d.refobjid='public.rag_service_permission(text,jsonb)'::regprocedure").fetchone()['n']
+        assert dependents == 0
+        conn.execute("""ALTER POLICY service_documents ON public.documents
+            USING (public.rag_service_document(domain,project_scope))
+            WITH CHECK (public.rag_service_document(domain,project_scope,true))""")
+        conn.execute('DROP FUNCTION public.rag_service_permission(text,jsonb)')
+        conn.execute((db.SQL_DIR / '035_document_permission_initplans.sql').read_text())
+        conn.commit()
+        from agentic_rag.service.schema import validate_schema
+        validate_schema(conn)
+
+
 def test_disabled_feature_and_missing_engine_make_zero_calls_and_zero_writes(owned):
     baseline = counts(owned)
     fake = FakeOCR()
