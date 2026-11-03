@@ -82,8 +82,13 @@ retained originals; part C shows how to list them.
   `.traineddata` files at paths you choose. agentic-rag never installs or
   downloads them. A private runtime needs its library directory as
   `ocr_library_path`. On macOS use the absolute Homebrew Tesseract and tessdata
-  paths; leave `ocr_library_path` unset. Linux resource limits and Homebrew
-  operation still require a host rehearsal before Mac enablement.
+  paths; leave `ocr_library_path` unset. **Keep images disabled on macOS:** the
+  current address-space limit fails on the tested Apple Silicon host before
+  decoding or OCR can start ([Issue100](https://github.com/phense/agentic-rag/issues/100)).
+  From 0.6.26, rejected subprocess resource limits return `decoder_unavailable`
+  or `ocr_unavailable` instead of an unhandled startup exception. The command
+  is not retried without its limits. This does not establish macOS OCR support;
+  a bounded implementation and a real-host ingestion rehearsal are still required.
 - **Vision (optional, off by default):** a local Ollama on loopback with the model
   already present. Note its digest from `curl -s http://127.0.0.1:11434/api/tags`.
   agentic-rag never pulls a model and refuses any non-loopback URL.

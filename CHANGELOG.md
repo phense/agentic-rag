@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.26] - 2026-11-03
+
+- Refresh statistics in the uncommitted bulk ANN test fixture before retrieval and assert that no semantic-search warning occurs. The original two-second query budget, result IDs and document-diversity checks remain unchanged. This corrects fixture planning; it does not prove the exact trigger of the earlier full-suite timeout or change production retrieval.
+- Fail closed when an image subprocess cannot install its resource limits: return the existing decoder/OCR-unavailable errors instead of exposing `SubprocessError`. Never retry without the limits. macOS OCR remains disabled pending a supported, bounded execution strategy (Issue100); no original image, derivation, review or embedding is rewritten.
+- Keep schema036 and accept 0.6.26 for existing verified-backup/upgrade operations. Upgrading from 0.6.25 requires a code update and process restart, with no migration or recoding; a code-only rollback to 0.6.25 retains the same stored data.
+
 ## [0.6.25] - 2026-11-03
 
 - Add opt-in source-backed image ingestion (Issue70): `rag image add|show|original|backfill|references|erase`, REST `/v1/images`, and the read-only MCP tool `memory_image`. One explicit static PNG/JPEG/WebP file (≤4MiB, ≤8192px per side, ≤16M pixels, one frame) is validated in a bounded child process, retained byte-exactly in PostgreSQL and read by a locally configured Tesseract with per-word boxes. Optional loopback-only Ollama interpretation requires a pinned model digest that is checked before and after every call. OCR becomes a machine-transcribed stated claim and interpretation becomes an inference; neither is returned by search or context before a strict confirmation. Each derivation is bound to its exact engine identity, so an engine change adds a derivation and never rewrites earlier text or reviews.
