@@ -50,6 +50,8 @@
   `rag` commands as subprocesses. Output:
   [playbook-rehearsal.json](../benchmarks/2026-11-03-image-ingestion/playbook-rehearsal.json)
   (33 steps, all at their expected exit code; local paths replaced by `REPO`/`WORK`).
+  Rerun with the committed driver after the migration036 policy change (AF070-013);
+  the record names the rehearsed `sql/036_image_ingestion.sql` digest `ee2a233ef3cc9dc4…`.
 
 | Part | Observed result |
 |---|---|

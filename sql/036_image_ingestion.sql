@@ -53,17 +53,12 @@ GRANT SELECT, INSERT ON public.image_originals, public.image_derivations TO rag_
 GRANT ALL ON public.image_originals, public.image_derivations TO rag_admin;
 
 ALTER TABLE public.image_originals ENABLE ROW LEVEL SECURITY;
+-- Same scope rule as documents, through the stable 021 helper (not the 035
+-- initplan helper), so the documented 035 policy rollback stays valid on a
+-- store with image tables. Access here is by key, never a large scan.
 CREATE POLICY service_image_originals ON public.image_originals
- USING (NOT public.rag_service_active() OR (
-   public.rag_service_permission(domain,
-     (SELECT current_setting('rag_service.read_domains',true)::jsonb))
-   AND public.rag_service_permission(project_scope,
-     (SELECT current_setting('rag_service.read_projects',true)::jsonb))))
- WITH CHECK (NOT public.rag_service_active() OR (
-   public.rag_service_permission(domain,
-     (SELECT current_setting('rag_service.write_domains',true)::jsonb))
-   AND public.rag_service_permission(project_scope,
-     (SELECT current_setting('rag_service.write_projects',true)::jsonb))));
+ USING (public.rag_service_document(domain, project_scope))
+ WITH CHECK (public.rag_service_document(domain, project_scope, true));
 
 ALTER TABLE public.image_derivations ENABLE ROW LEVEL SECURITY;
 CREATE POLICY service_image_derivations ON public.image_derivations
@@ -71,7 +66,4 @@ CREATE POLICY service_image_derivations ON public.image_derivations
    SELECT 1 FROM public.image_originals o WHERE o.id = original_id))
  WITH CHECK (NOT public.rag_service_active() OR EXISTS (
    SELECT 1 FROM public.image_originals o WHERE o.id = original_id
-     AND public.rag_service_permission(o.domain,
-       (SELECT current_setting('rag_service.write_domains',true)::jsonb))
-     AND public.rag_service_permission(o.project_scope,
-       (SELECT current_setting('rag_service.write_projects',true)::jsonb))));
+     AND public.rag_service_document(o.domain, o.project_scope, true)));

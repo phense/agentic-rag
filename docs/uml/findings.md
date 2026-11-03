@@ -798,4 +798,12 @@ All seven design findings hold in the implementation; deviations and additions:
 - AF070-012 (as-built; limits): interpretation was exercised only against an owned
   loopback fake; no real vision model, production host or central CLI rehearsal on
   a real service host. Independent review is still required.
+- AF070-013 (as-built; AF070-001, compatibility): the image policies use
+  `rag_service_document(domain, project_scope[, true])` from migration021 instead of
+  the migration035 `rag_service_permission` initplan helper. The full suite showed
+  that the documented 0.6.22 recovery (restore the 021 document policy, drop
+  `rag_service_permission`) failed on a 036 store because the image policies
+  depended on that function. Semantics are identical (same session settings); the
+  per-row helper costs little because image access is by key. Regression:
+  `test_migration036_keeps_the_documented_035_policy_rollback_valid`.
 
