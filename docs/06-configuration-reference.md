@@ -76,7 +76,8 @@ IDs, versions and digests, without retaining the raw query or result bodies.
 Signals do not change claim review, source trust, vectors or ranking. Disabling
 the setting stops new capture and mutation; existing records remain readable
 under the caller's current access. Local operator approval and private offline
-evaluation are separate from writer feedback. See [PB07101](retrieval-feedback.md)
+evaluation are separate from writer feedback. New approvals also require the
+setting; retained approvals can still be exported and evaluated after disabling. See [PB07101](retrieval-feedback.md)
 for limits, local/remote commands, upgrade and recovery.
 
 ## `[service]`

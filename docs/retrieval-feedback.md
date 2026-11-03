@@ -34,6 +34,8 @@ may still be wrong; a missing result may reflect an incomplete query.
 The initial release captures searches explicitly. It has no dashboard voting
 button or automatic training. Capture and mutation are off by default. Existing
 feedback remains inspectable after disabling the feature, subject to current access.
+New operator approvals also require enablement; retained current approvals can
+still be exported and evaluated while capture is disabled.
 
 ## Terms
 

@@ -627,3 +627,20 @@ unreviewed inferences; this is bounded integration evidence, not universal
 vision accuracy. The test daemon/database and1.93GB model store were removed.
 [Native examples and rollout limits](docs/verification/image-ingestion.md).
 
+
+## Scoped retrieval feedback (Issue71)
+
+Version0.6.28/schema037 adds explicit, disabled-by-default feedback search and
+useful/not-useful/wrong-source/missing-evidence signals. Writers can replay,
+revise and retract their own scoped records. Events retain bounded IDs, versions
+and digests rather than raw queries or result bodies. Feedback never confirms
+evidence, changes source trust or alters ranking.
+
+A local operator can approve a current negative case with a safe reconstructed
+query and unchanged eligible expected source. Private exports keep connected
+source families together for read-only lexical evaluation through the existing
+confirmed-failure command. Counts collapse machines belonging to one user; no
+training or policy activation occurs. Migration037 adds four tables without
+rewriting existing knowledge, vectors or jobs.
+[Procedure PB07101](docs/retrieval-feedback.md);
+[verification and current delivery limits](docs/verification/retrieval-feedback.md).
