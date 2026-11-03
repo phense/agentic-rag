@@ -2,9 +2,10 @@
 
 ## Ownership and integration
 
-One implementation writer owns runtime/SQL/tests/user documentation/release
-metadata. The coordinator owns spec/plan/tasks/UML, continuity and final
-acceptance. No parallel writers. Source9ee02b7, runtime0.6.27/schema036;
+One implementation writer owns runtime/SQL/tests/release labels. The
+coordinator owns reader documentation, spec/plan/tasks/UML, continuity and final
+acceptance; the README overview follows the completed label edit. No overlapping
+file writers. Source9ee02b7, runtime0.6.27/schema036;
 release0.6.28/schema037. Independent review covers the complete implementation
 range; a passing report is not substituted for actual integration checks.
 
@@ -33,14 +34,14 @@ byte-identical. Complete independent review remains T071-010.
 
 ### Slice S071-2: Private evaluation and compatibility
 
-- [ ] T071-005: Red tests then local-only operator approval/summary/private export,
+- [x] T071-005: Red tests then local-only operator approval/summary/private export,
   independent actor/source grouping, query hash/secret screening, source/claim
   change and withdrawal, and held-out family separation. AC-005..007, AF071-005.
-- [ ] T071-006: Add separate feedback export/evaluation format dispatched through
+- [x] T071-006: Add separate feedback export/evaluation format dispatched through
   the existing private correction evaluator. Reuse private file/hash guards,
   network-free lexical search and explicit stale denominators. Preserve old
   correction format, public corpora and ranking/truth state. Depends:T071-005.
-- [ ] T071-007: Prepare the T071-009 release-label component first, then
+- [x] T071-007: Prepare the T071-009 release-label component first, then
   populated archived0.6.27 source with vectors/scopes/pin/queued job:
   interrupt037, retry, source/target independent restore, old reader and rollback
   with retained metadata. Compare original rows/ACL/owners/sequences. AC-008;
@@ -52,7 +53,7 @@ byte-identical. Complete independent review remains T071-010.
   capture/update/retract, operator approval/private export/evaluate, caps,
   changed/withdrawn sources and executable upgrade/recovery. Use authoring/review
   skills; record a real command rehearsal and two or three measured examples.
-- [ ] T071-009: Finalize exactly0.6.28 in project/lock/badge/changelog and supported
+- [x] T071-009: Finalize exactly0.6.28 in project/lock/badge/changelog and supported
   labels (release-label component before T071-007), preserve historical references,
   update future-refusal tests, README,
   FEATURES and config reference. Lock/wheel and Node checks as applicable.
@@ -64,3 +65,10 @@ byte-identical. Complete independent review remains T071-010.
 - [ ] T071-012: Create focused PR, respect CI and review gates, merge and deploy
   under current autonomy only after verified populated upgrade/restore; preserve
   rollback evidence and report actual runtime behavior on both hosts.
+
+S071-2 integration evidence: `8b753e4` tests first, `3ad0f2a` implementation;
+33 targeted tests passed in62.57s, exit0,388 inputs unchanged. Archived027
+interruption/retry and independent source/target restore preserve75 original
+rows in50 tables, ACLs/owners/sequences and vectors/pins/pending work. The actual
+CLI rehearsal passes14 commands in29.597s. Final independent review and delivery
+remain in S071-3.

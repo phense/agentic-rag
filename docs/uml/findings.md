@@ -839,3 +839,11 @@ All seven design findings hold in the implementation; deviations and additions:
   Response: additive037, default-off, no source mutation/backfill/model calls,
   populated027 interruption/retry/independent restore and old reader; code rollback
   retains tables. Design resolved; rehearsal required before delivery.
+
+RAG-071 as-built evidence at4cc570f/3ad0f2a: AF071-001–006 are implemented.
+Scoped real-component tests cover authority, no knowledge mutation, immutable
+metadata, namespace quotas surviving scope revocation, replay/revision/audit
+atomicity, user/source-family independence and owner-only private approval.
+The populated archived027 interruption/retry and two independent restores retain
+originals, jobs, vectors, ACLs, owners and sequences. Full independent acceptance
+is pending; this implementation status is not a readiness or rollout verdict.

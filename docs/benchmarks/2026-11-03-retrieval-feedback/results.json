@@ -1,0 +1,181 @@
+{
+  "command_count": 14,
+  "evaluation": {
+    "application_writes": 0,
+    "baseline_hits": 0,
+    "baseline_misses": 2,
+    "baseline_observed": 2,
+    "by_split": {
+      "dev": {
+        "baseline_hits": 0,
+        "baseline_misses": 2,
+        "baseline_observed": 2,
+        "current_hits": 0,
+        "current_misses": 2,
+        "evaluated": 2,
+        "reproduced_failures": 2,
+        "selected": 2,
+        "source_families": 2,
+        "stale": 0,
+        "withheld": 0
+      },
+      "test": {
+        "baseline_hits": 0,
+        "baseline_misses": 0,
+        "baseline_observed": 0,
+        "current_hits": 0,
+        "current_misses": 0,
+        "evaluated": 0,
+        "reproduced_failures": 0,
+        "selected": 0,
+        "source_families": 0,
+        "stale": 0,
+        "withheld": 0
+      },
+      "unassigned": {
+        "evaluated": 0,
+        "selected": 1,
+        "stale": 0,
+        "withheld": 1
+      }
+    },
+    "current_hits": 0,
+    "current_misses": 2,
+    "evaluated": 2,
+    "limited": false,
+    "provider_calls": 0,
+    "reproduced_failures": 2,
+    "selected": 3,
+    "source_families": 2,
+    "stale": 0,
+    "withheld": 1
+  },
+  "evidence_sha256": {
+    "agent-reports/s071-2.json": "63d1a86a279b0847fef93b9739e6e863f3916401453f761aec46b4943ab38aac",
+    "playbook/rehearsal-inputs.json": "dde412aed1843409e8da61d010b2d00c00a6967eecf20893d46174ddc64ccca7",
+    "playbook/rehearsal-terminal.json": "939dd98fe6415e2ed485326f030033865a5056fdb1b0bc16f3d2e34a4aa5e3cb",
+    "playbook/rehearsal.log": "a477bcde1c841aba8a9d3cc21cbdd152fd7735862d0213e373f7fc4b38bc54eb"
+  },
+  "examples": {
+    "missing_evidence": {
+      "event_results": 0,
+      "expected_in_original_results": false,
+      "seconds": 4.47,
+      "signal_revision": 1
+    },
+    "useful_retraction": {
+      "event_count": 1,
+      "revision": 3,
+      "seconds": 10.325,
+      "signal_count": 1
+    },
+    "wrong_source": {
+      "event_results": 1,
+      "expected_in_original_results": false,
+      "seconds": 6.711,
+      "signal_revision": 1
+    }
+  },
+  "export_counts": {
+    "application_writes": 0,
+    "exported": 2,
+    "limited": false,
+    "provider_calls": 0,
+    "selected": 3,
+    "stale": 0,
+    "withheld": 1
+  },
+  "kind": "synthetic-retrieval-feedback-examples",
+  "limits": [
+    "The two CLI negative cases both fall in dev; separate six-case integration covers three dev and three test families.",
+    "No provider/model or production workload, automatic training/ranking or measured retrieval improvement.",
+    "Independent complete review, full suite and production rollout still pending at publication."
+  ],
+  "owned_database_removed": true,
+  "private_modes": {
+    "directory": "0o700",
+    "export": "0o600",
+    "report": "0o600"
+  },
+  "query_path": "lexical/off/off",
+  "real_components": [
+    "PostgreSQL17",
+    "feedback gateway",
+    "CLI subprocesses",
+    "private export/evaluator"
+  ],
+  "rehearsal_seconds": 29.597,
+  "revision": "3ad0f2aa1234ad456bf5b4526277607315dbd478",
+  "runtime": "0.6.28",
+  "schema": 37,
+  "synthetic_embeddings": true,
+  "targeted_integration": {
+    "private_six_case_example": {
+      "independent_summary": {
+        "copied_source_documents": 2,
+        "copied_source_split_families": 1,
+        "independent_signals": 2,
+        "machines": 3,
+        "signals": 3,
+        "source_families": 1,
+        "users": 2
+      },
+      "private_lexical_evaluation": {
+        "application_writes": 0,
+        "baseline_hits": 0,
+        "baseline_misses": 6,
+        "baseline_observed": 6,
+        "by_split": {
+          "dev": {
+            "baseline_hits": 0,
+            "baseline_misses": 3,
+            "baseline_observed": 3,
+            "current_hits": 0,
+            "current_misses": 3,
+            "evaluated": 3,
+            "reproduced_failures": 3,
+            "selected": 3,
+            "source_families": 3,
+            "stale": 0,
+            "withheld": 0
+          },
+          "test": {
+            "baseline_hits": 0,
+            "baseline_misses": 3,
+            "baseline_observed": 3,
+            "current_hits": 0,
+            "current_misses": 3,
+            "evaluated": 3,
+            "reproduced_failures": 3,
+            "selected": 3,
+            "source_families": 3,
+            "stale": 0,
+            "withheld": 0
+          },
+          "unassigned": {
+            "evaluated": 0,
+            "selected": 0,
+            "stale": 0,
+            "withheld": 0
+          }
+        },
+        "current_hits": 0,
+        "current_misses": 6,
+        "evaluated": 6,
+        "limited": false,
+        "provider_calls": 0,
+        "reproduced_failures": 6,
+        "selected": 6,
+        "source_families": 6,
+        "stale": 0,
+        "withheld": 0
+      },
+      "version_invalidation": "Rewriting plain legacy title/body makes exported approval stale: evaluated0/reproduced_failures0; subsequent export has exported0. Retraction and source withdrawal also never count as reproduced success."
+    },
+    "s071_1_passed": 74,
+    "s071_2_passed": 33
+  },
+  "timing_scope": "wall time including CLI startup; not a load or quality benchmark",
+  "unchanged_original_tables": 50,
+  "version": 1
+}

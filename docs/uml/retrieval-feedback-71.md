@@ -94,3 +94,23 @@ tables, and an interrupted migration rolls back fully.
 AF071-001..006 in `findings.md` are binding response items. As-built reconciliation
 must check tool registration, permission rechecks, private-query ownership,
 idempotency/audit transactions, family independence and actual upgrade evidence.
+
+## As-built reconciliation (2026-11-03)
+
+Runtime4cc570f/3ad0f2a implements the topology above. `feedback.py` owns explicit
+commit/rollback, namespace locks, conservative namespace accounting and current
+`fb1:`/eligibility checks. `feedback_cli.py`, MCP registration and the existing
+service tool dispatcher share that gateway. `benchmark/feedback.py` owns the
+local approval boundary and private read-only evaluation, dispatched before the
+unchanged confirmed-correction format validator. Schema037 adds four tables and
+no new definer or leakproof function.
+
+Derived success/recovery probes are executable in
+`tests/service/test_retrieval_feedback.py`, `tests/test_retrieval_feedback.py`,
+`tests/benchmark/test_feedback.py` and `tests/service/test_feedback_upgrade.py`.
+The74+33 targeted checks and14-command CLI rehearsal prove scoped capture,
+mutation, audit/revocation rollback, private miss reproduction and populated
+source/target restore. The whole source-family split is tested with copied spans;
+six approved negative cases cover both dev/test. No evaluation profile is tuned.
+AF071-001–006 are implemented with this evidence; independent acceptance and
+final full verification remain pending. See the linked verification record.
