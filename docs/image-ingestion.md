@@ -90,7 +90,7 @@ retained originals; part C shows how to list them.
   the physical footprint/resident peaks of its owned process group; peaks of
   exited helpers remain charged, and `wait4` rejects a short-lived target's
   resident peak before accepting output. The supervisor itself counts against
-  `engine_memory_bytes` (1GiB for decoding). Accounting failure stops the command.
+  `engine_memory_bytes`. Accounting failure stops the command.
   **This is a sampled physical-memory budget, not a hard allocation ceiling:**
   memory may overshoot between samples. It does not bound virtual reservations.
   Linux continues to use its kernel address-space limit.
