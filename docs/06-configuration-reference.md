@@ -18,7 +18,8 @@ agentic-rag runs anyway. You create it only to override something.
 
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[rerank]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
-`[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`, `[synthesis]`. Unknown sections and unknown keys inside a known
+`[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`, `[synthesis]`,
+`[images]` and `[feedback]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -63,6 +64,20 @@ sets or overrides them. If you're pointing at a networked Postgres and
 need role passwords or a non-default port, use those, not a
 config.toml field. See [10 · Architecture](10-architecture.md) for the
 role matrix these connections authenticate against.
+
+## `[feedback]`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `enabled` | `false` | Enables explicit writer capture and mutation of scoped retrieval feedback. Must be a TOML boolean. Requires schema037. |
+
+Ordinary search never creates feedback events. Explicit capture stores bounded
+IDs, versions and digests, without retaining the raw query or result bodies.
+Signals do not change claim review, source trust, vectors or ranking. Disabling
+the setting stops new capture and mutation; existing records remain readable
+under the caller's current access. Local operator approval and private offline
+evaluation are separate from writer feedback. See [PB07101](retrieval-feedback.md)
+for limits, local/remote commands, upgrade and recovery.
 
 ## `[service]`
 

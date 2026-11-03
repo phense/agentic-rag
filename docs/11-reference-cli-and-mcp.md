@@ -21,6 +21,32 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | `rag init-db` | — | Applies pending SQL migrations from `sql/`, creates the schema, seeds the `general` domain. Prints which migrations applied. |
 | `rag install` | `--no-launchd` · `--codex` · `--agy` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges six Claude hooks plus `autoCompactWindow = 500000` into `~/.claude/settings.json` (unique `settings.json.bak.<id>` backup, mode-0600 rollback record, printed restore command), and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` previews either target and writes nothing (for Claude: no MCP registration, no launchd). `--restore` is mutually exclusive with `--check`, accepts a Claude or Codex record, and dispatches on the record's target: `--codex --restore` still works for Codex records; a Claude record with `--codex` is refused. `--agy` manages only `~/.gemini/config/hooks.json` for the Antigravity CLI (one named `agentic-rag` hook; no policy, no MCP, no scheduler) and accepts the same `--check`/`--restore`; `--codex` and `--agy` are mutually exclusive, and an Antigravity record must be restored with `--agy`. Does **not** create the database. |
 
+### Scoped retrieval feedback
+
+Version 0.6.28/schema037 adds explicit opt-in feedback. Ordinary search is
+unchanged. Writer commands use the same adapters locally and through the
+authenticated central service. Reads expose only the caller's own currently
+authorized records. [PB07101](retrieval-feedback.md) gives executable examples,
+privacy limits and upgrade/recovery steps.
+
+| Command | Required arguments | Contract |
+|---|---|---|
+| `rag feedback search QUERY` | `--domain`, `--project` or `--scope global`, `--idempotency-key` | Captures one bounded search event. Optional `-k` (1–20, default8), `--strategy lexical\|auto\|hybrid`, `--rerank off\|auto`, `--context off\|auto`; defaults are lexical/off/off. |
+| `rag feedback submit EVENT_ID` | `--kind`, `--idempotency-key` | Records `useful`, `not_useful`, `wrong_source` or `missing_evidence`. Optional `--result-id`, `--expected-id`, `--comment`. |
+| `rag feedback update FEEDBACK_ID` | `--expected-revision`, `--kind` | Revises a signal with the same optional references/comment as submit; stale revisions conflict. |
+| `rag feedback retract FEEDBACK_ID` | `--expected-revision` | Retracts the signal while retaining its bounded history. |
+| `rag feedback get` | `--feedback-id` or `--event-id` | Returns one own record; unavailable/foreign references share a refusal. |
+| `rag feedback list` | optional `--limit` (1–20, default20) | Lists own authorized signals. |
+| `rag feedback approve FEEDBACK_ID` | `--expected-revision`, `--query` | Local owner only: approves a current negative signal with an expected reference and a safe query matching the event digest. |
+| `rag feedback summary` | `--domain`, `--project` or `--scope global` | Local owner only: independent-actor counts and stale/eligible case counts. Optional `--limit` (1–32, default32). |
+| `rag feedback export` | summary arguments plus `--output` | Local owner only: sealed private feedback cases. New absolute0600 output under a0700 parent outside Git. |
+
+`rag benchmark evaluate-corrections --input EXPORT --output REPORT` dispatches
+the separate `private-retrieval-feedback` format to read-only lexical evaluation.
+It rechecks versions and eligibility, reports stale cases in denominators and
+keeps connected source families together. It does not train, tune or enable a
+ranking policy. Existing confirmed-correction exports retain their own contract.
+
 ### Domains
 
 | Command | Flags | What it does |
@@ -309,6 +335,27 @@ and client reconnect.
 `memory_path` accept an optional `view` (`current`, `latest`, `include_merged`,
 `historical`) since 0.6.19. Clients send it only when set, so older services keep
 accepting their calls.
+
+### Scoped retrieval feedback tools
+
+Version 0.6.28 adds the following tools. The four writes require
+`[feedback] enabled = true` and writer access to an explicit domain and exact
+project/global boundary. Get/list are available on both MCP privilege levels;
+the read-only server never registers feedback writes. Authenticated REST serves
+the same names at `POST /v1/tools/<name>` through the existing durable queue.
+
+| Tool | Access | Signature |
+|---|---|---|
+| `memory_feedback_search` | write | `(query, domain, idempotency_key, project=None, scope=None, k=8, strategy="lexical", rerank="off", context="off")` |
+| `memory_feedback_submit` | write | `(event_id, kind, idempotency_key, result_id=None, expected_id=None, comment="")` |
+| `memory_feedback_update` | write | `(feedback_id, expected_revision, kind, result_id=None, expected_id=None, comment="")` |
+| `memory_feedback_retract` | write | `(feedback_id, expected_revision)` |
+| `memory_feedback_get` | read | `(feedback_id=None, event_id=None)` — supply exactly one anchor |
+| `memory_feedback_list` | read | `(limit=20)` |
+
+Approval, cross-actor summaries and private export are local operator commands;
+they have no remote MCP or REST administration tool. A pending queued handle
+is not a completed feedback result. See [PB07101](retrieval-feedback.md).
 
 ### Pattern tools
 
