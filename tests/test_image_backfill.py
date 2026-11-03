@@ -155,16 +155,17 @@ def test_cancel_marker_and_engine_failure_keep_resumable_state(local, capsys):
     failed = image_backfill.apply(load_config(), path, limit=1, state_dir=state)
     assert failed['processed'][0]['state'] == 'failed' and failed['processed'][0]['code'] == 'ocr_timeout'
     assert failed['run']['counts']['failed'] == 1
+    assert failed['run']['cursor'] == 0 and failed['run']['state'] == 'blocked'
     code, out, _ = run(capsys, 'image', 'backfill', str(path), '--cancel', '--state-dir', str(state))
     assert code == 0 and json.loads(out)['run']['cancel_requested'] is True
     canceled = image_backfill.apply(load_config(), path, limit=5, state_dir=state)
     assert canceled['run']['state'] == 'canceled' and canceled['processed'] == []
     fake.error = None
     resumed = image_backfill.apply(load_config(), path, limit=5, state_dir=state, resume=True)
-    assert resumed['run']['state'] == 'complete' and [p['state'] for p in resumed['processed']] == ['published', 'published']
-    # The earlier failure is recoverable by an explicit retry of the retained original.
+    assert resumed['run']['state'] == 'complete' and [p['state'] for p in resumed['processed']] == ['published', 'published', 'published']
+    # Explicit restart is safe too; the resumed run already retried the failed item.
     retry = image_backfill.apply(load_config(), path, limit=5, state_dir=state, restart=True)
-    assert [p['state'] for p in retry['processed']] == ['published', 'existing', 'existing']
+    assert [p['state'] for p in retry['processed']] == ['existing', 'existing', 'existing']
 
 
 def test_disabled_installation_and_manifest_bounds(local, capsys, monkeypatch):
@@ -183,3 +184,59 @@ def test_disabled_installation_and_manifest_bounds(local, capsys, monkeypatch):
         (tmp / 'bad.json').write_text(json.dumps(bad))
         with pytest.raises(ValueError):
             image_backfill.load_manifest(tmp / 'bad.json')
+
+
+@pytest.mark.parametrize('code,status', [('invalid_credentials', 401), ('unsupported_protocol', 426),
+    ('incompatible_service_schema', 503), ('operation_failed', 500), ('capacity_exceeded', 429)])
+def test_service_failure_preserves_current_item_and_retries_without_restart(tmp_path, monkeypatch, code, status):
+    from dataclasses import replace
+    from agentic_rag.service.client import RemoteError
+    path = manifest(tmp_path, [{'path': 'a.png', 'domain': 'alpha'}])
+    (tmp_path / 'a.png').write_bytes(picture(90))
+    class Service:
+        error = True
+        calls = 0
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def upload_image(self, *args, **kwargs):
+            self.calls += 1
+            if self.error: raise RemoteError(code, status)
+            return {'original': {'id': 'original'}, 'derivations': [
+                {'state': 'published', 'document_id': 'claim'}]}
+    service = Service()
+    monkeypatch.setattr(image_backfill, '_client', lambda cfg: service)
+    cfg = replace(Config(), service_mode='client')
+    with pytest.raises(RemoteError, match=code):
+        image_backfill.apply(cfg, path, state_dir=tmp_path / 'state')
+    saved = json.loads(next((tmp_path / 'state').glob('*.json')).read_text())
+    assert saved['cursor'] == 0 and saved['state'] == 'interrupted'
+    service.error = False
+    done = image_backfill.apply(cfg, path, state_dir=tmp_path / 'state')
+    assert done['run']['state'] == 'complete' and done['run']['cursor'] == 1 and service.calls == 2
+
+
+def test_manifest_fifo_is_rejected_without_blocking(tmp_path):
+    import subprocess, sys
+    fifo = tmp_path / 'manifest.pipe'
+    os.mkfifo(fifo)
+    program = ('from agentic_rag.image_backfill import load_manifest; import sys; '
+               '\ntry: load_manifest(sys.argv[1])'
+               '\nexcept ValueError as e: print(e)')
+    result = subprocess.run([sys.executable, '-c', program, str(fifo)], capture_output=True, text=True, timeout=2)
+    assert result.returncode == 0 and 'manifest_unavailable' in result.stdout
+
+
+def test_cli_erasure_previews_then_requires_apply(local, capsys):
+    cfg, fake, tmp = local
+    path = tmp / 'private.png'
+    path.write_bytes(picture(91))
+    code, out, err = run(capsys, 'image', 'add', str(path), '--domain', 'alpha', '--project', '/projects/a')
+    assert code == 0, err
+    original = json.loads(out)['original']
+    arguments = ('image', 'erase', original['id'], '--expected-sha256', original['sha256'], '--reason', 'synthetic removal')
+    code, out, err = run(capsys, *arguments)
+    assert code == 0 and json.loads(out)['applied'] is False, err
+    code, out, err = run(capsys, *arguments, '--apply')
+    assert code == 0 and json.loads(out)['applied'] is True, err
+    code, _, err = run(capsys, 'image', 'original', original['id'], '--output', str(tmp / 'out.png'))
+    assert code == 1 and 'image_unavailable' in err

@@ -123,6 +123,12 @@ def document_version(conn, doc_id):
     row = conn.execute(DOCUMENT_VERSION_SQL, (str(doc_id),)).fetchone()
     if row is None:
         raise EvidenceUnavailable()
+    from .images import claim_derivation_state
+    image_states = claim_derivation_state(conn, doc_id)
+    if image_states:
+        import hashlib
+        payload = json.dumps([row['version'], [dict(r) for r in image_states]], sort_keys=True, default=str)
+        return 'ev1:' + hashlib.sha256(payload.encode()).hexdigest()
     return row['version']
 
 
@@ -320,6 +326,9 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
     if fact is not None and fact['state'] != 'current':
         reasons.append('fact_' + fact['state'])
     image_kinds = _image_kinds(conn, doc_id)
+    if image_kinds:
+        from .images import claim_notices
+        notices.extend(claim_notices(conn, doc_id))
     if image_kinds:
         # Machine transcription and model interpretation always need explicit review.
         notices.extend('machine_transcription' if kind == 'ocr' else 'model_interpretation' for kind in image_kinds)

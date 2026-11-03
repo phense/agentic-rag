@@ -76,12 +76,13 @@ if not old.exists():
         s.extractall(old, filter='data')
 (WORK / 'engine').mkdir(exist_ok=True)
 base = Config(db_host='127.0.0.1', ollama_url='http://127.0.0.1:1')
-with isolated_database(base, initialize=False) as cfg, isolated_database(base, initialize=False) as target:
+with isolated_database(base, initialize=False) as cfg, isolated_database(base, initialize=False) as target, isolated_database(base, initialize=False) as recovery:
     seeded = run_code(old, cfg, SEED)
     assert seeded.returncode == 0, seeded.stderr[-1500:]
     pre = config(cfg, WORK / 'pre.toml', images=False)
     full = config(cfg, WORK / 'store.toml')
     tgt = config(target, WORK / 'target.toml')
+    rec = config(recovery, WORK / 'recovery.toml')
     D = WORK / 'backups'
     # Part A
     run('A1', ['service', '--config', str(pre), 'inventory', '--source-version', '0.6.23', '--output', f'{D}/inventory.json'], pre)
@@ -170,6 +171,23 @@ with isolated_database(base, initialize=False) as cfg, isolated_database(base, i
     run('D3-reupload', ['image', 'add', str(FIXTURES / 'invoice.png'), '--domain', 'finance', '--project', '/projects/beta'], full, expect=1)
     _, gone = run('D3-search', ['search', 'RE-2026-0471', '--strategy', 'lexical', '--project', '/projects/beta', '--domain', 'finance'], full)
     log[-1]['checked'] = {'found': 'image-text-' in gone}
+    # New explicit privacy and source-backup recovery branches (all synthetic).
+    erase_args = ['image', 'erase', orig, '--expected-sha256', b2['original']['sha256'],
+                  '--reason', 'synthetic privacy rehearsal']
+    preview, _ = run('D-erase-preview', erase_args, full)
+    assert preview['applied'] is False and doc in preview['exclusive_documents']
+    erased, _ = run('D-erase-apply', erase_args + ['--apply'], full)
+    assert erased['applied'] is True
+    run('D-erase-original-unavailable', ['image', 'original', orig, '--output', f'{WORK}/erased.png'], full, expect=1)
+    retry, _ = run('D-erase-idempotent', erase_args + ['--apply'], full)
+    assert retry['already_erased'] is True
+    restored, _ = run('E-source-backup-recovery', ['service', '--config', str(rec), 'restore-target',
+        '--dump', f'{D}/pre-images.dump', '--manifest', f'{D}/pre-images.dump.manifest.json', '--apply'], rec)
+    assert restored['restore_verified'] and restored['original_rows_unchanged']
 OUT.write_text(json.dumps({'source': '0.6.23 c33e11f seeded with archived code', 'port': os.environ.get('PGPORT'),
+                           'input_hashes': {str(p.relative_to(WT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in
+                               [WT / 'docs/image-ingestion.md', WT / 'sql/036_image_ingestion.sql',
+                                WT / 'agentic_rag/images.py', WT / 'agentic_rag/image_cli.py', Path(__file__)]},
+                           'head_at_finish': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=WT, text=True).strip(),
                            'steps': log}, indent=1, ensure_ascii=False))
 print('ok', len(log))

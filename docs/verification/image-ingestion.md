@@ -1,5 +1,34 @@
 # PB07001: Review and rehearsal evidence
 
+## Current correction status (2026-11-03)
+
+The original independent review found R070-M1/M2/M3 and four Important playbook
+items. The correction candidate retains failed cursors, discloses differing
+readings with changed review tokens, quarantines detected-secret originals, and
+adds previewable operator erasure. Its independent delta review and final full
+suite remain pending. No production rollout or Mac validation is claimed.
+
+Fresh correction verification on owned PostgreSQL port 55460:
+
+- Backfill regression: 11 passed (six original failures reproduced before the fix).
+- Image/privacy integration: 22 passed (secret quarantine, digest/role gates,
+  exclusive/shared claims, audit failure rollback and idempotent erasure).
+- Transport/backfill/populated upgrade: 20 passed, one existing warning; both
+  source versions and independently restored erasure tombstones covered.
+- Evidence/research/browser integration: 123 passed, one existing warning.
+- Current CLI rehearsal: 38 commands at expected exits, including erasure preview,
+  apply, unavailable original, idempotent repeat and recovery from `pre-images.dump`.
+  Record: `docs/benchmarks/2026-11-03-image-ingestion/correction-rehearsal.json`;
+  its input hashes identify the exact code and playbook used before commit.
+
+The historical rehearsal below applies only to the stated earlier artifact hash;
+its previous freshness/acceptance wording is superseded by this correction status.
+The final suite on 31e17e8 was intentionally interrupted to apply these fixes and
+is not a pass. The first suite on 3b7a79c failed (39 failed, 2630 passed, 1 skipped),
+including eight browser failures from missing `libatk-1.0.so.0`; the existing private
+browser runtime must be supplied through `LD_LIBRARY_PATH` for final verification.
+
+
 ## Scope
 
 - Playbook: [PB07001](../image-ingestion.md), self-reviewed SHA-256

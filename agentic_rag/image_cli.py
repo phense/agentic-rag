@@ -42,6 +42,11 @@ def add_parser(sub) -> None:
     b.add_argument('--vision', action='store_true')
     b.add_argument('--resume', action='store_true', help='continue after an explicit --cancel')
     b.add_argument('--restart', action='store_true', help='start again at the first item (idempotent)')
+    e = s.add_parser('erase', help='operator-only privacy erasure; preview unless --apply')
+    e.add_argument('ref', help='exact retained original UUID')
+    e.add_argument('--expected-sha256', required=True)
+    e.add_argument('--reason', required=True)
+    e.add_argument('--apply', action='store_true', help='irreversibly erase this image payload and exclusive claims')
     r = s.add_parser('references', help='read-only candidate image references in stored text (never fetched)')
     r.add_argument('--domain')
     r.add_argument('--limit', type=int, default=50)
@@ -62,6 +67,10 @@ def _write_new(path: Path, data: bytes):
 
 def _local(cfg, args):
     from . import db, images, image_media
+    if args.image_cmd == 'erase':
+        with db.connect(cfg, role='admin') as conn:
+            return images.erase(conn, args.ref, expected_sha256=args.expected_sha256,
+                                reason=args.reason, apply=args.apply, actor='cli')
     if args.image_cmd == 'add':
         data = image_media.read_file(args.path)
         with db.connect(cfg, role='writer') as conn:
@@ -80,7 +89,7 @@ def _remote(cfg, args):
     from . import image_media
     from .service.client import RemoteConnection
     from urllib.parse import quote
-    if args.image_cmd == 'references':
+    if args.image_cmd in ('references', 'erase'):
         raise ValueError('unsupported_in_client_mode: references reads the service database; run it on the service host')
     with RemoteConnection(cfg) as client:
         if args.image_cmd == 'add':

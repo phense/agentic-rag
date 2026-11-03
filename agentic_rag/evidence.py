@@ -198,9 +198,14 @@ def review(conn,doc_id,*,state,reason,actor='cli',commit=True,expected_version=N
 
 
 def summary(conn,doc_id):
-    row=conn.execute("SELECT c.kind,c.review_state,count(DISTINCT e.source_key) FILTER (WHERE s.state='active' AND s.role='user') AS independent_source_count,count(e.source_key) AS spans,bool_and(e.complete) AS complete FROM claim_records c LEFT JOIN claim_evidence e ON e.document_id=c.document_id LEFT JOIN knowledge_sources s USING(source_key) WHERE c.document_id=%s GROUP BY c.document_id",(doc_id,)).fetchone()
+    row=conn.execute("SELECT c.kind,c.review_state,count(DISTINCT e.source_key) FILTER (WHERE s.state='active' AND s.role='user') AS independent_source_count,count(e.source_key) AS spans,bool_and(e.complete) AS complete,bool_or(s.namespace LIKE 'image1:%%' OR s.namespace LIKE 'svc1:%%:image1:%%') AS image_source FROM claim_records c LEFT JOIN claim_evidence e ON e.document_id=c.document_id LEFT JOIN knowledge_sources s USING(source_key) WHERE c.document_id=%s GROUP BY c.document_id",(doc_id,)).fetchone()
     if not row:return {'kind':'legacy','review_state':'unreviewed','provenance_status':'incomplete','independent_source_count':0}
-    return {'kind':row['kind'],'review_state':row['review_state'],'provenance_status':'complete' if row['spans'] and row['complete'] else 'incomplete','independent_source_count':row['independent_source_count']}
+    result={'kind':row['kind'],'review_state':row['review_state'],'provenance_status':'complete' if row['spans'] and row['complete'] else 'incomplete','independent_source_count':row['independent_source_count']}
+    if row['image_source']:
+        from .images import claim_notices
+        notices=claim_notices(conn,doc_id)
+        if notices:result['notices']=notices
+    return result
 
 
 def sources(conn,doc_id):

@@ -206,9 +206,18 @@ def test_populated_source_upgrade_images_restore_and_rollback(label, tmp_path, m
         assert (after['local'], after['scoped']) == (old_reads['local'], old_reads['scoped'])
         assert after['visible'] == old_reads['visible'] + 1
 
+        # Privacy erasure survives backup/restore as a content-free tombstone.
+        from test_images import picture
+        with db.connect(icfg, role='writer') as conn:
+            erased = images.ingest(conn, icfg, picture(93), domain='finance', project='/projects/beta',
+                                   ocr_engine=FakeOCR(text='Unique synthetic removal control'))
+        with db.connect(icfg, role='admin') as conn:
+            images.erase(conn, erased['original']['id'], expected_sha256=erased['original']['sha256'],
+                         reason='synthetic erasure rehearsal', apply=True)
+
         # Independent restore of the target backup: bytes, drilldown and withdrawal survive.
         target = upgrade.verified_backup(cfg, '0.6.25', tmp_path / 'target.dump')
-        assert target['restore_verified'] and target['manifest']['tables']['image_originals']['rows'] == 2
+        assert target['restore_verified'] and target['manifest']['tables']['image_originals']['rows'] == 3
         with isolated_database(Config(), initialize=False) as restored:
             proof = upgrade.restore_target(restored, tmp_path / 'target.dump', target['manifest'], apply=True)
             assert proof['restore_verified'] and proof['migrations_applied'] == []
@@ -219,6 +228,12 @@ def test_populated_source_upgrade_images_restore_and_rollback(label, tmp_path, m
                 assert view['derivations'][0]['regions']['total'] > 0
                 with pytest.raises(images.ImageUnavailable):
                     images.original(conn, two['original']['id'])
+            with db.connect(restored) as conn:
+                tombstone = conn.execute('SELECT bytes,erased_at FROM image_originals WHERE id=%s',
+                                        (erased['original']['id'],)).fetchone()
+                assert tombstone['bytes'] is None and tombstone['erased_at'] is not None
+                assert not conn.execute('SELECT id FROM documents WHERE id=%s',
+                                        (erased['derivations'][0]['document_id'],)).fetchone()
             assert_originals_unchanged(hashes, row_hashes(restored))
 
         # Independent restore of the SOURCE backup, then upgrade of that copy.
@@ -233,4 +248,4 @@ def test_populated_source_upgrade_images_restore_and_rollback(label, tmp_path, m
         refusal = old_run(source, cfg, ROLLBACK, env={'OLD_LABEL': old_label})
         assert refusal == 'unsupported_source_schema'
         with db.connect(cfg) as conn:
-            assert conn.execute('SELECT count(*) n FROM image_originals').fetchone()['n'] == 2
+            assert conn.execute('SELECT count(*) n FROM image_originals').fetchone()['n'] == 3

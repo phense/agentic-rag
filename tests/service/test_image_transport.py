@@ -183,3 +183,17 @@ def test_real_http_remote_client_cli_upload_show_and_original(central, tmp_path,
         assert code == 1 and 'image_unavailable' in capsys.readouterr().err
         assert cli.main(['image', 'references']) == 1
         assert 'client' in capsys.readouterr().err
+
+
+def test_secret_image_is_quarantined_for_real_client_and_readonly_reader(central):
+    cfg, app, _, fake = central
+    fake.text = 'api_key=' + 'A' * 40
+    with TestClient(app, base_url='https://testserver') as client:
+        reply = upload(client, KEYS[0], picture(92))
+        assert reply.status_code == 200, reply.text
+        result = reply.json()
+        assert result['derivations'][0]['state'] == 'published'
+        assert 'original_quarantined' in result['derivations'][0]['warnings']
+        for key in (KEYS[0], KEYS[3]):
+            denied = client.get('/v1/images/' + result['original']['id'] + '/original', headers=headers(key))
+            assert denied.status_code == 404 and denied.json() == {'error': 'image_unavailable'}

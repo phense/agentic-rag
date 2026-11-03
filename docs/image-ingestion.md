@@ -81,7 +81,9 @@ retained originals; part C shows how to list them.
 - **OCR (optional, external):** a Tesseract 5 binary and its `deu`/`eng`
   `.traineddata` files at paths you choose. agentic-rag never installs or
   downloads them. A private runtime needs its library directory as
-  `ocr_library_path`.
+  `ocr_library_path`. On macOS use the absolute Homebrew Tesseract and tessdata
+  paths; leave `ocr_library_path` unset. Linux resource limits and Homebrew
+  operation still require a host rehearsal before Mac enablement.
 - **Vision (optional, off by default):** a local Ollama on loopback with the model
   already present. Note its digest from `curl -s http://127.0.0.1:11434/api/tags`.
   agentic-rag never pulls a model and refuses any non-loopback URL.
@@ -127,10 +129,10 @@ store's configuration file; `DIR` is a private backup directory.
 |---|---|---|---|---|
 | A1 | Operator, store | `rag service --config CONFIG inventory --source-version SOURCE --output DIR/inventory.json` | `"supported": true`; `DIR/inventory.json` lists 29 (0.6.17) or 35 (0.6.23) migrations | `unsupported_source_schema`: stop, escalate |
 | A2 | Operator, store | `rag service --config CONFIG preflight --source-version SOURCE --mode local` | `"ready": true` | Resolve the listed blockers first |
-| A3 | Operator, every host | Authority: approved window. Stop `rag service serve`, `rag service worker`, hooks and agent sessions that use this store | No client sessions on the store | A4 refuses with `worker_still_active` or `database_clients_still_active`; stop the remaining client and repeat A4 |
+| A3 | Operator, every host | Follow the service ownership/restart procedure in [Central service](13-central-service.md). Record the actual systemd unit names on Hetzner and `launchctl print gui/$(id -u)/com.agentic-rag.api` on the Mac before the window. Authority: approved window. Stop `rag service serve`, `rag service worker`, hooks and agent sessions that use this store | No client sessions on the store | A4 refuses with `worker_still_active` or `database_clients_still_active`; stop the remaining client and repeat A4 |
 | A4 | Operator, store | Install 0.6.25 code (do not enable `[images]` yet), then `rag service --config CONFIG upgrade --source-version SOURCE --dump DIR/pre-images.dump --apply --writers-stopped` | `"migrations_applied"` ends with `"036_image_ingestion.sql"`; `"restore_verified": true`; `"original_rows_unchanged": true`; `DIR/pre-images.dump.manifest.json` exists | `writers_stopped_confirmation_required`: add `--writers-stopped` after A3. Any other error: the migration rolled back as one transaction; see *Interrupted upgrade* |
 | A5 | Operator, store | Restart the services on 0.6.25. `rag service --config CONFIG status` | Status JSON without error | Keep services stopped; escalate with the output |
-| A6 | Operator, store | Only after A5, and only if images are wanted on this store: set `[images]` as above and restart `rag service serve`. Write `{"version": 1, "items": []}` to `DIR/empty.json`, then run `rag image backfill DIR/empty.json --dry-run` and `rag image backfill DIR/empty.json --apply --limit 1` | Dry run: `identities.ocr` is a 64-digit hash (Tesseract found). Apply: `run.state` is `complete` (images enabled) | `ocr_unavailable`: fix `ocr_*`; `images_disabled`: `enabled` was not read from `CONFIG` |
+| A6 | Operator, store | Only after A5, and only if images are wanted on this store: set `[images]` as above and restart `rag service serve`. Run this check on the store host with its local-mode `AGENTIC_RAG_CONFIG`, not a client configuration. Write `{"version": 1, "items": []}` to `DIR/empty.json`, then run `rag image backfill DIR/empty.json --dry-run` and `rag image backfill DIR/empty.json --apply --limit 1` | Dry run: `identities.ocr` is a 64-digit hash (Tesseract found). Apply: `run.state` is `complete` (images enabled) | `ocr_unavailable`: fix `ocr_*`; `images_disabled`: `enabled` was not read from `CONFIG` |
 
 A 0.6.17 store jumps from schema029 to schema036 in one transaction. Old 0.6.17 and
 0.6.23 clients keep working against the upgraded schema; they ignore the new tables
@@ -140,6 +142,13 @@ and never retrieve unreviewed image claims (rehearsed for both sources).
 
 Local mode works on the store directly. Client mode (`[service] mode = "client"`)
 sends the bytes to the central service; your local path never leaves your machine.
+
+**Before B1:** do not submit credentials or information that every reader of the
+chosen domain/project may not see. The exact pixels are retained and backed up;
+text redaction does not alter the image. OCR cannot reliably detect every secret.
+Detected secrets automatically withdraw the image source (`original_quarantined`),
+but pixels remain in the database until an operator performs part D's erasure.
+A timed-out or unsuccessful OCR is not a privacy scan.
 
 | Step | Actor and target | Condition / action | Expected evidence | Failure / next step |
 |---|---|---|---|---|
@@ -174,6 +183,9 @@ as B2 (no bytes). Central REST clients use `POST /v1/images` (raw body, query
 | Exit 1 with `"state": "failed", "code": "ocr_timeout"` (or another engine code) | The original was kept; OCR did not finish | Rerun B1 later; it reuses the original and runs OCR again |
 | `"state": "existing"` | This image was already processed with the same engine identity | Nothing to do; no engine call happened |
 | `"state": "empty"` with `no_text` | Blank or textless image | No claim was created; the original is still inspectable |
+| `secret_redacted` and `original_quarantined` | A secret pattern was recognized; original access and source-backed eligibility are blocked | Rotate the credential and follow *Sensitive upload recovery* below; do not reinstate this source |
+| `not_found` (404) on an older service | The service has no image API | Upgrade the service first; do not mark the manifest complete |
+| `capacity_exceeded` (429) | The service is busy | Retry the same bounded batch later; its cursor is unchanged |
 | `authorization_changed` (central) | Your key or rights changed during processing | Nothing was published; retry with valid rights |
 
 ## Part C: Process historical files explicitly (operator)
@@ -194,12 +206,24 @@ store host only).
 |---|---|---|---|---|
 | C1 | Operator, store | Optional: `rag image references --domain DOMAIN --limit 50` lists stored text that mentions image files | `disposition: reference_only_no_retained_original` per candidate | Use it to locate files for the manifest; never guess missing originals |
 | C2 | Operator, manifest | `rag image backfill MANIFEST --dry-run` | Every item is `selected`, `unchanged`, `changed`, `missing`, `invalid`, `unauthorized` or `withdrawn`; `engine_calls: 0`, `writes: 0`; `estimated_engine_items` | Fix paths/scopes and rerun; `ocr_unavailable`: configure OCR first |
-| C3 | Operator, manifest | Authority: the dry run was reviewed. `rag image backfill MANIFEST --apply --limit 20` | `run.cursor` advanced by up to 20, `run.state` `paused` or `complete`, one outcome per item | Exit 1: at least one item failed; the run stays resumable |
-| C4 | Operator, manifest | Repeat C3 until `run.state` is `complete` | `processed: []` on the final call | — |
+| C3 | Operator, manifest | Authority: the dry run was reviewed. `rag image backfill MANIFEST --apply --limit 20` | `run.cursor` advanced by up to 20, `run.state` `paused` or `complete`, one outcome per item | Exit 1 or `run.state: blocked/interrupted`: stop and fix the reported cause. The failed item keeps its cursor; repeat C3 without `--restart`. Check credentials/protocol/schema for service errors; never classify a 500 as a bad file |
+| C4 | Operator, manifest | Repeat C3 until `run.state` is `complete`, then repeat C2 | No `selected` or `changed` items remain. Account explicitly for every missing, invalid, unauthorized or withdrawn item | Remaining work: fix its cause and use `--apply --restart --limit 20` to revisit earlier skipped items; existing derivations do not call engines again |
 
 Progress is kept in `~/.agentic-rag/state/image-backfill/<manifest-digest>.json`
 (override with `--state-dir`). Only one `--apply` per manifest runs at a time;
-a second gets `backfill_already_running`.
+a second gets `backfill_already_running`. `counts.failed` counts failed attempts,
+not unresolved files; the final preview decides whether processing remains.
+A `complete` cursor means the manifest was visited, not that skipped files were processed.
+
+After an engine update, inspect every changed original with `rag image show ORIGINAL_ID`.
+Compare the latest OCR text with the older text and the original (B3). A differing
+reading records `previous_id`, surfaces `newer_derivation_differs` on the older
+claim in image/evidence/search/context metadata, and changes its review token.
+It never silently replaces a human confirmation. Check the new claim using B4;
+if the old claim is wrong, inspect it afresh and refute it with
+`rag evidence review OLD_DOCUMENT_ID --state refuted --reason "superseded reading checked against original" --expected-version VERSION`.
+If the new machine reading is wrong, refute the new claim instead. Resolve every
+such comparison before declaring that engine-update batch reconciled.
 
 ## Part D: Withdraw or reinstate an image (writer or operator)
 
@@ -212,6 +236,33 @@ a second gets `backfill_already_running`.
 Withdrawal blocks access through agentic-rag; it does not erase the bytes from the
 database or from backups. To reinstate, repeat D1–D2 with `--state active`. A
 re-upload of a withdrawn image is refused and never resets the withdrawal.
+
+### Sensitive upload recovery (operator on the store host)
+
+1. Stop distributing the image, revoke or rotate any exposed credential, and
+   retain only content-free incident identifiers. A `secret_redacted` result
+   already withdraws its source. For an undetected sensitive upload, withdraw
+   it with D1–D2 first. Do not reactivate it.
+2. Preview the exact original with the local store configuration:
+   `rag image erase ORIGINAL_ID --expected-sha256 SHA256 --reason "sensitive upload incident"`.
+   Check `exclusive_documents` and `shared_documents`. This command is unavailable
+   in client mode and to reader/writer roles. It performs no writes without `--apply`.
+3. Obtain authority to erase the listed payloads. Repeat step 2 with `--apply`.
+   This irreversibly removes original pixels, derivation text/regions and source
+   quotes, deletes claims supported exclusively by that image, and preserves
+   shared claims and other originals. A content-free source/original tombstone,
+   hashes, engine identity and the `image_erase` audit remain. Do not put secrets
+   in the reason. An audit/SQL failure rolls everything back: keep the source
+   withdrawn and escalate, rather than bypass the gateway with SQL.
+4. Check `applied: true`, the single `image_erase` audit event, and
+   `rag image original ORIGINAL_ID --output NEW_FILE` returning `image_unavailable`.
+   A repeat erase reports `already_erased: true` without another audit or deletion.
+5. Restrict and dispose of prior backups, exported originals and external copies
+   under the incident's approved retention procedure. Erasure does not alter old
+   dumps, PostgreSQL WAL, replicas or filesystem snapshots. A later restore of an
+   older backup can restore the secret: keep it isolated, repeat the erasure before
+   cutover, and verify a new backup. Shared claim text may still contain information
+   from independent sources; review that separately rather than deleting it blindly.
 
 ## Part E: Back up, restore and roll back
 
@@ -229,7 +280,24 @@ code ignores them and keeps reading. Older operator tooling (`inventory`,
 `upgrade`) refuses a schema newer than it knows (`unsupported_source_schema`):
 that is the rollback boundary. There is no schema downgrade after image writes;
 the alternative is restoring the part-A dump `DIR/pre-images.dump`, which loses
-every image and claim added since.
+every change added since that backup. Use this recovery only with explicit
+acceptance of that loss; keep the current store untouched for reconciliation:
+
+1. Stop clients and writers using A3 and keep them stopped throughout recovery.
+2. Prepare a new empty database and a local `TARGET` configuration with the
+   embedding model identity recorded in `DIR/pre-images.dump.manifest.json`.
+3. With 0.6.25 operator tooling run
+   `rag service --config TARGET restore-target --dump DIR/pre-images.dump --manifest DIR/pre-images.dump.manifest.json --apply`.
+   This restores and upgrades the copy; it does not downgrade schema036. Require
+   `restore_verified: true` and `original_rows_unchanged: true`. If either is
+   absent, keep services stopped and escalate with the manifests. Never restore
+   over the failed/current store.
+4. Check the restored original-row inventory and original text/vector behavior.
+   Record that post-backup writes are absent and reconcile those separately.
+   Only after a separate cutover approval point the services at the verified
+   target and restart through A5. Keep the previous store and backups protected.
+   Code-only rollback can still use the older reader; its operator tooling
+   continues to refuse the newer schema, as described above.
 
 ## Interruption, recovery and rollback
 
@@ -247,7 +315,7 @@ every image and claim added since.
   cursor file is safe: already processed items report `existing`.
 - *Engine update:* a new Tesseract version, language file or `ocr_psm` is a new
   identity. C2 then reports `changed`; C3 adds new derivations. Earlier
-  derivations, reviews and refutations stay; identical text reuses the reviewed claim.
+  derivations, reviews and refutations stay; identical text reuses the reviewed claim. Follow the comparison/reconciliation steps after C4 when text differs. The identity currently hashes the executable and traineddata, not dynamically loaded OCR libraries; treat a library update as an operator-triggered reprocessing change and verify the effective engine identity before applying.
 
 ## Escalation and preserved evidence
 
@@ -260,8 +328,9 @@ OCR text from private stores or credentials to issues or logs.
 
 The upgrade is complete when A4/A5 succeeded and E1 produced a verified backup.
 Image use is complete per image when B4 confirmed (or refuted) its claims. A
-backfill is complete when C3 reports `run.state: complete`. No cleanup is needed
-beyond deleting temporary copies written with `rag image original`.
+backfill is complete only after C4 and all changed-reading comparisons are resolved.
+Remove authorized temporary image copies separately; sensitive incidents also
+require the backup/export retention actions in part D.
 
 ## Maintenance and sources
 

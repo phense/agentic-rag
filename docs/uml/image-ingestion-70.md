@@ -16,7 +16,8 @@ classDiagram
       source_key FK knowledge_sources UNIQUE
       domain, project_scope (immutable copy of the write scope)
       sha256, mime, width, height, byte_size
-      bytes bytea
+      bytes bytea NULL only after operator erasure
+      erased_at timestamptz
       created_by, created_at
     }
     class image_derivations {
@@ -45,7 +46,7 @@ classDiagram
     documents --> knowledge_sources : claim_evidence spans (complete=false)
 ```
 
-RLS: `image_originals` uses the SQL035 document-visibility predicate on its own
+RLS: `image_originals` uses the stable SQL021 document-visibility helper on its own
 immutable `domain/project_scope` columns (no reference to another table).
 `image_derivations` is visible only through `EXISTS(image_originals)`. Neither policy
 references `documents`, `claim_evidence` or `knowledge_sources`, so no policy can
@@ -87,7 +88,9 @@ stateDiagram-v2
     [*] --> Preview: explicit manifest (paths or stored original IDs)
     Preview --> Preview: selected / unchanged / changed / missing / unauthorized / invalid / withdrawn
     Preview --> Apply: --apply --limit N
-    Apply --> Apply: one item, cursor fsync after each outcome
+    Apply --> Apply: one successful or explicitly skipped item, then cursor fsync
+    Apply --> Blocked: failed derivation, cursor unchanged
+    Blocked --> Apply: fix cause and rerun --apply
     Apply --> Paused: limit reached
     Paused --> Apply: rerun --apply
     Apply --> Canceled: SIGINT/SIGTERM between items, or --cancel marker
@@ -109,3 +112,30 @@ central REST upload. Recovery: engine timeout followed by successful retry, revo
 writer at commit, audit failure, concurrent duplicates, source withdrawal and
 reinstatement, changed identity with preserved review, interrupted backfill resume,
 populated 0.6.17/029 and 0.6.23/035 upgrade with independent restores.
+
+
+## As-built reconciliation (review correction candidate)
+
+The gateway retains Tx A before engine work; Tx B records a derivation, the
+existing claim/evidence audit and any detected-secret withdrawal together.
+`secret_redacted` withdraws the whole scoped source: raw pixels cannot be redacted.
+Original downloads and region drilldown recheck source state. The operator-only
+`image erase` command previews by default, fences the exact original digest,
+removes payloads and exclusively supported claims atomically with an audit, and
+leaves a content-free tombstone. Shared claims and other originals survive.
+Limited roles retain INSERT/SELECT only; erasure uses an explicit local admin
+connection and rejects service/fence/queued contexts. No erasure REST/MCP route exists.
+
+Claims deduplicate through the existing evidence gateway across originals in one
+scope. A source-derived slug includes its scoped source/kind/text digest to avoid
+foreign collisions. A new identity with unchanged text reuses the same claim and
+preserves human review. Changed text creates an unreviewed claim with `previous_id`;
+older claims display `newer_derivation_differs`, including retrieval metadata, and
+receive changed evidence review tokens. No machine reading silently refutes a
+human decision. Failed backfill items do not consume their cursor.
+
+Independent correction review, final full-suite verification and representative
+restores remain acceptance gates; this section reconciles the implemented design,
+not production readiness. Upload buffering still occupies a shared gateway slot
+before authentication (R070-L3), and the engine runner still uses `preexec_fn`
+(R070-L4); these are disclosed residual risks pending a separate bounded fix.

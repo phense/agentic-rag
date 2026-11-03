@@ -44,6 +44,9 @@ untrusted output, with no permission changes or cloud calls.
 - AC-004: All knowledge writes use the audited gateway, secret stripping, evidence,
   validity and review. OCR is a machine transcription, not a user statement; generated
   interpretations are inference. Image instructions never affect policy or tool execution.
+  Exact pixels are not text-redacted: warn before upload, withdraw detected-secret
+  sources atomically with derivation publication, and provide an operator-only,
+  previewable, audited erasure with explicit backup-retention limits.
 - AC-005: Same scoped original and processing identity are idempotent across retries
   and concurrent submissions. Changed processing creates a versioned derivation without
   rewriting originals or overwriting manual corrections/review. Atomic failure leaves no
@@ -72,7 +75,10 @@ untrusted output, with no permission changes or cloud calls.
   Preserve Hetzner Q8 and Mac F16 vector spaces; equal dimensions do not imply parity.
 - FR-005: A preview distinguishes selected, unchanged, changed, missing and unauthorized
   candidates. Reprocessing refreshes only changed derived representations and rechecks
-  dependent claims and caches. Missing provenance is reported, never guessed.
+  dependent claims and caches. A changed reading records its predecessor and a
+  `newer_derivation_differs` notice on the older claim, including retrieval metadata;
+  its review token changes. Human decisions remain intact until explicit reconciliation,
+  and new machine text remains unreviewed. Missing provenance is reported, never guessed.
 
 ## Compatibility boundaries
 

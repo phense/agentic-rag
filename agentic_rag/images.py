@@ -102,8 +102,8 @@ def _accept(conn, *, data, info, domain, selected, actor):
             (key, domain, selected, info.sha256, info.mime, info.width, info.height, info.byte_size, data, actor)).fetchone()
         created = row is not None
         if not created:
-            row = conn.execute('SELECT id,sha256 FROM image_originals WHERE source_key=%s', (key,)).fetchone()
-            if row is None or row['sha256'] != info.sha256:
+            row = conn.execute('SELECT id,sha256,erased_at FROM image_originals WHERE source_key=%s', (key,)).fetchone()
+            if row is None or row['sha256'] != info.sha256 or row['erased_at'] is not None:
                 raise ImageUnavailable()
         else:
             _audit(conn, actor, 'image_original', None,
@@ -124,7 +124,7 @@ def _sanitize(text, regions):
     out = []
     for region in regions:
         word, n = strip_secrets(region['text'])
-        if count and (n or region['text'] not in clean):
+        if count or n:
             word = '[REDACTED]'
         out.append({**region, 'text': word})
     return clean, out, count > 0
@@ -182,7 +182,7 @@ def _derive(conn, cfg, original, kind, engine, identity, data, info, *, domain, 
             raise EngineError(kind.replace('interpretation', 'vision') + '_identity_changed')
         regions = list(getattr(result, 'regions', []))
         text, regions, redacted = _sanitize(result.text, regions)
-        warnings = sorted(set(result.warnings) | ({'secret_redacted'} if redacted else set()))
+        warnings = sorted(set(result.warnings) | ({'secret_redacted', 'original_quarantined'} if redacted else set()))
         empty = not text.strip() or (kind == 'interpretation' and 'low_information_output' in warnings)
         spans = [] if empty else _spans(text)
     except EngineError as error:
@@ -230,6 +230,12 @@ def _derive(conn, cfg, original, kind, engine, identity, data, info, *, domain, 
             'warnings,document_id,previous_id,created_by) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id',
             (original['id'], kind, digest, json.dumps(identity), 'empty' if empty else 'text', text, text_sha,
              json.dumps(regions), json.dumps(warnings), doc_id, previous['id'] if previous else None, actor)).fetchone()
+        if redacted:
+            # Retained pixels cannot be text-redacted. Withdraw the whole source,
+            # atomically with publication, rather than expose the credential image.
+            evidence.source_state(conn, original['source_key'], state='removed',
+                reason='image_secret_detected: original quarantined; operator erasure required',
+                actor=actor, commit=False)
         _audit(conn, actor, 'image_derivation', doc_id,
                f'{kind} derivation {inserted["id"]} of original {original["id"]}, identity {digest[:16]},'
                f' {len(regions)} regions, {"empty" if empty else "text"}')
@@ -318,7 +324,7 @@ def reprocess(conn, cfg, original_id, *, vision=False, actor='cli', ocr_engine=N
                            ' JOIN knowledge_sources s USING(source_key) WHERE o.id=%s', (str(original_id),)).fetchone()
     finally:
         conn.rollback()
-    if row is None or row['state'] != 'active':
+    if row is None or row['state'] != 'active' or row['bytes'] is None:
         raise ImageUnavailable()
     data = bytes(row['bytes'])
     if hashlib.sha256(data).hexdigest() != row['sha256']:
@@ -357,7 +363,7 @@ def original_status(conn, original_id, *, identities):
 
 # ------------------------------------------------------------------ readers
 
-_ORIGINAL_COLUMNS = 'o.id,o.source_key,o.domain,o.project_scope,o.sha256,o.mime,o.width,o.height,o.byte_size,o.created_at'
+_ORIGINAL_COLUMNS = 'o.id,o.source_key,o.domain,o.project_scope,o.sha256,o.mime,o.width,o.height,o.byte_size,o.created_at,o.erased_at'
 
 
 def _resolve(conn, ref):
@@ -374,12 +380,32 @@ def _resolve(conn, ref):
         row = conn.execute(f'SELECT {_ORIGINAL_COLUMNS} FROM image_derivations d JOIN image_originals o ON o.id=d.original_id'
                            f' JOIN documents doc ON doc.id=d.document_id WHERE {condition} ORDER BY d.created_at LIMIT 1',
                            (ref,)).fetchone()
-    if row is None:
+    if row is None or row['erased_at'] is not None:
         raise ImageUnavailable()
     source = conn.execute('SELECT state FROM knowledge_sources WHERE source_key=%s', (row['source_key'],)).fetchone()
     if source is None or source['state'] != 'active':
         raise ImageUnavailable()  # withdrawal disables original and region access
     return row
+
+
+def claim_derivation_state(conn, document_id):
+    """Visible latest derivation identities; no cached eligibility or review decision.
+
+    A new machine reading never overturns a human confirmation. Its difference
+    is disclosed on the old claim and included in the optimistic review token.
+    """
+    if not conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL ok").fetchone()['ok']:
+        return []
+    return conn.execute(
+        'SELECT DISTINCT d.original_id,d.kind,latest.id,latest.identity_hash,latest.text_sha256,'
+        'd.text_sha256<>latest.text_sha256 newer_differs FROM public.image_derivations d'
+        ' CROSS JOIN LATERAL (SELECT n.id,n.identity_hash,n.text_sha256 FROM public.image_derivations n'
+        ' WHERE n.original_id=d.original_id AND n.kind=d.kind ORDER BY n.created_at DESC,n.id DESC LIMIT 1) latest'
+        ' WHERE d.document_id=%s ORDER BY d.original_id,d.kind,latest.id', (str(document_id),)).fetchall()
+
+
+def claim_notices(conn, document_id):
+    return ['newer_derivation_differs'] if any(r['newer_differs'] for r in claim_derivation_state(conn, document_id)) else []
 
 
 def inspect(conn, ref, *, cursor=0, limit=200):
@@ -400,7 +426,7 @@ def inspect(conn, ref, *, cursor=0, limit=200):
         derivations.append({
             'id': str(r['id']), 'kind': r['kind'], 'status': r['status'], 'identity_hash': r['identity_hash'],
             'identity': r['identity'], 'text': r['text'], 'text_truncated': r['text_truncated'],
-            'warnings': list(r['warnings']), 'transcription': 'machine' if r['kind'] == 'ocr' else 'model_inference',
+            'warnings': sorted(set(r['warnings']) | set(claim_notices(conn, r['document_id']) if r['document_id'] else [])), 'transcription': 'machine' if r['kind'] == 'ocr' else 'model_inference',
             'document_id': str(r['document_id']) if r['document_id'] else None,
             'previous_id': str(r['previous_id']) if r['previous_id'] else None,
             'created_at': r['created_at'].isoformat(),
@@ -419,7 +445,7 @@ def original(conn, ref):
     """Exact retained bytes after the same authorization and trust checks."""
     row = _resolve(conn, ref)
     data = conn.execute('SELECT bytes FROM image_originals WHERE id=%s', (row['id'],)).fetchone()
-    if data is None:
+    if data is None or data['bytes'] is None:
         raise ImageUnavailable()
     payload = bytes(data['bytes'])
     if hashlib.sha256(payload).hexdigest() != row['sha256']:
@@ -472,3 +498,76 @@ def references(conn, *, domain=None, limit=50):
                       'disposition': 'reference_only_no_retained_original'})
     return {'candidates': items, 'total': total, 'truncated': len(rows) > limit,
             'note': 'candidates are text references, not verified or retained images; nothing is fetched'}
+
+
+
+def erase(conn, original_id, *, expected_sha256, reason, apply=False, actor='operator'):
+    """Operator-only, atomic privacy erasure. Preview by default.
+
+    Keep a content-free original/engine tombstone and source history. Remove
+    pixels, region/text payloads and quotes from this source. Delete claims only
+    when no other source supports them; never delete another source's knowledge.
+    Historical backups and externally downloaded files need separate disposal.
+    """
+    from .service.fence import LEASE
+    from .service.queued_transaction import GROUP
+    if _request() is not None or LEASE.get() is not None or GROUP.get() is not None:
+        raise PermissionError('operator_local_configuration_required')
+    permission = conn.execute("SELECT has_table_privilege(current_user,'public.image_originals','UPDATE') ok").fetchone()
+    conn.rollback()
+    if not permission['ok']:
+        raise PermissionError('operator_role_required')
+    if not isinstance(reason, str) or not reason.strip() or len(reason) > 1000:
+        raise ValueError('nonempty reason of at most 1000 characters required')
+    try:
+        uuidlib.UUID(str(original_id))
+    except ValueError:
+        raise ImageUnavailable() from None
+    try:
+        conn.execute("SET LOCAL lock_timeout='5s'")
+        conn.execute("SET LOCAL statement_timeout='30s'")
+        row = conn.execute('SELECT id,source_key,sha256,erased_at FROM image_originals WHERE id=%s',
+                           (str(original_id),)).fetchone()
+        if row is None:
+            raise ImageUnavailable()
+        if row['sha256'] != expected_sha256:
+            raise ValueError('original_digest_conflict')
+        conn.execute('SELECT pg_advisory_xact_lock(%s)', (evidence._lock_key(row['source_key']),))
+        row = conn.execute('SELECT id,source_key,sha256,erased_at FROM image_originals WHERE id=%s FOR UPDATE',
+                           (str(original_id),)).fetchone()
+        documents = conn.execute('SELECT DISTINCT e.document_id, EXISTS(SELECT 1 FROM claim_evidence other'
+            ' WHERE other.document_id=e.document_id AND other.source_key<>%s) shared'
+            ' FROM claim_evidence e WHERE e.source_key=%s ORDER BY e.document_id',
+            (row['source_key'], row['source_key'])).fetchall()
+        exclusive = [str(r['document_id']) for r in documents if not r['shared']]
+        shared = [str(r['document_id']) for r in documents if r['shared']]
+        result = {'original_id': str(row['id']), 'sha256': row['sha256'], 'applied': bool(apply),
+                  'already_erased': row['erased_at'] is not None, 'exclusive_documents': exclusive,
+                  'shared_documents': shared, 'backups_require_separate_disposal': True}
+        if not apply or result['already_erased']:
+            conn.rollback()
+            return result
+        # Serialize the support classification with attachment/review of every
+        # affected claim. A concurrent lock timeout rolls the complete erase back.
+        if documents:
+            conn.execute('SELECT document_id FROM claim_records WHERE document_id=ANY(%s::uuid[])'
+                         ' ORDER BY document_id FOR UPDATE', ([str(r['document_id']) for r in documents],)).fetchall()
+        evidence.source_state(conn, row['source_key'], state='removed', reason=reason, actor=actor, commit=False)
+        # Recheck after row locks: a concurrent attachment must preserve its claim.
+        conn.execute('DELETE FROM claim_evidence WHERE source_key=%s', (row['source_key'],))
+        deleted = []
+        for doc in exclusive:
+            removed = conn.execute('DELETE FROM documents d WHERE id=%s AND NOT EXISTS('
+                'SELECT 1 FROM claim_evidence e WHERE e.document_id=d.id) RETURNING id', (doc,)).fetchone()
+            if removed: deleted.append(doc)
+        result['exclusive_documents'] = deleted
+        conn.execute("UPDATE image_derivations SET text='',regions='[]',warnings=warnings||'[\"payload_erased\"]'::jsonb"
+                     ' WHERE original_id=%s', (row['id'],))
+        conn.execute('UPDATE image_originals SET bytes=NULL,erased_at=now() WHERE id=%s', (row['id'],))
+        _audit(conn, actor, 'image_erase', None, f'original {row["id"]}, sha256 {row["sha256"]}; '
+               f'{len(deleted)} exclusive claims erased, {len(shared)} shared claims retained; {strip_secrets(reason)[0]}')
+        conn.commit()
+        return result
+    except BaseException:
+        conn.rollback()
+        raise

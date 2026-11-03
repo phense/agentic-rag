@@ -258,6 +258,7 @@ def test_changed_identity_versions_derivation_and_preserves_review_and_original(
     with db.connect(owned, role='writer') as conn:
         store.review_claim(conn, doc, state='confirmed', reason='manual check')
         digest_before = conn.execute('SELECT encode(sha256(bytes),\'hex\') h FROM image_originals').fetchone()['h']
+        version_before = evidence_contract.document_version(conn, doc)
     same_text = ingest(owned, data, ocr_engine=FakeOCR(version='fake-ocr-2'))
     assert same_text['derivations'][0]['state'] == 'published'
     assert same_text['derivations'][0]['document_id'] == doc  # identical text reuses the reviewed claim
@@ -271,6 +272,14 @@ def test_changed_identity_versions_derivation_and_preserves_review_and_original(
         assert conn.execute('SELECT encode(sha256(bytes),\'hex\') h FROM image_originals').fetchone()['h'] == digest_before
         prev = conn.execute('SELECT previous_id FROM image_derivations WHERE document_id=%s', (new_doc,)).fetchone()
         assert prev['previous_id'] is not None
+        view = evidence_contract.inspect(conn, doc)
+        assert 'newer_derivation_differs' in view['eligibility']['notices']
+        assert view['version'] != version_before
+        assert view['claim']['review_state'] == 'confirmed'  # never replace human review with OCR
+        detail = images.inspect(conn, doc)
+        assert 'newer_derivation_differs' in next(d for d in detail['derivations']
+            if d['document_id'] == doc)['warnings']
+        assert 'newer_derivation_differs' in __import__('agentic_rag.evidence', fromlist=['summary']).summary(conn, doc)['notices']
 
 
 def test_source_withdrawal_disables_retrieval_original_regions_and_new_work(owned):

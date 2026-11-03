@@ -18,11 +18,13 @@ CREATE TABLE public.image_originals (
     width integer NOT NULL CHECK (width BETWEEN 1 AND 8192),
     height integer NOT NULL CHECK (height BETWEEN 1 AND 8192),
     byte_size integer NOT NULL CHECK (byte_size BETWEEN 1 AND 4194304),
-    bytes bytea NOT NULL,
+    bytes bytea,
+    erased_at timestamptz,
     created_by text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
     CHECK (width::bigint * height <= 16000000),
-    CHECK (octet_length(bytes) = byte_size AND encode(sha256(bytes),'hex') = sha256)
+    CHECK ((erased_at IS NULL AND bytes IS NOT NULL AND octet_length(bytes) = byte_size
+            AND encode(sha256(bytes),'hex') = sha256) OR (erased_at IS NOT NULL AND bytes IS NULL))
 );
 CREATE INDEX image_originals_scope ON public.image_originals(domain, project_scope);
 

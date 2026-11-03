@@ -23,6 +23,7 @@ import fcntl
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 
 from . import image_media, images
@@ -49,10 +50,12 @@ class Item:
 def load_manifest(path):
     path = Path(path)
     try:
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     except OSError:
         raise ValueError('manifest_unavailable') from None
     with os.fdopen(fd, 'rb') as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError('manifest_unavailable')
         raw = stream.read(MANIFEST_BYTES + 1)
     if len(raw) > MANIFEST_BYTES:
         raise ValueError('manifest_too_large')
@@ -243,13 +246,8 @@ def _process(cfg, conn, client, item, vision):
             raise
         return {'state': 'unauthorized' if str(error).startswith('unknown domain') else 'invalid',
                 'code': 'unknown_domain' if str(error).startswith('unknown domain') else 'invalid_item'}
-    except Exception as error:  # noqa: BLE001 - remote errors carry a bounded code
-        code = getattr(error, 'code', None)
-        if code is None:
-            raise
-        if code in ('network_unavailable', 'response_timeout', 'capacity_exceeded', 'images_disabled'):
-            raise
-        return {'state': 'failed', 'code': code}
+    # Transport/service errors are never evidence of a bad manifest item.
+    # Let apply persist an interrupted cursor at this exact item and propagate.
 
 
 def apply(cfg, manifest_path, *, limit=10, state_dir=None, should_stop=None, resume=False, restart=False,
@@ -291,6 +289,11 @@ def apply(cfg, manifest_path, *, limit=10, state_dir=None, should_stop=None, res
                     outcome = {'index': item.index, **_process(cfg, conn, client, item, vision)}
                     processed.append(outcome)
                     state['counts'][outcome['state']] = state['counts'].get(outcome['state'], 0) + 1
+                    if outcome['state'] == 'failed':
+                        state['state'] = 'blocked'
+                        state['last_error'] = outcome
+                        break
+                    state.pop('last_error', None)
                     state['cursor'] += 1
                     _write_state(path, state)
                 else:
