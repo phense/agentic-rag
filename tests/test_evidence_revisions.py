@@ -129,4 +129,4 @@ def test_supported_source_version_includes_current_release():
     assert '0.6.19' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.20' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.21' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.25' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.26' not in upgrade.SUPPORTED_VERSIONS

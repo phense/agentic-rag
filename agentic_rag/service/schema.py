@@ -19,7 +19,20 @@ SCOPED_TABLES = (
     'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
     'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_processed', 'synthesis_patterns',
     'synthesis_dependencies', 'lifecycle_decisions', 'lifecycle_events', 'extraction_policy_bindings',
+    'image_originals', 'image_derivations',
 )
+IMAGE_TABLES = ('image_originals', 'image_derivations')
+
+
+def image_tables_valid(conn):
+    """Migration036: retained bytes and derivation identities are insert-only."""
+    return not conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        CROSS JOIN pg_catalog.pg_roles r
+        WHERE n.nspname='public' AND c.relname=ANY(%s) AND r.rolname IN ('rag_reader','rag_writer')
+          AND (pg_catalog.has_table_privilege(r.oid,c.oid,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+               OR (r.rolname='rag_reader' AND pg_catalog.has_table_privilege(r.oid,c.oid,'INSERT')))) bad""",
+        (list(IMAGE_TABLES),)).fetchone()['bad']
 
 
 def uploader_column_valid(conn):
@@ -141,7 +154,7 @@ def validate_schema(conn):
         # must enforce the original row's authority in addition to WITH CHECK.
         read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors',
                    'source_revisions','claim_revisions','source_history','claim_history',
-                   'synthesis_patterns','synthesis_dependencies'}
+                   'synthesis_patterns','synthesis_dependencies',*IMAGE_TABLES}
         if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
             raise ServiceSchemaError()
         roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()
@@ -174,7 +187,7 @@ def validate_schema(conn):
             WHERE n.nspname='public' AND c.relname=ANY(%s)""",
             (['embedding_generations','embedding_selection','embedding_vectors'],)).fetchall()
         if len(managed)!=3 or any(r['exposed'] for r in managed):raise ServiceSchemaError()
-        if not evidence_revisions_valid(conn):raise ServiceSchemaError()
+        if not evidence_revisions_valid(conn) or not image_tables_valid(conn):raise ServiceSchemaError()
         audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
             WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'
             AND t.tgenabled IN ('O','A') AND t.tgfoid='public.rag_service_audit_actor()'::regprocedure) ok""").fetchone()['ok']

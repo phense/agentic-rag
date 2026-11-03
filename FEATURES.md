@@ -598,3 +598,22 @@ review reports0 C/H/M; architecture success29/recovery12 checks pass. The final
 whole suite passes1,896tests with1expected macOS skip; [PR87](https://github.com/phense/agentic-rag/pull/87) is explicitly approved for merge after the successful pre-merge Hetzner deployment; [verification](docs/verification/issue64-temporal-query.md)
 tracks that gate and [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6543044931)
 tracks deferred Low limitations. Both existing Hetzner APIs now run0.6.17/schema029 with temporal auto/Berlin enabled after full-copy rehearsal, original-row preservation and fresh verified backup. The canonical worker remains inactive; broad/native adoption remains separate.
+
+## Source-backed image ingestion (Issue70)
+
+Version0.6.25 adds opt-in local OCR and interpretation of explicit image files
+with retained originals ([playbook PB07001](docs/image-ingestion.md),
+[verification](docs/verification/image-ingestion.md),
+[specification](docs/specs/RAG-070-source-backed-images/spec.md)). A bounded child
+process validates one static PNG/JPEG/WebP frame; Tesseract and the optional
+loopback Ollama model are configured explicitly and never installed. OCR is a
+machine-transcribed stated claim and interpretation an inference; both stay out of
+search and context until a strict confirmation. Migration036 adds two tables with
+scoped row-level policies and rewrites nothing.
+
+Synthetic measurements with real Tesseract 5 on five text fixtures: 5/5 exact
+transcriptions, character error rate 0, engine time 0.78–1.08s per image; blank
+and scene fixtures publish no claim, and an embedded instruction is transcribed
+as data. Interpretation was tested only against an owned loopback fake, not a
+real vision model. [Measurements](docs/benchmarks/2026-11-03-image-ingestion/results.json).
+

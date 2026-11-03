@@ -92,6 +92,54 @@ class RemoteConnection:
         except httpx.HTTPError:
             raise RemoteError('network_unavailable') from None
 
+    # RAG-070: raw image bytes travel without a JSON/base64 envelope or local path.
+    def _raw(self,method,path,*,content=None,payload=None,params=None,seconds=30,limit=4*1048576,headers=None):
+        deadline=time.monotonic()+seconds
+        try:
+            with self.sender.stream(method,self.url+path,params=params,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1,images1',**(headers or {})},
+                                    timeout=httpx.Timeout(seconds,connect=min(.3,seconds)),
+                                    **({'content':content} if content is not None else {}),
+                                    **({'json':payload} if payload is not None else {})) as response:
+                body=bytearray()
+                for chunk in response.iter_bytes():
+                    if time.monotonic()>deadline:raise RemoteError('response_timeout')
+                    if len(body)+len(chunk)>limit:raise RemoteError('response_too_large',response.status_code)
+                    body.extend(chunk)
+                if not 200<=response.status_code<300:
+                    try:code=json.loads(body).get('error','request_failed')
+                    except (ValueError,AttributeError,UnicodeDecodeError):code='request_failed'
+                    if not isinstance(code,str) or not code.replace('_','').isalnum() or len(code)>80:code='request_failed'
+                    raise RemoteError(code,response.status_code)
+                return response.headers,bytes(body)
+        except httpx.HTTPError:
+            raise RemoteError('network_unavailable') from None
+
+    def _json_body(self,body):
+        try:data=json.loads(body)
+        except (ValueError,UnicodeDecodeError):raise RemoteError('invalid_response') from None
+        if not isinstance(data,dict):raise RemoteError('invalid_response')
+        return data
+
+    def upload_image(self,data,params,*,vision=False,seconds=None):
+        seconds=seconds or min(600,max(30,self.cfg.image_ocr_timeout_seconds*2+(self.cfg.image_vision_timeout_seconds if vision else 0)+30))
+        query={**params,**({'vision':'1'} if vision else {})}
+        _,body=self._raw('POST','/v1/images',content=bytes(data),params=query,seconds=seconds,
+                          headers={'content-type':'application/octet-stream'})
+        return self._json_body(body)
+
+    def image_json(self,method,path,payload=None,*,params=None,seconds=30):
+        _,body=self._raw(method,path,payload=payload,params=params,seconds=seconds)
+        return self._json_body(body)
+
+    def image_original(self,ref,*,seconds=60):
+        import re
+        from ..image_media import MAX_BYTES
+        headers,body=self._raw('GET','/v1/images/'+ref+'/original',seconds=seconds,limit=MAX_BYTES)
+        digest=headers.get('x-rag-image-sha256','')
+        if not re.fullmatch(r'[0-9a-f]{64}',digest) or hashlib.sha256(body).hexdigest()!=digest:
+            raise RemoteError('original_integrity_failed')
+        return body,{'sha256':digest,'mime':headers.get('content-type',''),'byte_size':len(body)}
+
     def negotiate(self,*,seconds=1):
         if not self.negotiated:
             capabilities=self.request('GET','/v1/capabilities',seconds=seconds)

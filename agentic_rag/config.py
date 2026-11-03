@@ -34,6 +34,7 @@ _SECTION_PREFIX = {
     "temporal": "temporal",
     "synthesis": "synthesis",
     "retrieval": "retrieval",
+    "images": "image",
 }
 
 
@@ -129,6 +130,25 @@ class Config:
     synthesis_max_input_chars: int = 12000
     synthesis_max_output_tokens: int = 1024
     synthesis_max_runs_per_tick: int = 2
+    # RAG-070 opt-in local image ingestion; nothing runs unless enabled.
+    image_enabled: bool = False
+    image_ocr_command: str = ""          # explicit Tesseract binary path
+    image_ocr_tessdata: Path | None = None
+    image_ocr_library_path: Path | None = None  # optional private runtime libraries
+    image_ocr_languages: str = "deu+eng"
+    image_ocr_psm: int = 6
+    image_ocr_oem: int = 1
+    image_ocr_timeout_seconds: float = 60
+    image_ocr_threads: int = 1
+    image_engine_memory_bytes: int = 2 * 1024**3
+    image_decode_timeout_seconds: float = 15
+    image_work_dir: Path | None = None
+    image_vision_enabled: bool = False
+    image_vision_url: str = "http://127.0.0.1:11434"
+    image_vision_model: str = ""
+    image_vision_digest: str = ""
+    image_vision_timeout_seconds: float = 120
+    image_vision_max_output_tokens: int = 512
 
     def __post_init__(self) -> None:
         if type(self.retrieval_planned_vectors) is not bool:
@@ -189,6 +209,7 @@ class Config:
         if type(self.service_request_consumers) is not int or not 1<=self.service_request_consumers<=4:
             raise ValueError('service request_consumers must be an integer between 1 and 4')
         self._validate_model_lane()
+        self._validate_images()
         if (
             not isinstance(self.mine_max_digest_chars, int)
             or isinstance(self.mine_max_digest_chars, bool)
@@ -217,6 +238,48 @@ class Config:
                 f"{MIN_CONTEXT_CHARS} and {MAX_CONTEXT_CHARS}"
             )
 
+
+    def _validate_images(self) -> None:
+        for name in ('image_enabled', 'image_vision_enabled'):
+            if type(getattr(self, name)) is not bool:
+                raise ValueError(name.replace('_', ' ', 1) + ' must be boolean')
+        if not isinstance(self.image_ocr_command, str) or len(self.image_ocr_command) > 4096 or (
+                self.image_ocr_command and not self.image_ocr_command.startswith('/')):
+            raise ValueError('images ocr_command must be an absolute path')
+        if not isinstance(self.image_ocr_languages, str) or not re.fullmatch(r'[a-z_]{3,32}(\+[a-z_]{3,32}){0,7}', self.image_ocr_languages):
+            raise ValueError('images ocr_languages must look like deu+eng')
+        for name, allowed in [('image_ocr_psm', {3, 4, 6, 11}), ('image_ocr_oem', {1})]:
+            if type(getattr(self, name)) is not int or getattr(self, name) not in allowed:
+                raise ValueError(f'{name} must be one of {sorted(allowed)}')
+        for name, low, high in [('image_ocr_timeout_seconds', 1, 600), ('image_decode_timeout_seconds', 1, 120),
+                                ('image_vision_timeout_seconds', 1, 600)]:
+            value = getattr(self, name)
+            if type(value) not in (int, float) or not math.isfinite(value) or not low <= value <= high:
+                raise ValueError(f'{name} must be between {low} and {high} seconds')
+        for name, low, high in [('image_ocr_threads', 1, 8), ('image_vision_max_output_tokens', 16, 2048),
+                                ('image_engine_memory_bytes', 256 * 1024**2, 64 * 1024**3)]:
+            value = getattr(self, name)
+            if type(value) is not int or not low <= value <= high:
+                raise ValueError(f'{name} must be an integer between {low} and {high}')
+        from urllib.parse import urlsplit
+        url = self.image_vision_url
+        try:
+            parts = urlsplit(url) if isinstance(url, str) else None
+            port = parts.port if parts is not None else None
+        except ValueError:
+            parts = port = None
+        # Local inference only: never a remote, credentialed or proxied endpoint.
+        if (parts is None or parts.scheme not in ('http', 'https') or parts.hostname not in ('127.0.0.1', '::1', 'localhost')
+                or parts.username is not None or parts.password is not None or parts.query or parts.fragment
+                or parts.path not in ('', '/') or any(c.isspace() for c in url)):
+            raise ValueError('images vision_url must be a loopback http(s) origin')
+        del port
+        if not isinstance(self.image_vision_model, str) or len(self.image_vision_model) > 200 or not isinstance(
+                self.image_vision_digest, str):
+            raise ValueError('invalid images vision model identity')
+        if self.image_vision_enabled and (not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}', self.image_vision_model)
+                                          or not re.fullmatch(r'[0-9a-f]{64}', self.image_vision_digest)):
+            raise ValueError('images vision requires a model name and pinned 64-hex digest')
 
     def _validate_model_lane(self) -> None:
         for name in ('ollama_num_thread','ollama_background_num_thread'):
@@ -249,7 +312,7 @@ class Config:
             raise ValueError('ollama background_url must name a separate daemon')
 
 
-_PATH_FIELDS = {"mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
+_PATH_FIELDS = {"image_ocr_tessdata", "image_ocr_library_path", "image_work_dir", "mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
 
 
 def load_config(path: Path | None = None) -> Config:

@@ -360,6 +360,36 @@ does nothing: an operator must also enable a concrete domain and project with
 
 On a central service only the server's section matters; clients need no entry.
 
+## `[images]`
+
+Opt-in local image ingestion ([PB07001](image-ingestion.md)). Without the
+section nothing changes and no image command is accepted. Pillow comes from the
+`images` extra; Tesseract, its language data and any Ollama model must already
+exist at the configured paths. Engine settings that affect output (`ocr_psm`,
+`ocr_oem`, languages, binary and language-data digests, vision model digest) are
+part of the derivation identity.
+
+| Key | Field | Default | What it does |
+|---|---|---|---|
+| `enabled` | `image_enabled` | `false` | Global switch for add, backfill and reprocess. Reads of existing images stay available. |
+| `ocr_command` | `image_ocr_command` | `""` | Absolute path of the Tesseract binary (must start with `/`); empty means OCR is unavailable (`ocr_unavailable`). |
+| `ocr_tessdata` | `image_ocr_tessdata` | unset | Directory with the `.traineddata` files for every language. |
+| `ocr_library_path` | `image_ocr_library_path` | unset | Optional library directory for a private Tesseract runtime. |
+| `ocr_languages` | `image_ocr_languages` | `deu+eng` | Tesseract language list. |
+| `ocr_psm` / `ocr_oem` | `image_ocr_psm` / `image_ocr_oem` | `6` / `1` | Page segmentation mode (3, 4, 6 or 11); the engine mode accepts only `1` (LSTM). |
+| `ocr_timeout_seconds` | `image_ocr_timeout_seconds` | `60` | Deadline of one OCR call, 1–600. |
+| `ocr_threads` | `image_ocr_threads` | `1` | Tesseract threads (`OMP_THREAD_LIMIT`), 1–8. |
+| `engine_memory_bytes` | `image_engine_memory_bytes` | `2147483648` | Address-space limit of the decoder and OCR child processes, 256MiB–64GiB. |
+| `decode_timeout_seconds` | `image_decode_timeout_seconds` | `15` | Deadline of the bounded decoder check, 1–120. |
+| `work_dir` | `image_work_dir` | unset | Private directory for temporary engine files; default is the system temporary directory. |
+| `vision_enabled` | `image_vision_enabled` | `false` | Allows `--vision` interpretation. |
+| `vision_url` | `image_vision_url` | `http://127.0.0.1:11434` | Loopback Ollama endpoint; other hosts are refused. |
+| `vision_model` / `vision_digest` | `image_vision_model` / `image_vision_digest` | `""` | Model name and its 64-digit digest; required when vision is enabled. A different digest refuses the call (`vision_identity_mismatch`). |
+| `vision_timeout_seconds` | `image_vision_timeout_seconds` | `120` | Deadline of one interpretation call, 1–600. |
+| `vision_max_output_tokens` | `image_vision_max_output_tokens` | `512` | Interpretation output budget, 16–2048. |
+
+On a central service only the server's section matters; clients upload bytes and need no entry.
+
 ## Managed Claude configuration
 
 The default `rag install` manages exactly one value in `~/.claude/settings.json`

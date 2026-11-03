@@ -520,6 +520,21 @@ def _lifecycle_read(producer, *args, **kwargs):
         return _plain(producer(conn, *args, **kwargs))
 
 
+def memory_image(id_or_slug: str, cursor: StrictInt = 0, limit: StrictInt = 200) -> dict:
+    """Inspect a retained image (RAG-070) by original UUID or derived document: exact
+    original digest/type/size, every OCR or local interpretation derivation with its
+    pinned engine identity, warnings, claim review state and a page of word regions
+    (box = [left, top, width, height] in original pixels; limit<=500, next_cursor).
+    OCR is machine transcription and interpretation is inference: both need explicit
+    review before retrieval. Absent, foreign and withdrawn images are unavailable.
+    Original bytes are never returned here; use the CLI or REST original download."""
+    from . import images
+    cfg, conn = _connect()
+    with conn:
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+        return _plain(images.inspect(conn, id_or_slug, cursor=cursor, limit=limit))
+
+
 def memory_lifecycle_preview(member: str, target: str, operation: str | None = None) -> dict:
     """Preview a lifecycle decision for two originals (id or slug): member is hidden,
     target is the canonical. Classifies exact_duplicate (structural proof: identical
@@ -574,7 +589,7 @@ def memory_lifecycle_correct(decision_id: str, expected_revision: StrictInt, rea
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline, memory_evidence, memory_evidence_history,
               memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern,
-              memory_lifecycle_preview, memory_lifecycle)
+              memory_lifecycle_preview, memory_lifecycle, memory_image)
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin,
                memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover,
                memory_lifecycle_apply, memory_lifecycle_correct)

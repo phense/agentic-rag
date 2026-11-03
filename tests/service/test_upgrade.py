@@ -36,7 +36,7 @@ def test_verified_local_upgrade_preserves_rows_grants_and_retries(tmp_path,monke
         assert not (tmp_path/'upgrade.dump').exists()
         result=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'upgrade.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['applied'] and len(result['migrations_applied'])==35-schema
+        assert result['applied'] and len(result['migrations_applied'])==36-schema
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         retry=upgrade.local_upgrade(cfg,'0.6.3',tmp_path/'retry.dump',apply=True,writers_stopped=True)
         assert retry['migrations_applied']==[]
@@ -143,7 +143,7 @@ def test_populated_original022_adds_uploader_without_rewriting_session_history(t
             old=dict(conn.execute('SELECT * FROM service_sessions').fetchone())
             conn.commit()
         result=upgrade.local_upgrade(cfg,'0.6.9',tmp_path/'original022.dump',apply=True,writers_stopped=True)
-        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql']
+        assert result['migrations_applied']==['023_claim_lookup.sql','024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql']
         assert result['original_rows_unchanged'] and result['restore_verified']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         with db.connect(cfg) as conn:
@@ -199,7 +199,7 @@ def test_populated023_upgrade_current024_backup_restore_and_retry(tmp_path,monke
         old=upgrade.inventory(cfg,'0.6.10')
         result=upgrade.local_upgrade(cfg,'0.6.10',tmp_path/'upgrade024.dump',apply=True,writers_stopped=True)
         assert result['original_rows_unchanged'] and result['restore_verified']
-        assert result['migrations_applied']==['024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql']
+        assert result['migrations_applied']==['024_request_queue.sql','025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql']
         assert upgrade.verify_preserved(cfg,result['manifest'])['unchanged']
         current=upgrade.verified_backup(cfg,'0.6.11',tmp_path/'current024.dump')
         assert current['restore_verified']
@@ -215,7 +215,7 @@ def test_populated024_upgrade025_preserves_all_originals_and_retry(tmp_path,monk
     with owned_source(tmp_path,24) as cfg:
         original=upgrade.inventory(cfg,'0.6.11')
         changed=upgrade.local_upgrade(cfg,'0.6.11',tmp_path/'upgrade025.dump',apply=True,writers_stopped=True)
-        assert changed['migrations_applied']==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql']
+        assert changed['migrations_applied']==['025_dashboard.sql','026_request_tracing.sql','027_provider_indexes.sql','028_reranker_settings.sql','029_source_evidence.sql','030_pattern_synthesis.sql','031_memory_lifecycle.sql','032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql']
         assert changed['original_rows_unchanged'] and changed['restore_verified']
         assert upgrade.verify_preserved(cfg,original)['unchanged']
         with db.connect(cfg) as conn:
@@ -292,6 +292,7 @@ def test_prepared_vector_template_restores_without_superuser(tmp_path,monkeypatc
 def test_current_release_is_supported_for_operator_backups():
     from agentic_rag.service import upgrade
     from importlib.metadata import version
-    assert version('agentic-rag') == '0.6.24'
+    assert version('agentic-rag') == '0.6.25'
     assert '0.6.24' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.25' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.25' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.26' not in upgrade.SUPPORTED_VERSIONS

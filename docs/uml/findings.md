@@ -723,3 +723,87 @@ are in model-admission-92-a2.md; tasks S06808 owns their implementation and proo
 - AF069-003 (verified by independent original-span/abstention probes; AC001/005): Does more literal evidence imply an answered question?
   Existing local_check and publish correctly abstain. T069-001/002 preserve them and
   expose literal coverage separately from semantic assessment, including conflicts.
+
+## RAG-070 source-backed images (design gate, 2026-11-03)
+
+Answers to the plan's three questions; view in `image-ingestion-70.md`.
+
+- AF070-001 (design; AC-003, IC-003; Q1): Can asset policies reuse document
+  visibility without recursion or ID leaks? Category: security. Copy the
+  authorized `domain/project_scope` onto the immutable original row and apply the
+  SQL035 predicate to those columns; derivations reference only originals.
+  No policy touches `documents`, `claim_evidence` or `knowledge_sources`, so no
+  cycle exists. Uniform `image_unavailable` for absent, foreign and withdrawn.
+  Rejected: anchoring originals on a synthetic document (pollutes retrieval) and
+  definer read helpers (bypass the invoker boundary).
+- AF070-002 (design; AC-003/004; Q1): Where is trust withdrawal enforced?
+  Category: trust boundary. One `knowledge_sources` row per scoped original.
+  Withdrawing it through the existing strict source-state gateway removes support
+  from every OCR and interpretation claim (claim_eligible) and the image gateway
+  refuses original, region and new-derivation access. RLS deliberately excludes
+  source state: reinstatement must stay addressable. Local raw-SQL readers already
+  see all scopes; withdrawal is not erasure (documented limit).
+- AF070-003 (design; AC-004; Q1): How do OCR and inference avoid becoming
+  testimony? Category: semantics. Source role `unknown`; OCR is a `stated` claim
+  with `complete=false` spans, interpretation an `inference` claim. Neither is
+  claim-eligible until an explicit confirmation of active reviewed evidence, so
+  regions/originals are inspectable before confirmation and nothing is
+  auto-confirmed. Reuse of an identical-text claim attaches evidence only and never
+  resets an existing review, refutation or source state.
+- AF070-004 (design; AC-005, FR-002; Q2): Is the sequence bounded and atomic?
+  Category: race/atomicity. Validation and decoding precede any write. Tx A
+  accepts the original; engine work holds no transaction or lock; Tx B publishes
+  claim, spans and derivation under the per-source advisory lock and a unique
+  `(original, kind, identity_hash)` key, rechecking visibility, source state and
+  (centrally) commit authority. Concurrent retries may duplicate bounded engine
+  work but never publication. Failed derivations are not recorded as success.
+- AF070-005 (design; AC-002/005/006, FR-004; Q3): Which identity is immutable?
+  Category: data integrity. Derivation identity hashes pipeline version, engine
+  version/binary digest, language-data digests, OEM/PSM and preprocessing; vision
+  adds model name and pinned digest verified before and after the call. Rows are
+  insert-only. Embeddings use the store's existing configuration through
+  save_document: no embedding-identity change, no re-embedding of existing text.
+- AF070-006 (design; IC-002; Q2): How does central upload stay bounded? Category:
+  resource safety. A dedicated raw-body route with a 4 MiB cap enforced while
+  streaming, separate two-slot capacity, authentication, write scope and storage
+  admission before decoding; metadata only in traces; no JSON/base64 envelope and
+  no client path reaches the server.
+- AF070-007 (design; AC-006/007; Q3): What do upgrade and rollback guarantee?
+  Category: compatibility. Migration036 creates empty tables, grants and policies
+  only. Old 0.6.17/0.6.23 runtimes ignore the tables and see image claims as
+  ordinary unreviewed claims. Code rollback retains the tables and data; older
+  operator inventory tooling refuses a schema newer than its migration list, which
+  is the explicit downgrade boundary after image writes. pg_dump carries originals
+  atomically with all references.
+
+## RAG-070 as-built reconciliation (2026-11-03)
+
+All seven design findings hold in the implementation; deviations and additions:
+
+- AF070-008 (as-built; AF070-001): derived claim slugs are deterministic and
+  source-bound (`<title>-<sha256(source_key, kind, text_sha)[:16]>`). A title-only
+  slug collided under RLS when a foreign scope held the same title; the new slug
+  never reveals foreign rows. `evidence.save` gained an optional `slug` argument.
+- AF070-009 (as-built; AF070-003): claim reuse is limited to the same original and
+  kind with identical text digest; evidence-gateway deduplication can additionally
+  bind local and central uploads of the same image in the same scope to one claim
+  document (observed in the evaluation). Reviews are never reset.
+- AF070-010 (as-built; AF070-007): old 0.6.17/0.6.23 readers see one more document
+  per published derivation in raw counts, but never in search results before
+  confirmation (asserted in `test_image_upgrade.py`). `SUPPORTED_VERSIONS` covers
+  0.6.0–0.6.25; 0.6.26 is refused.
+- AF070-011 (as-built; operations): `restore-target` keeps its pre-existing
+  embedding-model digest precondition; PB07001 E2 names it after the rehearsal hit
+  `embedding_identity_mismatch`.
+- AF070-012 (as-built; limits): interpretation was exercised only against an owned
+  loopback fake; no real vision model, production host or central CLI rehearsal on
+  a real service host. Independent review is still required.
+- AF070-013 (as-built; AF070-001, compatibility): the image policies use
+  `rag_service_document(domain, project_scope[, true])` from migration021 instead of
+  the migration035 `rag_service_permission` initplan helper. The full suite showed
+  that the documented 0.6.22 recovery (restore the 021 document policy, drop
+  `rag_service_permission`) failed on a 036 store because the image policies
+  depended on that function. Semantics are identical (same session settings); the
+  per-row helper costs little because image access is by key. Regression:
+  `test_migration036_keeps_the_documented_035_policy_rollback_valid`.
+

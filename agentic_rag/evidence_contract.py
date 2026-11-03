@@ -120,8 +120,12 @@ def resolve(conn, id_or_slug):
 
 
 def document_version(conn, doc_id):
-    row = conn.execute(DOCUMENT_VERSION_SQL, (str(doc_id),)).fetchone()
-    if row is None:
+    # SQL also drives synthesis freshness. Use its exact encoding once images
+    # are installed; pre-036 stores keep the historical portable ev1 token.
+    image_schema = conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL ok").fetchone()['ok']
+    query = 'SELECT public.rag_document_version(%s::uuid) AS version' if image_schema else DOCUMENT_VERSION_SQL
+    row = conn.execute(query, (str(doc_id),)).fetchone()
+    if row is None or row['version'] is None:
         raise EvidenceUnavailable()
     return row['version']
 
@@ -148,6 +152,9 @@ def _manual(namespace):
 
 
 def _origin(row):
+    # RAG-070: a retained image original (machine-derived, role unknown).
+    if row['namespace'].startswith('image1:') or (row['namespace'].startswith('svc1:') and ':image1:' in row['namespace']):
+        return 'image_original'
     if _manual(row['namespace']):
         return 'manual_attestation'
     return {'user': 'user_source_event', 'assistant': 'assistant_statement'}.get(row['role'], 'unknown_role')
@@ -219,6 +226,13 @@ def _claim(conn, doc_id):
     return row
 
 
+def _image_kinds(conn, doc_id):
+    if not conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL AS ok").fetchone()['ok']:
+        return []
+    return [r['kind'] for r in conn.execute('SELECT DISTINCT kind FROM public.image_derivations WHERE document_id=%s'
+                                            ' ORDER BY kind', (str(doc_id),))]
+
+
 def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT):
     """Contract v1 envelope for one visible document and one finite source page."""
     limit = _limit(limit, PAGE_LIMIT)
@@ -268,6 +282,9 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
             'trust': {'state': row['state'], 'reason': row['reason'],
                       'reason_truncated': bool(row['reason_truncated']), 'changed_at': _time(row['changed_at'])},
         }
+        if item['origin'] == 'image_original':
+            from .images import source_quarantined
+            item['trust']['quarantined'] = source_quarantined(conn, row['source_key'])
         encoded = _encoded(item)
         if items and (used + size > QUOTE_PAGE_BYTES or item_bytes + encoded > ITEM_PAGE_BYTES):
             budget_cut = True
@@ -309,6 +326,15 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
             notices.append('derived_pattern')
     if fact is not None and fact['state'] != 'current':
         reasons.append('fact_' + fact['state'])
+    image_kinds = _image_kinds(conn, doc_id)
+    if image_kinds:
+        from .images import claim_notices
+        notices.extend(claim_notices(conn, doc_id))
+    if image_kinds:
+        # Machine transcription and model interpretation always need explicit review.
+        notices.extend('machine_transcription' if kind == 'ocr' else 'model_interpretation' for kind in image_kinds)
+        if claim is not None and claim['review_state'] != 'confirmed' and 'no_active_support' in reasons:
+            reasons[reasons.index('no_active_support')] = 'review_required'
     if not current and not reasons:
         reasons.append('not_current')
     from .evidence import summary
