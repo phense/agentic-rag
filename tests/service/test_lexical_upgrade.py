@@ -234,7 +234,7 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         changed = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'upgrade.dump',
                                         apply=True, writers_stopped=True)
-        assert changed['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql']
+        assert changed['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         # Only the documented, function-local compiler setting changes. All old
         # settings and OID/owner/grants/security/signature fields remain exact.
@@ -260,7 +260,7 @@ def test_populated_0_6_21_lexical_upgrade_retry_and_independent_restore(tmp_path
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         with db.connect(cfg) as c:
             validate_schema(c)
-            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 36
+            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 37
             assert c.execute("SELECT count(*) n FROM mining_queue WHERE kind='mine' AND session_id='pending-lexical'").fetchone()['n'] == 1
         retry = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'retry.dump',
                                       apply=True, writers_stopped=True)
@@ -404,7 +404,7 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                             before = upgrade.inventory(cfg, '0.6.21', identities=True)
                             upgraded = upgrade.local_upgrade(cfg, '0.6.21', tmp_path / 'limited-upgrade.dump',
                                 apply=True, writers_stopped=True, verification_template=template.db_name)
-                            assert upgraded['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql']
+                            assert upgraded['migrations_applied'] == ['034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql']
                             assert upgraded['restore_verified'] and upgraded['original_rows_unchanged']
                             assert upgrade.verify_preserved(cfg, before)['unchanged']
                             target = upgrade.verified_backup(cfg, '0.6.22', tmp_path / 'limited-target.dump',
@@ -417,7 +417,7 @@ def test_non_superuser_owner_upgrades_and_restores_populated_store(tmp_path, mon
                             permission_state=document_permission_state(cfg)
                             exercise_document_policy_rollback_reapply(cfg)
                             with db.connect(cfg) as c:
-                                assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 36
+                                assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 37
                                 assert c.execute("SELECT count(*) n FROM mining_queue WHERE session_id='pending-lexical'").fetchone()['n'] == 1
                             # Also restore the real target archive into a separate
                             # owner-created database and exercise the SQL there.

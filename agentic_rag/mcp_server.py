@@ -586,13 +586,74 @@ def memory_lifecycle_correct(decision_id: str, expected_revision: StrictInt, rea
                                         reason=reason, request_key=request_key, actor=_actor()))
 
 
+def memory_feedback_search(query: str, domain: str, idempotency_key: str,
+                           project: str | None = None, scope: str | None = None,
+                           k: StrictInt = 8, strategy: str = 'lexical', rerank: str = 'off', context: str = 'off') -> dict:
+    """Explicit opt-in writer search. Captures only bounded IDs/versions/digests.
+    Supply an exact project or scope=global and a UUID retry key. Ordinary search
+    never captures feedback. Replay returns the retained metadata, without bodies.
+    """
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.capture(conn,cfg,query=query,domain=domain,project=project,scope=scope,
+            idempotency_key=idempotency_key,k=k,strategy=strategy,rerank=rerank,context=context))
+
+
+def memory_feedback_submit(event_id: str, kind: str, idempotency_key: str,
+                           result_id: str | None = None, expected_id: str | None = None, comment: str = '') -> dict:
+    """Record useful/not_useful/wrong_source/missing_evidence for your own event.
+    UUID retry keys are mandatory; comments are secret-stripped. Never changes knowledge.
+    """
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.submit(conn,cfg,event_id=event_id,kind=kind,idempotency_key=idempotency_key,
+            result_id=result_id,expected_id=expected_id,comment=comment))
+
+
+def memory_feedback_update(feedback_id: str, expected_revision: StrictInt, kind: str,
+                           result_id: str | None = None, expected_id: str | None = None, comment: str = '') -> dict:
+    """Revise your own signal, preserving bounded history. Stale revisions conflict."""
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.update(conn,cfg,feedback_id=feedback_id,expected_revision=expected_revision,
+            kind=kind,result_id=result_id,expected_id=expected_id,comment=comment))
+
+
+def memory_feedback_retract(feedback_id: str, expected_revision: StrictInt) -> dict:
+    """Retract your own signal without erasing its history or changing knowledge."""
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.retract(conn,cfg,feedback_id=feedback_id,expected_revision=expected_revision))
+
+
+def memory_feedback_get(feedback_id: str | None = None, event_id: str | None = None) -> dict:
+    """Inspect one own event or signal, rechecking visibility and evidence versions."""
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.get(conn,cfg,feedback_id=feedback_id,event_id=event_id))
+
+
+def memory_feedback_list(limit: StrictInt = 20) -> dict:
+    """List up to20 own authorized signals; no private operator queries are returned."""
+    from . import feedback
+    cfg, conn = _connect()
+    with conn:
+        return _plain(feedback.list_feedback(conn,cfg,limit=limit))
+
+
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline, memory_evidence, memory_evidence_history,
               memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern,
-              memory_lifecycle_preview, memory_lifecycle, memory_image)
+              memory_lifecycle_preview, memory_lifecycle, memory_image, memory_feedback_get, memory_feedback_list)
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin,
                memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover,
-               memory_lifecycle_apply, memory_lifecycle_correct)
+               memory_lifecycle_apply, memory_lifecycle_correct, memory_feedback_search, memory_feedback_submit,
+               memory_feedback_update, memory_feedback_retract)
 
 
 # Optional arguments added after protocol1. A client omits them unless the caller

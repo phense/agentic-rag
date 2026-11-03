@@ -15,6 +15,7 @@ from ..evidence_contract import EvidenceConflict, EvidenceUnavailable
 from ..synthesis import SynthesisUnavailable
 from ..lifecycle import LifecycleError
 from ..images import ImageUnavailable
+from ..feedback import FeedbackError
 
 
 class JobBlocked(Exception):
@@ -103,6 +104,8 @@ async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False
             raise ServiceError('incompatible_service_schema',503) from None
         except SynthesisUnavailable:
             raise ServiceError('synthesis_disabled',409) from None
+        except FeedbackError as error:
+            raise ServiceError(error.code,error.status) from None
         except LifecycleError as error:
             raise ServiceError(error.code,error.status) from None
         except EvidenceConflict:

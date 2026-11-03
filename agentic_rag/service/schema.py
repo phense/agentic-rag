@@ -19,7 +19,7 @@ SCOPED_TABLES = (
     'embedding_vectors', 'source_revisions', 'claim_revisions', 'source_history', 'claim_history',
     'synthesis_policies', 'synthesis_backfills', 'synthesis_runs', 'synthesis_processed', 'synthesis_patterns',
     'synthesis_dependencies', 'lifecycle_decisions', 'lifecycle_events', 'extraction_policy_bindings',
-    'image_originals', 'image_derivations',
+    'image_originals', 'image_derivations', 'retrieval_feedback_events', 'retrieval_feedback', 'retrieval_feedback_usage',
 )
 IMAGE_TABLES = ('image_originals', 'image_derivations')
 
@@ -139,8 +139,8 @@ def validate_schema(conn):
                   AND pg_catalog.pg_has_role(r.oid,c.relowner,'MEMBER'))) exposed
             FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
             WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(%s)""",
-            (['dashboard_changes','dashboard_setup','dashboard_presence','request_traces'],)).fetchall()
-        if len(control)!=4 or any(r['exposed'] for r in control):raise ServiceSchemaError()
+            (['dashboard_changes','dashboard_setup','dashboard_presence','request_traces','retrieval_feedback_approvals'],)).fetchall()
+        if len(control)!=5 or any(r['exposed'] for r in control):raise ServiceSchemaError()
         rows=conn.execute("""
             SELECT c.relname,c.relrowsecurity,
               (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND starts_with(p.polname,'service_')) policies,
@@ -154,7 +154,7 @@ def validate_schema(conn):
         # must enforce the original row's authority in addition to WITH CHECK.
         read_only={'chunks','chunk_contexts','audit_log','service_session_access','embedding_vectors',
                    'source_revisions','claim_revisions','source_history','claim_history',
-                   'synthesis_patterns','synthesis_dependencies',*IMAGE_TABLES}
+                   'synthesis_patterns','synthesis_dependencies','retrieval_feedback_events',*IMAGE_TABLES}
         if any(not r['update_guards'] for r in rows if r['relname'] not in read_only):
             raise ServiceSchemaError()
         roles=conn.execute("SELECT rolname,rolsuper,rolbypassrls FROM pg_catalog.pg_roles WHERE rolname IN ('rag_reader','rag_writer')").fetchall()
@@ -187,10 +187,44 @@ def validate_schema(conn):
             WHERE n.nspname='public' AND c.relname=ANY(%s)""",
             (['embedding_generations','embedding_selection','embedding_vectors'],)).fetchall()
         if len(managed)!=3 or any(r['exposed'] for r in managed):raise ServiceSchemaError()
-        if not evidence_revisions_valid(conn) or not image_tables_valid(conn):raise ServiceSchemaError()
+        if not evidence_revisions_valid(conn) or not image_tables_valid(conn) or not feedback_tables_valid(conn):raise ServiceSchemaError()
         audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
             WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'
             AND t.tgenabled IN ('O','A') AND t.tgfoid='public.rag_service_audit_actor()'::regprocedure) ok""").fetchone()['ok']
         if not audit:raise ServiceSchemaError()
     except psycopg.Error:
         raise ServiceSchemaError() from None
+
+
+def feedback_tables_valid(conn):
+    """037 identity, append-only events and column-limited signal mutation."""
+    if conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_roles r CROSS JOIN pg_class c
+        JOIN pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname='public' AND r.rolname IN ('rag_reader','rag_writer','rag_admin')
+        AND c.relname IN ('retrieval_feedback_events','retrieval_feedback','retrieval_feedback_usage') AND
+        (has_table_privilege(r.oid,c.oid,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+        OR (r.rolname<>'rag_writer' AND has_table_privilege(r.oid,c.oid,'INSERT')))) bad""").fetchone()['bad']:
+        return False
+    if conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_attribute a
+        WHERE a.attrelid='public.retrieval_feedback'::regclass
+          AND a.attname IN ('id','event_id','namespace','actor','client','independence_id','domain','project_scope',
+                           'idempotency_key','request_digest','created_at')
+          AND has_column_privilege('rag_writer',a.attrelid,a.attname,'UPDATE')) bad""").fetchone()['bad']:
+        return False
+    if conn.execute("""SELECT has_column_privilege('rag_writer','public.retrieval_feedback_usage','namespace','UPDATE')
+        OR has_column_privilege('rag_writer','public.retrieval_feedback_usage','actor','UPDATE') bad""").fetchone()['bad']:
+        return False
+    # Column grants do not appear in has_table_privilege. Reject accidental
+    # reader/admin mutation and event mutation even through inherited grants.
+    if conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_attribute a
+        JOIN pg_class c ON c.oid=a.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace
+        CROSS JOIN pg_roles r WHERE n.nspname='public' AND NOT a.attisdropped AND a.attnum>0
+        AND c.relname IN ('retrieval_feedback_events','retrieval_feedback','retrieval_feedback_usage')
+        AND r.rolname IN ('rag_reader','rag_writer','rag_admin') AND (
+          (has_column_privilege(r.oid,c.oid,a.attnum,'UPDATE') AND
+            (r.rolname<>'rag_writer' OR c.relname='retrieval_feedback_events'))
+          OR (r.rolname<>'rag_writer' AND has_column_privilege(r.oid,c.oid,a.attnum,'INSERT')))) bad""").fetchone()['bad']:
+        return False
+    return conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='public.retrieval_feedback'::regclass
+        AND tgname='feedback_identity' AND tgenabled IN ('O','A')
+        AND tgfoid='public.rag_feedback_identity()'::regprocedure) ok""").fetchone()['ok']
