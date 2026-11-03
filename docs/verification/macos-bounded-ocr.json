@@ -1,0 +1,145 @@
+{
+  "issue": "https://github.com/phense/agentic-rag/issues/100",
+  "date": "2026-11-03",
+  "base_revision": "845ec76c69adf62567f66b702cbc4abcf05602d9",
+  "candidate_version": "0.6.27",
+  "candidate_content_sha256": {
+    "agentic_rag/image_media.py": "f047dd9d7433e4fd0cde4bc8806dcc38d55ced5f88942c8cc861fb526dfd41aa",
+    "agentic_rag/image_process.py": "fa0ab1a778f3d3ffb8988f534b37954ee4c9b511ae14666c775a5566ec46607f",
+    "tests/test_image_media.py": "e907faf4d34e99793b9f27a302de416821ce5208a8122457c0a0ad7b8b2e0fdc",
+    "tests/test_image_process_macos.py": "c0feff998bde03c6560257360e327e00716c5ad0986c1f91c5b530f492da9491",
+    "agentic_rag/service/upgrade.py": "30456ea3d262edbb83dc9c8d9698f5ec70f06d1365449e40b7013eb7049ef2cd"
+  },
+  "wheel_sha256": "790883b807366ac74b78c0b5187f6576290dcd77359434921cac779821cca2fe",
+  "native": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.12",
+    "candidate_version": "0.6.27",
+    "module_hashes": {
+      "agentic_rag.image_media": "f047dd9d7433e4fd0cde4bc8806dcc38d55ced5f88942c8cc861fb526dfd41aa",
+      "agentic_rag.image_process": "fa0ab1a778f3d3ffb8988f534b37954ee4c9b511ae14666c775a5566ec46607f"
+    },
+    "artifact_hashes": {
+      "test_image_process_macos.py": "c0feff998bde03c6560257360e327e00716c5ad0986c1f91c5b530f492da9491",
+      "native-green-final.log": "0973c66973c1c9d6cac29d058290e9b954fc5118abab65ce3fe2e4efe5bb2b19",
+      "ocr_smoke.py": "53edc6a376c65f33fca2c0bd2e0e8ff7d947b059a07f73827b299db44ae21a34",
+      "ocr-smoke.json": "09f71425586bdf4c9051942ef314cbb10d0739ea342c0afc27425c9a648ec6d5",
+      "compatibility.py": "2d86cbdfb6813b56d181f54ae9cf32aecb608ee16c343ae19127ce034b8bb3e9",
+      "compatibility.json": "4d1451e4e430038068fcbf75825e3ab5abc2415e4c26b074502e63f5bfc3fb1c",
+      "agentic_rag-0.6.27-py3-none-any.whl": "790883b807366ac74b78c0b5187f6576290dcd77359434921cac779821cca2fe"
+    },
+    "native_log": "{\"real_ocr\": true, \"languages\": \"deu+eng\", \"amount_found\": true, \"original_byte_identical\": true, \"canonical_tokens\": true, \"strict_review_and_search\": true, \"fixture_sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"embedding_calls\": 0, \"database\": \"owned disposable; cleaned up\"}\nUsing Python 3.13.12 environment at: .agentic-rag/issue100-diagnostic/candidate-venv\nResolved 1 package in 0.88ms\nPrepared 1 package in 21ms\nUninstalled 1 package in 14ms\nInstalled 1 package in 4ms\n ~ agentic-rag==0.6.27 (from file:///Users/peter/.agentic-rag/issue100-diagnostic/agentic_rag-0.6.27-py3-none-any.whl)\ntest_both_output_streams_are_capped (__main__.MacImageProcessTests.test_both_output_streams_are_capped) ... ok\ntest_cpu_limit_is_applied_before_the_target (__main__.MacImageProcessTests.test_cpu_limit_is_applied_before_the_target) ... ok\ntest_descendant_memory_counts_towards_the_same_budget (__main__.MacImageProcessTests.test_descendant_memory_counts_towards_the_same_budget) ... ok\ntest_descendants_are_killed_after_the_leader_exits (__main__.MacImageProcessTests.test_descendants_are_killed_after_the_leader_exits) ... ok\ntest_lost_accounting_kills_the_target_instead_of_accepting_it (__main__.MacImageProcessTests.test_lost_accounting_kills_the_target_instead_of_accepting_it) ... ok\ntest_memory_growth_is_rejected_before_success (__main__.MacImageProcessTests.test_memory_growth_is_rejected_before_success) ... ok\ntest_normal_command_runs_with_the_configured_memory_budget (__main__.MacImageProcessTests.test_normal_command_runs_with_the_configured_memory_budget) ... ok\ntest_short_lived_memory_peak_is_not_accepted (__main__.MacImageProcessTests.test_short_lived_memory_peak_is_not_accepted) ... ok\ntest_threaded_callers_run_without_a_preexec_callback (__main__.MacImageProcessTests.test_threaded_callers_run_without_a_preexec_callback) ... ok\ntest_timeout_remains_finite (__main__.MacImageProcessTests.test_timeout_remains_finite) ... ok\ntest_unavailable_accounting_never_launches_the_target (__main__.MacImageProcessTests.test_unavailable_accounting_never_launches_the_target) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 4.030s\n\nOK\n",
+    "ocr": {
+      "real_ocr": true,
+      "languages": "deu+eng",
+      "amount_found": true,
+      "original_byte_identical": true,
+      "canonical_tokens": true,
+      "strict_review_and_search": true,
+      "fixture_sha256": "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+      "embedding_calls": 0,
+      "database": "owned disposable; cleaned up"
+    },
+    "compatibility": {
+      "source_version": "0.6.26",
+      "candidate_version": "0.6.27",
+      "new_migrations": 0,
+      "preserved_tables": 8,
+      "legacy_documents": 2,
+      "domains": 2,
+      "pin": 1,
+      "queued_job": 1,
+      "old_and_new_reader_equal": true,
+      "rollback_reader_equal": true,
+      "row_hashes_unchanged": true,
+      "owned_database_removed": true
+    },
+    "production_images_enabled": false,
+    "production_vision_enabled": false
+  },
+  "local_checks": [
+    {
+      "head": "845ec76c69adf62567f66b702cbc4abcf05602d9",
+      "started": "2026-11-03T19:18:45.512751+00:00",
+      "command": [
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider",
+        "--durations=20",
+        "tests/test_image_media.py",
+        "tests/test_image_engines.py",
+        "tests/test_image_optional.py",
+        "tests/test_images.py",
+        "tests/test_image_privacy.py",
+        "tests/test_image_backfill.py",
+        "tests/service/test_image_transport.py",
+        "tests/service/test_image_upgrade.py"
+      ],
+      "exit_code": 0,
+      "seconds": 195.98,
+      "finished": "2026-11-03T19:22:01.489327+00:00",
+      "log_sha256": "42190ddbb3733fef1ef77353b6cfb777e5d8179cda5b9b38209b45de13073c92",
+      "sources_unchanged": true
+    },
+    {
+      "head": "845ec76c69adf62567f66b702cbc4abcf05602d9",
+      "started": "2026-11-03T19:22:54.955162+00:00",
+      "command": [
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider",
+        "--durations=20",
+        "tests/service/test_upgrade.py::test_current_release_is_supported_for_operator_backups",
+        "tests/test_evidence_revisions.py::test_supported_source_version_includes_current_release",
+        "tests/test_extraction_policy_schema.py::test_upgrade_accepts_0_6_19_and_restore_allows_the_new_table",
+        "tests/test_synthesis_policy.py::test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_17",
+        "tests/service/test_extraction_policy_playbook.py::test_pb067_upgrade_activate_recover_retry_rollback_and_restore",
+        "tests/service/test_lifecycle_playbook.py::test_pb066_upgrade_decide_refuse_correct_and_restore",
+        "tests/service/test_lifecycle_upgrade.py::test_operator_cli_and_old_central_service_on_populated_0_6_18",
+        "tests/service/test_synthesis_upgrade.py::test_operator_cli_and_central_service_on_populated_0_6_17",
+        "tests/test_docs_continuity.py"
+      ],
+      "exit_code": 0,
+      "seconds": 77.13,
+      "finished": "2026-11-03T19:24:12.084166+00:00",
+      "log_sha256": "b40159accef67c457cf301ae500a7f6b1242e0a053bd8a39a195941eba5b6bf3",
+      "sources_unchanged": true
+    }
+  ],
+  "examples": [
+    {
+      "case": "ordinary command under 128MiB",
+      "before": "0.6.26: returncode None, target never starts; native red test failed",
+      "after": "0.6.27: exit0 and exact stdout"
+    },
+    {
+      "case": "96MiB allocation under 64MiB budget",
+      "after": "exit6; success output refused, including a short-lived peak; group helper allocation also rejected"
+    },
+    {
+      "case": "public invoice, deu+eng",
+      "before": "0.6.26: decoder/OCR unavailable before publication",
+      "after": "1 original byte-identical, amount128,90 recognized, canonical version, strict confirmation, lexical retrieval"
+    }
+  ],
+  "limits": [
+    "Darwin sampled physical-memory budget, not a kernel hard allocation cap; overshoot between10ms samples is possible.",
+    "One Apple Silicon Mac on macOS27.0.1/Python3.13.12; no other macOS version verified.",
+    "No production writes or restarts; production Mac images remain disabled.",
+    "No real vision model, embedding call or vector-search claim.",
+    "No new full-suite run for this bounded defect; targeted checks only.",
+    "Candidate uses existing production Python dependencies through a separate staging environment; no dependency change."
+  ],
+  "discarded_attempts": [
+    "Custom tessdata without configs/tsv failed OCR; supplying the existing Tesseract configs directory resolved staging.",
+    "First compatibility helper used a nonexistent runtime/bin/python path; corrected to runtime/.venv/bin/python. Owned database cleanup ran on failure."
+  ]
+}

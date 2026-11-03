@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.27] - 2026-11-03
+
+- Run macOS image decoding and local Tesseract through a separate supervisor rather than a pre-exec callback. Keep CPU, file-size, core and wall-time bounds and process-group cleanup. Account for the owned group's physical footprint and resident peaks every 10ms, reject short-lived resident peaks at exit, and fail closed if accounting is unavailable. This is a sampled physical-memory budget, not a hard allocation ceiling: transient overshoot between samples is possible. Linux retains its existing address-space limit.
+- Keep schema036, image identities, originals, derivations and reviews unchanged. Upgrade from 0.6.26 by updating code and restarting processes; no migration or recoding. Enable Mac images only after the real-host OCR/review/retrieval rehearsal; code rollback requires disabling Mac images first. Accept 0.6.27 for verified backup/upgrade operations.
+
 ## [0.6.26] - 2026-11-03
 
 - Refresh statistics in the uncommitted bulk ANN test fixture before retrieval and assert that no semantic-search warning occurs. The original two-second query budget, result IDs and document-diversity checks remain unchanged. This corrects fixture planning; it does not prove the exact trigger of the earlier full-suite timeout or change production retrieval.

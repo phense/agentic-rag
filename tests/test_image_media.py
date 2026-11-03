@@ -142,6 +142,12 @@ def test_rejected_resource_limit_never_runs_the_command_or_escapes_as_a_subproce
         return apply
 
     monkeypatch.setattr(media, '_limits', rejected_limits)
+    if sys.platform == 'darwin':
+        # Darwin no longer uses preexec_fn; a failed supervisor spawn has the
+        # same fail-closed contract. The native suite exercises its real limits.
+        def rejected_spawn(*args, **kwargs):
+            raise __import__('subprocess').SubprocessError('supervisor unavailable')
+        monkeypatch.setattr(media.subprocess, 'Popen', rejected_spawn)
     marker = tmp_path / 'must-not-run'
     result = media.bounded_run(
         [sys.executable, '-c', 'import pathlib,sys;pathlib.Path(sys.argv[1]).touch()', str(marker)],
