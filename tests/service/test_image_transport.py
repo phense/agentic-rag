@@ -151,8 +151,10 @@ def test_revoked_writer_during_ocr_publishes_nothing(central, monkeypatch):
 
 
 def test_real_http_remote_client_cli_upload_show_and_original(central, tmp_path, monkeypatch, capsys):
-    cfg, app, _, _ = central
+    cfg, _, policy, _ = central
+    from agentic_rag.service.api import create_app
     from .http_server import server
+    app = create_app(cfg, policy, allowed_hosts=['127.0.0.1'])
     token = tmp_path / 'token'
     token.write_text(KEYS[0])
     token.chmod(0o600)

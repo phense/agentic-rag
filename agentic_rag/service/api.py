@@ -36,6 +36,11 @@ from . import tracing
 PROTOCOL='1'
 MAX_BODY=1048576
 BODY_TIMEOUT=5.0
+# RAG-070: the raw image route alone accepts one bounded original (no envelope).
+IMAGE_PATH='/v1/images'
+IMAGE_MAX_BODY=4*1024*1024
+IMAGE_BODY_TIMEOUT=30.0
+IMAGE_SLOTS=2
 
 
 class TracedMCP(FastMCP):
@@ -106,13 +111,18 @@ class Gateway:
         await slots.acquire()
         try:
             body=bytearray()
-            async with asyncio.timeout(BODY_TIMEOUT):
+            image=path==IMAGE_PATH and scope['method']=='POST'
+            limit=IMAGE_MAX_BODY if image else MAX_BODY
+            declared=request.headers.get('content-length','')
+            if declared.isdigit() and int(declared)>limit:
+                return await error('request_too_large',413)
+            async with asyncio.timeout(IMAGE_BODY_TIMEOUT if image else BODY_TIMEOUT):
                 while True:
                     message=await receive()
                     if message['type']=='http.disconnect':
                         return
                     chunk=message.get('body',b'')
-                    if len(body)+len(chunk)>MAX_BODY:
+                    if len(body)+len(chunk)>limit:
                         return await error('request_too_large',413)
                     body.extend(chunk)
                     if not message.get('more_body',False):
@@ -369,6 +379,97 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
             result=await asyncio.to_thread(tracing.listing,cfg,p,dict(request.query_params),export=request.url.path.endswith('/export'),recorder=recorder)
         return JSONResponse(result)
 
+    image_slots=asyncio.Semaphore(IMAGE_SLOTS)
+    image_types={'application/octet-stream','image/png','image/jpeg','image/webp'}
+    rejected_status={'unsupported_image_type':415,'image_too_large':413}
+
+    def image_failure(exc):
+        from ..image_engines import EngineError
+        from ..image_media import ImageRejected
+        from ..images import ImageUnavailable
+        from .engine import JobBlocked, ResourcePressure
+        from .schema import ServiceSchemaError
+        if isinstance(exc,ServiceError):return exc
+        if isinstance(exc,ImageRejected):
+            code=exc.code if exc.code!='image_too_large' else 'request_too_large'
+            return ServiceError(code,rejected_status.get(exc.code,422))
+        if isinstance(exc,EngineError):return ServiceError(exc.code,503 if exc.code.endswith('unavailable') or exc.code=='vision_disabled' else 502)
+        if isinstance(exc,ImageUnavailable):return ServiceError('image_unavailable',404)
+        if isinstance(exc,JobBlocked):return ServiceError('authorization_changed',403)
+        if isinstance(exc,PermissionError):return ServiceError('scope_denied',403)
+        if isinstance(exc,ServiceSchemaError):return ServiceError('incompatible_service_schema',503)
+        if isinstance(exc,ValueError) and str(exc) in ('images_disabled','vision_disabled'):return ServiceError(str(exc),409)
+        if isinstance(exc,(ValueError,TypeError)):return ServiceError('invalid_request',400)
+        # SQL and engine messages can contain foreign values; never echo them.
+        return ServiceError('operation_failed',500)
+
+    def image_call(fn):
+        try:return fn()
+        except Exception as exc:  # noqa: BLE001 - mapped to bounded codes above
+            raise image_failure(exc) from None
+
+    async def image_upload(request):
+        principal=request.state.principal
+        if not cfg.image_enabled:raise ServiceError('images_disabled',409)
+        if request.headers.get('content-type','').split(';')[0].strip().lower() not in image_types:
+            raise ServiceError('unsupported_media_type',415)
+        items=request.query_params.multi_items()
+        params=dict(items)
+        if len(params)!=len(items) or set(params)-{'domain','project','scope','label','vision'} or params.get('vision','0') not in ('0','1'):
+            raise ServiceError('invalid_request')
+        if principal.readonly:raise ServiceError('scope_denied',403)
+        data=await request.body()
+        if image_slots.locked():raise ServiceError('capacity_exceeded',429)
+        def run():
+            from .. import images
+            from .resources import admission
+            with request_scope(principal,cfg):
+                # Storage admission before decoding; the aggregate lock is not held during OCR.
+                with admission(cfg) as budget:
+                    budget.check(incoming=len(data)*3+262144,owner=principal.namespace)
+                with db.connect(cfg,role='writer') as conn:
+                    return images.ingest(conn,cfg,data,domain=params.get('domain'),project=params.get('project'),
+                                         scope=params.get('scope'),label=params.get('label'),
+                                         vision=params.get('vision')=='1',actor=principal.actor)
+        async with image_slots:
+            result=await asyncio.to_thread(image_call,run)
+        return JSONResponse(mcp_server._plain(result))
+
+    async def image_status(request):
+        principal=request.state.principal
+        if not cfg.image_enabled:raise ServiceError('images_disabled',409)
+        data=await request.json()
+        if not isinstance(data,dict) or set(data)!={'items'}:raise ServiceError('invalid_request')
+        def run():
+            from .. import images
+            identities=images.current_identities(cfg)
+            # Write authority is evaluated for the caller; the connection itself only reads.
+            with request_scope(principal,cfg):
+                with db.connect(cfg,role='reader') as conn:
+                    return {'items':images.status(conn,cfg,data['items'],identities=identities),'identities':identities}
+        return JSONResponse(await asyncio.to_thread(image_call,run))
+
+    async def image_read(request):
+        from starlette.responses import Response
+        principal=request.state.principal
+        ref=request.path_params['ref']
+        raw=request.url.path.endswith('/original')
+        try:
+            cursor=int(request.query_params.get('cursor','0'));limit=int(request.query_params.get('limit','200'))
+        except ValueError:raise ServiceError('invalid_request') from None
+        def run():
+            from .. import images
+            with request_scope(principal,cfg,read_only=True):
+                with db.connect(cfg,role='reader') as conn:
+                    conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY')
+                    return images.original(conn,ref) if raw else images.inspect(conn,ref,cursor=cursor,limit=limit)
+        result=await asyncio.to_thread(image_call,run)
+        if not raw:return JSONResponse(mcp_server._plain(result))
+        payload,meta=result
+        return Response(payload,media_type=meta['mime'],headers={'x-rag-image-sha256':meta['sha256'],
+            'content-disposition':'attachment; filename="original"','x-content-type-options':'nosniff',
+            'cache-control':'no-store'})
+
     async def openapi(request):
         from .openapi import document
         tools=await mcp_server.build_server(request.state.principal.readonly).list_tools()
@@ -378,6 +479,8 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
     routes[0:0]=[Route('/v1/traces',traces),Route('/v1/traces/export',traces),Route('/v1/traces/{identity}',traces)]
     routes.insert(0,Route('/v1/jobs/{receipt}/retry',job_retry,methods=['POST']))
     routes.insert(0,Route('/v1/sessions',session_logs))
+    routes[0:0]=[Route('/v1/images',image_upload,methods=['POST']),Route('/v1/images/status',image_status,methods=['POST']),
+                 Route('/v1/images/{ref}',image_read,methods=['GET']),Route('/v1/images/{ref}/original',image_read,methods=['GET'])]
     routes.insert(0,Route('/v1/sessions/{session}/{kind}',session_logs))
     async def service_error(request, exc):
         tracing.semantic_error(exc.code if exc.code in tracing.ERRORS else 'http_error')

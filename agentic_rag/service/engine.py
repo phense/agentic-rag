@@ -14,6 +14,7 @@ from .schema import ServiceSchemaError
 from ..evidence_contract import EvidenceConflict, EvidenceUnavailable
 from ..synthesis import SynthesisUnavailable
 from ..lifecycle import LifecycleError
+from ..images import ImageUnavailable
 
 
 class JobBlocked(Exception):
@@ -108,6 +109,8 @@ async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False
             raise ServiceError('evidence_conflict',409) from None
         except EvidenceUnavailable:
             raise ServiceError('evidence_unavailable',404) from None
+        except ImageUnavailable:
+            raise ServiceError('image_unavailable',404) from None
         except (ValidationError,ValueError,TypeError):
             raise ServiceError('invalid_arguments') from None
         except Exception:

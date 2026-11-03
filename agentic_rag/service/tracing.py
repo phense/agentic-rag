@@ -38,7 +38,7 @@ ERRORS={'invalid_credentials','scope_denied','invalid_request','not_found','unsu
         'request_too_large','capacity_exceeded','request_timeout','provider_unavailable',
         'provider_refused','authorization_changed','request_failed','disconnected','http_error',
         'mcp_error','operation_failed','internal_error','tls_required','tracing_unavailable','origin_denied','csrf_denied',
-        'evidence_conflict','evidence_unavailable'}
+        'evidence_conflict','evidence_unavailable','image_unavailable','images_disabled','image_rejected'}
 
 
 def policy_id(cfg):
@@ -110,6 +110,9 @@ def operation(scope):
             if safe_uuid(parts[0]):
                 suffix=parts[1] if len(parts)==2 and parts[1] in {'cancel','retry'} else 'status'
                 return label+'.'+suffix
+    if path=='/v1/images':return 'images.upload'
+    if path=='/v1/images/status':return 'images.status'
+    if path.startswith('/v1/images/'):return 'images.original' if path.endswith('/original') else 'images.inspect'
     if path.startswith('/v1/checkpoints/'):return 'checkpoints.latest'
     if path.startswith('/v1/sessions/'):return 'sessions.detail'
     if path=='/v1/traces' or path=='/dashboard/api/traces':return 'traces.list'

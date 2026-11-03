@@ -134,7 +134,8 @@ def test_apply_is_bounded_resumable_cancellable_and_never_duplicates(local, caps
     rerun = image_backfill.apply(load_config(), path, limit=10, state_dir=state)
     assert rerun['run']['state'] == 'complete' and rerun['run']['cursor'] == 5
     assert [p['state'] for p in rerun['processed']] == ['existing', 'existing', 'published', 'published', 'published']
-    assert counts(cfg) == {'o': 5, 'd': 5, 'docs': 5}
+    # Identical synthetic OCR text in one scope is one claim supported by five originals.
+    assert counts(cfg) == {'o': 5, 'd': 5, 'docs': 1}
     done = image_backfill.apply(load_config(), path, limit=10, state_dir=state)
     assert done['processed'] == [] and done['run']['state'] == 'complete'
     code, out, _ = run(capsys, 'image', 'backfill', str(path), '--dry-run', '--state-dir', str(state))

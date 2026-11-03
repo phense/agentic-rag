@@ -115,7 +115,7 @@ def _accept(conn, *, data, info, domain, selected, actor):
         raise
     return {'id': str(row['id']), 'sha256': info.sha256, 'mime': info.mime, 'width': info.width,
             'height': info.height, 'byte_size': info.byte_size, 'source_key': key, 'created': created,
-            '_namespace': namespace, '_source_id': source_id}
+            '_namespace': namespace, '_source_id': source_id, '_scope': selected}
 
 
 def _sanitize(text, regions):
@@ -222,6 +222,9 @@ def _derive(conn, cfg, original, kind, engine, identity, data, info, *, domain, 
                                       claim_kind=CLAIM_KIND[kind], evidence=items, project=project, scope=scope,
                                       provenance={'origin': 'image', 'image_kind': kind}, actor=actor, commit=False)
                 doc_id = saved.doc_id
+            scoped = conn.execute('SELECT project_scope,domain FROM documents WHERE id=%s', (doc_id,)).fetchone()
+            if scoped is None or (scoped['domain'], scoped['project_scope']) != (domain, original['_scope']):
+                raise ValueError('image claim scope differs from its original')
         inserted = conn.execute(
             'INSERT INTO image_derivations(original_id,kind,identity_hash,identity,status,text,text_sha256,regions,'
             'warnings,document_id,previous_id,created_by) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id',
@@ -272,10 +275,7 @@ def ingest(conn, cfg, data, *, domain, project=None, scope=None, label=None, vis
         authorize(conn, domain, selected)
     finally:
         conn.rollback()
-    engines = [('ocr', ocr_engine or ocr_engine_for(cfg))]
-    if vision:
-        engines.append(('interpretation', vision_engine or vision_engine_for(cfg)))
-    identities = [engine.identity() for _, engine in engines]  # unavailable engines fail before writes
+    engines, identities = _engines(cfg, vision, ocr_engine, vision_engine)  # unavailable: fail before writes
     info = image_media.validate(data, timeout=cfg.image_decode_timeout_seconds,
                                 memory=cfg.image_engine_memory_bytes, workdir=cfg.image_work_dir)
     original = _accept(conn, data=bytes(data), info=info, domain=domain, selected=selected, actor=actor)
@@ -283,6 +283,76 @@ def ingest(conn, cfg, data, *, domain, project=None, scope=None, label=None, vis
                         project=project, scope=scope, label=label, actor=actor)
                 for (kind, engine), identity in zip(engines, identities)]
     return {'original': {k: v for k, v in original.items() if not k.startswith('_')}, 'derivations': outcomes}
+
+
+def _engines(cfg, vision, ocr_engine, vision_engine):
+    engines = [('ocr', ocr_engine or ocr_engine_for(cfg))]
+    if vision:
+        engines.append(('interpretation', vision_engine or vision_engine_for(cfg)))
+    return engines, [engine.identity() for _, engine in engines]
+
+
+def current_identities(cfg, *, vision=False, ocr_engine=None, vision_engine=None):
+    engines, identities = _engines(cfg, vision, ocr_engine, vision_engine)
+    return {kind: identity_hash(identity) for (kind, _), identity in zip(engines, identities)}
+
+
+def reprocess(conn, cfg, original_id, *, vision=False, actor='cli', ocr_engine=None, vision_engine=None):
+    """Operator-local derivation of a retained original with the current engines.
+
+    Reuses the original's recorded source identity and scope (including a
+    central owner namespace); never re-reads a path or rewrites the bytes.
+    """
+    if not cfg.image_enabled:
+        raise ValueError('images_disabled')
+    if vision and not cfg.image_vision_enabled:
+        raise ValueError('vision_disabled')
+    if _request() is not None:
+        raise PermissionError('operator_local_configuration_required')
+    try:
+        uuidlib.UUID(str(original_id))
+    except ValueError:
+        raise ImageUnavailable() from None
+    try:
+        row = conn.execute('SELECT o.*,s.namespace,s.source_id,s.state FROM image_originals o'
+                           ' JOIN knowledge_sources s USING(source_key) WHERE o.id=%s', (str(original_id),)).fetchone()
+    finally:
+        conn.rollback()
+    if row is None or row['state'] != 'active':
+        raise ImageUnavailable()
+    data = bytes(row['bytes'])
+    if hashlib.sha256(data).hexdigest() != row['sha256']:
+        raise RuntimeError('original_integrity_failed')
+    engines, identities = _engines(cfg, vision, ocr_engine, vision_engine)
+    info = image_media.validate(data, timeout=cfg.image_decode_timeout_seconds,
+                                memory=cfg.image_engine_memory_bytes, workdir=cfg.image_work_dir)
+    selected = row['project_scope']
+    project, scope = (None, selected) if selected in ('global', 'unknown') else (selected, None)
+    original = {'id': str(row['id']), 'sha256': row['sha256'], 'mime': row['mime'], 'width': row['width'],
+                'height': row['height'], 'byte_size': row['byte_size'], 'source_key': row['source_key'],
+                'created': False, '_namespace': row['namespace'], '_source_id': row['source_id'], '_scope': selected}
+    outcomes = [_derive(conn, cfg, original, kind, engine, identity, data, info, domain=row['domain'],
+                        project=project, scope=scope, label=None, actor=actor)
+                for (kind, engine), identity in zip(engines, identities)]
+    return {'original': {k: v for k, v in original.items() if not k.startswith('_')}, 'derivations': outcomes}
+
+
+def original_status(conn, original_id, *, identities):
+    """Preview disposition of one retained original; no write, no engine call."""
+    try:
+        uuidlib.UUID(str(original_id))
+        row = conn.execute('SELECT o.id,s.state FROM image_originals o JOIN knowledge_sources s USING(source_key)'
+                           ' WHERE o.id=%s', (str(original_id),)).fetchone()
+    except ValueError:
+        row = None
+    if row is None:
+        return {'disposition': 'missing'}
+    if row['state'] != 'active':
+        return {'disposition': 'withdrawn', 'original_id': str(row['id'])}
+    missing = [kind for kind, digest in identities.items()
+               if not conn.execute('SELECT 1 FROM image_derivations WHERE original_id=%s AND kind=%s AND identity_hash=%s',
+                                   (row['id'], kind, digest)).fetchone()]
+    return {'disposition': 'changed' if missing else 'unchanged', 'original_id': str(row['id']), 'pending': missing}
 
 
 # ------------------------------------------------------------------ readers
@@ -372,18 +442,8 @@ def status(conn, cfg, items, *, identities):
             out.append({'disposition': 'unauthorized'})
             continue
         _, _, key = source_identity(item['sha256'], item['domain'], selected)
-        row = conn.execute('SELECT o.id,s.state FROM image_originals o JOIN knowledge_sources s USING(source_key)'
-                           ' WHERE o.source_key=%s', (key,)).fetchone()
-        if row is None:
-            out.append({'disposition': 'selected'})
-        elif row['state'] != 'active':
-            out.append({'disposition': 'withdrawn', 'original_id': str(row['id'])})
-        else:
-            missing = [kind for kind, digest in identities.items()
-                       if not conn.execute('SELECT 1 FROM image_derivations WHERE original_id=%s AND kind=%s AND identity_hash=%s',
-                                           (row['id'], kind, digest)).fetchone()]
-            out.append({'disposition': 'changed' if missing else 'unchanged', 'original_id': str(row['id']),
-                        'pending': missing})
+        row = conn.execute('SELECT id FROM image_originals WHERE source_key=%s', (key,)).fetchone()
+        out.append({'disposition': 'selected'} if row is None else original_status(conn, row['id'], identities=identities))
     conn.rollback()
     return out
 
