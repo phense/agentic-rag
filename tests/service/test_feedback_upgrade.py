@@ -11,7 +11,7 @@ import sys
 import tarfile
 import uuid
 
-from agentic_rag import db,feedback
+from agentic_rag import db,feedback,query_cache
 from agentic_rag.config import Config
 from agentic_rag.benchmark.database import isolated_database
 from agentic_rag.service import upgrade
@@ -74,7 +74,8 @@ def originals(before,after):
     for table,hashes in before.items():assert not Counter(hashes)-Counter(after[table]),table
 
 
-def test_populated_archived027_upgrade_and_independent_restores(tmp_path):
+def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeypatch):
+    monkeypatch.setattr(query_cache,'model_digest',lambda cfg:'a'*64)
     assert version('agentic-rag')=='0.6.28'
     source=tmp_path/'027';source.mkdir()
     archive=tmp_path/'027.tar'

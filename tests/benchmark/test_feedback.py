@@ -95,6 +95,7 @@ def test_private_export_and_evaluation_preserve_all_canonical_tables(private_sto
     assert result['reproduced_failures']==6 and result['stale']==0 and result['withheld']==0
     assert result['provider_calls']==0 and result['application_writes']==0
     assert sum(result['by_split'][s]['evaluated'] for s in ('dev','test'))==6
+    print('PRIVATE_FEEDBACK_EXAMPLE',json.dumps(result,sort_keys=True))
     assert canonical_rows(cfg)==before
     assert export.stat().st_mode&0o777==0o600 and report.stat().st_mode&0o777==0o600
     assert not Path(str(report)+'.candidate.json').exists()
@@ -191,3 +192,69 @@ def test_tampering_private_paths_and_old_correction_format(private_store,tmp_pat
     assert not (tmp_path/'no.json').exists()
     with pytest.raises(ValueError):private.export_feedback(cfg,domain='alpha',project='/projects/a',output_path=Path.cwd()/'private-feedback-forbidden.json')
     with pytest.raises(ValueError):corrections._validate_export({'kind':'private-retrieval-feedback','version':1,'synthetic':False})
+
+
+
+def test_approval_is_private_audited_and_rollback_atomic(private_store,monkeypatch):
+    import psycopg
+    from agentic_rag.benchmark import feedback as private
+    cfg,_=private_store
+    _,record=signal(private_store)
+    with db.connect(cfg) as conn:
+        before=conn.execute('SELECT * FROM retrieval_feedback_usage').fetchall()
+    original=feedback._audit
+    def fail(*args):raise RuntimeError('synthetic approval audit fault')
+    monkeypatch.setattr(feedback,'_audit',fail)
+    with pytest.raises(RuntimeError,match='synthetic approval audit fault'):
+        private.approve(cfg,feedback_id=record['id'],expected_revision=1,query='absent lexical selector')
+    with db.connect(cfg) as conn:
+        assert conn.execute('SELECT * FROM retrieval_feedback_approvals').fetchall()==[]
+        assert conn.execute('SELECT * FROM retrieval_feedback_usage').fetchall()==before
+    monkeypatch.setattr(feedback,'_audit',original)
+    private.approve(cfg,feedback_id=record['id'],expected_revision=1,query='absent lexical selector')
+    for role in ('reader','writer','admin'):
+        with pytest.raises(psycopg.errors.InsufficientPrivilege):
+            with db.connect(cfg,role=role) as conn:conn.execute('SELECT query FROM retrieval_feedback_approvals')
+    with request_scope(actor(),cfg):
+        with db.connect(cfg,role='reader') as conn:
+            public=json.dumps([feedback.get(conn,cfg,feedback_id=record['id']),feedback.list_feedback(conn,cfg)])
+            assert 'absent lexical selector' not in public
+
+
+@pytest.mark.parametrize('name',[
+    'test_original_confirmed_correction_is_exported_and_locally_supported',
+    'test_frozen_export_counts_withdrawn_label_as_miss_without_provider',
+    'test_complete_family_bound_withholds_instead_of_truncating',
+    'test_current_schema_correction_export_remains_read_only',
+])
+def test_existing_correction_behavior_on_owned_database(private_store,tmp_path,monkeypatch,name):
+    # Reuse the original contract tests while keeping their shared cfg/conn
+    # fixtures entirely unrequested. No agentic_rag_test database is touched.
+    import inspect
+    from tests.benchmark import test_corrections as old
+    cfg,_=private_store
+    with db.connect(cfg) as conn:
+        values=dict(conn=conn,cfg=cfg,tmp_path=tmp_path,monkeypatch=monkeypatch)
+        fn=getattr(old,name)
+        fn(**{key:values[key] for key in inspect.signature(fn).parameters})
+
+
+def test_existing_synthesis_source_version_gate_on_owned_database(private_store):
+    from test_synthesis_policy import test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_17
+    cfg,_=private_store
+    with db.connect(cfg) as conn:
+        test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_17(conn)
+
+
+def test_disabled_blocks_approval_but_retains_private_read_workflows(private_store,tmp_path):
+    from agentic_rag.benchmark import feedback as private,corrections
+    cfg,_=private_store
+    _,record=signal(private_store)
+    private.approve(cfg,feedback_id=record['id'],expected_revision=1,query='absent lexical selector')
+    disabled=replace(cfg,feedback_enabled=False)
+    with pytest.raises(ValueError,match='feedback_disabled'):
+        private.approve(disabled,feedback_id=record['id'],expected_revision=1,query='absent lexical selector')
+    assert private.summary(disabled,domain='alpha',project='/projects/a')['signals']==1
+    path=tmp_path/'retained.json'
+    assert private.export_feedback(disabled,domain='alpha',project='/projects/a',output_path=path)['exported']==1
+    assert corrections.evaluate_export(disabled,export_path=path,output_path=tmp_path/'retained-result.json')['evaluated']==1

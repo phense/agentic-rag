@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.28] - 2026-11-03
+
+- Add opt-in scoped retrieval feedback (Issue71): explicit writer capture and versioned usefulness signals over CLI, authenticated REST and MCP. Retain IDs, digests and source versions; ordinary search captures nothing. Feedback never changes knowledge, source trust or ranking.
+- Add local owner-only approval of safe query reconstruction, independent actor/source-family summaries and sealed private feedback exports. The existing private correction evaluator accepts the separate feedback format for fixed lexical, provider-free evaluation, with explicit stale and withheld counts and whole-source-family dev/test separation.
+- Add additive schema037 with bounded feedback metadata, immutable ownership, row-level policies and atomic audit/quota accounting. Upgrade from0.6.27 requires a verified backup, migration and process restart; feedback stays disabled. Code rollback retains037 and feedback records, while older schema-aware operators refuse the newer schema.
+
 ## [0.6.27] - 2026-11-03
 
 - Run macOS image decoding and local Tesseract through a separate supervisor rather than a pre-exec callback. Keep CPU, file-size, core and wall-time bounds and process-group cleanup. Account for the owned group's physical footprint and resident peaks every 10ms, reject short-lived resident peaks at exit, and fail closed if accounting is unavailable. This is a sampled physical-memory budget, not a hard allocation ceiling: transient overshoot between samples is possible. Linux retains its existing address-space limit.

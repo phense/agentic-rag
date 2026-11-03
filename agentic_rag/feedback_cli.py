@@ -37,6 +37,19 @@ def add_parser(sub):
     anchor.add_argument('--event-id')
     listing=commands.add_parser('list')
     listing.add_argument('--limit',type=int,default=20)
+    approve=commands.add_parser('approve',help='local owner: approve one current negative signal for private evaluation')
+    approve.add_argument('feedback_id')
+    approve.add_argument('--expected-revision',type=int,required=True)
+    approve.add_argument('--query',required=True)
+    for name in ('summary','export'):
+        p=commands.add_parser(name,help='local owner only; no ranking or knowledge changes')
+        p.add_argument('--domain',required=True)
+        where=p.add_mutually_exclusive_group(required=True)
+        where.add_argument('--project')
+        where.add_argument('--scope',choices=['global'])
+        p.add_argument('--limit',type=int,default=32)
+        if name=='export':p.add_argument('--output',required=True)
+
 
 
 def run(cfg,args):
@@ -44,7 +57,12 @@ def run(cfg,args):
     from .service.context import CURRENT
     name='memory_feedback_'+args.feedback_cmd
     arguments={k:v for k,v in vars(args).items() if k not in ('cmd','feedback_cmd')}
-    if cfg.service_mode=='client' and CURRENT.get() is None:
+    if args.feedback_cmd in ('approve','summary','export'):
+        from .benchmark import feedback as private
+        if 'output' in arguments:arguments['output_path']=arguments.pop('output')
+        operation='export_feedback' if args.feedback_cmd=='export' else args.feedback_cmd
+        result=getattr(private,operation)(cfg,**arguments)
+    elif cfg.service_mode=='client' and CURRENT.get() is None:
         from .service.client import RemoteClient
         with RemoteClient(cfg) as client:
             result=client.invoke(name,arguments)
