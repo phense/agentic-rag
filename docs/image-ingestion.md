@@ -8,7 +8,7 @@ status: drafted
 version: 0.6.25 (migration036); upgrade sources 0.6.17/schema029 and 0.6.23/schema035
 depends_on: [docs/13-central-service.md, docs/claim-evidence.md, docs/09-maintenance-and-backups.md]
 assets: []
-last_reviewed: unreviewed
+last_reviewed: 2026-11-03 (independent correction review; minor prose self-check)
 summary: Opt-in local OCR and interpretation of screenshots and receipts with retained originals, review, drilldown, bounded backfill, withdrawal, backup/restore and rollback.
 ---
 
@@ -30,7 +30,7 @@ summary: Opt-in local OCR and interpretation of screenshots and receipts with re
 - Readiness deadline: before enabling `[images]` on any production store.
 - Last edited: 2026-11-03.
 - Review and rehearsal evidence: [verification/image-ingestion.md](verification/image-ingestion.md).
-  This document is drafted; it is not reviewed or validated until that record says so.
+  The verification record distinguishes the accepted content review from host-specific validation.
 
 ## What the feature does
 
@@ -221,6 +221,13 @@ responses are accounted for and skipped, like local items. Unknown errors, inval
 credentials, incompatible protocol/schema, capacity errors and service failures
 interrupt at the same item. Repair these causes before repeating C3. If a skipped
 item should be retried, correct its file or authorization and use C4’s restart path.
+If all items are unauthorized or invalid, stop and check that the token is writable
+and the service authentication/policy configuration is valid. A read-only token or
+a service middleware error can look like per-item rejections. Correct the access
+configuration, repeat the dry run, then use C4’s restart path; a complete cursor
+is not proof of a successful batch. With `--vision`, OCR-detected quarantine can
+block an item once when interpretation publication is refused. Repeat C3 to
+account for the withdrawn item; keep the source quarantined and follow part D.
 
 After an engine update, inspect every changed original with `rag image show ORIGINAL_ID`.
 Compare the latest OCR text with the older text and the original (B3). A differing
@@ -293,8 +300,15 @@ re-upload of a withdrawn image is refused and never resets the withdrawal.
 Originals live inside the database, so one dump captures text, vectors and image
 bytes consistently; there is no separate image directory to copy.
 
-**Code rollback** to 0.6.24 or older keeps the new tables and every original; old
-code ignores them and keeps reading. Older operator tooling (`inventory`,
+**Code rollback** to 0.6.24 or older keeps the new tables and every original.
+Existing text reads continue, but the old code cannot inspect image assets.
+The old Python evidence token omits image derivation versions while schema036’s
+SQL token includes them: synthesis patterns depending on image claims can be
+withheld as non-current after rollback. Keep image-dependent synthesis disabled
+during the rollback window. After returning to 0.6.25, regenerate and review
+patterns created by older code before relying on them; rollback is not full
+feature compatibility.
+Older operator tooling (`inventory`,
 `upgrade`) refuses a schema newer than it knows (`unsupported_source_schema`):
 that is the rollback boundary. There is no schema downgrade after image writes;
 the alternative is restoring the part-A dump `DIR/pre-images.dump`, which loses

@@ -124,3 +124,32 @@ Untested branches and limits:
   results makes this rehearsal stale.
 - Next action: independent `playbook-review`, then the maintainer decides merge and
   any rollout.
+
+## Maintainer-approved delivery, 2026-11-03
+
+Runtime revision `cdfddab` has independent correction review C0/H0/M0, with
+Low follow-ups tracked in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6605665551).
+The full command `python -m pytest -q --tb=short -p no:cacheprovider --durations=20`
+finished with exit 1: **2693 passed, 1 failed, 1 skipped**. The failure is
+`test_large_generation_ann_and_filters_preserve_second_document`; the test
+PostgreSQL log confirms a statement timeout in managed vector retrieval.
+The same test then passed individually with the original two-second SQL budget.
+The reason for the full-run slowdown remains unconfirmed; this is an open
+retrieval-budget reliability issue, not a full-suite pass. Full log SHA256:
+`9d5c51112b5f12c820df77f5f0f47df1fe2cf291eec662a5c5cc637f3cdcd54f`.
+
+The maintainer explicitly requested merge of PR98 and upgrades on Hetzner and
+Peter's Mac after being informed of this residual failure. A redundant second
+full run was interrupted; it does not count as a pass. Further intermediate
+verification uses affected tests. No test expectation or SQL timeout was relaxed.
+
+Already verified separately: 143 affected integration tests, 17 documentation
+tests, seven Node tests, lock consistency, wheel contents (36 SQL files), an
+offline-installed wheel smoke with real Tesseract, and 38 expected CLI rehearsal
+outcomes. The two minor playbook clarifications now describe all-skipped batches
+and the image-dependent synthesis limitation of code rollback.
+
+Production deployment must preserve original-row hashes, independently restore
+its pre-upgrade backup, and check each real host. Upgrading does not re-encode
+existing text or vectors. Vision remains opt-in and is not covered by this
+delivery's real-model validation. Earlier pending-state sections are historical.
