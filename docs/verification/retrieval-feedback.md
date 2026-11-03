@@ -12,7 +12,7 @@
 ## Practical examples
 
 A fresh owned PostgreSQL database held three synthetic original-backed memories.
-The coordinator invoked the actual CLI in15 subprocesses on3ad0f2a. All15 exited0;
+The coordinator invoked the actual CLI in14 subprocesses on3ad0f2a. All14 exited0;
 whole rehearsal29.597s. Input hashes were captured before execution and unchanged
 after it. Times below include CLI startup and are not service-load measurements.
 
