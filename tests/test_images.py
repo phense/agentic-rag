@@ -24,7 +24,7 @@ from agentic_rag.config import Config  # noqa: E402
 from agentic_rag.service.auth import Principal  # noqa: E402
 from agentic_rag.service.context import request_scope  # noqa: E402
 
-from .test_image_engines import FIXTURES, HAVE_TESSERACT, RUNTIME, norm  # noqa: E402
+from test_image_engines import FIXTURES, HAVE_TESSERACT, RUNTIME, norm  # noqa: E402
 
 
 def picture(seed=0, size=(120, 60), fmt='PNG'):
@@ -127,6 +127,7 @@ def test_migration036_is_additive_insert_only_and_scope_protected(owned):
 
 
 def test_disabled_feature_and_missing_engine_make_zero_calls_and_zero_writes(owned):
+    baseline = counts(owned)
     fake = FakeOCR()
     with pytest.raises(ValueError, match='images_disabled'):
         ingest(replace(owned, image_enabled=False), picture(), ocr_engine=fake)
@@ -138,10 +139,12 @@ def test_disabled_feature_and_missing_engine_make_zero_calls_and_zero_writes(own
         ingest(owned, b'GIF89a not supported', ocr_engine=fake)
     with pytest.raises(ValueError):
         ingest(owned, picture(), domain='missing', ocr_engine=fake)
-    assert fake.calls == 0 and counts(owned) == ZERO
+    assert fake.calls == 0 and counts(owned) == baseline
 
 
 def test_publication_retains_original_and_is_machine_transcription_requiring_review(owned):
+    with db.connect(owned) as conn:
+        audit_before = conn.execute('SELECT COALESCE(max(id),0) m FROM audit_log').fetchone()['m']
     data = picture(1)
     result = ingest(owned, data, label='Kassenbon')
     original = result['original']
@@ -166,7 +169,7 @@ def test_publication_retains_original_and_is_machine_transcription_requiring_rev
         derivation = conn.execute('SELECT * FROM image_derivations').fetchone()
         assert derivation['identity'] == FakeOCR().identity()
         assert derivation['identity_hash'] == engines.identity_hash(FakeOCR().identity())
-        ops = [r['op'] for r in conn.execute('SELECT op FROM audit_log ORDER BY id')]
+        ops = [r['op'] for r in conn.execute('SELECT op FROM audit_log WHERE id>%s ORDER BY id', (audit_before,))]
         assert ops[0] == 'image_original' and ops[-1] == 'image_derivation' and 'save_claim' in ops
         # Inspectable before confirmation, through the reader role.
     with db.connect(owned, role='reader') as conn:
@@ -353,7 +356,9 @@ def principal(name='alice', machine='vm1', domain='alpha', project='/projects/a'
                      frozenset() if readonly else frozenset({project}))
 
 
-def test_service_scope_hides_foreign_originals_derivations_and_existence(owned):
+def test_service_scope_hides_foreign_originals_derivations_and_existence(owned, monkeypatch):
+    # Central saves embed immediately here; the queued-embed path needs a real credential.
+    monkeypatch.setattr(store, 'try_embed_texts', lambda texts, *a, **k: [[0.01] * 1024 for _ in texts])
     data = picture(13)
     with request_scope(principal(), owned):
         mine = ingest(owned, data)

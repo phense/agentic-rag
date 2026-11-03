@@ -148,6 +148,9 @@ def _manual(namespace):
 
 
 def _origin(row):
+    # RAG-070: a retained image original (machine-derived, role unknown).
+    if row['namespace'].startswith('image1:') or (row['namespace'].startswith('svc1:') and ':image1:' in row['namespace']):
+        return 'image_original'
     if _manual(row['namespace']):
         return 'manual_attestation'
     return {'user': 'user_source_event', 'assistant': 'assistant_statement'}.get(row['role'], 'unknown_role')
@@ -217,6 +220,13 @@ def _claim(conn, doc_id):
         FROM public.claim_records c LEFT JOIN public.claim_revisions cr ON cr.document_id=c.document_id
         WHERE c.document_id=%s""", (str(doc_id),)).fetchone()
     return row
+
+
+def _image_kinds(conn, doc_id):
+    if not conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL AS ok").fetchone()['ok']:
+        return []
+    return [r['kind'] for r in conn.execute('SELECT DISTINCT kind FROM public.image_derivations WHERE document_id=%s'
+                                            ' ORDER BY kind', (str(doc_id),))]
 
 
 def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT):
@@ -309,6 +319,12 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
             notices.append('derived_pattern')
     if fact is not None and fact['state'] != 'current':
         reasons.append('fact_' + fact['state'])
+    image_kinds = _image_kinds(conn, doc_id)
+    if image_kinds:
+        # Machine transcription and model interpretation always need explicit review.
+        notices.extend('machine_transcription' if kind == 'ocr' else 'model_interpretation' for kind in image_kinds)
+        if claim is not None and claim['review_state'] != 'confirmed' and 'no_active_support' in reasons:
+            reasons[reasons.index('no_active_support')] = 'review_required'
     if not current and not reasons:
         reasons.append('not_current')
     from .evidence import summary

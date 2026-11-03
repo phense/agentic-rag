@@ -67,7 +67,7 @@ def _audit(conn,actor,op,doc_id,text):
 
 
 def save(conn,cfg,*,title,body,domain,dtype,claim_kind,evidence,project=None,scope=None,
-         provenance=None,meta=None,edges=None,actor='cli',commit=True):
+         provenance=None,meta=None,edges=None,actor='cli',commit=True,slug=None):
     from .store import save_document
     from .scope import write_scope
     try:
@@ -84,7 +84,7 @@ def save(conn,cfg,*,title,body,domain,dtype,claim_kind,evidence,project=None,sco
         if existing:
             doc_id,slug=str(existing['id']),existing['slug']
         else:
-            result=save_document(conn,cfg,title=title,body=body,domain=domain,dtype=dtype,project=project,scope=scope,provenance=provenance,meta=meta,edges=edges,actor=actor,commit=False)
+            result=save_document(conn,cfg,title=title,body=body,domain=domain,dtype=dtype,slug=slug,project=project,scope=scope,provenance=provenance,meta=meta,edges=edges,actor=actor,commit=False)
             doc_id,slug=result.doc_id,result.slug
             conn.execute('INSERT INTO claim_records(document_id,kind,content_hash) VALUES (%s,%s,%s)',(doc_id,claim_kind,digest))
         attach(conn,doc_id,evidence,actor)
