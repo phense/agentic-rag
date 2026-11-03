@@ -104,6 +104,29 @@ def evidence_revisions_valid(conn):
     return True
 
 
+def owner_only_tables_valid(conn, tables):
+    """No nonowner ACL, inherited owner path or effective limited-role rights."""
+    control=conn.execute("""SELECT c.relname,
+            (EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
+                WHERE r.rolname IN ('rag_reader','rag_writer','rag_admin')
+                  AND pg_catalog.has_table_privilege(r.oid,c.oid,
+                    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+             OR EXISTS(SELECT 1 FROM pg_catalog.aclexplode(
+                coalesce(c.relacl,pg_catalog.acldefault('r',c.relowner))) a
+                WHERE a.grantee<>c.relowner)
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute att
+                CROSS JOIN LATERAL pg_catalog.aclexplode(att.attacl) a
+                WHERE att.attrelid=c.oid AND NOT att.attisdropped
+                  AND a.grantee<>c.relowner)
+             OR EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
+                WHERE r.oid<>c.relowner AND NOT r.rolsuper
+                  AND pg_catalog.pg_has_role(r.oid,c.relowner,'MEMBER'))) exposed
+            FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(%s)""",
+            (list(tables),)).fetchall()
+    return len(control)==len(tables) and not any(row['exposed'] for row in control)
+
+
 def validate_schema(conn):
     """Check startup and every fresh scoped connection; never auto-migrate here.
 
@@ -122,25 +145,9 @@ def validate_schema(conn):
         # an unexpected control-state authority. Known limited SQL principals
         # must have no effective rights, even through direct ownership or
         # accidental elevation. Separately configured owners/DBAs stay trusted.
-        control=conn.execute("""SELECT c.relname,
-            (EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
-                WHERE r.rolname IN ('rag_reader','rag_writer','rag_admin')
-                  AND pg_catalog.has_table_privilege(r.oid,c.oid,
-                    'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
-             OR EXISTS(SELECT 1 FROM pg_catalog.aclexplode(
-                coalesce(c.relacl,pg_catalog.acldefault('r',c.relowner))) a
-                WHERE a.grantee<>c.relowner)
-             OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute att
-                CROSS JOIN LATERAL pg_catalog.aclexplode(att.attacl) a
-                WHERE att.attrelid=c.oid AND NOT att.attisdropped
-                  AND a.grantee<>c.relowner)
-             OR EXISTS(SELECT 1 FROM pg_catalog.pg_roles r
-                WHERE r.oid<>c.relowner AND NOT r.rolsuper
-                  AND pg_catalog.pg_has_role(r.oid,c.relowner,'MEMBER'))) exposed
-            FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
-            WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY(%s)""",
-            (['dashboard_changes','dashboard_setup','dashboard_presence','request_traces','retrieval_feedback_approvals'],)).fetchall()
-        if len(control)!=5 or any(r['exposed'] for r in control):raise ServiceSchemaError()
+        if not owner_only_tables_valid(conn, ['dashboard_changes','dashboard_setup','dashboard_presence',
+                                               'request_traces','retrieval_feedback_approvals']):
+            raise ServiceSchemaError()
         rows=conn.execute("""
             SELECT c.relname,c.relrowsecurity,
               (SELECT count(*) FROM pg_catalog.pg_policy p WHERE p.polrelid=c.oid AND starts_with(p.polname,'service_')) policies,

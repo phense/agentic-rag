@@ -183,6 +183,28 @@ def _transaction(conn):
             conn.autocommit=True
 
 
+@contextmanager
+def _capture_reader(cfg):
+    # Search and all version/evidence reads must share one immutable snapshot.
+    # Only this read connection bypasses a queued TransactionGroup: CURRENT,
+    # LEASE and EXECUTION remain bound, so db.connect still applies RLS,
+    # authorization checks and both worker/request execution pins. The original
+    # writer retains atomic feedback/audit/receipt commit authority.
+    from . import db
+    from .service.queued_transaction import GROUP
+    token=GROUP.set(None)
+    try:
+        reader=db.connect(cfg,role='reader')
+    finally:
+        GROUP.reset(token)
+    try:
+        reader.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
+        yield reader
+    finally:
+        reader.rollback()
+        reader.close()
+
+
 def capture(conn,cfg,*,query,domain,project=None,scope=None,idempotency_key,k=8,
             strategy='lexical',rerank='off',context='off'):
     from .scope import write_scope
@@ -208,9 +230,10 @@ def capture(conn,cfg,*,query,domain,project=None,scope=None,idempotency_key,k=8,
             event=_event(conn,replay['id'])
             return dict(event=_public(event),results=[],warnings=['feedback_replay_metadata_only'])
         _budget(conn,owner,event=True)
-        hits,warnings=search(conn,cfg,query,domain=domain,project=project,scope=scope,k=k,strategy=strategy,
-                            rerank_mode=rerank,context_mode=context)
-        snapshots=[document_snapshot(conn,h.document_id) for h in hits]
+        with _capture_reader(cfg) as reader:
+            hits,warnings=search(reader,cfg,query,domain=domain,project=project,scope=scope,k=k,strategy=strategy,
+                                rerank_mode=rerank,context_mode=context)
+            snapshots=[document_snapshot(reader,h.document_id) for h in hits]
         runtime=dict(version=version("agentic-rag"),config_sha256=_digest([cfg.embed_model,cfg.embed_dim,cfg.rerank_model,cfg.rerank_revision,
                                                               cfg.rerank_policy,cfg.retrieval_planned_vectors]),
                      embedding=dict(state='unused' if strategy=='lexical' else 'configured_only',

@@ -42,6 +42,9 @@ def _connection(cfg,*,write=False):
         owner=conn.execute("""SELECT current_user=pg_get_userbyid(relowner) AND NOT rag_service_active() ok
             FROM pg_class WHERE oid=to_regclass('public.retrieval_feedback_approvals')""").fetchone()
         if not owner or not owner['ok']:raise ValueError('operator_local_database_owner_required')
+        from ..service.schema import owner_only_tables_valid
+        if not owner_only_tables_valid(conn,['retrieval_feedback_approvals']):
+            raise ValueError('operator_private_registry_exposed')
         yield conn
         if write:conn.commit()
         else:conn.rollback()

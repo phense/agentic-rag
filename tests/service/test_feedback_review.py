@@ -13,6 +13,7 @@ from agentic_rag.service.context import CURRENT, request_scope
 from agentic_rag.service.queued_transaction import GROUP
 from agentic_rag.service.schema import validate_schema
 from .test_scope import principal, service_store
+from .test_queue_atomicity import paused
 
 
 @pytest.fixture
@@ -185,3 +186,44 @@ def test_queued_capture_snapshot_replay_and_origin_remain_atomic(service_store, 
         assert len(requests) == 2 and all(r['state'] == 'completed' and r['arguments'] is None for r in requests)
         assert event['origin_request_id'] is not None and event['origin_request_id'] == requests[0]['origin_request_id']
         assert conn.execute("SELECT count(*) n FROM audit_log WHERE op='feedback_capture' AND summary=%s", (captured['event']['id'],)).fetchone()['n'] == 1
+
+
+@pytest.mark.parametrize('queued', [False, True])
+def test_capture_keeps_final_writer_commit_authority(service_store, tmp_path, monkeypatch, paused, queued):
+    from starlette.testclient import TestClient
+    from agentic_rag.service import requests as queue
+    from .test_api import app_fixture, headers, KEYS
+    from .test_request_queue import packet
+    cfg, _ = service_store
+    cfg = replace(cfg, feedback_enabled=True)
+    app, policy = app_fixture(tmp_path, cfg)
+    original = feedback._audit
+    seen = []
+    with db.connect(cfg) as conn:
+        usage = conn.execute('SELECT * FROM retrieval_feedback_usage ORDER BY namespace').fetchall()
+    def revoke(conn, owner, operation, identifier):
+        original(conn, owner, operation, identifier)
+        seen.append(str(identifier))
+        policy.write_text(policy.read_text().replace('[machines.vm1]', '[machines.vm1]\nenabled=false'))
+    monkeypatch.setattr(feedback, '_audit', revoke)
+    arguments = dict(query='Synthetic protected evidence', domain='alpha', project='/projects/a',
+                     idempotency_key=str(uuid.uuid4()))
+    with TestClient(app, base_url='https://testserver') as sender:
+        if queued:
+            accepted = sender.post('/v1/requests', headers=headers(KEYS[0]),
+                                   json=packet('memory_feedback_search', arguments))
+            assert accepted.status_code == 202 and accepted.json()['durable'] is True
+            receipt = accepted.json()['request_id']
+            assert queue.run_one(replace(cfg, service_auth_file=policy))
+            with db.connect(cfg) as conn:
+                result = conn.execute('SELECT state,result,arguments FROM service_requests WHERE id=%s', (receipt,)).fetchone()
+                assert result == {'state':'failed', 'result':None, 'arguments':None}
+        else:
+            response = sender.post('/v1/tools/memory_feedback_search', headers=headers(KEYS[0]), json=arguments)
+            assert response.status_code == 403 and response.json() == {'error':'authorization_changed'}
+    assert len(seen) == 1  # the real capture reached its audited commit boundary
+    with db.connect(cfg) as conn:
+        assert conn.execute('SELECT id FROM retrieval_feedback_events WHERE idempotency_key=%s',
+                            (arguments['idempotency_key'],)).fetchall() == []
+        assert conn.execute("SELECT id FROM audit_log WHERE op='feedback_capture' AND summary=%s", (seen[0],)).fetchall() == []
+        assert conn.execute('SELECT * FROM retrieval_feedback_usage ORDER BY namespace').fetchall() == usage

@@ -35,8 +35,35 @@ CREATE TABLE public.retrieval_feedback_approvals (
  expected_id uuid NOT NULL, expected_version text NOT NULL,
  families jsonb NOT NULL, approved_at timestamptz NOT NULL DEFAULT now()
 );
-REVOKE ALL ON public.retrieval_feedback_approvals FROM PUBLIC,rag_reader,rag_writer,rag_admin;
-REVOKE ALL ON public.retrieval_feedback_events,public.retrieval_feedback FROM PUBLIC,rag_admin;
+-- Namespace accounting is independent of live domain/project visibility.
+-- Otherwise revoking a scope would hide its retained rows from quota checks.
+CREATE TABLE public.retrieval_feedback_usage (
+ namespace text PRIMARY KEY, actor text NOT NULL,
+ events integer NOT NULL DEFAULT 0 CHECK(events BETWEEN 0 AND 1024),
+ signals integer NOT NULL DEFAULT 0 CHECK(signals BETWEEN 0 AND 2048),
+ bytes bigint NOT NULL DEFAULT 0 CHECK(bytes BETWEEN 0 AND 16777216),
+ recent jsonb NOT NULL DEFAULT '[]' CHECK(jsonb_typeof(recent)='array' AND jsonb_array_length(recent)<=120)
+);
+-- Existing owners may configure arbitrary default ACL grantees. Remove all
+-- nonowner grants before assigning the precise limited-role privileges below.
+REVOKE ALL ON public.retrieval_feedback_events,public.retrieval_feedback,
+ public.retrieval_feedback_usage,public.retrieval_feedback_approvals FROM PUBLIC,rag_reader,rag_writer,rag_admin;
+DO $feedback_acl$
+DECLARE grant_row record;
+BEGIN
+ FOR grant_row IN
+  SELECT c.relname,a.grantee,r.rolname FROM pg_catalog.pg_class c
+  JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+  CROSS JOIN LATERAL pg_catalog.aclexplode(coalesce(c.relacl,pg_catalog.acldefault('r',c.relowner))) a
+  LEFT JOIN pg_catalog.pg_roles r ON r.oid=a.grantee
+  WHERE n.nspname='public' AND c.relname IN ('retrieval_feedback_events','retrieval_feedback',
+   'retrieval_feedback_usage','retrieval_feedback_approvals') AND a.grantee<>c.relowner
+ LOOP
+  EXECUTE format('REVOKE ALL ON TABLE public.%I FROM %s CASCADE',grant_row.relname,
+   CASE WHEN grant_row.grantee=0 THEN 'PUBLIC' ELSE quote_ident(grant_row.rolname) END);
+ END LOOP;
+END
+$feedback_acl$;
 GRANT SELECT ON public.retrieval_feedback_events,public.retrieval_feedback TO rag_reader;
 GRANT SELECT,INSERT ON public.retrieval_feedback_events,public.retrieval_feedback TO rag_writer;
 GRANT UPDATE(kind,result_id,result_version,expected_id,expected_version,comment,state,revision,history,updated_at)
@@ -80,15 +107,6 @@ CREATE POLICY service_feedback ON public.retrieval_feedback
 CREATE POLICY service_feedback_update_guard ON public.retrieval_feedback AS RESTRICTIVE FOR UPDATE
  USING(public.rag_service_document(domain,project_scope,true));
 
--- Namespace accounting is independent of live domain/project visibility.
--- Otherwise revoking a scope would hide its retained rows from quota checks.
-CREATE TABLE public.retrieval_feedback_usage (
- namespace text PRIMARY KEY, actor text NOT NULL,
- events integer NOT NULL DEFAULT 0 CHECK(events BETWEEN 0 AND 1024),
- signals integer NOT NULL DEFAULT 0 CHECK(signals BETWEEN 0 AND 2048),
- bytes bigint NOT NULL DEFAULT 0 CHECK(bytes BETWEEN 0 AND 16777216),
- recent jsonb NOT NULL DEFAULT '[]' CHECK(jsonb_typeof(recent)='array' AND jsonb_array_length(recent)<=120)
-);
 REVOKE ALL ON public.retrieval_feedback_usage FROM PUBLIC,rag_reader,rag_writer,rag_admin;
 GRANT SELECT ON public.retrieval_feedback_usage TO rag_reader;
 GRANT SELECT,INSERT ON public.retrieval_feedback_usage TO rag_writer;
