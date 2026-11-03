@@ -1,0 +1,813 @@
+{
+ "source": "0.6.23 c33e11f seeded with archived code",
+ "port": "55460",
+ "input_hashes": {
+  "docs/image-ingestion.md": "01138e31334a2ff981c611c8e644e64bce1e0a076be85e9d52d0dc58b2b5daac",
+  "sql/036_image_ingestion.sql": "96356032103597f0784b34286a98a58cd78d15c035bd603993404c3941d60ec7",
+  "agentic_rag/images.py": "22879e56babebb6f6ca11d92daf8dc4458ac24adc61aed32bbe62c8ef35a2540",
+  "agentic_rag/image_cli.py": "068a21275e3ac8dafd1605a4285a68e7f54a8e84b74e7f4eaa8e1409e6ffb8bd",
+  "agentic_rag/image_backfill.py": "32f5cbd32f216f797b2b2ab76bcb03fc753b43ea4e4a771fae3ba79c4f8a4314",
+  "agentic_rag/evidence.py": "0714d29d38ea06a06c08e208ad385bd347d1729723237a4ba4e287e11cb030e3",
+  "agentic_rag/evidence_contract.py": "0f041fddd9f67ce364e3ce9ea15c9a417963c3c48375163fce4f64ff736750c3",
+  "scripts/rehearse_image_playbook.py": "8de685f637047630aa21823774659baf9bfda1346670ba9cd72c9958fc742aa4"
+ },
+ "head_at_finish": "1d1d64d4657c823eabc563d1814b12be53c857ca",
+ "steps": [
+  {
+   "step": "A1",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/pre.toml",
+    "inventory",
+    "--source-version",
+    "0.6.23",
+    "--output",
+    "WORK/backups/inventory.json"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.19,
+   "stdout_excerpt": "{\"inventory\": \"WORK/backups/inventory.json\", \"supported\": true}",
+   "stderr_excerpt": "",
+   "migrations_in_inventory": 35
+  },
+  {
+   "step": "A2",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/pre.toml",
+    "preflight",
+    "--source-version",
+    "0.6.23",
+    "--mode",
+    "local"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.4,
+   "stdout_excerpt": "{\"blockers\": [], \"inventory\": {\"configuration\": {\"auth_file_configured\": false, \"context_max_chars\": 9500, \"database_host\": \"127.0.0.1\", \"database_name\": \"rag_bench_421dc2f68fd24e17bd44aaf8\", \"embedding_compatible\": true, \"mode\": \"standalone\", \"provider\": \"claude\", \"provider_model\": \"haiku\", \"provider_timeout\": 300, \"spool_dir\": \"/home/administrator/.agentic-rag/spool\"}, \"format\": 1, \"grants\": [{\"grantee\": \"__OWNER__\", \"grantor\": \"__OWNER__\", \"is_grantable\": false, \"object\": \"assertion_entities\", \"privilege_type\": \"DELETE\", \"relkind\": \"r\"}, {\"grantee\": \"__OWNER__\", \"grantor\": \"__OWNER__\", \"is_",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "A4-without-confirmation",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/pre.toml",
+    "upgrade",
+    "--source-version",
+    "0.6.23",
+    "--dump",
+    "WORK/backups/refused.dump",
+    "--apply"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 1.77,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: writers_stopped_confirmation_required"
+  },
+  {
+   "step": "A4",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/pre.toml",
+    "upgrade",
+    "--source-version",
+    "0.6.23",
+    "--dump",
+    "WORK/backups/pre-images.dump",
+    "--apply",
+    "--writers-stopped"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 5.08,
+   "stdout_excerpt": "{\"applied\": true, \"dump\": \"WORK/backups/pre-images.dump\", \"manifest\": {\"configuration\": {\"auth_file_configured\": false, \"context_max_chars\": 9500, \"database_host\": \"127.0.0.1\", \"database_name\": \"rag_bench_421dc2f68fd24e17bd44aaf8\", \"embedding_compatible\": true, \"mode\": \"standalone\", \"provider\": \"claude\", \"provider_model\": \"haiku\", \"provider_timeout\": 300, \"spool_dir\": \"/home/administrator/.agentic-rag/spool\"}, \"dump_sha256\": \"043a18fc513a974e1e96c6dfee2d0fb73e78ca14e47651b4fd9c5d364fc679ec\", \"format\": 1, \"grants\": [{\"grantee\": \"__OWNER__\", ",
+   "stderr_excerpt": "",
+   "checked": {
+    "last_migration": "036_image_ingestion.sql",
+    "restore_verified": true,
+    "original_rows_unchanged": true,
+    "manifest_exists": true
+   }
+  },
+  {
+   "step": "A5",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/pre.toml",
+    "status"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.0,
+   "stdout_excerpt": "{\"database\": {\"bytes\": 11474611, \"pending\": 1, \"service_ready\": true}, \"limits\": {\"database_bytes\": 8589934592, \"minimum_free_bytes\": 2147483648, \"pending\": 1000, \"pending_per_owner\": 100, \"pending_window_bytes\": 67108864}, \"mode\": \"standalone\"}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "A6-disabled",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/empty.json",
+    "--apply",
+    "--limit",
+    "1",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 2.44,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: images_disabled"
+  },
+  {
+   "step": "A6-dry-run",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/empty.json",
+    "--dry-run"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.42,
+   "stdout_excerpt": "{\"counts\": {}, \"engine_calls\": 0, \"estimated_bytes\": 0, \"estimated_engine_items\": 0, \"identities\": {\"ocr\": \"ef6a00dd453d425afeff998b1a9a86796bb1869490ca182f209f743e052c99cf\"}, \"items\": [], \"manifest_sha256\": \"4a69a22c5c27bc3a3b12c70e0f0f72a91d945cc261648fa8c69de0af7c05427a\", \"writes\": 0}",
+   "stderr_excerpt": "",
+   "checked": {
+    "ocr_identity_len": 64
+   }
+  },
+  {
+   "step": "A6-apply",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/empty.json",
+    "--apply",
+    "--limit",
+    "1",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.67,
+   "stdout_excerpt": "{\"processed\": [], \"run\": {\"cancel_requested\": false, \"counts\": {}, \"cursor\": 0, \"format\": 1, \"manifest_sha256\": \"4a69a22c5c27bc3a3b12c70e0f0f72a91d945cc261648fa8c69de0af7c05427a\", \"state\": \"complete\", \"total\": 0, \"updated_at\": \"2026-11-03T13:36:38.235360+00:00\"}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "run_state": "complete"
+   }
+  },
+  {
+   "step": "B1",
+   "argv": [
+    "rag",
+    "image",
+    "add",
+    "REPO/tests/fixtures/images70/invoice.png",
+    "--domain",
+    "finance",
+    "--project",
+    "/projects/beta",
+    "--label",
+    "Receipt 2026-11"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 3.59,
+   "stdout_excerpt": "{\"derivations\": [{\"derivation_id\": \"ee9be006-433d-4483-b6c3-2aa6f828a8e6\", \"document_id\": \"08796fcb-c8ab-4961-8f61-bb815496df76\", \"kind\": \"ocr\", \"review_state\": \"unreviewed\", \"state\": \"published\", \"status\": \"text\", \"warnings\": []}], \"original\": {\"byte_size\": 31446, \"created\": true, \"height\": 460, \"id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"mime\": \"image/png\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"source_key\": \"ceb10419bcb7af7ca70c71001c4ff9823845f3f9a89a66c4f0da904409a7a0ea\", \"width\": 1100}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "created": true,
+    "kind": "ocr",
+    "state": "published",
+    "review_state": "unreviewed"
+   }
+  },
+  {
+   "step": "B1-repeat",
+   "argv": [
+    "rag",
+    "image",
+    "add",
+    "REPO/tests/fixtures/images70/invoice.png",
+    "--domain",
+    "finance",
+    "--project",
+    "/projects/beta",
+    "--label",
+    "Receipt 2026-11"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.98,
+   "stdout_excerpt": "{\"derivations\": [{\"derivation_id\": \"ee9be006-433d-4483-b6c3-2aa6f828a8e6\", \"document_id\": \"08796fcb-c8ab-4961-8f61-bb815496df76\", \"kind\": \"ocr\", \"review_state\": \"unreviewed\", \"state\": \"existing\", \"status\": \"text\", \"warnings\": []}], \"original\": {\"byte_size\": 31446, \"created\": false, \"height\": 460, \"id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"mime\": \"image/png\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"source_key\": \"ceb10419bcb7af7ca70c71001c4ff9823845f3f9a89a66c4f0da904409a7a0ea\", \"width\": 1100}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "created": false,
+    "state": "existing"
+   }
+  },
+  {
+   "step": "B1-rejected-non-image",
+   "argv": [
+    "rag",
+    "image",
+    "add",
+    "WORK/backups/empty.json",
+    "--domain",
+    "finance",
+    "--project",
+    "/projects/beta"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 2.89,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: unsupported_image_type"
+  },
+  {
+   "step": "B2",
+   "argv": [
+    "rag",
+    "image",
+    "show",
+    "08796fcb-c8ab-4961-8f61-bb815496df76",
+    "--limit",
+    "50"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.1,
+   "stdout_excerpt": "(omitted: full OCR text)",
+   "stderr_excerpt": "",
+   "checked": {
+    "sha256": "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+    "has_identity": true,
+    "box_RE-2026-0471": [
+     191,
+     98,
+     194,
+     20
+    ]
+   }
+  },
+  {
+   "step": "B3",
+   "argv": [
+    "rag",
+    "image",
+    "original",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--output",
+    "WORK/copy.png"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.42,
+   "stdout_excerpt": "{\"byte_size\": 31446, \"id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"mime\": \"image/png\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"written\": \"WORK/copy.png\"}",
+   "stderr_excerpt": "",
+   "checked": {
+    "sha_matches": true
+   }
+  },
+  {
+   "step": "B3-exists",
+   "argv": [
+    "rag",
+    "image",
+    "original",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--output",
+    "WORK/copy.png"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 1.52,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: output file exists; choose a new path"
+  },
+  {
+   "step": "B5-before-review",
+   "argv": [
+    "rag",
+    "search",
+    "RE-2026-0471",
+    "--strategy",
+    "lexical",
+    "--project",
+    "/projects/beta",
+    "--domain",
+    "finance"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 0.97,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "",
+   "checked": {
+    "found": false
+   }
+  },
+  {
+   "step": "B4-show",
+   "argv": [
+    "rag",
+    "evidence",
+    "show",
+    "08796fcb-c8ab-4961-8f61-bb815496df76",
+    "--json"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.5,
+   "stdout_excerpt": "(omitted)",
+   "stderr_excerpt": "",
+   "checked": {
+    "keys": [
+     "claim",
+     "contract_version",
+     "document",
+     "eligibility",
+     "lifecycle",
+     "provenance",
+     "sources",
+     "verification",
+     "version"
+    ],
+    "notices": [
+     "review_required",
+     "machine_transcription"
+    ]
+   }
+  },
+  {
+   "step": "B4",
+   "argv": [
+    "rag",
+    "evidence",
+    "review",
+    "08796fcb-c8ab-4961-8f61-bb815496df76",
+    "--state",
+    "confirmed",
+    "--reason",
+    "checked against the original",
+    "--expected-version",
+    "ev1:3f778e0fd20ca5154e9bdb8b82caa6eb7880e400fc4fc65b456d967944c401c3"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.76,
+   "stdout_excerpt": "New version: ev1:f7d29514e1a28753c9c8515e37b1a384932015da7f2871cf3e56ef7bd7d09af2",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "B5",
+   "argv": [
+    "rag",
+    "search",
+    "RE-2026-0471",
+    "--strategy",
+    "lexical",
+    "--project",
+    "/projects/beta",
+    "--domain",
+    "finance"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.47,
+   "stdout_excerpt": "0.0656  image-text-receipt-2026-11-0bad5e11355660bc [finance/source]",
+   "stderr_excerpt": "",
+   "checked": {
+    "found": true
+   }
+  },
+  {
+   "step": "C1",
+   "argv": [
+    "rag",
+    "image",
+    "references",
+    "--domain",
+    "finance",
+    "--limit",
+    "5"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.61,
+   "stdout_excerpt": "{\"candidates\": [{\"disposition\": \"reference_only_no_retained_original\", \"document_id\": \"9e4f1edd-c5f6-4e3d-bc91-2ec2a56f5fc3\", \"domain\": \"finance\", \"references\": [{\"kind\": \"path_or_name\", \"reference\": \"scans/receipt-finance.png\"}], \"slug\": \"original-receipt-archive-note-finance-scan-scans-receipt-finance-png\"}], \"note\": \"candidates are text references, not verified or retained images; nothing is fetched\", \"total\": 1, \"truncated\": false}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "C2",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--dry-run"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.88,
+   "stdout_excerpt": "{\"counts\": {\"missing\": 1, \"selected\": 1, \"unchanged\": 2}, \"engine_calls\": 0, \"estimated_bytes\": 23389, \"estimated_engine_items\": 1, \"identities\": {\"ocr\": \"ef6a00dd453d425afeff998b1a9a86796bb1869490ca182f209f743e052c99cf\"}, \"items\": [{\"disposition\": \"selected\", \"index\": 0}, {\"disposition\": \"unchanged\", \"index\": 1, \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"pending\": []}, {\"code\": \"image_file_unavailable\", \"disposition\": \"missing\", \"index\": 2}, {\"disposition\": \"unchanged\", \"index\": 3, \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"pending\": []}], \"manifest_sha256\": \"8874798",
+   "stderr_excerpt": "",
+   "checked": {
+    "dispositions": [
+     "selected",
+     "unchanged",
+     "missing",
+     "unchanged"
+    ],
+    "engine_calls": 0,
+    "writes": 0,
+    "estimated_engine_items": 1
+   }
+  },
+  {
+   "step": "C3-cancel",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--cancel",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.15,
+   "stdout_excerpt": "{\"run\": {\"cancel_requested\": true, \"counts\": {}, \"cursor\": 0, \"format\": 1, \"manifest_sha256\": \"88747982a59260b648b852028c4168488e2ec0676930468e3b586f546afe2239\", \"state\": \"new\", \"total\": null}}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "C3-after-cancel",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--apply",
+    "--limit",
+    "2",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.5,
+   "stdout_excerpt": "{\"processed\": [], \"run\": {\"cancel_requested\": true, \"counts\": {}, \"cursor\": 0, \"format\": 1, \"manifest_sha256\": \"88747982a59260b648b852028c4168488e2ec0676930468e3b586f546afe2239\", \"state\": \"canceled\", \"total\": 4, \"updated_at\": \"2026-11-03T13:37:07.599703+00:00\"}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "run_state": "canceled",
+    "processed": 0
+   }
+  },
+  {
+   "step": "C3",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--apply",
+    "--resume",
+    "--limit",
+    "2",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 4.25,
+   "stdout_excerpt": "{\"processed\": [{\"document_ids\": [\"daa61502-00c9-4073-b452-7085a0c2d83d\"], \"index\": 0, \"original_id\": \"d7582606-7eb1-4fab-96e5-f86c8495a731\", \"state\": \"published\"}, {\"document_ids\": [\"08796fcb-c8ab-4961-8f61-bb815496df76\"], \"index\": 1, \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"state\": \"existing\"}], \"run\": {\"cancel_requested\": false, \"counts\": {\"existing\": 1, \"published\": 1}, \"cursor\": 2, \"format\": 1, \"manifest_sha256\": \"88747982a59260b648b852028c4168488e2ec0676930468e3b586f546afe2239\", \"state\": \"paused\", \"total\": 4, \"updated_at\": \"2026-11-03T13:37:11.742778+00:00\"}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "run_state": "paused",
+    "cursor": 2,
+    "states": [
+     "published",
+     "existing"
+    ]
+   }
+  },
+  {
+   "step": "C4",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--apply",
+    "--limit",
+    "2",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.51,
+   "stdout_excerpt": "{\"processed\": [{\"code\": \"image_file_unavailable\", \"index\": 2, \"state\": \"missing\"}, {\"document_ids\": [\"08796fcb-c8ab-4961-8f61-bb815496df76\"], \"index\": 3, \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"state\": \"existing\"}], \"run\": {\"cancel_requested\": false, \"counts\": {\"existing\": 2, \"missing\": 1, \"published\": 1}, \"cursor\": 4, \"format\": 1, \"manifest_sha256\": \"88747982a59260b648b852028c4168488e2ec0676930468e3b586f546afe2239\", \"state\": \"complete\", \"total\": 4, \"updated_at\": \"2026-11-03T13:37:14.419375+00:00\"}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "run_state": "complete",
+    "states": [
+     "missing",
+     "existing"
+    ]
+   }
+  },
+  {
+   "step": "C4-final",
+   "argv": [
+    "rag",
+    "image",
+    "backfill",
+    "WORK/backups/manifest.json",
+    "--apply",
+    "--limit",
+    "2",
+    "--state-dir",
+    "WORK/state"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.89,
+   "stdout_excerpt": "{\"processed\": [], \"run\": {\"cancel_requested\": false, \"counts\": {\"existing\": 2, \"missing\": 1, \"published\": 1}, \"cursor\": 4, \"format\": 1, \"manifest_sha256\": \"88747982a59260b648b852028c4168488e2ec0676930468e3b586f546afe2239\", \"state\": \"complete\", \"total\": 4, \"updated_at\": \"2026-11-03T13:37:16.363665+00:00\"}}",
+   "stderr_excerpt": "",
+   "checked": {
+    "run_state": "complete",
+    "processed": []
+   }
+  },
+  {
+   "step": "E1",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/store.toml",
+    "verified-backup",
+    "--source-version",
+    "0.6.25",
+    "--output",
+    "WORK/backups/with-images.dump"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.84,
+   "stdout_excerpt": "(omitted: manifest)",
+   "stderr_excerpt": "",
+   "checked": {
+    "restore_verified": true,
+    "image_tables": [
+     "image_derivations",
+     "image_originals"
+    ]
+   }
+  },
+  {
+   "step": "E2",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/target.toml",
+    "restore-target",
+    "--dump",
+    "WORK/backups/with-images.dump",
+    "--manifest",
+    "WORK/backups/with-images.dump.manifest.json",
+    "--apply"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.6,
+   "stdout_excerpt": "{\"applied\": true, \"migrations_applied\": [], \"original_rows_unchanged\": true, \"restore_verified\": true, \"resumed\": false}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "E3",
+   "argv": [
+    "rag",
+    "image",
+    "original",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--output",
+    "WORK/restored.png"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.29,
+   "stdout_excerpt": "{\"byte_size\": 31446, \"id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"mime\": \"image/png\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"written\": \"WORK/restored.png\"}",
+   "stderr_excerpt": "",
+   "checked": {
+    "sha_matches": true
+   }
+  },
+  {
+   "step": "D1",
+   "argv": [
+    "rag",
+    "evidence",
+    "show",
+    "08796fcb-c8ab-4961-8f61-bb815496df76",
+    "--json"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.5,
+   "stdout_excerpt": "(omitted)",
+   "stderr_excerpt": "",
+   "checked": {
+    "origin": "image_original"
+   }
+  },
+  {
+   "step": "D2",
+   "argv": [
+    "rag",
+    "evidence",
+    "source-state",
+    "ceb10419bcb7af7ca70c71001c4ff9823845f3f9a89a66c4f0da904409a7a0ea",
+    "--state",
+    "removed",
+    "--reason",
+    "withdrawn by owner",
+    "--document",
+    "08796fcb-c8ab-4961-8f61-bb815496df76",
+    "--expected-version",
+    "src1:2c4365c1e5a63cef22aa1e6fcb9285d20af601899e53ab13d716fba5f5403b9c"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 0.71,
+   "stdout_excerpt": "New source version: src1:0783682ce83802e35ad4a2bc3ce7c2389e0a4a4b99c807ddca3a1b3d42358ce2",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "D3",
+   "argv": [
+    "rag",
+    "image",
+    "show",
+    "08796fcb-c8ab-4961-8f61-bb815496df76"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 2.44,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: image_unavailable"
+  },
+  {
+   "step": "D3-reupload",
+   "argv": [
+    "rag",
+    "image",
+    "add",
+    "REPO/tests/fixtures/images70/invoice.png",
+    "--domain",
+    "finance",
+    "--project",
+    "/projects/beta"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 2.08,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: image_unavailable"
+  },
+  {
+   "step": "D3-search",
+   "argv": [
+    "rag",
+    "search",
+    "RE-2026-0471",
+    "--strategy",
+    "lexical",
+    "--project",
+    "/projects/beta",
+    "--domain",
+    "finance"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.41,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "",
+   "checked": {
+    "found": false
+   }
+  },
+  {
+   "step": "D-erase-preview",
+   "argv": [
+    "rag",
+    "image",
+    "erase",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--expected-sha256",
+    "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+    "--reason",
+    "synthetic privacy rehearsal"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.44,
+   "stdout_excerpt": "{\"already_erased\": false, \"applied\": false, \"backups_require_separate_disposal\": true, \"exclusive_documents\": [\"08796fcb-c8ab-4961-8f61-bb815496df76\"], \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"shared_documents\": []}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "D-erase-apply",
+   "argv": [
+    "rag",
+    "image",
+    "erase",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--expected-sha256",
+    "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+    "--reason",
+    "synthetic privacy rehearsal",
+    "--apply"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.26,
+   "stdout_excerpt": "{\"already_erased\": false, \"applied\": true, \"backups_require_separate_disposal\": true, \"exclusive_documents\": [\"08796fcb-c8ab-4961-8f61-bb815496df76\"], \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"shared_documents\": []}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "D-erase-original-unavailable",
+   "argv": [
+    "rag",
+    "image",
+    "original",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--output",
+    "WORK/erased.png"
+   ],
+   "exit": 1,
+   "expected_exit": 1,
+   "seconds": 2.47,
+   "stdout_excerpt": "",
+   "stderr_excerpt": "error: image_unavailable"
+  },
+  {
+   "step": "D-erase-idempotent",
+   "argv": [
+    "rag",
+    "image",
+    "erase",
+    "3e8c9eb5-695e-47a0-bb7e-08468192d4a0",
+    "--expected-sha256",
+    "b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f",
+    "--reason",
+    "synthetic privacy rehearsal",
+    "--apply"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 1.84,
+   "stdout_excerpt": "{\"already_erased\": true, \"applied\": true, \"backups_require_separate_disposal\": true, \"exclusive_documents\": [], \"original_id\": \"3e8c9eb5-695e-47a0-bb7e-08468192d4a0\", \"sha256\": \"b64baa3f7f4e73499a360cb57440fc158a251926395207d7be89d97833732c0f\", \"shared_documents\": []}",
+   "stderr_excerpt": ""
+  },
+  {
+   "step": "E-source-backup-recovery",
+   "argv": [
+    "rag",
+    "service",
+    "--config",
+    "WORK/recovery.toml",
+    "restore-target",
+    "--dump",
+    "WORK/backups/pre-images.dump",
+    "--manifest",
+    "WORK/backups/pre-images.dump.manifest.json",
+    "--apply"
+   ],
+   "exit": 0,
+   "expected_exit": 0,
+   "seconds": 2.26,
+   "stdout_excerpt": "{\"applied\": true, \"migrations_applied\": [\"036_image_ingestion.sql\"], \"original_rows_unchanged\": true, \"restore_verified\": true, \"resumed\": false}",
+   "stderr_excerpt": ""
+  }
+ ]
+}

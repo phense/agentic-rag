@@ -240,3 +240,27 @@ def test_cli_erasure_previews_then_requires_apply(local, capsys):
     assert code == 0 and json.loads(out)['applied'] is True, err
     code, _, err = run(capsys, 'image', 'original', original['id'], '--output', str(tmp / 'out.png'))
     assert code == 1 and 'image_unavailable' in err
+
+
+@pytest.mark.parametrize('code,status,outcome', [
+    ('unsupported_image_type', 415, 'invalid'), ('image_dimensions_exceeded', 422, 'invalid'),
+    ('image_unavailable', 404, 'unavailable'), ('scope_denied', 403, 'unauthorized'),
+    ('invalid_request', 400, 'invalid')])
+def test_client_backfill_accounts_for_rejected_item_and_processes_next(tmp_path, monkeypatch, code, status, outcome):
+    from agentic_rag.service.client import RemoteError
+    path = manifest(tmp_path, [{'path': f'{i}.png', 'domain': 'alpha'} for i in range(2)])
+    for i in range(2): (tmp_path / f'{i}.png').write_bytes(picture(85+i))
+    class Service:
+        calls = 0
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def upload_image(self, *args, **kwargs):
+            self.calls += 1
+            if self.calls == 1: raise RemoteError(code, status)
+            return {'original': {'id': 'original'}, 'derivations': [{'state': 'published', 'document_id': 'claim'}]}
+    service = Service()
+    monkeypatch.setattr(image_backfill, '_client', lambda cfg: service)
+    result = image_backfill.apply(Config(), path, state_dir=tmp_path / 'state')
+    assert result['run']['cursor'] == 2 and result['run']['state'] == 'complete'
+    assert [r['state'] for r in result['processed']] == [outcome, 'published']
+    assert service.calls == 2

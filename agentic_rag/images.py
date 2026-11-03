@@ -378,14 +378,26 @@ def _resolve(conn, ref):
         condition = 'doc.slug=%s'
     if row is None:
         row = conn.execute(f'SELECT {_ORIGINAL_COLUMNS} FROM image_derivations d JOIN image_originals o ON o.id=d.original_id'
-                           f' JOIN documents doc ON doc.id=d.document_id WHERE {condition} ORDER BY d.created_at LIMIT 1',
+                           f' JOIN documents doc ON doc.id=d.document_id JOIN knowledge_sources ks ON ks.source_key=o.source_key'
+                           f" WHERE {condition} AND o.erased_at IS NULL AND ks.state='active'"
+                           " AND NOT EXISTS (SELECT 1 FROM image_derivations q WHERE q.original_id=o.id"
+                           " AND q.warnings @> '[\"original_quarantined\"]'::jsonb) ORDER BY d.created_at LIMIT 1",
                            (ref,)).fetchone()
     if row is None or row['erased_at'] is not None:
         raise ImageUnavailable()
     source = conn.execute('SELECT state FROM knowledge_sources WHERE source_key=%s', (row['source_key'],)).fetchone()
-    if source is None or source['state'] != 'active':
+    if source is None or source['state'] != 'active' or source_quarantined(conn, row['source_key']):
         raise ImageUnavailable()  # withdrawal disables original and region access
     return row
+
+
+def source_quarantined(conn, source_key):
+    """A persisted detection cannot be undone through normal trust transitions."""
+    if not conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL ok").fetchone()['ok']:
+        return False
+    return conn.execute("SELECT EXISTS(SELECT 1 FROM public.image_originals o JOIN public.image_derivations d"
+        " ON d.original_id=o.id WHERE o.source_key=%s AND d.warnings @> '[\"original_quarantined\"]'::jsonb) ok",
+        (source_key,)).fetchone()['ok']
 
 
 def claim_derivation_state(conn, document_id):
@@ -555,17 +567,23 @@ def erase(conn, original_id, *, expected_sha256, reason, apply=False, actor='ope
         evidence.source_state(conn, row['source_key'], state='removed', reason=reason, actor=actor, commit=False)
         # Recheck after row locks: a concurrent attachment must preserve its claim.
         conn.execute('DELETE FROM claim_evidence WHERE source_key=%s', (row['source_key'],))
-        deleted = []
-        for doc in exclusive:
+        deleted, retained = [], []
+        # Recompute *every* affected claim after locking. Another erasure may
+        # have removed the last independent support while this one was waiting.
+        for item in documents:
+            doc = str(item['document_id'])
             removed = conn.execute('DELETE FROM documents d WHERE id=%s AND NOT EXISTS('
                 'SELECT 1 FROM claim_evidence e WHERE e.document_id=d.id) RETURNING id', (doc,)).fetchone()
-            if removed: deleted.append(doc)
-        result['exclusive_documents'] = deleted
+            if removed:
+                deleted.append(doc)
+            elif conn.execute('SELECT id FROM documents WHERE id=%s', (doc,)).fetchone():
+                retained.append(doc)
+        result['exclusive_documents'], result['shared_documents'] = deleted, retained
         conn.execute("UPDATE image_derivations SET text='',regions='[]',warnings=warnings||'[\"payload_erased\"]'::jsonb"
                      ' WHERE original_id=%s', (row['id'],))
         conn.execute('UPDATE image_originals SET bytes=NULL,erased_at=now() WHERE id=%s', (row['id'],))
         _audit(conn, actor, 'image_erase', None, f'original {row["id"]}, sha256 {row["sha256"]}; '
-               f'{len(deleted)} exclusive claims erased, {len(shared)} shared claims retained; {strip_secrets(reason)[0]}')
+               f'{len(deleted)} exclusive claims erased, {len(retained)} shared claims retained; {strip_secrets(reason)[0]}')
         conn.commit()
         return result
     except BaseException:

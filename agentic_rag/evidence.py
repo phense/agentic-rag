@@ -125,6 +125,10 @@ def source_state(conn,key,*,state,reason,actor='cli',commit=True,expected_versio
             # any unwritable dependent is unavailable rather than reported stale.
             if contract.source_version(conn,key,lock=True)['version']!=expected_version:
                 raise contract.EvidenceConflict()
+        if state == 'active':
+            from .images import source_quarantined
+            if source_quarantined(conn, key):
+                raise ValueError('image_quarantined')
         _context(conn,actor,'source_state',inspected=expected_version)
         row=conn.execute('UPDATE knowledge_sources SET state=%s,reason=%s,changed_at=now() WHERE source_key=%s RETURNING source_key',
                          (state,strip_secrets(reason)[0],key)).fetchone()

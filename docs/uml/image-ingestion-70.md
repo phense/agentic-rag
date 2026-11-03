@@ -139,3 +139,17 @@ restores remain acceptance gates; this section reconciles the implemented design
 not production readiness. Upload buffering still occupies a shared gateway slot
 before authentication (R070-L3), and the engine runner still uses `preexec_fn`
 (R070-L4); these are disclosed residual risks pending a separate bounded fix.
+
+
+### Second correction reconciliation (review candidate)
+
+The canonical SQL `rag_document_version` now includes visible latest image
+readings; the Python contract delegates to it on schema036, preserving every
+non-image token. This also keeps synthesis dependency freshness consistent.
+Erasure locks affected claims and re-evaluates all support after deletion, so
+concurrent erasures cannot retain an unsupported transcription. Detected-secret
+quarantine is persisted in derivation warnings and cannot be reversed by normal
+source-state transitions; original reads enforce it independently of source trust.
+Client backfill distinguishes explicit item errors from service failures.
+The pre-OCR visibility interval, retained digests/cache and pinned-claim erasure
+limitation remain documented limits, not claims of complete privacy sanitization.

@@ -81,7 +81,10 @@ historical backfill. Mock only provider/inference where required; retain actual 
 
 ## Compatibility and recovery
 
-Upgrade adds empty structures only. Originals in PostgreSQL keep backup consistency and
+Upgrade adds empty image structures and extends the canonical invoker-rights
+`rag_document_version` only for image claims. Existing non-image ev1 tokens, function
+identity/ACL and original rows remain unchanged. Python and SQL synthesis use the
+same image-aware token; portable dump/restore preserves it. Originals in PostgreSQL keep backup consistency and
 avoid a second mutable filesystem store. Update restore inventory/schema-validation
 allowlists as needed. Verify physical original hashes and old-row hashes after independent
 restore. Use archived0.6.17 and0.6.23 fixtures on owned isolated databases; never mutate live

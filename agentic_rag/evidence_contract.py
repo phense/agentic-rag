@@ -120,15 +120,13 @@ def resolve(conn, id_or_slug):
 
 
 def document_version(conn, doc_id):
-    row = conn.execute(DOCUMENT_VERSION_SQL, (str(doc_id),)).fetchone()
-    if row is None:
+    # SQL also drives synthesis freshness. Use its exact encoding once images
+    # are installed; pre-036 stores keep the historical portable ev1 token.
+    image_schema = conn.execute("SELECT to_regclass('public.image_derivations') IS NOT NULL ok").fetchone()['ok']
+    query = 'SELECT public.rag_document_version(%s::uuid) AS version' if image_schema else DOCUMENT_VERSION_SQL
+    row = conn.execute(query, (str(doc_id),)).fetchone()
+    if row is None or row['version'] is None:
         raise EvidenceUnavailable()
-    from .images import claim_derivation_state
-    image_states = claim_derivation_state(conn, doc_id)
-    if image_states:
-        import hashlib
-        payload = json.dumps([row['version'], [dict(r) for r in image_states]], sort_keys=True, default=str)
-        return 'ev1:' + hashlib.sha256(payload.encode()).hexdigest()
     return row['version']
 
 
@@ -284,6 +282,9 @@ def inspect(conn, id_or_slug, *, source_key=None, cursor=None, limit=PAGE_LIMIT)
             'trust': {'state': row['state'], 'reason': row['reason'],
                       'reason_truncated': bool(row['reason_truncated']), 'changed_at': _time(row['changed_at'])},
         }
+        if item['origin'] == 'image_original':
+            from .images import source_quarantined
+            item['trust']['quarantined'] = source_quarantined(conn, row['source_key'])
         encoded = _encoded(item)
         if items and (used + size > QUOTE_PAGE_BYTES or item_bytes + encoded > ITEM_PAGE_BYTES):
             budget_cut = True

@@ -148,7 +148,9 @@ chosen domain/project may not see. The exact pixels are retained and backed up;
 text redaction does not alter the image. OCR cannot reliably detect every secret.
 Detected secrets automatically withdraw the image source (`original_quarantined`),
 but pixels remain in the database until an operator performs part D's erasure.
-A timed-out or unsuccessful OCR is not a privacy scan.
+The original is committed before OCR. In-scope readers can retrieve it during
+that interval and after a failed OCR. A timed-out or unsuccessful OCR is not a
+privacy scan; never rely on automatic quarantine to make a sensitive upload safe.
 
 | Step | Actor and target | Condition / action | Expected evidence | Failure / next step |
 |---|---|---|---|---|
@@ -214,6 +216,11 @@ Progress is kept in `~/.agentic-rag/state/image-backfill/<manifest-digest>.json`
 a second gets `backfill_already_running`. `counts.failed` counts failed attempts,
 not unresolved files; the final preview decides whether processing remains.
 A `complete` cursor means the manifest was visited, not that skipped files were processed.
+In client mode, explicit per-item invalid-image, withdrawn-image and denied-scope
+responses are accounted for and skipped, like local items. Unknown errors, invalid
+credentials, incompatible protocol/schema, capacity errors and service failures
+interrupt at the same item. Repair these causes before repeating C3. If a skipped
+item should be retried, correct its file or authorization and use C4’s restart path.
 
 After an engine update, inspect every changed original with `rag image show ORIGINAL_ID`.
 Compare the latest OCR text with the older text and the original (B3). A differing
@@ -234,7 +241,11 @@ such comparison before declaring that engine-update batch reconciled.
 | D3 | Writer, image | `rag image show DOCUMENT_ID` | `error: image_unavailable`; OCR and interpretation claims of this image are no longer retrieved | — |
 
 Withdrawal blocks access through agentic-rag; it does not erase the bytes from the
-database or from backups. To reinstate, repeat D1–D2 with `--state active`. A
+database or from backups. For ordinary withdrawals, repeat D1–D2 with
+`--state active` to reinstate. This does not apply when the evidence source has
+`trust.quarantined: true`: normal reinstatement is refused with `image_quarantined`
+(the central tool reports `invalid_arguments`), including for local admins. Use
+sensitive-upload recovery instead. Erased originals cannot be reinstated. A
 re-upload of a withdrawn image is refused and never resets the withdrawal.
 
 ### Sensitive upload recovery (operator on the store host)
@@ -250,10 +261,15 @@ re-upload of a withdrawn image is refused and never resets the withdrawal.
 3. Obtain authority to erase the listed payloads. Repeat step 2 with `--apply`.
    This irreversibly removes original pixels, derivation text/regions and source
    quotes, deletes claims supported exclusively by that image, and preserves
-   shared claims and other originals. A content-free source/original tombstone,
-   hashes, engine identity and the `image_erase` audit remain. Do not put secrets
+   shared claims and other originals. Metadata tombstones, original/text hashes,
+   engine identity and the `image_erase` audit remain; this is not anonymization.
+   Short known text may be checked against a retained digest. Embedding-reuse
+   cache entries can also remain and require separate retention review. Do not put secrets
    in the reason. An audit/SQL failure rolls everything back: keep the source
-   withdrawn and escalate, rather than bypass the gateway with SQL.
+   withdrawn and escalate, rather than bypass the gateway with SQL. In particular,
+   an associated pin, even an inactive one, can block claim deletion. Inspect its
+   user-owned contents with the maintainer before any separately approved change;
+   unpinning alone does not remove its database reference.
 4. Check `applied: true`, the single `image_erase` audit event, and
    `rag image original ORIGINAL_ID --output NEW_FILE` returning `image_unavailable`.
    A repeat erase reports `already_erased: true` without another audit or deletion.
@@ -261,8 +277,10 @@ re-upload of a withdrawn image is refused and never resets the withdrawal.
    under the incident's approved retention procedure. Erasure does not alter old
    dumps, PostgreSQL WAL, replicas or filesystem snapshots. A later restore of an
    older backup can restore the secret: keep it isolated, repeat the erasure before
-   cutover, and verify a new backup. Shared claim text may still contain information
-   from independent sources; review that separately rather than deleting it blindly.
+   cutover, and verify a new backup. A retained shared claim still has the same transcription, supported by the other
+   original(s). Review and, when authorized, erase every incident-related source
+   too; removing just one source does not erase shared text. Concurrent erasures
+   recheck all affected claims under locks; a lock timeout rolls the attempt back.
 
 ## Part E: Back up, restore and roll back
 

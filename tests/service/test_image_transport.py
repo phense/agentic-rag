@@ -194,6 +194,16 @@ def test_secret_image_is_quarantined_for_real_client_and_readonly_reader(central
         result = reply.json()
         assert result['derivations'][0]['state'] == 'published'
         assert 'original_quarantined' in result['derivations'][0]['warnings']
+        doc = result['derivations'][0]['document_id']
+        inspection = client.post('/v1/tools/memory_evidence', headers=headers(KEYS[0]),
+                                 json={'id_or_slug': doc})
+        assert inspection.status_code == 200, inspection.text
+        source = inspection.json()['sources']['items'][0]
+        assert source['trust']['quarantined'] is True
+        reinstate = client.post('/v1/tools/memory_source_state', headers=headers(KEYS[0]), json={
+            'source_key': source['source_key'], 'state': 'active', 'reason': 'ordinary reinstatement',
+            'id_or_slug': doc, 'expected_version': source['source_version']})
+        assert reinstate.status_code == 400 and reinstate.json() == {'error': 'invalid_arguments'}
         for key in (KEYS[0], KEYS[3]):
             denied = client.get('/v1/images/' + result['original']['id'] + '/original', headers=headers(key))
             assert denied.status_code == 404 and denied.json() == {'error': 'image_unavailable'}

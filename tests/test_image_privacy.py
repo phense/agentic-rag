@@ -39,6 +39,7 @@ def test_original_erasure_is_previewable_audited_and_keeps_other_sources(owned):
         assert conn.execute('SELECT count(*) n FROM claim_evidence WHERE source_key=%s', (key,)).fetchone()['n'] == 0
         assert conn.execute('SELECT count(*) n FROM documents WHERE id=%s', (shared_doc,)).fetchone()['n'] == 1
         assert images.original(conn, second['original']['id'])[0] == picture(73)
+        assert images.inspect(conn, shared_doc)['original']['id'] == second['original']['id']
         row = conn.execute('SELECT text,regions,warnings FROM image_derivations WHERE original_id=%s', (original,)).fetchone()
         assert row['text'] == '' and row['regions'] == [] and 'payload_erased' in row['warnings']
         assert conn.execute("SELECT count(*) n FROM audit_log WHERE op='image_erase'").fetchone()['n'] == 1
@@ -92,3 +93,66 @@ def test_region_redaction_does_not_use_substring_membership():
     text, regions, _ = images._sanitize('password: Sommer2026x\nReferenz Sommer2026xy',
         [{'text': 'Sommer2026x', 'box': [0, 0, 1, 1]}])
     assert regions[0]['text'] == '[REDACTED]'
+
+
+def test_quarantined_image_cannot_be_reactivated_by_normal_source_state(owned):
+    from agentic_rag import evidence
+    result = ingest(owned, picture(81), ocr_engine=FakeOCR(text='password: Sommer2026x'))
+    for role in ('writer', 'admin'):
+        with db.connect(owned, role=role) as conn:
+            with pytest.raises(ValueError, match='image_quarantined'):
+                evidence.source_state(conn, result['original']['source_key'], state='active', reason='reinstate')
+    with db.connect(owned, role='reader') as conn:
+        with pytest.raises(images.ImageUnavailable): images.original(conn, result['original']['id'])
+
+
+def test_image_review_tokens_equal_sql_and_change_after_new_reading(owned):
+    from agentic_rag import evidence_contract
+    fake = FakeOCR(text='First reading')
+    result = ingest(owned, picture(82), ocr_engine=fake)
+    doc = result['derivations'][0]['document_id']
+    with db.connect(owned, role='writer') as conn:
+        before = evidence_contract.document_version(conn, doc)
+        assert before == conn.execute('SELECT rag_document_version(%s) v', (doc,)).fetchone()['v']
+        fake.version, fake.text = 'fake-2', 'Different reading'
+        images.reprocess(conn, owned, result['original']['id'], ocr_engine=fake)
+        after = evidence_contract.document_version(conn, doc)
+        assert after != before
+        assert after == conn.execute('SELECT rag_document_version(%s) v', (doc,)).fetchone()['v']
+
+
+def test_concurrent_erasure_of_both_shared_sources_removes_unsupported_claim(owned):
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+    first, second = ingest(owned, picture(83)), ingest(owned, picture(84))
+    doc = first['derivations'][0]['document_id']
+    barrier = threading.Barrier(2)
+    class ConcurrentConnection:
+        def __init__(self, conn): self.conn = conn
+        def __getattr__(self, name): return getattr(self.conn, name)
+        def execute(self, query, *args, **kwargs):
+            # Both erasures have read their dependency set before either locks it.
+            if query.startswith('SELECT document_id FROM claim_records'):
+                barrier.wait(timeout=5)
+            return self.conn.execute(query, *args, **kwargs)
+    def erase(item):
+        original = item['original']
+        with db.connect(owned, role='admin') as conn:
+            return images.erase(ConcurrentConnection(conn), original['id'], expected_sha256=original['sha256'],
+                                reason='concurrent synthetic incident', apply=True)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(erase, [first, second]))
+    assert all(r['applied'] for r in results)
+    with db.connect(owned) as conn:
+        assert not conn.execute('SELECT id FROM documents WHERE id=%s', (doc,)).fetchone()
+        assert conn.execute('SELECT count(*) n FROM chunks WHERE document_id=%s', (doc,)).fetchone()['n'] == 0
+        assert conn.execute('SELECT count(*) n FROM image_originals WHERE erased_at IS NOT NULL').fetchone()['n'] == 2
+
+
+def test_nonimage_document_version_remains_byte_identical_after_image_migration(owned):
+    from agentic_rag import evidence_contract, store
+    with db.connect(owned, role='writer') as conn:
+        saved = store.save_document(conn, owned, title='Plain note', body='Preserved text', domain='alpha', dtype='memory')
+        legacy = conn.execute(evidence_contract.DOCUMENT_VERSION_SQL, (saved.doc_id,)).fetchone()['version']
+        assert evidence_contract.document_version(conn, saved.doc_id) == legacy
+        assert conn.execute('SELECT rag_document_version(%s) v', (saved.doc_id,)).fetchone()['v'] == legacy

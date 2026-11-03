@@ -2,11 +2,15 @@
 
 ## Current correction status (2026-11-03)
 
-The original independent review found R070-M1/M2/M3 and four Important playbook
-items. The correction candidate retains failed cursors, discloses differing
-readings with changed review tokens, quarantines detected-secret originals, and
-adds previewable operator erasure. Its independent delta review and final full
-suite remain pending. No production rollout or Mac validation is claimed.
+The first correction review on `1d1d64d` found four Medium follow-up defects
+(client item classification, SQL/Python token divergence, concurrent shared-claim
+erasure and reversible quarantine). All four were reproduced by eight regression
+failures before their fixes. The second correction uses canonical SQL image tokens,
+rechecks every affected claim under locks, rejects normal quarantine reinstatement,
+and classifies only explicit per-item remote errors. The fresh affected run passed
+143 tests with one existing warning, covering HTTP/MCP, synthesis and both populated
+upgrade/independent-restore paths. A new independent delta review and a final full
+suite are still required. No production rollout or Mac validation is claimed.
 
 Fresh correction verification on owned PostgreSQL port 55460:
 
@@ -18,7 +22,7 @@ Fresh correction verification on owned PostgreSQL port 55460:
 - Evidence/research/browser integration: 123 passed, one existing warning.
 - Current CLI rehearsal: 38 commands at expected exits, including erasure preview,
   apply, unavailable original, idempotent repeat and recovery from `pre-images.dump`.
-  Record: `docs/benchmarks/2026-11-03-image-ingestion/correction-rehearsal.json`;
+  Record: `docs/benchmarks/2026-11-03-image-ingestion/second-correction-rehearsal.json`;
   its input hashes identify the exact code and playbook used before commit.
 
 The historical rehearsal below applies only to the stated earlier artifact hash;

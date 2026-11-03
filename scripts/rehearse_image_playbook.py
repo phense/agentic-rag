@@ -187,7 +187,9 @@ with isolated_database(base, initialize=False) as cfg, isolated_database(base, i
 OUT.write_text(json.dumps({'source': '0.6.23 c33e11f seeded with archived code', 'port': os.environ.get('PGPORT'),
                            'input_hashes': {str(p.relative_to(WT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in
                                [WT / 'docs/image-ingestion.md', WT / 'sql/036_image_ingestion.sql',
-                                WT / 'agentic_rag/images.py', WT / 'agentic_rag/image_cli.py', Path(__file__)]},
+                                WT / 'agentic_rag/images.py', WT / 'agentic_rag/image_cli.py',
+                                WT / 'agentic_rag/image_backfill.py', WT / 'agentic_rag/evidence.py',
+                                WT / 'agentic_rag/evidence_contract.py', Path(__file__)]},
                            'head_at_finish': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=WT, text=True).strip(),
                            'steps': log}, indent=1, ensure_ascii=False))
 print('ok', len(log))

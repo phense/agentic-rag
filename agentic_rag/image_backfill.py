@@ -15,6 +15,7 @@ or concurrent cursor is safe because publication is idempotent in PostgreSQL.
 """
 from __future__ import annotations
 
+
 from collections import Counter
 import contextlib
 from dataclasses import dataclass
@@ -223,6 +224,7 @@ def _summary(result):
 
 
 def _process(cfg, conn, client, item, vision):
+    from .service.client import RemoteError
     try:
         if item.original is not None:
             if client is not None:
@@ -246,8 +248,24 @@ def _process(cfg, conn, client, item, vision):
             raise
         return {'state': 'unauthorized' if str(error).startswith('unknown domain') else 'invalid',
                 'code': 'unknown_domain' if str(error).startswith('unknown domain') else 'invalid_item'}
-    # Transport/service errors are never evidence of a bad manifest item.
-    # Let apply persist an interrupted cursor at this exact item and propagate.
+    except RemoteError as error:
+        # Only this endpoint's explicit item errors may consume a cursor. Unknown
+        # codes, auth/protocol/schema failures and transient service errors retry.
+        item_errors = {
+            ('unsupported_image_type', 415): 'invalid',
+            ('request_too_large', 413): 'invalid',
+            ('malformed_image', 422): 'invalid',
+            ('image_dimensions_exceeded', 422): 'invalid',
+            ('animated_image', 422): 'invalid',
+            ('decode_failed', 422): 'invalid',
+            ('image_unavailable', 404): 'unavailable',
+            ('scope_denied', 403): 'unauthorized',
+            ('invalid_request', 400): 'invalid',
+        }
+        outcome = item_errors.get((error.code, error.status))
+        if outcome is None:
+            raise
+        return {'state': outcome, 'code': error.code}
 
 
 def apply(cfg, manifest_path, *, limit=10, state_dir=None, should_stop=None, resume=False, restart=False,

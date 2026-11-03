@@ -1,6 +1,7 @@
 -- RAG-070: retained image originals and versioned local derivations.
--- Additive only: empty tables, grants and policies. No existing row, policy,
--- function, grant or vector is changed; upgrading performs no image processing.
+-- Empty image tables, grants and policies; extend the portable document-version
+-- function only for image claims. No existing row/vector/token is changed and
+-- upgrading performs no image processing.
 --
 -- An original carries an immutable copy of its authorized write scope so its
 -- policy can apply the migration035 document predicate to its own columns.
@@ -69,3 +70,41 @@ CREATE POLICY service_image_derivations ON public.image_derivations
  WITH CHECK (NOT public.rag_service_active() OR EXISTS (
    SELECT 1 FROM public.image_originals o WHERE o.id = original_id
      AND public.rag_service_document(o.domain, o.project_scope, true)));
+
+
+-- Canonical ev1 mirror for both Python review and SQL synthesis freshness.
+-- Preserve all non-image tokens byte-for-byte. Invoker rights and ACL remain.
+CREATE OR REPLACE FUNCTION public.rag_document_version(p_id uuid) RETURNS text
+LANGUAGE sql STABLE AS $$
+WITH base AS (
+SELECT 'ev1:'||encode(sha256(convert_to(jsonb_build_array(
+    d.id::text,d.domain,d.project_scope,d.status,extract(epoch FROM d.refuted_at),
+    c.kind,c.review_state,c.content_hash,COALESCE(cr.revision,1),
+    (SELECT COALESCE(jsonb_agg(jsonb_build_array(e.source_key,e.span_hash,
+            encode(sha256(convert_to(e.quote,'UTF8')),'hex'),e.complete,e.reviewed,
+            s.state,s.role,extract(epoch FROM s.source_at),COALESCE(sr.revision,1))
+            ORDER BY e.source_key,e.span_hash),'[]'::jsonb)
+       FROM public.claim_evidence e JOIN public.knowledge_sources s USING(source_key)
+       LEFT JOIN public.source_revisions sr USING(source_key) WHERE e.document_id=d.id),
+    (SELECT jsonb_build_array(a.disposition,extract(epoch FROM a.event_at),extract(epoch FROM a.expires_at),a.relation)
+       FROM public.fact_assertions a WHERE a.document_id=d.id)
+  )::text,'UTF8')),'hex') AS version
+  FROM public.documents d LEFT JOIN public.claim_records c ON c.document_id=d.id
+  LEFT JOIN public.claim_revisions cr ON cr.document_id=d.id WHERE d.id=p_id
+), image_states AS (
+    SELECT DISTINCT d.original_id,d.kind,n.id,n.identity_hash,n.text_sha256,
+           d.text_sha256<>n.text_sha256 newer_differs
+    FROM public.image_derivations d
+    CROSS JOIN LATERAL (
+        SELECT latest.id,latest.identity_hash,latest.text_sha256
+        FROM public.image_derivations latest
+        WHERE latest.original_id=d.original_id AND latest.kind=d.kind
+        ORDER BY latest.created_at DESC,latest.id DESC LIMIT 1
+    ) n WHERE d.document_id=p_id
+)
+SELECT CASE WHEN EXISTS (SELECT 1 FROM image_states)
+    THEN 'ev1:'||encode(sha256(convert_to(jsonb_build_array(base.version,
+        (SELECT jsonb_agg(jsonb_build_array(original_id,kind,id,identity_hash,text_sha256,newer_differs)
+            ORDER BY original_id,kind,id) FROM image_states))::text,'UTF8')),'hex')
+    ELSE base.version END FROM base
+$$;
