@@ -52,27 +52,27 @@
   },
   "evidence_sha256": {
     "agent-reports/s071-2.json": "63d1a86a279b0847fef93b9739e6e863f3916401453f761aec46b4943ab38aac",
-    "playbook/rehearsal-inputs.json": "dde412aed1843409e8da61d010b2d00c00a6967eecf20893d46174ddc64ccca7",
-    "playbook/rehearsal-terminal.json": "939dd98fe6415e2ed485326f030033865a5056fdb1b0bc16f3d2e34a4aa5e3cb",
-    "playbook/rehearsal.log": "a477bcde1c841aba8a9d3cc21cbdd152fd7735862d0213e373f7fc4b38bc54eb"
+    "playbook/rehearsal-inputs.json": "e47f8ac0c45e3e2b409d000ba037f1a7561967e0e1f2f3d00b4c289642bbeb0e",
+    "playbook/rehearsal-terminal.json": "762239648e807998287ca3a35f507084b7787e3e0998d89ccf08faaa35717cd5",
+    "playbook/rehearsal.log": "da6241fd3c8c39980cbe6a6184d29243bc8efe688bf3072703a24ceb8aa5514f"
   },
   "examples": {
     "missing_evidence": {
       "event_results": 0,
       "expected_in_original_results": false,
-      "seconds": 4.47,
+      "seconds": 6.151,
       "signal_revision": 1
     },
     "useful_retraction": {
       "event_count": 1,
       "revision": 3,
-      "seconds": 10.325,
+      "seconds": 10.271,
       "signal_count": 1
     },
     "wrong_source": {
       "event_results": 1,
       "expected_in_original_results": false,
-      "seconds": 6.711,
+      "seconds": 6.751,
       "signal_revision": 1
     }
   },
@@ -89,7 +89,7 @@
   "limits": [
     "The two CLI negative cases both fall in dev; separate six-case integration covers three dev and three test families.",
     "No provider/model or production workload, automatic training/ranking or measured retrieval improvement.",
-    "Independent complete review, full suite and production rollout still pending at publication."
+    "Whole review found ACL and snapshot defects, corrected in9d31fe9; focused correction review, full suite and production rollout remain pending."
   ],
   "owned_database_removed": true,
   "private_modes": {
@@ -104,8 +104,9 @@
     "CLI subprocesses",
     "private export/evaluator"
   ],
-  "rehearsal_seconds": 29.597,
-  "revision": "3ad0f2aa1234ad456bf5b4526277607315dbd478",
+  "rehearsal_commands": 14,
+  "rehearsal_seconds": 31.405,
+  "revision": "9d31fe96e828a44fc4818dfa6a24c009b82c511b",
   "runtime": "0.6.28",
   "schema": 37,
   "synthetic_embeddings": true,

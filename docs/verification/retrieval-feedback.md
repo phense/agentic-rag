@@ -12,15 +12,15 @@
 ## Practical examples
 
 A fresh owned PostgreSQL database held three synthetic original-backed memories.
-The coordinator invoked the actual CLI in14 subprocesses on3ad0f2a. All14 exited0;
-whole rehearsal29.597s. Input hashes were captured before execution and unchanged
+The coordinator invoked the actual CLI in14 subprocesses on9d31fe9. All14 exited0;
+whole rehearsal31.405s. Input hashes were captured before execution and unchanged
 after it. Times below include CLI startup and are not service-load measurements.
 
 | Example | Before | Observed result | Wall time |
 |---|---|---|---:|
-| Useful result, lost-response replay, edit and retract | No event or signal | One event and one signal; repeated submission has the same ID; revisions1→2→3 end retracted | 10.325s |
-| Wrong source | One returned memory, expected memory absent | One explicit negative signal approved; private evaluation reproduces the miss | 6.711s to approve |
-| Missing evidence | No search results | Expected source remains eligible, explicit negative signal approved; private evaluation reproduces the miss | 4.470s to approve |
+| Useful result, lost-response replay, edit and retract | No event or signal | One event and one signal; repeated submission has the same ID; revisions1→2→3 end retracted | 10.271s |
+| Wrong source | One returned memory, expected memory absent | One explicit negative signal approved; private evaluation reproduces the miss | 6.751s to approve |
+| Missing evidence | No search results | Expected source remains eligible, explicit negative signal approved; private evaluation reproduces the miss | 6.151s to approve |
 
 Export selected3 negative records, exported2 and withheld1 retracted record.
 Evaluation counted2 baseline misses and2 reproduced current misses; stale0,
@@ -72,6 +72,13 @@ Release checks pass: consistent028 project/lock/badge/changelog, offline lock
 validation,17 documentation tests,7 Node tests and wheel build. All37 SQL files
 and three new feedback modules in the wheel match source bytes.
 
-Independent whole-feature code/playbook review and the single pre-PR full suite
-remain pending. Runtime delivery and production
+The complete independent review found one High (default ACL exposure), two
+Medium (capture snapshot race and five release expectations) and one Low
+(published command count). Correction9d31fe9 scrubs all nonowner default grants
+on the four new tables, refuses unexpected approval-registry access and binds
+retrieval plus all version reads to one scoped repeatable-read snapshot. The
+original writer transaction retains feedback/audit/receipt commit authority.
+The old schema validator predicate is shared, with no changed policy or role.
+The command count is corrected to14. Focused independent correction review and
+the single pre-PR full suite remain pending. Runtime delivery and production
 feedback enablement are separate; neither has occurred for0.6.28.

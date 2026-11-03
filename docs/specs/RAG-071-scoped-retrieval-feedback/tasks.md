@@ -49,7 +49,7 @@ byte-identical. Complete independent review remains T071-010.
 
 ### Slice S071-3: Operations, release and independent acceptance
 
-- [ ] T071-008: PB07101 `docs/retrieval-feedback.md` with opt-in, local/remote
+- [x] T071-008: PB07101 `docs/retrieval-feedback.md` with opt-in, local/remote
   capture/update/retract, operator approval/private export/evaluate, caps,
   changed/withdrawn sources and executable upgrade/recovery. Use authoring/review
   skills; record a real command rehearsal and two or three measured examples.
@@ -69,6 +69,6 @@ byte-identical. Complete independent review remains T071-010.
 S071-2 integration evidence: `8b753e4` tests first, `3ad0f2a` implementation;
 33 targeted tests passed in62.57s, exit0,388 inputs unchanged. Archived027
 interruption/retry and independent source/target restore preserve75 original
-rows in50 tables, ACLs/owners/sequences and vectors/pins/pending work. The actual
-CLI rehearsal passes14 commands in29.597s. Final independent review and delivery
+rows in50 tables, ACLs/owners/sequences and vectors/pins/pending work. The final
+CLI rehearsal on9d31fe9 passes14 commands in31.405s. Final independent review and delivery
 remain in S071-3.

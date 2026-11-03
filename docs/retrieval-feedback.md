@@ -8,7 +8,7 @@ status: drafted
 version: 0.6.28
 depends_on: [central-service, private-confirmed-corrections]
 assets: []
-last_reviewed: unreviewed
+last_reviewed: 2026-11-03 (independent whole-content review; correction recheck pending)
 summary: Capture an explicit search, revise its usefulness signal and privately evaluate an operator-approved failure.
 ---
 
@@ -36,6 +36,13 @@ button or automatic training. Capture and mutation are off by default. Existing
 feedback remains inspectable after disabling the feature, subject to current access.
 New operator approvals also require enablement; retained current approvals can
 still be exported and evaluated while capture is disabled.
+
+Local private operations refuse an unexpectedly exposed approval registry
+(`operator_private_registry_exposed`). Stop approval/export/evaluation and leave
+feedback disabled until the database owner restores the installation's approved
+owner-only access. Do not grant broader access to work around this refusal; keep
+existing private exports protected. The migration strips unexpected default
+grants from new feedback tables without changing existing table privileges.
 
 ## Terms
 

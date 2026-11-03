@@ -44,7 +44,8 @@ sequenceDiagram
   alt matching idempotent replay
     D-->>C: existing event/signal
   else new or current revision
-    G->>D: validate current document/source versions
+    G->>D: scoped read-only repeatable-read search and versions
+    Note over G,D: Separate reader; writer retains audit/receipt commit
     G->>D: event or signal/history plus audit
     G->>D: commit with current credential authority
     D-->>C: record/revision
@@ -114,3 +115,25 @@ source/target restore. The whole source-family split is tested with copied spans
 six approved negative cases cover both dev/test. No evaluation profile is tuned.
 AF071-001–006 are implemented with this evidence; independent acceptance and
 final full verification remain pending. See the linked verification record.
+
+### First independent-review correction
+
+Correction9d31fe9 preserves the writer transaction and opens one separately
+scoped, read-only repeatable-read connection for retrieval and every retained
+document/source version. Queued grouping is bypassed only for reader creation;
+current principal, lease, execution pins and final writer authority checks remain.
+A concurrent audited text update now leaves the returned original content bound
+to its original version; a later read marks it stale. This is limited to explicit
+feedback capture and does not change ordinary search isolation.
+
+Migration037 strips every nonowner default grant from its four new tables before
+assigning the intended privileges. Local private operations share the existing
+service owner-only ACL validation, including column rights and owner membership,
+and refuse a later exposure. Historical table ACLs and migrations001–036 remain
+unchanged. Actual queued capture/replay preserves one audit and durable origins;
+revocation at the audited boundary rolls back event, audit and usage while the
+accepted queue receipt becomes failed without a result.
+
+The fresh14-command CLI rehearsal on9d31fe9 passes in31.405s with all50 original
+public tables unchanged. Independent correction acceptance and full verification
+are still pending. The earlier S1/S2 figures above remain historical evidence.
