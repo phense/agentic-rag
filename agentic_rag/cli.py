@@ -66,6 +66,8 @@ def _main(argv: list[str] | None = None) -> int:
     add_extraction_parser(sub)
     from .image_cli import add_parser as add_image_parser
     add_image_parser(sub)
+    from .feedback_cli import add_parser as add_feedback_parser
+    add_feedback_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -409,6 +411,10 @@ def _main(argv: list[str] | None = None) -> int:
     if args.cmd == 'extraction':
         from .extraction_cli import run
         return run(args, cfg)
+
+    if args.cmd == 'feedback':
+        from .feedback_cli import run
+        return run(cfg,args)
 
     if args.cmd == 'image':
         from .image_cli import run

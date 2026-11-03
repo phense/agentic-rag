@@ -50,5 +50,10 @@ coordinator after delivery and is not claimed by these tasks.
 - [x] T070-011: PB07001 `docs/image-ingestion.md` via documentation and playbook
   skills; release 0.6.25 metadata, supported-version labels and future-refusal tests;
   README/CHANGELOG/FEATURES. Depends: T070-008/009.
-- [ ] T070-012: As-built reconciliation of UML/findings, affected and full test
+- [x] T070-012: As-built reconciliation of UML/findings, affected and full test
   suites, lock/wheel checks, implementation report. Depends: all above.
+  Completed through0.6.27: independent reviews C0/H0/M0, focused image/release
+  checks, native Mac11/11, actual-source restore proofs and three real vision
+  cases. Historical full suite2693/1/1 is retained without a pass claim; delivery
+  was explicitly approved with this residual and later focused fixture checks.
+  See `docs/verification/image-ingestion.md` for exact scope and limits.

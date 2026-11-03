@@ -487,7 +487,11 @@ def evaluate_export(cfg, *, export_path, output_path):
     source_path = _private_path(export_path,existing=True)
     _private_path(output_path)
     try:
-        payload = _validate_export(json.loads(source_path.read_bytes()))
+        original = json.loads(source_path.read_bytes())
+        if isinstance(original,dict) and original.get('kind')=='private-retrieval-feedback':
+            from .feedback import evaluate_export as evaluate_feedback
+            return evaluate_feedback(cfg,export_path=source_path,output_path=output_path)
+        payload = _validate_export(original)
     except (json.JSONDecodeError, UnicodeError, TypeError, KeyError):
         raise ValueError('invalid private correction artifact') from None
     candidate_path=Path(output_path).with_name(Path(output_path).name+'.candidate.json')

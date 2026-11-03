@@ -35,6 +35,7 @@ _SECTION_PREFIX = {
     "synthesis": "synthesis",
     "retrieval": "retrieval",
     "images": "image",
+    "feedback": "feedback",
 }
 
 
@@ -130,6 +131,8 @@ class Config:
     synthesis_max_input_chars: int = 12000
     synthesis_max_output_tokens: int = 1024
     synthesis_max_runs_per_tick: int = 2
+    # RAG-071 capture/mutations are opt-in; retained inspection stays available.
+    feedback_enabled: bool = False
     # RAG-070 opt-in local image ingestion; nothing runs unless enabled.
     image_enabled: bool = False
     image_ocr_command: str = ""          # explicit Tesseract binary path
@@ -151,6 +154,8 @@ class Config:
     image_vision_max_output_tokens: int = 512
 
     def __post_init__(self) -> None:
+        if type(self.feedback_enabled) is not bool:
+            raise ValueError('feedback enabled must be boolean')
         if type(self.retrieval_planned_vectors) is not bool:
             raise ValueError('retrieval planned_vectors must be boolean')
         if self.rerank_policy not in ('legacy-v1', 'focused-v1'):

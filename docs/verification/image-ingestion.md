@@ -1,5 +1,51 @@
 # PB07001: Review and rehearsal evidence
 
+## Completion on both production hosts (0.6.27)
+
+The evidence below is historical unless superseded here. PR98 introduced the
+feature, PR101 corrected the bulk-ANN test fixture, and PR102 fixed bounded OCR
+execution on macOS. The final merged runtime is `289b8bc` (0.6.27). Independent
+reviews accepted the image corrections and the macOS fix with C0/H0/M0; remaining
+Low findings stay in [Issue75](https://github.com/phense/agentic-rag/issues/75).
+
+Both production hosts now run 0.6.27 with Deutsch/English Tesseract OCR enabled
+and optional vision disabled. Fresh backups of all three stores were independently
+restored; original rows, ACLs, owners and sequences were preserved. The stores
+contained 24,428 and 24,505 documents on Hetzner and 14,845 on Peter's Mac.
+All API health checks returned 200; scoped retrieval and foreign-scope denial
+passed. The dashboard principal sees zero documents by policy, so no nonempty
+dashboard retrieval is claimed. No existing text or vector was re-encoded and
+no production image was ingested. See the [rollout record](../benchmarks/2026-11-03-image-ingestion/production027.json)
+and [macOS resource evidence](macos-bounded-ocr.json).
+
+Three inspected examples establish the delivered boundary:
+
+- A synthetic German invoice retains all five required identifiers/amounts in
+  real OCR. Native Mac OCR, exact original download, strict review and lexical
+  retrieval passed. Before confirmation the transcription is ineligible.
+- On Peter's Mac, `qwen3-vl:2b-instruct` correctly described a blue circle on the
+  left and a green square on the right. End-to-end ingestion took 4.853 seconds.
+- The same model quoted an embedded instruction as document content. Its output
+  remained an unreviewed inference; it introduced two spelling errors that the
+  real OCR avoided. Invoice and instruction-image ingestion took 4.590 and
+  4.253 seconds. This supports OCR-first use, not unrestricted transcription
+  accuracy or automatic confirmation.
+
+The [real-model record](../benchmarks/2026-11-03-image-ingestion/mac-real-vision.json)
+pins Ollama 0.31.1, the model digest and all synthetic input hashes. It used an
+owned daemon/database, real OCR and vision, fixed synthetic embeddings and
+internal scoped test principals. Original bytes, SQL/Python review versions and
+foreign denial passed for all three images. This was not a fresh central-HTTP
+or vector-retrieval evaluation. Two setup failures are retained in the record.
+The daemon and disposable databases were removed; 1,930,569,651 bytes of test
+model files were deleted. Production vision was never enabled.
+
+The historical full suite remains **2693 passed, 1 failed, 1 skipped**. The
+managed-ANN failure was addressed by the independently reviewed fixture-statistics
+correction, with its complete module passing at the original SQL budget. The
+maintainer approved delivery with focused checks and requested sparse full runs;
+no new full-suite pass or universal vision-quality claim is inferred.
+
 ## Current correction status (2026-11-03)
 
 The first correction review on `1d1d64d` found four Medium follow-up defects

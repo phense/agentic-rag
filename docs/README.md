@@ -50,6 +50,7 @@ synthetic implementation evidence from real-model and production readiness.
 - [Incremental ingestion](incremental-ingestion.md) — exact local embedding reuse and bounded ordered preprocessing.
 - [Confirmed-failure evaluation](failure-evaluation.md) — sealed public profiles, private local correction evaluation and explicit public mining measurements.
 - [Source-backed images](image-ingestion.md) — opt-in local OCR and interpretation with retained originals, review, backfill, withdrawal, backup/restore and rollback (PB07001).
+- [Scoped retrieval feedback](retrieval-feedback.md) — explicit capture and revision of usefulness signals, local approval and private offline evaluation (PB07101).
 - [Bounded research](bounded-research.md) — compound questions, exact source quotations, disagreement, abstention, budgets and code-only rollback.
 - [03 · Quick start](03-quick-start.md) — prerequisites, the Claude six-hook install and the Codex target, check/trust/verify/rollback for both, and your first save/search.
 - [04 · Working with your memory](04-working-with-memory.md) — save / get / search / pin, domains, and the MCP tools inside a Claude session.

@@ -43,7 +43,11 @@ def call(client, key, name, **arguments):
 def test_registration_keeps_privilege_split_and_old_signatures():
     ro, rw = set(mcp_server.tool_names(True)), set(mcp_server.tool_names(False))
     assert READ <= ro and not (WRITE & ro) and WRITE <= rw
-    assert len(rw) - len(ro) == 13
+    assert len(rw) - len(ro) == 17
+    feedback_read = {'memory_feedback_get', 'memory_feedback_list'}
+    feedback_write = {'memory_feedback_search', 'memory_feedback_submit',
+                      'memory_feedback_update', 'memory_feedback_retract'}
+    assert feedback_read <= ro and feedback_write <= rw and not (feedback_write & ro)
     # Unset view is omitted on the wire; older services keep accepting the call.
     for name in ('memory_search', 'memory_research', 'memory_get', 'memory_neighbors', 'memory_path'):
         assert 'view' in mcp_server.ADDITIVE_ARGUMENTS[name]
