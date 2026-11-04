@@ -62,6 +62,33 @@ def test_missing_inference_is_not_silently_removed_or_called_zero():
     assert r['observations'][1]['metrics'] is None
 
 
+def test_group_denominators_include_missing_and_unsupported_queries():
+    m=api()
+    r=m.evaluate(fixture(),{'a':[1,0],'b':[0,1],'c':[.6,.8]},{'q1':[1,0]},2)
+    assert r['groups']['all']['denominators']=={
+        'planned':3,'supported':2,'unsupported':1,'completed':1,'failed_or_missing':2}
+    assert r['groups']['language:en']['n']==0
+    assert r['groups']['language:en']['denominators']['failed_or_missing']==1
+    assert 'mrr' not in r['groups']['language:en']
+
+
+def test_paired_comparison_uses_query_deltas_and_retains_missing_pairs():
+    m=api();corpus=fixture();docs={'a':[1,0],'b':[0,1],'c':[.6,.8]}
+    baseline=m.evaluate(corpus,docs,{'q1':[0,1],'q2':[0,1],'u':[1,0]},2)
+    candidate=m.evaluate(corpus,docs,{'q1':[1,0],'q2':[0,1]},2)
+    compared=m.paired_comparison(corpus,baseline,candidate,resamples=100,seed=8301)
+    overall=compared['groups']['all']
+    assert overall['paired_supported']==2
+    assert overall['metrics']['all_required_at_1']['mean_delta']==.5
+    assert overall['metrics']['all_required_at_1']['ci95']==[0.,1.]
+    assert compared['candidate_denominators']['failed_or_missing']==1
+    assert compared==m.paired_comparison(corpus,baseline,candidate,resamples=100,seed=8301)
+    missing=m.evaluate(corpus,docs,{'q1':[1,0]},2)
+    compared=m.paired_comparison(corpus,baseline,missing,resamples=100,seed=8301)
+    assert compared['groups']['all']['paired_supported']==1
+    assert compared['groups']['all']['unpaired_supported_ids']==['q2']
+
+
 @pytest.mark.parametrize('bad', [[0, 0], [float('nan'), 1], [1, 2, 3], [True, 1]])
 def test_invalid_embeddings_do_not_become_ranked_results(bad):
     m = api()

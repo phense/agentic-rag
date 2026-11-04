@@ -202,8 +202,12 @@ def rollback(conn,cfg,name,*,expected_active=_UNSET):
 
 
 def query_vector(selection,cfg,text):
+    return _bound_vector(selection,cfg,text,purpose='query')
+
+
+def _bound_vector(selection,cfg,text,*,purpose):
     profile=_profile(selection,cfg)
-    vectors=_infer(cfg,[text],profile,purpose='query')
+    vectors=_infer(cfg,[text],profile,purpose=purpose)
     vectors=providers.validate_vectors(vectors,1,profile.dimensions,profile.normalization)
     return BoundQuery(selection,vec_literal(vectors[0]))
 
@@ -297,7 +301,7 @@ def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,hist
 def near_duplicate(conn,cfg,text,*,domain,scope,threshold,selection=_UNSET):
     if selection is _UNSET:selection=active(conn,cfg)
     if selection is None:return None
-    bound=query_vector(selection,cfg,text)
+    bound=_bound_vector(selection,cfg,text,purpose='document')
     with _bounded(conn,vectors=True):
         rows=_neighbors(conn,bound,domain=domain,scopes=[scope],at=None,history=False)
     return rows[0]['slug'] if rows and 1-float(rows[0]['distance'])>=threshold else None

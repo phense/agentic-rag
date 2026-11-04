@@ -40,6 +40,8 @@ def test_exact_input_bytes_are_preserved_and_failure_keeps_denominators(tmp_path
         def terminate(self):pass
         def wait(self,timeout):return 0
     monkeypatch.setattr(m.subprocess,'Popen',lambda *a,**kw:Daemon())
+    monkeypatch.setattr(m,'require_free_port',lambda:None)
+    monkeypatch.setattr(m,'assert_owned_listener',lambda child:None)
     seen=[]
     def http(origin,path,payload=None):
         assert origin=='http://127.0.0.1:11583'

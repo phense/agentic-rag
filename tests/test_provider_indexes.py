@@ -15,6 +15,24 @@ REAL_EMBED=providers.embed_profile
 REAL_VERIFY=providers.verify_identity
 
 
+def test_prefixed_duplicate_compares_candidate_in_document_space(conn,managed,monkeypatch):
+    # A query prefix produces an orthogonal vector: that mutation misses the duplicate.
+    ix,cfg,save=managed
+    p=replace(cfg.embedding_profiles['two'],document_prefix='Document: ',query_prefix='Query: ')
+    cfg=replace(cfg,embedding_profiles={**cfg.embedding_profiles,'two':p})
+    save(title='Retained source',content='the same factual text')
+    def handler(request):
+        if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'two:latest','digest':'a'*64}]})
+        texts=json.loads(request.content)['input']
+        return httpx.Response(200,json={'embeddings':[[1.,0.] if t.startswith('Document: ') else [0.,1.] for t in texts]})
+    original=httpx.Client
+    monkeypatch.setattr(providers,'_http_client',lambda **kw:original(transport=httpx.MockTransport(handler),**kw))
+    monkeypatch.setattr(providers,'embed_profile',REAL_EMBED)
+    ix.create(conn,cfg,'duplicates','two');ix.build(conn,cfg,'duplicates',allow_corpus=True)
+    ix.activate(conn,cfg,'duplicates')
+    assert ix.near_duplicate(conn,cfg,'the same factual text',domain='general',scope='global',threshold=.95)=='retained-source'
+
+
 def test_task_prefix_generation_build_query_and_failed_role_probe(conn,managed,monkeypatch):
     # Catch storing query-prefixed chunks or switching before the query role works.
     ix,cfg,save=managed

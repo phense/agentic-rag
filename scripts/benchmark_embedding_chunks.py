@@ -17,7 +17,7 @@ import resource
 import subprocess
 import time
 
-from benchmark_embeddings import deny_network, http, normalized, verify_files, write
+from benchmark_embeddings import assert_owned_listener, deny_network, http, normalized, require_free_port, verify_files, write
 
 
 def worker(args):
@@ -42,6 +42,7 @@ def worker(args):
                 with p.open('rb') as stream:
                     if hashlib.file_digest(stream,'sha256').hexdigest()!=layer['digest'].split(':')[1]:
                         raise ValueError('BGE blob identity')
+            require_free_port()
             daemon_log=(out/'ollama.log').open('w')
             daemon=subprocess.Popen(['/usr/local/bin/ollama','serve'],stdout=daemon_log,stderr=subprocess.STDOUT,
                 env={'PATH':'/usr/local/bin:/usr/bin:/bin','HOME':str(out),'OLLAMA_MODELS':str(snapshot),
@@ -50,7 +51,8 @@ def worker(args):
             for _ in range(100):
                 if daemon.poll() is not None:raise RuntimeError('owned BGE daemon exited')
                 try:
-                    tags=http('http://127.0.0.1:11583','/api/tags');break
+                    tags=http('http://127.0.0.1:11583','/api/tags')
+                    assert_owned_listener(daemon);break
                 except OSError:time.sleep(.1)
             else:raise RuntimeError('owned BGE readiness deadline')
             if not any(m['digest']==descriptor['digest'] for m in tags['models']):raise ValueError('BGE discovery identity')
@@ -62,14 +64,15 @@ def worker(args):
                     'truncation':'server rejects rather than truncates','token_lengths':None}
         else:
             manifest=json.loads((snapshot.parent/(args.model+'-manifest.json')).read_text())
-            if manifest['revision']!=descriptor['revision']:raise ValueError('Jina pinned revision')
+            if manifest['revision']!=descriptor['revision'] or manifest['repo']!=descriptor['repo']:
+                raise ValueError('Jina pinned repository/revision')
             verify_files(snapshot,manifest);deny_network()
             import torch
             from transformers import AutoModel
             torch.set_num_threads(2);torch.set_num_interop_threads(1)
             model=AutoModel.from_pretrained(str(snapshot),trust_remote_code=True,modality='text',
                 task='retrieval',dtype=torch.float32,local_files_only=True).eval()
-            if model.modality!='text':raise ValueError('unexpected modality')
+            if model._modality!='text':raise ValueError('unexpected modality')
             def encode(texts,purpose):
                 prefix='Query: ' if purpose=='query' else 'Document: '
                 lengths=[len(x) for x in model.tokenizer([prefix+t for t in texts],truncation=False)['input_ids']]
@@ -106,7 +109,9 @@ def worker(args):
         result['failure']={'class':type(exc).__name__,'message':str(exc)[:1000]};raise
     finally:
         if daemon is not None:
-            try:http('http://127.0.0.1:11583','/api/embed',{'model':descriptor['model'],'input':[],'keep_alive':0})
+            try:
+                assert_owned_listener(daemon)
+                http('http://127.0.0.1:11583','/api/embed',{'model':descriptor['model'],'input':[],'keep_alive':0})
             except Exception:pass
             daemon.terminate()
             try:daemon.wait(timeout=15)

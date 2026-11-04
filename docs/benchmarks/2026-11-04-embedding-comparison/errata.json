@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "kind": "post-freeze-errata",
+  "original_corpus_unchanged": true,
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "dedup_label": {
+    "id": "paraphrase-32",
+    "problem": "room-a booking schedule incorrectly paired with cred-a certificate paraphrase and marked same=true",
+    "reporting": "Show as-frozen counts plus counts with this pair excluded; never attribute this artifact to a model."
+  },
+  "dedup_scope": "Descriptive only: identical, German paraphrase, cross-language negative. All negatives cross-language; threshold0.95 is uncalibrated across models. Jina text-matching is not product retrieval dedup.",
+  "primary_runner": {
+    "path": "provenance/original-run_models.py",
+    "sha256": "edb5b515fc54e62c12b45a964fdca938a6b50ca7b49fae0bfcce628d05c6e592",
+    "status": "Historical exact runner; its exit0 was not success. Original Small-r0 failed before inference; repeats1/2 unattempted. Six Nano/BGE repetitions succeeded."
+  },
+  "deadline": "Original and corrected supervisor enforce1800s per candidate across its three repetitions (stricter than worker_wall_limit_seconds suggests); canonical900s per candidate. No thresholds relaxed.",
+  "resource_scope": "Only sampled process-tree RSS (.5s) and per-stage end-to-end walls are comparable with caveats. BGE Ollama HTTP/Q8_0 and Jina in-process float32 differ. BGE lazy model load is included in first query, Jina model load in load stage. CPU samples can miss exiting children; no CPU-efficiency, concurrency-capacity or SLA claim.",
+  "bootstrap": {
+    "resamples": 4000,
+    "seed": 8301,
+    "method": "query-paired percentile95% CI on candidate-minus-BGE; all_required@k and MRR primary; original and independent supplement separate; missing pairs retained, not imputed."
+  },
+  "limits": [
+    "Original heldout is single-author and nominal; no quality tuning was performed.",
+    "Retrieval ranking is not supported-answer quality.",
+    "Native longest original input2893 chars, canonical2915; actual4000-char boundary not tested on models.",
+    "Nano primary runs overlapped Small artifact download IO; timing interference disclosed.",
+    "Process-cold is not OS-cold; caches not dropped.",
+    "Kernel isolation denies socket(AF_INET/AF_INET6); not a sandbox against hostile native code or pre-opened descriptors.",
+    "No .ollama/ or private daemon keys may enter public evidence."
+  ],
+  "corrected_small": "Separate explicitly scheduled Small-only three-repetition run with new source hashes/output; preserve original failed/unattempted records.",
+  "canonical_recipe": {
+    "task_adapter": "retrieval",
+    "pooling": "last nonpadding token",
+    "normalization": "l2",
+    "dtype": "float32",
+    "max_tokens": 8192,
+    "document_prefix": "Document: ",
+    "query_prefix": "Query: ",
+    "truncation": "precheck full token lengths and reject above8192; no silent512-token default",
+    "adoption": "A live served-endpoint parity probe is required; prefix identity alone does not attest this recipe."
+  }
+}

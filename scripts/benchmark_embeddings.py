@@ -19,7 +19,9 @@ import math
 import os
 from pathlib import Path
 import platform
+import random
 import resource
+import socket
 import statistics
 import subprocess
 import sys
@@ -56,6 +58,17 @@ def truncate(vector, width):
     return normalized(vector[:width], width)
 
 
+def query_groups(query):
+    return ('all',*(f'{field}:{query[field]}' for field in ('language','family','split','cross_language')))
+
+
+def denominators(queries,completed):
+    return {'planned':len(queries),'supported':sum(bool(q['relevance']) for q in queries),
+            'unsupported':sum(not q['relevance'] for q in queries),
+            'completed':sum(q['id'] in completed for q in queries),
+            'failed_or_missing':sum(q['id'] not in completed for q in queries)}
+
+
 def evaluate(corpus, doc_vectors, query_vectors, width):
     docs = {d['id']: normalized(doc_vectors[d['id']], width) for d in corpus['documents']}
     if len(docs) != len(corpus['documents']) or set(doc_vectors) != set(docs):
@@ -87,11 +100,16 @@ def evaluate(corpus, doc_vectors, query_vectors, width):
                     ideal = math.fsum(g/math.log2(i+2) for i, g in enumerate(gains[:k]))
                     metrics[f'ndcg_at_{k}'] = dcg / ideal
                 row['metrics'] = metrics
-                for group in ('all', *(f'{field}:{q[field]}' for field in ('language', 'family', 'split', 'cross_language'))):
+                for group in query_groups(q):
                     grouped.setdefault(group, []).append(metrics)
         observations.append(row)
     groups = {g: {'n': len(rows), **{k: statistics.mean(r[k] for r in rows) for k in rows[0]}}
               for g, rows in grouped.items()}
+    planned_groups={}
+    for q in corpus['queries']:
+        for group in query_groups(q):planned_groups.setdefault(group,[]).append(q)
+    for group,queries in planned_groups.items():
+        groups.setdefault(group,{'n':0})['denominators']=denominators(queries,query_vectors)
     completed = sum(r['status'] == 'completed' for r in observations)
     supported = sum(bool(q['relevance']) for q in corpus['queries'])
     return {'complete': completed == len(observations), 'denominators': {
@@ -99,6 +117,38 @@ def evaluate(corpus, doc_vectors, query_vectors, width):
         'completed': completed, 'failed_or_missing': len(observations)-completed},
         'interpretation': 'Metrics condition on completed supported queries; read denominators before comparing. Unsupported rankings are not supported answers.',
         'groups': groups, 'observations': observations}
+
+
+def paired_comparison(corpus,baseline,candidate,*,resamples=4000,seed=8301):
+    """Query-paired bootstrap, not independent-model CIs or corpus generalization."""
+    if type(resamples) is not int or resamples<1:raise ValueError('positive resample count required')
+    left={r['id']:r['metrics'] for r in baseline['observations']}
+    right={r['id']:r['metrics'] for r in candidate['observations']}
+    if len(left)!=len(corpus['queries']) or set(left)!=set(right) or set(left)!={q['id'] for q in corpus['queries']}:
+        raise ValueError('comparison query identities differ')
+    groups={}
+    for q in corpus['queries']:
+        if q['relevance']:
+            for group in query_groups(q):groups.setdefault(group,[]).append(q['id'])
+    result={};rng=random.Random(seed)
+    for group,ids in sorted(groups.items()):
+        paired=[id for id in ids if left[id] is not None and right[id] is not None]
+        row={'planned_supported':len(ids),'paired_supported':len(paired),
+             'unpaired_supported_ids':[id for id in ids if id not in paired],'metrics':{}}
+        if paired:
+            deltas={key:[right[id][key]-left[id][key] for id in paired] for key in left[paired[0]]}
+            samples={key:[] for key in deltas}
+            for _ in range(resamples):
+                indexes=[rng.randrange(len(paired)) for _ in paired]
+                for key,values in deltas.items():samples[key].append(statistics.mean(values[i] for i in indexes))
+            for key,values in deltas.items():
+                row['metrics'][key]={'mean_delta':statistics.mean(values),
+                    'ci95':[percentile(samples[key],.025),percentile(samples[key],.975)]}
+        result[group]=row
+    return {'seed':seed,'resamples':resamples,'method':'query-paired percentile bootstrap; candidate minus baseline',
+            'baseline_denominators':baseline['denominators'],'candidate_denominators':candidate['denominators'],
+            'interpretation':'Descriptive uncertainty on this small authored fixture; not production or answer-quality inference.',
+            'groups':result}
 
 
 def deny_network():
@@ -157,6 +207,29 @@ def verify_files(root, manifest):
             raise ValueError('artifact hash mismatch: ' + name)
 
 
+def require_free_port(port=11583):
+    """Refuse a pre-existing listener; never send it discovery or unload calls."""
+    with socket.socket(socket.AF_INET,socket.SOCK_STREAM) as probe:
+        try:probe.bind(('127.0.0.1',port))
+        except OSError as exc:raise RuntimeError('benchmark daemon port already in use') from exc
+
+
+def assert_owned_listener(daemon,port=11583):
+    """Linux-only proof: the listening socket is held by this live child PID."""
+    if daemon.poll() is not None:raise RuntimeError('owned daemon exited')
+    proc=Path('/proc')/str(daemon.pid)
+    sockets=set()
+    for fd in (proc/'fd').iterdir():
+        try:target=os.readlink(fd)
+        except FileNotFoundError:continue
+        if target.startswith('socket:['):sockets.add(target[8:-1])
+    local=f'0100007F:{port:04X}'
+    matches=[line.split()[9] for line in (proc/'net/tcp').read_text().splitlines()[1:]
+             if line.split()[1]==local and line.split()[3]=='0A']
+    if not matches or not set(matches).issubset(sockets) or daemon.poll() is not None:
+        raise RuntimeError('benchmark listener ownership mismatch')
+
+
 def worker(args):
     out = Path(args.output)
     out.mkdir(mode=0o700)
@@ -193,6 +266,7 @@ def worker(args):
             daemon_env = {'PATH': '/usr/local/bin:/usr/bin:/bin', 'HOME': str(out),
                           'OLLAMA_MODELS': str(store), 'OLLAMA_HOST': '127.0.0.1:11583',
                           'OLLAMA_NUM_PARALLEL': '1', 'OLLAMA_MAX_LOADED_MODELS': '1', 'OLLAMA_NO_CLOUD': '1'}
+            require_free_port()
             daemon_log = (out / 'ollama.log').open('w')
             daemon = subprocess.Popen(['/usr/local/bin/ollama', 'serve'], env=daemon_env, stdout=daemon_log, stderr=subprocess.STDOUT)
             for _ in range(100):
@@ -200,6 +274,7 @@ def worker(args):
                     raise RuntimeError('owned Ollama exited at startup')
                 try:
                     tags = http('http://127.0.0.1:11583', '/api/tags')
+                    assert_owned_listener(daemon)
                     break
                 except OSError:
                     time.sleep(.1)
@@ -226,7 +301,7 @@ def worker(args):
             torch.set_num_interop_threads(1)
             model = AutoModel.from_pretrained(str(snapshot), trust_remote_code=True, modality='text',
                                               task='retrieval', dtype=torch.float32, local_files_only=True).eval()
-            if model.modality != 'text':
+            if model._modality != 'text':
                 raise ValueError('unexpected modality')
             def encode(texts, side='document', task='retrieval'):
                 with lock, torch.inference_mode():
@@ -317,6 +392,7 @@ def worker(args):
     finally:
         if daemon is not None:
             try:
+                assert_owned_listener(daemon)
                 http('http://127.0.0.1:11583', '/api/embed', {'model': descriptor['model'], 'input': [], 'keep_alive': 0})
             except Exception:
                 pass

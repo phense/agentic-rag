@@ -7,9 +7,9 @@ readers: [installation-operators]
 owner: repository-maintainer
 class: system
 origin: Issue61 AC001-008
-status: reviewed
-version: 0.6.14
-last_edited: 2026-10-30
+status: draft
+version: 0.6.32
+last_edited: 2026-11-04
 last_reviewed: 2026-10-30
 depends_on: [13-central-service.md]
 assets: []
@@ -118,13 +118,14 @@ from comparison. See the verification record for commands and actual results.
    timeout = 30
    ```
 4. Run `rag providers inspect` again. Resolve configuration errors before probing.
-   Model/revision/endpoint/dimensions/normalization/metric/representation define
-   identity. Credential rotation, batch size and timeout changes preserve it.
+   Model/revision/endpoint/dimensions/normalization/metric/representation and any
+   document/query prefixes define identity. Credential rotation, batch size and timeout changes preserve it.
 
 ### Models with different document and query prompts
 
 An explicitly configured retrieval model can require distinct task prefixes.
-With the current application, add both optional fields to that profile:
+Create a **new profile name** for this model and add both optional fields. Never
+edit a profile that backs an active or retained generation:
 
 ```toml
 document_prefix = "Document: "
@@ -134,8 +135,8 @@ query_prefix = "Query: "
 Use the model author's exact strings, including spaces, and configure the endpoint
 to embed the supplied input verbatim; it must not add the same prefix again. Both
 fields must be empty or both nonempty, printable, and at most 64 characters each.
-The application adds the document prefix during builds and the query prefix during
-search. These strings are part of the immutable generation identity: editing either
+The application adds the document prefix during builds and semantic duplicate
+checks of candidate memories, and the query prefix during search. These strings are part of the immutable generation identity: editing either
 requires a new generation and rebuild, even when model and dimensions match.
 Unconfigured profiles retain their original identity and unchanged wire inputs.
 The 4000-character raw-input limit remains; inspection separately reports the wire
@@ -145,16 +146,38 @@ A prefixed profile probe sends the fixed synthetic string once per role (at most
 six HTTP requests). Selection also verifies both roles before changing the pointer
 (at most seven requests). Each role retains the configured finite inference timeout.
 These checks prove protocol capability, not model quality or artifact attestation.
-The Jina benchmark uses separate retrieval and text-matching tasks; do not combine
-vectors from different adapters into the same generation.
+The Jina benchmark pins the retrieval adapter, last-token pooling, L2 normalization,
+float32 and an 8192-token maximum for retrieval. Prefixes alone do not select that
+adapter. A served endpoint must use this same recipe for both roles, accept the
+already prefixed input without adding another prefix, and reject oversize inputs
+instead of silently truncating. Give that recipe a distinct immutable logical
+model ID. The profile checks the server's assertion; it cannot attest its weights,
+adapter, tokenizer or pooling. Before adoption, compare the real served endpoint
+with the native model on exact canonical inputs, including the long inputs whose
+answer is at the end. Cached-vector replay proves storage behavior only.
 
-Existing stores need no schema change. Keep the prior profile file with the prior
-binary when rehearsing this option. Before a code rollback, restore that profile
-file: old binaries reject the new configuration fields. Old readers with their
-unchanged configuration continue using the legacy index. Before reverting the
-selected generation, catch up its coverage for writes made after cutover using the
-existing rollback procedure below. Never reinterpret retained vectors under newly
-edited prefixes. This option does not activate a new production model.
+The separate Jina text-matching experiment describes another adapter; do not
+combine its vectors with a retrieval generation or infer a product dedup threshold
+from that experiment.
+
+Existing stores need no schema change for task prefixes. Keep the prior binary,
+profile file and generation. For a code rollback, use the new binary in this order:
+
+1. Catch up the retained generation with `rag index build OLD_NAME --allow-corpus`
+   until `rag index status OLD_NAME` reports complete coverage. Add `--allow-egress`
+   only for an explicitly approved external profile.
+2. Run `rag index rollback OLD_NAME` with the same egress rule. If it fails, keep
+   the new binary and configuration running; do not continue the rollback.
+3. Confirm `rag index status` selects `OLD_NAME` and a representative `rag search
+   "KNOWN QUERY" --json` returns the expected original IDs without managed-embedding
+   warnings. Stop and restore access if either check fails.
+4. Restore the prior profile file and only then start the prior binary. Old
+   binaries reject the new prefix fields. Repeat the search smoke check; keep
+   writers paused and restore the new binary/configuration if it fails.
+
+Never reinterpret retained vectors under edited prefixes. Old readers with their
+unchanged configuration use the legacy index. This procedure activates no model
+by itself and does not authorize production deployment.
 
 You should see the independent extraction slot and named profile with finite
 bounds. No profile edit changes the selected database generation.
@@ -223,8 +246,9 @@ IDs, assertions, evidence and pin text remain unchanged throughout.
 4. Repeat the bounded build until `rag index status next-space` reports no missing
    chunks. After interruption, use the same generation; valid vectors are reused.
 5. Run `rag index activate next-space`. Add `--allow-egress` for an external
-   identity/capability check. Activation sends one fixed synthetic input, up to
-   four HTTP requests, even for an empty store. It refuses incomplete coverage,
+   identity/capability check. Activation sends one fixed synthetic input for an unprefixed profile (up to
+   four HTTP requests), or the fixed input in both roles for a prefixed profile
+   (up to seven requests), even for an empty store. It refuses incomplete coverage,
    a changed model or an unsupported/wrong-dimension embedding response.
 
 The previous index remains selected until step5 succeeds. Cutover excludes
@@ -246,7 +270,8 @@ changes invalidate the affected results instead of overwriting new content.
    do not disappear when you switch back.
 4. To return to a retained generation, run `rag index rollback OLD_NAME` after its
    coverage is complete. Add `--allow-egress` if its fixed synthetic
-   identity/capability check is external (one input, up to four HTTP requests).
+   identity/capability check is external (one input/up to four requests unprefixed;
+   both roles/up to seven requests prefixed).
 
 Rollback refuses stale coverage and changes only selection. It preserves new
 canonical writes. A missing model/profile yields a classified warning and lexical
@@ -261,7 +286,7 @@ vectors remain limited to legacy operation and rollback to an old binary.
 | Boundary | Behavior |
 |---|---|
 | Embedding batch | 1–32 inputs, at most 4000 characters each; per-profile limits may be smaller. Oversized input is refused, never silently truncated. |
-| Managed embedding network usage | At most3 requests per batch/probe: discovery, one inference, discovery. Identity-only checks use1 request; activation/rollback use up to4 requests and one synthetic input. No automatic HTTP retries or fallback. |
+| Managed embedding network usage | At most3 requests per batch or unprefixed probe: discovery, inference, discovery. A prefixed probe uses both roles, up to6 requests. Identity-only checks use1 request; activation/rollback use up to4 requests and one synthetic input unprefixed, or up to7 requests and two role inputs prefixed. No automatic HTTP retries or fallback. |
 | Compatible HTTP adapter response/time/concurrency | At most4MiB per response; at most 120 seconds per HTTP operation, lower configured limit honored; two inference operations per process. These limits do not bound a Claude/Codex CLI's own internal HTTP requests. |
 | Central background builds | Shared model admission yields to foreground work; per-operation timeout capped at10 seconds. This does not change standalone profile limits. |
 | Vector format | halfvec,1–4000 dimensions, finite/nonzero values, cosine; normalization `none` or `l2`; raw-v1 only. |
