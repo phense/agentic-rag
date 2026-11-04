@@ -38,6 +38,7 @@ def test_registry_config_and_schema_are_one_contract(tmp_path):
 
 
 def test_audited_save_preserves_reserved_meta_and_merges_registered_labels(conn,cfg,monkeypatch):
+    conn.execute("INSERT INTO domains(name) VALUES('general') ON CONFLICT DO NOTHING");conn.commit()
     monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
     cfg=replace(cfg,metadata_fields=REGISTRY)
     saved=store.save_document(conn,cfg,title='Typed',body='typed quasar',domain='general',dtype='memory',
@@ -52,6 +53,7 @@ def test_audited_save_preserves_reserved_meta_and_merges_registered_labels(conn,
 def test_sql_presence_null_wrong_type_and_not_are_total_booleans(conn,cfg,monkeypatch):
     from agentic_rag.metadata import normalize
     from psycopg.types.json import Jsonb
+    conn.execute("INSERT INTO domains(name) VALUES('general') ON CONFLICT DO NOTHING");conn.commit()
     monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
     cfg=replace(cfg,metadata_fields=REGISTRY)
     ids=[]
@@ -66,6 +68,7 @@ def test_sql_presence_null_wrong_type_and_not_are_total_booleans(conn,cfg,monkey
 
 def test_filter_precedes_lexical_candidate_limits_and_default_is_unchanged(conn,cfg,monkeypatch):
     from agentic_rag.search import search
+    conn.execute("INSERT INTO domains(name) VALUES('general') ON CONFLICT DO NOTHING");conn.commit()
     monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
     cfg=replace(cfg,metadata_fields=REGISTRY)
     for i in range(55):store.save_document(conn,cfg,title=f'Noise {i}',body='quasar '*12,domain='general',dtype='memory',metadata={'team':'other'})
@@ -76,3 +79,14 @@ def test_filter_precedes_lexical_candidate_limits_and_default_is_unchanged(conn,
         hits,warnings=search(conn,cfg,'quasar',strategy='lexical',context_mode=mode,rerank_mode='off',filter=leaf('app.team','eq','wanted'))
         assert [h.document_id for h in hits]==[target.doc_id]
     assert [h.document_id for h in search(conn,cfg,'quasar',strategy='lexical',context_mode='off',rerank_mode='off')[0]]==[h.document_id for h in old]
+
+
+def test_direct_sql_matcher_rejects_unbounded_ast(conn):
+    # Without the SQL guard a direct caller bypasses every Python bound.
+    import psycopg
+    from psycopg.types.json import Jsonb
+    node={'field':'dtype','op':'eq','value':'memory','type':'string'}
+    for _ in range(8):node={'not':node}
+    for bad in (node,{'or':[{'field':'dtype','op':'eq','value':'memory','type':'string'}]*65}):
+        with pytest.raises(psycopg.errors.InvalidParameterValue):
+            with conn.transaction():conn.execute('SELECT public.rag_metadata_match(%s,%s)',(Jsonb({'dtype':'memory'}),Jsonb(bad)))
