@@ -1,0 +1,84 @@
+{
+  "bge": {
+    "model": "bge-m3-q8:latest",
+    "manifest_sha256": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+    "manifest": {
+      "schemaVersion": 2,
+      "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+      "config": {
+        "mediaType": "application/vnd.docker.container.image.v1+json",
+        "digest": "sha256:80f545e871ce04feebf33b8805e801a7c271a7bdcbc1752c002f88d9db630cd2",
+        "size": 338
+      },
+      "layers": [
+        {
+          "mediaType": "application/vnd.ollama.image.model",
+          "digest": "sha256:9657d998f4b09e95721ba92b75587a8855bba76b316a3814af2c4c782a9ccf6b",
+          "size": 634553760
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.license",
+          "digest": "sha256:a406579cd136771c705c521db86ca7d60a6f3de7c9b5460e6193a2df27861bde",
+          "size": 1068,
+          "from": "bge-m3:latest"
+        }
+      ]
+    },
+    "binary_sha256": "c7ff3fc14739850ae2c57cda8eb6fb354cf4e436595cdf1946172e4ebc517661",
+    "live_target": "same model digest observed on mcp-server and local11434; copied read-only local store to owned scratch, no inference or changes to production"
+  },
+  "nano": {
+    "repo": "jinaai/jina-embeddings-v5-omni-nano",
+    "revision": "14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50",
+    "downloaded_at": 1793802878.2137697,
+    "files": {
+      "tokenizer.json": "b8135ff0f019acbce7c4b93d1fb24cb8325b5fb0d76c57bbde8101a73cba7fa9",
+      "model.safetensors": "1b25867d693db0304d5030b8d6ba833b3bc371dc002b2559e49524e0ea405b4b",
+      "preprocessor_config.json": "108bf40de4d2ac7e4a24928147d30d0bf02a1e516f60d17b41ba5211e10b1ceb",
+      "video_preprocessor_config.json": "e5b4ab3ef94bcdf31271986ad934322441720d38c737653356825de200b295cb",
+      "processor_config.json": "65e6f05f25cfd4ffa8971e4ad014f353d314ac1b4e8d18516b47085494b4b24e",
+      "modeling_llava_eurobert_audio.py": "9853d0126f175b0aca1463a57bad694b6b73c1c6eeea05d6cb8e73f2634f1c17",
+      "tokenizer_config.json": "2ce8bbc365f6ae123c0aac1e7f3054b7c834ec78b69b00269af6c8a5e25551a4",
+      "config_sentence_transformers.json": "1e3cc95c40fee403a35c5c6b7e8712b9609fdd553168745d247dce0550067507",
+      "modules.json": "2ccce443596d434c65b3dc6bc819210aa38e4c3afd95b366b6398ba709a47e6d",
+      "processing_llava_eurobert.py": "ce0cb53e8f9831a4aadf750580287adf4a4d2e73251c7fa789f03241d38311ad",
+      "modeling_jina_embeddings_v5_omni.py": "189d151cb05bc670a2170bf21c3bcb2cba7c201daca767940a516c1aa96f1679",
+      "config.json": "621da6426f7b20454b60b2973015de0b64164be8f06984ff1ed9f9c9bc0be844",
+      "adapters/clustering/adapter_config.json": "563d18eb36d88a1caf785b6295952478d074920913d5d7a7e57b9616c0233b11",
+      "adapters/clustering/adapter_model.safetensors": "030822246d646a74a9886410eddcc80c663384bcaeacd31a869a523f35268c5f",
+      "adapters/classification/adapter_config.json": "29bbd739f628e7e25fe20ac1dd015aa86d7acd70f6fcd7821420fc812abc11c7",
+      "adapters/classification/adapter_model.safetensors": "13c8389381221af49bbe1d40231f50b28e354c901af57e6b1a1b3a6ec34f42b2",
+      "adapters/retrieval/adapter_config.json": "5687c8f92867d7a44dc582bce30fc4acbc72b7e1b8134119bee337dc850fad19",
+      "adapters/retrieval/adapter_model.safetensors": "9c2b4bd34101afd04833c5626958724e7587c292ffc6564788cfa10af89a2157",
+      "adapters/text-matching/adapter_config.json": "8e87236a6ae307f19878078bf380462e18bce0186b5346fb64d9deaa14150610",
+      "adapters/text-matching/adapter_model.safetensors": "24bb801dbc7e565e9a64e12ef0049fc2631c381f50a215a83cf90fe0ccba2e0e"
+    },
+    "pinned_card_license": "cc-by-nc-4.0"
+  },
+  "small": {
+    "repo": "jinaai/jina-embeddings-v5-omni-small",
+    "revision": "950200abde3a3bcf3d5bdfe5d28fb5bb5e7dfbb0",
+    "downloaded_at": 1793803579.6499684,
+    "files": {
+      "tokenizer.json": "7bbf567d9e053a72f0bd8ea475e672d10d537578f6adb521ab42da2badfa8bef",
+      "model.safetensors": "2614c3dc9b0e81f66b4cf3bc8055c27a50c388b459960ed90947a5fe53c50244",
+      "preprocessor_config.json": "e517dcd8eebc59981f55077e4c9684cf7f6b06adcc87bdfff25fd4c04e60c971",
+      "video_preprocessor_config.json": "e5b4ab3ef94bcdf31271986ad934322441720d38c737653356825de200b295cb",
+      "processor_config.json": "31221eef769003dd8bf6c249513eeca9056592c030359aab021e80d449dc1507",
+      "tokenizer_config.json": "b78dba953d672b6e7e73276b47644527c5e8c59036d78ffb1abd9617187b95ee",
+      "config_sentence_transformers.json": "1e3cc95c40fee403a35c5c6b7e8712b9609fdd553168745d247dce0550067507",
+      "modules.json": "556bbb60884a4c9fd116e8f1cc853ab114de2d83fd5597cd974465a09d1997ae",
+      "modeling_jina_embeddings_v5_omni.py": "bd6d6e35d6720beec881578b5db44f863ef72891732bb2fbd1da686c4e3ca07c",
+      "config.json": "8074de43ca910f2a1922be18664268a101531813bc41d3a96f80d55695b8749c",
+      "adapters/clustering/adapter_config.json": "3c7c7379ef205a666e6064eb10b59d82b56814b42484c4a2381a9c7371013db7",
+      "adapters/clustering/adapter_model.safetensors": "48c11c24755b0f99d9eca37cbf14e9f9bab873399972d6a2a6324bb85f18b107",
+      "adapters/classification/adapter_config.json": "4f933e51558aec95b5706a56adb13092826dc4c47544b27d4ab5dc7c4a43c24a",
+      "adapters/classification/adapter_model.safetensors": "7a4a2c03a0162f72851f92da8e845a093908b6306df1ba0ac8510e16f32fbf41",
+      "adapters/retrieval/adapter_config.json": "409cd69df1c4b5dcd8b4e4512c044e02fa52c8f6d940d28d6e3e6aad8bfad75a",
+      "adapters/retrieval/adapter_model.safetensors": "7d180ecf335b3b527007209cf1978458b53031da2ac2e4f5a674b7cf478d97f8",
+      "adapters/text-matching/adapter_config.json": "9af59e33bd692eee1a5a227bf52cf6d0f424807ea860eddc4b28e95c62a2f8d6",
+      "adapters/text-matching/adapter_model.safetensors": "a52850402728451e135f91f41365bdc9d085104da265e585c19f598cc8309a9b"
+    },
+    "pinned_card_license": "cc-by-nc-4.0"
+  }
+}

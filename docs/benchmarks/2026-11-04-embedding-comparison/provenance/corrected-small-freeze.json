@@ -1,0 +1,19 @@
+{
+  "kind": "explicit-corrected-small-experiment",
+  "source_head": "02abd30d42e8afc1742a02d446e98337dc98035c",
+  "automatic_retry": false,
+  "planned": [
+    "small-r0",
+    "small-r1",
+    "small-r2"
+  ],
+  "files": {
+    "scripts/benchmark_embeddings.py": "6e227379b7bc3ac395801b8e97d4574a8787cca5e3be7a968644a0d9de34981a",
+    "scripts/run_embedding_benchmark.py": "a8521bda1f04d8a9c24101c5b8334538692b6a3de005688f0671f9567bfe26e0",
+    "docs/benchmarks/2026-11-04-embedding-comparison/corpus.json": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+    "docs/benchmarks/2026-11-04-embedding-comparison/protocol.json": "e8b0f2bb5fe95b70c8f958c4b8063567cde4aa7eb6046c305b670314ad4eccfd",
+    "docs/benchmarks/2026-11-04-embedding-comparison/errata.json": "603e549bf9ddbddba33a70384bb06ceecf2eed2d0e0c4b0182d8fca6592baf3c"
+  },
+  "original_results_preserved": "/home/administrator/Claude/.scratch/rag083-measurement-a",
+  "output": "/home/administrator/Claude/.scratch/rag083-small-corrected-02abd30"
+}

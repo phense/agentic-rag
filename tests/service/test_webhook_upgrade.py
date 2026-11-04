@@ -37,7 +37,7 @@ def archive(tmp_path):
 
 
 def test_archived028_populated_upgrade_interrupt_retry_source_target_restores(tmp_path,monkeypatch):
-    assert version('agentic-rag')=='0.6.32'
+    assert version('agentic-rag')=='0.6.33'
     monkeypatch.setattr(query_cache,'model_digest',lambda cfg:'a'*64)
     source=archive(tmp_path)
     with isolated_database(Config(),initialize=False) as cfg:

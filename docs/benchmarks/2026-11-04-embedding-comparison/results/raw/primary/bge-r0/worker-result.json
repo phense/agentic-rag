@@ -1,0 +1,217 @@
+{
+  "model": "bge",
+  "descriptor": {
+    "model": "bge-m3-q8:latest",
+    "digest": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+    "dimensions": 1024,
+    "runtime": "existing Ollama binary, own isolated daemon11583 and copied verified model store",
+    "dtype": "GGUF Q8_0",
+    "query_document_prefix": "none, matching production"
+  },
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "status": "complete",
+  "stage": "finished",
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+  "python": "3.13.13",
+  "torch_threads": 2,
+  "process_started": 1793803860.564914,
+  "os_cache": "not dropped; fresh process is not cold OS cache",
+  "runtime": {
+    "ollama_version": {
+      "version": "0.31.2"
+    },
+    "quantization": "Q8_0",
+    "separate_owned_daemon": true
+  },
+  "load_seconds": 7.858213737024926,
+  "first_query_seconds": 6.735313376993872,
+  "document_build_seconds": 99.31199987995205,
+  "document_inputs_per_second": 0.4631867252255983,
+  "warm_query_seconds": {
+    "n": 100,
+    "p50": 1.4992336630239151,
+    "p95": 1.9596628739964217,
+    "p99": 2.144222956034355,
+    "maximum": 2.3599045810406096
+  },
+  "concurrent_client_seconds": {
+    "1": {
+      "n": 4,
+      "p50": 1.6880399090005085,
+      "p95": 1.9074969030334614,
+      "p99": 1.9074969030334614,
+      "maximum": 1.9074969030334614,
+      "wall_seconds": 6.806972286954988,
+      "inputs_per_second": 0.5876327728945917,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "2": {
+      "n": 8,
+      "p50": 1.3926243399619125,
+      "p95": 1.9654750259942375,
+      "p99": 1.9654750259942375,
+      "maximum": 1.9654750259942375,
+      "wall_seconds": 6.412251033994835,
+      "inputs_per_second": 1.2476117914890799,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "4": {
+      "n": 16,
+      "p50": 1.6420751880505122,
+      "p95": 2.1462854389683343,
+      "p99": 2.1462854389683343,
+      "maximum": 2.1462854389683343,
+      "wall_seconds": 7.070248019997962,
+      "inputs_per_second": 2.263004063611988,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    }
+  },
+  "duplicates": {
+    "threshold": 0.95,
+    "n": 18,
+    "false_positive": 0,
+    "false_negative": 6,
+    "observations": [
+      {
+        "id": "dup-4",
+        "expected_same": true,
+        "cosine": 1.0000000000000002,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "dup-8",
+        "expected_same": true,
+        "cosine": 1.0000000000000002,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "dup-14",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "dup-20",
+        "expected_same": true,
+        "cosine": 1.0000000000000002,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "dup-26",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "dup-32",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-4",
+        "expected_same": false,
+        "cosine": 0.7613011522783037,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-8",
+        "expected_same": false,
+        "cosine": 0.7135333835097677,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-12",
+        "expected_same": false,
+        "cosine": 0.8785059883918217,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-22",
+        "expected_same": false,
+        "cosine": 0.5294743172290657,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-26",
+        "expected_same": false,
+        "cosine": 0.7664683585187807,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "notdup-28",
+        "expected_same": false,
+        "cosine": 0.6030751300245548,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-4",
+        "expected_same": true,
+        "cosine": 0.7695168853212382,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-8",
+        "expected_same": true,
+        "cosine": 0.8917276357783395,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-14",
+        "expected_same": true,
+        "cosine": 0.9030984225845867,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-20",
+        "expected_same": true,
+        "cosine": 0.8117370568334543,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-26",
+        "expected_same": true,
+        "cosine": 0.8860724823844998,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      },
+      {
+        "id": "paraphrase-32",
+        "expected_same": true,
+        "cosine": 0.43223333038708434,
+        "predicted_same": false,
+        "task": "production-unprefixed"
+      }
+    ]
+  },
+  "wall_seconds": 368.90566624503117,
+  "cpu_self_seconds": 22.9488596,
+  "cpu_reaped_children_seconds": 605.143075,
+  "peak_self_rss_bytes": 55283712,
+  "completed": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  },
+  "planned": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  }
+}

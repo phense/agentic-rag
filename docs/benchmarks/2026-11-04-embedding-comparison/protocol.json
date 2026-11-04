@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "issue": 83,
+  "source_base": "def28a49085ffb3fd38627f2ae56a545cad58ea5",
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "frozen_before_candidate_inference": "2026-11-04T14:31:40.671388+00:00",
+  "models": {
+    "bge": {
+      "model": "bge-m3-q8:latest",
+      "digest": "7f5f712dd874a537ca5cbbd6366cec74ebef63e364e102ec070836e8b7ed340d",
+      "dimensions": 1024,
+      "runtime": "existing Ollama binary, own isolated daemon11583 and copied verified model store",
+      "dtype": "GGUF Q8_0",
+      "query_document_prefix": "none, matching production"
+    },
+    "small": {
+      "repo": "jinaai/jina-embeddings-v5-omni-small",
+      "revision": "950200abde3a3bcf3d5bdfe5d28fb5bb5e7dfbb0",
+      "dimensions": 1024,
+      "dtype": "float32",
+      "modality": "text"
+    },
+    "nano": {
+      "repo": "jinaai/jina-embeddings-v5-omni-nano",
+      "revision": "14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50",
+      "dimensions": 768,
+      "dtype": "float32",
+      "modality": "text"
+    }
+  },
+  "runtime": {
+    "host": "local8-vCPU16GiB VM, record live before run; not Hetzner4-vCPU or Mac acceptance",
+    "threads": 2,
+    "torch_interop_threads": 1,
+    "batch_size": 4,
+    "jina_tasks": {
+      "retrieval": "upstream model.encode(task=retrieval,prompt_name=query/document); local .from_pretrained task=retrieval,modality=text,dtype=float32",
+      "dedup": "model.encode(task=text-matching,prompt_name=document)"
+    },
+    "max_input_chars": 4000,
+    "max_sequence_tokens": 8192,
+    "fresh_processes": 3,
+    "os_cache": "not dropped; process-cold is not OS-cold",
+    "query_repetitions": 1,
+    "concurrent_clients": [
+      1,
+      2,
+      4
+    ],
+    "concurrent_queries_per_client": 4,
+    "worker_rss_limit_bytes": 7516192768,
+    "worker_wall_limit_seconds": 1800,
+    "free_disk_floor_bytes": 3221225472,
+    "min_available_memory_bytes": 2147483648,
+    "automatic_candidate_retry": false,
+    "network": "Jina inference uses verified local snapshots with HF offline, no credential environment; no hosted inference",
+    "models_load_sequentially": true,
+    "inference_network": "Linux seccomp denies AF_INET/AF_INET6 socket creation in Jina worker after offline snapshot staging; no hosted provider",
+    "memory_control": "Parent RSS+MemAvailable watchdog; stop owned child before reserve drops below2GiB. No daemon changes."
+  },
+  "ranking": {
+    "primary": "no reranker; exact cosine vector-only top10; report separately actual product hybrid with same corpus/candidate budget and lexical configuration",
+    "ks": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "metrics": [
+      "recall_at_k",
+      "all_required_coverage_at_k",
+      "mrr",
+      "ndcg_at_k"
+    ],
+    "group_by": [
+      "language",
+      "family",
+      "cross_language",
+      "split"
+    ],
+    "unsupported": "no relevance; excluded from recall denominator; report ranking/no-abstention limits, never label retrieval as supported answer",
+    "dedup_threshold": 0.95,
+    "tie_break": "document ID lexical ascending",
+    "smaller_dimensions": [
+      256
+    ],
+    "reduced_dimension_normalization": "truncate Jina full vector to256 and L2-renormalize; separate space, not production replacement",
+    "all_required_definition": "each required_groups alternative set must have at least one result; independent facts use separate groups"
+  },
+  "failure_policy": {
+    "partial": "retain attempted successes, failures and unattempted denominators",
+    "model_failure": "preserve logs, classified stage and actual exit; no substitute model",
+    "quality_claim": "only actual successfully computed observations; missing model is undecided",
+    "recommendation": "retain BGE unless measured heldout retrieval gains and operational costs justify adoption; commercial license separate",
+    "physical_acceptance": "not a re-run of68/92 SLA, no production activation"
+  },
+  "safe_substitution": "reuse existing profiles/generation APIs on an owned populated multi-user/domain copy; original-row hashes, strict restore and control probes; real model vectors may be replayed for recovery, and replay is explicitly distinct from inference latency",
+  "count_documents": 46,
+  "count_queries": 100,
+  "count_duplicate_pairs": 18
+}

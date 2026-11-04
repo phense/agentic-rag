@@ -1,0 +1,20 @@
+{
+  "port": 55460,
+  "owned_source_and_target": [
+    "rag_bench_3484d9554cd042bf9360569a",
+    "rag_bench_bb5b701abe47446391243004"
+  ],
+  "remaining_owned_databases": [],
+  "owned_source_and_target_cleanup_verified": true,
+  "other_database_count": 1,
+  "other_databases_untouched": true,
+  "grants_preserved": true,
+  "roles_preserved": true,
+  "memberships_preserved": true,
+  "strict_source_restore": true,
+  "strict_target_restore": true,
+  "manifest_sha256": {
+    "source.dump.manifest.json": "0f8c1f71d229437401293f0eecc5630eb9977011a5b2908fe85344b0bd2270d8",
+    "target.dump.manifest.json": "9a26988dfc61e76fcafb6185bd8b54fb35b56fefe6650bb169572ccaf6e8581e"
+  }
+}

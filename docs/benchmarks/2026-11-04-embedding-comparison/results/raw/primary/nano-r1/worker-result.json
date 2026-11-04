@@ -1,0 +1,227 @@
+{
+  "model": "nano",
+  "descriptor": {
+    "repo": "jinaai/jina-embeddings-v5-omni-nano",
+    "revision": "14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50",
+    "dimensions": 768,
+    "dtype": "float32",
+    "modality": "text"
+  },
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "status": "complete",
+  "stage": "finished",
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+  "python": "3.13.13",
+  "torch_threads": 2,
+  "process_started": 1793803407.3412802,
+  "os_cache": "not dropped; fresh process is not cold OS cache",
+  "runtime": {
+    "packages": {
+      "torch": "2.15.0+cpu",
+      "transformers": "5.22.1",
+      "peft": "0.21.2",
+      "safetensors": "0.8.0",
+      "numpy": "2.5.4",
+      "tokenizers": "0.23.3",
+      "huggingface-hub": "2.4.0"
+    },
+    "loaded_parameters": 238913280,
+    "loaded_components": [
+      "base_model.model.language_model"
+    ],
+    "dtype": "torch.float32",
+    "task": "retrieval",
+    "kernel_internet_denied": true
+  },
+  "load_seconds": 37.799837924016174,
+  "first_query_seconds": 0.32710433803731576,
+  "document_build_seconds": 63.89523750898661,
+  "document_inputs_per_second": 0.7199284609205856,
+  "warm_query_seconds": {
+    "n": 100,
+    "p50": 0.29507420799927786,
+    "p95": 0.5496586579829454,
+    "p99": 0.649696011969354,
+    "maximum": 0.6531520829885267
+  },
+  "concurrent_client_seconds": {
+    "1": {
+      "n": 4,
+      "p50": 0.5234415780287236,
+      "p95": 0.6933873439556919,
+      "p99": 0.6933873439556919,
+      "maximum": 0.6933873439556919,
+      "wall_seconds": 2.01197760598734,
+      "inputs_per_second": 1.9880936985066864,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "2": {
+      "n": 8,
+      "p50": 0.6162654950167052,
+      "p95": 0.9570138159906492,
+      "p99": 0.9570138159906492,
+      "maximum": 0.9570138159906492,
+      "wall_seconds": 2.7145882709883153,
+      "inputs_per_second": 2.9470399196440185,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "4": {
+      "n": 16,
+      "p50": 1.7637304030358791,
+      "p95": 2.17908679501852,
+      "p99": 2.17908679501852,
+      "maximum": 2.17908679501852,
+      "wall_seconds": 7.194723630032968,
+      "inputs_per_second": 2.2238519257655884,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    }
+  },
+  "duplicates": {
+    "threshold": 0.95,
+    "n": 18,
+    "false_positive": 0,
+    "false_negative": 6,
+    "observations": [
+      {
+        "id": "dup-4",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-8",
+        "expected_same": true,
+        "cosine": 0.9999999999999999,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-14",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-20",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-26",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-32",
+        "expected_same": true,
+        "cosine": 1.0000000000000002,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-4",
+        "expected_same": false,
+        "cosine": 0.8486465057004777,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-8",
+        "expected_same": false,
+        "cosine": 0.7688186613874207,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-12",
+        "expected_same": false,
+        "cosine": 0.9252213355618817,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-22",
+        "expected_same": false,
+        "cosine": 0.7374677209869911,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-26",
+        "expected_same": false,
+        "cosine": 0.8720885577787815,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-28",
+        "expected_same": false,
+        "cosine": 0.6929742911015402,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-4",
+        "expected_same": true,
+        "cosine": 0.8401572571380899,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-8",
+        "expected_same": true,
+        "cosine": 0.8195879885491252,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-14",
+        "expected_same": true,
+        "cosine": 0.9318329074306814,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-20",
+        "expected_same": true,
+        "cosine": 0.9014516251737009,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-26",
+        "expected_same": true,
+        "cosine": 0.8677740208476574,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-32",
+        "expected_same": true,
+        "cosine": 0.5608156531776554,
+        "predicted_same": false,
+        "task": "text-matching"
+      }
+    ]
+  },
+  "wall_seconds": 234.57701434602495,
+  "cpu_self_seconds": 344.4619378,
+  "cpu_reaped_children_seconds": 0.011134999999999999,
+  "peak_self_rss_bytes": 1961431040,
+  "completed": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  },
+  "planned": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  }
+}

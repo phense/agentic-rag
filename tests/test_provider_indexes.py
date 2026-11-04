@@ -15,6 +15,59 @@ REAL_EMBED=providers.embed_profile
 REAL_VERIFY=providers.verify_identity
 
 
+def test_prefixed_duplicate_compares_candidate_in_document_space(conn,managed,monkeypatch):
+    # A query prefix produces an orthogonal vector: that mutation misses the duplicate.
+    ix,cfg,save=managed
+    p=replace(cfg.embedding_profiles['two'],document_prefix='Document: ',query_prefix='Query: ')
+    cfg=replace(cfg,embedding_profiles={**cfg.embedding_profiles,'two':p})
+    save(title='Retained source',content='the same factual text')
+    def handler(request):
+        if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'two:latest','digest':'a'*64}]})
+        texts=json.loads(request.content)['input']
+        return httpx.Response(200,json={'embeddings':[[1.,0.] if t.startswith('Document: ') else [0.,1.] for t in texts]})
+    original=httpx.Client
+    monkeypatch.setattr(providers,'_http_client',lambda **kw:original(transport=httpx.MockTransport(handler),**kw))
+    monkeypatch.setattr(providers,'embed_profile',REAL_EMBED)
+    ix.create(conn,cfg,'duplicates','two');ix.build(conn,cfg,'duplicates',allow_corpus=True)
+    ix.activate(conn,cfg,'duplicates')
+    assert ix.near_duplicate(conn,cfg,'the same factual text',domain='general',scope='global',threshold=.95)=='retained-source'
+
+
+def test_task_prefix_generation_build_query_and_failed_role_probe(conn,managed,monkeypatch):
+    # Catch storing query-prefixed chunks or switching before the query role works.
+    ix,cfg,save=managed
+    p=replace(cfg.embedding_profiles['two'],document_prefix='Document: ',query_prefix='Query: ')
+    cfg=replace(cfg,embedding_profiles={**cfg.embedding_profiles,'two':p})
+    save(content='a canonical chunk')
+    seen=[];reject_query=False
+    def handler(request):
+        if request.url.path=='/api/tags':return httpx.Response(200,json={'models':[{'name':'two:latest','digest':'a'*64}]})
+        inputs=json.loads(request.content)['input'];seen.extend(inputs)
+        if reject_query and any(t.startswith('Query: ') for t in inputs):return httpx.Response(503)
+        return httpx.Response(200,json={'embeddings':[[1.,0.] for _ in inputs]})
+    original=httpx.Client
+    monkeypatch.setattr(providers,'_http_client',lambda **kw:original(transport=httpx.MockTransport(handler),**kw))
+    monkeypatch.setattr(providers,'embed_profile',REAL_EMBED)
+    generation=ix.create(conn,cfg,'task','two')
+    assert ix.build(conn,cfg,'task',allow_corpus=True)['written']==1
+    assert seen==['Document: a canonical chunk']
+    bound=ix.query_vector(generation,cfg,'the question')
+    assert len(ix.candidates(conn,bound,'quasar'))==1
+    assert seen[-1]=='Query: the question'
+    reject_query=True
+    with pytest.raises(providers.ProviderError):ix.activate(conn,cfg,'task')
+    assert ix.active(conn,cfg) is None
+    reject_query=False
+    ix.activate(conn,cfg,'task')
+    assert ix.active(conn,cfg).id==generation.id
+    assert seen[-2:]==['Document: Synthetic connectivity probe; no stored knowledge.',
+                       'Query: Synthetic connectivity probe; no stored knowledge.']
+    edited=replace(cfg,embedding_profiles={**cfg.embedding_profiles,'two':replace(p,query_prefix='question: ')})
+    count=len(seen)
+    with pytest.raises(providers.ProviderError,match='differs'):ix.query_vector(generation,edited,'changed')
+    assert len(seen)==count
+
+
 @pytest.fixture
 def managed(conn,cfg,monkeypatch):
     from agentic_rag import indexes

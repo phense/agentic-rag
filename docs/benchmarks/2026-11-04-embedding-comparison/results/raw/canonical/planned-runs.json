@@ -1,0 +1,23 @@
+[
+  {
+    "label": "nano-r0",
+    "model": "nano",
+    "repeat": 0,
+    "status": "unattempted",
+    "reason": "not_started"
+  },
+  {
+    "label": "bge-r0",
+    "model": "bge",
+    "repeat": 0,
+    "status": "unattempted",
+    "reason": "not_started"
+  },
+  {
+    "label": "small-r0",
+    "model": "small",
+    "repeat": 0,
+    "status": "unattempted",
+    "reason": "not_started"
+  }
+]

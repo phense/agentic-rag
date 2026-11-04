@@ -1,0 +1,556 @@
+{
+  "schema": 1,
+  "license": "CC0-1.0",
+  "kind": "independent-heldout supplement for Issue 83 embedding comparison",
+  "provenance": "Independently authored by the RAG-083 independent review agent from the frozen public fictional corpus document texts only. Authored before inspecting any measured model output, vector, ranking or score. Not derived from the original queries; the original corpus, labels and protocol are unchanged. Not a human-annotator agreement study.",
+  "authored_at": "2026-11-04T15:07:05.878348+00:00",
+  "source_corpus": "docs/benchmarks/2026-11-04-embedding-comparison/corpus.json",
+  "source_corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "source_base_commit": "def28a49085ffb3fd38627f2ae56a545cad58ea5",
+  "review_head_commit": "53434d56272e857ebfbc51c7bf8e3cb168fe1ed6",
+  "labeling_rules": {
+    "relevance": "grade 2 only, matching corpus convention; every document whose text literally states the answer fact",
+    "required_groups": "one group per independent fact; alternatives inside one group when several documents state the same fact",
+    "cross_language": "true when any required document language differs from the query language",
+    "unsupported": "empty relevance/required/required_groups; excluded from recall denominator per protocol; hard distractor wording on purpose; retrieval of any document is never a supported answer",
+    "scope": "source ranking only; not supported-answer quality"
+  },
+  "counts": {
+    "queries": 16,
+    "de": 8,
+    "en": 8,
+    "cross_language": 9,
+    "multi_source": 2,
+    "unsupported": 2
+  },
+  "queries": [
+    {
+      "id": "ind-01",
+      "language": "de",
+      "text": "Welche Vertragsnummer trägt der Aster-Wartungsvertrag?",
+      "family": "identifiers",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {
+        "amount-a": 2
+      },
+      "required": [
+        "amount-a"
+      ],
+      "required_groups": [
+        [
+          "amount-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-02",
+      "language": "en",
+      "text": "What one-time setup charge applies to the Aster maintenance contract?",
+      "family": "amounts",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "amount-a": 2
+      },
+      "required": [
+        "amount-a"
+      ],
+      "required_groups": [
+        [
+          "amount-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-03",
+      "language": "de",
+      "text": "Für welche Anlage gilt der Auftrag TKT-7381 und welcher Treiber darf dort ersetzt werden?",
+      "family": "identifiers",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "ids-b": 2
+      },
+      "required": [
+        "ids-b"
+      ],
+      "required_groups": [
+        [
+          "ids-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-04",
+      "language": "en",
+      "text": "Which of the Nebel certificates expires in June 2049, and at what time?",
+      "family": "temporal",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "cred-a": 2
+      },
+      "required": [
+        "cred-a"
+      ],
+      "required_groups": [
+        [
+          "cred-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-05",
+      "language": "de",
+      "text": "Welche eigene Obergrenze gilt bei Rubin für Textimporte?",
+      "family": "amounts",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {
+        "limit-a": 2
+      },
+      "required": [
+        "limit-a"
+      ],
+      "required_groups": [
+        [
+          "limit-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-06",
+      "language": "en",
+      "text": "Which address range does the Harbor maintenance network use as its documentation example?",
+      "family": "identifiers",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "net-a": 2
+      },
+      "required": [
+        "net-a"
+      ],
+      "required_groups": [
+        [
+          "net-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-07",
+      "language": "de",
+      "text": "Reserviert eine Buchung des Schulungsraums Wolke auch Rechenkapazität?",
+      "family": "negation",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {
+        "room-a": 2,
+        "room-b": 2
+      },
+      "required": [
+        "room-a"
+      ],
+      "required_groups": [
+        [
+          "room-a",
+          "room-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-08",
+      "language": "en",
+      "text": "Segel has raised a coolant alarm; when is it allowed to start up again?",
+      "family": "long",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "long-a": 2
+      },
+      "required": [
+        "long-a"
+      ],
+      "required_groups": [
+        [
+          "long-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-09",
+      "language": "de",
+      "text": "Welche Funktionsrolle nimmt bei Morgen Störungen an, und wer genehmigt im Projekt Evening geplante Änderungen?",
+      "family": "multi_source",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "alpha-a": 2,
+        "alpha-b": 2
+      },
+      "required": [
+        "alpha-a",
+        "alpha-b"
+      ],
+      "required_groups": [
+        [
+          "alpha-a"
+        ],
+        [
+          "alpha-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-10",
+      "language": "en",
+      "text": "What are the net amounts of invoice DEMO-55021 and invoice DEMO-55012?",
+      "family": "multi_source",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "invoice-a": 2,
+        "invoice-b": 2
+      },
+      "required": [
+        "invoice-a",
+        "invoice-b"
+      ],
+      "required_groups": [
+        [
+          "invoice-a"
+        ],
+        [
+          "invoice-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-11",
+      "language": "de",
+      "text": "Was ist bei Maple nötig, damit die Wiederherstellbarkeit der Datenbank als belegt gilt?",
+      "family": "paraphrase",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "restore-b": 2
+      },
+      "required": [
+        "restore-b"
+      ],
+      "required_groups": [
+        [
+          "restore-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-12",
+      "language": "en",
+      "text": "When does Basalt move its progress marker past an item?",
+      "family": "paraphrase",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {
+        "retry-b": 2
+      },
+      "required": [
+        "retry-b"
+      ],
+      "required_groups": [
+        [
+          "retry-b"
+        ]
+      ]
+    },
+    {
+      "id": "ind-13",
+      "language": "de",
+      "text": "Was muss Granit beim erneuten Senden nach einer abgebrochenen Bestätigung unverändert weiterverwenden?",
+      "family": "paraphrase",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {
+        "retry-a": 2
+      },
+      "required": [
+        "retry-a"
+      ],
+      "required_groups": [
+        [
+          "retry-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-14",
+      "language": "en",
+      "text": "Is downloading a model part of the Mohn offline processing itself?",
+      "family": "negation",
+      "split": "independent-heldout",
+      "cross_language": true,
+      "relevance": {
+        "offline-a": 2
+      },
+      "required": [
+        "offline-a"
+      ],
+      "required_groups": [
+        [
+          "offline-a"
+        ]
+      ]
+    },
+    {
+      "id": "ind-15",
+      "language": "de",
+      "text": "Unter welcher Telefonnummer erreicht man die Bereitschaft des Projekts Morgen?",
+      "family": "unsupported",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "ind-16",
+      "language": "en",
+      "text": "What monthly licence fee is charged for the Opal compact model?",
+      "family": "unsupported",
+      "split": "independent-heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    }
+  ],
+  "verification": {
+    "ind-01": {
+      "literal_evidence": {
+        "amount-a": [
+          "Die Vertragsnummer ist AST-2049-17."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "AST-2049-17"
+      ]
+    },
+    "ind-02": {
+      "literal_evidence": {
+        "amount-a": [
+          "Die einmalige Einrichtung kostet 250,00 EUR netto."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Aster"
+      ]
+    },
+    "ind-03": {
+      "literal_evidence": {
+        "ids-b": [
+          "Ticket TKT-7381 authorizes replacing the scanner driver on the Pebble training system."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Pebble"
+      ]
+    },
+    "ind-04": {
+      "literal_evidence": {
+        "cred-a": [
+          "Das fiktive Client-Zertifikat von Nebel läuft am 17. Juni 2049 um 12:00 UTC ab."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Nebel"
+      ]
+    },
+    "ind-05": {
+      "literal_evidence": {
+        "limit-a": [
+          "Das Limit für Textimporte beträgt separat 2 MiB."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Rubin"
+      ]
+    },
+    "ind-06": {
+      "literal_evidence": {
+        "net-a": [
+          "benutzt den Bereich 198.51.100.0/24 ausschließlich als Dokumentationsbeispiel"
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "198.51.100.0/24"
+      ]
+    },
+    "ind-07": {
+      "literal_evidence": {
+        "room-a": [
+          "Eine Raumbuchung reserviert keine Rechenkapazität."
+        ],
+        "room-b": [
+          "Reserving the room does not reserve compute capacity."
+        ]
+      },
+      "exclusive_tokens_checked": []
+    },
+    "ind-08": {
+      "literal_evidence": {
+        "long-a": [
+          "Nach einem Kühlmittelalarm darf Segel erst nach 35 Minuten Wartezeit wieder anlaufen."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "35 Minuten"
+      ]
+    },
+    "ind-09": {
+      "literal_evidence": {
+        "alpha-a": [
+          "ist die Funktionsrolle Betrieb für die Störungsannahme zuständig"
+        ],
+        "alpha-b": [
+          "In the fictional Evening project the review team approves planned changes."
+        ]
+      },
+      "exclusive_tokens_checked": []
+    },
+    "ind-10": {
+      "literal_evidence": {
+        "invoice-a": [
+          "Ihr Betrag ist 412,90 EUR netto."
+        ],
+        "invoice-b": [
+          "for EUR 421.90 before tax"
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "412,90",
+        "421.90"
+      ]
+    },
+    "ind-11": {
+      "literal_evidence": {
+        "restore-b": [
+          "Restore readiness requires a separate successful recovery trial."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Maple"
+      ]
+    },
+    "ind-12": {
+      "literal_evidence": {
+        "retry-b": [
+          "It advances only for a permanently invalid individual item, recording the reason."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Basalt"
+      ]
+    },
+    "ind-13": {
+      "literal_evidence": {
+        "retry-a": [
+          "wird derselbe Auftrag mit demselben Schlüssel erneut gesendet"
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Granit"
+      ]
+    },
+    "ind-14": {
+      "literal_evidence": {
+        "offline-a": [
+          "Ein Modell-Download ist ein separater Schritt vor der Verarbeitung."
+        ]
+      },
+      "exclusive_tokens_checked": [
+        "Mohn"
+      ]
+    },
+    "ind-15": {
+      "literal_evidence": {},
+      "exclusive_tokens_checked": []
+    },
+    "ind-16": {
+      "literal_evidence": {},
+      "exclusive_tokens_checked": []
+    }
+  },
+  "near_duplicate_check": {
+    "ind-01": {
+      "closest_original": "unsupported-1",
+      "token_jaccard": 0.2
+    },
+    "ind-02": {
+      "closest_original": "amount-a-en",
+      "token_jaccard": 0.235
+    },
+    "ind-03": {
+      "closest_original": "ids-b-de",
+      "token_jaccard": 0.353
+    },
+    "ind-04": {
+      "closest_original": "cred-b-en",
+      "token_jaccard": 0.222
+    },
+    "ind-05": {
+      "closest_original": "long-b-de",
+      "token_jaccard": 0.231
+    },
+    "ind-06": {
+      "closest_original": "net-a-en",
+      "token_jaccard": 0.375
+    },
+    "ind-07": {
+      "closest_original": "rights-b-de",
+      "token_jaccard": 0.118
+    },
+    "ind-08": {
+      "closest_original": "long-b-en",
+      "token_jaccard": 0.2
+    },
+    "ind-09": {
+      "closest_original": "alpha-b-de",
+      "token_jaccard": 0.15
+    },
+    "ind-10": {
+      "closest_original": "invoice-a-en",
+      "token_jaccard": 0.312
+    },
+    "ind-11": {
+      "closest_original": "amount-a-de",
+      "token_jaccard": 0.167
+    },
+    "ind-12": {
+      "closest_original": "retry-b-en",
+      "token_jaccard": 0.333
+    },
+    "ind-13": {
+      "closest_original": "retry-a-de",
+      "token_jaccard": 0.235
+    },
+    "ind-14": {
+      "closest_original": "dns-b-en",
+      "token_jaccard": 0.188
+    },
+    "ind-15": {
+      "closest_original": "unsupported-0",
+      "token_jaccard": 0.133
+    },
+    "ind-16": {
+      "closest_original": "amount-a-en",
+      "token_jaccard": 0.4
+    }
+  },
+  "known_limits": [
+    "ind-08 targets the final sentence of long-a (2893 characters, answer at offset 2808); the document is below the 4000-character input bound, so this query tests late-position facts, not truncation.",
+    "ind-02 deliberately targets the Aster setup fee (250,00 EUR) while amount-b contains the inverse pairing (setup 108.32, monthly 250.00) as a hard distractor.",
+    "Small single-author set (16); sampling error dominates; use only as a separately reported independent-heldout slice, never pooled silently with the original 92 heldout queries.",
+    "ind-07 accepts either room-a or room-b (same fact stated in both); required lists the same-language primary only, matching corpus convention."
+  ]
+}

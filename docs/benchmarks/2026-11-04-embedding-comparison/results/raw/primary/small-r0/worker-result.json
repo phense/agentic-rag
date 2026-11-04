@@ -1,0 +1,36 @@
+{
+  "model": "small",
+  "descriptor": {
+    "repo": "jinaai/jina-embeddings-v5-omni-small",
+    "revision": "950200abde3a3bcf3d5bdfe5d28fb5bb5e7dfbb0",
+    "dimensions": 1024,
+    "dtype": "float32",
+    "modality": "text"
+  },
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "status": "failed",
+  "stage": "load",
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+  "python": "3.13.13",
+  "torch_threads": 2,
+  "process_started": 1793804970.6701198,
+  "os_cache": "not dropped; fresh process is not cold OS cache",
+  "failure": {
+    "class": "AttributeError",
+    "message": "'JinaEmbeddingsV5OmniBase' object has no attribute 'modality'"
+  },
+  "wall_seconds": 58.66525894601364,
+  "cpu_self_seconds": 56.0594142,
+  "cpu_reaped_children_seconds": 0.009840999999999999,
+  "peak_self_rss_bytes": 947384320,
+  "completed": {
+    "documents": 0,
+    "queries": 0,
+    "duplicates": 0
+  },
+  "planned": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  }
+}

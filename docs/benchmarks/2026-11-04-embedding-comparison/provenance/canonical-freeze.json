@@ -1,0 +1,19 @@
+{
+  "kind": "single-canonical-native-experiment",
+  "frozen_at": "2026-11-04T16:04:32.597441+00:00",
+  "files": {
+    "scripts/benchmark_embeddings.py": "6e227379b7bc3ac395801b8e97d4574a8787cca5e3be7a968644a0d9de34981a",
+    "scripts/benchmark_embedding_chunks.py": "b409b05340e5809fd7630287482a4223c00d07c9aa970cc78370214d0f122d7c",
+    "scripts/run_embedding_benchmark.py": "a8521bda1f04d8a9c24101c5b8334538692b6a3de005688f0671f9567bfe26e0",
+    "docs/benchmarks/2026-11-04-embedding-comparison/canonical-inputs-v2.json": "37a25d5929a851ec0d8fe67da5f1a571841041e1719fb3797198ba2a02622131",
+    "docs/benchmarks/2026-11-04-embedding-comparison/errata.json": "603e549bf9ddbddba33a70384bb06ceecf2eed2d0e0c4b0182d8fca6592baf3c"
+  },
+  "output": "/home/administrator/Claude/.scratch/rag083-canonical-v2-1ef9af4",
+  "planned": [
+    "nano-r0",
+    "bge-r0",
+    "small-r0"
+  ],
+  "deadline_seconds_per_candidate": 900,
+  "claim": "Native retrieval only. Resource/deadline failures are retained; only fully measured candidate generations enter the replay lifecycle rehearsal. No served-endpoint equivalence or production adoption."
+}

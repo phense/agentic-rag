@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.33] - 2026-11-04
+
+- Bind optional document/query task prefixes to immutable embedding profiles. Use the document role for index builds and semantic duplicate checks, the query role for search, and both role probes before selecting a generation. Empty prefixes preserve the previous identity and request bytes. Existing installations need a code update and process restart; schema 039, stored knowledge and existing generations remain unchanged. Follow PB061-OPS for writer pause, profile/configuration preservation and ordered rollback before an older binary reads prefixed profiles.
+- Publish the bounded local CPU comparison of BGE with the pinned Jina v5 omni Nano/Small text paths, including raw observations, failed/unattempted Small runs, independent queries, paired ranking intervals and exact-vector populated recovery. Recommend retaining BGE: Nano is faster on this fixture but has mixed held-out ranking, and Small exceeds the scheduled budgets. Replay proves generation/recovery consistency, not served-endpoint parity or model latency. No production activation, re-embedding, cloud request or model download occurs on upgrade. See `docs/benchmarks/2026-11-04-embedding-comparison/README.md`; wider Issue83 acceptance remains open.
+
 ## [0.6.32] - 2026-11-04
 
 - Add a separate maintained, hash-pinned, wheel-only ONNX benchmark path for the three historical ONNX profiles. It reuses the installed ranker, refuses Transformers/setuptools and custom-code v3.5, retains failed attempts, and never downloads models. The historical four-model manifest, measurements and failed protocol remain unchanged. See `docs/benchmarks/maintained-rerankers/README.md` for advisory dispositions, isolated rebuild and recovery. No database migration, production profile change or data rewrite is required; rollback uses the previous application environment.

@@ -1,0 +1,227 @@
+{
+  "model": "nano",
+  "descriptor": {
+    "repo": "jinaai/jina-embeddings-v5-omni-nano",
+    "revision": "14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50",
+    "dimensions": 768,
+    "dtype": "float32",
+    "modality": "text"
+  },
+  "corpus_sha256": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+  "status": "complete",
+  "stage": "finished",
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+  "python": "3.13.13",
+  "torch_threads": 2,
+  "process_started": 1793803670.2838595,
+  "os_cache": "not dropped; fresh process is not cold OS cache",
+  "runtime": {
+    "packages": {
+      "torch": "2.15.0+cpu",
+      "transformers": "5.22.1",
+      "peft": "0.21.2",
+      "safetensors": "0.8.0",
+      "numpy": "2.5.4",
+      "tokenizers": "0.23.3",
+      "huggingface-hub": "2.4.0"
+    },
+    "loaded_parameters": 238913280,
+    "loaded_components": [
+      "base_model.model.language_model"
+    ],
+    "dtype": "torch.float32",
+    "task": "retrieval",
+    "kernel_internet_denied": true
+  },
+  "load_seconds": 35.46572603896493,
+  "first_query_seconds": 0.6650564820156433,
+  "document_build_seconds": 52.98477396398084,
+  "document_inputs_per_second": 0.8681739405224395,
+  "warm_query_seconds": {
+    "n": 100,
+    "p50": 0.3266903409967199,
+    "p95": 0.6411858840147033,
+    "p99": 0.7461335979751311,
+    "maximum": 0.7572363039944321
+  },
+  "concurrent_client_seconds": {
+    "1": {
+      "n": 4,
+      "p50": 0.26430356700439006,
+      "p95": 0.32819772796938196,
+      "p99": 0.32819772796938196,
+      "maximum": 0.32819772796938196,
+      "wall_seconds": 1.0981437239679508,
+      "inputs_per_second": 3.6425104589649684,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "2": {
+      "n": 8,
+      "p50": 0.894566043978557,
+      "p95": 1.3049162779934704,
+      "p99": 1.3049162779934704,
+      "maximum": 1.3049162779934704,
+      "wall_seconds": 3.902405438013375,
+      "inputs_per_second": 2.050017643495448,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    },
+    "4": {
+      "n": 16,
+      "p50": 2.004330970987212,
+      "p95": 2.2586454229895025,
+      "p99": 2.2586454229895025,
+      "maximum": 2.2586454229895025,
+      "wall_seconds": 8.168029308959376,
+      "inputs_per_second": 1.9588568300617952,
+      "scope": "embedding call including local serialization; excludes application retrieval"
+    }
+  },
+  "duplicates": {
+    "threshold": 0.95,
+    "n": 18,
+    "false_positive": 0,
+    "false_negative": 6,
+    "observations": [
+      {
+        "id": "dup-4",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-8",
+        "expected_same": true,
+        "cosine": 0.9999999999999999,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-14",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-20",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-26",
+        "expected_same": true,
+        "cosine": 1.0,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "dup-32",
+        "expected_same": true,
+        "cosine": 1.0000000000000002,
+        "predicted_same": true,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-4",
+        "expected_same": false,
+        "cosine": 0.8486465057004777,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-8",
+        "expected_same": false,
+        "cosine": 0.7688186613874207,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-12",
+        "expected_same": false,
+        "cosine": 0.9252213355618817,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-22",
+        "expected_same": false,
+        "cosine": 0.7374677209869911,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-26",
+        "expected_same": false,
+        "cosine": 0.8720885577787815,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "notdup-28",
+        "expected_same": false,
+        "cosine": 0.6929742911015402,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-4",
+        "expected_same": true,
+        "cosine": 0.8401572571380899,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-8",
+        "expected_same": true,
+        "cosine": 0.8195879885491252,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-14",
+        "expected_same": true,
+        "cosine": 0.9318329074306814,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-20",
+        "expected_same": true,
+        "cosine": 0.9014516251737009,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-26",
+        "expected_same": true,
+        "cosine": 0.8677740208476574,
+        "predicted_same": false,
+        "task": "text-matching"
+      },
+      {
+        "id": "paraphrase-32",
+        "expected_same": true,
+        "cosine": 0.5608156531776554,
+        "predicted_same": false,
+        "task": "text-matching"
+      }
+    ]
+  },
+  "wall_seconds": 188.26754666795023,
+  "cpu_self_seconds": 302.88036150000005,
+  "cpu_reaped_children_seconds": 0.014110999999999999,
+  "peak_self_rss_bytes": 2015821824,
+  "completed": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  },
+  "planned": {
+    "documents": 46,
+    "queries": 100,
+    "duplicates": 18
+  }
+}
