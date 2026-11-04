@@ -4,7 +4,7 @@ title: Operate scoped signed webhooks
 type: task
 doc_id: webhooks
 readers: [installation-operator, authorized-writer]
-status: draft
+status: ready
 version: 0.6.29
 depends_on: [central-service]
 assets: []
@@ -20,8 +20,9 @@ summary: Deliver minimal committed change notices to an explicitly configured re
   [RAG-072 AC-001–008](specs/RAG-072-signed-webhooks/spec.md).
 - Target: 0.6.29/schema038, upgraded from 0.6.28/schema037.
 - Readiness deadline: before first capture enablement or receiver configuration.
-- Last edited: 2026-11-04. This draft awaits the implemented command contracts,
-  independent review and isolated receiver/upgrade rehearsal.
+- Last reviewed: 2026-11-04. Implemented contracts, independent code review and
+  isolated receiver/upgrade/recovery rehearsals are complete. Production
+  enablement still requires this installation's operator and destination choice.
 
 Use this procedure when an approved service needs notice of a committed change
 without repeatedly searching the store. The sender posts a small signed event
@@ -332,8 +333,45 @@ bounded state; it excludes canonical text and credentials.
    already handed to the network cannot be recalled. Retained deliveries remain
    available; re-enabling capture is an explicit operator action.
 
-5. At `webhook_capacity`, turn capture off to restore ordinary writes, pause
-   the sender schedule and preserve `webhooks status "$SUB"` output. Storage is
+5. At `webhook_capacity`, turn capture off to restore ordinary writes and pause
+   the sender schedule. Ordinary `status` remains restricted to its original
+   namespace/actor, even for a local database owner. For a revoked remote owner,
+   run this local operator inventory using the installation's Python and owner
+   configuration. It reads metadata only; never copy credential references,
+   endpoints or bodies into a report.
+
+   ```sh
+   "${RAG%/rag}/python" - <<'PY'
+   import json, os, uuid
+   from agentic_rag import db
+   from agentic_rag.config import load_config
+   from agentic_rag.webhook_delivery import _operator, _valid
+   cfg = load_config()
+   _operator(cfg)
+   selected = os.environ.get('DELIVERY_ID')
+   after = os.environ.get('AFTER_DELIVERY', str(uuid.UUID(int=0)))
+   selected = str(uuid.UUID(selected)) if selected else None
+   after = str(uuid.UUID(after))
+   with db.connect(cfg) as conn:
+       conn.execute('SET TRANSACTION READ ONLY')
+       _valid(conn)
+       counts = conn.execute('SELECT state,count(*) AS count FROM webhook_deliveries GROUP BY state ORDER BY state').fetchall()
+       rows = conn.execute('''SELECT d.id,d.subscription_id,d.state,d.cancelled_from,
+           d.updated_at,d.updated_at+interval '7 days' AS retention_until,
+           (SELECT count(*) FROM audit_log a WHERE a.op='webhook.cancel'
+            AND a.summary=d.id::text||':'||d.cancelled_from) AS cancellation_audits
+           FROM webhook_deliveries d WHERE (%s::uuid IS NULL OR d.id=%s::uuid)
+           AND d.id>%s::uuid ORDER BY d.id LIMIT 101''',
+           (selected,selected,after)).fetchall()
+   print(json.dumps({'counts':counts,'deliveries':rows[:100],
+       'next_after':str(rows[99]['id']) if len(rows)>100 else None},default=str))
+   PY
+   ```
+
+   Preserve the output. If `next_after` is non-null, export it as
+   `AFTER_DELIVERY` and repeat; unset that variable afterward. To inspect one
+   selected row, export `DELIVERY_ID=RETAINED_DELIVERY_UUID` and rerun the same
+   block. Storage is
    finite: 32 subscriptions per namespace, 10000 retained subscriptions/events/
    deliveries and 32 MiB of serialized bodies. The originating write rolls back
    when it cannot retain its notice; confirm that write's outcome before retry.
@@ -345,14 +383,16 @@ bounded state; it excludes canonical text and credentials.
 
    ```sh
    "$RAG" webhooks cancel RETAINED_DELIVERY_UUID --expected-state revoked
-   "$RAG" webhooks status "$SUB"
+   export DELIVERY_ID=RETAINED_DELIVERY_UUID
+   # Rerun D5's read-only inventory with AFTER_DELIVERY unset.
    ```
 
    Accepted prior states are `dead`, `revoked` or `disabled`. For live work,
    first disable its subscription through D4; do not cancel a pending, retrying
-   or leased delivery directly. Expect `cancelled` in status and a committed
-   `webhook.cancel` audit entry. A wrong state or ID must fail without changing
-   other deliveries. Preserve that failure and fetch status again; do not guess
+   or leased delivery directly. Require `state: cancelled`, the observed
+   `cancelled_from`, one `cancellation_audits` entry and the first
+   `retention_until` in D5's inventory. A wrong state or ID must fail without
+   changing other deliveries. Preserve that failure and reread D5; do not guess
    IDs. Repeating the same cancellation must not restart retention. Knowledge
    and the original credential binding stay unchanged. A retained cancelled
    notice can still be explicitly replayed through D2 within its existing replay

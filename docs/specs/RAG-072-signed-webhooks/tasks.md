@@ -53,16 +53,16 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 - [x] T072-C02: Local audited named terminal cancellation with expected state,
   lease fencing, unchanged retention on repeat and no live-work deletion.
   Rehearse seven-day prune and capacity recovery. IR072-002/PB072-IR-001.
-- [ ] T072-C03: Independently review the complete correction boundary; retain
+- [x] T072-C03: Independently review the complete correction boundary; retain
   unchanged accepted evidence and resolve new C/H/M/Important before full/PR.
 
 ### S072-3: Acceptance and delivery
 
-- [ ] T072-009: PB07201 `docs/webhooks.md`, executable local receiver/signature
+- [x] T072-009: PB07201 `docs/webhooks.md`, executable local receiver/signature
   verifier, opt-in, secret export/rotation, scope, outage/replay/capacity,
   archived028 upgrade and safe rollback. Root rehearses real CLI/receiver with
   synthetic content and reports2–3 measured before/after examples.
-- [ ] T072-010: Reconcile as-built architecture; derive and execute ACF072-S/R/U.
+- [x] T072-010: Reconcile as-built architecture; derive and execute ACF072-S/R/U.
   Independent complete bounded security/concurrency/upgrade and playbook review;
   resolve C/H/M/Important, track nonblocking Low separately without reopening
   unchanged inherited work. Review fixes proportionately.

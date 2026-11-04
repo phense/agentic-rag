@@ -15,8 +15,9 @@ summary: Bounded synthetic webhook, upgrade and recovery evidence; no production
 Issue [72](https://github.com/phense/agentic-rag/issues/72) targets 0.6.29/schema038.
 The corrected runtime is frozen at `128d2cf`, based on the real
 0.6.28/schema037 release `7669284`. These are bounded correctness and compatibility observations,
-not a delivery SLA, production receiver test or merge approval. The complete review found two defects; their implemented corrections await
-independent acceptance. The final full suite has not run.
+not a delivery SLA, production receiver test or merge approval. Independent
+correction review accepted the code with C0/H0/M0/Low0. Its remaining playbook
+finding was corrected and rehearsed separately. The final full suite has not run.
 
 ## Focused checks and compatibility
 
@@ -103,8 +104,20 @@ seams; no public receiver or certificate authority was contacted.
 
 ## Open gates and operation boundary
 
-IR072-001/002 and PB072-IR-001 have targeted correction evidence; independent
-correction acceptance remains open. The final full-suite output, release/CI,
+IR072-001/002 and PB072-IR-001 are resolved by the independent correction review.
+PB072-CR-001 identified that normal scoped status cannot inspect a remote-owned
+subscription as a local operator. Its correction adds only an explicit READ ONLY
+owner metadata inventory; remote permissions and runtime code are unchanged.
+The coordinator executed the exact printed Python block after real synthetic
+credential revocation: local status still404; the inventory found the revoked
+delivery; ordinary named CLI cancellation produced one audit; repeating it kept
+the same retention; immediate prune remained0. All59 table hashes were unchanged
+by each inventory call, and no body, endpoint or credential was printed. Cursor
+filtering and invalid-ID refusal also passed; the owned database was removed.
+The initial snippet-extraction harness failed before opening a database because
+it did not handle indented Markdown fences; the corrected harness passed.
+
+The final full-suite output, release/CI,
 merge and both populated production upgrades remain open. Node7, documentation17,
 lock and wheel checks have passed; the wheel contains38 SQL files and155 Python
 modules byte-equal to the corrected runtime. No keys, subscriptions, endpoints

@@ -66,9 +66,9 @@ fences and signing material retain separate ownership.
   independently restores both backups and runs old028 readers/writer while
   capture remains off. Preserve rows/ACLs/owners/sequences/vectors/pins/jobs.
 
-Design findings AF072-001..006 live in `findings.md`; independent design
-corrections must be reconciled before task execution. As-built reconciliation
-and actual success/recovery results remain open.
+Design findings AF072-001..006 live in `findings.md`; their corrections are
+implemented and reconciled below. Actual success/recovery results are recorded
+in the verification evidence.
 
 ## As-built reconciliation, 2026-11-04
 
@@ -101,5 +101,7 @@ The corrected157-test selection covers the exact concurrency failure, mixed
 edge/memory order, READ COMMITTED/REPEATABLE READ quotas, real mining/lifecycle,
 management/FK/prune interaction and archived028 recovery. Root's47-command CLI
 rehearsal verifies signed delivery plus explicit capacity retirement/recovery.
-The changed architecture still awaits independent correction acceptance; none
-of these results substitutes for the final full suite or production proof.
+Independent correction review accepted the changed architecture and code with
+C0/H0/M0/Low0. Its remaining operator-inventory procedure finding was corrected
+and rehearsed with a genuinely revoked remote owner, without widening scoped
+status. None of these results substitutes for the final full suite or production proof.
