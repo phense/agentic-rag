@@ -1,6 +1,6 @@
 [project]
 name = "agentic-rag"
-version = "0.6.30"
+version = "0.6.31"
 description = "Lean PostgreSQL-based agentic-RAG memory and session continuity"
 requires-python = ">=3.13"
 license = "MIT"
@@ -20,7 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 reranker = ["onnxruntime>=1.23,<2", "tokenizers>=0.22,<0.23", "numpy>=2,<3"]
-images = ["pillow>=11,<13"]
+images = ["pillow>=13,<14"]
 
 [project.scripts]
 rag = "agentic_rag.cli:main"

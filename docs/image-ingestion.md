@@ -14,6 +14,14 @@ summary: Opt-in local OCR and interpretation of screenshots and receipts with re
 
 # PB07001: Ingest, inspect and recover source-backed images
 
+Version0.6.31 requires Pillow13 for the optional `images` extra. Reinstall that
+extra in the target virtual environment and restart the image-serving processes.
+Existing originals and OCR derivations remain unchanged; a dependency update does
+not launch a backfill. Keep the preceding environment for a code-only rollback.
+The [Pillow13 release notes](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html)
+list the decoder security fixes and removed interfaces. The image path continues
+to accept only PNG, JPEG and WebP inside its existing resource limits.
+
 ## Identity and scope
 
 - Class: system playbook (delivered with the feature), with the one-time upgrade
