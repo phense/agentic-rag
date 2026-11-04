@@ -43,7 +43,7 @@ def call(client, key, name, **arguments):
 def test_registration_keeps_privilege_split_and_old_signatures():
     ro, rw = set(mcp_server.tool_names(True)), set(mcp_server.tool_names(False))
     assert READ <= ro and not (WRITE & ro) and WRITE <= rw
-    assert len(rw) - len(ro) == 17
+    assert len(rw) - len(ro) == 23
     feedback_read = {'memory_feedback_get', 'memory_feedback_list'}
     feedback_write = {'memory_feedback_search', 'memory_feedback_submit',
                       'memory_feedback_update', 'memory_feedback_retract'}

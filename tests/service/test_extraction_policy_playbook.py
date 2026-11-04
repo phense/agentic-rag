@@ -149,15 +149,15 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
         assert operator('preflight', '--source-version', '0.6.19', '--mode', 'local')['ready'] is True
         a4 = operator('upgrade', '--source-version', '0.6.19', '--dump', str(proofs / 'policy032.dump'),
                       '--apply', '--writers-stopped')
-        assert a4['migrations_applied'] == ['032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql']
+        assert a4['migrations_applied'] == ['032_extraction_policy.sql', '033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql', '038_webhooks.sql']
         assert a4['restore_verified'] and a4['original_rows_unchanged']
         assert (proofs / 'policy032.dump.manifest.json').exists()
         a5 = operator('upgrade', '--source-version', '0.6.19', '--dump', str(proofs / 'retry.dump'),
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        # Reject the next release; the current0.6.28 remains supported.
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.29', '--dump',
+        # Reject the next release; the current0.6.29 remains supported.
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.30', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'bindings': 0, 'malformed_digests': 0, 'bindings_minus_audit': 0, 'batch_policy_mismatch': 0}
         assert integrity(load_config(config)) == zero

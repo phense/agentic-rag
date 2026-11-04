@@ -146,7 +146,8 @@ def test_cli_and_both_mcp_privileges_expose_readonly_research(conn,cfg,hook_env,
         'memory_entity_alias','memory_entity_alias_review',
         'memory_pattern_policy','memory_pattern_backfill','memory_pattern_recover',
         'memory_lifecycle_apply','memory_lifecycle_correct',
-        'memory_feedback_search','memory_feedback_submit','memory_feedback_update','memory_feedback_retract'}
+        'memory_feedback_search','memory_feedback_submit','memory_feedback_update','memory_feedback_retract',
+        'webhook_subscribe','webhook_update','webhook_disable','webhook_rotate','webhook_test','webhook_replay'}
     assert cli.main(['research','Storage PostgreSQL','--project','/projects/alpha','--strategy','lexical','--json'])==0
     out=json.loads(capsys.readouterr().out)
     assert len(out['supported'])==1
