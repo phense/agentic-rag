@@ -470,6 +470,24 @@ def test_current_schema_correction_export_remains_read_only(conn,cfg,tmp_path):
     result=corrections.export_confirmed_corrections(cfg,domain='general',scope='global',output_path=path)
     assert result['application_writes']==0 and result['provider_calls']==0
     payload=json.loads(path.read_text())
-    assert payload['source_schema'][-1]=='036_image_ingestion.sql'
+    assert payload['source_schema'][-1]=='039_metadata_filters.sql'
     corrections._validate_export(payload)
     assert conn.execute('SELECT count(*) n FROM audit_log').fetchone()['n']==before
+
+
+@pytest.mark.parametrize('selection',['whole','mixed'])
+def test_metadata_filtered_export_never_emits_partial_correction_family(conn,cfg,tmp_path,monkeypatch,selection):
+    from agentic_rag import domains,store
+    from agentic_rag.benchmark import corrections
+    domains.seed_defaults(conn);monkeypatch.setattr(store,'try_embed_texts',lambda *a:None)
+    old=_fact(conn,cfg,'7000','2026-01-01T00:00:00Z',relation='assertion')
+    new=_fact(conn,cfg,'8000','2026-02-01T00:00:00Z')
+    slugs={str(r['id']):r['slug'] for r in conn.execute('SELECT id,slug FROM documents')}
+    node={'field':'slug','op':'in','value':[slugs[old.doc_id],slugs[new.doc_id]]} if selection=='whole' else {'field':'slug','op':'ne','value':slugs[old.doc_id]}
+    path=tmp_path/'metadata-labels.json'
+    result=corrections.export_confirmed_corrections(cfg,domain='general',project='/synthetic/corrections/a',output_path=path,filter={'version':1,'where':node})
+    cases=json.loads(path.read_text())['cases']
+    if selection=='mixed':assert result['cases']==0 and cases==[]
+    else:
+        assert result['cases']==1 and cases[0]['document_id']==new.doc_id
+        assert {row['document_id'] for row in cases[0]['history']}=={old.doc_id,new.doc_id}

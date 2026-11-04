@@ -122,7 +122,8 @@ existing claim/evidence audit and any detected-secret withdrawal together.
 Original downloads and region drilldown recheck source state. The operator-only
 `image erase` command previews by default, fences the exact original digest,
 removes payloads and exclusively supported claims atomically with an audit, and
-leaves a content-free tombstone. Shared claims and other originals survive.
+leaves a payload-free tombstone retaining digests and the documented cache limit.
+Shared claims and other originals survive.
 Limited roles retain INSERT/SELECT only; erasure uses an explicit local admin
 connection and rejects service/fence/queued contexts. No erasure REST/MCP route exists.
 
@@ -134,11 +135,11 @@ older claims display `newer_derivation_differs`, including retrieval metadata, a
 receive changed evidence review tokens. No machine reading silently refutes a
 human decision. Failed backfill items do not consume their cursor.
 
-Independent correction review, final full-suite verification and representative
-restores remain acceptance gates; this section reconciles the implemented design,
-not production readiness. Upload buffering still occupies a shared gateway slot
-before authentication (R070-L3), and the engine runner still uses `preexec_fn`
-(R070-L4); these are disclosed residual risks pending a separate bounded fix.
+This paragraph describes the initial correction boundary. Final independent
+reviews, actual-source restores and rollout evidence are recorded below.
+Upload buffering still occupies a shared gateway slot before authentication
+(R070-L3). Linux retains its resource-limit callback; Darwin now launches a
+separate supervisor, avoiding `preexec_fn` in the threaded service.
 
 
 ### Second correction reconciliation (review candidate)
@@ -153,3 +154,18 @@ source-state transitions; original reads enforce it independently of source trus
 Client backfill distinguishes explicit item errors from service failures.
 The pre-OCR visibility interval, retained digests/cache and pinned-claim erasure
 limitation remain documented limits, not claims of complete privacy sanitization.
+
+### Final reconciliation at 0.6.27
+
+The independent second correction review accepted the gateway with C0/H0/M0.
+PR102 adds a Darwin supervisor with kernel CPU/file/core limits, a sampled
+physical-memory group budget, lifetime-peak checks and fail-closed accounting.
+It is not a hard allocator cap; Linux behavior remains unchanged.
+
+The native Mac resource tests passed 11/11. Actual-source upgrades and independent
+restores preserved all original rows and privileges on both production hosts;
+0.6.27 OCR is enabled there without recoding existing representations. A separate
+real Qwen3-VL 2B probe published three synthetic interpretations, all unreviewed
+and ineligible, preserving original bytes and rejecting foreign readers.
+Production vision remains disabled. Current evidence and the explicitly retained
+historical full-suite failure are in `docs/verification/image-ingestion.md`.

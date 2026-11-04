@@ -105,7 +105,7 @@ def research(cfg: Config, question: str, **options) -> dict:
 
 async def research_async(cfg: Config, question: str, *, domain=None, project=None, scope=None,
                          as_of=None, history=False, provider=False, strategy='auto',
-                         budget: ResearchBudget | None = None, min_sources=2, view=None) -> dict:
+                         budget: ResearchBudget | None = None, min_sources=2, view=None, filter=None) -> dict:
     """Run in an isolated rag_reader process. Explicit provider=True sends
     bounded redacted evidence to the configured provider. Defaults make no
     structured-provider call. Cancellation kills owned descendants and propagates.
@@ -113,12 +113,16 @@ async def research_async(cfg: Config, question: str, *, domain=None, project=Non
     OS scheduling overhead. Work already accepted by existing services can outlive
     the caller. No service or persistent state changes.
     """
+    from .metadata import normalize, wire, MetadataError
+    filter=normalize(filter,cfg.metadata_fields)
     budget = budget or ResearchBudget()
     _validate(question, domain, project, scope, as_of, history, provider, strategy, min_sources,resolve=False)
     from .lifecycle import normalize_view
     view = normalize_view(view, history=history, as_of=as_of)
     options = dict(domain=domain, project=project, scope=scope, as_of=as_of,
                    history=history, provider=provider, strategy=strategy, min_sources=min_sources)
+    if filter is not None:
+        options["filter"]=wire(filter)
     if view is not None:
         # Explicit lifecycle view travels to the reader worker; historical uses the
         # qualified SQL gates, so legacy history only disables edge-validity filters.
@@ -160,6 +164,8 @@ async def research_async(cfg: Config, question: str, *, domain=None, project=Non
             continue
         if isinstance(packet, dict) and isinstance(packet.get('context'),str) and len(packet['context'])<=budget.context_chars:
             result = packet
+    if result.get('error') in ('invalid_filter','unsupported_filter','filter_budget'):
+        raise MetadataError(result['error'])
     if timed_out:
         result.update(abstained=True,termination='time_budget')
         result['missing_evidence'].append({'question_index':None,'reason':'wall-time budget exhausted; assessment incomplete'})
@@ -246,11 +252,16 @@ def _supported_excerpt(item, minimum):
     return None
 
 
+from .metadata import read_boundary
+
+
+@read_boundary
 def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
               as_of=None, history=False, provider=False, strategy='auto',
               budget=None, min_sources=2, progress=None, clock=time.monotonic,
-              retrieve=search, structured=_provider_transform):
+              retrieve=search, structured=_provider_transform,filter=None):
     """Worker engine. Production callers must use research() for hard deadlines."""
+    from .metadata import argument, MetadataError
     budget = budget or ResearchBudget()
     scopes, (at, historical) = _validate(question, domain, project, scope, as_of, history, provider, strategy, min_sources)
     # Freeze the effective time for every retrieval and graph endpoint.
@@ -299,6 +310,8 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         except ReadLimit as exc:
             termination = exc.reason
             return None
+        except MetadataError:
+            raise
         except Exception as exc:
             if conn.exhausted:
                 termination = conn.exhausted
@@ -309,6 +322,10 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
                 termination = 'repeated_failure'
             return None
 
+    joined_metadata = 'AND public.rag_metadata_document(d.id,%s)' if filter is not None else ''
+    plain_metadata = 'AND public.rag_metadata_document(id,%s)' if filter is not None else ''
+    metadata_args = (argument(filter),) if filter is not None else ()
+
     def add_hits(hits, facet, path=None):
         """Rehydrate original spans and upstream proof; SearchHit.summary alone
         cannot prove reviewed/complete sources or active claim review state.
@@ -316,14 +333,15 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         ids = list(dict.fromkeys(h.chunk_id for h in hits))[:24]
         if not ids:
             return
-        rows = conn.execute('''SELECT c.id,c.document_id,c.content,d.title,d.slug,d.domain,
+        rows = conn.execute(f'''SELECT c.id,c.document_id,c.content,d.title,d.slug,d.domain,
                    r.kind,r.review_state FROM chunks c JOIN documents d ON d.id=c.document_id
                    LEFT JOIN claim_records r ON r.document_id=d.id
                    WHERE c.id=ANY(%s::uuid[]) AND d.status='active'
                    AND assertion_eligible(d.id,%s,%s)
                    AND (%s::text IS NULL OR d.domain=%s)
-                   AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))''',
-                   (ids, at, historical, domain, domain, scopes, scopes)).fetchall()
+                   AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
+                   {joined_metadata}''',
+                   (ids, at, historical, domain, domain, scopes, scopes)+metadata_args).fetchall()
         by_chunk = {str(r['id']): r for r in rows}
         doc_ids = list(dict.fromkeys(str(r['document_id']) for r in rows))
         sources = conn.execute('''SELECT e.document_id,e.source_key,e.quote FROM claim_evidence e
@@ -371,7 +389,7 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
 
     def collect(query, facet):
         hits, warnings = retrieve(conn, cfg, query, domain=domain, project=project, scope=scope,
-            as_of=selected_time, history=historical, k=6, strategy=strategy, rerank_mode='off')
+            as_of=selected_time, history=historical, k=6, strategy=strategy, rerank_mode='off',**({'filter':filter} if filter is not None else {}))
         # Fixed local warnings only: avoid reflecting arbitrary diagnostics.
         if warnings:
             state['warnings'].append('retrieval reported fallback; inspect evidence coverage')
@@ -386,11 +404,12 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
             state['exploration']['truncated'] = True
             return
         attempted_documents.add(document_id)
-        row = conn.execute("""SELECT id,title,slug,domain,dtype,verified_at,provenance FROM documents
+        row = conn.execute(f"""SELECT id,title,slug,domain,dtype,verified_at,provenance FROM documents
             WHERE id=%s AND status='active' AND assertion_eligible(id,%s,%s)
             AND (%s::text IS NULL OR domain=%s)
-            AND (%s::text[] IS NULL OR project_scope=ANY(%s))""",
-            (document_id,at,historical,domain,domain,scopes,scopes)).fetchone()
+            AND (%s::text[] IS NULL OR project_scope=ANY(%s))
+            {plain_metadata}""",
+            (document_id,at,historical,domain,domain,scopes,scopes)+metadata_args).fetchone()
         if not row:
             return
         graph_tokens = sorted(set().union(*(terms(q) for q in state['questions'])))
@@ -425,7 +444,7 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         nonlocal entities_done
         entities_done = True
         candidates = call('entity', lambda: entity_candidates(conn, question,domain=domain,
-                           scopes=scopes,at=at,history=historical))
+                           scopes=scopes,at=at,history=historical,filter=filter))
         if candidates is None:
             return
         if len(candidates)>LIMITS['entity_resolutions']:
@@ -436,17 +455,18 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
                 packet = read(conn,candidate['name'],domain=candidate['domain'],
                     project=candidate['project_scope'] if candidate['project_scope']!='global' else None,
                     scope='global' if candidate['project_scope']=='global' else None,
-                    as_of=selected_time,history=historical)
+                    as_of=selected_time,history=historical,filter=filter,cfg=cfg)
                 # Never publish the catalog, its names/counts, or unsupported suggestions.
                 if packet['status'] != 'resolved':
                     decision('entity',status='unavailable_or_ambiguous')
                     return True
                 links = packet['links']
                 ids = [l['document_id'] for l in links]
-                eligible = conn.execute("""SELECT id FROM documents WHERE id=ANY(%s::uuid[])
+                eligible = conn.execute(f"""SELECT id FROM documents WHERE id=ANY(%s::uuid[])
                     AND status='active' AND assertion_eligible(id,%s,%s)
-                    AND domain=%s AND project_scope=%s""",
-                    (ids,at,historical,candidate['domain'],candidate['project_scope'])).fetchall() if ids else []
+                    AND domain=%s AND project_scope=%s
+                    {plain_metadata}""",
+                    (ids,at,historical,candidate['domain'],candidate['project_scope'])+metadata_args).fetchall() if ids else []
                 if {str(r['id']) for r in eligible} != set(ids):
                     decision('entity',status='unavailable_or_ambiguous')
                     return True
@@ -464,7 +484,7 @@ def _research(conn, cfg, question, *, domain=None, project=None, scope=None,
         from .graph import research_neighbors
         visited.add(seed)
         hop = depths[seed]+1
-        rows = research_neighbors(conn,seed,domain=domain,scopes=scopes,at=at,history=historical)
+        rows = research_neighbors(conn,seed,domain=domain,scopes=scopes,at=at,history=historical,filter=filter)
         if len(rows)>LIMITS['neighbors_per_seed']:
             state['exploration']['truncated'] = True
         added = []

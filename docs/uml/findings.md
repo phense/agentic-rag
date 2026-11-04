@@ -795,9 +795,12 @@ All seven design findings hold in the implementation; deviations and additions:
 - AF070-011 (as-built; operations): `restore-target` keeps its pre-existing
   embedding-model digest precondition; PB07001 E2 names it after the rehearsal hit
   `embedding_identity_mismatch`.
-- AF070-012 (as-built; limits): interpretation was exercised only against an owned
-  loopback fake; no real vision model, production host or central CLI rehearsal on
-  a real service host. Independent review is still required.
+- AF070-012 (as-built; limits, updated at0.6.27): independent correction and macOS
+  reviews accepted C0/H0/M0. Both production hosts passed actual-source restore and
+  OCR/runtime checks. A separate real Qwen3-VL 2B probe on the Mac passed three
+  synthetic local gateway cases with exact originals, unreviewed inference and
+  foreign denial. Its embeddings were synthetic; no fresh real-host central CLI
+  vision or vector-quality result is claimed. Production vision stays disabled.
 - AF070-013 (as-built; AF070-001, compatibility): the image policies use
   `rag_service_document(domain, project_scope[, true])` from migration021 instead of
   the migration035 `rag_service_permission` initplan helper. The full suite showed
@@ -807,3 +810,120 @@ All seven design findings hold in the implementation; deviations and additions:
   per-row helper costs little because image access is by key. Regression:
   `test_migration036_keeps_the_documented_035_policy_rollback_valid`.
 
+
+## RAG-071 design gate (2026-11-03)
+
+- AF071-001 (security; AC-001/003/004): new feedback tools are explicit writer
+  operations; ordinary search and read-only MCP stay read-only. Feedback metadata
+  has no path to claim review, source state or rank. Response: separate audited
+  gateway, immutable owner fields, no new definer/leakproof helper. Design resolved;
+  implementation and negative tests required.
+- AF071-002 (privacy; AC-001/005): request receipts expire and traces deliberately
+  omit bodies. Response: immutable bounded ID/version snapshots, query/settings
+  digests only; local owner-only approved query reconstruction for private export.
+  Never copy prompts or results into traces. Design resolved; tests required.
+- AF071-003 (atomicity; AC-002/003): key replay, concurrent updates and revocation
+  must not produce duplicate or unauthorized signals. Response: namespace lock,
+  key digest, optimistic revision/history/audit in one transaction and existing
+  ServiceConnection commit check. Design resolved; fault/race tests required.
+- AF071-004 (resources; AC-006): event/history amplification must stay finite.
+  Response: event/source/result bounds, namespace byte/row/rate quotas and revision
+  cap; fail explicitly without dropping acknowledged records. Existing limits
+  unchanged. Design resolved; boundary tests required.
+- AF071-005 (semantics; AC-007): usefulness is not truth; copied sources and multiple
+  clients must not create independent votes or leak across held-out splits.
+  Response: group by stable authenticated user/source family, approve current
+  expected evidence explicitly, separate sealed private format and whole-source
+  family splits; no profile/rank activation. Design resolved; evaluation tests required.
+- AF071-006 (compatibility; AC-008): preserve active027/036 installations and jobs.
+  Response: additive037, default-off, no source mutation/backfill/model calls,
+  populated027 interruption/retry/independent restore and old reader; code rollback
+  retains tables. Design resolved; rehearsal required before delivery.
+
+RAG-071 as-built evidence at4cc570f/3ad0f2a: AF071-001–006 are implemented.
+Scoped real-component tests cover authority, no knowledge mutation, immutable
+metadata, namespace quotas surviving scope revocation, replay/revision/audit
+atomicity, user/source-family independence and owner-only private approval.
+The populated archived027 interruption/retry and two independent restores retain
+originals, jobs, vectors, ACLs, owners and sequences. Full independent acceptance
+is pending; this implementation status is not a readiness or rollout verdict.
+
+RAG-071 independent acceptance at58e7484: AF071-001–006 agree with the
+implemented topology after correction9d31fe9. Whole bounded review and focused
+correction acceptance leave C0/H0/M0/L0; PB07101 Important0/Minor0. Fresh scoped,
+queued and worker-lease PostgreSQL probes confirm the ownership and transaction
+boundaries. Final full verification and delivery remain separate open gates.
+
+
+## RAG-071 delivered (2026-11-04)
+
+PR103 merged7669284; both production hosts run0.6.28/schema037 with independent
+source/target restores, preserved original rows/ACLs/owners/sequences, no recoding
+and unchanged configuration. APIs/scoped reads/foreign denial and scheduled
+jobs verified. Feedback remains off. Historical full exit1 is retained; only
+four stale test inventories changed afterward, independently accepted with14
+focused and17 documentation tests passing. Canonical#71 closed.
+
+## RAG-072 design gate (2026-11-04)
+
+- AF072-001 (atomicity; AC-001/002/008): capture actual canonical transactions,
+  including lifecycle_events rather than only legacy edges. Independent
+  DR072-001 adopted; triggers cover applied/recorded/corrected, and source
+  changes emit only scoped references. Design resolved; implementation/tests
+  T072-001/002/007 required.
+- AF072-002 (security/receipt; AC-003): private management cannot detach from
+  GROUP/EXECUTION/LEASE. Independent DR072-002 adopted: narrow fixed-path
+  definer RPCs on the existing writer connection, exact trusted scope and
+  own sanitized status. No detached owner mutation. Design resolved;
+  T072-001/003/006 and queued crash/replay proof required.
+- AF072-003 (privacy; AC-003/004): no signing material in DB/spool/results;
+  private root and domain-separated distinct subscription/generation keys,
+  exclusive operator export. Current authority and every exposed resource
+  rechecked before send. Design resolved; T072-003/004 negative probes required.
+- AF072-004 (network; AC-006): validate all normalized resolved addresses and
+  pin actual numeric socket, original hostname TLS/Host, no redirects/proxies.
+  Exact operator origin/CIDRs for private targets, hard forbidden metadata
+  classes, bounded DNS/attempt. Design resolved; T072-005 malicious tests required.
+- AF072-005 (versions; AC-001/005): independent DR072-003/004 adopted.
+  Distinguish null-domain own job subscriptions from knowledge scope; only
+  applied/error/cancelled receipts are terminal. Numeric order under resource
+  serialization is authoritative; optional ev1 is not sortable or a final
+  transaction snapshot. Design resolved; T072-002/004 integration required.
+- AF072-006 (bounded recovery; AC-002/005/008): durable attempt at claim,
+  fence both stale completions, finite retries/generations/replay/storage,
+  compatible quota/prune lock order and no implicit nonterminal deletion.
+  Default-off additive038 preserves old028 behavior. Design resolved;
+  T072-004/007 and independent source/target restore required.
+
+Independent design report is retained privately as
+`.engineering-method/runs/RAG-072/design-review.json`. Its two High and two
+Medium design questions are incorporated in spec/plan before implementation.
+This is design reconciliation, not a runtime or feature acceptance claim.
+
+## RAG-073 typed metadata filters (design, 2026-11-04)
+
+- AF073-001 (candidate completeness; AC-001/002):034 has separate lexical,
+  ANN/exact, contextual and planned gates; search also has identity shortcuts,
+  managed generations and graph promotion. Optional matching must precede every
+  candidate/pool/LIMIT, never post-filter a baseline result. Design resolved by
+  explicit filtered siblings/direct predicates; runtime proof T073-003/005 needed.
+- AF073-002 (truth dependency; AC-004):031/033 eligibility checks newer documents
+  and source dependencies. A nonmatching newer replacement must still suppress
+  an older matching fact. Do not change claim_eligible/assertion_eligible/RLS to
+  implement filters. Separate candidate predicate; T073-003/005 mutation needed.
+- AF073-003 (derived text; AC-002):profiles/themes/pins/checkpoints may contain
+  mixed unfiltered text. Filtered requests use bounded matching originals only,
+  omit unbound material with warning and bypass mixed aggregates. No-filter cache
+  behavior retained. Design resolved; T073-004/005 cross-surface proof needed.
+- AF073-004 (interface/registry; AC-003/005/006):operator32-key registry and bounded
+  AST have one implementation. Fixed fields cannot act as scope aliases. Preserve
+  namespace envelope/old meta; explicit child propagation and old-server refusal.
+  Design resolved; T073-001/002/004 tests and T073-006 old029 proof needed.
+- AF073-005 (bounded state; AC-003/007):request-local explicit parameters and
+  shorter restored deadlines,50k-document/AST bounds, no silent budget fallback.
+  Do not multiply matcher work by chunks or claim GIN-before-RLS. Design resolved;
+  T073-003/005/007 plans, false/0/null/date and error-restoration proof needed.
+- AF073-006 (upgrade/recovery; AC-008):published001..038 immutable, old signatures
+  retained,039 only. Registry rollback stops typed requests, not canonical rows.
+  Design resolved; T073-006 restricted-owner source/target restore and old reader/
+  writer required, followed by separate actual production delivery.

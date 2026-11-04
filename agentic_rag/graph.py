@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from .service.read_limits import rows as bounded_rows
+from .metadata import read_boundary, argument
 
 
 @dataclass(frozen=True)
@@ -47,18 +48,19 @@ def _time(project, scope, as_of, history, view):
     return at, history, view
 
 
+@read_boundary
 def neighbors(conn, doc_id: str, depth: int = 1,
               predicates: list[str] | None = None, *,
               project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None,
-              view: str | None = None) -> list[EdgeHop]:
+              view: str | None = None, filter: dict | None = None, cfg=None) -> list[EdgeHop]:
     from .scope import selection
     scopes = selection(project, scope)
     at, history, view = _time(project, scope, as_of, history, view)
     from .lifecycle import view_scope
     with view_scope(conn, view):
         rows = bounded_rows(conn,
-            "SELECT * FROM graph_neighbors_temporal(%s, %s, %s, %s, %s, %s)",
-            (doc_id, depth, predicates, scopes, at, history),
+            "SELECT * FROM graph_neighbors_temporal"+("_metadata" if filter is not None else "")+"(%s, %s, %s, %s, %s, %s"+(",%s" if filter is not None else "")+")",
+            (doc_id, depth, predicates, scopes, at, history)+((argument(filter),) if filter is not None else ()),
         )
     return [
         EdgeHop(str(r["edge_id"]), str(r["src_id"]), str(r["dst_id"]),
@@ -67,9 +69,10 @@ def neighbors(conn, doc_id: str, depth: int = 1,
     ]
 
 
+@read_boundary
 def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
          project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool | None = None,
-         view: str | None = None) -> list[PathStep]:
+         view: str | None = None, filter: dict | None = None, cfg=None) -> list[PathStep]:
     from .scope import selection
     scopes = selection(project, scope)
     at, history, view = _time(project, scope, as_of, history, view)
@@ -77,9 +80,9 @@ def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
     with view_scope(conn, view):
         rows = bounded_rows(conn,
             "SELECT p.step, p.doc_id, p.via_predicate, d.slug, d.title"
-            " FROM graph_path_temporal(%s, %s, %s, %s, %s, %s) p JOIN documents d ON d.id = p.doc_id"
+            " FROM graph_path_temporal"+("_metadata" if filter is not None else "")+"(%s, %s, %s, %s, %s, %s"+(",%s" if filter is not None else "")+") p JOIN documents d ON d.id = p.doc_id"
             " ORDER BY p.step",
-            (from_id, to_id, max_depth, scopes, at, history),
+            (from_id, to_id, max_depth, scopes, at, history)+((argument(filter),) if filter is not None else ()),
         )
     return [
         PathStep(r["step"], str(r["doc_id"]), r["slug"], r["title"],
@@ -88,10 +91,14 @@ def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
     ]
 
 
-def timeline(conn, doc_id: str) -> list[TimelineEdge]:
-    rows = bounded_rows(conn,
-        "SELECT * FROM graph_timeline(%s)", (doc_id,)
-    )
+@read_boundary
+def timeline(conn, doc_id: str, *, filter=None, cfg=None) -> list[TimelineEdge]:
+    query = "SELECT * FROM graph_timeline(%s) g"
+    extra = ()
+    if filter is not None:
+        query += " WHERE EXISTS(SELECT 1 FROM documents s WHERE s.slug=g.src_slug AND public.rag_metadata_document(s.id,%s)) AND EXISTS(SELECT 1 FROM documents d WHERE d.slug=g.dst_slug AND public.rag_metadata_document(d.id,%s))"
+        extra = (argument(filter),argument(filter))
+    rows = bounded_rows(conn, query, (doc_id,)+extra)
     return [
         TimelineEdge(str(r["edge_id"]), r["src_slug"], r["dst_slug"],
                      r["predicate"], r["valid_from"], r["valid_to"])
@@ -99,14 +106,16 @@ def timeline(conn, doc_id: str) -> list[TimelineEdge]:
     ]
 
 
-def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8):
+def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8,filter=None):
     """Bounded one-hop originals for research, with BOTH endpoints gated before
     LIMIT. Unlike general recursive graph tools this also applies domain selection.
     Invoker-only: no new privilege or SQL function is introduced.
     """
     if type(limit) is not int or not 1 <= limit <= 8:
         raise ValueError('research neighbor limit must be between 1 and 8')
-    return conn.execute('''SELECT e.id edge_id,e.predicate,left(e.evidence,600) edge_evidence,e.confidence,
+    metadata_clause = 'AND public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)' if filter is not None else ''
+    extra = (argument(filter),argument(filter)) if filter is not None else ()
+    return conn.execute(f'''SELECT e.id edge_id,e.predicate,left(e.evidence,600) edge_evidence,e.confidence,
                d.id,d.title,d.slug,d.domain,d.dtype,d.verified_at,d.provenance,e.src_id,e.dst_id
                FROM edges e JOIN documents src ON src.id=e.src_id JOIN documents dst ON dst.id=e.dst_id
                JOIN documents d ON d.id=CASE WHEN e.src_id=%s::uuid THEN e.dst_id ELSE e.src_id END
@@ -117,6 +126,7 @@ def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8):
                AND (%s OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
                AND (%s::text IS NULL OR (src.domain=%s AND dst.domain=%s))
                AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
+               {metadata_clause}
                ORDER BY e.predicate,d.slug,d.id,e.id LIMIT %s''',
         (doc_id,doc_id,doc_id,['references','depends_on','extends','derived_from','contradicts','contrasts_with'],
-         at,history,at,history,history,at,at,domain,domain,domain,scopes,scopes,scopes,limit+1)).fetchall()
+         at,history,at,history,history,at,at,domain,domain,domain,scopes,scopes,scopes)+extra+(limit+1,)).fetchall()

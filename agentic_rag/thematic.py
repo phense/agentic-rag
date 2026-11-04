@@ -10,6 +10,7 @@ import time
 from . import scope
 from .secrets import strip_secrets
 from .lifecycle import current_only
+from .metadata import read_boundary, argument, MetadataError
 
 VERSION = 'thematic-v1'
 SOURCE_LIMIT = 24
@@ -60,20 +61,22 @@ def _available(conn):
     return conn.execute("SELECT to_regclass('public.thematic_summaries') IS NOT NULL present").fetchone()['present']
 
 
-def _state(conn, topic, scopes, domain, history, key):
+def _state(conn, topic, scopes, domain, history, key,filter=None):
     """Cache and current eligible/versioned pool share one statement snapshot.
 
     Match chunks before checking each distinct document once, independent of
     planner Memoize. All eligibility filters remain before limiting. SQL scan cost depends on the
     visible corpus; transferred rows, chunks and excerpt work are bounded.
     """
-    row = conn.execute("""
+    metadata_clause = "AND public.rag_metadata_document(scoped.id,%(metadata)s)" if filter is not None else ""
+    row = conn.execute(f"""
       WITH matching_chunks AS MATERIALIZED (
         SELECT c.id chunk_id,c.document_id,c.idx,
           ts_rank_cd(c.tsv_en,(SELECT websearch_to_tsquery('english',%(query)s))) +
           ts_rank_cd(c.tsv_de,(SELECT websearch_to_tsquery('german',%(query)s))) rank
         FROM chunks c JOIN documents scoped ON scoped.id=c.document_id
         WHERE scoped.status='active' AND scoped.project_scope=ANY(%(scopes)s)
+          {metadata_clause}
           AND (%(domain)s::text IS NULL OR scoped.domain=%(domain)s)
           AND (c.tsv_en @@ (SELECT websearch_to_tsquery('english',%(query)s))
             OR c.tsv_de @@ (SELECT websearch_to_tsquery('german',%(query)s)))
@@ -130,7 +133,7 @@ def _state(conn, topic, scopes, domain, history, key):
       )
       SELECT (SELECT to_jsonb(t) FROM thematic_summaries t WHERE selection_key=%(key)s) cache,
         COALESCE((SELECT jsonb_agg(to_jsonb(v) ORDER BY rank DESC,document_id) FROM versions v),'[]'::jsonb) candidates
-      """, dict(query=QUERIES.get(topic, topic), scopes=scopes, domain=domain, history=history, key=key)).fetchone()
+      """, dict(query=QUERIES.get(topic, topic), scopes=scopes, domain=domain, history=history, key=key,metadata=argument(filter))).fetchone()
     candidates = row['candidates']
     for item in candidates:
         item.pop('rank')
@@ -218,7 +221,8 @@ def _present(packet, cache, candidates, capped, context_chars):
 
 
 @current_only
-def read(conn, cfg, topic, *, project=None, domain=None, history=False, context_chars=4800):
+@read_boundary
+def read(conn, cfg, topic, *, project=None, domain=None, history=False, context_chars=4800,filter=None):
     """Reader-safe derived view; SQL/cache failure retains the baseline transaction."""
     started = time.perf_counter()
     topic, scopes, key = _selection(topic, project, domain, history, context_chars)
@@ -229,9 +233,19 @@ def read(conn, cfg, topic, *, project=None, domain=None, history=False, context_
                 packet['status'] = 'unavailable'
                 packet['warnings'].append('Migration017 unavailable; baseline evidence access retained.')
             else:
-                cache, candidates, capped = _state(conn, topic, scopes, domain, history, key)
+                cache, candidates, capped = _state(conn, topic, scopes, domain, history, key,filter=filter)
+                if filter is not None:
+                    entries=[entry for candidate in candidates if (entry:=_build_entry(conn,candidate,topic))]
+                    cache={'generated_at':None,'revision':_digest([VERSION,candidates,capped]),'config_key':VERSION,'entries':entries}
+                    packet['warnings'].append('Filtered original-only summary; mixed cached prose omitted.')
                 _present(packet, cache, candidates, capped, context_chars)
+    except MetadataError:
+        raise
     except Exception as exc:
+        if filter is not None:
+            import psycopg
+            if isinstance(exc,(psycopg.errors.QueryCanceled,psycopg.errors.LockNotAvailable)):
+                raise MetadataError('filter_budget') from None
         packet.update(status='unavailable', entries=[], context='', context_chars=0)
         packet['warnings'] = ['Thematic read unavailable: '+type(exc).__name__+'; baseline access retained.']
     packet['usage']['elapsed_ms'] = round((time.perf_counter()-started)*1000, 3)

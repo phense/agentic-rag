@@ -73,7 +73,7 @@ class RemoteConnection:
     def request(self,method,path,payload=None,*,seconds=1,headers=None):
         deadline=time.monotonic()+seconds
         try:
-            with self.sender.stream(method,self.url+path,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1',**(headers or {})},
+            with self.sender.stream(method,self.url+path,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1,typed_metadata1',**(headers or {})},
                                     timeout=httpx.Timeout(seconds,connect=min(.3,seconds)),
                                     **({'json':payload} if payload is not None else {})) as response:
                 content=bytearray()
@@ -96,7 +96,7 @@ class RemoteConnection:
     def _raw(self,method,path,*,content=None,payload=None,params=None,seconds=30,limit=4*1048576,headers=None):
         deadline=time.monotonic()+seconds
         try:
-            with self.sender.stream(method,self.url+path,params=params,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1,images1',**(headers or {})},
+            with self.sender.stream(method,self.url+path,params=params,headers={'authorization':'Bearer '+self.token,'x-rag-protocol':'1','x-rag-client-version':version('agentic-rag'),'x-rag-client-capabilities':'protocol1,queued_tools1,checkpoints1,windows1,typed_metadata1,images1',**(headers or {})},
                                     timeout=httpx.Timeout(seconds,connect=min(.3,seconds)),
                                     **({'content':content} if content is not None else {}),
                                     **({'json':payload} if payload is not None else {})) as response:
@@ -184,6 +184,7 @@ class RemoteClient(RemoteConnection):
                 if not retry or delay+.01>deadline-time.monotonic():
                     return {'request_id':handle,'local_request_id':handle,'state':'pending','waiting':True,'durable':False,'code':exc.code}
                 time.sleep(delay)
+        self._require_metadata(name,arguments,seconds=max(.01,min(1,deadline-time.monotonic())),handle=handle)
         if not self.queued_tools:
             # Legacy writes have no idempotency protocol: an ambiguous failure
             # must never be auto-replayed as a queued operation.
@@ -231,6 +232,13 @@ class RemoteClient(RemoteConnection):
     def request_status(self,handle,*,cancel=False,seconds=1,consume=True):
         return self._request_status(handle,cancel=cancel,seconds=seconds,consume=consume)[0]
 
+    def _require_metadata(self,name,arguments,*,seconds=1,handle=None):
+        if name=='memory_filter_schema' or arguments.get('filter') is not None or arguments.get('metadata') is not None:
+            extensions=self.negotiate(seconds=seconds).get('extensions',{})
+            if type(extensions.get('typed_metadata')) is not int or extensions['typed_metadata']!=1:
+                if handle is not None:self.spool.request_finish(handle)
+                raise RemoteError('unsupported_filter',426)
+
     def _request_status(self,handle,*,cancel=False,seconds=1,consume=True):
         """Status plus whether an unacknowledged envelope may be resent now."""
         deadline=time.monotonic()+seconds
@@ -251,6 +259,8 @@ class RemoteClient(RemoteConnection):
             pass
         try:
             if row['server_id'] is None:
+                envelope=json.loads(row['envelope'])
+                self._require_metadata(envelope['tool'],envelope['arguments'],seconds=seconds,handle=handle)
                 result=self.request('POST','/v1/requests',json.loads(row['envelope']),seconds=seconds,headers={'Prefer':'wait=0.1'})
                 if result.get('durable') is not True:raise RemoteError('invalid_receipt')
                 self.spool.request_ack(handle,result['request_id'])

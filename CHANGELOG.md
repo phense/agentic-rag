@@ -5,6 +5,37 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.30] - 2026-11-04
+
+- Keep unfiltered direct readers usable before schema039, including archived035 research and038 entity, graph, theme, managed-index and correction-export paths; reject explicit unsupported filters instead of returning empty or unfiltered results.
+- Preserve legacy feedback/webhook CLI argument shapes when typed options are omitted; parser-wide empty values are not forwarded to their existing local or remote handlers.
+- Add optional typed metadata filters across retrieval, graph, research and source-only derived reads. Register application fields explicitly; omitted filters retain existing behavior. Candidate filters run before limits while authorization and source/assertion eligibility remain mandatory and independent.
+- Add audited application-label merging, shared schema inspection and bounded JSON arguments over Python, CLI, authenticated REST and MCP. Refuse unsupported older servers and duplicate typed JSON keys explicitly. Filtered context and summaries omit mixed caches, pins and checkpoints; correction exports retain only complete matching original families.
+- Add schema039 without rewriting originals or published migrations. Upgrade from 0.6.29 requires a verified backup, additive migration and process restart. No metadata adoption, model call or vector recoding occurs automatically; code rollback retains039 and its labels.
+
+## [0.6.29] - 2026-11-04
+
+- Add explicitly enabled, scoped transactional webhook capture and a separate bounded signed sender.
+- Add private local key provisioning, scoped CLI/REST/MCP management, pinned destination checks and additive schema038.
+- Retain capture disabled on upgrades; no receiver or sender is configured automatically.
+
+## [0.6.28] - 2026-11-03
+
+- Add opt-in scoped retrieval feedback (Issue71): explicit writer capture and versioned usefulness signals over CLI, authenticated REST and MCP. Retain IDs, digests and source versions; ordinary search captures nothing. Feedback never changes knowledge, source trust or ranking.
+- Add local owner-only approval of safe query reconstruction, independent actor/source-family summaries and sealed private feedback exports. The existing private correction evaluator accepts the separate feedback format for fixed lexical, provider-free evaluation, with explicit stale and withheld counts and whole-source-family dev/test separation.
+- Add additive schema037 with bounded feedback metadata, immutable ownership, row-level policies and atomic audit/quota accounting. Upgrade from0.6.27 requires a verified backup, migration and process restart; feedback stays disabled. Code rollback retains037 and feedback records, while older schema-aware operators refuse the newer schema.
+
+## [0.6.27] - 2026-11-03
+
+- Run macOS image decoding and local Tesseract through a separate supervisor rather than a pre-exec callback. Keep CPU, file-size, core and wall-time bounds and process-group cleanup. Account for the owned group's physical footprint and resident peaks every 10ms, reject short-lived resident peaks at exit, and fail closed if accounting is unavailable. This is a sampled physical-memory budget, not a hard allocation ceiling: transient overshoot between samples is possible. Linux retains its existing address-space limit.
+- Keep schema036, image identities, originals, derivations and reviews unchanged. Upgrade from 0.6.26 by updating code and restarting processes; no migration or recoding. Enable Mac images only after the real-host OCR/review/retrieval rehearsal; code rollback requires disabling Mac images first. Accept 0.6.27 for verified backup/upgrade operations.
+
+## [0.6.26] - 2026-11-03
+
+- Refresh statistics in the uncommitted bulk ANN test fixture before retrieval and assert that no semantic-search warning occurs. The original two-second query budget, result IDs and document-diversity checks remain unchanged. This corrects fixture planning; it does not prove the exact trigger of the earlier full-suite timeout or change production retrieval.
+- Fail closed when an image subprocess cannot install its resource limits: return the existing decoder/OCR-unavailable errors instead of exposing `SubprocessError`. Never retry without the limits. macOS OCR remains disabled pending a supported, bounded execution strategy (Issue100); no original image, derivation, review or embedding is rewritten.
+- Keep schema036 and accept 0.6.26 for existing verified-backup/upgrade operations. Upgrading from 0.6.25 requires a code update and process restart, with no migration or recoding; a code-only rollback to 0.6.25 retains the same stored data.
+
 ## [0.6.25] - 2026-11-03
 
 - Add opt-in source-backed image ingestion (Issue70): `rag image add|show|original|backfill|references|erase`, REST `/v1/images`, and the read-only MCP tool `memory_image`. One explicit static PNG/JPEG/WebP file (≤4MiB, ≤8192px per side, ≤16M pixels, one frame) is validated in a bounded child process, retained byte-exactly in PostgreSQL and read by a locally configured Tesseract with per-word boxes. Optional loopback-only Ollama interpretation requires a pinned model digest that is checked before and after every call. OCR becomes a machine-transcribed stated claim and interpretation becomes an inference; neither is returned by search or context before a strict confirmation. Each derivation is bound to its exact engine identity, so an engine change adds a derivation and never rewrites earlier text or reviews.

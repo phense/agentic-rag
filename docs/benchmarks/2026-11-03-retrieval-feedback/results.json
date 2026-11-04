@@ -1,0 +1,219 @@
+{
+  "command_count": 14,
+  "evaluation": {
+    "application_writes": 0,
+    "baseline_hits": 0,
+    "baseline_misses": 2,
+    "baseline_observed": 2,
+    "by_split": {
+      "dev": {
+        "baseline_hits": 0,
+        "baseline_misses": 2,
+        "baseline_observed": 2,
+        "current_hits": 0,
+        "current_misses": 2,
+        "evaluated": 2,
+        "reproduced_failures": 2,
+        "selected": 2,
+        "source_families": 2,
+        "stale": 0,
+        "withheld": 0
+      },
+      "test": {
+        "baseline_hits": 0,
+        "baseline_misses": 0,
+        "baseline_observed": 0,
+        "current_hits": 0,
+        "current_misses": 0,
+        "evaluated": 0,
+        "reproduced_failures": 0,
+        "selected": 0,
+        "source_families": 0,
+        "stale": 0,
+        "withheld": 0
+      },
+      "unassigned": {
+        "evaluated": 0,
+        "selected": 1,
+        "stale": 0,
+        "withheld": 1
+      }
+    },
+    "current_hits": 0,
+    "current_misses": 2,
+    "evaluated": 2,
+    "limited": false,
+    "provider_calls": 0,
+    "reproduced_failures": 2,
+    "selected": 3,
+    "source_families": 2,
+    "stale": 0,
+    "withheld": 1
+  },
+  "evidence_sha256": {
+    "agent-reports/s071-2.json": "63d1a86a279b0847fef93b9739e6e863f3916401453f761aec46b4943ab38aac",
+    "final-checks/full-final-451f472-result.json": "8bf138faa6cf093fd3df3001ede7998b27540e4d7ae3d1c9ac13708577780584",
+    "final-checks/full-final-451f472.log": "b92a3e1437d12c489a8a16f19796b104b1a41602acd981daacc916bfe5517c7d",
+    "final-checks/mcp-count-maintenance-final-result.json": "9ba8e40462736a3460f213beae72d438b4ef88dbdfc92c47f2c85382e9e1aaa4",
+    "final-checks/mcp-count-maintenance-final.log": "425b2bea49b66f88861abf24450ca7a843abfed6eee51f74310bbb251b96def2",
+    "final-checks/mcp-count-maintenance-proof.json": "be1c78e65217f231134b455fee4b8751ba7ffb9c3d28086f72a2b247d04b9742",
+    "first-correction-review/report.json": "3149a587f43e7ecb868dacb8fab051db1b9575fe6d54222c85d16f86d3cf587e",
+    "mcp-count-maintenance-review.json": "894a4994d4d6a617d31755381a3bcf9ca86d4e91c9192658a8f1b63f56708a50",
+    "playbook/rehearsal-inputs.json": "e47f8ac0c45e3e2b409d000ba037f1a7561967e0e1f2f3d00b4c289642bbeb0e",
+    "playbook/rehearsal-terminal.json": "762239648e807998287ca3a35f507084b7787e3e0998d89ccf08faaa35717cd5",
+    "playbook/rehearsal.log": "da6241fd3c8c39980cbe6a6184d29243bc8efe688bf3072703a24ceb8aa5514f"
+  },
+  "examples": {
+    "missing_evidence": {
+      "event_results": 0,
+      "expected_in_original_results": false,
+      "seconds": 6.151,
+      "signal_revision": 1
+    },
+    "useful_retraction": {
+      "event_count": 1,
+      "revision": 3,
+      "seconds": 10.271,
+      "signal_count": 1
+    },
+    "wrong_source": {
+      "event_results": 1,
+      "expected_in_original_results": false,
+      "seconds": 6.751,
+      "signal_revision": 1
+    }
+  },
+  "export_counts": {
+    "application_writes": 0,
+    "exported": 2,
+    "limited": false,
+    "provider_calls": 0,
+    "selected": 3,
+    "stale": 0,
+    "withheld": 1
+  },
+  "kind": "synthetic-retrieval-feedback-examples",
+  "limits": [
+    "The two CLI negative cases both fall in dev; separate six-case integration covers three dev and three test families.",
+    "No provider/model or production workload, automatic training/ranking or measured retrieval improvement.",
+    "Independent complete review plus focused correction acceptance: Critical0/High0/Medium0/Low0. Final full suite and production rollout remain pending."
+  ],
+  "owned_database_removed": true,
+  "private_modes": {
+    "directory": "0o700",
+    "export": "0o600",
+    "report": "0o600"
+  },
+  "query_path": "lexical/off/off",
+  "real_components": [
+    "PostgreSQL17",
+    "feedback gateway",
+    "CLI subprocesses",
+    "private export/evaluator"
+  ],
+  "rehearsal_commands": 14,
+  "rehearsal_seconds": 31.405,
+  "revision": "9d31fe96e828a44fc4818dfa6a24c009b82c511b",
+  "runtime": "0.6.28",
+  "schema": 37,
+  "synthetic_embeddings": true,
+  "targeted_integration": {
+    "correction": {
+      "combined_run_exit": 1,
+      "combined_run_not_counted_as_pass": true,
+      "final_module_exit": 0,
+      "fresh_module_passed": 9,
+      "independent_counts": {
+        "Critical": 0,
+        "High": 0,
+        "Low": 0,
+        "Medium": 0
+      },
+      "retained_unchanged_passing_cases": 76
+    },
+    "private_six_case_example": {
+      "independent_summary": {
+        "copied_source_documents": 2,
+        "copied_source_split_families": 1,
+        "independent_signals": 2,
+        "machines": 3,
+        "signals": 3,
+        "source_families": 1,
+        "users": 2
+      },
+      "private_lexical_evaluation": {
+        "application_writes": 0,
+        "baseline_hits": 0,
+        "baseline_misses": 6,
+        "baseline_observed": 6,
+        "by_split": {
+          "dev": {
+            "baseline_hits": 0,
+            "baseline_misses": 3,
+            "baseline_observed": 3,
+            "current_hits": 0,
+            "current_misses": 3,
+            "evaluated": 3,
+            "reproduced_failures": 3,
+            "selected": 3,
+            "source_families": 3,
+            "stale": 0,
+            "withheld": 0
+          },
+          "test": {
+            "baseline_hits": 0,
+            "baseline_misses": 3,
+            "baseline_observed": 3,
+            "current_hits": 0,
+            "current_misses": 3,
+            "evaluated": 3,
+            "reproduced_failures": 3,
+            "selected": 3,
+            "source_families": 3,
+            "stale": 0,
+            "withheld": 0
+          },
+          "unassigned": {
+            "evaluated": 0,
+            "selected": 0,
+            "stale": 0,
+            "withheld": 0
+          }
+        },
+        "current_hits": 0,
+        "current_misses": 6,
+        "evaluated": 6,
+        "limited": false,
+        "provider_calls": 0,
+        "reproduced_failures": 6,
+        "selected": 6,
+        "source_families": 6,
+        "stale": 0,
+        "withheld": 0
+      },
+      "version_invalidation": "Rewriting plain legacy title/body makes exported approval stale: evaluated0/reproduced_failures0; subsequent export has exported0. Retraction and source withdrawal also never count as reproduced success."
+    },
+    "s071_1_passed": 74,
+    "s071_2_passed": 33
+  },
+  "timing_scope": "wall time including CLI startup; not a load or quality benchmark",
+  "unchanged_original_tables": 50,
+  "verification": {
+    "all_other_runtime_test_inputs_unchanged": true,
+    "focused_exit": 0,
+    "focused_passed": 14,
+    "focused_seconds": 7.86,
+    "full_exit": 1,
+    "full_exit_zero_claim": false,
+    "full_failed_obsolete_tool_expectations": 4,
+    "full_head": "451f4724d0961883beca298a5a0a534f58a14ce4",
+    "full_passed": 2736,
+    "full_repeated": false,
+    "full_seconds": 3416.61,
+    "full_skipped_macos_only": 12,
+    "later_documentation_updates": "Only the benchmark evidence, verification note and task status changed afterward; 17 documentation checks cover their final state.",
+    "runtime_sql_unchanged": true,
+    "test_only_correction": "704e3c9"
+  },
+  "version": 1
+}

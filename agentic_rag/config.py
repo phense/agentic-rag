@@ -35,6 +35,9 @@ _SECTION_PREFIX = {
     "synthesis": "synthesis",
     "retrieval": "retrieval",
     "images": "image",
+    "feedback": "feedback",
+    "webhooks": "webhook",
+    "metadata": "metadata",
 }
 
 
@@ -47,6 +50,7 @@ class _FrozenProfiles(dict):
 
 @dataclass(frozen=True)
 class Config:
+    metadata_fields: dict = field(default_factory=dict)
     service_max_database_bytes: int = 8*1024**3
     service_min_free_bytes: int = 2*1024**3
     service_max_pending: int = 1000
@@ -130,6 +134,11 @@ class Config:
     synthesis_max_input_chars: int = 12000
     synthesis_max_output_tokens: int = 1024
     synthesis_max_runs_per_tick: int = 2
+    # RAG-071 capture/mutations are opt-in; retained inspection stays available.
+    feedback_enabled: bool = False
+    webhook_key_file: Path | None = None
+    webhook_private_origins: Mapping = field(default_factory=dict)
+    webhook_test_http: bool = False
     # RAG-070 opt-in local image ingestion; nothing runs unless enabled.
     image_enabled: bool = False
     image_ocr_command: str = ""          # explicit Tesseract binary path
@@ -151,6 +160,19 @@ class Config:
     image_vision_max_output_tokens: int = 512
 
     def __post_init__(self) -> None:
+        from .metadata import registry
+        object.__setattr__(self, "metadata_fields", _FrozenProfiles(registry(self.metadata_fields)))
+        if type(self.webhook_test_http) is not bool or not isinstance(self.webhook_private_origins,dict) or len(self.webhook_private_origins)>16:
+            raise ValueError("invalid webhook destination policy")
+        from .webhook_delivery import normalize_endpoint, origin
+        import ipaddress
+        for endpoint,cidrs in self.webhook_private_origins.items():
+            normalized=normalize_endpoint(endpoint,allow_http=self.webhook_test_http)
+            if endpoint!=origin(normalized) or not isinstance(cidrs,list) or not 1<=len(cidrs)<=16:
+                raise ValueError("invalid webhook destination policy")
+            for cidr in cidrs: ipaddress.ip_network(cidr,strict=True)
+        if type(self.feedback_enabled) is not bool:
+            raise ValueError('feedback enabled must be boolean')
         if type(self.retrieval_planned_vectors) is not bool:
             raise ValueError('retrieval planned_vectors must be boolean')
         if self.rerank_policy not in ('legacy-v1', 'focused-v1'):
@@ -312,7 +334,7 @@ class Config:
             raise ValueError('ollama background_url must name a separate daemon')
 
 
-_PATH_FIELDS = {"image_ocr_tessdata", "image_ocr_library_path", "image_work_dir", "mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
+_PATH_FIELDS = {"webhook_key_file", "image_ocr_tessdata", "image_ocr_library_path", "image_work_dir", "mine_policy_file","service_storage_path","backup_cloud_dir", "backup_local_dir", "pg_bin_dir", "service_token_file", "service_auth_file", "service_spool_dir"}
 
 
 def load_config(path: Path | None = None) -> Config:

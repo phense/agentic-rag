@@ -9,9 +9,23 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.25-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.30-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.29 signed webhooks:** explicitly subscribe to committed memory, review,
+source, lifecycle or owned ingestion-job changes. A separate local sender posts
+minimal signed notices with scoped authorization rechecks, bounded retries and
+stable event IDs. Capture starts off; upgrades configure no receiver and send
+nothing. Migration038 preserves existing knowledge and vectors.
+Use the [webhook operations playbook](docs/webhooks.md).
+
+**0.6.28 scoped feedback:** explicitly capture a search and label a result useful,
+not useful, the wrong source or missing expected evidence. Writers can revise and
+retract their own signals; feedback changes neither knowledge nor ranking. A local
+operator can approve a safe query for private, read-only failure evaluation.
+It is off by default and adds schema037 without rewriting existing data.
+Follow [PB07101](docs/retrieval-feedback.md).
 
 **0.6.25 source-backed images:** screenshots, receipts and scans can become
 reviewable knowledge. agentic-rag keeps the exact image in PostgreSQL, reads its
@@ -562,3 +576,6 @@ retain priority. See [usage and limits](docs/project-context.md).
 ### Confirmed-failure evaluation
 
 Use `rag benchmark optimize --output /new/report` for bounded public offline routing/ranking comparison, `benchmark export-corrections` and `evaluate-corrections` for private confirmed user labels, and explicit `benchmark optimize-mining --mine-model` for public configured-provider prompt measurements. Sealed candidates do not change live policy. [Contracts and limits](docs/failure-evaluation.md), [PB-5.10](docs/playbooks/failure-evaluation.md).
+
+Typed original selection: [Typed metadata filters](docs/metadata-filters.md) (0.6.30/schema039, opt-in registry; existing
+knowledge is not automatically relabeled or re-embedded).

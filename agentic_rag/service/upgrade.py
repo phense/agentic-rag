@@ -25,9 +25,9 @@ from ..benchmark.database import isolated_database
 from .context import CURRENT
 from .fence import OWNER_LOCK, EXECUTION_LOCK
 
-SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(26))
+SUPPORTED_VERSIONS=frozenset('0.6.'+str(n) for n in range(31))
 # Tables a later migration may add to an empty resume target (restore_target).
-RESTORE_ADDED_TABLES=frozenset({'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence','request_traces','embedding_generations','embedding_selection','embedding_vectors','source_revisions','claim_revisions','source_history','claim_history','synthesis_policies','synthesis_backfills','synthesis_runs','synthesis_processed','synthesis_patterns','synthesis_dependencies','lifecycle_decisions','lifecycle_events','extraction_policy_bindings','image_originals','image_derivations'})
+RESTORE_ADDED_TABLES=frozenset({'service_sessions','service_streams','service_windows','service_session_access','service_requests','service_foreground','dashboard_changes','dashboard_setup','dashboard_presence','request_traces','embedding_generations','embedding_selection','embedding_vectors','source_revisions','claim_revisions','source_history','claim_history','synthesis_policies','synthesis_backfills','synthesis_runs','synthesis_processed','synthesis_patterns','synthesis_dependencies','lifecycle_decisions','lifecycle_events','extraction_policy_bindings','image_originals','image_derivations','retrieval_feedback_events','retrieval_feedback','retrieval_feedback_approvals','retrieval_feedback_usage','webhook_control','webhook_subscriptions','webhook_events','webhook_deliveries'})
 EXCLUDED={'benchmark_ownership'}
 ROLES=('rag_reader','rag_writer','rag_admin')
 
@@ -76,7 +76,7 @@ def _grants(conn,tables):
           CASE WHEN a.grantee=c.relowner THEN '__OWNER__' WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END grantee,
           a.privilege_type,a.is_grantable
         FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
-        CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl,acldefault(CASE WHEN c.relkind='S' THEN 'S'::"char" ELSE 'r'::"char" END,c.relowner))) a
+        CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl,acldefault(CASE WHEN c.relkind='S' THEN 's'::"char" ELSE 'r'::"char" END,c.relowner))) a
         WHERE n.nspname='public' AND (c.relname=ANY(%s) OR c.relkind='S')
         ORDER BY object,grantor,grantee,privilege_type,is_grantable''',(tables,)).fetchall()
     return [dict(r) for r in rows]
@@ -222,7 +222,8 @@ def _verify(conn,manifest,*,preserved=False,label='source_drift'):
     # Additive migrations may create new table/sequence ACLs; existing grants
     # must match, including custom grantees. Owner mapping is explicit/normalized.
     names=set(expected)
-    relevant=lambda rows:[r for r in rows if r['object'] in names or r['relkind']=='S']
+    relevant=lambda rows:[r for r in rows if r['object'] in names or (r['relkind']=='S' and
+        (not preserved or r['object'] in manifest.get('sequences',{})))]
     if relevant(actual['grants'])!=relevant(manifest['grants']):raise ValueError(label+'_grants')
     current_owner=conn.execute('SELECT current_user owner').fetchone()['owner']
     old_owner=manifest['identity']['owner']
@@ -372,6 +373,9 @@ def restore_target(cfg,path,manifest,*,apply=False,resume=False):
             allowed=set(manifest['tables'])|RESTORE_ADDED_TABLES
             if set(current)-allowed:raise ValueError('target_drift')
             for table in set(current)-set(manifest['tables']):
+                if table=='webhook_control':
+                    seed=conn.execute('SELECT singleton,enabled,max_records,max_bytes FROM webhook_control').fetchall()
+                    if seed==[{'singleton':True,'enabled':False,'max_records':10000,'max_bytes':33554432}]:continue
                 if conn.execute(sql.SQL('SELECT 1 FROM public.{} LIMIT 1').format(sql.Identifier(table))).fetchone():raise ValueError('target_drift')
     else:
         backup._run_pg([backup._pg_bin('pg_restore',cfg),'--no-owner','--single-transaction','--exit-on-error','-d',db.dsn(cfg),str(path)])

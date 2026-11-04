@@ -130,3 +130,38 @@ def test_bounded_run_caps_output_time_and_never_uses_a_shell(tmp_path):
     echo = media.bounded_run([sys.executable, '-c', 'import sys;print(sys.argv[1])', '$(id)'], timeout=10,
                              max_output=1000, workdir=tmp_path)
     assert echo.returncode == 0 and echo.stdout.strip() == b'$(id)'
+
+
+def test_rejected_resource_limit_never_runs_the_command_or_escapes_as_a_subprocess_error(tmp_path, monkeypatch):
+    import sys
+
+    # Model Darwin's rejected RLIMIT_AS in the real pre-exec child, not Popen.
+    def rejected_limits(*args):
+        def apply():
+            raise ValueError('current limit exceeds maximum limit')
+        return apply
+
+    monkeypatch.setattr(media, '_limits', rejected_limits)
+    if sys.platform == 'darwin':
+        # Darwin no longer uses preexec_fn; a failed supervisor spawn has the
+        # same fail-closed contract. The native suite exercises its real limits.
+        def rejected_spawn(*args, **kwargs):
+            raise __import__('subprocess').SubprocessError('supervisor unavailable')
+        monkeypatch.setattr(media.subprocess, 'Popen', rejected_spawn)
+    marker = tmp_path / 'must-not-run'
+    result = media.bounded_run(
+        [sys.executable, '-c', 'import pathlib,sys;pathlib.Path(sys.argv[1]).touch()', str(marker)],
+        timeout=2, max_output=1000, workdir=tmp_path, memory=1024**3)
+    assert result == media.RunResult(None, b'', b'', False, False)
+    assert not marker.exists()
+    assert _code(encoded('PNG')) == 'decoder_unavailable'
+
+    from agentic_rag.config import Config
+    from agentic_rag.image_engines import EngineError, TesseractEngine
+    for language in ('deu', 'eng'):
+        (tmp_path / f'{language}.traineddata').write_bytes(b'synthetic language data')
+    engine = TesseractEngine.from_config(Config(
+        image_ocr_command=sys.executable, image_ocr_tessdata=tmp_path))
+    with pytest.raises(EngineError) as caught:
+        engine.identity()
+    assert caught.value.code == 'ocr_unavailable'

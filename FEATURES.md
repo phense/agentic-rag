@@ -614,6 +614,77 @@ scoped row-level policies and rewrites nothing.
 Synthetic measurements with real Tesseract 5 on five text fixtures: 5/5 exact
 transcriptions, character error rate 0, engine time 0.78–1.08s per image; blank
 and scene fixtures publish no claim, and an embedded instruction is transcribed
-as data. Interpretation was tested only against an owned loopback fake, not a
-real vision model. [Measurements](docs/benchmarks/2026-11-03-image-ingestion/results.json).
+as data. [OCR measurements](docs/benchmarks/2026-11-03-image-ingestion/results.json).
 
+Version0.6.27 is deployed on Hetzner and Peter’s Mac with German/English OCR
+enabled and optional vision disabled. Fresh independently restored backups
+preserved all original rows in three populated stores; no existing text or
+vectors were re-encoded. An isolated native Mac test with real Tesseract and
+`qwen3-vl:2b-instruct` passed3/3 synthetic cases in15.229s. It described the
+scene correctly and retained all invoice identifiers, but made two spelling
+errors on instruction text that OCR transcribed exactly. Outputs remain
+unreviewed inferences; this is bounded integration evidence, not universal
+vision accuracy. The test daemon/database and1.93GB model store were removed.
+[Native examples and rollout limits](docs/verification/image-ingestion.md).
+
+
+## Scoped retrieval feedback (Issue71)
+
+Version0.6.28/schema037 adds explicit, disabled-by-default feedback search and
+useful/not-useful/wrong-source/missing-evidence signals. Writers can replay,
+revise and retract their own scoped records. Events retain bounded IDs, versions
+and digests rather than raw queries or result bodies. Feedback never confirms
+evidence, changes source trust or alters ranking.
+
+A local operator can approve a current negative case with a safe reconstructed
+query and unchanged eligible expected source. Private exports keep connected
+source families together for read-only lexical evaluation through the existing
+confirmed-failure command. Counts collapse machines belonging to one user; no
+training or policy activation occurs. Migration037 adds four tables without
+rewriting existing knowledge, vectors or jobs.
+[Procedure PB07101](docs/retrieval-feedback.md);
+[verification and delivery evidence](docs/verification/retrieval-feedback.md).
+Delivered2026-11-04 to Hetzner and Peter Mac with source/target independently
+restored, originals retained and feedback still off by default.
+
+## Scoped signed webhooks (Issue72)
+
+Version0.6.29/schema038 adds committed-change notices without sending canonical
+content. Authorized writers manage exact-domain/project subscriptions or their
+owned terminal ingestion jobs. Subscription management stays inside the existing
+audited request transaction; database capture rolls back with the canonical
+change, including writes from the archived0.6.28 runtime.
+
+Capture and sending share a default-off operator switch. A separate bounded
+sender rechecks current credentials and resource scope, pins a validated address
+and signs exact event bytes with timestamped per-subscription HMAC keys. Operator
+files remain private, outside the database and remote tools. Consumers deduplicate
+stable event IDs and reject older per-resource versions; global ordering and
+exactly-once downstream effects are not promised. Attempts, explicit replay,
+rotation and storage are finite; failures remain visible without silently
+discarding pending notices. Operators can switch capture off to unblock writes
+at capacity. No external receiver or sender daemon is configured by installation.
+[Procedure PB07201](docs/webhooks.md) includes a loopback receiver, signature
+verification, outage recovery and runtime rollback. [Verification](docs/verification/webhooks.md) records independent corrected
+acceptance and delivery2026-11-04 to both hosts/schema038. All3 populated stores
+have verified source/target restores and original-data preservation. Capture
+remains off and no production receiver or sender is configured.
+
+
+## Typed metadata filters (RAG-073 / issue #73)
+
+🔵 Implemented and independently reviewed in 0.6.30/schema039; final full-suite,
+PR integration and verified production deployment remain separate. A bounded
+versioned JSON filter narrows authorized originals before retrieval limits across
+search, graph, context, research, summaries, counts and complete-family exports.
+An opt-in operator registry types application labels saved through the audited
+gateway. Existing scope, source/truth and lifecycle predicates remain mandatory;
+a nonmatching replacement never makes an older assertion current again.
+
+The synthetic522-original rehearsal passed76 assertions over13 fixed expected-ID
+sets with actual CLI/REST/MCP and prepared-session revocation/restoration. Three
+30-sample examples and their measured overhead are in the [verification](docs/verification/typed-metadata-filters.md).
+Archived029 interruption/retry, both independent restores, limited owner and old
+clients are covered. The [procedure](docs/metadata-filters.md) preserves original
+rows and vectors; installing039 never labels or recodes historical knowledge.
+One contextual ANN continuation coverage Low remains in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6622277491).

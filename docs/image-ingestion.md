@@ -82,8 +82,30 @@ retained originals; part C shows how to list them.
   `.traineddata` files at paths you choose. agentic-rag never installs or
   downloads them. A private runtime needs its library directory as
   `ocr_library_path`. On macOS use the absolute Homebrew Tesseract and tessdata
-  paths; leave `ocr_library_path` unset. Linux resource limits and Homebrew
-  operation still require a host rehearsal before Mac enablement.
+  paths; leave `ocr_library_path` unset. macOS requires **0.6.27 or later**:
+  earlier versions cannot install the image address-space limit
+  ([Issue100](https://github.com/phense/agentic-rag/issues/100)). The Darwin
+  supervisor retains kernel CPU, output-file and core limits, and the caller
+  retains the wall-time deadline and whole-group cleanup. Every 10ms it checks
+  the physical footprint/resident peaks of its owned process group; peaks of
+  exited helpers remain charged, and `wait4` rejects a short-lived target's
+  resident peak before accepting output. The supervisor itself counts against
+  `engine_memory_bytes`. Accounting failure stops the command.
+  **This is a sampled physical-memory budget, not a hard allocation ceiling:**
+  memory may overshoot between samples. It does not bound virtual reservations.
+  Linux continues to use its kernel address-space limit.
+  Before enabling Mac images, install the candidate code in a separate runtime
+  and rehearse ingestion of a public fixture, exact original export, SQL/Python
+  review-token equality, strict confirmation and retrieval in an owned test
+  database. Update the API, worker and local clients together, then enable the
+  existing `[images]` settings. To roll back to 0.6.26, disable Mac images first,
+  restore the previous runtime and restart; retained image data stays intact.
+  Check that the selected tessdata directory contains both language files and
+  Tesseract's `configs/tsv`; a custom directory with language files alone cannot
+  produce word regions. The observed Homebrew installation supplied `eng` but
+  not `deu`; the rehearsal used an explicitly supplied German language file.
+  See the [native macOS verification record](verification/macos-bounded-ocr.json)
+  for commands, source hashes and the limits of the rehearsal.
 - **Vision (optional, off by default):** a local Ollama on loopback with the model
   already present. Note its digest from `curl -s http://127.0.0.1:11434/api/tags`.
   agentic-rag never pulls a model and refuses any non-loopback URL.

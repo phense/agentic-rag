@@ -5,9 +5,10 @@ Two stages, both before any engine call or database write:
 1. `sniff` parses only container headers in pure Python: actual type from magic
    bytes (never a filename or declared MIME type), dimensions, pixel count and
    animation markers. Oversized or animated inputs never reach a decoder.
-2. `_decode` completely decodes the image in an owned child process with
-   finite time, address space, CPU and output, so a malformed or hostile file
-   cannot exhaust the caller. Pillow is an optional dependency (`images` extra).
+2. `_decode` completely decodes the image in an owned child process with finite
+   time, CPU and output. Linux bounds address space; Darwin supervises a sampled
+   physical-memory budget (see image_process). Pillow is an optional dependency
+   (`images` extra).
 
 `bounded_run` is the only subprocess primitive used by image engines: argument
 vector without a shell, a new session that is killed as a group, temporary-file
@@ -197,11 +198,20 @@ def bounded_run(argv, *, timeout, max_output, workdir, env=None, memory=None, cp
         raise ValueError('invalid argument vector')
     with tempfile.TemporaryFile(dir=workdir) as out, tempfile.TemporaryFile(dir=workdir) as err:
         try:
-            process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=out, stderr=err, cwd=workdir,
+            if sys.platform == 'darwin':
+                command = [sys.executable, '-I', '-m', 'agentic_rag.image_process',
+                           str(max_output), str(memory or 0), str(cpu_seconds or timeout), *argv]
+                setup = {}  # The single-threaded supervisor sets limits before its target.
+            else:
+                command = argv
+                setup = {'preexec_fn': _limits(max_output, memory, cpu_seconds or timeout)}
+            process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=out, stderr=err, cwd=workdir,
                                        env=env if env is not None else {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8'},
                                        close_fds=True, start_new_session=True,
-                                       preexec_fn=_limits(max_output, memory, cpu_seconds or timeout))
-        except OSError:
+                                       **setup)
+        except (OSError, subprocess.SubprocessError):
+            # A rejected pre-exec resource limit must fail closed, just like an
+            # unavailable executable. Never retry without the resource limits.
             return RunResult(None, b'', b'', False, False)
         timed_out = False
         try:
@@ -218,7 +228,7 @@ def bounded_run(argv, *, timeout, max_output, workdir, env=None, memory=None, cp
         out.seek(0)
         err.seek(0)
         stdout, stderr = out.read(max_output), err.read(min(max_output, 65536))
-        exceeded = sizes[0] > max_output or process.returncode == -signal.SIGXFSZ
+        exceeded = any(size > max_output for size in sizes) or process.returncode == -signal.SIGXFSZ
         return RunResult(process.returncode, stdout, stderr, timed_out, exceeded)
 
 

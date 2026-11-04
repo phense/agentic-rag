@@ -1,0 +1,96 @@
+{
+  "head": "bcba20dc5a6fba8a9e138b3e9b4eb0c767678381",
+  "fixture": {
+    "documents": 522,
+    "chunks": 522
+  },
+  "hashes": {
+    "fixture": "5eeebb196c2ebcfe79a515de2bcba69cde7d379f3627434d6999108a6cd6cd36",
+    "script": "bbf6da2a82fc6e3f2a4cc70b099f8627f8c2b7f9425e00648646567833c39e5a",
+    "result": "773910e93bf81d96ebbf0159a7181bcc9c899751f4af3b4f195b17f6ab4e9062",
+    "inputs": "07a9277ac7800fabd5a63349023a7aeff43ba03403b2a2ff14d8ba5b0843b7bd"
+  },
+  "assertions": 76,
+  "exit_code": 0,
+  "sources_unchanged": true,
+  "measurements": [
+    {
+      "case": "production_linux",
+      "arm": "unfiltered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.0376021729898639,
+      "p95_seconds": 0.04000835196347907,
+      "min_seconds": 0.03589388797990978,
+      "max_seconds": 0.04315802501514554,
+      "method": "nearest-rank"
+    },
+    {
+      "case": "production_linux",
+      "arm": "filtered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.0530503389891237,
+      "p95_seconds": 0.06159496400505304,
+      "min_seconds": 0.0498055670177564,
+      "max_seconds": 0.06595232698600739,
+      "method": "nearest-rank"
+    },
+    {
+      "case": "not_production",
+      "arm": "unfiltered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.038016869977582246,
+      "p95_seconds": 0.039965151983778924,
+      "min_seconds": 0.03697927895700559,
+      "max_seconds": 0.04100534302415326,
+      "method": "nearest-rank"
+    },
+    {
+      "case": "not_production",
+      "arm": "filtered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.05419882899150252,
+      "p95_seconds": 0.05834989302093163,
+      "min_seconds": 0.05093125702114776,
+      "max_seconds": 0.05836599203757942,
+      "method": "nearest-rank"
+    },
+    {
+      "case": "all_labels",
+      "arm": "unfiltered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.038648964022286236,
+      "p95_seconds": 0.0402697499957867,
+      "min_seconds": 0.03667628101538867,
+      "max_seconds": 0.04077374603366479,
+      "method": "nearest-rank"
+    },
+    {
+      "case": "all_labels",
+      "arm": "filtered",
+      "warmups": 2,
+      "authority": "actual rag_reader RLS",
+      "exact_set": true,
+      "n": 30,
+      "p50_seconds": 0.04439951397944242,
+      "p95_seconds": 0.05448782700113952,
+      "min_seconds": 0.03927015804219991,
+      "max_seconds": 0.062274158000946045,
+      "method": "nearest-rank"
+    }
+  ]
+}
