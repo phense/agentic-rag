@@ -27,3 +27,9 @@ timeout = 300
 [embed]
 model = "bge-m3"
 dim = 1024
+
+# Optional typed application labels. Empty by default; no historical adoption.
+[metadata.fields]
+# team = "string"
+# cost = "number"
+# tags = "string[]"

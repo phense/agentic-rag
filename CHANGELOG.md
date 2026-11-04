@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.30] - 2026-11-04
+
+- Add optional typed metadata filters across retrieval, graph, research and source-only derived reads. Register application fields explicitly; omitted filters retain existing behavior. Candidate filters run before limits while authorization and source/assertion eligibility remain mandatory and independent.
+- Add audited application-label merging, shared schema inspection and bounded JSON arguments over Python, CLI, authenticated REST and MCP. Refuse unsupported older servers and duplicate typed JSON keys explicitly. Filtered context and summaries omit mixed caches, pins and checkpoints; correction exports retain only complete matching original families.
+- Add schema039 without rewriting originals or published migrations. Upgrade from 0.6.29 requires a verified backup, additive migration and process restart. No metadata adoption, model call or vector recoding occurs automatically; code rollback retains039 and its labels.
+
 ## [0.6.29] - 2026-11-04
 
 - Add explicitly enabled, scoped transactional webhook capture and a separate bounded signed sender.

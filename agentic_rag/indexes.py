@@ -205,7 +205,7 @@ def query_vector(selection,cfg,text):
     return BoundQuery(selection,vec_literal(vectors[0]))
 
 
-def _neighbors(conn,bound,*,domain,scopes,at,history):
+def _neighbors(conn,bound,*,domain,scopes,at,history,filter=None):
     if bound.vector is None:return []
     g=bound.selection
     if type(g.dimensions) is not int or not 1<=g.dimensions<=4000:raise ValueError('invalid bound dimension')
@@ -217,7 +217,11 @@ def _neighbors(conn,bound,*,domain,scopes,at,history):
        WHERE v.generation_id=%s AND v.source_hash={SOURCE_HASH}
        AND d.status='active' AND public.assertion_eligible(d.id,COALESCE(%s::timestamptz,now()),%s)
        AND (%s::text IS NULL OR d.domain=%s) AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))'''
-    args=(g.id,at,history,domain,domain,scopes,scopes)
+    from .metadata import argument
+    if filter is not None:
+        common += ' AND public.rag_metadata_document(d.id,%s)'
+    extra=(argument(filter),) if filter is not None else ()
+    args=(g.id,at,history,domain,domain,scopes,scopes)+extra
     # The partial index predicate is a safely adapted UUID literal. A parameterized
     # generic plan cannot prove this predicate and would lose the bounded ANN path.
     from psycopg import sql
@@ -240,26 +244,33 @@ def _neighbors(conn,bound,*,domain,scopes,at,history):
       (*args,bound.vector,bound.vector,*args[1:],bound.vector)).fetchall()
 
 
-def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,history=False,k=8,warnings=None,include_context=False):
+def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,history=False,k=8,warnings=None,include_context=False,filter=None):
     if type(k) is not int or not 1<=k<=150:raise ValueError('candidate k must be 1 through 150')
     try:
         with _bounded(conn,vectors=True):
-            neighbors=_neighbors(conn,bound_query,domain=domain,scopes=scopes,at=at,history=history)
+            neighbors=_neighbors(conn,bound_query,domain=domain,scopes=scopes,at=at,history=history,filter=filter)
     except (psycopg.errors.QueryCanceled,psycopg.errors.LockNotAvailable):
+        if filter is not None:
+            from .metadata import MetadataError
+            raise MetadataError('filter_budget') from None
         if warnings is not None:warnings.append('managed vector search exceeded its SQL budget; full-text search only')
         neighbors=[]  # bounded semantic stage fails safely into lexical evidence
+    from .metadata import argument
+    suffix='_metadata' if filter is not None else ''
+    extra=(argument(filter),) if filter is not None else ()
+    trailing=',%s' if extra else ''
     with _bounded(conn):
-        lexical=conn.execute(f'''SELECT h.*,{SOURCE_HASH} source_hash FROM public.hybrid_search_candidates(%s,NULL,%s,150,%s,COALESCE(%s::timestamptz,now()),%s) h
+        lexical=conn.execute(f'''SELECT h.*,{SOURCE_HASH} source_hash FROM public.hybrid_search_candidates{suffix}(%s,NULL,%s,150,%s,COALESCE(%s::timestamptz,now()),%s{trailing}) h
             JOIN public.chunks c ON c.id=h.chunk_id JOIN public.documents d ON d.id=c.document_id''',
-            (querytext,domain,scopes,at,history)).fetchall()
+            (querytext,domain,scopes,at,history)+extra).fetchall()
         scored=[(str(r['chunk_id']),r['source_hash'],float(r['score']),None) for r in lexical]
         scored.extend((str(r['id']),r['source_hash'],1.0/(60+r['rank']),None) for r in neighbors)
         if include_context:
             context=conn.execute(f'''SELECT h.*,{SOURCE_HASH} source_hash,
                 public.chunk_context_source_hash(d.title,d.body,d.project_scope,c.content) context_hash
-                FROM public.contextual_search_candidates(%s,NULL,%s,150,%s,COALESCE(%s::timestamptz,now()),%s,NULL) h
+                FROM public.contextual_search_candidates{suffix}(%s,NULL,%s,150,%s,COALESCE(%s::timestamptz,now()),%s,NULL{trailing}) h
                 JOIN public.chunks c ON c.id=h.chunk_id JOIN public.documents d ON d.id=c.document_id''',
-                (querytext,domain,scopes,at,history)).fetchall()
+                (querytext,domain,scopes,at,history)+extra).fetchall()
             scored.extend((str(r['chunk_id']),r['source_hash'],float(r['score']),r['context_hash']) for r in context)
         if not scored:return []
         # Every stage has its own READ COMMITTED snapshot. Keep scores bound to
@@ -272,8 +283,9 @@ def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,hist
             AND (s.context_hash IS NULL OR s.context_hash=public.chunk_context_source_hash(d.title,d.body,d.project_scope,c.content))
             AND public.assertion_eligible(d.id,COALESCE(%s::timestamptz,now()),%s)
             AND (%s::text IS NULL OR d.domain=%s) AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
+            AND (%s::jsonb IS NULL OR public.rag_metadata_document(d.id,%s))
             GROUP BY d.id,c.id''',
-            ([r[0] for r in scored],[r[1] for r in scored],[r[2] for r in scored],[r[3] for r in scored],at,history,domain,domain,scopes,scopes)).fetchall()
+            ([r[0] for r in scored],[r[1] for r in scored],[r[2] for r in scored],[r[3] for r in scored],at,history,domain,domain,scopes,scopes,argument(filter),argument(filter))).fetchall()
         rows.sort(key=lambda r:(-r['score'],r['slug'],r['idx'],str(r['chunk_id'])))
         return rows[:k]
 

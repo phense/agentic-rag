@@ -70,6 +70,7 @@ def save_document(
     dtype: str,
     slug: str | None = None,
     meta: dict | None = None,
+    metadata: dict | None = None,
     provenance: dict | None = None,
     edges: list[EdgeSpec] | None = None,
     doc_id: str | None = None,
@@ -85,7 +86,7 @@ def save_document(
     if type(index_context) is not bool:
         raise ValueError('index_context must be boolean')
     if index_context:
-        if any((slug,meta,provenance,edges,mark_verified,status,project,scope)):
+        if any((slug,meta,provenance,edges,mark_verified,status,project,scope)) or metadata is not None:
             raise ValueError('index-only save cannot combine with canonical write options')
         from .contextual import refresh
         try:
@@ -107,6 +108,14 @@ def save_document(
     # once mining exists — they must pass the secret gateway like title/body
     meta, r3 = strip_secrets_json(meta or {})
     provenance, r4 = strip_secrets_json(provenance or {})
+    if metadata is not None:
+        from .metadata import values
+        metadata = values(metadata, cfg.metadata_fields)
+        metadata, stripped = strip_secrets_json(metadata)
+        metadata = values(metadata, cfg.metadata_fields)
+        r3 += stripped
+        if 'application' in meta:
+            raise ValueError('application metadata must use the metadata argument')
     from .scope import write_scope
     if project is not None:
         project = strip_secrets(project)[0]
@@ -121,7 +130,7 @@ def save_document(
     redactions = r1 + r2 + r3 + r4
     try:
         return _save_txn(conn, cfg, title=title, body=body, domain=domain,
-                         dtype=dtype, slug=slug, meta=meta,
+                         dtype=dtype, slug=slug, meta=meta, metadata=metadata,
                          provenance=provenance, edges=edges, doc_id=doc_id,
                          actor=actor, redactions=redactions,
                          warnings=warnings, mark_verified=mark_verified,
@@ -136,7 +145,7 @@ def save_document(
 
 def _save_txn(
     conn, cfg, *, title, body, domain, dtype, slug, meta, provenance,
-    edges, doc_id, actor, redactions, warnings, mark_verified, status, commit=True, project_scope=None, scope_explicit=False,
+    edges, doc_id, actor, redactions, warnings, mark_verified, status, metadata=None, commit=True, project_scope=None, scope_explicit=False,
 ) -> SaveResult:
     if not conn.execute(
         "SELECT 1 FROM domains WHERE name = %s", (domain,)
@@ -146,6 +155,17 @@ def _save_txn(
 
     if doc_id is not None and conn.execute("SELECT 1 FROM fact_assertions WHERE document_id=%s UNION ALL SELECT 1 FROM claim_records WHERE document_id=%s", (doc_id,doc_id)).fetchone():
         raise ValueError("evidence-managed claims are immutable; create a corrective assertion")
+    if metadata is not None:
+        from .metadata import MetadataError
+        previous = conn.execute('SELECT meta FROM documents WHERE id=%s FOR UPDATE', (doc_id,)).fetchone() if doc_id else None
+        occupied = previous is not None and 'application' in (previous['meta'] or {})
+        envelope = (previous['meta'] or {}).get('application') if previous else None
+        if occupied and (not isinstance(envelope,dict) or set(envelope)!={'version','values'}
+                or type(envelope['version']) is not int or envelope['version']!=1 or not isinstance(envelope['values'],dict)):
+            raise MetadataError('incompatible_metadata')
+        meta = {**meta, 'application': {'version':1,'values':{**(envelope['values'] if envelope else {}),**metadata}}}
+        if len(json.dumps(meta['application']['values'],ensure_ascii=False).encode())>16384 or len(meta['application']['values'])>32:
+            raise MetadataError('invalid_metadata')
     created = doc_id is None
     if created:
         the_slug = slug or _unique_slug(conn, slugify(title))

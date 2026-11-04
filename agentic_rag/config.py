@@ -37,6 +37,7 @@ _SECTION_PREFIX = {
     "images": "image",
     "feedback": "feedback",
     "webhooks": "webhook",
+    "metadata": "metadata",
 }
 
 
@@ -49,6 +50,7 @@ class _FrozenProfiles(dict):
 
 @dataclass(frozen=True)
 class Config:
+    metadata_fields: dict = field(default_factory=dict)
     service_max_database_bytes: int = 8*1024**3
     service_min_free_bytes: int = 2*1024**3
     service_max_pending: int = 1000
@@ -158,6 +160,8 @@ class Config:
     image_vision_max_output_tokens: int = 512
 
     def __post_init__(self) -> None:
+        from .metadata import registry
+        object.__setattr__(self, "metadata_fields", _FrozenProfiles(registry(self.metadata_fields)))
         if type(self.webhook_test_http) is not bool or not isinstance(self.webhook_private_origins,dict) or len(self.webhook_private_origins)>16:
             raise ValueError("invalid webhook destination policy")
         from .webhook_delivery import normalize_endpoint, origin

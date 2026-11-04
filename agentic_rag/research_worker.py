@@ -6,6 +6,7 @@ from pathlib import Path
 
 from . import db
 from .config import Config
+from .metadata import MetadataError
 from .research import ResearchBudget, _base, _research
 
 
@@ -33,6 +34,9 @@ def main():
             with view_scope(conn, options.pop('view', None)):
                 result = _research(conn,cfg,payload['question'],budget=budget,
                                    progress=emit,**options)
+    except MetadataError as exc:
+        result = _base(payload['question'],budget)
+        result.update(error=exc.code,termination=exc.code,abstained=True)
     except Exception:
         result = _base(payload['question'],budget)
         result.update(termination='worker_failure',abstained=True)

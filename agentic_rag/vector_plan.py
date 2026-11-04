@@ -9,7 +9,7 @@ def available(conn):
         return conn.execute("SELECT to_regprocedure('public.hybrid_search_contextual_planned(text,halfvec,text,integer,text[],timestamp with time zone,boolean,text)') IS NOT NULL present").fetchone()['present']
 
 
-def candidates(conn, params):
+def candidates(conn, params, *, filter=None):
     # With an existing transaction this is a savepoint, never its commit/rollback.
     # With an idle autocommit connection it owns only its temporary read transaction.
     with conn.transaction():
@@ -23,7 +23,9 @@ def candidates(conn, params):
         settings=_planned_settings(version,original)
         for name,value in settings.items():
             conn.execute('SELECT set_config(%s,%s,true)',(name,value))
-        rows=conn.execute('SELECT * FROM public.hybrid_search_contextual_planned(%s,%s::halfvec,%s,%s,%s,%s,%s,%s)',params).fetchall()
+        from .metadata import argument
+        suffix='_metadata' if filter is not None else ''
+        rows=conn.execute('SELECT * FROM public.hybrid_search_contextual_planned'+suffix+'(%s,%s::halfvec,%s,%s,%s,%s,%s,%s'+(',%s' if filter is not None else '')+')',params+((argument(filter),) if filter is not None else ())).fetchall()
         # RELEASE SAVEPOINT keeps SET LOCAL changes: restore explicitly on success.
         # Any exception rolls back the savepoint, which restores settings itself.
         for name in reversed(settings):

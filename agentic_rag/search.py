@@ -44,6 +44,7 @@ def search(
     timezone: str | None = None,
     diagnostics: dict | None = None,
     view: str | None = None,
+    filter: dict | None = None,
 ) -> tuple[list[SearchHit], list[str]]:
     """temporal=None keeps library callers on the legacy path; client surfaces
     pass 'auto' (configuration decides), 'off', or explicit 'prefer'/'filter'.
@@ -51,12 +52,29 @@ def search(
     view (RAG-066) is optional: omitted keeps every existing default and payload;
     current/latest, include_merged or historical select lifecycle membership in SQL
     before each candidate LIMIT and add evidence.lifecycle labels."""
+    if filter is not None:
+        from . import metadata
+        from .scope import selection
+        with metadata.filtered(conn,cfg,filter,domain=domain,scopes=selection(project,scope)) as selected:
+            return _filtered_search(conn,cfg,query,domain,k,project=project,scope=scope,as_of=as_of,history=history,
+                graph_depth=graph_depth,reranker=reranker,baseline=baseline,strategy=strategy,query_cache=query_cache,
+                rerank_mode=rerank_mode,context_mode=context_mode,temporal=temporal,reference=reference,
+                timezone=timezone,diagnostics=diagnostics,view=view,filter=selected)
+    return _filtered_search(conn,cfg,query,domain,k,project=project,scope=scope,as_of=as_of,history=history,
+        graph_depth=graph_depth,reranker=reranker,baseline=baseline,strategy=strategy,query_cache=query_cache,
+        rerank_mode=rerank_mode,context_mode=context_mode,temporal=temporal,reference=reference,
+        timezone=timezone,diagnostics=diagnostics,view=view)
+
+
+def _filtered_search(conn,cfg,query,domain=None,k=8,*,project=None,scope=None,as_of=None,history=False,
+        graph_depth=0,reranker=None,baseline=False,strategy='auto',query_cache=None,rerank_mode='auto',
+        context_mode='auto',temporal=None,reference=None,timezone=None,diagnostics=None,view=None,filter=None):
     from . import lifecycle
     view = lifecycle.normalize_view(view, history=history, as_of=as_of)
     options = dict(domain=domain, k=k, project=project, scope=scope, graph_depth=graph_depth, reranker=reranker,
                    baseline=baseline, strategy=strategy, query_cache=query_cache, rerank_mode=rerank_mode,
                    context_mode=context_mode, temporal=temporal, reference=reference, timezone=timezone,
-                   diagnostics=diagnostics)
+                   diagnostics=diagnostics, filter=filter)
     if view is None:
         return _search(conn, cfg, query, as_of=as_of, history=history, **options)
     if view == 'historical':
@@ -79,6 +97,7 @@ def _search(
     reference: str | None = None,
     timezone: str | None = None,
     diagnostics: dict | None = None,
+    filter=None,
 ) -> tuple[list[SearchHit], list[str]]:
     validate_strategy(strategy)
     validate_rerank_mode(rerank_mode)
@@ -108,29 +127,34 @@ def _search(
     from .retrieval import strong_symbols, exact_symbol_match
     function="hybrid_search_temporal" if baseline else "hybrid_search_candidates"
     query_model = None
+    from .metadata import argument
+    suffix = "_metadata" if filter is not None else ""
+    extra = (argument(filter),) if filter is not None else ()
+    if filter is not None and baseline:
+        function = "hybrid_search_candidates"
     def candidates(qvec):
         from . import contextual
         if selected_space is not None:
             return indexes.candidates(conn, managed_query, query, domain=domain,
                 scopes=scopes, at=at, history=history, k=k if baseline else 150,
-                warnings=warnings, include_context=(context_mode == 'auto' and not baseline
+                warnings=warnings, filter=filter, include_context=(context_mode == 'auto' and not baseline
                     and strategy != 'hybrid' and not strong_symbols(query)))
         if context_mode == 'auto' and not baseline and strategy != 'hybrid' and not strong_symbols(query) and contextual.available(conn):
             if qvec is not None:
                 from . import vector_plan
                 if cfg.retrieval_planned_vectors and vector_plan.available(conn):
-                    return vector_plan.candidates(conn,(query,qvec,domain,150,scopes,at,history,query_model))
-            return conn.execute('SELECT * FROM hybrid_search_contextual(%s,%s::halfvec,%s,%s,%s,%s,%s,%s)',
-                (query,qvec,domain,150,scopes,at,history,query_model)).fetchall()
+                    return vector_plan.candidates(conn,(query,qvec,domain,150,scopes,at,history,query_model),filter=filter)
+            return conn.execute(f'SELECT * FROM hybrid_search_contextual{suffix}(%s,%s::halfvec,%s,%s,%s,%s,%s,%s'+(',%s' if extra else '')+')',
+                (query,qvec,domain,150,scopes,at,history,query_model)+extra).fetchall()
         return conn.execute(
-            f"SELECT * FROM {function}(%s, %s::halfvec, %s, %s, %s, %s, %s)",
-            (query, qvec, domain, k if baseline else 150, scopes, at, history),
+            f"SELECT * FROM {function}{suffix}(%s, %s::halfvec, %s, %s, %s, %s, %s" + (",%s" if extra else "") + ")",
+            (query, qvec, domain, k if baseline else 150, scopes, at, history)+extra,
         ).fetchall()
 
     rows = None
     shortcut = False
     if strategy == "auto" and not baseline:
-        rows = _identity_candidates(conn, query, domain, scopes, at, history)
+        rows = _identity_candidates(conn, query, domain, scopes, at, history, filter=filter)
         symbols = strong_symbols(query)
         if rows is None and len(symbols) == 1 and query.strip() == symbols[0]:
             lexical = candidates(None)
@@ -204,7 +228,7 @@ def _search(
     hits=diverse(hits,query,k)
     if graph_depth:
         before_graph = hits
-        hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain)
+        hits=_expand(conn,hits,query,k,graph_depth,project,scope,as_of,history,domain,filter=filter)
         if stage is not None and stage.available:
             # Graph promotion applies its own k limit. Retain the eligible base
             # selection until after temporal ordering so out-of-period graph
@@ -396,7 +420,7 @@ def validate_rerank_mode(mode):
         raise ValueError("rerank must be auto or off")
 
 
-def _identity_candidates(conn, query, domain, scopes, at, history):
+def _identity_candidates(conn, query, domain, scopes, at, history, filter=None):
     """Strict selectors only; ineligible/missing targets fall back to hybrid."""
     selector = query.strip()
     try:
@@ -407,6 +431,7 @@ def _identity_candidates(conn, query, domain, scopes, at, history):
         document_id = None
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)+", selector):
             return None
+    from .metadata import argument
     rows = conn.execute("""
         SELECT d.id AS document_id, c.id AS chunk_id, d.title, d.slug, d.domain,
                d.dtype, left(c.content,4000) AS snippet,
@@ -416,14 +441,16 @@ def _identity_candidates(conn, query, domain, scopes, at, history):
           AND d.status='active' AND assertion_eligible(d.id,%s,%s)
           AND (%s::text IS NULL OR d.domain=%s)
           AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
+        AND (%s::jsonb IS NULL OR public.rag_metadata_document(d.id,%s))
         ORDER BY c.idx,c.id LIMIT 150
-        """, (document_id, document_id, selector, at, history, domain, domain, scopes, scopes)).fetchall()
+        """, (document_id, document_id, selector, at, history, domain, domain, scopes, scopes, argument(filter),argument(filter))).fetchall()
     return rows or None
 
 
-def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain):
+def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain,filter=None):
     """At most three seeds, twenty discovered nodes, eight edges per frontier."""
     from .scope import selection
+    from .metadata import argument
     from .validity import selection as time_selection
     from .retrieval import strong_symbols,exact_symbol_match
     scopes=selection(project,scope);at,history=time_selection(as_of,history)
@@ -447,8 +474,9 @@ def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain):
               AND (%s::boolean OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
               AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
               AND (%s::text IS NULL OR d.domain=%s)
+            AND (%s::jsonb IS NULL OR (public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)))
             ORDER BY d.slug,d.id LIMIT 8
-            """,(current,current,current,predicates,at,history,at,history,history,at,at,scopes,scopes,scopes,domain,domain)).fetchall()
+            """,(current,current,current,predicates,at,history,at,history,history,at,at,scopes,scopes,scopes,domain,domain,argument(filter),argument(filter),argument(filter))).fetchall()
         for r in rows:
             identity=str(r['id'])
             if identity in visited:continue

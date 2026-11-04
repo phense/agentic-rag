@@ -342,7 +342,7 @@ def test_038_scrubs_arbitrary_default_acl_grants(tmp_path):
                     for category,rights in [('TABLES','ALL'),('SEQUENCES','ALL'),('FUNCTIONS','EXECUTE')]:
                         conn.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT '+rights+' ON '+category+' TO {}').format(sql.Identifier(role)))
                     conn.commit()
-                    assert db.apply_migrations(conn,db.SQL_DIR)==['038_webhooks.sql']
+                    assert db.apply_migrations(conn,db.SQL_DIR)==['038_webhooks.sql', '039_metadata_filters.sql']
                     assert webhooks.schema_valid(conn)
                     assert conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']==original
                     for table in webhooks.TABLES:
