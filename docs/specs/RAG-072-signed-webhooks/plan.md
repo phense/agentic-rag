@@ -67,8 +67,9 @@ lists. An owned job event uses receipt namespace/project and a null domain if
 one is not assigned: only a job subscription (null domain, owned namespace and
 exact project, job kinds only) can match it. Applied/error/cancelled produce
 terminal notices; blocked is recoverable. Omit unrelated maintenance queues.
-Use numeric resource order allocated while holding the canonical resource lock
-as the stale-event discriminator. Evidence hashes are optional opaque
+Capture transition facts immediately, then finalize numeric resource order at
+transaction end under the private admission lock as the stale-event discriminator.
+Uncommitted internal staging values are never sent. Evidence hashes are optional opaque
 fingerprints, not sortable order or final snapshots of subsequent statements.
 Source/claim capture runs after their revision bump or from appended history;
 multiple notices in one transaction are allowed and correlated. Document that
@@ -80,10 +81,21 @@ Create delivery intents for enabled matching subscriptions transactionally.
 Multiple filters cannot duplicate one event/subscription intent. Default limits:
 32 subscriptions per namespace,10,000 retained events/deliveries globally,
 32MiB encoded payload metadata,4KiB event body and bounded field lengths.
-Serialize quota accounting with a transaction lock; exhaustion aborts the write
-explicitly instead of dropping an event. No live/nonterminal record is pruned.
+Serialize hard quota accounting at transaction end, after canonical resource
+locks have been acquired. A deferred check updates the private control row so
+concurrent REPEATABLE READ snapshots cannot admit unseen excess records; a stale
+snapshot fails explicitly with serialization failure. It finalizes event order
+and exact wire bytes before commit, with no later canonical row locks. Immediate
+capture and management must not wait for quota while a producer can still take
+canonical locks. Subscription mutations use NO KEY UPDATE, compatible with the
+intent foreign-key KEY SHARE lock. Exhaustion rolls back the write explicitly
+instead of dropping an event. No live/nonterminal record is pruned.
 Terminal acknowledged/cancelled metadata may be pruned after7days explicitly;
-dead letters remain inspectable until explicit replay or cancellation. Bound
+dead letters remain inspectable until explicit replay or cancellation. A local
+operator can cancel one named dead, revoked or disabled delivery with an
+expected-state guard and atomic audit; active leases and pending/retrying work
+are refused. Repeating the same cancellation does not renew retention. The
+seven-day retention period starts at cancellation; pruning is irreversible. Bound
 rotation generations and replay counts. Capture with no matching subscriptions
 creates no uncollectable event. Disabled/revoked deliveries are withheld or
 cancelled visibly without indefinite retry-budget consumption.
@@ -194,3 +206,18 @@ upgrade/isolated-database tools, with feature-specific limits in PB07201.
 
 See `docs/uml/webhooks-72.md` and AF072-001..006 in `docs/uml/findings.md`.
 No implementation may cross an unresolved security boundary to meet a deadline.
+
+## Independent-review correction boundary
+
+Complete review at `18e9fd7` confirmed IR072-001: acquiring quota after a
+canonical document lock adds a deadlock when a transaction later writes another
+document. IR072-002/PB072-IR-001 confirmed that terminal delivery cancellation
+was unreachable and could leave finite capture capacity permanently occupied.
+The correction above preserves capture-time scope/state and existing old028
+producers. It needs fresh deterministic multi-document, real mining/lifecycle,
+edge-versus-memory ordering, quota-boundary READ COMMITTED/REPEATABLE READ,
+management/FK/prune, rollback and archived-upgrade tests before acceptance.
+Explicit early constraint execution and mixed custom SQL are separately
+characterized; no unrestricted lock-freedom guarantee is implied. The local
+cancellation procedure must be rehearsed through CLI, including retention and
+resumed capture. No full suite is repeated until these corrections are accepted.

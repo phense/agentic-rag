@@ -44,6 +44,18 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 - [x] T072-008: Focused relevant integration checks, exact input/log/exit
   evidence, cleanup own isolated databases/processes; no full suite yet.
 
+### S072-2C: Confirmed review corrections
+
+- [ ] T072-C01: Freeze the exact canonical multi-document deadlock regression;
+  defer hard quota/order finalization, preserve capture-time scope/state, prove
+  READ COMMITTED/REPEATABLE READ quota and mixed edge/memory ordering, real
+  mining/lifecycle and archived028 behavior. IR072-001.
+- [ ] T072-C02: Local audited named terminal cancellation with expected state,
+  lease fencing, unchanged retention on repeat and no live-work deletion.
+  Rehearse seven-day prune and capacity recovery. IR072-002/PB072-IR-001.
+- [ ] T072-C03: Independently review the complete correction boundary; retain
+  unchanged accepted evidence and resolve new C/H/M/Important before full/PR.
+
 ### S072-3: Acceptance and delivery
 
 - [ ] T072-009: PB07201 `docs/webhooks.md`, executable local receiver/signature

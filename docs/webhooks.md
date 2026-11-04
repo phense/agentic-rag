@@ -332,16 +332,41 @@ bounded state; it excludes canonical text and credentials.
    already handed to the network cannot be recalled. Retained deliveries remain
    available; re-enabling capture is an explicit operator action.
 
-5. Monitor sanitized delivery state and run `webhooks prune` as operator after
-   preserving the required operational evidence. It deletes acknowledged or
-   cancelled deliveries older than seven days and subsequently unreferenced old
-   events. It does not discard pending or dead letters. Storage is finite:
-   at most 32 subscriptions per namespace, 10000 retained subscriptions/events/
-   deliveries and 32 MiB of serialized event bodies. At capacity, capture aborts
-   the originating mutation instead of silently dropping its notice. Turn
-   capture off if ordinary writes must resume, preserve the reported capacity
-   evidence, and decide how to retire retained deliveries before enabling it
-   again. Disabling a subscription does not release its subscription quota.
+5. At `webhook_capacity`, turn capture off to restore ordinary writes, pause
+   the sender schedule and preserve `webhooks status "$SUB"` output. Storage is
+   finite: 32 subscriptions per namespace, 10000 retained subscriptions/events/
+   deliveries and 32 MiB of serialized bodies. The originating write rolls back
+   when it cannot retain its notice; confirm that write's outcome before retry.
+   Inspect each retained delivery and decide which terminal notices may be
+   abandoned. Never reactivate a revoked credential to free capacity.
+
+6. For each explicitly selected terminal delivery, run this **local operator**
+   command, replacing the ID and observed state:
+
+   ```sh
+   "$RAG" webhooks cancel RETAINED_DELIVERY_UUID --expected-state revoked
+   "$RAG" webhooks status "$SUB"
+   ```
+
+   Accepted prior states are `dead`, `revoked` or `disabled`. For live work,
+   first disable its subscription through D4; do not cancel a pending, retrying
+   or leased delivery directly. Expect `cancelled` in status and a committed
+   `webhook.cancel` audit entry. A wrong state or ID must fail without changing
+   other deliveries. Preserve that failure and fetch status again; do not guess
+   IDs. Repeating the same cancellation must not restart retention. Knowledge
+   and the original credential binding stay unchanged.
+
+7. Wait seven full days after cancellation, then preserve the required evidence
+   and run `webhooks prune` as operator. Prune permanently deletes eligible
+   acknowledged/cancelled delivery metadata and unreferenced old events. Check
+   its reported delivery/event counts against the selected retained records;
+   cancellation alone does not immediately free capacity. Pending, retrying,
+   leased and unselected dead letters remain. If capacity is still occupied,
+   keep capture off and inspect the remaining records; do not edit private
+   tables or reduce retention. Disabling does not release subscription quota.
+   Once capacity is available, explicitly enable capture and run B6's test plus
+   the sender. Require an acknowledged notice before resuming its schedule.
+   If that check fails, turn capture off and follow the reported failure branch.
 
 ## E: Runtime rollback
 

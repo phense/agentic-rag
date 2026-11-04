@@ -16,7 +16,9 @@ sequenceDiagram
     participant R as Pinned destination
     W->>P: Audited knowledge, review, lifecycle or receipt change
     P->>O: Trigger checks capture and matching exact scopes
-    O->>O: Validate bounds; record event and delivery intent
+    O->>O: Capture immutable facts and private delivery intent
+    P->>O: Deferred admission after canonical mutations
+    O->>O: Serialize hard quota; finalize order and exact bytes
     alt Canonical write or quota fails
         P-->>W: Rollback knowledge, audit and outbox
     else Commit succeeds
@@ -85,8 +87,12 @@ inspection, not a production or full-suite verdict.
 | Consumer boundary | Bundled loopback receiver verifies exact bytes/key identity/freshness and durably records event IDs/resource order; no canonical content or downstream effects are retained. |
 | Upgrade/rollback | Additive038, unchanged001..037, archived028 readers/writer, separate source/target restores including a restricted owner; runtime rollback requires capture off and retained038 metadata. |
 
-One remaining review question is whether the shared quota lock can add a cycle
-when a multi-document canonical transaction acquires a later document lock while
-another writer waits for quota admission. This is unproven; the complete review
-must disposition it before acceptance. The already reproduced subscription-lock
-inversion has a deterministic red/green regression in the implementation.
+Independent review at `18e9fd7` confirmed IR072-001: the immediate quota lock
+adds a canonical multi-document deadlock. IR072-002 confirmed missing explicit
+terminal retirement. The correction candidate keeps immediate immutable facts,
+defers strict admission and resource-order finalization until transaction end,
+and adds audited local terminal cancellation. The diagram now states that
+intended correction; the table above remains the inspected pre-correction
+runtime mapping until fresh tests and source reconciliation replace it.
+Canonical locks must not be acquired after deferred admission. Management must
+use NO KEY UPDATE so capture foreign-key checks cannot invert that boundary.

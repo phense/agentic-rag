@@ -16,7 +16,8 @@ Issue [72](https://github.com/phense/agentic-rag/issues/72) targets 0.6.29/schem
 The implementation is frozen at `2d42176`, based on the real 0.6.28/schema037
 release `7669284`. These are bounded correctness and compatibility observations,
 not a delivery SLA, production receiver test or merge approval. Independent
-complete review and the final full suite are still pending.
+complete review has found two blocking defects described below; the final full
+suite has not run.
 
 ## Focused checks and compatibility
 
@@ -85,9 +86,12 @@ seams; no public receiver or certificate authority was contacted.
 
 ## Open gates and operation boundary
 
-A remaining review question concerns the global capture quota lock interacting
-with later document locks in a multi-document transaction. It must be resolved
-or explicitly falsified before acceptance. Independent code/security/upgrade and
+The complete review at `18e9fd7` confirmed a multi-document deadlock between
+the quota lock and a later canonical document lock (IR072-001, High). It also
+confirmed that permanently withheld deliveries have no audited retirement path
+and can exhaust capture capacity (IR072-002, Medium; PB Important). Both are
+being corrected with targeted red/green tests and fresh procedure rehearsal;
+the earlier focused passes do not establish readiness. Independent code/security/upgrade and
 [PB07201](../webhooks.md) review, final full-suite output, release checks, CI,
 merge and both production upgrades remain open. No keys, subscriptions, public
 endpoints or sender daemon have been configured on either production host.
