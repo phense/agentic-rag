@@ -8,7 +8,8 @@
 - BASE: `a151ee5918cf4b1d8e0e8b18bddfe4adadc7658b`, deployed029/schema038.
 - Status: Runtime039 and root exact-set/adapter rehearsal complete; as-built
   reconciled. Independent code/PB reviews accepted; CLI and pre039 no-filter
-  compatibility regressions repaired. Final full-suite and both production updates pending.
+  compatibility regressions repaired. Complete test collection verified with a documented test-only continuation;
+  PR and both production updates pending.
 
 ## Summary
 

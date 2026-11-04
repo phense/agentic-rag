@@ -97,6 +97,26 @@ Critical, High, Medium or Low findings. The final root rehearsal was then
 repeated on `bcba20d` (76/76); the tables above use only that current run.
 Earlier failed and fixture-correction runs remain retained and are not passes.
 
+Final collection coverage is **2871 passed,12 macOS-only skips** across two
+commands, covering all2883 collected items. On `151e653`, the first1009 passed
+before an old timeout stub rejected the new optional keyword. Test-only commit
+`03b3445` accepts `filter=None`, asserts it isNone, and preserves the same
+`QueryCanceled` and opt-out assertions; the focused reproduction passed.
+Production code, SQL and dependency inputs did not change. The exact collection
+was checked before selecting the suffix:1874 items, including that failed case
+and every item not previously executed. It ended with1862 passed,12 skipped,
+exit0 in1971.18s, with unchanged inputs. The earlier exit1 is retained and is
+not relabeled as a successful uninterrupted run. The suffix log SHA256 is
+`b8c10fd9a8a6dc315c709f014227371fc257b2743ec66737fa33b66f61711bb4`.
+
+The skips are eleven Darwin subprocess-accounting tests and one launchd
+installer test on Linux; no metadata case is skipped. The029 Darwin mechanism
+is unchanged by this feature and still requires its separate host verification.
+Node7, dependency-lock and wheel checks are independently recorded. The current
+wheel contains157 Python files and39 SQL files, byte-identical to the runtime
+source, SHA256 `9a8981b999a75a59da086c20da90893f3dca4ddf0fc649c7dbc14cee7a6c1111`.
+
+
 ## Plans, limits and untested claims
 
 A fresh `EXPLAIN (ANALYZE, BUFFERS)` under the actual RLS reader shows a sequential

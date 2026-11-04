@@ -38,7 +38,7 @@ writers or shared mutable DB runs. Do not claim design findings are runtime pass
 - [x] T073-008: Reconcile as-built UML and derive/execute ACF073-S/R. Independent
   complete bounded code/security/upgrade and PB review; resolve C/H/M/Important,
   collect Low in linked issue; focused fixes proportionately.
-- [ ] T073-009: Focused final checks, docs/Node/lock/wheel and one full nearPR with
+- [x] T073-009: Focused final checks, docs/Node/lock/wheel and one full nearPR with
   observed terminal result and unchanged inputs. No repeated full for mechanical
   inventory/docs fixes; preserve failed evidence honestly.
 - [ ] T073-010: Focused PR, link immediately, CI, merge under explicit current
@@ -67,3 +67,9 @@ omits optional SQL entirely for omitted filters;17regression cases and360affecte
 tests pass, with current input hashes and independent C0/H0/M0/Low0 review.
 Fresh root rehearsal `frozen-bcba20d-final` passes76/76 with unchanged fixture.
 Final full-suite remains a separate pending gate.
+
+T073-009 final coverage: all2883 collected items accounted for as2871passed and
+12Darwin-only skips across the retained1009pass prefix and the exact1874item
+suffix (1862pass/12skip,exit0). Only timeout teststub03b3445 changed between
+commands; production/SQL/dependencies are identical. No uninterrupted full pass
+is claimed. Node7/lock and current157Python39SQL wheel checks pass.
