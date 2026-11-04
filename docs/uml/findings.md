@@ -853,3 +853,49 @@ implemented topology after correction9d31fe9. Whole bounded review and focused
 correction acceptance leave C0/H0/M0/L0; PB07101 Important0/Minor0. Fresh scoped,
 queued and worker-lease PostgreSQL probes confirm the ownership and transaction
 boundaries. Final full verification and delivery remain separate open gates.
+
+
+## RAG-071 delivered (2026-11-04)
+
+PR103 merged7669284; both production hosts run0.6.28/schema037 with independent
+source/target restores, preserved original rows/ACLs/owners/sequences, no recoding
+and unchanged configuration. APIs/scoped reads/foreign denial and scheduled
+jobs verified. Feedback remains off. Historical full exit1 is retained; only
+four stale test inventories changed afterward, independently accepted with14
+focused and17 documentation tests passing. Canonical#71 closed.
+
+## RAG-072 design gate (2026-11-04)
+
+- AF072-001 (atomicity; AC-001/002/008): capture actual canonical transactions,
+  including lifecycle_events rather than only legacy edges. Independent
+  DR072-001 adopted; triggers cover applied/recorded/corrected, and source
+  changes emit only scoped references. Design resolved; implementation/tests
+  T072-001/002/007 required.
+- AF072-002 (security/receipt; AC-003): private management cannot detach from
+  GROUP/EXECUTION/LEASE. Independent DR072-002 adopted: narrow fixed-path
+  definer RPCs on the existing writer connection, exact trusted scope and
+  own sanitized status. No detached owner mutation. Design resolved;
+  T072-001/003/006 and queued crash/replay proof required.
+- AF072-003 (privacy; AC-003/004): no signing material in DB/spool/results;
+  private root and domain-separated distinct subscription/generation keys,
+  exclusive operator export. Current authority and every exposed resource
+  rechecked before send. Design resolved; T072-003/004 negative probes required.
+- AF072-004 (network; AC-006): validate all normalized resolved addresses and
+  pin actual numeric socket, original hostname TLS/Host, no redirects/proxies.
+  Exact operator origin/CIDRs for private targets, hard forbidden metadata
+  classes, bounded DNS/attempt. Design resolved; T072-005 malicious tests required.
+- AF072-005 (versions; AC-001/005): independent DR072-003/004 adopted.
+  Distinguish null-domain own job subscriptions from knowledge scope; only
+  applied/error/cancelled receipts are terminal. Numeric order under resource
+  serialization is authoritative; optional ev1 is not sortable or a final
+  transaction snapshot. Design resolved; T072-002/004 integration required.
+- AF072-006 (bounded recovery; AC-002/005/008): durable attempt at claim,
+  fence both stale completions, finite retries/generations/replay/storage,
+  compatible quota/prune lock order and no implicit nonterminal deletion.
+  Default-off additive038 preserves old028 behavior. Design resolved;
+  T072-004/007 and independent source/target restore required.
+
+Independent design report is retained privately as
+`.engineering-method/runs/RAG-072/design-review.json`. Its two High and two
+Medium design questions are incorporated in spec/plan before implementation.
+This is design reconciliation, not a runtime or feature acceptance claim.

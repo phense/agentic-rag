@@ -643,4 +643,6 @@ confirmed-failure command. Counts collapse machines belonging to one user; no
 training or policy activation occurs. Migration037 adds four tables without
 rewriting existing knowledge, vectors or jobs.
 [Procedure PB07101](docs/retrieval-feedback.md);
-[verification and current delivery limits](docs/verification/retrieval-feedback.md).
+[verification and delivery evidence](docs/verification/retrieval-feedback.md).
+Delivered2026-11-04 to Hetzner and Peter Mac with source/target independently
+restored, originals retained and feedback still off by default.

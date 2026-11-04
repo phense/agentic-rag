@@ -99,5 +99,17 @@ has C0/H0/M0/L0. The four corrected tests plus existing MCP tests pass14/14 in
 inputs remain unchanged. The full process retains
 its recorded exit1; it is not relabeled or repeated for test-only maintenance.
 
-Runtime delivery and production feedback enablement are separate; neither has
-occurred for0.6.28.
+## Verified production delivery (2026-11-04)
+
+PR103 merged7669284 and both production environments run0.6.28/schema037.
+Hetzner retains24,428 main and24,505 dashboard documents; Peter Mac retains
+14,845. All50 original tables, ACLs, owners and sequences are preserved; no
+rows were re-encoded. Source and target dumps were independently restored for
+each database. Live API health is HTTP200, unauthenticated capabilities401,
+scoped search succeeds and foreign access is denied. Backup/maintenance
+schedules are restored; stable Hetzner CLI/backup paths and Mac starters use028.
+Prior runtimes and private backup/restore proofs are retained.
+
+Configuration is unchanged: feedback stays disabled, OCR enabled and optional
+vision disabled. Production feedback enablement remains a separate explicit
+operator action. No search-quality or latency improvement is claimed.

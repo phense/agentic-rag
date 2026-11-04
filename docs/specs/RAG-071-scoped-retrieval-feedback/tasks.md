@@ -62,7 +62,7 @@ byte-identical. Complete independent review remains T071-010.
   and Important playbook findings and tracks Low issues separately.
 - [x] T071-011: Final relevant tests and one full suite before PR on unchanged
   runtime inputs. Record terminal exit/results; no running-log pass claim.
-- [ ] T071-012: Create focused PR, respect CI and review gates, merge and deploy
+- [x] T071-012: Create focused PR, respect CI and review gates, merge and deploy
   under current autonomy only after verified populated upgrade/restore; preserve
   rollback evidence and report actual runtime behavior on both hosts.
 
@@ -86,3 +86,10 @@ skips and4 obsolete MCP inventory expectations, exit1. Test-only704e3c9 repairs
 exactly those expectations;14 focused MCP checks pass, exit0. Runtime, SQL and
 all other runtime/test inputs remain byte-identical. Independent mechanical review
 C0/H0/M0/L0; no second full run and no full-exit0 claim. T071-012 remains open.
+
+Delivery completed2026-11-04: PR103 merged7669284, actual0.6.28/schema037 on
+Hetzner main24,428 and dashboard24,505 documents and Peter Mac14,845. Original
+rows/ACL/owners/sequences preserved, source and target independently restored,
+scoped live search/foreign denial and HTTP200 pass. Configuration unchanged,
+feedback off and zero recoding. Backup/maintenance schedules restored, old
+runtimes retained; canonical#71 closed.
