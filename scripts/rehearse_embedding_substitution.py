@@ -44,15 +44,22 @@ def preserved(before,after):
          'derivative_tables_excluded':['embedding_selection','embedding_generations','embedding_vectors']}
 
 
+def generation_rows(cfg,generation):
+ with db.connect(cfg) as conn:
+  return [r['value'] for r in conn.execute('SELECT to_jsonb(v)::text value FROM embedding_vectors v WHERE generation_id=%s ORDER BY chunk_id',(generation.id,))]
+
+
 class Replay:
  def __init__(self,spec,results,input_sha256,*,models=('bge','nano','small')):
   if not models or models[0]!='bge' or len(models)<2 or len(set(models))!=len(models) or set(models)-{'bge','nano','small'}:raise ValueError('BGE and at least one distinct measured candidate required')
-  self.spec=spec;self.maps={};self.events=[];self.mode='normal';self.models=models
+  self.spec=spec;self.maps={};self.events=[];self.mode='normal';self.models=models;self.input_files={}
   for model in models:
-   root=results/(model+'-r0');result=json.loads((root/'result.json').read_text())
+   root=results/(model+'-r0');raw={name:(root/name).read_bytes() for name in ('result.json','vectors.json')}
+   self.input_files[model]={name:hashlib.sha256(data).hexdigest() for name,data in raw.items()}
+   result=json.loads(raw['result.json'])
    require(result['status']=='complete','canonical model pass incomplete:'+model)
    require(result['input_sha256']==input_sha256,'canonical input bytes changed')
-   vectors=json.loads((root/'vectors.json').read_text());mapping={}
+   vectors=json.loads(raw['vectors.json']);mapping={}
    for group in ('documents','queries','auxiliary'):
     for row in spec[group]:
      purpose=row.get('purpose','query' if group=='queries' else 'document')
@@ -127,6 +134,7 @@ def run(args):
  out=Path(args.output);out.mkdir(mode=0o700);spec_path=Path(args.inputs);spec=json.loads(spec_path.read_text())
  replay=Replay(spec,Path(args.results),hashlib.sha256(spec_path.read_bytes()).hexdigest(),models=tuple(args.models));report={'status':'failed','started':datetime.now(timezone.utc).isoformat(),
   'model_timing_claim':False,'replay_only':True,'models':replay.models,
+  'replay_inputs':replay.input_files,'rehearsal_script_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
   'unrehearsed_models':sorted({'bge','nano','small'}-set(replay.models)),'input_sha256':hashlib.sha256(spec_path.read_bytes()).hexdigest(),
   'steps':[],'hybrid':{}}
  def step(label,**facts):report['steps'].append({'label':label,**facts});write(out/'report.json',report)
@@ -160,26 +168,31 @@ def run(args):
      require(restored['restore_verified'] and restored['original_rows_unchanged'],'populated copy restore')
      require(digest_rows(target)==baseline,'source and restored original rows differ')
      step('verified-populated-restore',original_rows_unchanged=True)
-     generations={}
+     generations={};retained_vectors=None
      for m in replay.models:
       generations[m]=operation(target,store.create_embedding_index,m,m)
       first=operation(target,store.build_embedding_index,m,limit=1,allow_corpus=True)
       require(first['remaining']==45,'interrupted first batch coverage')
       replay.mode='outage'
+      event_start=len(replay.events)
       with db.connect(target) as conn:
        before=conn.execute('SELECT count(*) n FROM embedding_vectors').fetchone()['n']
       try:operation(target,store.build_embedding_index,m,limit=4,allow_corpus=True)
-      except providers.ProviderError:pass
+      except providers.ProviderError as error:require(error.code=='transient','outage failed for an unrelated reason')
       else:raise AssertionError('outage accepted a build')
+      require(any(e.get('mode')=='outage' and e.get('model')==m for e in replay.events[event_start:]),'outage inference was not reached')
       with db.connect(target) as conn:require(conn.execute('SELECT count(*) n FROM embedding_vectors').fetchone()['n']==before,'outage stored vectors')
       replay.mode='normal';progress=build_all(target,m)
       require(progress[-1]['remaining']==0,'resume coverage')
       if m!='bge':
        replay.mode='query-probe-failed'
+       event_start=len(replay.events)
        with db.connect(target) as conn:previous=indexes.active(conn,target)
        try:operation(target,store.select_embedding_index,m)
-       except providers.ProviderError:pass
+       except providers.ProviderError as error:require(error.code=='transient','query-role probe failed for an unrelated reason')
        else:raise AssertionError('failed query-role probe switched pointer')
+       query_hash=hashlib.sha256(b'Query: Synthetic connectivity probe; no stored knowledge.').hexdigest()
+       require(any(e.get('mode')=='query-probe-failed' and query_hash in e.get('input_sha256',[]) for e in replay.events[event_start:]),'query-role inference was not reached')
        with db.connect(target) as conn:
         now=indexes.active(conn,target);require((now.id if now else None)==(previous.id if previous else None),'failed activation changed pointer')
        replay.mode='normal'
@@ -187,6 +200,8 @@ def run(args):
       report['hybrid'][m]=read_queries(target,spec,doc_ids)
       require(preserved(baseline,digest_rows(target))['all_original_rows_present'],'original preservation')
       step('generation-'+m,dimensions=generations[m].dimensions,identity=generations[m].identity,build_batches=len(progress)+1,hybrid_queries=len(report['hybrid'][m]))
+      if m=='bge':retained_vectors=generation_rows(target,generations['bge'])
+      else:require(generation_rows(target,generations['bge'])==retained_vectors,'retained BGE vectors changed during candidate build')
      if 'small' in generations:
       require(generations['small'].dimensions==generations['bge'].dimensions and generations['small'].identity!=generations['bge'].identity,'equal dimension identity separation')
      for lang in ('de','en'):
@@ -202,7 +217,7 @@ def run(args):
      for mode in ('wrong-dimension','identity-drift'):
       replay.mode=mode
       try:indexes.query_vector(before,target,spec['queries'][0]['text'])
-      except providers.ProviderError:pass
+      except providers.ProviderError as error:require(error.code==('invalid_response' if mode=='wrong-dimension' else 'model_missing'),'invalid provider failed for an unrelated reason:'+mode)
       else:raise AssertionError('invalid provider accepted:'+mode)
       replay.mode='normal'
       with db.connect(target) as conn:require(indexes.active(conn,target).id==before.id,'failure changed selected generation')
@@ -212,7 +227,7 @@ def run(args):
          candidate:dataclasses.replace(profile_map[candidate],query_prefix='question: ')})
      event_count=len(replay.events)
      try:indexes.query_vector(before,edited,spec['queries'][0]['text'])
-     except providers.ProviderError:pass
+     except providers.ProviderError as error:require(error.code=='identity_mismatch','edited profile failed for an unrelated reason')
      else:raise AssertionError('edited profile reinterpreted retained vectors')
      require(len(replay.events)==event_count,'identity mismatch leaked an input')
      step('identity-dimension-and-profile-refused',selection_unchanged=True)
@@ -230,6 +245,7 @@ def run(args):
      except ValueError:pass
      else:raise AssertionError('rollback ignored writes during rebuild')
      build_all(target,'bge');operation(target,store.select_embedding_index,'bge',rollback=True)
+     require(not (Counter(retained_vectors)-Counter(generation_rows(target,generations['bge']))),'rollback changed retained BGE vectors')
      query=next(r['text'] for r in spec['auxiliary'] if r['id']=='post-query')
      with db.connect(target,role='reader') as conn:
       hits,warnings=search.search(conn,target,query,k=10,strategy='hybrid',rerank_mode='off',context_mode='off',temporal='off')

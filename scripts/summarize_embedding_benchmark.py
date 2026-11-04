@@ -90,6 +90,8 @@ def publish_raw(roots,destination):
                 paths.extend(label+'/'+file for file in ('worker-result.json','result.json','vectors.json','observations.jsonl'))
         for relative in paths:
             source=Path(root)/relative
+            if source.is_symlink() or not source.resolve().is_relative_to(Path(root).resolve()):
+                raise ValueError('symlink or escaped public artifact')
             if not source.is_file():continue
             data=source.read_bytes();compressed=relative.endswith(('vectors.json','-resources.jsonl'))
             target=destination/name/(relative+'.gz' if compressed else relative)
@@ -105,13 +107,17 @@ def publish_raw(roots,destination):
 
 def run(args):
     out=Path(args.output);out.mkdir(mode=0o700)
-    fixtures=Path(args.fixtures);corpus=load(fixtures/'corpus.json');protocol=load(fixtures/'protocol.json')
+    fixtures=Path(args.fixtures)
     inputs={};report={'status':'failed','started':datetime.now(timezone.utc).isoformat(),
         'native_only':True,'adoption_or_served_endpoint_parity':False,'model_timing_from_replay':False,
         'primary':{},'canonical':{},'paired':{},'inputs':inputs}
     def read(path):
         data=path.read_bytes();inputs[str(path)]=hashlib.sha256(data).hexdigest();return json.loads(data)
     try:
+        if args.hybrid and not args.canonical_root:raise ValueError('rehearsal requires --canonical-root')
+        corpus=read(fixtures/'corpus.json');protocol=read(fixtures/'protocol.json')
+        errata=read(fixtures/'errata.json')
+        if errata.get('dedup_label',{}).get('id','paraphrase-32')!='paraphrase-32':raise ValueError('unsupported dedup erratum')
         roots={'bge':Path(args.primary_root),'nano':Path(args.primary_root),'small':Path(args.small_root)}
         for root in set(roots.values()):
             terminal=read(root/'terminal.json')
@@ -120,12 +126,14 @@ def run(args):
             runs=[]
             for repeat in range(3):
                 label=f'{model}-r{repeat}';target=root/label
-                row={'label':label,'status':'unattempted','quality':None}
+                attempted=target.exists() or any((root/(label+suffix)).exists() for suffix in ('-resources.jsonl','-exit.json','.log'))
+                row={'label':label,'status':'incomplete-no-result' if attempted else 'unattempted','quality':None}
                 result={}
                 if (target/'worker-result.json').exists():
                     result=read(target/'worker-result.json');row.update(status=result['status'],result=result)
                 row['dedup']=duplicate_summary(corpus['duplicate_pairs'],result.get('duplicates',{}).get('observations',[]))
                 if (target/'vectors.json').exists():
+                    if not result:row['status']='incomplete-no-result'
                     vectors=read(target/'vectors.json')
                     if set(vectors['documents'])=={d['id'] for d in corpus['documents']}:
                         row['quality']=evaluate(corpus,vectors['documents'],vectors['queries'],protocol['models'][model]['dimensions'])
@@ -152,22 +160,28 @@ def run(args):
         baseline=report['primary']['bge']['runs'][0]['quality']
         for model in ('nano','small'):
             candidate=report['primary'][model]['runs'][0]['quality']
-            if baseline is not None and candidate is not None:
-                report['paired']['primary:'+model]=paired_comparison(corpus,baseline,candidate)
+            statuses={n:report['primary'][n]['runs'][0]['status'] for n in ('bge',model)}
+            if baseline is not None and candidate is not None and set(statuses.values())=={'complete'}:
+                report['paired']['primary:'+model]={**paired_comparison(corpus,baseline,candidate),'run_statuses':statuses}
         if args.canonical_root:
             root=Path(args.canonical_root);terminal=read(root/'terminal.json')
             if not terminal.get('finished') or not terminal['inputs_unchanged']:raise ValueError('nonterminal canonical pass')
             spec=read(fixtures/'canonical-inputs-v2.json')
+            canonical_hash=inputs[str(fixtures/'canonical-inputs-v2.json')]
             for model in ('bge','nano','small'):
                 target=root/(model+'-r0');row={'status':'unattempted','slices':{}}
+                proven=False
                 if (target/'result.json').exists():
                     result=read(target/'result.json')
-                    if result['input_sha256']!=hashlib.sha256((fixtures/'canonical-inputs-v2.json').read_bytes()).hexdigest():raise ValueError('canonical input hash mismatch')
+                    if result['input_sha256']!=canonical_hash:raise ValueError('canonical input hash mismatch')
                     row.update(status=result['status'],result=result)
+                    proven=True
+                elif target.exists() or (root/(model+'-r0-exit.json')).exists():
+                    row['status']='incomplete-no-result'
                 if (root/(model+'-r0-exit.json')).exists():
                     row['supervisor']=read(root/(model+'-r0-exit.json'))
                     if row['supervisor']['exit_code']!=0 or row['supervisor'].get('supervisor_stop'):row['status']='failed'
-                if (target/'vectors.json').exists():
+                if proven and (target/'vectors.json').exists():
                     vectors=read(target/'vectors.json')
                     if set(vectors['documents'])=={d['id'] for d in spec['documents']}:
                         for name,queries in [('original',[q for q in spec['queries'] if q['split']!='independent-heldout']),
@@ -184,18 +198,28 @@ def run(args):
                 c={'queries':queries};base=report['canonical']['bge']['slices'].get(name)
                 for model in ('nano','small'):
                     cand=report['canonical'][model]['slices'].get(name)
-                    if base is not None and cand is not None:report['paired']['canonical:'+name+':'+model]=paired_comparison(c,base,cand)
+                    statuses={n:report['canonical'][n]['status'] for n in ('bge',model)}
+                    if base is not None and cand is not None and set(statuses.values())=={'complete'}:
+                        report['paired']['canonical:'+name+':'+model]={**paired_comparison(c,base,cand),'run_statuses':statuses}
             if args.hybrid:
                 hybrid=read(Path(args.hybrid))
                 if hybrid['status']!='complete':raise ValueError('lifecycle rehearsal not complete')
-                report['hybrid']={}
+                if hybrid.get('input_sha256')!=canonical_hash:raise ValueError('rehearsal canonical inputs differ')
+                script=Path(__file__).parent/'rehearse_embedding_substitution.py'
+                if hybrid.get('rehearsal_script_sha256')!=hashlib.sha256(script.read_bytes()).hexdigest():raise ValueError('rehearsal code differs')
+                if set(hybrid.get('models',[]))!=set(hybrid['hybrid']):raise ValueError('rehearsal model list differs')
+                if set(hybrid.get('unrehearsed_models',[]))!=set(('bge','nano','small'))-set(hybrid['hybrid']):raise ValueError('rehearsal missing-model list differs')
+                report['hybrid']={m:{'status':'unrehearsed'} for m in ('bge','nano','small')}
                 for model,rows in hybrid['hybrid'].items():
+                    if model not in report['canonical'] or report['canonical'][model]['status']!='complete':raise ValueError('replay model is incomplete')
+                    actual={name:inputs[str(root/(model+'-r0')/name)] for name in ('result.json','vectors.json')}
+                    if hybrid.get('replay_inputs',{}).get(model)!=actual:raise ValueError('replay vector or result identity differs')
                     report['hybrid'][model]={}
                     for name in ('original','independent'):
                         queries=[q for q in spec['queries'] if (q['split']=='independent-heldout')==(name=='independent')]
                         ids={q['id'] for q in queries}
                         report['hybrid'][model][name]=hybrid_quality({'queries':queries},[r for r in rows if r['id'] in ids])
-        report['errata']=read(fixtures/'errata.json')
+        report['errata']=errata
         if getattr(args,'copy_raw',False):
             sources={'primary':Path(args.primary_root),'small-corrected':Path(args.small_root)}
             if args.canonical_root:sources['canonical']=Path(args.canonical_root)
