@@ -102,3 +102,19 @@ def test_incompatible_occupied_application_envelope_is_never_overwritten(conn,cf
     with pytest.raises(MetadataError,match='incompatible_metadata'):
         store.save_document(conn,cfg,title='Legacy',body='Original',domain='general',dtype='memory',doc_id=old.doc_id,metadata={'team':'x'})
     assert conn.execute('SELECT meta FROM documents WHERE id=%s',(old.doc_id,)).fetchone()['meta']['application']==occupied
+
+
+@pytest.mark.parametrize('kind',['null','future','extra'])
+def test_direct_sql_document_filter_validates_outer_contract_and_null_is_optional(conn,cfg,monkeypatch,kind):
+    from psycopg.types.json import Jsonb
+    import psycopg
+    conn.execute("INSERT INTO domains(name) VALUES('general') ON CONFLICT DO NOTHING");conn.commit()
+    monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
+    doc=store.save_document(conn,cfg,title='Direct boundary',body='quasar',domain='general',dtype='memory')
+    if kind=='null':
+        assert conn.execute('SELECT public.rag_metadata_document(%s,NULL) matched',(doc.doc_id,)).fetchone()['matched'] is True
+    else:
+        invalid={'version':2 if kind=='future' else 1,'where':{'field':'dtype','type':'string','op':'eq','value':'memory'}}
+        if kind=='extra':invalid['extra']=True
+        with pytest.raises(psycopg.errors.InvalidParameterValue):
+            with conn.transaction():conn.execute('SELECT public.rag_metadata_document(%s,%s)',(doc.doc_id,Jsonb(invalid)))
