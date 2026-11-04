@@ -97,7 +97,7 @@ def _main(argv: list[str] | None = None) -> int:
     d_add = dom_sub.add_parser("add")
     d_add.add_argument("name")
     d_add.add_argument("--description", default="")
-    dom_sub.add_parser("list")
+    d_list=dom_sub.add_parser("list")
 
     p_save = sub.add_parser("save")
     p_save.add_argument("--project")
@@ -368,7 +368,20 @@ def _main(argv: list[str] | None = None) -> int:
     m_rep = mig_sub.add_parser("report")
     m_rep.add_argument("--golden", type=Path, default=None)
 
+    def json_options(parser, name):
+        group=parser.add_mutually_exclusive_group()
+        group.add_argument('--'+name+'-json')
+        group.add_argument('--'+name+'-file',type=Path)
+    for parser in (p_search,p_research,p_context,p_summary,er,d_list,b_export):
+        json_options(parser,'filter')
+    json_options(p_save,'metadata')
+    p_meta=sub.add_parser('metadata',help='inspect operator-configured typed fields and filter limits')
+    p_meta.add_subparsers(dest='metadata_cmd',required=True).add_parser('schema')
     args = p.parse_args(argv)
+    args.filter = _json_option(args,'filter')
+    args.metadata = _json_option(args,'metadata')
+    if args.cmd=='summary' and args.refresh and args.filter is not None:
+        p.error('filtered summaries are read-only; omit --refresh')
     if args.cmd == 'save' and not args.index_context:
         missing = [f'--{name}' for name in ('title','domain','dtype') if getattr(args,name) is None]
         if missing:
@@ -405,6 +418,12 @@ def _main(argv: list[str] | None = None) -> int:
         from .service.operator import run
         return run(args,load_config(args.config) if args.config else load_config())
     cfg = load_config()
+    if args.cmd=='metadata':
+        from .metadata import schema
+        result=_remote_call(cfg,'memory_filter_schema',{}) if cfg.service_mode=='client' else schema(cfg)
+        print(json.dumps(result,ensure_ascii=False,indent=2));return 0
+    if cfg.service_mode=='client' and (args.filter is not None or args.metadata is not None) and args.cmd!='search':
+        return _typed_remote(args,cfg)
 
     if args.cmd in ('providers', 'index'):
         from .provider_cli import run
@@ -431,7 +450,7 @@ def _main(argv: list[str] | None = None) -> int:
         with db.connect(cfg,role='reader' if args.entity_cmd=='resolve' else 'writer') as connection:
             if args.entity_cmd=='resolve':
                 result=entities.read(connection,args.name,domain=args.domain,project=args.project,scope=args.scope,
-                    attribute=args.attribute,as_of=args.as_of,history=args.history,context_chars=args.context_chars)
+                    attribute=args.attribute,as_of=args.as_of,history=args.history,context_chars=args.context_chars,filter=args.filter,cfg=cfg)
             elif args.entity_cmd=='alias':
                 result=store.save_entity_alias(connection,cfg,alias=args.alias,target=args.target,domain=args.domain,
                     project=args.project,scope=args.scope,effective_at=args.effective_at,confirm=args.confirm,
@@ -451,7 +470,7 @@ def _main(argv: list[str] | None = None) -> int:
                     domain=args.domain,history=args.history,context_chars=args.context_chars,actor='cli')
             else:
                 result=thematic.read(summary_conn,cfg,args.topic,project=args.project,domain=args.domain,
-                    history=args.history,context_chars=args.context_chars)
+                    history=args.history,context_chars=args.context_chars,filter=args.filter)
         print(json.dumps(result,default=_json_default,ensure_ascii=False))
         return 0
 
@@ -459,7 +478,7 @@ def _main(argv: list[str] | None = None) -> int:
         from .context import build
         with db.connect(cfg,role="reader") as context_conn:
             result=build(context_conn,cfg,project=args.project,mode="prompt" if args.prompt is not None else "startup",
-                         prompt=args.prompt,session_id=args.session_id,source="startup")
+                         prompt=args.prompt,session_id=args.session_id,source="startup",filter=args.filter)
         print(json.dumps(result,default=_json_default,ensure_ascii=False) if args.json else result["text"])
         return 0
     if args.cmd == "profile":
@@ -480,7 +499,7 @@ def _main(argv: list[str] | None = None) -> int:
         if args.benchmark_cmd == 'export-corrections':
             from .benchmark.corrections import export_confirmed_corrections
             report = export_confirmed_corrections(cfg, domain=args.domain, project=args.project,
-                scope=args.scope, limit=args.limit, output_path=args.output)
+                scope=args.scope, limit=args.limit, output_path=args.output,filter=args.filter)
             print(json.dumps(report, indent=2))
             return 0
         if args.benchmark_cmd == 'evaluate-corrections':
@@ -790,7 +809,7 @@ def _main(argv: list[str] | None = None) -> int:
         from .research import ResearchBudget, research
         result = research(cfg,args.question,domain=args.domain,project=args.project,scope=args.scope,
             as_of=args.as_of,history=args.history,provider=args.provider,strategy=args.strategy,
-            min_sources=args.min_sources,budget=ResearchBudget(args.steps,args.calls,args.seconds,args.context_chars))
+            min_sources=args.min_sources,budget=ResearchBudget(args.steps,args.calls,args.seconds,args.context_chars),filter=args.filter)
         if args.json:
             print(json.dumps(result,ensure_ascii=False,indent=1))
         else:
@@ -811,7 +830,7 @@ def _main(argv: list[str] | None = None) -> int:
             query=args.query, domain=args.domain, k=args.k, project=args.project, scope=args.scope,
             as_of=args.as_of, history=args.history, graph_depth=args.graph_depth, strategy=args.strategy,
             rerank=args.rerank, context=args.context, temporal=args.temporal, reference=args.reference,
-            timezone=args.timezone, view=args.view)))
+            timezone=args.timezone, view=args.view,filter=args.filter)))
         _print_search(result["results"], result["warnings"], result.get("temporal"), args.json)
         return 0
 
@@ -823,13 +842,13 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.cmd == "domain" and args.domain_cmd == "list":
-            for d in domains_mod.list_domains(conn):
+            for d in domains_mod.list_domains(conn,filter=args.filter,cfg=cfg):
                 print(f"{d.name:<20} {d.docs:>5}  {d.description}")
             return 0
 
         if args.cmd == "save":
             if args.index_context:
-                if any((args.title,args.body,args.file,args.domain,args.dtype,args.slug,args.edge,args.project,args.scope)):
+                if any((args.title,args.body,args.file,args.domain,args.dtype,args.slug,args.edge,args.project,args.scope,args.metadata)):
                     raise ValueError('index-only save cannot combine with canonical write options')
                 from . import contextual, query_cache
                 if not contextual.available(conn):
@@ -875,7 +894,7 @@ def _main(argv: list[str] | None = None) -> int:
             res = store.save_document(
                 conn, cfg, title=args.title, body=body, domain=args.domain,
                 dtype=args.dtype, edges=edges, actor="cli",
-                slug=args.slug, doc_id=doc_id, project=args.project, scope=args.scope,
+                slug=args.slug, doc_id=doc_id, project=args.project, scope=args.scope,metadata=args.metadata,
             )
             print(f"{'created' if res.created else 'updated'} {res.slug}"
                   f" ({res.n_chunks} chunks, {res.n_edges} edges)")
@@ -906,7 +925,7 @@ def _main(argv: list[str] | None = None) -> int:
                 conn, cfg, args.query, domain=args.domain, k=args.k,
                 project=args.project, scope=args.scope, as_of=args.as_of, history=args.history,graph_depth=args.graph_depth,strategy=args.strategy,rerank_mode=args.rerank, context_mode=args.context,
                 temporal=args.temporal or "auto", reference=args.reference, timezone=args.timezone, diagnostics=diagnostics,
-                view=args.view)
+                view=args.view,filter=args.filter)
             _print_search(json.loads(json.dumps(hits, default=_json_default)), warnings,
                           diagnostics.get("temporal"), args.json)
             return 0
@@ -1382,6 +1401,47 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 4
+
+
+def _json_option(args,name):
+    from .metadata import parse,MetadataError
+    value=getattr(args,name+'_json',None)
+    path=getattr(args,name+'_file',None)
+    if path is not None:
+        try:
+            if not path.is_file() or path.stat().st_size>16384:raise MetadataError()
+            with path.open('rb') as stream:raw=stream.read(16385)
+            if len(raw)>16384:raise MetadataError()
+            value=raw.decode('utf-8')
+        except (OSError,UnicodeError):raise MetadataError() from None
+    return parse(value) if value is not None else None
+
+
+def _typed_remote(args,cfg):
+    from .mcp_server import wire_arguments
+    common={'filter':args.filter}
+    if args.cmd=='save':
+        doc_id=None
+        if args.slug:
+            existing=_remote_call(cfg,'memory_get',{'id_or_slug':args.slug})
+            doc_id=existing.get('document',{}).get('id')
+        tool='memory_save'
+        common=dict(title=args.title,body=args.body if args.body is not None else args.file.read_text() if args.file else '',
+                    domain=args.domain,dtype=args.dtype,slug=args.slug,doc_id=doc_id,project=args.project,scope=args.scope,
+                    metadata=args.metadata,edges=[dict(predicate=v.partition(':')[0],dst_slug=v.partition(':')[2]) for v in args.edge])
+    elif args.cmd=='research':
+        tool='memory_research'
+        common.update(question=args.question,**{k:getattr(args,k) for k in ('domain','project','scope','as_of','history','provider','strategy','steps','calls','seconds','context_chars','min_sources')})
+    elif args.cmd=='context':
+        tool='memory_context';common.update(project=args.project,prompt=args.prompt,session_id=args.session_id)
+    elif args.cmd=='summary':
+        tool='memory_summary';common.update(**{k:getattr(args,k) for k in ('topic','project','domain','history','context_chars')})
+    elif args.cmd=='entity' and args.entity_cmd=='resolve':
+        tool='memory_entity';common.update(**{k:getattr(args,k) for k in ('name','domain','project','scope','attribute','as_of','history','context_chars')})
+    elif args.cmd=='domain' and args.domain_cmd=='list':tool='memory_domains'
+    else:raise ValueError('unsupported_filter')
+    result=_remote_call(cfg,tool,wire_arguments(tool,common))
+    print(json.dumps(result,ensure_ascii=False,default=_json_default));return 0
 
 
 if __name__ == "__main__":

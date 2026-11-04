@@ -201,14 +201,24 @@ def _original_support(conn, row):
     return source
 
 
-def _collect(conn, scope, domain, at, limit, *, only=None):
-    roots = conn.execute("""SELECT a.entity,a.attribute FROM fact_assertions a
+def _collect(conn, scope, domain, at, limit, *, only=None,filter=None):
+    from ..metadata import argument
+    metadata_clause = """
+          AND public.rag_metadata_document(d.id,%s)
+          AND assertion_eligible(d.id,%s,false)
+          AND NOT EXISTS(SELECT 1 FROM fact_assertions other JOIN documents od ON od.id=other.document_id
+            WHERE other.entity=a.entity AND other.attribute=a.attribute AND od.project_scope=d.project_scope
+              AND od.domain=d.domain AND other.disposition='accepted' AND other.event_at<=%s
+              AND NOT public.rag_metadata_document(od.id,%s))""" if filter is not None else ""
+    extra = (argument(filter),at,at,argument(filter)) if filter is not None else ()
+    roots = conn.execute(f"""SELECT a.entity,a.attribute FROM fact_assertions a
         JOIN documents d ON d.id=a.document_id
         WHERE d.project_scope=%s AND d.domain=%s AND a.disposition='accepted'
           AND a.relation='replacement' AND a.event_at<=%s
+          {metadata_clause}
           AND (%s::text IS NULL OR a.entity=%s) AND (%s::text IS NULL OR a.attribute=%s)
         GROUP BY a.entity,a.attribute ORDER BY a.entity,a.attribute LIMIT %s""",
-        (scope,domain,at,only[0] if only else None,only[0] if only else None,
+        (scope,domain,at)+extra+(only[0] if only else None,only[0] if only else None,
          only[1] if only else None,only[1] if only else None,limit+1)).fetchall()
     cases=[]; withheld=0
     for root in roots[:limit]:
@@ -272,11 +282,13 @@ def _collect(conn, scope, domain, at, limit, *, only=None):
     return cases, dict(families_seen=len(roots[:limit]),withheld_families=withheld,limited=len(roots)>limit)
 
 
-def export_confirmed_corrections(cfg, *, domain, project=None, scope=None, limit=32, output_path):
+def export_confirmed_corrections(cfg, *, domain, project=None, scope=None, limit=32, output_path,filter=None):
     selected = _selector(domain,project,scope,limit)
     _private_path(output_path)
     with _reader_snapshot(cfg) as (conn, at, schema):
-        cases, counts = _collect(conn,selected,domain,at,limit)
+        from ..metadata import filtered
+        with filtered(conn,cfg,filter,domain=domain,scopes=[selected]) as normalized:
+            cases, counts = _collect(conn,selected,domain,at,limit,filter=normalized)
         payload = dict(kind='private-confirmed-corrections',synthetic=False,version=1,
             domain=domain,project_scope=selected,as_of=at,source_revision=_revision(),source_schema=schema,
             source_sha256=sha256(Path(__file__).read_bytes()).hexdigest(),cases=cases,counts=counts)

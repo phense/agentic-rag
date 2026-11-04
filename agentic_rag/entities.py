@@ -14,6 +14,7 @@ from .secrets import strip_secrets, strip_secrets_json
 from .validity import parse_time, selection
 from .thematic import _bounded
 from .lifecycle import current_only
+from .metadata import read_boundary, argument, MetadataError
 
 NAMESPACE = uuid.UUID('f3d3af6d-2d06-4d99-88d1-902aa4de6c51')
 LINK_LIMIT = 32
@@ -252,8 +253,9 @@ def _review_alias(conn, document_id, *, state, reason, actor='cli', commit=True)
 
 
 @current_only
+@read_boundary
 def read(conn, name, *, domain, project=None, scope=None, attribute=None,
-         as_of=None, history=False, context_chars=4800):
+         as_of=None, history=False, context_chars=4800, filter=None, cfg=None):
     """Read original facts across a directly confirmed star, in one snapshot.
 
     Project selection is exact, not project-plus-global. History includes trusted
@@ -277,7 +279,9 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
             if not available(conn):
                 packet['warnings']=['Entity index unavailable: migration018 required; use exact-name search/get.']
                 return packet
-            row = conn.execute("""
+            link_filter = "AND public.rag_metadata_document(d.id,%(metadata)s)" if filter is not None else ""
+            fact_filter = "AND public.rag_metadata_document(document_id,%(metadata)s)" if filter is not None else ""
+            row = conn.execute(f"""
               WITH valid_links AS (
                 SELECT l.*,i.name alias,t.name target
                 FROM entity_aliases l JOIN entity_identities i ON i.id=l.alias_id
@@ -286,9 +290,10 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                 JOIN claim_evidence e ON (e.document_id=l.document_id AND e.source_key=l.source_key AND e.span_hash=l.span_hash)
                 JOIN knowledge_sources s ON s.source_key=e.source_key
                 WHERE l.state='accepted' AND l.effective_at<=%(at)s AND e.reviewed
+                  {link_filter}
                   AND i.project_scope=%(scope)s AND t.project_scope=i.project_scope
                   AND i.domain=%(domain)s AND t.domain=i.domain AND
-            """+_SUPPORT+"""
+            """+_SUPPORT+f"""
               ), named AS (
                 SELECT * FROM entity_identities WHERE project_scope=%(scope)s AND domain=%(domain)s AND name=%(name)s
               ), roots AS (
@@ -318,7 +323,8 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                   f.expires_at IS NOT NULL AND f.expires_at<=%(at)s expired
                 FROM source_facts f
               ), eligible AS (
-                SELECT * FROM classified WHERE %(history)s OR (NOT expired AND NOT superseded)
+                SELECT * FROM classified WHERE (%(history)s OR (NOT expired AND NOT superseded))
+                  {fact_filter}
               ), conflicts AS (
                 SELECT attribute FROM eligible WHERE NOT %(history)s AND relation<>'extension'
                 GROUP BY attribute HAVING count(DISTINCT value)>1
@@ -336,6 +342,7 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                   AND d.project_scope=i.project_scope AND d.domain=i.domain
                   AND (i.name=%(name)s OR t.id IN(SELECT id FROM roots))
                   AND l.document_id NOT IN(SELECT document_id FROM valid_links)
+                  {link_filter}
                 ORDER BY l.document_id LIMIT %(links)s
               )
               SELECT (SELECT id FROM roots ORDER BY id LIMIT 1) identity_id,
@@ -349,7 +356,7 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                 COALESCE((SELECT jsonb_agg(to_jsonb(s)) FROM suggestions s),'[]') suggestions,
                 COALESCE((SELECT jsonb_agg(to_jsonb(p) ORDER BY attribute,event_at,document_id) FROM presented p),'[]') facts
               """,dict(at=at,scope=selected,domain=domain,name=name,attribute=attribute,history=history,
-                         facts=FACT_LIMIT+1,links=LINK_LIMIT+1,names_limit=LINK_LIMIT+1,exact_id=_exact_id(selected,domain,name))).fetchone()
+                         metadata=argument(filter),facts=FACT_LIMIT+1,links=LINK_LIMIT+1,names_limit=LINK_LIMIT+1,exact_id=_exact_id(selected,domain,name))).fetchone()
             packet.update(identity_id=str(row['identity_id']) if row['identity_id'] else _exact_id(selected,domain,name),
                 identity_persisted=row['roots_count']>0,names=row['names'],name_count=row['name_count'],links=row['links'][:LINK_LIMIT],suggestions=row['suggestions'][:LINK_LIMIT],status='resolved')
             if row['roots_count']>1:
@@ -385,7 +392,13 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
             packet['context']='\n'.join(lines)
             packet['context_chars']=len(packet['context'])
             return packet
+    except MetadataError:
+        raise
     except Exception as exc:
+        if filter is not None:
+            import psycopg
+            if isinstance(exc,(psycopg.errors.QueryCanceled,psycopg.errors.LockNotAvailable)):
+                raise MetadataError("filter_budget") from None
         # _bounded's savepoint rolls back optional SQL failure, preserving callers.
         # No private exception text (SQL arguments may contain source content).
         packet.update(status='unavailable',identity_id=None,identity_persisted=False,names=[name],name_count=1,links=[],suggestions=[],facts=[],context='',context_chars=0)

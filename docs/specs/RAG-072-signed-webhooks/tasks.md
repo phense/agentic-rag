@@ -69,6 +69,12 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 - [x] T072-011: One full suite near PR on final runtime inputs, relevant lock,
   wheel/SQL and existing Node checks; observe terminal results. No repeated full
   runs for unchanged inputs or mechanical inventory/documentation fixes.
-- [ ] T072-012: Focused PR, CI, merge under current autonomy; separately verify
+- [x] T072-012: Focused PR, CI, merge under current autonomy; separately verify
   both populated production upgrades/restores with capture off and no receiver,
   preserve rollback proof, close canonical72 only after verified delivery.
+
+Delivered2026-11-04: PR104 merged `a151ee5`; both hosts029/schema038 and all3
+populated source/target independent restores verified,54 original tables each
+preserved. Capture stays off, no subscriptions/keys/endpoints/sender or recoding.
+Canonical72 closed03:15:44Z. Historical full failure and focused18-test correction
+remain documented; the full log is not relabeled a pass.

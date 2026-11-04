@@ -17,6 +17,7 @@ from ..lifecycle import LifecycleError
 from ..images import ImageUnavailable
 from ..feedback import FeedbackError
 from ..webhooks import WebhookError
+from ..metadata import MetadataError
 
 
 class JobBlocked(Exception):
@@ -97,6 +98,8 @@ async def _invoke(name: str, arguments: dict, principal, cfg, *, read_only=False
                 budget=await asyncio.to_thread(stack.enter_context,admission(cfg))
                 await asyncio.to_thread(budget.check,incoming=len(json.dumps(args).encode())*16+65536,owner=principal.namespace,queue=True)
                 return await execute()
+        except MetadataError as error:
+            raise ServiceError(error.code,426 if error.code=='unsupported_filter' else 400) from None
         except ServiceError:
             raise
         except JobBlocked:

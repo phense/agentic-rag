@@ -899,3 +899,31 @@ Independent design report is retained privately as
 `.engineering-method/runs/RAG-072/design-review.json`. Its two High and two
 Medium design questions are incorporated in spec/plan before implementation.
 This is design reconciliation, not a runtime or feature acceptance claim.
+
+## RAG-073 typed metadata filters (design, 2026-11-04)
+
+- AF073-001 (candidate completeness; AC-001/002):034 has separate lexical,
+  ANN/exact, contextual and planned gates; search also has identity shortcuts,
+  managed generations and graph promotion. Optional matching must precede every
+  candidate/pool/LIMIT, never post-filter a baseline result. Design resolved by
+  explicit filtered siblings/direct predicates; runtime proof T073-003/005 needed.
+- AF073-002 (truth dependency; AC-004):031/033 eligibility checks newer documents
+  and source dependencies. A nonmatching newer replacement must still suppress
+  an older matching fact. Do not change claim_eligible/assertion_eligible/RLS to
+  implement filters. Separate candidate predicate; T073-003/005 mutation needed.
+- AF073-003 (derived text; AC-002):profiles/themes/pins/checkpoints may contain
+  mixed unfiltered text. Filtered requests use bounded matching originals only,
+  omit unbound material with warning and bypass mixed aggregates. No-filter cache
+  behavior retained. Design resolved; T073-004/005 cross-surface proof needed.
+- AF073-004 (interface/registry; AC-003/005/006):operator32-key registry and bounded
+  AST have one implementation. Fixed fields cannot act as scope aliases. Preserve
+  namespace envelope/old meta; explicit child propagation and old-server refusal.
+  Design resolved; T073-001/002/004 tests and T073-006 old029 proof needed.
+- AF073-005 (bounded state; AC-003/007):request-local explicit parameters and
+  shorter restored deadlines,50k-document/AST bounds, no silent budget fallback.
+  Do not multiply matcher work by chunks or claim GIN-before-RLS. Design resolved;
+  T073-003/005/007 plans, false/0/null/date and error-restoration proof needed.
+- AF073-006 (upgrade/recovery; AC-008):published001..038 immutable, old signatures
+  retained,039 only. Registry rollback stops typed requests, not canonical rows.
+  Design resolved; T073-006 restricted-owner source/target restore and old reader/
+  writer required, followed by separate actual production delivery.

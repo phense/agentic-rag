@@ -8,6 +8,7 @@ import json
 from . import context_gate, profiles
 from .config import MAX_CONTEXT_CHARS
 from .lifecycle import current_only
+from .metadata import read_boundary
 
 PROFILE_CHARS = 2400
 PROMPT_CHARS = 4800  # Below the configured Codex prompt-hook limit of5000.
@@ -112,7 +113,8 @@ def _query_hits(conn,cfg,project,prompt):
 
 
 @current_only
-def build(conn,cfg,*,project=None,mode='startup',prompt=None,session_id=None,source=None):
+@read_boundary
+def build(conn,cfg,*,project=None,mode='startup',prompt=None,session_id=None,source=None,filter=None):
     if mode not in ('startup','prompt'):
         raise ValueError('context mode must be startup or prompt')
     from .scope import selection
@@ -120,6 +122,20 @@ def build(conn,cfg,*,project=None,mode='startup',prompt=None,session_id=None,sou
     cap=min(cfg.context_max_chars,MAX_CONTEXT_CHARS,PROMPT_CHARS if mode=='prompt' else MAX_CONTEXT_CHARS)
     result={'text':'','document_ids':[],'revision':None,'profile_status':'not-requested','warnings':[],
             'reason':None,'config_key':config_key(cfg)}
+    if filter is not None:
+        from .metadata import originals, identity
+        rows=originals(conn,filter,scopes=selection(project,None if project else 'global'),
+                       query=context_gate.query(prompt or '') if mode=='prompt' else None)
+        entries=[]
+        for row in rows:
+            doc_id=str(row['document_id']);chunk_id=str(row['chunk_id'])
+            citation=f"{doc_id}#{chunk_id}:0-{len(row['text'])}"
+            entries.append((doc_id,row['text'],f"- [{citation}] {_quoted(row['title'])}: {_quoted(row['text'])}"))
+        notes=['Filtered original-only context: mixed profiles, pins and unbound checkpoints omitted.']
+        text,ids,_=_fit('',entries,cap,heading='## Filtered original evidence',notices=notes)
+        result.update(text=text,document_ids=list(dict.fromkeys(ids)),profile_status='filtered-originals',
+                      warnings=notes,revision=identity(filter))
+        return result
     if mode=='prompt':
         from .hooks.prompt_recall import detect_signature,error_context
         signature=detect_signature(prompt or '')

@@ -30,7 +30,8 @@ def test_operator_optout_keeps_contextual_results_when_planner_times_out(indexed
     saved, fields = indexed
     store.save_document(conn, cfg, **fields)
     monkeypatch.setattr(search, 'try_embed_texts', lambda texts, config: [[1.0] + [0.0] * 1023])
-    def timeout(*args):
+    def timeout(*args, filter=None):
+        assert filter is None
         raise psycopg.errors.QueryCanceled('planned vector statement timeout')
     monkeypatch.setattr(vector_plan, 'candidates', timeout)
     path = tmp_path / 'config.toml'

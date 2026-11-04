@@ -91,17 +91,19 @@ class ResearchReads:
                            "set_config('lock_timeout',%s,true)", (prior['s'], prior['l']))
 
 
-def entity_candidates(conn, question, *, domain, scopes, at, history):
+def entity_candidates(conn, question, *, domain, scopes, at, history,filter=None):
     """Exact mentioned names, backed by eligible original assertions/alias claims.
 
     Do not enumerate a scoped identity catalog: even a readable catalog entry
     can outlive its only source. The resolver remains authoritative for alias
     acceptance, ambiguity and names; discovery never publishes catalog metadata.
     """
+    from .metadata import argument
     words = re.findall(r'[\w-]+(?:\.[\w-]+)*', question.casefold())[:160]
     names = list(dict.fromkeys(' '.join(words[i:i+n])
                  for n in range(1,6) for i in range(len(words)-n+1)))[:512]
-    return conn.execute("""WITH backed AS (
+    metadata_clause = "AND public.rag_metadata_document(d.id,%(metadata)s)" if filter is not None else ""
+    return conn.execute(f"""WITH backed AS (
         SELECT a.entity name,d.domain,d.project_scope,d.id FROM fact_assertions a
         JOIN documents d ON d.id=a.document_id WHERE lower(a.entity)=ANY(%(names)s)
         UNION
@@ -115,5 +117,6 @@ def entity_candidates(conn, question, *, domain, scopes, at, history):
         AND assertion_eligible(d.id,%(at)s,%(history)s)
         AND (%(domain)s::text IS NULL OR b.domain=%(domain)s)
         AND (%(scopes)s::text[] IS NULL OR b.project_scope=ANY(%(scopes)s))
+      {metadata_clause}
       ORDER BY b.project_scope,b.domain,b.name LIMIT 5""",
-      dict(names=names,at=at,history=history,domain=domain,scopes=scopes)).fetchall()
+      dict(names=names,at=at,history=history,domain=domain,scopes=scopes,metadata=argument(filter))).fetchall()

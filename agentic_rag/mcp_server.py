@@ -83,18 +83,24 @@ def _resolve_id(conn, id_or_slug: str) -> str | None:
 
 # ---------------------------------------------------------------- read tools
 
-def memory_domains() -> dict:
+def memory_filter_schema() -> dict:
+    """Inspect bounded metadata-v1 fields, types, operators and budgets. No writes."""
+    from .metadata import schema
+    return schema(load_config())
+
+
+def memory_domains(filter: dict | None = None) -> dict:
     """The knowledge map: every domain with its description and document
     count — check this first to know where to search."""
     cfg, conn = _connect()
     with conn:
-        return {"domains": _plain(list_domains(conn))}
+        return {"domains": _plain(list_domains(conn,filter=filter,cfg=cfg))}
 
 
 def memory_search(query: str, domain: str | None = None, k: int = 8,
                   project: str | None = None, scope: str | None = None, as_of: str | None = None, history: bool = False, graph_depth: int = 0, strategy: str = "auto", rerank: str = "auto", context: str = "auto",
                   temporal: str | None = None, reference: str | None = None, timezone: str | None = None,
-                  view: str | None = None) -> dict:
+                  view: str | None = None, filter: dict | None = None) -> dict:
     """Hybrid search (vector + full-text EN/DE, deterministic RRF fusion)
     over stored knowledge. Returns snippets with slug/score/verified_at —
     use memory_get(slug) for the full document. project selects that project plus
@@ -126,7 +132,7 @@ def memory_search(query: str, domain: str | None = None, k: int = 8,
         diagnostics = {}
         hits, warnings = run_search(conn, cfg, query, domain=domain, k=k, project=project, scope=scope, as_of=as_of, history=history, graph_depth=graph_depth, strategy=strategy, query_cache=_QUERY_CACHE, rerank_mode=rerank, context_mode=context,
                                     temporal=temporal or "auto", reference=reference, timezone=timezone, diagnostics=diagnostics,
-                                    view=view)
+                                    view=view,filter=filter)
         result = {"results": _plain(hits), "warnings": warnings}
         if "temporal" in diagnostics:
             result["temporal"] = diagnostics["temporal"]
@@ -139,7 +145,7 @@ async def memory_research(question: str, domain: str | None = None,
                           provider: StrictBool = False, strategy: str = "auto",
                           steps: StrictInt = 4, calls: StrictInt = 16, seconds: StrictFloat = 30,
                           context_chars: StrictInt = 12000, min_sources: StrictInt = 2,
-                          view: str | None = None) -> dict:
+                          view: str | None = None, filter: dict | None = None) -> dict:
     """Bounded read-only multi-step evidence research. Defaults stay local and
     abstain from semantic answers. provider=true explicitly sends the redacted
     question and selected evidence to the configured Codex/Claude CLI. Returns
@@ -150,7 +156,7 @@ async def memory_research(question: str, domain: str | None = None,
     from .research import ResearchBudget, research_async
     return await research_async(load_config(),question,domain=domain,project=project,scope=scope,
         as_of=as_of,history=history,provider=provider,strategy=strategy,min_sources=min_sources,
-        budget=ResearchBudget(steps,calls,seconds,context_chars),view=view)
+        budget=ResearchBudget(steps,calls,seconds,context_chars),view=view,filter=filter)
 
 
 def memory_get(id_or_slug: str, view: str | None = None) -> dict:
@@ -195,7 +201,7 @@ def get_payload(conn, id_or_slug: str, view: str | None = None) -> dict:
 def memory_neighbors(id_or_slug: str, depth: int = 1,
                      predicates: list[str] | None = None, project: str | None = None,
                      scope: str | None = None, as_of: str | None = None, history: bool | None = None,
-                     view: str | None = None) -> dict:
+                     view: str | None = None, filter: dict | None = None) -> dict:
     """Graph traversal: every edge within `depth` hops of the document
     (undirected), optionally filtered to specific predicates. An explicit view
     (current, latest, include_merged, historical) replaces the legacy default."""
@@ -207,13 +213,13 @@ def memory_neighbors(id_or_slug: str, depth: int = 1,
         return {"edges": _plain(graph.neighbors(conn, doc_id,
                                                 depth=min(depth, 3),
                                                 predicates=predicates, project=project, scope=scope, as_of=as_of, history=history,
-                                                view=view))}
+                                                view=view,filter=filter,cfg=cfg))}
 
 
 def memory_path(from_id_or_slug: str, to_id_or_slug: str,
                 max_depth: int = 4, project: str | None = None,
                 scope: str | None = None, as_of: str | None = None, history: bool | None = None,
-                view: str | None = None) -> dict:
+                view: str | None = None, filter: dict | None = None) -> dict:
     """How do X and Y relate? The shortest edge path between two documents
     (empty steps = no connection within max_depth). Optional view as in memory_neighbors."""
     cfg, conn = _connect()
@@ -224,10 +230,10 @@ def memory_path(from_id_or_slug: str, to_id_or_slug: str,
             missing = from_id_or_slug if a is None else to_id_or_slug
             return {"error": f"not found: {missing}"}
         return {"steps": _plain(graph.path(conn, a, b, max_depth=max_depth, project=project, scope=scope, as_of=as_of, history=history,
-                                           view=view))}
+                                           view=view,filter=filter,cfg=cfg))}
 
 
-def memory_timeline(id_or_slug: str) -> dict:
+def memory_timeline(id_or_slug: str, filter: dict | None = None) -> dict:
     """Every edge touching the document ordered by validity interval
     (valid_from/valid_to) — what held when."""
     cfg, conn = _connect()
@@ -235,7 +241,7 @@ def memory_timeline(id_or_slug: str) -> dict:
         doc_id = _readable_id(conn, id_or_slug)
         if doc_id is None:
             return {"error": f"not found: {id_or_slug}"}
-        return {"edges": _plain(graph.timeline(conn, doc_id))}
+        return {"edges": _plain(graph.timeline(conn, doc_id,filter=filter,cfg=cfg))}
 
 
 # --------------------------------------------------------------- write tools
@@ -244,7 +250,7 @@ def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
                 slug: str | None = None, doc_id: str | None = None,
                 edges: list[dict] | None = None,
                 mark_verified: bool = False, project: str | None = None,
-                scope: str | None = None) -> dict:
+                scope: str | None = None, metadata: dict | None = None) -> dict:
     """Save knowledge through the write gateway (secret-strip, chunk, embed,
     edge resolution, audit). Pass doc_id to UPDATE an existing document.
     IMPORTANT: when the user corrects or confirms stored knowledge, update
@@ -266,7 +272,7 @@ def memory_save(title: str, body: str, domain: str, dtype: str = "memory",
         ]
         res = save_document(
             conn, cfg, title=title, body=body, domain=domain, dtype=dtype,
-            slug=slug, doc_id=doc_id, edges=specs,
+            slug=slug, doc_id=doc_id, edges=specs,metadata=metadata,
             provenance={"origin": "manual", "via": "mcp"},
             actor=_actor(), mark_verified=mark_verified, project=project, scope=scope)
         return _plain(res)
@@ -368,17 +374,17 @@ def memory_unpin(pin_id: str) -> dict:
 
 
 def memory_context(project: str | None = None, prompt: str | None = None,
-                   session_id: str | None = None) -> dict:
+                   session_id: str | None = None, filter: dict | None = None) -> dict:
     """Bounded advisory context; no refresh/write. Omit prompt for startup context."""
     from .context import build
     cfg=load_config()
     with db.connect(cfg,role="reader") as conn:
         return _plain(build(conn,cfg,project=project,mode="prompt" if prompt is not None else "startup",
-                            prompt=prompt,session_id=session_id,source="startup"))
+                            prompt=prompt,session_id=session_id,source="startup",filter=filter))
 
 
 def memory_summary(topic: str, project: str | None = None, domain: str | None = None,
-                   history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+                   history: StrictBool = False, context_chars: StrictInt = 4800, filter: dict | None = None) -> dict:
     """Read a local extractive thematic profile with versioned original citations.
     No refresh/write/provider call. Missing/stale summaries retain baseline search.
     history=true includes currently trusted superseded assertions with historical
@@ -390,12 +396,12 @@ def memory_summary(topic: str, project: str | None = None, domain: str | None = 
     cfg=load_config()
     with db.connect(cfg,role='reader') as conn:
         return _plain(read(conn,cfg,topic,project=project,domain=domain,
-                           history=history,context_chars=context_chars))
+                           history=history,context_chars=context_chars,filter=filter))
 
 
 def memory_entity(name: str, domain: str, project: str | None = None, scope: str | None = None,
                   attribute: str | None = None, as_of: str | None = None,
-                  history: StrictBool = False, context_chars: StrictInt = 4800) -> dict:
+                  history: StrictBool = False, context_chars: StrictInt = 4800, filter: dict | None = None) -> dict:
     """Read exact scoped/domain entity facts and operator-confirmed direct aliases.
     Requires a project or explicit scope=global. No global/project mixing, provider
     call or write. Preserves original citations and stable IDs; ambiguous current
@@ -407,7 +413,7 @@ def memory_entity(name: str, domain: str, project: str | None = None, scope: str
     cfg=load_config()
     with db.connect(cfg,role='reader') as conn:
         return _plain(read(conn,name,domain=domain,project=project,scope=scope,
-                           attribute=attribute,as_of=as_of,history=history,context_chars=context_chars))
+                           attribute=attribute,as_of=as_of,history=history,context_chars=context_chars,filter=filter,cfg=cfg))
 
 
 def memory_entity_alias(alias: str, target: str, domain: str, evidence: dict,
@@ -687,7 +693,7 @@ def webhook_replay(subscription_id: str, expected_revision: StrictInt, delivery_
     return _webhook_call('replay',locals())
 
 
-READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
+READ_TOOLS = (memory_filter_schema, memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline, memory_evidence, memory_evidence_history,
               memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern,
               memory_lifecycle_preview, memory_lifecycle, memory_image, memory_feedback_get, memory_feedback_list, webhook_status)
@@ -706,7 +712,7 @@ ADDITIVE_ARGUMENTS = {"memory_search": ("temporal", "reference", "timezone", "vi
 
 
 def wire_arguments(name: str, arguments: dict) -> dict:
-    optional = ADDITIVE_ARGUMENTS.get(name, ())
+    optional = ADDITIVE_ARGUMENTS.get(name, ()) + ("filter","metadata")
     return {key: value for key, value in arguments.items() if not (key in optional and value is None)}
 
 
@@ -734,7 +740,8 @@ def build_server(readonly: bool) -> FastMCP:
         hints=get_type_hints(fn)
         proxy.__signature__=inspect.signature(fn).replace(parameters=[p.replace(annotation=hints.get(p.name,p.annotation)) for p in inspect.signature(fn).parameters.values()],return_annotation=dict)
         return proxy
-    server = FastMCP("agentic-rag")
+    from .metadata_stdio import MetadataMCP
+    server = MetadataMCP("agentic-rag")
     for fn in READ_TOOLS:
         server.add_tool(tool(fn))
     if not readonly:

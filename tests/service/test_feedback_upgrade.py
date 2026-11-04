@@ -76,7 +76,7 @@ def originals(before,after):
 
 def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeypatch):
     monkeypatch.setattr(query_cache,'model_digest',lambda cfg:'a'*64)
-    assert version('agentic-rag')=='0.6.29'
+    assert version('agentic-rag')=='0.6.30'
     source=tmp_path/'027';source.mkdir()
     archive=tmp_path/'027.tar'
     with archive.open('wb') as stream:subprocess.run(['git','archive',SOURCE,'agentic_rag','sql','pyproject.toml'],cwd=ROOT,stdout=stream,check=True)
@@ -95,13 +95,13 @@ def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeyp
             assert conn.execute("SELECT count(*) n FROM mining_queue WHERE status='pending'").fetchone()['n']==1
         source_backup=upgrade.verified_backup(cfg,'0.6.27',tmp_path/'source.dump')
         # Death after037 DDL, before its transaction commit, must retain exactly036.
-        run_code(ROOT,cfg,"with db.connect(cfg) as conn:\n applied=db.apply_migrations(conn,db.SQL_DIR,commit=False)\n assert applied==['037_retrieval_feedback.sql', '038_webhooks.sql']\n os._exit(9)\n",expected=9)
+        run_code(ROOT,cfg,"with db.connect(cfg) as conn:\n applied=db.apply_migrations(conn,db.SQL_DIR,commit=False)\n assert applied==['037_retrieval_feedback.sql', '038_webhooks.sql', '039_metadata_filters.sql']\n os._exit(9)\n",expected=9)
         assert rows(cfg)==before
         assert upgrade.verify_preserved(cfg,source_backup['manifest'])['unchanged']
         migrated=upgrade.local_upgrade(cfg,'0.6.27',tmp_path/'upgrade.dump',apply=True,writers_stopped=True)
-        assert migrated['migrations_applied']==['037_retrieval_feedback.sql', '038_webhooks.sql'] and migrated['restore_verified']
+        assert migrated['migrations_applied']==['037_retrieval_feedback.sql', '038_webhooks.sql', '039_metadata_filters.sql'] and migrated['restore_verified']
         assert upgrade.verify_preserved(cfg,source_backup['manifest'])['unchanged']
-        assert upgrade.local_upgrade(cfg,'0.6.29',tmp_path/'retry.dump',apply=True,writers_stopped=True)['migrations_applied']==[]
+        assert upgrade.local_upgrade(cfg,'0.6.30',tmp_path/'retry.dump',apply=True,writers_stopped=True)['migrations_applied']==[]
         assert run_code(source,cfg,READ)==old_reads
         originals(before,rows(cfg))
         enabled=replace(cfg,feedback_enabled=True)
@@ -115,7 +115,7 @@ def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeyp
         originals(before,after)
         for table in before:
             if table not in ('audit_log','schema_migrations'):assert after[table]==before[table],table
-        target_backup=upgrade.verified_backup(cfg,'0.6.29',tmp_path/'target.dump')
+        target_backup=upgrade.verified_backup(cfg,'0.6.30',tmp_path/'target.dump')
         assert target_backup['restore_verified']
         with isolated_database(Config(),initialize=False) as restored:
             proof=upgrade.restore_target(restored,tmp_path/'target.dump',target_backup['manifest'],apply=True)
@@ -127,7 +127,7 @@ def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeyp
             assert run_code(source,restored,READ)==old_reads
         with isolated_database(Config(),initialize=False) as restored_source:
             proof=upgrade.restore_target(restored_source,tmp_path/'source.dump',source_backup['manifest'],apply=True)
-            assert proof['migrations_applied']==['037_retrieval_feedback.sql', '038_webhooks.sql'] and proof['restore_verified']
+            assert proof['migrations_applied']==['037_retrieval_feedback.sql', '038_webhooks.sql', '039_metadata_filters.sql'] and proof['restore_verified']
             originals(before,rows(restored_source))
             assert run_code(source,restored_source,READ)==old_reads
         # Code rollback retains037 and its data while old readers remain useful.
@@ -136,7 +136,7 @@ def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeyp
         assert refusal=='unsupported_source_schema'
         with db.connect(cfg,role='reader') as conn:
             assert feedback.get(conn,cfg,feedback_id=signal['id'])['id']==signal['id']
-        print('FEEDBACK_UPGRADE_PROOF',json.dumps({'source':SOURCE,'source_schema':36,'target':'0.6.29','target_schema':38,
+        print('FEEDBACK_UPGRADE_PROOF',json.dumps({'source':SOURCE,'source_schema':36,'target':'0.6.30','target_schema':39,
             'original_tables':len(before),'original_rows':sum(map(len,before.values())),'restored_tables':len(after),
             'fb1':token,'old_read_counts':{k:len(v) for k,v in old_reads['scoped'].items()},'interrupted_exit':9,
             'source_restore':True,'target_restore':True,'rollback_refusal':refusal},sort_keys=True))

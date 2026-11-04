@@ -56,7 +56,7 @@ def run(cfg,args):
     from . import mcp_server
     from .service.context import CURRENT
     name='memory_feedback_'+args.feedback_cmd
-    arguments={k:v for k,v in vars(args).items() if k not in ('cmd','feedback_cmd')}
+    arguments={k:v for k,v in vars(args).items() if k not in ('cmd','feedback_cmd','filter','metadata')}
     if args.feedback_cmd in ('approve','summary','export'):
         from .benchmark import feedback as private
         if 'output' in arguments:arguments['output_path']=arguments.pop('output')

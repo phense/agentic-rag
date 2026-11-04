@@ -41,7 +41,7 @@ def run(cfg,args):
                 if outcome.get('state')=='idle':break
                 result['deliveries'].append(outcome)
     else:
-        arguments={k:v for k,v in vars(args).items() if k not in ('cmd','webhook_cmd','jobs')}
+        arguments={k:v for k,v in vars(args).items() if k not in ('cmd','webhook_cmd','jobs','filter','metadata')}
         if operation=='subscribe' and args.jobs:arguments['domain']=None
         if cfg.service_mode=='client' and CURRENT.get() is None:
             from .service.client import RemoteClient

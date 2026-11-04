@@ -166,6 +166,10 @@ class Gateway:
                     if count>=12:return await error('request_rate_limited',429)
                 if path.startswith('/mcp/rw') and principal.readonly:
                     raise ServiceError('scope_denied',403)
+            if (path.startswith('/v1/tools/') or path=='/v1/requests' or path.startswith('/mcp/')) and body:
+                from ..metadata import validate_transport,MetadataError
+                try:validate_transport(bytes(body))
+                except MetadataError:return await error('invalid_filter',400)
             if path.startswith('/mcp/'):
                 with request_scope(state['principal'],self.cfg,read_only=path.startswith('/mcp/ro')):
                     await self.app(scope,bounded_receive,tracked_send)
@@ -274,7 +278,7 @@ def create_app(cfg, auth_file: Path, *, allowed_hosts=('localhost','127.0.0.1','
         def schema():
             with db.connect(cfg,role='reader') as conn:
                 return [r['filename'] for r in conn.execute('SELECT filename FROM schema_migrations ORDER BY filename')]
-        return JSONResponse({'extensions':{'queued_tools':1},'protocol':1,'server_version':version('agentic-rag'),'migrations':await asyncio.to_thread(schema),
+        return JSONResponse({'extensions':{'queued_tools':1,'typed_metadata':1},'protocol':1,'server_version':version('agentic-rag'),'migrations':await asyncio.to_thread(schema),
                              'tools':mcp_server.tool_names(p.readonly),'limits':{'request_bytes':MAX_BODY,'window_chars':12000,'window_events':64,'inflight_requests':8},
                              'principal':{'user':p.user_id,'machine':p.machine_id,'read_only':p.readonly}})
 

@@ -94,7 +94,7 @@ def test_stdio_proxy_exposes_only_ro_tools_and_forwards_without_database(tmp_pat
     async def probe():
         tools=await server.list_tools()
         names={t.name for t in tools}
-        assert len(tools)==22 and 'memory_save' not in names
+        assert len(tools)==23 and 'memory_save' not in names
         assert {'memory_feedback_get','memory_feedback_list'} <= names
         assert not {'memory_feedback_search','memory_feedback_submit',
                     'memory_feedback_update','memory_feedback_retract'} & names
