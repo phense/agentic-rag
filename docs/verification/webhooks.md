@@ -3,7 +3,7 @@ title: Signed webhook verification
 type: reference
 doc_id: webhook-verification
 readers: [maintainer, installation-operator]
-status: draft
+status: verified
 version: 0.6.29
 depends_on: [webhooks]
 assets: []
@@ -17,7 +17,8 @@ The corrected runtime is frozen at `128d2cf`, based on the real
 0.6.28/schema037 release `7669284`. These are bounded correctness and compatibility observations,
 not a delivery SLA, production receiver test or merge approval. Independent
 correction review accepted the code with C0/H0/M0/Low0. Its remaining playbook
-finding was corrected and rehearsed separately. The final full suite has not run.
+finding was corrected and rehearsed separately. The one full run and its
+mechanical test-only correction are recorded below.
 
 ## Focused checks and compatibility
 
@@ -102,6 +103,32 @@ mixed/private/mapped DNS answers, redirect refusal, proxy independence and
 bounded response framing. Public HTTPS TLS/SNI behavior uses controlled socket
 seams; no public receiver or certificate authority was contacted.
 
+## Full run and release checks
+
+On `86777cd`, the single full command
+`python -m pytest -q --tb=short -p no:cacheprovider --durations=20` finished
+with **2803 passed,12 skipped,1 failed**, Exit1,3568.99s, and one existing
+Starlette/httpx warning. All1457 captured input hashes remained unchanged.
+Log SHA256: `d1b2f4502b9462ae688b5da6debbf3803b4b52ab12841962658ef5dfd202ec65`.
+This run is not relabeled a full-suite pass.
+
+The sole failure was `tests/test_backup.py::test_restore_roundtrip`: its ACL
+comparison passed `pg_class.relkind='S'` to `acldefault`, whose sequence argument
+is lowercase`s`. An owned fresh-store reproduction confirmed that actual
+SELECT/UPDATE/USAGE privileges and all normalized/default ACLs were preserved;
+the old comparison alone failed after PostgreSQL normalized ACL storage.
+Only the test helper's type argument and explanatory comment changed. The same
+owned fresh restore then passed, and `python -m pytest -q tests/test_backup.py`
+passed **18 tests**, Exit0,19.25s. No assertion was removed or relaxed; the
+comparison now includes all sequence-owner privileges. Runtime and SQL remain
+byte-identical to the full run and independently accepted correction. The
+mechanical two-line change was reviewed by the coordinator. In accordance with
+the maintainer's test-cost policy, the complete suite was not repeated.
+
+Node7, documentation17, lock and wheel checks passed; the wheel contains38 SQL
+files and155 Python modules byte-equal to the corrected runtime. These checks
+overlap with other selections and are not added into a unique-test total.
+
 ## Open gates and operation boundary
 
 IR072-001/002 and PB072-IR-001 are resolved by the independent correction review.
@@ -117,8 +144,6 @@ filtering and invalid-ID refusal also passed; the owned database was removed.
 The initial snippet-extraction harness failed before opening a database because
 it did not handle indented Markdown fences; the corrected harness passed.
 
-The final full-suite output, release/CI,
-merge and both populated production upgrades remain open. Node7, documentation17,
-lock and wheel checks have passed; the wheel contains38 SQL files and155 Python
-modules byte-equal to the corrected runtime. No keys, subscriptions, endpoints
+CI, merge and both populated production upgrades remain open.
+No keys, subscriptions, endpoints
 or sender daemon have been configured on either production host.

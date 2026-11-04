@@ -66,7 +66,7 @@ subscriptions, no overlapping file writers, no new framework or model calls.
   Independent complete bounded security/concurrency/upgrade and playbook review;
   resolve C/H/M/Important, track nonblocking Low separately without reopening
   unchanged inherited work. Review fixes proportionately.
-- [ ] T072-011: One full suite near PR on final runtime inputs, relevant lock,
+- [x] T072-011: One full suite near PR on final runtime inputs, relevant lock,
   wheel/SQL and existing Node checks; observe terminal results. No repeated full
   runs for unchanged inputs or mechanical inventory/documentation fixes.
 - [ ] T072-012: Focused PR, CI, merge under current autonomy; separately verify

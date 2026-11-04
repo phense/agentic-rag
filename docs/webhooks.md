@@ -405,7 +405,8 @@ bounded state; it excludes canonical text and credentials.
    cancellation alone does not immediately free capacity. Pending, retrying,
    leased and unselected dead letters remain. If capacity is still occupied,
    keep capture off and inspect the remaining records; do not edit private
-   tables or reduce retention. Disabling does not release subscription quota.
+   tables or reduce retention. Unset `DELIVERY_ID` and `AFTER_DELIVERY` before
+   returning to the full inventory. Disabling does not release subscription quota.
    Once capacity is available, explicitly enable capture and run B6's test plus
    the sender. Require an acknowledged notice before resuming its schedule.
    If that check fails, turn capture off and follow the reported failure branch.
