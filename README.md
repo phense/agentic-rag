@@ -14,7 +14,8 @@ hosted RAG service.**
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
 **0.6.34 dashboard refresh:** clearer grouped navigation, consistent cards, tables
-and status badges, readable narrow-screen layouts and WCAG AA text contrast. Behavior,
+and status badges, readable narrow-screen layouts and improved text contrast in
+the sampled synthetic administrator views. Behavior,
 permissions and stored data are unchanged; see the [dashboard reference](docs/dashboard-reference.md#layout-and-accessibility).
 
 **0.6.33 embedding comparison:** optional task prefixes preserve model-bound

@@ -91,13 +91,19 @@ Settings, Setup assistant). The current page carries a visible marker and
 Escape closes it again. Tables then show each row as a card with the column name
 beside every value, so no column is hidden behind horizontal scrolling.
 
-The browser test `tests/browser/test_dashboard_visual_browser.py` renders every
-view at 1440 px and 390 px with synthetic data and fails on:
+The browser test `tests/browser/test_dashboard_visual_browser.py` samples the
+login and administrator views at 1440 px and 390 px with synthetic data. It checks
+visible text nodes and six representative keyboard-focus targets, and fails on:
 
 - text below WCAG AA contrast (4.5:1, or 3:1 for large text),
 - a keyboard focus ring thinner than 2 px or below 3:1 contrast,
 - controls smaller than 24 × 24 px on narrow screens,
 - horizontal page overflow or a missing active navigation entry.
+
+A separate regression checks that long domain, project-scope and outcome badges
+remain fully readable at both widths. These are bounded Chromium measurements,
+not a product-wide WCAG certification. The visual audit does not cover all
+member/read-only views, loading states, CSS-generated text or every focus target.
 
 The dashboard uses the installed system fonts and packaged files only. It loads no
 web fonts, images or scripts from other hosts.

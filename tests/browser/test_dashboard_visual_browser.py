@@ -1,4 +1,4 @@
-"""RAG-108: every dashboard view renders readably on desktop and narrow screens.
+"""RAG-108: sampled administrator views on desktop and narrow screens.
 
 Synthetic data only. The audit is design-independent: text contrast (WCAG 1.4.3),
 touch-target size on narrow screens (WCAG 2.5.8), visible keyboard focus with
@@ -143,7 +143,7 @@ def _nav(page, label):
     page.get_by_role('navigation').get_by_role('button', name=label).click()
 
 
-def test_every_dashboard_view_is_readable_on_desktop_and_mobile(evidence_store, tmp_path, monkeypatch):
+def test_sampled_admin_views_are_readable_on_desktop_and_mobile(evidence_store, tmp_path, monkeypatch):
     from tests.service.test_reranker_settings import runtime
     runtime(monkeypatch)
     cfg, own, *_ = evidence_store
@@ -245,3 +245,40 @@ def test_every_dashboard_view_is_readable_on_desktop_and_mobile(evidence_store, 
     assert keyboard == {'escape_closes_navigation': True}, keyboard
     for name, f in focus.items():
         assert f and f['outline_style'] != 'none' and f['outline_width'] >= 2 and f['outline_contrast'] >= 3, (name, f)
+
+
+@pytest.mark.parametrize('width', [390, 1440])
+def test_long_permission_and_status_badges_remain_fully_readable(width):
+    """Render the shipped badge/table components; hidden overflow loses scope text."""
+    assets = Path(__file__).resolve().parents[2] / 'agentic_rag/service/dashboard_assets'
+    script = (assets / 'app.js').read_text()
+    helpers = script[script.index('function el('):script.index('function notice(')]
+    helpers += script[script.index('function table('):script.index('function statusKind(')]
+    values = [
+        'alpha-domain-with-a-rather-long-name-for-testing',
+        '/projects/customer-integration-platform-with-an-unusually-long-project-scope-name',
+        'cancelled_by_operator_after_timeout_long_value',
+    ]
+    with playwright.sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        try:
+            page = browser.new_page(viewport={'width': width, 'height': 844})
+            page.set_content('<main class="content"><section class="card" id="knowledge"></section>'
+                             '<section class="card" id="traces"></section></main>')
+            page.add_style_tag(content=(assets / 'style.css').read_text())
+            page.add_script_tag(content=helpers)
+            page.evaluate('''values => {
+                document.querySelector('#knowledge').append(el('div', {class:'detail-meta'},
+                    badge(values[0]), badge(values[1])));
+                document.querySelector('#traces').append(table(['Operation', 'Outcome'],
+                    [['memory_search', badge(values[2], 'bad')]]));
+            }''', values)
+            badges = page.locator('.badge')
+            assert badges.all_inner_texts() == values
+            clipped = badges.evaluate_all('''nodes => nodes.filter(node =>
+                node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1
+            ).map(node => ({text:node.textContent, visible:node.clientWidth, needed:node.scrollWidth}))''')
+            assert not clipped, clipped
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        finally:
+            browser.close()
