@@ -4,7 +4,7 @@
 
 - Feature ID: `RAG-073`, canonical [Issue73 /6.15](https://github.com/phense/agentic-rag/issues/73).
 - Artifact path: `docs/specs/RAG-073-typed-metadata-filters/spec.md`.
-- Status: Specified; design and runtime acceptance pending.
+- Status: Specified; source-backed design complete, implementation and runtime acceptance pending.
 - Source request: Continue numbered features automatically after verified72,
   allowing typed application filters while preserving every mandatory boundary.
 

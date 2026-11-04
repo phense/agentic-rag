@@ -6,7 +6,8 @@ candidate completeness. Notation: Mermaid flowchart; sources `search.py:search`,
 `sql/033_trusted_replacements.sql`, `indexes.py:_neighbors`, `graph.py`,
 `context.py:build`, `profiles.py:_rows`, `research.py:research_async`,
 `benchmark/corrections.py:export_confirmed_corrections`. Verified2026-11-04 on
-`a151ee5`; design only, no implemented039 or performance claim.
+`a151ee5` for design; reconciled with implementation `837517b` and root
+rehearsal `frozen-837517b-3` on 2026-11-04. No production performance claim.
 Requirements AC-001..008/IC073-001..005.
 
 ## Question: Where can optional selection safely occur?
@@ -88,3 +89,37 @@ injected audit error all fail closed; restore complete original bindings and the
 next unfiltered request equals029. Upgrade a populated029 copy, interrupt/retry,
 independently restore both backups, run old029 code, and preserve originals,
 ACLs/owners/sequences/pins/jobs. No production data is used for destructive probes.
+
+
+## As-built reconciliation
+
+Runtime `metadata.py` implements the shared typed parser, registry, schema,
+strict raw JSON boundary and explicit per-operation SQL/deadline scope.
+`metadata_stdio.py` guards duplicate typed JSON before SDK decoding without a
+global SDK mutation. `store.save_document` locks and merges the registered
+application envelope within its existing audited transaction. No authority,
+truth helper, RLS policy or published migration001–038 changes.
+
+SQL039 adds nine filtered retrieval/vector/graph siblings and pure invoker
+matchers. A complete machine comparison against the latest committed function
+bodies in migration order yields identical bodies after removing only optional
+metadata predicates/new sibling names and spelling out original default bounds.
+Python gates cover identity shortcuts, managed-generation hydration, graph
+promotion, entity/research hops, counts and complete-family export.
+
+Filtered context/summary uses matching originals instead of modifying the
+existing profile/checkpoint/pin machinery. Thus `profiles.py` and hook callers
+need no runtime rewrite. The new reader tool and wire arguments preserve
+unfiltered defaults. Both actual HTTP surfaces and the real research child
+passed their recorded checks.
+
+| Derived case | Observed result | Limits |
+|---|---|---|
+| ACF073-S | Fixed original-ID oracle13cases,76assertions; CLI/REST/MCP; literal spans; raw ANN270excluded+300permitted; graph/summary/context/count/export and replacement tests pass. | Contextual ANN continuation beyond256 indexed contextual rows is a documented Low coverage gap. |
+| ACF073-R | Generic prepared same-session revocation/restoration; explicit invalid and timeout errors; audit rollback; archived029 interruption/retry/limited-owner source+target independent restores and old clients pass. | Synthetic local PG17; production and macOS require their separate delivery verification. |
+
+The root did not implement the runtime slice and independently reviewed its
+complete60-file bounded diff: C0/H0/M0, one Low test-coverage finding.
+The operator procedure is [PB07301](../metadata-filters.md); practical sample
+sizes, overhead and the observed bounded scan are in the
+[verification record](../verification/typed-metadata-filters.md).

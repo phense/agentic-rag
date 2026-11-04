@@ -6,7 +6,8 @@
 - Specification: `docs/specs/RAG-073-typed-metadata-filters/spec.md`.
 - Artifact path: `docs/specs/RAG-073-typed-metadata-filters/plan.md`.
 - BASE: `a151ee5918cf4b1d8e0e8b18bddfe4adadc7658b`, deployed029/schema038.
-- Status: Initial plan; architecture analysis required before tasks/code.
+- Status: Runtime039 and root exact-set/adapter rehearsal complete; as-built
+  reconciled. Independent PB review, final checks and both production updates pending.
 
 ## Summary
 
@@ -63,7 +64,7 @@ production content or external model call. Retain old failed evidence separately
 
 ## Typed registry and data model
 
-Introduce `metadata_filters.py` for registry validation, strict JSON decoding,
+Introduce `metadata.py` for registry validation, strict JSON decoding,
 AST normalization, type/operator matrix, value-free errors and a small independent
 reference evaluator used only by tests. Runtime SQL must not be generated from
 arbitrary identifiers, SQL text or JSONPath.
@@ -219,3 +220,16 @@ and actual synthetic CLI/API evidence required; changes to existing install do
 not authorize automatic metadata adoption. Development operations use the
 existing isolated DB/upgrade harness, plus owned cleanup; no new permanent
 framework or second benchmarking protocol is justified.
+
+
+## Implementation evidence
+
+Runtime checkpoint `837517b` implements S073-1. Root independently reviewed the
+complete runtime/tests/SQL diff and compared all nine SQL sibling bodies against
+the actual predecessors: no C/H/M finding. The bounded contextual ANN continuation
+coverage gap is Low and explicitly retained. Root rehearsal `frozen-837517b-3`
+passed76/76 assertions on522 synthetic originals,13 manually expected sets and
+actual CLI/REST/MCP; source tables remained unchanged. The linked verification
+record reports30 samples/arm for each of three examples, including slower
+filtered cases and the sequential scan. Neither the plan nor the record claims
+an index acceleration or production latency result.

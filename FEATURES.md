@@ -669,3 +669,22 @@ verification, outage recovery and runtime rollback. [Verification](docs/verifica
 acceptance and delivery2026-11-04 to both hosts/schema038. All3 populated stores
 have verified source/target restores and original-data preservation. Capture
 remains off and no production receiver or sender is configured.
+
+
+## Typed metadata filters (RAG-073 / issue #73)
+
+🔵 Implemented and independently reviewed in 0.6.30/schema039; final full-suite,
+PR integration and verified production deployment remain separate. A bounded
+versioned JSON filter narrows authorized originals before retrieval limits across
+search, graph, context, research, summaries, counts and complete-family exports.
+An opt-in operator registry types application labels saved through the audited
+gateway. Existing scope, source/truth and lifecycle predicates remain mandatory;
+a nonmatching replacement never makes an older assertion current again.
+
+The synthetic522-original rehearsal passed76 assertions over13 fixed expected-ID
+sets with actual CLI/REST/MCP and prepared-session revocation/restoration. Three
+30-sample examples and their measured overhead are in the [verification](docs/verification/typed-metadata-filters.md).
+Archived029 interruption/retry, both independent restores, limited owner and old
+clients are covered. The [procedure](docs/metadata-filters.md) preserves original
+rows and vectors; installing039 never labels or recodes historical knowledge.
+One contextual ANN continuation coverage Low remains in [Issue75](https://github.com/phense/agentic-rag/issues/75#issuecomment-6622277491).
