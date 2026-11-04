@@ -118,3 +118,12 @@ def test_direct_sql_document_filter_validates_outer_contract_and_null_is_optiona
         if kind=='extra':invalid['extra']=True
         with pytest.raises(psycopg.errors.InvalidParameterValue):
             with conn.transaction():conn.execute('SELECT public.rag_metadata_document(%s,%s)',(doc.doc_id,Jsonb(invalid)))
+
+
+@pytest.mark.parametrize('value',['0001-01-01T00:00:00+01:00','9999-12-31T23:59:59-01:00'])
+@pytest.mark.parametrize('operation',['filter','save'])
+def test_timestamp_utc_overflow_is_a_safe_validation_error(value,operation):
+    from agentic_rag.metadata import normalize,MetadataError
+    with pytest.raises(MetadataError):
+        if operation=='filter':normalize(leaf('app.when','eq',value),REGISTRY)
+        else:store.save_document(object(),replace(Config(),metadata_fields=REGISTRY),title='x',body='x',domain='general',dtype='memory',metadata={'when':value})
