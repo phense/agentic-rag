@@ -156,8 +156,8 @@ def test_pb067_upgrade_activate_recover_retry_rollback_and_restore(tmp_path, mon
                       '--apply', '--writers-stopped')
         assert a5['migrations_applied'] == [] and a5['restore_verified']
         operator('status')
-        # Reject the next release; the current0.6.33 remains supported.
-        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.34', '--dump',
+        # Reject the next release; the current0.6.34 remains supported.
+        assert rag('service', '--config', str(config), 'upgrade', '--source-version', '0.6.35', '--dump',
                    str(proofs / 'refused.dump'))[0] == 1
         zero = {'bindings': 0, 'malformed_digests': 0, 'bindings_minus_audit': 0, 'batch_policy_mismatch': 0}
         assert integrity(load_config(config)) == zero

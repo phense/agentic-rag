@@ -3,7 +3,7 @@
 const root=document.getElementById('app');
 let me=null,page='overview',generation=0,activeRequest=null;
 const labels={overview:'Overview',memories:'Knowledge',clients:'Clients & access',setup:'Setup assistant',traces:'Request tracing',settings:'Settings'};
-const icons={overview:'▦',memories:'▤',clients:'◇',setup:'⚙',traces:'◎',settings:'⚙'};
+const icons={overview:'▦',memories:'▤',clients:'◇',setup:'✓',traces:'◎',settings:'⚙'};
 function el(tag,attrs={},...children){
   const node=document.createElement(tag);
   for(const [key,value] of Object.entries(attrs)){
@@ -40,6 +40,16 @@ async function api(path,body,method=body===undefined?'GET':'POST'){
   return data;
 }
 function header(title,description,extra){return el('div',{class:'page-head'},el('div',{},el('h1',{tabindex:'-1'},title),el('p',{},description)),extra||null);}
+function table(headers,rows,numeric=[]){
+  // Explicit roles keep table semantics when narrow screens restyle rows as labelled cards.
+  const cls=i=>numeric.includes(i)?{class:'num'}:{};
+  const node=el('table',{role:'table'},el('thead',{role:'rowgroup'},el('tr',{role:'row'},headers.map((h,i)=>el('th',{scope:'col',role:'columnheader',...cls(i)},h)))));
+  const body=el('tbody',{role:'rowgroup'});
+  for(const cells of rows)body.append(el('tr',{role:'row'},cells.map((cell,i)=>el('td',{role:'cell','data-label':headers[i],...cls(i)},cell))));
+  node.append(body);return el('div',{class:'table-wrap'},node);
+}
+function statusKind(value){const n=Number(value);return n>=500?'bad':n>=400?'warn':n>=200?'good':'';}
+function outcomeKind(value){return value==='completed'?'good':['failed','expired','cancelled'].includes(value)?'bad':'';}
 function brand(){return el('div',{class:'brand'},el('span',{class:'brand-mark','aria-hidden':'true'},'a'),el('span',{},'agentic-rag'));}
 function renderLogin(bootstrap=false,message=''){
   const form=el('form',{class:'login-form'});
@@ -61,10 +71,15 @@ function renderLogin(bootstrap=false,message=''){
 }
 function shell(){
   const nav=el('nav',{class:'nav','aria-label':'Main navigation'});
-  for(const name of ['overview','memories','traces',...(me.admin?['clients','settings','setup']:[])])nav.append(button([icons[name]+'  ',labels[name]].join(''),()=>navigate(name),'',{'aria-current':page===name?'page':'false'}));
-  const side=el('aside',{class:'sidebar'},brand(),el('div',{class:'eyebrow'},'Workspace'),nav,el('div',{class:'side-foot'},el('strong',{},me.admin?'Service administrator':'Knowledge member'),me.readonly?'Read-only knowledge access':'Scoped knowledge access',el('br'),el('small',{},'File-owned configuration · protocol 1')));
+  const groups=[['Workspace',['overview','memories','traces']],...(me.admin?[['Administration',['clients','settings','setup']]]:[])];
+  for(const [title,names] of groups){
+    const id='nav-group-'+title.toLowerCase();
+    nav.append(el('div',{class:'nav-group-title',id},title),el('div',{class:'nav-group',role:'group','aria-labelledby':id},names.map(name=>button([el('span',{class:'nav-icon','aria-hidden':'true'},icons[name]),labels[name]],()=>navigate(name),'',{'aria-current':page===name?'page':'false'}))));
+  }
+  const side=el('aside',{class:'sidebar',id:'sidebar'},brand(),nav,el('div',{class:'side-foot'},el('strong',{},me.admin?'Service administrator':'Knowledge member'),me.readonly?'Read-only knowledge access':'Scoped knowledge access',el('small',{},'File-owned configuration · protocol 1')));
   const content=el('main',{id:'content',class:'content'});
-  const wrap=el('div',{class:'shell'},side,el('div',{class:'workarea'},el('header',{class:'topbar'},button('☰',()=>{wrap.classList.toggle('menu-open');wrap.querySelector('.menu-toggle').setAttribute('aria-expanded',String(wrap.classList.contains('menu-open')));},'menu-toggle',{'aria-label':'Toggle navigation','aria-expanded':'false'}),el('div',{class:'breadcrumbs'},'Workspace  /  ',el('span',{},labels[page])),el('div',{class:'user'},el('span',{class:'avatar','aria-hidden':'true'},me.user.slice(0,2).toUpperCase()),el('span',{},me.user),button('Sign out',async()=>{try{await api('logout',{});me=null;generation++;renderLogin();}catch(e){notice(e.message);}},'quiet'))),content));
+  const setMenu=open=>{wrap.classList.toggle('menu-open',open);wrap.querySelector('.menu-toggle').setAttribute('aria-expanded',String(open));};
+  const wrap=el('div',{class:'shell',onkeydown:event=>{if(event.key==='Escape'&&wrap.classList.contains('menu-open')){setMenu(false);wrap.querySelector('.menu-toggle').focus();}}},side,el('div',{class:'workarea'},el('header',{class:'topbar'},button('☰',()=>setMenu(!wrap.classList.contains('menu-open')),'menu-toggle',{'aria-label':'Toggle navigation','aria-expanded':'false','aria-controls':'sidebar'}),el('div',{class:'breadcrumbs'},'Workspace  /  ',el('span',{},labels[page])),el('div',{class:'user'},el('span',{class:'avatar','aria-hidden':'true'},me.user.slice(0,2).toUpperCase()),el('span',{},me.user),button('Sign out',async()=>{try{await api('logout',{});me=null;generation++;renderLogin();}catch(e){notice(e.message);}},'quiet'))),content));
   root.replaceChildren(wrap);return content;
 }
 async function navigate(next){
@@ -165,7 +180,7 @@ function sourceCard(doc,view,item,writable){
   const history=el('div');
   card.append(el('div',{class:'actions'},button('Source history',()=>showHistory(doc,history,item.source_key),'quiet')),history);
   if(writable){
-    const form=el('form',{class:'spaced'},selectField('Source trust','state',[['active','Active'],['refuted','Refuted'],['removed','Withdrawn']],item.trust.state==='active'?'removed':'active'),field('Reason for this source decision','reason'),el('button',{type:'submit',class:'secondary spaced'},'Apply to this source'));
+    const form=el('form',{class:'subpanel'},selectField('Source trust','state',[['active','Active'],['refuted','Refuted'],['removed','Withdrawn']],item.trust.state==='active'?'removed':'active'),field('Reason for this source decision','reason'),el('div',{class:'actions'},el('button',{type:'submit',class:'secondary'},'Apply to this source')));
     form.querySelector('[name=reason]').required=true;
     form.addEventListener('submit',async event=>{event.preventDefault();const values=dataOf(form);const box=el('div',{class:'spaced'});form.append(box);
       try{const saved=await queueTool('memory_source_state',{source_key:item.source_key,state:values.state,reason:values.reason,id_or_slug:doc.id,expected_version:item.source_version},box);if(saved){notice('Source decision saved through the audited gateway.');await showDocument(doc.id);}}
@@ -196,7 +211,7 @@ async function showEvidence(doc,target,writable){
       if(page.version!==view.version){box.replaceChildren(decisionError(new Error('evidence conflict'),doc));return;}
       box.remove();add(page);cursor=page.sources.next_cursor;if(cursor)list.after(more);}catch(error){box.replaceChildren(errorBox(error));}},'secondary');list.after(more);}
   if(writable&&claim){
-    const form=el('form',{class:'spaced'},el('h3',{},'Review this claim'),selectField('Review state','state',[['confirmed','Confirmed'],['unreviewed','Unreviewed'],['refuted','Refuted']],'confirmed'),field('Reason, grounded in the original sources','reason'),el('small',{},'Your decision is bound to the evidence shown above. If anything changed meanwhile, nothing is saved.'),el('button',{type:'submit',class:'primary spaced'},'Apply audited review'));
+    const form=el('form',{class:'subpanel spaced'},el('h3',{},'Review this claim'),selectField('Review state','state',[['confirmed','Confirmed'],['unreviewed','Unreviewed'],['refuted','Refuted']],'confirmed'),field('Reason, grounded in the original sources','reason'),el('div',{class:'actions'},el('button',{type:'submit',class:'primary'},'Apply audited review'),el('small',{},'Your decision is bound to the evidence shown above. If anything changed meanwhile, nothing is saved.')));
     form.querySelector('[name=reason]').required=true;
     form.addEventListener('submit',async event=>{event.preventDefault();const values=dataOf(form);const box=el('div',{class:'spaced'});form.append(box);
       try{const saved=await queueTool('memory_review_claim',{id_or_slug:doc.id,state:values.state,reason:values.reason,expected_version:view.version},box);if(saved){notice('Review saved through the audited gateway.');await showDocument(doc.id);}}
@@ -213,6 +228,7 @@ async function showDocument(id){
     if(!result.document){target.replaceChildren(el('div',{class:'empty'},'This memory is unavailable in your current scope.'));return;}
     const doc=result.document;
     content.querySelector('h1').textContent=doc.title;
+    content.querySelector('.page-head p').textContent='Original-backed knowledge within your permissions.';
     const evidence=el('div');
     target.replaceChildren(el('div',{class:'detail-meta'},badge(doc.domain),badge(doc.project_scope||'unknown'),badge(doc.claim_evidence?.review_state||doc.status)),el('div',{class:'body-text'},doc.body),el('h2',{class:'spaced'},'Original sources & review'),evidence);
     // Recorded metadata is shown as text only; it is never source navigation.
@@ -226,9 +242,8 @@ function scopesText(row){return 'Read '+row.read_domains.join(', ')+' / '+row.re
 async function clientsPage(){
   const admin=await api('admin');
   const list=el('section',{class:'card'},el('div',{class:'section-head'},el('h2',{},'Enrolled clients'),button('+ Enroll a VM',()=>editPrincipal(null,'machine'),'primary')));
-  const table=el('table',{},el('thead',{},el('tr',{},['Client / owner','Access','Last connection','Permissions',''].map(x=>el('th',{scope:'col'},x)))));const rows=el('tbody');
-  for(const row of admin.machines)rows.append(el('tr',{},el('td',{},el('strong',{},row.label),el('small',{},row.id+' · '+row.user),el('small',{},row.connection.reported_version?'Reported v'+row.connection.reported_version:'Version unreported'),el('small',{},row.connection.reported_capabilities?'Reported capabilities: '+row.connection.reported_capabilities:'Capabilities unreported')),el('td',{},badge(row.access_state,row.access_state==='enabled'?'good':'bad'),el('small',{},row.keys.map(k=>k.prefix+'••••').join(', ')||'No active keys')),el('td',{},badge(row.connection.freshness,row.connection.freshness==='online'?'good':''),el('small',{},date(row.connection.last_seen))),el('td',{},el('small',{},'Configured: '+scopesText(row)),el('small',{},'Effective: '+scopesText(row.effective_permissions.read_domains?row.effective_permissions:{read_domains:[],read_projects:[],write_domains:[],write_projects:[]})),el('small',{},'Configured teams: '+(row.session_teams.join(', ')||'none')),el('small',{},'Effective teams: '+((row.effective_permissions.session_teams||[]).join(', ')||'none'))),el('td',{},button('Manage',()=>editPrincipal(row,'machine'),'quiet'))));
-  if(!admin.machines.length)list.append(el('div',{class:'empty'},'No clients enrolled. Add an owner user, enroll a VM, then generate its private credential.'));else{table.append(rows);list.append(el('div',{class:'table-wrap'},table));}
+  const machineRows=admin.machines.map(row=>[[el('strong',{},row.label),el('small',{},row.id+' · '+row.user),el('small',{},row.connection.reported_version?'Reported v'+row.connection.reported_version:'Version unreported'),el('small',{},row.connection.reported_capabilities?'Reported capabilities: '+row.connection.reported_capabilities:'Capabilities unreported')],[badge(row.access_state,row.access_state==='enabled'?'good':'bad'),el('small',{},row.keys.map(k=>k.prefix+'••••').join(', ')||'No active keys')],[badge(row.connection.freshness,row.connection.freshness==='online'?'good':''),el('small',{},date(row.connection.last_seen))],[el('small',{},'Configured: '+scopesText(row)),el('small',{},'Effective: '+scopesText(row.effective_permissions.read_domains?row.effective_permissions:{read_domains:[],read_projects:[],write_domains:[],write_projects:[]})),el('small',{},'Configured teams: '+(row.session_teams.join(', ')||'none')),el('small',{},'Effective teams: '+((row.effective_permissions.session_teams||[]).join(', ')||'none'))],button('Manage',()=>editPrincipal(row,'machine'),'quiet')]);
+  if(!admin.machines.length)list.append(el('div',{class:'empty'},'No clients enrolled. Add an owner user, enroll a VM, then generate its private credential.'));else list.append(table(['Client / owner','Access','Last connection','Permissions',''],machineRows));
   list.append(el('div',{class:'callout spaced'},'Offline is not revoked. Freshness means authenticated activity in the last 5 minutes; it is not a continuous socket or a permission grant. Versions and capabilities are client-reported.'));
   const users=el('section',{class:'card spaced'},el('div',{class:'section-head'},el('h2',{},'People & service owners'),button('+ Add user',()=>editPrincipal(null,'user'))));
   for(const user of admin.users)users.append(el('div',{class:'row'},el('div',{class:'row-main'},el('h3',{},user.label),el('small',{},user.id+' · '+(user.admin?'Administrator':'Member')+' · '+(user.password_configured?'Browser login configured':'Machine owner only')),el('br'),el('small',{},scopesText(user)),el('br'),el('small',{},'Last observed: '+date(user.connection.last_seen)+' · '+user.connection.freshness)),badge(user.enabled?'Enabled':'Disabled',user.enabled?'good':'bad'),button('Manage',()=>editPrincipal(user,'user'),'quiet')));
@@ -273,7 +288,7 @@ function editPrincipal(row,kind){
   }catch(error){target.replaceChildren(errorBox(error));}finally{submit.disabled=false;}});
   if(kind==='machine'&&row){
     const credentials=el('section',{class:'card spaced'},el('h2',{},'API credentials'),el('p',{class:'muted'},'Rotating a key ID immediately invalidates its old credential, including pending jobs under that revision. Other key IDs remain enabled.'));
-    for(const key of row.keys)credentials.append(el('div',{class:'row'},el('code',{},key.prefix+'••••'),button('Rotate',()=>credentialAction('rotate',row.id,key.id,credentials)),button('Revoke',()=>credentialAction('revoke',row.id,key.id,credentials),'danger')));
+    for(const key of row.keys)credentials.append(el('div',{class:'row'},el('code',{},key.prefix+'••••'),el('div',{class:'row-actions'},button('Rotate',()=>credentialAction('rotate',row.id,key.id,credentials)),button('Revoke',()=>credentialAction('revoke',row.id,key.id,credentials),'danger'))));
     const add=el('form',{class:'toolbar spaced'},field('New key ID','key_id'),el('button',{class:'secondary',type:'submit'},'Generate credential'));
     add.addEventListener('submit',event=>{event.preventDefault();credentialAction('rotate',row.id,dataOf(add).key_id,credentials);});credentials.append(add);content.append(credentials);
   }
@@ -298,13 +313,13 @@ async function setupPage(){
 
 // Operational metadata only; detail never renders stored tool arguments/results.
 async function tracesPage(){
-  const controls=el('form',{class:'toolbar'},
+  const controls=el('form',{class:'toolbar filters','aria-label':'Trace filters'},
     field('From (UTC ISO time)','since'),field('Until (UTC ISO time)','until'),
     field('Principal','principal'),field('Client','client'),field('Operation','operation'),
     field('HTTP status','status'),field('Request ID','request_id'),
     field('Correlation ID','correlation_id'),field('Job ID','job_id'),
-    selectField('Rows per page','limit',[['10','10'],['25','25'],['50','50']],'25'),
-    el('button',{type:'submit',class:'primary'},'Filter traces'));
+    selectField('Rows per page','limit',[['10','10'],['25','25'],['50','50']],'25'));
+  const controlActions=el('div',{class:'actions'},el('button',{type:'submit',class:'primary'},'Filter traces'));controls.append(controlActions);
   const results=el('section',{class:'card'});let cursor=null,history=[];
   const params=()=>new URLSearchParams(Object.entries(dataOf(controls)).filter(([,v])=>v));
   const load=async(next=null,remember=true)=>{
@@ -313,15 +328,12 @@ async function tracesPage(){
     if(remember&&next)history.push(cursor);cursor=next;
     results.replaceChildren(el('div',{class:'section-head'},el('h2',{},'Requests'),el('small',{},found.total+' visible')),
       el('p',{role:'status'},found.capture.status==='degraded'?'Tracing is degraded. Some requests were not recorded.':'Metadata only. Request and response bodies are never captured.'));
-    const table=el('table',{},el('thead',{},el('tr',{},['Started','Operation','Principal / client','HTTP','Outcome','Duration',''].map(label=>el('th',{scope:'col'},label)))));
-    const rows=el('tbody');
-    for(const row of found.rows)rows.append(el('tr',{},el('td',{},date(row.started_at)),el('td',{},row.operation),el('td',{},(row.principal||'Unauthenticated')+' / '+(row.client||'human')),el('td',{},row.status),el('td',{},row.outcome),el('td',{},row.duration_ms.toFixed(1)+' ms'),el('td',{},button('Inspect request',()=>showTrace(row.request_id),'quiet',{'aria-label':'Inspect request '+row.request_id}))));
-    table.append(rows);results.append(el('div',{class:'table-wrap'},table));
+    results.append(table(['Started','Operation','Principal / client','HTTP','Outcome','Duration',''],found.rows.map(row=>[date(row.started_at),el('strong',{},row.operation),(row.principal||'Unauthenticated')+' / '+(row.client||'human'),row.status==null?'':badge(String(row.status),statusKind(row.status)),row.outcome==null?'':badge(String(row.outcome),outcomeKind(row.outcome)),row.duration_ms.toFixed(1)+' ms',button('Inspect request',()=>showTrace(row.request_id),'quiet',{'aria-label':'Inspect request '+row.request_id})]),[5]));
     if(!found.rows.length)results.append(el('p',{class:'empty'},'No requests are visible for these filters.'));
     results.append(el('div',{class:'actions'},history.length?button('Previous traces',()=>load(history.pop(),false)):null,found.next_cursor?button('Next traces',()=>load(found.next_cursor)):null));
   };
   controls.addEventListener('submit',async event=>{event.preventDefault();history=[];cursor=null;try{await load();}catch(error){results.replaceChildren(errorBox(error));}});
-  if(me.admin)controls.append(button('Export this page',async()=>{
+  if(me.admin)controlActions.append(button('Export this page',async()=>{
     try{const query=params();if(cursor)query.set('cursor',cursor);const data=await api('traces/export?'+query);
       const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);
       const link=el('a',{href:url,download:'request-traces.json'});document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('Scoped metadata page exported.');
@@ -342,7 +354,7 @@ async function showTrace(identity){
 
 async function settingsPage(){
   const state=await api('settings');
-  const form=el('form',{class:'card'});
+  const form=el('form',{class:'card spaced'});
   const choice=selectField('Reranker model','profile',state.options.map(row=>[row.id,row.label+(row.id===state.default?' · Default':'')+(row.available?'':' · Unavailable')]),state.selected||state.default);
   const details=el('div',{class:'callout spaced'}),preview=el('div',{class:'spaced','aria-live':'polite'});
   const select=choice.querySelector('select');
