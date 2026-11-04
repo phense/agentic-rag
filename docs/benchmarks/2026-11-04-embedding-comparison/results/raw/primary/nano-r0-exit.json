@@ -1,0 +1,30 @@
+{
+  "label": "nano-r0",
+  "command": [
+    "/home/administrator/Claude/.scratch/rag083-cpu-env/bin/python",
+    "-I",
+    "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py",
+    "--worker",
+    "nano",
+    "--model-dir",
+    "/home/administrator/Claude/.scratch/rag083-models/nano",
+    "--output",
+    "/home/administrator/Claude/.scratch/rag083-measurement-a/nano-r0",
+    "--corpus",
+    "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/corpus.json",
+    "--protocol",
+    "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/protocol.json"
+  ],
+  "started": "2026-11-04T14:39:39.189183+00:00",
+  "inputs": {
+    "scripts/benchmark_embeddings.py": "512949c9989bc0bc8033cd6aff1bd04331dcb296fb2147e8c55722c1e6329f71",
+    "docs/benchmarks/2026-11-04-embedding-comparison/corpus.json": "9d8e1181abfbd6cf8b8288e3422bb136a46b841a648ae3966eb6a553bd178528",
+    "docs/benchmarks/2026-11-04-embedding-comparison/protocol.json": "e8b0f2bb5fe95b70c8f958c4b8063567cde4aa7eb6046c305b670314ad4eccfd",
+    ".engineering-method/inputs/RAG-083/run_models.py": "edb5b515fc54e62c12b45a964fdca938a6b50ca7b49fae0bfcce628d05c6e592"
+  },
+  "exit_code": 0,
+  "supervisor_stop": null,
+  "seconds": 227.811679188977,
+  "finished": "2026-11-04T14:43:27.003526+00:00",
+  "log_sha256": "b4717a3680738e8ea37bd2901c5724223205c53716b52fea58e7741f4b3cc8b9"
+}

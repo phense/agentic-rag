@@ -1,0 +1,23 @@
+[
+  {
+    "label": "small-r0",
+    "model": "small",
+    "repeat": 0,
+    "status": "unattempted",
+    "reason": "not_started"
+  },
+  {
+    "label": "small-r1",
+    "model": "small",
+    "repeat": 1,
+    "status": "unattempted",
+    "reason": "not_started"
+  },
+  {
+    "label": "small-r2",
+    "model": "small",
+    "repeat": 2,
+    "status": "unattempted",
+    "reason": "not_started"
+  }
+]

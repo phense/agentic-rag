@@ -9,7 +9,13 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.32-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.33-informational.svg)](pyproject.toml)
+
+**0.6.33 embedding comparison:** optional task prefixes preserve model-bound
+generation identities. The [local BGE/Jina CPU results](docs/benchmarks/2026-11-04-embedding-comparison/README.md)
+recommend retaining BGE; Nano has faster model calls but mixed independent ranking,
+and Small exceeds the frozen budgets. Updating code selects no model and rewrites
+no vectors.
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 

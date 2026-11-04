@@ -64,7 +64,8 @@ def test_migration_creates_empty_policy_storage_and_upgrade_accepts_actual_0_6_1
     assert '0.6.21' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.28' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.30' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.33' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.33' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.34' not in upgrade.SUPPORTED_VERSIONS
 
 
 def test_default_off_ordinary_worker_and_reads_never_schedule_or_call_provider(conn, cfg, forbidden):

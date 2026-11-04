@@ -8,7 +8,7 @@ owner: repository-maintainer
 class: system
 origin: Issue61 AC001-008
 status: draft
-version: 0.6.32
+version: 0.6.33
 last_edited: 2026-11-04
 last_reviewed: 2026-10-30
 depends_on: [13-central-service.md]
@@ -159,6 +159,11 @@ answer is at the end. Cached-vector replay proves storage behavior only.
 The separate Jina text-matching experiment describes another adapter; do not
 combine its vectors with a retrieval generation or infer a product dedup threshold
 from that experiment.
+
+The [bounded local CPU comparison](benchmarks/2026-11-04-embedding-comparison/README.md)
+recommends retaining BGE. Its exact-vector replay checks generation recovery and
+retained originals; a real served Jina endpoint still needs independent parity
+before adoption.
 
 Existing stores need no schema change for task prefixes. Keep the prior binary,
 profile file and generation. For a code rollback, use the new binary in this order:

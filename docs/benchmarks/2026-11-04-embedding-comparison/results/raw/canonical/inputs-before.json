@@ -1,0 +1,6 @@
+{
+  "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/run_embedding_benchmark.py": "a8521bda1f04d8a9c24101c5b8334538692b6a3de005688f0671f9567bfe26e0",
+  "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embedding_chunks.py": "b409b05340e5809fd7630287482a4223c00d07c9aa970cc78370214d0f122d7c",
+  "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py": "6e227379b7bc3ac395801b8e97d4574a8787cca5e3be7a968644a0d9de34981a",
+  "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/canonical-inputs-v2.json": "37a25d5929a851ec0d8fe67da5f1a571841041e1719fb3797198ba2a02622131"
+}

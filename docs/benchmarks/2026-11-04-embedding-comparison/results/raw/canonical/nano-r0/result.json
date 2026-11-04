@@ -1,0 +1,1071 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "model": "nano",
+  "descriptor": {
+    "repo": "jinaai/jina-embeddings-v5-omni-nano",
+    "revision": "14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50",
+    "dimensions": 768,
+    "dtype": "float32",
+    "modality": "text",
+    "logical_recipe_id": "jina-omni-nano-14b55e6b7004a8b6d53a6a8d2ff3cf69a502bd50-text-retrieval-lasttoken-l2-f32-max8192"
+  },
+  "input_sha256": "37a25d5929a851ec0d8fe67da5f1a571841041e1719fb3797198ba2a02622131",
+  "script_sha256": "b409b05340e5809fd7630287482a4223c00d07c9aa970cc78370214d0f122d7c",
+  "started": "2026-11-04T16:04:36.723465+00:00",
+  "observations": [
+    {
+      "group": "documents",
+      "ids": [
+        "backup-a",
+        "backup-b",
+        "retention-a",
+        "retention-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "7c4b83954f6131d7bad2230462a85ea1ef9b4f2781ad5dd5fe4f43a143580339",
+        "67a44a549e6ada540f350cf098a07ef3ec5c4a60f086f281dedb22ff76630a03",
+        "b61a205197e7a3790ec0127df996b60133fed57652ed7c487660069ea536a536",
+        "fc8c742ab18443bdec4ca839e53b3312e6cb40c3a75d9cf273c4468b9db38570"
+      ],
+      "seconds": 3.3580499140080065,
+      "token_lengths": [
+        62,
+        43,
+        59,
+        39
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "rights-a",
+        "rights-b",
+        "dns-a",
+        "dns-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "68bde02e4cd42875d41a118424192a5665adff72a2fa471f0b98c2024ae2abed",
+        "11f6f18b607ab0d10036cc1dc984c00b8c12965c2052397d7af2200122281bbf",
+        "bbb3a21fcfd472fd5e594362cc3b9e3270ada6c1a73a77945d7eb690229b4b3d",
+        "e38b8214ffe50e4a903e451146623191411a6b12889f5e95e24da05a9d1ce198"
+      ],
+      "seconds": 1.9643532779882662,
+      "token_lengths": [
+        59,
+        38,
+        62,
+        53
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "amount-a",
+        "amount-b",
+        "ids-a",
+        "ids-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "aef567f0d0f7b1bec8036ec12481c80be54f39d6aba7ff673252edd6863036bb",
+        "d169680f857769ae47e2df6b287d9f106300a6ff3dff4f207cf3a5efe637d5fe",
+        "fb31cac2ec1ce3f3cd34713f1dd297dbf1485efc1ecefd1f8d18877f92187799",
+        "750c60dca930afe1795980eb0382b95c29dd31af1a28b9aa4207a379e87bb20a"
+      ],
+      "seconds": 2.4652170140179805,
+      "token_lengths": [
+        64,
+        51,
+        75,
+        50
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "time-a",
+        "time-b",
+        "restore-a",
+        "restore-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "8fd246f7834410226e23cc7f66c4f7b18d4e1a2298479f371eb13b31f2bfbc95",
+        "8b3c2563061d2d83d93da2eec28bcd80c71bd6589fd304550f2a3ce0ed8372e5",
+        "015ad0ec3dcbff2eb8268b09d3da0f0edf538ae081e622d36b468878671f317c",
+        "09ca382fb4c88eaf5e16e050c47c254ef9e197e78d9d3a27aec536bdce87e48c"
+      ],
+      "seconds": 2.5509493839927018,
+      "token_lengths": [
+        76,
+        52,
+        69,
+        40
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "compound-a",
+        "compound-b",
+        "offline-a",
+        "offline-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "d975e218dff4234725bfcf2c1face2088980d3a70ee95b9c064218d23297dc43",
+        "adfb9bf35917b3fbe56b95511273d0bac681467ab4cab4164fb01be7a4aba0f0",
+        "7c9c3382ee86e62ffc03b423b10119863ca6370203338a196e7e03959c2073fa",
+        "2e70cc2ad57208c6c58736f3a1bef6f36e6262e886308a85c9c12780f86cf6cd"
+      ],
+      "seconds": 2.9202910399762914,
+      "token_lengths": [
+        80,
+        44,
+        69,
+        38
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "retry-a",
+        "retry-b",
+        "pin-a",
+        "pin-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "8aa675c4435afdab77418acdd92091402a0cb780dbba1633d21f34c535fb6212",
+        "6460b6a93b6a7ddd19c1eb784b804a0040a296c529a3b4d1ae8f7e1e7a8cf1d0",
+        "73201f68c57ad021b623d723a3e50722b15e71e50d0cbc97a2c192a717c93250",
+        "8a77fb242ef691383715b476bab2ee85e4950978bdec1fd4d11544ac0df03191"
+      ],
+      "seconds": 2.94847890001256,
+      "token_lengths": [
+        75,
+        48,
+        73,
+        46
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "alpha-a",
+        "alpha-b",
+        "limit-a",
+        "limit-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "dd026fa2bcc58805f5c8cc01a684f007746a0e9d509ff6629ff190de7f5bfbc1",
+        "a992df6e198a79e4971a893a30d51c28aae7ef7c76ed5b723436401d5b2cfa71",
+        "e0bf24e65dbea045d5fed9969cd995da085cafb105456755d307d64be381dd2a",
+        "a981934f017fa489a1981173c9640642d62e88f1ce7eacf6bbb5593c20715191"
+      ],
+      "seconds": 2.4861845360137522,
+      "token_lengths": [
+        65,
+        33,
+        70,
+        49
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "model-a",
+        "model-b",
+        "cred-a",
+        "cred-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "fec299c62ef90d25810ce4d1d9ca2a4b4738f67d0ad7f1fdb8e617b6c7a799d5",
+        "7bbac4d6c05450e7caf14fda3c340f328a021c733f6994dcadf3550b2bf1e85a",
+        "3c3549cae21ddf884037438323b2f3062673bc2a442924f1bffc9099b7597fbe",
+        "dfec4464912c509c8abcb9cce5e93e08414a68a79793bb21d4d20ab09f728481"
+      ],
+      "seconds": 2.879204989003483,
+      "token_lengths": [
+        66,
+        41,
+        75,
+        51
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "room-a",
+        "room-b",
+        "invoice-a",
+        "invoice-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "10164e4fcf0491d7ca361760bd7f4680deedcb0421effde3631ccc5c8a342b98",
+        "21e62f6823b4e5a9aa2081923fdc763b30e7244de339e1916e68dba52341769e",
+        "05c59ac8705d1ea769ace55a15ec51463313092b92cf206d598c75eebfa7d880",
+        "9d069f5edd02f46ea51fc3f1080d2b2c6c65cd8055a37802311909146f88e277"
+      ],
+      "seconds": 2.6140098469913937,
+      "token_lengths": [
+        70,
+        41,
+        74,
+        53
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "archive-a",
+        "archive-b",
+        "net-a",
+        "net-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "f0e6f2afd6074001197bab5fb1bcaf1b0c29f91fc50a553485ffedaac01fd1b4",
+        "472cfb73d9d68bd86a50c45c5e596be46ec79c58c767eca7d95701873876ad10",
+        "d2f2677fd87dc5bbff44c72b177aec77dd88eb1b97cf7f6c7a410b7dc0bbcd45",
+        "6d40b2dfb7ab35b7e562df1ef5767152d71ea2f91d93698aa09fda7a359b3491"
+      ],
+      "seconds": 2.250833539001178,
+      "token_lengths": [
+        68,
+        42,
+        71,
+        36
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "queue-a",
+        "queue-b",
+        "long-a",
+        "long-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "29f21b24eb17639fad8d3f857cb28905f11ef48ca5244c6fc5073f5362f207d2",
+        "40b828860fd64ec04ae4180cac7da98834e4423b2ad54453b0b778e091454a77",
+        "bbea84f77097d1c2c5e8eb3c897e00174d286b75d85510420d4b1dad99dbe97b",
+        "13d8908148c028376a1702554cd811364b7d4058f48996712a956e42fd043dc7"
+      ],
+      "seconds": 31.796880216978025,
+      "token_lengths": [
+        71,
+        41,
+        746,
+        383
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "split-a",
+        "split-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "aeefe1e86328caee1e79923c8255e152bfdcccb5dae6402316ad382f1e32426e",
+        "0334acdff2869215c67855cc3095893f2af57a9a948ae6c4f86ae28690ea9c08"
+      ],
+      "seconds": 1.1690148479538038,
+      "token_lengths": [
+        67,
+        44
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "backup-a-de",
+        "backup-a-en",
+        "backup-b-de",
+        "backup-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "a23a73aa27e0164ded5acaf058cceb1eac0d83cebca469136ab0e071964d919b",
+        "0c08fc8d7e3fe7bfa09d1d51327ac31d1c8f336b2b520fec42063d12e222a81b",
+        "c45f40543eb9569720987226ffbcd630868a1f311d3c667fdeec67b6496720c2",
+        "42e7761dad4d29bc47298d1650ee0622bc4014a867436323d1dad6070daec436"
+      ],
+      "seconds": 1.0478869799990207,
+      "token_lengths": [
+        20,
+        15,
+        22,
+        12
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "retention-a-de",
+        "retention-a-en",
+        "retention-b-de",
+        "retention-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "856d2c7f91515d5a3fabf9544f8fade18a022aba346f75f87d0e12e922dfaeeb",
+        "c18728d2026eb25310636cb6eb2ef6b85712830552cc19ecf436684bf2848c1d",
+        "74c474224329c4a67df34c5bbbd61f6d988b94954cc33a0956a38df69639ac57",
+        "16be49fc2570a34052f39487f24575cbfc3ca6b21b2cd7d90bb89e04d55106fd"
+      ],
+      "seconds": 0.7291936920373701,
+      "token_lengths": [
+        18,
+        13,
+        20,
+        13
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "rights-a-de",
+        "rights-a-en",
+        "rights-b-de",
+        "rights-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "93ec9658889193974ad4f1b397bef3431e571fe3b950b0f91956a7a893523a5d",
+        "19ec1087ab3f6ee1d78cfcc564e0d165096c8244ac07b6b87aa7f5738e1cac8c",
+        "6f928bcc375ab1fbc8ab84e26d949b140fbc2ac4731bcb78d760d059d6933a15",
+        "adf2ca639428a8b288e0f385809dee541aec11aa651256dd350dd4539fed709b"
+      ],
+      "seconds": 0.815007961995434,
+      "token_lengths": [
+        17,
+        11,
+        23,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "dns-a-de",
+        "dns-a-en",
+        "dns-b-de",
+        "dns-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "52694644b04633864fa4cd928a452806273cf136eb182e5dc56c4445b6c6eed1",
+        "3daf8c60b40ae3bb9b32aea27e213b112d550292e56ad94b040faeb6fa78c468",
+        "a99df135580fd933f4c630b9c4b04d02de120c823a85a2dfb0ce89726657b1a2",
+        "e51da69b5a7342410ce4f27b2466e5069fd201a57cecbcd9180bf08f51cc7236"
+      ],
+      "seconds": 1.0774993270169944,
+      "token_lengths": [
+        17,
+        13,
+        32,
+        12
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "amount-a-de",
+        "amount-a-en",
+        "amount-b-de",
+        "amount-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "050e1d98e107492178855321ef2b508c7f22334ac138f29dca92c493c9068078",
+        "4b5fdeb99f0cf3b2681143f170d97668daadf83ec86a578c72b5ddef64ea3e06",
+        "18437c551c6820b619d112c010205a48fd85e73252d98839e8f6453622ae3dcb",
+        "5dc58b585ea4f9327c9511d021c518b461e9b2500174860849b4d124fa57d3dd"
+      ],
+      "seconds": 0.8252087750006467,
+      "token_lengths": [
+        18,
+        14,
+        24,
+        17
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "ids-a-de",
+        "ids-a-en",
+        "ids-b-de",
+        "ids-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "2088d800148c22236c22ae1b64ccdb245356c439c1fe8a6f75882f71c5dfae61",
+        "b72f6fb092753b286245b1ffa3b52ec8c92771bee01d85684f17a387ed0182e1",
+        "26127c75b5ef65e46d158b0e2939763fb1f6762353e539bf1207397228a14a7e",
+        "36cfb93cf095f3effd36b1ca2f49868bdb34a41d23c0d0b2290ab6a770580596"
+      ],
+      "seconds": 0.707235078967642,
+      "token_lengths": [
+        15,
+        15,
+        20,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "time-a-de",
+        "time-a-en",
+        "time-b-de",
+        "time-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "65a4ac065750b5a659350967b35e45a265d7355ea73df29c284297c77ea83c1b",
+        "1aaa34d183f3e9ca51c87434b59d56adb3bf85fbe095542b63b35bdd561f00ac",
+        "e5e49e5658e424e507e10360d98a2ed628b77845b4d12979f14c9a688b77e8b7",
+        "e127fe6e829aedfb231c7b1afc405f4139197ead741b200ddcb52a7d0a46eeb6"
+      ],
+      "seconds": 1.3584167360095307,
+      "token_lengths": [
+        22,
+        17,
+        25,
+        17
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "restore-a-de",
+        "restore-a-en",
+        "restore-b-de",
+        "restore-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "a1ba870e23a1877192fa4bd5050702bf9a4df8819919895abd99419d7a8bbe28",
+        "4ff52935d4958884d4dea0342edc9ec98caea580e1dfd5546d58e051ea465e3b",
+        "090ed8d7ddc41ef6364be5f98a96812d7956b4e0d26574171ae90832c4d17d71",
+        "4cb32c4028cb9117afe736d3b1b0445c8143a799a9c080638a7f27c50895b2d3"
+      ],
+      "seconds": 1.177981971995905,
+      "token_lengths": [
+        21,
+        12,
+        28,
+        16
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "compound-a-de",
+        "compound-a-en",
+        "compound-b-de",
+        "compound-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "dbeb7413a8f383ad386a4d0a5990aaf2b106ad25373171a6cdaddd0dc995a025",
+        "9d7538e8240de35f8a739484eec7a1d42f9c852381480999ac1f717c083bc011",
+        "622ccfd36a1e5ebd03095420eb34ae34880b3d1f339e4d63f112080f1ed25934",
+        "613ebb897900254f9f77363f24512cbdabef0db738389fe9be872da71e4f8650"
+      ],
+      "seconds": 0.9292902890010737,
+      "token_lengths": [
+        27,
+        15,
+        25,
+        14
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "offline-a-de",
+        "offline-a-en",
+        "offline-b-de",
+        "offline-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "eb3001e6c9a2b4ee908333a3eba9894f37a7edf448325e2d257591a4c184e7f4",
+        "5ca60342c70ba24fcd45b188f7cb22673dd20292849f79cf5178e5e5bdb83d64",
+        "26c1d28a6a5c7f89711d2f8c16ee7441346a6f30f2a95a07100f352918139971",
+        "5aa08e35d7714c51bd837af4de9e22b913d24e431dfaa80ddf81dc86137af495"
+      ],
+      "seconds": 0.9217969530145638,
+      "token_lengths": [
+        27,
+        16,
+        24,
+        13
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "retry-a-de",
+        "retry-a-en",
+        "retry-b-de",
+        "retry-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "5c20ba586ff9d1ec6cee9ba3f25d706c036716adf7143ba2e8a0f3e4c48b9333",
+        "27fc03ed7d6e474ee506be35e500b68f57746e197325a254b2b6843a65af00ff",
+        "304592b42e126d99c12eb6036268230ded36ed687a86fd316f393999911e00f2",
+        "a95ac2e3440c0c804eac0e5de87bdfa0235674b2a29a8cf4da9ef3e9f4b8ead1"
+      ],
+      "seconds": 0.8927889000042342,
+      "token_lengths": [
+        25,
+        15,
+        22,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "pin-a-de",
+        "pin-a-en",
+        "pin-b-de",
+        "pin-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "fd19f9175545b6a791999d95cb8697cf3d0efcbe0850e08506297d5b0e5e471a",
+        "167962300b007ac0bd1d344273341c0b94169eb8593b5aa31e62fba8a6a92ffc",
+        "ab64418daa3367d07d592fc8d9eedd1c8df44443de7f7e9e7082885485b2b63b",
+        "3c6b53647e2441a57e45a238e9dcc9dfd93280c0dbaa2ac7eb5a73d3b1abbe38"
+      ],
+      "seconds": 1.5947933240095153,
+      "token_lengths": [
+        28,
+        16,
+        30,
+        19
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "alpha-a-de",
+        "alpha-a-en",
+        "alpha-b-de",
+        "alpha-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "c01c03f692cbf3e2acf2f2c0bf560535efa18168b49230b6c3d7d8fc1e35ac3e",
+        "67237c6cabb3d0eba5c1d0c372a9a6953bbf5f6ff6fcca2966a66620590ee648",
+        "cd6793ca9ed4a2ab92195bcf57391f075de3f43471492e6a3d3ad479983c37c0",
+        "fbb40d49e00b7d403851cdd88faf5daebc49b163115fd45929882670d5bc511c"
+      ],
+      "seconds": 0.76028382696677,
+      "token_lengths": [
+        21,
+        13,
+        19,
+        11
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "limit-a-de",
+        "limit-a-en",
+        "limit-b-de",
+        "limit-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "d63bbb4afaa4c4fc69356abf97bb06ad837a73e3c8b42b4267d84b4ee3d1dab2",
+        "9638c6df3bc12403367cc8e81c73143a575ee5dd3c6e6c7c251c5c76b64f3e66",
+        "6ca313aaf10c0aea1d69a82204dcdbd24f32bca7366c658ea23a57922fcadb8e",
+        "7aa173466c7728c07a6037c04cdb81c75be8efa7846d31229cdecd4686049f4b"
+      ],
+      "seconds": 0.7855734129552729,
+      "token_lengths": [
+        17,
+        14,
+        20,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "model-a-de",
+        "model-a-en",
+        "model-b-de",
+        "model-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "ca77cd533e662e8e0d1cb22d4dae5f5661b353f5c110ea2233efdacae214285b",
+        "d702e4874d6f897183546b6da5d36315f8254bafe1570e9d02b59ea53ffb31cf",
+        "f8ff737341c91c17f2eb1feadd57dbb04c8c97ddb4fb38556dedb19d2bd63bb3",
+        "47425e8f3b7771da39cf8d324c1ea08ba4599a9fc7296c79be7b3906cafd2480"
+      ],
+      "seconds": 0.8775508289691061,
+      "token_lengths": [
+        26,
+        19,
+        23,
+        16
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "cred-a-de",
+        "cred-a-en",
+        "cred-b-de",
+        "cred-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "c7edb87bf868f86cabfb6034474475a26eeaeccc5cd41b31cf785a381270d8a6",
+        "0004b08fef332120f00684e628f29ef56f00897a727f64b98becb3719340b171",
+        "afb0cd5c5650d2b39915b46f65d542729216a4eef982759545134a9f440258fa",
+        "0cf0ea05ed8957e25b768b7ccc2cf6339f54f16808d2c47d34d0555b4f473794"
+      ],
+      "seconds": 0.7443283640313894,
+      "token_lengths": [
+        21,
+        11,
+        21,
+        14
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "room-a-de",
+        "room-a-en",
+        "room-b-de",
+        "room-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "000c1592f7887d2cad2e5ec7de716d1c795eb2f6ff1ded245daab7aa7ae187f6",
+        "e325f19bfedc1499a3e0cbacf284fb313e34b742483795ff0531cd527619b512",
+        "ef7e168c82a0f46c0225cbaed35e6ea16066fed58bf12a6259b2c335308ac666",
+        "813e1b682431dd4c5e0ddeb28393f010819089653440f044b6947f9997b7a066"
+      ],
+      "seconds": 1.5625587989925407,
+      "token_lengths": [
+        25,
+        15,
+        30,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "invoice-a-de",
+        "invoice-a-en",
+        "invoice-b-de",
+        "invoice-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "ce07eec3b5041809e8a2cff42bb18a805744985572243928a31e8016ab2a8b34",
+        "19ef1fb67e6b984bb0326163a0d19a086693d6e43cd7e612ffecf77a7df7abf2",
+        "5d2a139eafce0b7302d9b1b56499b926ec16568bbf6f5cd513e9ee6823193e61",
+        "48229e645165f42c5ed1417a8d67d5bc80624ec04bd3df979c7ac12d601bac88"
+      ],
+      "seconds": 0.8434976189746521,
+      "token_lengths": [
+        24,
+        17,
+        21,
+        18
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "archive-a-de",
+        "archive-a-en",
+        "archive-b-de",
+        "archive-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "4d0f222b384fc7b7fbdd15788b31a93833b76d400e66813936489ede2f9cdccd",
+        "d9448c7810c32fa6cce33cfd188507ae9b1fa2ad7f8f92ea46aa5e505902e753",
+        "aee06688009445e714741dafc850ef56a34428160a7e866e8d61e80a6e615d6c",
+        "9126cddfba788e17027a03e1cf663cbc81192e081f9ce9e31aaa0eb97170454f"
+      ],
+      "seconds": 1.0969218620448373,
+      "token_lengths": [
+        25,
+        14,
+        30,
+        14
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "net-a-de",
+        "net-a-en",
+        "net-b-de",
+        "net-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "87dfac71e698092941d52238fadb21cf38a3d2f01816a757549f25e0081a4575",
+        "96ab02799e002500b45a8ee2c4aa37b2e1083e76d4bb2de79418c8f119e8926c",
+        "4561784e40aa92e4c55481f0ff3029f2ef50c8fdc03d2169f70799bae04c63f5",
+        "ce6afd8be6acfabf990d21eafd89533099f0bb0d72551ad6a9fc9bf26e9448ba"
+      ],
+      "seconds": 0.8469002899946645,
+      "token_lengths": [
+        21,
+        13,
+        23,
+        16
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "queue-a-de",
+        "queue-a-en",
+        "queue-b-de",
+        "queue-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "d22ebe6e0e9525d25ef27c5565f147a7497448b4ef17899c03030191ee587b20",
+        "6108924958414fa0e92e01e8ef5ed4d86df23c11d1cfc0dda7dd7e9ddfa66d21",
+        "bffee209ef62bb6607c9f166e98f96a880da5310c2efdd9bf5b712552c5897d6",
+        "c828e8830dc06286f5816777fb156e138b59b192ada316090961f0fd4e2c2d51"
+      ],
+      "seconds": 0.9268814100068994,
+      "token_lengths": [
+        24,
+        15,
+        23,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "long-a-de",
+        "long-a-en",
+        "long-b-de",
+        "long-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "4f7231937e3b1c299c53c4624480339e9e23d139aadf21c9c962e77cb5f2e2f5",
+        "68f40ed318b53ad7d6b6c7ac20803600554b8e6f990bc778ed09c4cd2068b275",
+        "f6a2622b08c01c648802b5d7f0e41bd3bb3ec9da0fa3eb1a35d7ac1f8db6de31",
+        "6e653f9b4ad60e4d73b148ca6ef96c1b6e2174fbf3a1591cc9bdd1d693ac1098"
+      ],
+      "seconds": 0.9032299109967425,
+      "token_lengths": [
+        24,
+        15,
+        21,
+        14
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "split-a-de",
+        "split-a-en",
+        "split-b-de",
+        "split-b-en"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "eee57f6a59a02864fd1100367ed1365cea6731127193064a1be5a38969a1db45",
+        "792ceb37c60a5aab57ae806955d291f1dc8007fa42554bde26785b552c473bc0",
+        "c6879679622a309ecfc98ff0b1b309fa9f3e4a20c2b7232f89859d19f514f300",
+        "254ca9881d283b908656b4d53ab8a38cc57f51de61ba64a27379d5d73a312914"
+      ],
+      "seconds": 1.3702193350181915,
+      "token_lengths": [
+        24,
+        15,
+        26,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "multi-de",
+        "multi-en",
+        "unsupported-0",
+        "unsupported-1"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "189f6ac710653ede0ed655a9731a7fbb84d14f1567f6a066ea72dc033e9bcec4",
+        "76c240d35b4c586d300f9e97a638a1914eb3a0219505b9a7ff06fc911422d43f",
+        "2250d32fe9b474e3a40800ba2882037f547377330b8b345463736c2dc92ae053",
+        "14a5054480fdece58a1e8babd2066ce15d069fffc0e634a15605e46aaf548ad8"
+      ],
+      "seconds": 1.0566175049752928,
+      "token_lengths": [
+        28,
+        16,
+        16,
+        16
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "unsupported-2",
+        "unsupported-3",
+        "unsupported-4",
+        "unsupported-5"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "1e459450bcf4f745ecf0e383ccc1b83987415490dfa8d64bc94de8784b83d508",
+        "143fea60edde864d41de10e605973f1fc97a307511f56e787c8838cb2a899435",
+        "e584ce2b4bc2c5af433dfd68b924fb27b602e22300298aec9115f8e9b1314b0b",
+        "82302ad827fe360a0c6968333efe73b2bf2e351c1061e47a98d388374c32590a"
+      ],
+      "seconds": 0.6877542450092733,
+      "token_lengths": [
+        18,
+        10,
+        11,
+        18
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "ind-01",
+        "ind-02",
+        "ind-03",
+        "ind-04"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "4f65f70c66a4006b951444e1af0fa161eebef6ca8ffffae9ecf33d880f43301f",
+        "eacb1e6bbaefb73cbe497f55eb5662505258635568ebdffe5dd0c43cdcbfc831",
+        "ed5aeab9b8ad78a6c28d9986508dfbb45886406a0ea156681c5ca6f67f946101",
+        "92da25c8657d6602c4fe5a7d97e463cf530bea7f350e4e1ab6892bf6a8dd42c0"
+      ],
+      "seconds": 0.9966062160092406,
+      "token_lengths": [
+        19,
+        15,
+        28,
+        21
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "ind-05",
+        "ind-06",
+        "ind-07",
+        "ind-08"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "365a9932047a6ded9e780c9e0bbdc00eeb80b116c559092cd34914d8be5691f7",
+        "04242716ac8a71cd18aadd36e12ac54824cf025a87ecdb025a5b38ef9795eb6b",
+        "beeea10fc4d92af2e8050499d24382069cbb549ad933dc8410c2c0d2f46b2945",
+        "6ae05c30bc5cf8994ab5d079652646d46472f1e423174c66a63af85c3109650a"
+      ],
+      "seconds": 0.8480304809636436,
+      "token_lengths": [
+        18,
+        17,
+        23,
+        20
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "ind-09",
+        "ind-10",
+        "ind-11",
+        "ind-12"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "c51b9d7778fc61247c97493284c4d962ae29b575a2e0f716c3f1f4ffc88c4ca8",
+        "38511da35d965a798d1e93b4e0650117c97e41994981a79fd557501a151039e8",
+        "7fa979ba7a74aff2495f4a835854415e599a6abfa4c44a3a7ffe84665428b723",
+        "a5582fa8cb4f0d23713f50df4c97272ecf1c06332808f3ac9983350ba5a19a49"
+      ],
+      "seconds": 1.7031746009597555,
+      "token_lengths": [
+        35,
+        23,
+        27,
+        15
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "queries",
+      "ids": [
+        "ind-13",
+        "ind-14",
+        "ind-15",
+        "ind-16"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "1cbe236dc9e80cd1e577bff6560eab1b6755a89d5857f14108a3de401b3cefda",
+        "378014fe71483bc185141f79ad08349d3979d1486a6f3ff0e2b0270054da2d94",
+        "0109f20e5d5c19e723f3a7cd4aaddb14fffc16751af997dc859b5f1905760a80",
+        "2fece2fff38122d53b18f492747cfa0e4dbe24e133081d9df0771acd0b2934b2"
+      ],
+      "seconds": 1.0654601299902424,
+      "token_lengths": [
+        32,
+        16,
+        22,
+        16
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "auxiliary",
+      "ids": [
+        "probe-document"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "c136f9bc9b7adca6975d47c23d5add3c59297694dd7df044c0e2c3096c270a48"
+      ],
+      "seconds": 0.2028269729926251,
+      "token_lengths": [
+        11
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "auxiliary",
+      "ids": [
+        "probe-query"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "c136f9bc9b7adca6975d47c23d5add3c59297694dd7df044c0e2c3096c270a48"
+      ],
+      "seconds": 0.22351569699821994,
+      "token_lengths": [
+        11
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "auxiliary",
+      "ids": [
+        "post-write"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "acc52bfd6d53364cd8e6404a406e9de1fd504f570e1331b32ca86f4051fca537"
+      ],
+      "seconds": 0.4398803550284356,
+      "token_lengths": [
+        33
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "auxiliary",
+      "ids": [
+        "post-query"
+      ],
+      "purpose": "query",
+      "input_sha256": [
+        "fc7ae5b5968fed1250af825154b75a6248ffd37af9fcdf9a4463b582123d6d33"
+      ],
+      "seconds": 0.4854404670186341,
+      "token_lengths": [
+        14
+      ],
+      "truncated_inputs": 0
+    }
+  ],
+  "load_seconds": 37.957698971033096,
+  "finished": "2026-11-04T16:07:03.594411+00:00",
+  "wall_seconds": 146.8709504060098,
+  "cpu_self_seconds": 233.394525,
+  "peak_self_rss_bytes": 2019999744,
+  "completed": {
+    "documents": 46,
+    "queries": 116,
+    "auxiliary": 4
+  },
+  "planned": {
+    "documents": 46,
+    "queries": 116,
+    "auxiliary": 4
+  }
+}

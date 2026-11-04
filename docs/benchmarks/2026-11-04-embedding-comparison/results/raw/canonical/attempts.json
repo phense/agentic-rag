@@ -1,0 +1,65 @@
+[
+  {
+    "label": "nano-r0",
+    "command": [
+      "/home/administrator/Claude/.scratch/rag083-cpu-env/bin/python",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embedding_chunks.py",
+      "--model",
+      "nano",
+      "--model-dir",
+      "/home/administrator/Claude/.scratch/rag083-models/nano",
+      "--output",
+      "/home/administrator/Claude/.scratch/rag083-canonical-v2-1ef9af4/nano-r0",
+      "--inputs",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/canonical-inputs-v2.json"
+    ],
+    "started": "2026-11-04T16:04:36.403743+00:00",
+    "exit_code": 0,
+    "supervisor_stop": null,
+    "seconds": 148.547353735019,
+    "finished": "2026-11-04T16:07:04.951484+00:00",
+    "log_sha256": "1c743be16087226e2ff9aaaffb84e8c609c67b25033febd8471a8f31aa66c458"
+  },
+  {
+    "label": "bge-r0",
+    "command": [
+      "/home/administrator/Claude/.scratch/rag083-cpu-env/bin/python",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embedding_chunks.py",
+      "--model",
+      "bge",
+      "--model-dir",
+      "/home/administrator/Claude/.scratch/rag083-models/bge-ollama",
+      "--output",
+      "/home/administrator/Claude/.scratch/rag083-canonical-v2-1ef9af4/bge-r0",
+      "--inputs",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/canonical-inputs-v2.json"
+    ],
+    "started": "2026-11-04T16:07:04.952569+00:00",
+    "exit_code": 0,
+    "supervisor_stop": null,
+    "seconds": 223.26424747996498,
+    "finished": "2026-11-04T16:10:48.217194+00:00",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "small-r0",
+    "command": [
+      "/home/administrator/Claude/.scratch/rag083-cpu-env/bin/python",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embedding_chunks.py",
+      "--model",
+      "small",
+      "--model-dir",
+      "/home/administrator/Claude/.scratch/rag083-models/small",
+      "--output",
+      "/home/administrator/Claude/.scratch/rag083-canonical-v2-1ef9af4/small-r0",
+      "--inputs",
+      "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/canonical-inputs-v2.json"
+    ],
+    "started": "2026-11-04T16:10:48.219778+00:00",
+    "exit_code": -15,
+    "supervisor_stop": "candidate_total_wall_deadline",
+    "seconds": 900.2013517899904,
+    "finished": "2026-11-04T16:25:48.421839+00:00",
+    "log_sha256": "fc2e6ba79147983cbdfdb1205bb96f48a57e33cd5adc9d426ff79eaab93788ca"
+  }
+]

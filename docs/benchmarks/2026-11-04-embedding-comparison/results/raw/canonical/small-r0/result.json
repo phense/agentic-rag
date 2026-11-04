@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "status": "failed",
+  "model": "small",
+  "descriptor": {
+    "repo": "jinaai/jina-embeddings-v5-omni-small",
+    "revision": "950200abde3a3bcf3d5bdfe5d28fb5bb5e7dfbb0",
+    "dimensions": 1024,
+    "dtype": "float32",
+    "modality": "text",
+    "logical_recipe_id": "jina-omni-small-950200abde3a3bcf3d5bdfe5d28fb5bb5e7dfbb0-text-retrieval-lasttoken-l2-f32-max8192"
+  },
+  "input_sha256": "37a25d5929a851ec0d8fe67da5f1a571841041e1719fb3797198ba2a02622131",
+  "script_sha256": "b409b05340e5809fd7630287482a4223c00d07c9aa970cc78370214d0f122d7c",
+  "started": "2026-11-04T16:10:48.536839+00:00",
+  "observations": [
+    {
+      "group": "documents",
+      "ids": [
+        "backup-a",
+        "backup-b",
+        "retention-a",
+        "retention-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "7c4b83954f6131d7bad2230462a85ea1ef9b4f2781ad5dd5fe4f43a143580339",
+        "67a44a549e6ada540f350cf098a07ef3ec5c4a60f086f281dedb22ff76630a03",
+        "b61a205197e7a3790ec0127df996b60133fed57652ed7c487660069ea536a536",
+        "fc8c742ab18443bdec4ca839e53b3312e6cb40c3a75d9cf273c4468b9db38570"
+      ],
+      "seconds": 47.47907031601062,
+      "token_lengths": [
+        62,
+        44,
+        61,
+        41
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "rights-a",
+        "rights-b",
+        "dns-a",
+        "dns-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "68bde02e4cd42875d41a118424192a5665adff72a2fa471f0b98c2024ae2abed",
+        "11f6f18b607ab0d10036cc1dc984c00b8c12965c2052397d7af2200122281bbf",
+        "bbb3a21fcfd472fd5e594362cc3b9e3270ada6c1a73a77945d7eb690229b4b3d",
+        "e38b8214ffe50e4a903e451146623191411a6b12889f5e95e24da05a9d1ce198"
+      ],
+      "seconds": 47.2185006350046,
+      "token_lengths": [
+        57,
+        37,
+        67,
+        58
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "amount-a",
+        "amount-b",
+        "ids-a",
+        "ids-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "aef567f0d0f7b1bec8036ec12481c80be54f39d6aba7ff673252edd6863036bb",
+        "d169680f857769ae47e2df6b287d9f106300a6ff3dff4f207cf3a5efe637d5fe",
+        "fb31cac2ec1ce3f3cd34713f1dd297dbf1485efc1ecefd1f8d18877f92187799",
+        "750c60dca930afe1795980eb0382b95c29dd31af1a28b9aa4207a379e87bb20a"
+      ],
+      "seconds": 57.51948714395985,
+      "token_lengths": [
+        72,
+        59,
+        78,
+        55
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "time-a",
+        "time-b",
+        "restore-a",
+        "restore-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "8fd246f7834410226e23cc7f66c4f7b18d4e1a2298479f371eb13b31f2bfbc95",
+        "8b3c2563061d2d83d93da2eec28bcd80c71bd6589fd304550f2a3ce0ed8372e5",
+        "015ad0ec3dcbff2eb8268b09d3da0f0edf538ae081e622d36b468878671f317c",
+        "09ca382fb4c88eaf5e16e050c47c254ef9e197e78d9d3a27aec536bdce87e48c"
+      ],
+      "seconds": 55.52485222404357,
+      "token_lengths": [
+        80,
+        56,
+        69,
+        39
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "compound-a",
+        "compound-b",
+        "offline-a",
+        "offline-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "d975e218dff4234725bfcf2c1face2088980d3a70ee95b9c064218d23297dc43",
+        "adfb9bf35917b3fbe56b95511273d0bac681467ab4cab4164fb01be7a4aba0f0",
+        "7c9c3382ee86e62ffc03b423b10119863ca6370203338a196e7e03959c2073fa",
+        "2e70cc2ad57208c6c58736f3a1bef6f36e6262e886308a85c9c12780f86cf6cd"
+      ],
+      "seconds": 55.917401181999594,
+      "token_lengths": [
+        78,
+        43,
+        68,
+        37
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "retry-a",
+        "retry-b",
+        "pin-a",
+        "pin-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "8aa675c4435afdab77418acdd92091402a0cb780dbba1633d21f34c535fb6212",
+        "6460b6a93b6a7ddd19c1eb784b804a0040a296c529a3b4d1ae8f7e1e7a8cf1d0",
+        "73201f68c57ad021b623d723a3e50722b15e71e50d0cbc97a2c192a717c93250",
+        "8a77fb242ef691383715b476bab2ee85e4950978bdec1fd4d11544ac0df03191"
+      ],
+      "seconds": 51.236220532038715,
+      "token_lengths": [
+        74,
+        47,
+        71,
+        45
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "alpha-a",
+        "alpha-b",
+        "limit-a",
+        "limit-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "dd026fa2bcc58805f5c8cc01a684f007746a0e9d509ff6629ff190de7f5bfbc1",
+        "a992df6e198a79e4971a893a30d51c28aae7ef7c76ed5b723436401d5b2cfa71",
+        "e0bf24e65dbea045d5fed9969cd995da085cafb105456755d307d64be381dd2a",
+        "a981934f017fa489a1981173c9640642d62e88f1ce7eacf6bbb5593c20715191"
+      ],
+      "seconds": 51.212775599968154,
+      "token_lengths": [
+        63,
+        32,
+        69,
+        48
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "model-a",
+        "model-b",
+        "cred-a",
+        "cred-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "fec299c62ef90d25810ce4d1d9ca2a4b4738f67d0ad7f1fdb8e617b6c7a799d5",
+        "7bbac4d6c05450e7caf14fda3c340f328a021c733f6994dcadf3550b2bf1e85a",
+        "3c3549cae21ddf884037438323b2f3062673bc2a442924f1bffc9099b7597fbe",
+        "dfec4464912c509c8abcb9cce5e93e08414a68a79793bb21d4d20ab09f728481"
+      ],
+      "seconds": 53.77397530700546,
+      "token_lengths": [
+        71,
+        44,
+        77,
+        55
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "room-a",
+        "room-b",
+        "invoice-a",
+        "invoice-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "10164e4fcf0491d7ca361760bd7f4680deedcb0421effde3631ccc5c8a342b98",
+        "21e62f6823b4e5a9aa2081923fdc763b30e7244de339e1916e68dba52341769e",
+        "05c59ac8705d1ea769ace55a15ec51463313092b92cf206d598c75eebfa7d880",
+        "9d069f5edd02f46ea51fc3f1080d2b2c6c65cd8055a37802311909146f88e277"
+      ],
+      "seconds": 60.581788573006634,
+      "token_lengths": [
+        71,
+        40,
+        87,
+        66
+      ],
+      "truncated_inputs": 0
+    },
+    {
+      "group": "documents",
+      "ids": [
+        "archive-a",
+        "archive-b",
+        "net-a",
+        "net-b"
+      ],
+      "purpose": "document",
+      "input_sha256": [
+        "f0e6f2afd6074001197bab5fb1bcaf1b0c29f91fc50a553485ffedaac01fd1b4",
+        "472cfb73d9d68bd86a50c45c5e596be46ec79c58c767eca7d95701873876ad10",
+        "d2f2677fd87dc5bbff44c72b177aec77dd88eb1b97cf7f6c7a410b7dc0bbcd45",
+        "6d40b2dfb7ab35b7e562df1ef5767152d71ea2f91d93698aa09fda7a359b3491"
+      ],
+      "seconds": 53.601986078952905,
+      "token_lengths": [
+        68,
+        41,
+        76,
+        35
+      ],
+      "truncated_inputs": 0
+    }
+  ],
+  "load_seconds": 52.520340400980785
+}

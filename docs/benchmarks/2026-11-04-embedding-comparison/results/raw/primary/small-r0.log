@@ -1,0 +1,44 @@
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights:  11%|█         | 34/314 [00:00<00:00, 324.00it/s]Loading weights:  21%|██▏       | 67/314 [00:00<00:00, 322.94it/s]Loading weights:  32%|███▏      | 100/314 [00:00<00:01, 200.29it/s]Loading weights:  39%|███▉      | 124/314 [00:00<00:01, 125.17it/s]Loading weights:  45%|████▌     | 142/314 [00:01<00:01, 102.08it/s]Loading weights:  50%|████▉     | 156/314 [00:01<00:01, 98.45it/s] Loading weights:  54%|█████▍    | 171/314 [00:01<00:01, 102.65it/s]Loading weights:  58%|█████▊    | 183/314 [00:01<00:01, 82.95it/s] Loading weights:  61%|██████▏   | 193/314 [00:01<00:01, 84.14it/s]Loading weights:  67%|██████▋   | 211/314 [00:01<00:01, 95.73it/s]Loading weights:  74%|███████▍  | 232/314 [00:01<00:00, 112.51it/s]Loading weights:  78%|███████▊  | 245/314 [00:02<00:00, 105.64it/s]Loading weights:  82%|████████▏ | 257/314 [00:02<00:00, 101.02it/s]Loading weights:  87%|████████▋ | 273/314 [00:02<00:00, 105.74it/s]Loading weights:  90%|█████████ | 284/314 [00:02<00:00, 86.05it/s] Loading weights:  94%|█████████▎| 294/314 [00:02<00:00, 86.03it/s]Loading weights: 100%|██████████| 314/314 [00:02<00:00, 112.34it/s]
+Traceback (most recent call last):
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/peft/mixed_model.py", line 174, in __getattr__
+    return super().__getattr__(name)  # defer to nn.Module's logic
+           ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1976, in __getattr__
+    raise AttributeError(
+        f"'{type(self).__name__}' object has no attribute '{name}'"
+    )
+AttributeError: 'JinaEmbeddingsV5OmniModel' object has no attribute 'modality'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 1641, in __getattr__
+    return super().__getattr__(name)  # defer to nn.Module's logic
+           ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1976, in __getattr__
+    raise AttributeError(
+        f"'{type(self).__name__}' object has no attribute '{name}'"
+    )
+AttributeError: 'MixedModel' object has no attribute 'modality'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py", line 350, in <module>
+    main()
+    ~~~~^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py", line 346, in main
+    worker(p.parse_args())
+    ~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py", line 229, in worker
+    if model.modality != 'text':
+       ^^^^^^^^^^^^^^
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/peft/mixed_model.py", line 178, in __getattr__
+    return getattr(self.base_model, name)
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 1645, in __getattr__
+    return getattr(self.model, name)
+  File "/home/administrator/Claude/.scratch/rag083-cpu-env/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1976, in __getattr__
+    raise AttributeError(
+        f"'{type(self).__name__}' object has no attribute '{name}'"
+    )
+AttributeError: 'JinaEmbeddingsV5OmniBase' object has no attribute 'modality'. Did you mean: '_modality'?

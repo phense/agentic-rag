@@ -1,0 +1,54 @@
+{
+  "finished": "2026-11-04T16:02:19.982436+00:00",
+  "success": false,
+  "inputs_unchanged": true,
+  "attempts": [
+    {
+      "label": "small-r0",
+      "command": [
+        "/home/administrator/Claude/.scratch/rag083-cpu-env/bin/python",
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/scripts/benchmark_embeddings.py",
+        "--worker",
+        "small",
+        "--model-dir",
+        "/home/administrator/Claude/.scratch/rag083-models/small",
+        "--output",
+        "/home/administrator/Claude/.scratch/rag083-small-corrected-02abd30/small-r0",
+        "--corpus",
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/corpus.json",
+        "--protocol",
+        "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/docs/benchmarks/2026-11-04-embedding-comparison/protocol.json"
+      ],
+      "started": "2026-11-04T15:32:19.691812+00:00",
+      "exit_code": -15,
+      "supervisor_stop": "candidate_total_wall_deadline",
+      "seconds": 1800.2880788399489,
+      "finished": "2026-11-04T16:02:19.980296+00:00",
+      "log_sha256": "d388e5050b45542126d76c8380c5259b461000196fa9133b3530e8151f227c1f"
+    }
+  ],
+  "planned_runs": [
+    {
+      "label": "small-r0",
+      "model": "small",
+      "repeat": 0,
+      "status": "failed",
+      "reason": "candidate_total_wall_deadline"
+    },
+    {
+      "label": "small-r1",
+      "model": "small",
+      "repeat": 1,
+      "status": "unattempted",
+      "reason": "earlier_candidate_failure"
+    },
+    {
+      "label": "small-r2",
+      "model": "small",
+      "repeat": 2,
+      "status": "unattempted",
+      "reason": "earlier_candidate_failure"
+    }
+  ],
+  "failure": null
+}
