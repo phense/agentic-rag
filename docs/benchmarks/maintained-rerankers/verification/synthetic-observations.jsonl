@@ -1,0 +1,2 @@
+{"case_id": "one", "status": "scored", "scores": [0.9933071490757153, 0.9975273768433653], "order": ["H", "L"], "expected": ["H"], "seconds": 0.004455361980944872, "load_seconds": 0.8549130749888718, "cpu_seconds": 1.1271789, "rss_peak_kib": 76096}
+{"case_id": "two", "status": "scored", "scores": [0.9975273768433653, 0.9933071490757153], "order": ["H", "L"], "expected": ["H"], "seconds": 0.0003895969712175429, "load_seconds": 0.8549130749888718, "cpu_seconds": 1.1272489, "rss_peak_kib": 76096}

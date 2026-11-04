@@ -1,0 +1,48 @@
+{
+  "review_id": "RAG-089-independent-procedure-review",
+  "reviewer": "independent Codex reviewer /root/reranker89_review",
+  "reviewed_at": "2026-11-04T14:12:06.666894+00:00",
+  "artifact": "docs/benchmarks/maintained-rerankers/README.md",
+  "artifact_sha256": "05114a173c11939df25aa3f7b9c1e0f0d6dd93118a1cf850210fdb3930f067e6",
+  "system_head": "1429c2e953ce3fb84287752d826dae37fbe77f29",
+  "owning_requirement": "secure-reranker-reproduction C004 and AC-004",
+  "content_verdict": "Ready",
+  "severity_counts": {
+    "Critical": 0,
+    "Important": 0,
+    "Minor": 0
+  },
+  "findings": [],
+  "checks": [
+    "Bounded offline loader/smoke purpose and exclusion of old performance protocol explicit.",
+    "CPython3.13/Linux/uv/trusted checkout, hash-only wheels and new owned output prerequisites identifiable.",
+    "Exact environment commands separate application-wheel installation from locked runtime dependencies; no source-build fallback.",
+    "Approved local model root is a declared operator input; pin/corpus/results identities and commercial-license boundary explicit.",
+    "Completion requires exit0/completed/all cases/zero failed and unattempted; model/source/package identity inspection explicit.",
+    "Failure handling retains prior output, avoids overwrite and selects fresh output for retry; model staging cleanup and deadline behavior described.",
+    "Rebuild and rollback preserve historical outputs and production data; no SQL or production operation required.",
+    "All8 advisory dispositions are conditional and consistent with inspected source descriptions and historical bridge calls.",
+    "Rehearsal declares synthetic graph, precise sample size and environment; no public-model performance or full-suite inference."
+  ],
+  "rehearsal": {
+    "status": "passed (bounded synthetic loader and failures only)",
+    "method": "Executor fresh noneditable wheel rehearsal plus independent7-test native rerun; live read-only45-package environment validation",
+    "evidence": [
+      "docs/benchmarks/maintained-rerankers/verification/rebuild-verification.json",
+      "docs/benchmarks/maintained-rerankers/verification/synthetic-result.json",
+      "docs/benchmarks/maintained-rerankers/verification/synthetic-observations.jsonl"
+    ],
+    "not_rehearsed": [
+      "pretrained historical models",
+      "unsupported platforms",
+      "arbitrary missing-wheel/hash-mismatch installation branch",
+      "production deployment or old full benchmark protocol"
+    ]
+  },
+  "acceptance": {
+    "content_review_ready": true,
+    "bounded_synthetic_validation_met": true,
+    "production_rollout_authorized_or_certified": false,
+    "draft_label": "Guide intentionally still marked draft; owner final status/evidence publishing remains C005/C006 lifecycle work, not a code defect."
+  }
+}

@@ -1,0 +1,30 @@
+........................................................................ [ 61%]
+..............................................                           [100%]
+=============================== warnings summary ===============================
+tests/test_reranker_settings.py::test_runtime_rejects_bad_inputs_and_never_returns_source_text
+  /home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/tests/test_reranker_settings.py:54: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 20 durations =============================
+5.89s call     tests/benchmark/test_rerank_evaluation.py::test_unique_ids_do_not_hide_duplicate_quality_request_contracts
+5.25s call     tests/benchmark/test_rerank_evaluation.py::test_corpus_rejects_family_or_copied_source_leakage_before_services
+3.74s call     tests/benchmark/test_rerank_evaluation.py::test_development_controls_ingest_and_exercise_real_candidate_routes
+2.95s call     tests/benchmark/test_rerank_evaluation.py::test_rejected_initial_test_families_are_not_reused_as_fresh_heldout
+1.71s setup    tests/test_neural_rerank.py::test_auto_model_ordering_preserves_original_payload
+1.53s call     tests/benchmark/test_maintained_reranker.py::test_real_onnx_run_records_literal_order_identity_and_preserves_inputs
+1.28s call     tests/benchmark/test_maintained_reranker.py::test_failed_second_inference_preserves_first_and_unattempted_third
+0.88s call     tests/test_neural_rerank.py::test_invalid_mode_rejected_before_connect
+0.88s call     tests/test_neural_rerank.py::test_mcp_optional_mode_and_populated_concurrent_rollback
+0.82s call     tests/benchmark/test_maintained_reranker.py::test_deadline_kills_owned_child_and_retains_incomplete_attempt
+0.73s call     tests/benchmark/test_maintained_reranker.py::test_native_loader_failure_remains_a_failure_with_worker_log
+0.67s call     tests/test_neural_rerank.py::test_cli_mode_preserves_off_order_and_activates_available_model
+0.60s call     tests/benchmark/test_maintained_reranker.py::test_corruption_fails_before_inference_and_retains_denominators
+0.48s call     tests/test_neural_rerank.py::test_fork_releases_inherited_busy_slots
+0.47s call     tests/benchmark/test_maintained_reranker.py::test_forbidden_dependency_refuses_before_native_loading
+0.35s setup    tests/benchmark/test_maintained_reranker.py::test_real_onnx_run_records_literal_order_identity_and_preserves_inputs
+0.32s setup    tests/test_neural_rerank.py::test_exact_selectors_and_symbol_queries_bypass_model[uuid]
+0.32s setup    tests/test_neural_rerank.py::test_explicit_previous_routes_bypass_model[options1]
+0.32s setup    tests/test_neural_rerank.py::test_explicit_previous_routes_bypass_model[options2]
+0.31s setup    tests/test_neural_rerank.py::test_explicit_previous_routes_bypass_model[options3]
+118 passed, 1 warning in 34.49s
