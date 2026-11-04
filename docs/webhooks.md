@@ -354,7 +354,9 @@ bounded state; it excludes canonical text and credentials.
    `webhook.cancel` audit entry. A wrong state or ID must fail without changing
    other deliveries. Preserve that failure and fetch status again; do not guess
    IDs. Repeating the same cancellation must not restart retention. Knowledge
-   and the original credential binding stay unchanged.
+   and the original credential binding stay unchanged. A retained cancelled
+   notice can still be explicitly replayed through D2 within its existing replay
+   limit; pruning permanently removes that option.
 
 7. Wait seven full days after cancellation, then preserve the required evidence
    and run `webhooks prune` as operator. Prune permanently deletes eligible
