@@ -111,7 +111,8 @@ def test_upgrade_accepts_0_6_19_and_restore_allows_the_new_table():
     from agentic_rag.service import upgrade
     assert {'0.6.19', '0.6.20', '0.6.21'} <= upgrade.SUPPORTED_VERSIONS
     assert '0.6.28' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.29' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.29' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.30' not in upgrade.SUPPORTED_VERSIONS
     assert 'extraction_policy_bindings' in upgrade.RESTORE_ADDED_TABLES
     assert {'lifecycle_decisions', 'lifecycle_events', 'service_windows'} <= upgrade.RESTORE_ADDED_TABLES
 

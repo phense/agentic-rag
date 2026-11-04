@@ -19,7 +19,7 @@ agentic-rag runs anyway. You create it only to override something.
 Sections mirror the dataclass groupings below: `[db]`, `[embed]`,
 `[ollama]`, `[rerank]`, `[backup]`, `[pg]`, `[hooks]`, `[llm]`, `[mining]`,
 `[curation]`, `[worker]`, `[continuity]`, `[service]`, `[temporal]`, `[synthesis]`,
-`[images]` and `[feedback]`. Unknown sections and unknown keys inside a known
+`[images]`, `[feedback]` and `[webhooks]`. Unknown sections and unknown keys inside a known
 section are silently ignored — a typo doesn't fail loudly, it just doesn't
 apply. Add only the sections and keys you want to change:
 
@@ -79,6 +79,22 @@ under the caller's current access. Local operator approval and private offline
 evaluation are separate from writer feedback. New approvals also require the
 setting; retained approvals can still be exported and evaluated after disabling. See [PB07101](retrieval-feedback.md)
 for limits, local/remote commands, upgrade and recovery.
+
+## `[webhooks]`
+
+| Key | Default | Meaning |
+|---|---|---|
+| `key_file` | unset | Local operator's absolute owner-only 32-byte root signing file, outside Git. It is required for sender attempts and private per-subscription key export. |
+| `private_origins` | `{}` | Operator-approved mapping of exact normalized origins to 1–16 CIDRs each, at most 16 origins. Private destinations require this exception; metadata, link-local and other prohibited addresses remain blocked. |
+| `test_http` | `false` | Allows HTTP only to explicitly allowlisted loopback addresses for isolated rehearsals. Public destinations still require HTTPS. Must be a TOML boolean. |
+
+There is no configuration `enabled` key. Capture and sending share one persisted
+database switch, initially off, controlled by the local `rag webhooks capture
+on|off` command. Installing this release creates no destination or daemon.
+The separately invoked sender reloads its operator configuration each time;
+normal API calls never open a webhook socket. Keys do not enter database event
+payloads or tool responses. See [PB07201](webhooks.md) for explicit scope,
+private export, endpoint validation, recovery and quotas.
 
 ## `[service]`
 

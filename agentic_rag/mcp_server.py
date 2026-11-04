@@ -646,14 +646,56 @@ def memory_feedback_list(limit: StrictInt = 20) -> dict:
         return _plain(feedback.list_feedback(conn,cfg,limit=limit))
 
 
+def _webhook_call(operation,arguments):
+    from . import webhooks
+    cfg,conn=_connect()
+    with conn:return _plain(getattr(webhooks,operation)(conn,cfg,**arguments))
+
+
+def webhook_subscribe(endpoint: str, project: str, kinds: list[str], idempotency_key: str, domain: str | None = None) -> dict:
+    """Create an exact knowledge scope or owned null-domain job subscription. Never sends or returns keys."""
+    return _webhook_call('subscribe',locals())
+
+
+def webhook_status(subscription_id: str) -> dict:
+    """Read own scoped sanitized status and up to50 delivery attempts; no endpoint or credential reference."""
+    return _webhook_call('status',locals())
+
+
+def webhook_update(subscription_id: str, expected_revision: StrictInt, endpoint: str) -> dict:
+    """Update destination and enable an own subscription with optimistic revision."""
+    return _webhook_call('update',locals())
+
+
+def webhook_disable(subscription_id: str, expected_revision: StrictInt) -> dict:
+    """Disable an own subscription and fence pending sends."""
+    return _webhook_call('disable',locals())
+
+
+def webhook_rotate(subscription_id: str, expected_revision: StrictInt) -> dict:
+    """Advance the signing generation; local operator exports the new receiver key."""
+    return _webhook_call('rotate',locals())
+
+
+def webhook_test(subscription_id: str, expected_revision: StrictInt) -> dict:
+    """Explicitly queue a minimal test notice for the separate sender; never calls a receiver in this transaction."""
+    return _webhook_call('test',locals())
+
+
+def webhook_replay(subscription_id: str, expected_revision: StrictInt, delivery_id: str) -> dict:
+    """Explicit replay of own terminal delivery, preserving exact event identity and bytes."""
+    return _webhook_call('replay',locals())
+
+
 READ_TOOLS = (memory_entity, memory_context, memory_summary, memory_domains, memory_search, memory_research, memory_get, memory_neighbors,
               memory_path, memory_timeline, memory_evidence, memory_evidence_history,
               memory_pattern_preview, memory_pattern_status, memory_patterns, memory_pattern,
-              memory_lifecycle_preview, memory_lifecycle, memory_image, memory_feedback_get, memory_feedback_list)
+              memory_lifecycle_preview, memory_lifecycle, memory_image, memory_feedback_get, memory_feedback_list, webhook_status)
 WRITE_TOOLS = (memory_entity_alias, memory_entity_alias_review, memory_save, memory_assert, memory_source_state, memory_review_claim, memory_pin, memory_unpin,
                memory_pattern_policy, memory_pattern_backfill, memory_pattern_recover,
                memory_lifecycle_apply, memory_lifecycle_correct, memory_feedback_search, memory_feedback_submit,
-               memory_feedback_update, memory_feedback_retract)
+               memory_feedback_update, memory_feedback_retract, webhook_subscribe, webhook_update, webhook_disable,
+               webhook_rotate, webhook_test, webhook_replay)
 
 
 # Optional arguments added after protocol1. A client omits them unless the caller

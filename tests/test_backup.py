@@ -97,11 +97,12 @@ def test_restore_roundtrip(tmp_path, cfg, dbinit, conn, monkeypatch):
 
 
 def _relation_acl(conn):
+    # pg_class uses S for a sequence; acldefault uses lowercase s.
     return conn.execute("""SELECT c.relname, a.grantor::regrole::text grantor,
         a.grantee, a.privilege_type, a.is_grantable
         FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
         CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,
-            acldefault(CASE WHEN c.relkind='S' THEN 'S'::\"char\" ELSE 'r'::\"char\" END,c.relowner))) a
+            acldefault(CASE WHEN c.relkind='S' THEN 's'::\"char\" ELSE 'r'::\"char\" END,c.relowner))) a
         WHERE n.nspname='public' AND c.relkind IN ('r','S')
         ORDER BY c.relname,grantor,a.grantee,a.privilege_type""").fetchall()
 

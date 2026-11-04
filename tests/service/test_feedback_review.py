@@ -95,7 +95,7 @@ def test_037_strips_custom_default_grants_from_all_feedback_tables(acl_roles, tm
             old_acl = conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']
             conn.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT,INSERT,UPDATE ON TABLES TO {}').format(sql.Identifier(group)))
             conn.commit()
-            assert db.apply_migrations(conn, db.SQL_DIR) == ['037_retrieval_feedback.sql']
+            assert db.apply_migrations(conn, db.SQL_DIR) == ['037_retrieval_feedback.sql', '038_webhooks.sql']
             for table in ('retrieval_feedback_events', 'retrieval_feedback', 'retrieval_feedback_usage', 'retrieval_feedback_approvals'):
                 for role in (group, member):
                     assert not conn.execute("SELECT has_table_privilege(%s,%s,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') exposed", (role, table)).fetchone()['exposed'], (role, table)

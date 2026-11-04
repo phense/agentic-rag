@@ -146,7 +146,8 @@ def validate_schema(conn):
         # must have no effective rights, even through direct ownership or
         # accidental elevation. Separately configured owners/DBAs stay trusted.
         if not owner_only_tables_valid(conn, ['dashboard_changes','dashboard_setup','dashboard_presence',
-                                               'request_traces','retrieval_feedback_approvals']):
+                                               'request_traces','retrieval_feedback_approvals',
+                                               'webhook_control','webhook_subscriptions','webhook_events','webhook_deliveries']):
             raise ServiceSchemaError()
         rows=conn.execute("""
             SELECT c.relname,c.relrowsecurity,
@@ -194,6 +195,8 @@ def validate_schema(conn):
             WHERE n.nspname='public' AND c.relname=ANY(%s)""",
             (['embedding_generations','embedding_selection','embedding_vectors'],)).fetchall()
         if len(managed)!=3 or any(r['exposed'] for r in managed):raise ServiceSchemaError()
+        from ..webhooks import schema_valid as webhooks_valid
+        if not webhooks_valid(conn):raise ServiceSchemaError()
         if not evidence_revisions_valid(conn) or not image_tables_valid(conn) or not feedback_tables_valid(conn):raise ServiceSchemaError()
         audit=conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_trigger t
             WHERE t.tgrelid='public.audit_log'::regclass AND t.tgname='service_audit_actor'

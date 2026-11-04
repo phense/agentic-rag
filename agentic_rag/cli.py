@@ -68,6 +68,8 @@ def _main(argv: list[str] | None = None) -> int:
     add_image_parser(sub)
     from .feedback_cli import add_parser as add_feedback_parser
     add_feedback_parser(sub)
+    from .webhook_cli import add_parser as add_webhook_parser
+    add_webhook_parser(sub)
 
     sub.add_parser("init-db")
 
@@ -411,6 +413,10 @@ def _main(argv: list[str] | None = None) -> int:
     if args.cmd == 'extraction':
         from .extraction_cli import run
         return run(args, cfg)
+
+    if args.cmd == 'webhooks':
+        from .webhook_cli import run
+        return run(cfg,args)
 
     if args.cmd == 'feedback':
         from .feedback_cli import run

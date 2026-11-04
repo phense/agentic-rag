@@ -76,12 +76,12 @@ def test_populated_0_6_20_origin_migration_retry_and_independent_restore(tmp_pat
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         changed = upgrade.local_upgrade(cfg, '0.6.20', tmp_path / 'upgrade.dump',
                                         apply=True, writers_stopped=True)
-        assert changed['migrations_applied'] == ['033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql']
+        assert changed['migrations_applied'] == ['033_trusted_replacements.sql', '034_lexical_eligibility_work.sql', '035_document_permission_initplans.sql', '036_image_ingestion.sql', '037_retrieval_feedback.sql', '038_webhooks.sql']
         assert changed['restore_verified'] and changed['original_rows_unchanged']
         assert upgrade.verify_preserved(cfg, before)['unchanged']
         with db.connect(cfg) as c:
             validate_schema(c)
-            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 37
+            assert c.execute('SELECT count(*) n FROM schema_migrations').fetchone()['n'] == 38
             assert c.execute("SELECT count(*) n FROM mining_queue WHERE kind='mine' AND session_id='pending-origin'").fetchone()['n'] == 1
         retry = upgrade.local_upgrade(cfg, '0.6.20', tmp_path / 'retry.dump',
                                       apply=True, writers_stopped=True)
