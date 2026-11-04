@@ -90,3 +90,15 @@ def test_direct_sql_matcher_rejects_unbounded_ast(conn):
     for bad in (node,{'or':[{'field':'dtype','op':'eq','value':'memory','type':'string'}]*65}):
         with pytest.raises(psycopg.errors.InvalidParameterValue):
             with conn.transaction():conn.execute('SELECT public.rag_metadata_match(%s,%s)',(Jsonb({'dtype':'memory'}),Jsonb(bad)))
+
+
+@pytest.mark.parametrize('occupied',[None,False,[],{'version':2,'values':{}},{'version':1,'values':None}])
+def test_incompatible_occupied_application_envelope_is_never_overwritten(conn,cfg,monkeypatch,occupied):
+    from agentic_rag.metadata import MetadataError
+    conn.execute("INSERT INTO domains(name) VALUES('general') ON CONFLICT DO NOTHING");conn.commit()
+    monkeypatch.setattr(store,'try_embed_texts',lambda *a,**k:None)
+    cfg=replace(cfg,metadata_fields={'team':'string'})
+    old=store.save_document(conn,cfg,title='Legacy',body='Original',domain='general',dtype='memory',meta={'application':occupied})
+    with pytest.raises(MetadataError,match='incompatible_metadata'):
+        store.save_document(conn,cfg,title='Legacy',body='Original',domain='general',dtype='memory',doc_id=old.doc_id,metadata={'team':'x'})
+    assert conn.execute('SELECT meta FROM documents WHERE id=%s',(old.doc_id,)).fetchone()['meta']['application']==occupied
