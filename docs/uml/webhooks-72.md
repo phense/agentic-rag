@@ -67,3 +67,26 @@ fences and signing material retain separate ownership.
 Design findings AF072-001..006 live in `findings.md`; independent design
 corrections must be reconciled before task execution. As-built reconciliation
 and actual success/recovery results remain open.
+
+## As-built reconciliation, 2026-11-04
+
+Runtime revision `2d42176` implements the boundaries above. The integration and
+independent acceptance results are recorded separately; this mapping is a source
+inspection, not a production or full-suite verdict.
+
+| Boundary | Actual implementation |
+|---|---|
+| Atomic opt-in capture | SQL038 `rag_webhook_capture` triggers on documents, review/source history, lifecycle events, legacy edges and terminal service windows; `rag_webhook_emit` writes private event/delivery rows in that same transaction. |
+| Scoped management | `webhooks.py` calls narrow `rag_webhook_manage`/`rag_webhook_status` RPCs through the current connection. Mutations acquire the quota advisory lock before the subscription row; status is a plain scoped read. Queued GROUP/execution authority is retained. |
+| Operator boundary | `webhook_delivery._operator` refuses remote client, CURRENT, GROUP, EXECUTION and LEASE contexts. Capture, private keys and explicit sender have no remote tool. |
+| Current authorization | Subscription credential reference is resolved again; current exact scope and resource anchors are checked before DNS and again immediately before the pinned socket. |
+| Signing and destination | Owner-only32-byte operator file derives per-subscription/generation HMAC keys. A bounded resolver validates all results; numeric connection, original TLS hostname, no proxies or redirects. |
+| Crash and retry | Thirty-second durable leases, attempts charged before I/O, ten-second network deadline, six attempts and eight explicit replays; stale completion cannot publish success or failure. |
+| Consumer boundary | Bundled loopback receiver verifies exact bytes/key identity/freshness and durably records event IDs/resource order; no canonical content or downstream effects are retained. |
+| Upgrade/rollback | Additive038, unchanged001..037, archived028 readers/writer, separate source/target restores including a restricted owner; runtime rollback requires capture off and retained038 metadata. |
+
+One remaining review question is whether the shared quota lock can add a cycle
+when a multi-document canonical transaction acquires a later document lock while
+another writer waits for quota admission. This is unproven; the complete review
+must disposition it before acceptance. The already reproduced subscription-lock
+inversion has a deterministic red/green regression in the implementation.

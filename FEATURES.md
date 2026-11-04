@@ -646,3 +646,24 @@ rewriting existing knowledge, vectors or jobs.
 [verification and delivery evidence](docs/verification/retrieval-feedback.md).
 Delivered2026-11-04 to Hetzner and Peter Mac with source/target independently
 restored, originals retained and feedback still off by default.
+
+## Scoped signed webhooks (Issue72)
+
+Version0.6.29/schema038 adds committed-change notices without sending canonical
+content. Authorized writers manage exact-domain/project subscriptions or their
+owned terminal ingestion jobs. Subscription management stays inside the existing
+audited request transaction; database capture rolls back with the canonical
+change, including writes from the archived0.6.28 runtime.
+
+Capture and sending share a default-off operator switch. A separate bounded
+sender rechecks current credentials and resource scope, pins a validated address
+and signs exact event bytes with timestamped per-subscription HMAC keys. Operator
+files remain private, outside the database and remote tools. Consumers deduplicate
+stable event IDs and reject older per-resource versions; global ordering and
+exactly-once downstream effects are not promised. Attempts, explicit replay,
+rotation and storage are finite; failures remain visible without silently
+discarding pending notices. Operators can switch capture off to unblock writes
+at capacity. No external receiver or sender daemon is configured by installation.
+[Procedure PB07201](docs/webhooks.md) includes a loopback receiver, signature
+verification, outage recovery and runtime rollback. Implementation verification,
+independent acceptance and production delivery are still pending.

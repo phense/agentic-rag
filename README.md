@@ -13,6 +13,13 @@ hosted RAG service.**
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 
+**0.6.29 signed webhooks:** explicitly subscribe to committed memory, review,
+source, lifecycle or owned ingestion-job changes. A separate local sender posts
+minimal signed notices with scoped authorization rechecks, bounded retries and
+stable event IDs. Capture starts off; upgrades configure no receiver and send
+nothing. Migration038 preserves existing knowledge and vectors.
+Use the [webhook operations playbook](docs/webhooks.md).
+
 **0.6.28 scoped feedback:** explicitly capture a search and label a result useful,
 not useful, the wrong source or missing expected evidence. Writers can revise and
 retract their own signals; feedback changes neither knowledge nor ranking. A local

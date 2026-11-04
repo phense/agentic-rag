@@ -9,15 +9,15 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 
 ### S072-1: Transactional scoped event contracts
 
-- [ ] T072-001: Freeze meaningful red tests for default-off capture, committed
+- [x] T072-001: Freeze meaningful red tests for default-off capture, committed
   versus rolled-back writes, exact scopes, idempotency/revision, read-only and
   foreign denial, current revocation, bounded storage and audited atomicity.
   AC-001..003/005; AF072-001/002/006.
-- [ ] T072-002: Implement additive038 capture/control/subscriptions/outbox and
+- [x] T072-002: Implement additive038 capture/control/subscriptions/outbox and
   lease metadata with safe ACLs/RLS/definer boundaries, field/size bounds and
   schema checks. Cover documents, reviews, source changes, actual lifecycle
   events and owned terminal ingestion receipts. Preserve001..037 exactly.
-- [ ] T072-003: Implement scoped gateway management/status/replay/test/rotation
+- [x] T072-003: Implement scoped gateway management/status/replay/test/rotation
   without clearing queued transaction or execution authority. Local operator
   controls capture and private key export. Audit and optimistic revisions are
   atomic; no signing secret enters a request spool or normal tool result.
@@ -25,23 +25,23 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 
 ### S072-2: Separate delivery and compatibility
 
-- [ ] T072-004: Red tests then bounded explicit sender: fenced leases, current
+- [x] T072-004: Red tests then bounded explicit sender: fenced leases, current
   access recheck, exact-byte signature, distinct key generations, crash retries,
   duplicate/out-of-order receiver behavior, timeout/backoff/dead letters and
   retention. No network in canonical transactions. AF072-003/005/006.
-- [ ] T072-005: Pinned public HTTPS transport and explicit operator-only private
+- [x] T072-005: Pinned public HTTPS transport and explicit operator-only private
   origin/CIDR policy; test mixed/rebound DNS, redirects, proxies, metadata,
   malformed URLs and bounded responses without contacting private services.
   IC-003; AC-006; AF072-004.
-- [ ] T072-006: Local/remote CLI and MCP/REST adapters with exact read/write tool
+- [x] T072-006: Local/remote CLI and MCP/REST adapters with exact read/write tool
   inventories and sanitized errors. Add exactly029 project/lock/badge/changelog
   and current/future supported-version references. Reuse normal authentication
   and budgets; do not broaden existing read-only operations.
-- [ ] T072-007: Archived028 representative populated upgrade: interrupt/retry,
+- [x] T072-007: Archived028 representative populated upgrade: interrupt/retry,
   source and target independent restore, restricted owner, old readers/writer,
   unchanged originals/ACLs/owners/sequences/vectors/pin/pending work and safe
   code rollback with retained038 metadata. AF072-001/006; AC-008.
-- [ ] T072-008: Focused relevant integration checks, exact input/log/exit
+- [x] T072-008: Focused relevant integration checks, exact input/log/exit
   evidence, cleanup own isolated databases/processes; no full suite yet.
 
 ### S072-3: Acceptance and delivery
