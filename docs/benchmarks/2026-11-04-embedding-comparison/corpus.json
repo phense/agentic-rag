@@ -1,0 +1,2427 @@
+{
+  "schema": 1,
+  "license": "CC0-1.0",
+  "provenance": "Hand-authored fictional public fixture; no production content. All questions and labels frozen before candidate inference. Development/heldout split fixed; no tuning on heldout. Not a standardized public benchmark or human-annotator agreement study.",
+  "documents": [
+    {
+      "id": "backup-a",
+      "language": "de",
+      "title": "Sicherungsfenster Nord",
+      "text": "Im fiktiven Projekt Nord wird die Datenbank jeden Dienstag um 21:30 UTC vollständig gesichert. Inkrementelle Sicherungen laufen an den übrigen Werktagen. Für Projekt Süd gilt ein anderer Plan.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "backup-b",
+      "language": "en",
+      "title": "South backup schedule",
+      "text": "In the fictional South project the full database backup runs on Thursday at 03:15 UTC. North has a different schedule. Incremental backups never replace the weekly full backup.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "retention-a",
+      "language": "de",
+      "title": "Aufbewahrung der Betriebsprotokolle",
+      "text": "Betriebsprotokolle des Dienstes Linden werden nach 45 Tagen gelöscht. Sicherheitsereignisse von Linden bleiben 180 Tage erhalten. Diese Regel betrifft keine Rechnungen.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "retention-b",
+      "language": "en",
+      "title": "Linden security event retention",
+      "text": "Linden security events are retained for 180 days. Ordinary operational logs are kept for only 45 days. Invoices have a separate retention policy.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "rights-a",
+      "language": "de",
+      "title": "Atlas Leserberechtigung",
+      "text": "In Atlas darf die Rolle Leser Dokumente anzeigen und suchen. Leser dürfen keine Quellen zurückziehen. Dafür ist die Rolle Prüfer vorgesehen; Leserechte allein reichen nicht.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "rights-b",
+      "language": "en",
+      "title": "Atlas reviewer permission",
+      "text": "An Atlas reviewer may withdraw a source after inspecting its original evidence. This action is forbidden to the reader role. Reviewers cannot change account ownership.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "dns-a",
+      "language": "de",
+      "title": "DNS-Umzug Birke",
+      "text": "Bei Birke zeigt der interne DNS-Name nach dem Umzug auf 192.0.2.34. Die frühere Adresse 192.0.2.18 wird nicht mehr verwendet. Die externe Adresse bleibt unverändert.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "dns-b",
+      "language": "en",
+      "title": "Cedar service address",
+      "text": "The fictional Cedar service uses the internal address 192.0.2.18. It did not move to 192.0.2.34; that address belongs to Birch. The examples use documentation-only IP addresses.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "amount-a",
+      "language": "de",
+      "title": "Projekt Aster Wartungsvertrag",
+      "text": "Der fiktive Wartungsvertrag Aster kostet 108,32 EUR netto pro Monat. Die einmalige Einrichtung kostet 250,00 EUR netto. Die Vertragsnummer ist AST-2049-17.",
+      "family": "amounts",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "amount-b",
+      "language": "en",
+      "title": "Beryl setup charge",
+      "text": "The fictional Beryl contract has a one-time setup fee of EUR 108.32 before tax. Its monthly fee is EUR 250.00 before tax. The reference is BER-2049-71.",
+      "family": "amounts",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "ids-a",
+      "language": "de",
+      "title": "Freigabeauftrag TKT-7318",
+      "text": "Der Freigabeauftrag TKT-7318 gehört zur Testanlage Kiesel. Er erlaubt ausschließlich den Austausch des Druckertreibers. Der ähnlich geschriebene Auftrag TKT-7381 betrifft eine andere Anlage.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "ids-b",
+      "language": "en",
+      "title": "Change ticket TKT-7381",
+      "text": "Ticket TKT-7381 authorizes replacing the scanner driver on the Pebble training system. It does not authorize a printer driver replacement. TKT-7318 is a distinct request.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "time-a",
+      "language": "de",
+      "title": "Archivregel bis Ende März",
+      "text": "Bis einschließlich 31. März 2049 wurden die Komet-Testdateien 14 Tage aufbewahrt. Seit dem 1. April 2049 gilt die neue Frist von 30 Tagen. Diese Notiz beschreibt ausdrücklich die alte Regel.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "time-b",
+      "language": "en",
+      "title": "Comet retention from April",
+      "text": "Since 1 April 2049 Comet test files have been retained for 30 days. The earlier 14-day policy ceased to apply on 31 March. This note describes the current rule, not historical retention.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "restore-a",
+      "language": "de",
+      "title": "Eiche Wiederherstellungsprüfung",
+      "text": "Für Eiche zählt eine Sicherung erst nach einem erfolgreichen Rücksicherungstest als verifiziert. Eine vorhandene Dump-Datei und eine passende Prüfsumme allein beweisen keine funktionierende Wiederherstellung.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "restore-b",
+      "language": "en",
+      "title": "Maple integrity receipt",
+      "text": "For Maple, a matching file digest proves that the exported bytes arrived intact. It does not prove database restore readiness. Restore readiness requires a separate successful recovery trial.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "compound-a",
+      "language": "de",
+      "title": "Heizkostenabrechnungsprüfung",
+      "text": "Im fiktiven Haus Fichte prüft die Abrechnungsstelle die Heizkostenabrechnung anhand der Verbrauchszählerstände. Der Hausmeister bestätigt nur den Zugang zum Zählerraum. Er genehmigt die Rechnung nicht.",
+      "family": "compounds",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "compound-b",
+      "language": "en",
+      "title": "Pine meter-room access",
+      "text": "At Pine house the caretaker confirms access to the meter room. The accounts office checks the heating-cost statement. Permission to enter the room is separate from approval of the bill.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "offline-a",
+      "language": "de",
+      "title": "Offline-Modus Mohn",
+      "text": "Mohn verarbeitet vertrauliche Unterlagen ausschließlich auf dem lokalen Rechner. Der Offline-Modus sendet weder Text noch Bilder an einen gehosteten Dienst. Ein Modell-Download ist ein separater Schritt vor der Verarbeitung.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "offline-b",
+      "language": "en",
+      "title": "Public documentation mirror",
+      "text": "The fictional Iris mirror downloads public manuals from an approved website. It never uploads private notes. Downloading public material and sending private content are separate operations.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "retry-a",
+      "language": "de",
+      "title": "Wiederaufnahme Granit",
+      "text": "Granit speichert für jeden angenommenen Auftrag einen stabilen Schlüssel. Nach einer unterbrochenen Bestätigung wird derselbe Auftrag mit demselben Schlüssel erneut gesendet; ein neuer Schlüssel könnte doppelte Arbeit auslösen.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "retry-b",
+      "language": "en",
+      "title": "Basalt failed item recovery",
+      "text": "Basalt keeps the progress marker on an item when the entire service is unavailable. It advances only for a permanently invalid individual item, recording the reason. A later run retries a service interruption.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "pin-a",
+      "language": "de",
+      "title": "Angeheftete Notiz Linde",
+      "text": "Die angeheftete Notiz von Linde bleibt beim Wechsel des Einbettungsmodells erhalten. Nur abgeleitete Vektoren werden neu aufgebaut. Originale, Berechtigungen und die Pin-Zuordnung dürfen dabei nicht ersetzt werden.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "pin-b",
+      "language": "en",
+      "title": "Willow generation rollback",
+      "text": "Willow retains the old vector generation for rollback. New documents written after cutover must also be indexed into the old generation before rollback can succeed. Rolling back never deletes the new documents.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "alpha-a",
+      "language": "de",
+      "title": "Primärkontakt Morgen",
+      "text": "Für das fiktive Projekt Morgen ist die Funktionsrolle Betrieb für die Störungsannahme zuständig. Das Review-Team genehmigt Änderungen, nimmt aber keine Bereitschaftsanrufe entgegen.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "alpha-b",
+      "language": "en",
+      "title": "Evening change approval",
+      "text": "In the fictional Evening project the review team approves planned changes. The operations role receives incidents but cannot approve its own change request.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "limit-a",
+      "language": "de",
+      "title": "Upload-Limit Rubin",
+      "text": "Rubin akzeptiert Bilder bis einschließlich 8 MiB. Größere Eingaben werden vor der OCR abgelehnt. Das Limit für Textimporte beträgt separat 2 MiB. Ein Megabyte ist hier nicht mit einem Mebibyte gleichzusetzen.",
+      "family": "amounts",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "limit-b",
+      "language": "en",
+      "title": "Sapphire text import bound",
+      "text": "Sapphire accepts text imports up to 2 MiB and images up to 8 MiB. A text import larger than 2 MiB is rejected even when it would fit the image limit.",
+      "family": "amounts",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "model-a",
+      "language": "de",
+      "title": "Vektorraum Bernstein",
+      "text": "Bernstein speichert Vektoren mit 1024 Dimensionen. Ein neues Modell mit ebenfalls 1024 Dimensionen gehört trotzdem zu einem anderen Vektorraum. Gleiche Länge allein erlaubt keine Mischung beider Modelle.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "model-b",
+      "language": "en",
+      "title": "Opal compact vectors",
+      "text": "Opal uses a separate 768-dimensional generation for its compact model. It does not pad the vectors to 1024 dimensions or copy unverified legacy embeddings.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "cred-a",
+      "language": "de",
+      "title": "Zertifikatslaufzeit Nebel",
+      "text": "Das fiktive Client-Zertifikat von Nebel läuft am 17. Juni 2049 um 12:00 UTC ab. Der Server-Schlüssel ist davon unabhängig. Die Testnotiz enthält keine echten Zertifikate oder Zugangsdaten.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "cred-b",
+      "language": "en",
+      "title": "Mist server certificate",
+      "text": "The fictional Mist server certificate expires at 09:00 UTC on 21 July 2049. This date belongs to the server, not the separate client certificate. No real keys or credentials appear in this fixture.",
+      "family": "temporal",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "room-a",
+      "language": "de",
+      "title": "Raumbuchung Wolke",
+      "text": "Der Schulungsraum Wolke kann dienstags von 09:00 bis 11:00 UTC gebucht werden. Die gleichnamige virtuelle Umgebung bleibt ganztägig verfügbar. Eine Raumbuchung reserviert keine Rechenkapazität.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "room-b",
+      "language": "en",
+      "title": "Cloud virtual environment",
+      "text": "The Cloud virtual training environment is available throughout the day. Its physical namesake room has a restricted Tuesday booking window. Reserving the room does not reserve compute capacity.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "invoice-a",
+      "language": "de",
+      "title": "Rechnung DEMO-55021",
+      "text": "Die vollständig erfundene Rechnung DEMO-55021 betrifft eine Druckerwartung vom 4. Mai 2049. Ihr Betrag ist 412,90 EUR netto. Die Rechnung DEMO-55012 betrifft andere Leistungen.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "invoice-b",
+      "language": "en",
+      "title": "Invoice DEMO-55012",
+      "text": "Fictional invoice DEMO-55012 covers scanner maintenance on 4 May 2049 for EUR 421.90 before tax. It is different from printer-maintenance invoice DEMO-55021.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "archive-a",
+      "language": "de",
+      "title": "Archivfreigabe Mars",
+      "text": "Das Mars-Archiv darf nach Rücknahme einer Quellenfreigabe nicht mehr als aktueller Beleg dienen. Die unveränderten Originalbytes bleiben für die autorisierte Historienprüfung erhalten. Historische Existenz bedeutet keine aktuelle Gültigkeit.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "archive-b",
+      "language": "en",
+      "title": "Venus history access",
+      "text": "An authorized Venus history reader may inspect a withdrawn original in the historical view. Current search excludes it as evidence. Retention of original bytes does not reactivate its trust.",
+      "family": "roles",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "net-a",
+      "language": "de",
+      "title": "Wartungsnetz Hafen",
+      "text": "Das fiktive Hafen-Wartungsnetz benutzt den Bereich 198.51.100.0/24 ausschließlich als Dokumentationsbeispiel. Der Zugang ist auf Wartungsrollen beschränkt. Besucher erhalten keine Route in dieses Netz.",
+      "family": "identifiers",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "net-b",
+      "language": "en",
+      "title": "Harbor visitor access",
+      "text": "Harbor visitors have no route into the maintenance network. A valid visitor account is not a maintenance role. Maintenance access must be assigned separately.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "queue-a",
+      "language": "de",
+      "title": "Extraktionsrückstand Sonne",
+      "text": "Sonne priorisiert Suchanfragen vor Hintergrund-Extraktionen. Unter Dauerlast kann der Extraktionsrückstand wachsen. Sobald die Vordergrundlast endet, arbeitet der Worker die wartenden Originale vollständig ab.",
+      "family": "paraphrase",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "queue-b",
+      "language": "en",
+      "title": "Moon model outage",
+      "text": "When the local model is unavailable Moon retains accepted jobs and their original inputs. It reports unavailable rather than returning a successful empty extraction. Recovery resumes the same accepted work.",
+      "family": "negation",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "long-a",
+      "language": "de",
+      "title": "Langdokument Segel",
+      "text": "Die folgenden Absätze sind neutrale Betriebsnotizen zur fiktiven Anlage Segel. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Die Zustandskontrolle dokumentiert sichtbare Anzeigen, den Prüfzeitpunkt und die verantwortliche Funktionsrolle. Es werden weder private Informationen noch Zugangsdaten erhoben. Am Ende der Verfahrensnotiz steht die entscheidende Regel: Nach einem Kühlmittelalarm darf Segel erst nach 35 Minuten Wartezeit wieder anlaufen.",
+      "family": "long",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "long-b",
+      "language": "en",
+      "title": "Long document Canvas",
+      "text": "These are neutral operating notes for the fictional Canvas system. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The inspection records visible indicators, the inspection time and the responsible operational role. No personal information or credentials are collected. The final rule is decisive: following a coolant alarm Canvas must wait 50 minutes before restarting.",
+      "family": "long",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "split-a",
+      "language": "de",
+      "title": "Erlen Freigabevoraussetzung",
+      "text": "Für einen fiktiven Erlen-Modellwechsel muss vor der Umschaltung die neue Generation alle aktuellen Chunks abdecken. Die Aufbewahrung der alten Generation ist in einer separaten Erlen-Notiz geregelt.",
+      "family": "multi_source",
+      "domain": "benchmark",
+      "scope": "public"
+    },
+    {
+      "id": "split-b",
+      "language": "en",
+      "title": "Alder rollback retention",
+      "text": "Alder retains the old generation after selecting the new one. Rollback is permitted only after catch-up indexes all post-selection writes. The new-generation coverage prerequisite is described separately.",
+      "family": "multi_source",
+      "domain": "benchmark",
+      "scope": "public"
+    }
+  ],
+  "queries": [
+    {
+      "id": "backup-a-de",
+      "language": "de",
+      "text": "Wann läuft die wöchentliche Vollsicherung von Nord?",
+      "family": "temporal",
+      "split": "development",
+      "cross_language": false,
+      "relevance": {
+        "backup-a": 2
+      },
+      "required": [
+        "backup-a"
+      ],
+      "required_groups": [
+        [
+          "backup-a"
+        ]
+      ]
+    },
+    {
+      "id": "backup-a-en",
+      "language": "en",
+      "text": "When is the weekly full database backup for the North project?",
+      "family": "temporal",
+      "split": "development",
+      "cross_language": true,
+      "relevance": {
+        "backup-a": 2
+      },
+      "required": [
+        "backup-a"
+      ],
+      "required_groups": [
+        [
+          "backup-a"
+        ]
+      ]
+    },
+    {
+      "id": "backup-b-de",
+      "language": "de",
+      "text": "Zu welcher Uhrzeit und an welchem Tag wird Süd vollständig gesichert?",
+      "family": "temporal",
+      "split": "development",
+      "cross_language": true,
+      "relevance": {
+        "backup-b": 2
+      },
+      "required": [
+        "backup-b"
+      ],
+      "required_groups": [
+        [
+          "backup-b"
+        ]
+      ]
+    },
+    {
+      "id": "backup-b-en",
+      "language": "en",
+      "text": "What is the South project full backup schedule?",
+      "family": "temporal",
+      "split": "development",
+      "cross_language": false,
+      "relevance": {
+        "backup-b": 2
+      },
+      "required": [
+        "backup-b"
+      ],
+      "required_groups": [
+        [
+          "backup-b"
+        ]
+      ]
+    },
+    {
+      "id": "retention-a-de",
+      "language": "de",
+      "text": "Wie lange bleiben gewöhnliche Linden-Betriebslogs erhalten?",
+      "family": "roles",
+      "split": "development",
+      "cross_language": false,
+      "relevance": {
+        "retention-a": 2,
+        "retention-b": 2
+      },
+      "required": [
+        "retention-a"
+      ],
+      "required_groups": [
+        [
+          "retention-a",
+          "retention-b"
+        ]
+      ]
+    },
+    {
+      "id": "retention-a-en",
+      "language": "en",
+      "text": "How long are ordinary operational logs kept for Linden?",
+      "family": "roles",
+      "split": "development",
+      "cross_language": true,
+      "relevance": {
+        "retention-a": 2,
+        "retention-b": 2
+      },
+      "required": [
+        "retention-a"
+      ],
+      "required_groups": [
+        [
+          "retention-a",
+          "retention-b"
+        ]
+      ]
+    },
+    {
+      "id": "retention-b-de",
+      "language": "de",
+      "text": "Nach welcher Frist verschwinden die Sicherheitsereignisse von Linden?",
+      "family": "roles",
+      "split": "development",
+      "cross_language": true,
+      "relevance": {
+        "retention-a": 2,
+        "retention-b": 2
+      },
+      "required": [
+        "retention-b"
+      ],
+      "required_groups": [
+        [
+          "retention-a",
+          "retention-b"
+        ]
+      ]
+    },
+    {
+      "id": "retention-b-en",
+      "language": "en",
+      "text": "What is the retention period for Linden security events?",
+      "family": "roles",
+      "split": "development",
+      "cross_language": false,
+      "relevance": {
+        "retention-a": 2,
+        "retention-b": 2
+      },
+      "required": [
+        "retention-b"
+      ],
+      "required_groups": [
+        [
+          "retention-a",
+          "retention-b"
+        ]
+      ]
+    },
+    {
+      "id": "rights-a-de",
+      "language": "de",
+      "text": "Darf ein Atlas-Leser eine Quelle zurückziehen?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "rights-a": 2,
+        "rights-b": 2
+      },
+      "required": [
+        "rights-a"
+      ],
+      "required_groups": [
+        [
+          "rights-a",
+          "rights-b"
+        ]
+      ]
+    },
+    {
+      "id": "rights-a-en",
+      "language": "en",
+      "text": "May an Atlas reader withdraw a source?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "rights-a": 2,
+        "rights-b": 2
+      },
+      "required": [
+        "rights-a"
+      ],
+      "required_groups": [
+        [
+          "rights-a",
+          "rights-b"
+        ]
+      ]
+    },
+    {
+      "id": "rights-b-de",
+      "language": "de",
+      "text": "Welche Atlas-Rolle darf nach Prüfung des Originals eine Quelle zurückziehen?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "rights-a": 2,
+        "rights-b": 2
+      },
+      "required": [
+        "rights-b"
+      ],
+      "required_groups": [
+        [
+          "rights-a",
+          "rights-b"
+        ]
+      ]
+    },
+    {
+      "id": "rights-b-en",
+      "language": "en",
+      "text": "Which Atlas role can withdraw a source after checking original evidence?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "rights-a": 2,
+        "rights-b": 2
+      },
+      "required": [
+        "rights-b"
+      ],
+      "required_groups": [
+        [
+          "rights-a",
+          "rights-b"
+        ]
+      ]
+    },
+    {
+      "id": "dns-a-de",
+      "language": "de",
+      "text": "Welche interne Zieladresse gilt für Birke nach der Migration?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "dns-a": 2
+      },
+      "required": [
+        "dns-a"
+      ],
+      "required_groups": [
+        [
+          "dns-a"
+        ]
+      ]
+    },
+    {
+      "id": "dns-a-en",
+      "language": "en",
+      "text": "Which internal address should Birch use after its migration?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "dns-a": 2
+      },
+      "required": [
+        "dns-a"
+      ],
+      "required_groups": [
+        [
+          "dns-a"
+        ]
+      ]
+    },
+    {
+      "id": "dns-b-de",
+      "language": "de",
+      "text": "Ist Zeder nach 192.0.2.34 umgezogen oder weiterhin auf 192.0.2.18?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "dns-b": 2
+      },
+      "required": [
+        "dns-b"
+      ],
+      "required_groups": [
+        [
+          "dns-b"
+        ]
+      ]
+    },
+    {
+      "id": "dns-b-en",
+      "language": "en",
+      "text": "What is the current internal address of Cedar?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "dns-b": 2
+      },
+      "required": [
+        "dns-b"
+      ],
+      "required_groups": [
+        [
+          "dns-b"
+        ]
+      ]
+    },
+    {
+      "id": "amount-a-de",
+      "language": "de",
+      "text": "Wie hoch ist die monatliche Nettogebühr bei Aster?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "amount-a": 2
+      },
+      "required": [
+        "amount-a"
+      ],
+      "required_groups": [
+        [
+          "amount-a"
+        ]
+      ]
+    },
+    {
+      "id": "amount-a-en",
+      "language": "en",
+      "text": "What is the monthly maintenance fee for Aster before tax?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "amount-a": 2
+      },
+      "required": [
+        "amount-a"
+      ],
+      "required_groups": [
+        [
+          "amount-a"
+        ]
+      ]
+    },
+    {
+      "id": "amount-b-de",
+      "language": "de",
+      "text": "Welche einmalige Netto-Einrichtungsgebühr wird bei Beryll berechnet?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "amount-b": 2
+      },
+      "required": [
+        "amount-b"
+      ],
+      "required_groups": [
+        [
+          "amount-b"
+        ]
+      ]
+    },
+    {
+      "id": "amount-b-en",
+      "language": "en",
+      "text": "How much is the one-off setup fee for Beryl before tax?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "amount-b": 2
+      },
+      "required": [
+        "amount-b"
+      ],
+      "required_groups": [
+        [
+          "amount-b"
+        ]
+      ]
+    },
+    {
+      "id": "ids-a-de",
+      "language": "de",
+      "text": "Was genau erlaubt TKT-7318?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "ids-a": 2
+      },
+      "required": [
+        "ids-a"
+      ],
+      "required_groups": [
+        [
+          "ids-a"
+        ]
+      ]
+    },
+    {
+      "id": "ids-a-en",
+      "language": "en",
+      "text": "What change is authorized by ticket TKT-7318?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "ids-a": 2
+      },
+      "required": [
+        "ids-a"
+      ],
+      "required_groups": [
+        [
+          "ids-a"
+        ]
+      ]
+    },
+    {
+      "id": "ids-b-de",
+      "language": "de",
+      "text": "Welcher Treiber darf mit TKT-7381 ausgetauscht werden?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "ids-b": 2
+      },
+      "required": [
+        "ids-b"
+      ],
+      "required_groups": [
+        [
+          "ids-b"
+        ]
+      ]
+    },
+    {
+      "id": "ids-b-en",
+      "language": "en",
+      "text": "Which driver may be replaced under TKT-7381?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "ids-b": 2
+      },
+      "required": [
+        "ids-b"
+      ],
+      "required_groups": [
+        [
+          "ids-b"
+        ]
+      ]
+    },
+    {
+      "id": "time-a-de",
+      "language": "de",
+      "text": "Wie lange wurden Komet-Testdateien vor April 2049 aufbewahrt?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "time-a": 2,
+        "time-b": 2
+      },
+      "required": [
+        "time-a"
+      ],
+      "required_groups": [
+        [
+          "time-a",
+          "time-b"
+        ]
+      ]
+    },
+    {
+      "id": "time-a-en",
+      "language": "en",
+      "text": "What was the Comet test-file retention period before April 2049?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "time-a": 2,
+        "time-b": 2
+      },
+      "required": [
+        "time-a"
+      ],
+      "required_groups": [
+        [
+          "time-a",
+          "time-b"
+        ]
+      ]
+    },
+    {
+      "id": "time-b-de",
+      "language": "de",
+      "text": "Welche Aufbewahrungsfrist gilt bei Komet seit dem 1. April 2049?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "time-a": 2,
+        "time-b": 2
+      },
+      "required": [
+        "time-b"
+      ],
+      "required_groups": [
+        [
+          "time-a",
+          "time-b"
+        ]
+      ]
+    },
+    {
+      "id": "time-b-en",
+      "language": "en",
+      "text": "What retention applies to Comet test files from April 2049 onward?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "time-a": 2,
+        "time-b": 2
+      },
+      "required": [
+        "time-b"
+      ],
+      "required_groups": [
+        [
+          "time-a",
+          "time-b"
+        ]
+      ]
+    },
+    {
+      "id": "restore-a-de",
+      "language": "de",
+      "text": "Welcher praktische Nachweis macht eine Eiche-Sicherung verifiziert?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "restore-a": 2
+      },
+      "required": [
+        "restore-a"
+      ],
+      "required_groups": [
+        [
+          "restore-a"
+        ]
+      ]
+    },
+    {
+      "id": "restore-a-en",
+      "language": "en",
+      "text": "What practical check makes an Oak backup verified?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "restore-a": 2
+      },
+      "required": [
+        "restore-a"
+      ],
+      "required_groups": [
+        [
+          "restore-a"
+        ]
+      ]
+    },
+    {
+      "id": "restore-b-de",
+      "language": "de",
+      "text": "Beweist bei Ahorn eine passende Datei-Prüfsumme bereits die Rücksicherbarkeit?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "restore-b": 2
+      },
+      "required": [
+        "restore-b"
+      ],
+      "required_groups": [
+        [
+          "restore-b"
+        ]
+      ]
+    },
+    {
+      "id": "restore-b-en",
+      "language": "en",
+      "text": "Does a matching Maple export checksum prove the database can be restored?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "restore-b": 2
+      },
+      "required": [
+        "restore-b"
+      ],
+      "required_groups": [
+        [
+          "restore-b"
+        ]
+      ]
+    },
+    {
+      "id": "compound-a-de",
+      "language": "de",
+      "text": "Wer kontrolliert bei Fichte die Abrechnung der verbrauchsabhängigen Heizkosten?",
+      "family": "compounds",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "compound-a": 2
+      },
+      "required": [
+        "compound-a"
+      ],
+      "required_groups": [
+        [
+          "compound-a"
+        ]
+      ]
+    },
+    {
+      "id": "compound-a-en",
+      "language": "en",
+      "text": "Who checks the consumption-based heating bill for Spruce house?",
+      "family": "compounds",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "compound-a": 2
+      },
+      "required": [
+        "compound-a"
+      ],
+      "required_groups": [
+        [
+          "compound-a"
+        ]
+      ]
+    },
+    {
+      "id": "compound-b-de",
+      "language": "de",
+      "text": "Welche Aufgabe hat der Hausmeister von Kiefer beim Zugang zum Zählerraum?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "compound-b": 2
+      },
+      "required": [
+        "compound-b"
+      ],
+      "required_groups": [
+        [
+          "compound-b"
+        ]
+      ]
+    },
+    {
+      "id": "compound-b-en",
+      "language": "en",
+      "text": "Who confirms that the Pine meter room can be accessed?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "compound-b": 2
+      },
+      "required": [
+        "compound-b"
+      ],
+      "required_groups": [
+        [
+          "compound-b"
+        ]
+      ]
+    },
+    {
+      "id": "offline-a-de",
+      "language": "de",
+      "text": "Verlässt der Inhalt vertraulicher Unterlagen im Mohn-Offline-Modus den Rechner?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "offline-a": 2
+      },
+      "required": [
+        "offline-a"
+      ],
+      "required_groups": [
+        [
+          "offline-a"
+        ]
+      ]
+    },
+    {
+      "id": "offline-a-en",
+      "language": "en",
+      "text": "Does confidential document content leave the machine in Poppy offline mode?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "offline-a": 2
+      },
+      "required": [
+        "offline-a"
+      ],
+      "required_groups": [
+        [
+          "offline-a"
+        ]
+      ]
+    },
+    {
+      "id": "offline-b-de",
+      "language": "de",
+      "text": "Welche Datenrichtung verwendet die Iris-Spiegelung für öffentliche Handbücher?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "offline-b": 2
+      },
+      "required": [
+        "offline-b"
+      ],
+      "required_groups": [
+        [
+          "offline-b"
+        ]
+      ]
+    },
+    {
+      "id": "offline-b-en",
+      "language": "en",
+      "text": "Does Iris fetch public manuals or upload private notes?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "offline-b": 2
+      },
+      "required": [
+        "offline-b"
+      ],
+      "required_groups": [
+        [
+          "offline-b"
+        ]
+      ]
+    },
+    {
+      "id": "retry-a-de",
+      "language": "de",
+      "text": "Wie verhindert Granit doppelte Aufträge nach einer verlorenen Bestätigung?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "retry-a": 2
+      },
+      "required": [
+        "retry-a"
+      ],
+      "required_groups": [
+        [
+          "retry-a"
+        ]
+      ]
+    },
+    {
+      "id": "retry-a-en",
+      "language": "en",
+      "text": "How does Granite avoid duplicate jobs after an acknowledgement is lost?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "retry-a": 2
+      },
+      "required": [
+        "retry-a"
+      ],
+      "required_groups": [
+        [
+          "retry-a"
+        ]
+      ]
+    },
+    {
+      "id": "retry-b-de",
+      "language": "de",
+      "text": "Wann darf Basalt den Fortschrittszeiger bei einem Fehler vorrücken?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "retry-b": 2
+      },
+      "required": [
+        "retry-b"
+      ],
+      "required_groups": [
+        [
+          "retry-b"
+        ]
+      ]
+    },
+    {
+      "id": "retry-b-en",
+      "language": "en",
+      "text": "When may Basalt advance its progress marker after a failure?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "retry-b": 2
+      },
+      "required": [
+        "retry-b"
+      ],
+      "required_groups": [
+        [
+          "retry-b"
+        ]
+      ]
+    },
+    {
+      "id": "pin-a-de",
+      "language": "de",
+      "text": "Was passiert mit der angehefteten Linde-Notiz bei einem Wechsel des Embedding-Modells?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "pin-a": 2
+      },
+      "required": [
+        "pin-a"
+      ],
+      "required_groups": [
+        [
+          "pin-a"
+        ]
+      ]
+    },
+    {
+      "id": "pin-a-en",
+      "language": "en",
+      "text": "What happens to the pinned Linden note when its embedding model changes?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "pin-a": 2
+      },
+      "required": [
+        "pin-a"
+      ],
+      "required_groups": [
+        [
+          "pin-a"
+        ]
+      ]
+    },
+    {
+      "id": "pin-b-de",
+      "language": "de",
+      "text": "Welche Voraussetzung gilt bei Weide für neue Dokumente vor dem Rückwechsel zur alten Indexgeneration?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "pin-b": 2
+      },
+      "required": [
+        "pin-b"
+      ],
+      "required_groups": [
+        [
+          "pin-b"
+        ]
+      ]
+    },
+    {
+      "id": "pin-b-en",
+      "language": "en",
+      "text": "What must happen to post-cutover Willow documents before rolling back the index?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "pin-b": 2
+      },
+      "required": [
+        "pin-b"
+      ],
+      "required_groups": [
+        [
+          "pin-b"
+        ]
+      ]
+    },
+    {
+      "id": "alpha-a-de",
+      "language": "de",
+      "text": "Wen kontaktiert man bei Morgen zuerst bei einer akuten Störung?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "alpha-a": 2
+      },
+      "required": [
+        "alpha-a"
+      ],
+      "required_groups": [
+        [
+          "alpha-a"
+        ]
+      ]
+    },
+    {
+      "id": "alpha-a-en",
+      "language": "en",
+      "text": "Which role receives an urgent incident report for Morning?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "alpha-a": 2
+      },
+      "required": [
+        "alpha-a"
+      ],
+      "required_groups": [
+        [
+          "alpha-a"
+        ]
+      ]
+    },
+    {
+      "id": "alpha-b-de",
+      "language": "de",
+      "text": "Wer muss eine geplante Änderung bei Abend genehmigen?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "alpha-b": 2
+      },
+      "required": [
+        "alpha-b"
+      ],
+      "required_groups": [
+        [
+          "alpha-b"
+        ]
+      ]
+    },
+    {
+      "id": "alpha-b-en",
+      "language": "en",
+      "text": "Who approves a planned change for Evening?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "alpha-b": 2
+      },
+      "required": [
+        "alpha-b"
+      ],
+      "required_groups": [
+        [
+          "alpha-b"
+        ]
+      ]
+    },
+    {
+      "id": "limit-a-de",
+      "language": "de",
+      "text": "Wie groß darf ein Rubin-Bildupload höchstens sein?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "limit-a": 2
+      },
+      "required": [
+        "limit-a"
+      ],
+      "required_groups": [
+        [
+          "limit-a"
+        ]
+      ]
+    },
+    {
+      "id": "limit-a-en",
+      "language": "en",
+      "text": "What is the maximum accepted image upload size for Ruby?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "limit-a": 2
+      },
+      "required": [
+        "limit-a"
+      ],
+      "required_groups": [
+        [
+          "limit-a"
+        ]
+      ]
+    },
+    {
+      "id": "limit-b-de",
+      "language": "de",
+      "text": "Darf Saphir einen Textimport mit 3 MiB akzeptieren?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "limit-b": 2
+      },
+      "required": [
+        "limit-b"
+      ],
+      "required_groups": [
+        [
+          "limit-b"
+        ]
+      ]
+    },
+    {
+      "id": "limit-b-en",
+      "language": "en",
+      "text": "Is a three-MiB text import accepted by Sapphire?",
+      "family": "amounts",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "limit-b": 2
+      },
+      "required": [
+        "limit-b"
+      ],
+      "required_groups": [
+        [
+          "limit-b"
+        ]
+      ]
+    },
+    {
+      "id": "model-a-de",
+      "language": "de",
+      "text": "Darf Bernstein Vektoren zweier Modelle allein wegen gleicher Länge gemeinsam vergleichen?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "model-a": 2
+      },
+      "required": [
+        "model-a"
+      ],
+      "required_groups": [
+        [
+          "model-a"
+        ]
+      ]
+    },
+    {
+      "id": "model-a-en",
+      "language": "en",
+      "text": "Can Amber mix embeddings from two models merely because both have 1024 dimensions?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "model-a": 2
+      },
+      "required": [
+        "model-a"
+      ],
+      "required_groups": [
+        [
+          "model-a"
+        ]
+      ]
+    },
+    {
+      "id": "model-b-de",
+      "language": "de",
+      "text": "Welche Vektorlänge nutzt die kompakte Opal-Generation tatsächlich?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "model-b": 2
+      },
+      "required": [
+        "model-b"
+      ],
+      "required_groups": [
+        [
+          "model-b"
+        ]
+      ]
+    },
+    {
+      "id": "model-b-en",
+      "language": "en",
+      "text": "What is the actual dimensionality of the compact Opal generation?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "model-b": 2
+      },
+      "required": [
+        "model-b"
+      ],
+      "required_groups": [
+        [
+          "model-b"
+        ]
+      ]
+    },
+    {
+      "id": "cred-a-de",
+      "language": "de",
+      "text": "Wann endet die Gültigkeit des Nebel-Client-Zertifikats?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "cred-a": 2
+      },
+      "required": [
+        "cred-a"
+      ],
+      "required_groups": [
+        [
+          "cred-a"
+        ]
+      ]
+    },
+    {
+      "id": "cred-a-en",
+      "language": "en",
+      "text": "When does the Fog client certificate expire?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "cred-a": 2
+      },
+      "required": [
+        "cred-a"
+      ],
+      "required_groups": [
+        [
+          "cred-a"
+        ]
+      ]
+    },
+    {
+      "id": "cred-b-de",
+      "language": "de",
+      "text": "Zu welchem Zeitpunkt läuft das Server-Zertifikat von Dunst ab?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "cred-b": 2
+      },
+      "required": [
+        "cred-b"
+      ],
+      "required_groups": [
+        [
+          "cred-b"
+        ]
+      ]
+    },
+    {
+      "id": "cred-b-en",
+      "language": "en",
+      "text": "What is the expiry time of the Mist server certificate?",
+      "family": "temporal",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "cred-b": 2
+      },
+      "required": [
+        "cred-b"
+      ],
+      "required_groups": [
+        [
+          "cred-b"
+        ]
+      ]
+    },
+    {
+      "id": "room-a-de",
+      "language": "de",
+      "text": "In welchem Zeitfenster kann man den Wolke-Schulungsraum am Dienstag nutzen?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "room-a": 2
+      },
+      "required": [
+        "room-a"
+      ],
+      "required_groups": [
+        [
+          "room-a"
+        ]
+      ]
+    },
+    {
+      "id": "room-a-en",
+      "language": "en",
+      "text": "When is the Cloud training room bookable on Tuesdays?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "room-a": 2
+      },
+      "required": [
+        "room-a"
+      ],
+      "required_groups": [
+        [
+          "room-a"
+        ]
+      ]
+    },
+    {
+      "id": "room-b-de",
+      "language": "de",
+      "text": "Ist die virtuelle Wolke-Umgebung auf das Buchungsfenster des physischen Raums beschränkt?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "room-a": 2,
+        "room-b": 2
+      },
+      "required": [
+        "room-b"
+      ],
+      "required_groups": [
+        [
+          "room-a",
+          "room-b"
+        ]
+      ]
+    },
+    {
+      "id": "room-b-en",
+      "language": "en",
+      "text": "Does the Cloud virtual environment share the physical room booking restriction?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "room-a": 2,
+        "room-b": 2
+      },
+      "required": [
+        "room-b"
+      ],
+      "required_groups": [
+        [
+          "room-a",
+          "room-b"
+        ]
+      ]
+    },
+    {
+      "id": "invoice-a-de",
+      "language": "de",
+      "text": "Welche Leistung und welcher Nettobetrag gehören zu DEMO-55021?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "invoice-a": 2
+      },
+      "required": [
+        "invoice-a"
+      ],
+      "required_groups": [
+        [
+          "invoice-a"
+        ]
+      ]
+    },
+    {
+      "id": "invoice-a-en",
+      "language": "en",
+      "text": "Which service and net amount belong to invoice DEMO-55021?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "invoice-a": 2
+      },
+      "required": [
+        "invoice-a"
+      ],
+      "required_groups": [
+        [
+          "invoice-a"
+        ]
+      ]
+    },
+    {
+      "id": "invoice-b-de",
+      "language": "de",
+      "text": "Welcher Nettobetrag gehört zur Scannerwartung DEMO-55012?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "invoice-b": 2
+      },
+      "required": [
+        "invoice-b"
+      ],
+      "required_groups": [
+        [
+          "invoice-b"
+        ]
+      ]
+    },
+    {
+      "id": "invoice-b-en",
+      "language": "en",
+      "text": "What is the net charge for scanner maintenance on DEMO-55012?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "invoice-b": 2
+      },
+      "required": [
+        "invoice-b"
+      ],
+      "required_groups": [
+        [
+          "invoice-b"
+        ]
+      ]
+    },
+    {
+      "id": "archive-a-de",
+      "language": "de",
+      "text": "Ist ein zurückgezogener Mars-Beleg weiterhin als aktuelle Aussage verwendbar?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "archive-a": 2
+      },
+      "required": [
+        "archive-a"
+      ],
+      "required_groups": [
+        [
+          "archive-a"
+        ]
+      ]
+    },
+    {
+      "id": "archive-a-en",
+      "language": "en",
+      "text": "Can a withdrawn Mars source still support a current assertion?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "archive-a": 2
+      },
+      "required": [
+        "archive-a"
+      ],
+      "required_groups": [
+        [
+          "archive-a"
+        ]
+      ]
+    },
+    {
+      "id": "archive-b-de",
+      "language": "de",
+      "text": "In welcher Ansicht kann ein berechtigter Leser einen zurückgezogenen Venus-Beleg prüfen?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "archive-b": 2
+      },
+      "required": [
+        "archive-b"
+      ],
+      "required_groups": [
+        [
+          "archive-b"
+        ]
+      ]
+    },
+    {
+      "id": "archive-b-en",
+      "language": "en",
+      "text": "Where can an authorized reader inspect a withdrawn Venus original?",
+      "family": "roles",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "archive-b": 2
+      },
+      "required": [
+        "archive-b"
+      ],
+      "required_groups": [
+        [
+          "archive-b"
+        ]
+      ]
+    },
+    {
+      "id": "net-a-de",
+      "language": "de",
+      "text": "Welcher dokumentierte Adressbereich gehört zum Hafen-Wartungsnetz?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "net-a": 2
+      },
+      "required": [
+        "net-a"
+      ],
+      "required_groups": [
+        [
+          "net-a"
+        ]
+      ]
+    },
+    {
+      "id": "net-a-en",
+      "language": "en",
+      "text": "Which documentation address range is assigned to Harbor maintenance?",
+      "family": "identifiers",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "net-a": 2
+      },
+      "required": [
+        "net-a"
+      ],
+      "required_groups": [
+        [
+          "net-a"
+        ]
+      ]
+    },
+    {
+      "id": "net-b-de",
+      "language": "de",
+      "text": "Reicht ein gültiges Besucher-Konto für das Hafen-Wartungsnetz?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "net-b": 2
+      },
+      "required": [
+        "net-b"
+      ],
+      "required_groups": [
+        [
+          "net-b"
+        ]
+      ]
+    },
+    {
+      "id": "net-b-en",
+      "language": "en",
+      "text": "Does a valid Harbor visitor account allow access to the maintenance network?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "net-b": 2
+      },
+      "required": [
+        "net-b"
+      ],
+      "required_groups": [
+        [
+          "net-b"
+        ]
+      ]
+    },
+    {
+      "id": "queue-a-de",
+      "language": "de",
+      "text": "Wann baut Sonne den durch Suchlast entstandenen Extraktionsrückstand ab?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "queue-a": 2
+      },
+      "required": [
+        "queue-a"
+      ],
+      "required_groups": [
+        [
+          "queue-a"
+        ]
+      ]
+    },
+    {
+      "id": "queue-a-en",
+      "language": "en",
+      "text": "When does Sun drain the extraction backlog accumulated during search load?",
+      "family": "paraphrase",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "queue-a": 2
+      },
+      "required": [
+        "queue-a"
+      ],
+      "required_groups": [
+        [
+          "queue-a"
+        ]
+      ]
+    },
+    {
+      "id": "queue-b-de",
+      "language": "de",
+      "text": "Wie behandelt Mond bereits angenommene Aufträge bei einem Modell-Ausfall?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "queue-b": 2
+      },
+      "required": [
+        "queue-b"
+      ],
+      "required_groups": [
+        [
+          "queue-b"
+        ]
+      ]
+    },
+    {
+      "id": "queue-b-en",
+      "language": "en",
+      "text": "What happens to accepted Moon jobs during a local model outage?",
+      "family": "negation",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "queue-b": 2
+      },
+      "required": [
+        "queue-b"
+      ],
+      "required_groups": [
+        [
+          "queue-b"
+        ]
+      ]
+    },
+    {
+      "id": "long-a-de",
+      "language": "de",
+      "text": "Wie lange muss Segel nach einem Kühlmittelalarm vor dem Wiederanlauf warten?",
+      "family": "long",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "long-a": 2
+      },
+      "required": [
+        "long-a"
+      ],
+      "required_groups": [
+        [
+          "long-a"
+        ]
+      ]
+    },
+    {
+      "id": "long-a-en",
+      "language": "en",
+      "text": "How long must Sail wait before restarting after a coolant alarm?",
+      "family": "long",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "long-a": 2
+      },
+      "required": [
+        "long-a"
+      ],
+      "required_groups": [
+        [
+          "long-a"
+        ]
+      ]
+    },
+    {
+      "id": "long-b-de",
+      "language": "de",
+      "text": "Welche Wartezeit gilt für Leinwand nach einem Kühlmittelalarm?",
+      "family": "long",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "long-b": 2
+      },
+      "required": [
+        "long-b"
+      ],
+      "required_groups": [
+        [
+          "long-b"
+        ]
+      ]
+    },
+    {
+      "id": "long-b-en",
+      "language": "en",
+      "text": "What restart delay applies to Canvas after a coolant alarm?",
+      "family": "long",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "long-b": 2
+      },
+      "required": [
+        "long-b"
+      ],
+      "required_groups": [
+        [
+          "long-b"
+        ]
+      ]
+    },
+    {
+      "id": "split-a-de",
+      "language": "de",
+      "text": "Was muss vor der Erlen-Umschaltung hinsichtlich der Abdeckung stimmen?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "split-a": 2
+      },
+      "required": [
+        "split-a"
+      ],
+      "required_groups": [
+        [
+          "split-a"
+        ]
+      ]
+    },
+    {
+      "id": "split-a-en",
+      "language": "en",
+      "text": "What coverage is required before Alder switches its model generation?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "split-a": 2
+      },
+      "required": [
+        "split-a"
+      ],
+      "required_groups": [
+        [
+          "split-a"
+        ]
+      ]
+    },
+    {
+      "id": "split-b-de",
+      "language": "de",
+      "text": "Wie hält Erle nach der Umschaltung den Rückweg für neue Schreibvorgänge offen?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "split-b": 2
+      },
+      "required": [
+        "split-b"
+      ],
+      "required_groups": [
+        [
+          "split-b"
+        ]
+      ]
+    },
+    {
+      "id": "split-b-en",
+      "language": "en",
+      "text": "How does Alder keep rollback usable after post-selection writes?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {
+        "split-b": 2
+      },
+      "required": [
+        "split-b"
+      ],
+      "required_groups": [
+        [
+          "split-b"
+        ]
+      ]
+    },
+    {
+      "id": "multi-de",
+      "language": "de",
+      "text": "Welche Abdeckungsbedingung und welche Rückkehrregel gehören zum Erlen-Modellwechsel?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "split-a": 2,
+        "split-b": 2
+      },
+      "required": [
+        "split-a",
+        "split-b"
+      ],
+      "required_groups": [
+        [
+          "split-a"
+        ],
+        [
+          "split-b"
+        ]
+      ]
+    },
+    {
+      "id": "multi-en",
+      "language": "en",
+      "text": "What coverage and rollback conditions together govern the Alder model switch?",
+      "family": "multi_source",
+      "split": "heldout",
+      "cross_language": true,
+      "relevance": {
+        "split-a": 2,
+        "split-b": 2
+      },
+      "required": [
+        "split-a",
+        "split-b"
+      ],
+      "required_groups": [
+        [
+          "split-a"
+        ],
+        [
+          "split-b"
+        ]
+      ]
+    },
+    {
+      "id": "unsupported-0",
+      "language": "de",
+      "text": "Wie lautet die private Kontonummer des Hausmeisters?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "unsupported-1",
+      "language": "de",
+      "text": "Welche Farbe hat der reale Dienstwagen?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "unsupported-2",
+      "language": "de",
+      "text": "Wer gewann die Fußballweltmeisterschaft 2054?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "unsupported-3",
+      "language": "en",
+      "text": "What is the CEO private password?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "unsupported-4",
+      "language": "en",
+      "text": "What is the actual production database password?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    },
+    {
+      "id": "unsupported-5",
+      "language": "en",
+      "text": "What was the exact weather in Berlin on 7 July 2001?",
+      "family": "unsupported",
+      "split": "heldout",
+      "cross_language": false,
+      "relevance": {},
+      "required": [],
+      "required_groups": []
+    }
+  ],
+  "duplicate_pairs": [
+    {
+      "id": "dup-4",
+      "left": "In Atlas darf die Rolle Leser Dokumente anzeigen und suchen. Leser dürfen keine Quellen zurückziehen. Dafür ist die Rolle Prüfer vorgesehen; Leserechte allein reichen nicht.",
+      "right": "In Atlas darf die Rolle Leser Dokumente anzeigen und suchen. Leser dürfen keine Quellen zurückziehen. Dafür ist die Rolle Prüfer vorgesehen; Leserechte allein reichen nicht.",
+      "same": true
+    },
+    {
+      "id": "dup-8",
+      "left": "Der fiktive Wartungsvertrag Aster kostet 108,32 EUR netto pro Monat. Die einmalige Einrichtung kostet 250,00 EUR netto. Die Vertragsnummer ist AST-2049-17.",
+      "right": "Der fiktive Wartungsvertrag Aster kostet 108,32 EUR netto pro Monat. Die einmalige Einrichtung kostet 250,00 EUR netto. Die Vertragsnummer ist AST-2049-17.",
+      "same": true
+    },
+    {
+      "id": "dup-14",
+      "left": "Für Eiche zählt eine Sicherung erst nach einem erfolgreichen Rücksicherungstest als verifiziert. Eine vorhandene Dump-Datei und eine passende Prüfsumme allein beweisen keine funktionierende Wiederherstellung.",
+      "right": "Für Eiche zählt eine Sicherung erst nach einem erfolgreichen Rücksicherungstest als verifiziert. Eine vorhandene Dump-Datei und eine passende Prüfsumme allein beweisen keine funktionierende Wiederherstellung.",
+      "same": true
+    },
+    {
+      "id": "dup-20",
+      "left": "Granit speichert für jeden angenommenen Auftrag einen stabilen Schlüssel. Nach einer unterbrochenen Bestätigung wird derselbe Auftrag mit demselben Schlüssel erneut gesendet; ein neuer Schlüssel könnte doppelte Arbeit auslösen.",
+      "right": "Granit speichert für jeden angenommenen Auftrag einen stabilen Schlüssel. Nach einer unterbrochenen Bestätigung wird derselbe Auftrag mit demselben Schlüssel erneut gesendet; ein neuer Schlüssel könnte doppelte Arbeit auslösen.",
+      "same": true
+    },
+    {
+      "id": "dup-26",
+      "left": "Rubin akzeptiert Bilder bis einschließlich 8 MiB. Größere Eingaben werden vor der OCR abgelehnt. Das Limit für Textimporte beträgt separat 2 MiB. Ein Megabyte ist hier nicht mit einem Mebibyte gleichzusetzen.",
+      "right": "Rubin akzeptiert Bilder bis einschließlich 8 MiB. Größere Eingaben werden vor der OCR abgelehnt. Das Limit für Textimporte beträgt separat 2 MiB. Ein Megabyte ist hier nicht mit einem Mebibyte gleichzusetzen.",
+      "same": true
+    },
+    {
+      "id": "dup-32",
+      "left": "Der Schulungsraum Wolke kann dienstags von 09:00 bis 11:00 UTC gebucht werden. Die gleichnamige virtuelle Umgebung bleibt ganztägig verfügbar. Eine Raumbuchung reserviert keine Rechenkapazität.",
+      "right": "Der Schulungsraum Wolke kann dienstags von 09:00 bis 11:00 UTC gebucht werden. Die gleichnamige virtuelle Umgebung bleibt ganztägig verfügbar. Eine Raumbuchung reserviert keine Rechenkapazität.",
+      "same": true
+    },
+    {
+      "id": "notdup-4",
+      "left": "In Atlas darf die Rolle Leser Dokumente anzeigen und suchen. Leser dürfen keine Quellen zurückziehen. Dafür ist die Rolle Prüfer vorgesehen; Leserechte allein reichen nicht.",
+      "right": "An Atlas reviewer may withdraw a source after inspecting its original evidence. This action is forbidden to the reader role. Reviewers cannot change account ownership.",
+      "same": false
+    },
+    {
+      "id": "notdup-8",
+      "left": "Der fiktive Wartungsvertrag Aster kostet 108,32 EUR netto pro Monat. Die einmalige Einrichtung kostet 250,00 EUR netto. Die Vertragsnummer ist AST-2049-17.",
+      "right": "The fictional Beryl contract has a one-time setup fee of EUR 108.32 before tax. Its monthly fee is EUR 250.00 before tax. The reference is BER-2049-71.",
+      "same": false
+    },
+    {
+      "id": "notdup-12",
+      "left": "Bis einschließlich 31. März 2049 wurden die Komet-Testdateien 14 Tage aufbewahrt. Seit dem 1. April 2049 gilt die neue Frist von 30 Tagen. Diese Notiz beschreibt ausdrücklich die alte Regel.",
+      "right": "Since 1 April 2049 Comet test files have been retained for 30 days. The earlier 14-day policy ceased to apply on 31 March. This note describes the current rule, not historical retention.",
+      "same": false
+    },
+    {
+      "id": "notdup-22",
+      "left": "Die angeheftete Notiz von Linde bleibt beim Wechsel des Einbettungsmodells erhalten. Nur abgeleitete Vektoren werden neu aufgebaut. Originale, Berechtigungen und die Pin-Zuordnung dürfen dabei nicht ersetzt werden.",
+      "right": "Willow retains the old vector generation for rollback. New documents written after cutover must also be indexed into the old generation before rollback can succeed. Rolling back never deletes the new documents.",
+      "same": false
+    },
+    {
+      "id": "notdup-26",
+      "left": "Rubin akzeptiert Bilder bis einschließlich 8 MiB. Größere Eingaben werden vor der OCR abgelehnt. Das Limit für Textimporte beträgt separat 2 MiB. Ein Megabyte ist hier nicht mit einem Mebibyte gleichzusetzen.",
+      "right": "Sapphire accepts text imports up to 2 MiB and images up to 8 MiB. A text import larger than 2 MiB is rejected even when it would fit the image limit.",
+      "same": false
+    },
+    {
+      "id": "notdup-28",
+      "left": "Bernstein speichert Vektoren mit 1024 Dimensionen. Ein neues Modell mit ebenfalls 1024 Dimensionen gehört trotzdem zu einem anderen Vektorraum. Gleiche Länge allein erlaubt keine Mischung beider Modelle.",
+      "right": "Opal uses a separate 768-dimensional generation for its compact model. It does not pad the vectors to 1024 dimensions or copy unverified legacy embeddings.",
+      "same": false
+    },
+    {
+      "id": "paraphrase-4",
+      "left": "In Atlas darf die Rolle Leser Dokumente anzeigen und suchen. Leser dürfen keine Quellen zurückziehen. Dafür ist die Rolle Prüfer vorgesehen; Leserechte allein reichen nicht.",
+      "right": "Ein Atlas-Leser darf Quellen lesen und durchsuchen, aber keine Quelle zurückziehen.",
+      "same": true
+    },
+    {
+      "id": "paraphrase-8",
+      "left": "Der fiktive Wartungsvertrag Aster kostet 108,32 EUR netto pro Monat. Die einmalige Einrichtung kostet 250,00 EUR netto. Die Vertragsnummer ist AST-2049-17.",
+      "right": "Aster berechnet monatlich netto 108,32 Euro für Wartung; die einmalige Einrichtung liegt bei 250 Euro.",
+      "same": true
+    },
+    {
+      "id": "paraphrase-14",
+      "left": "Für Eiche zählt eine Sicherung erst nach einem erfolgreichen Rücksicherungstest als verifiziert. Eine vorhandene Dump-Datei und eine passende Prüfsumme allein beweisen keine funktionierende Wiederherstellung.",
+      "right": "Bei Eiche reicht eine Dump-Datei mit passender Prüfsumme nicht aus: Erst die erfolgreiche Rücksicherung verifiziert das Backup.",
+      "same": true
+    },
+    {
+      "id": "paraphrase-20",
+      "left": "Granit speichert für jeden angenommenen Auftrag einen stabilen Schlüssel. Nach einer unterbrochenen Bestätigung wird derselbe Auftrag mit demselben Schlüssel erneut gesendet; ein neuer Schlüssel könnte doppelte Arbeit auslösen.",
+      "right": "Wenn eine Granit-Bestätigung verloren geht, verhindert derselbe stabile Auftragsschlüssel beim erneuten Senden doppelte Arbeit.",
+      "same": true
+    },
+    {
+      "id": "paraphrase-26",
+      "left": "Rubin akzeptiert Bilder bis einschließlich 8 MiB. Größere Eingaben werden vor der OCR abgelehnt. Das Limit für Textimporte beträgt separat 2 MiB. Ein Megabyte ist hier nicht mit einem Mebibyte gleichzusetzen.",
+      "right": "Rubin erlaubt Bilddateien bis acht Mebibyte und Textimporte bis zwei Mebibyte.",
+      "same": true
+    },
+    {
+      "id": "paraphrase-32",
+      "left": "Der Schulungsraum Wolke kann dienstags von 09:00 bis 11:00 UTC gebucht werden. Die gleichnamige virtuelle Umgebung bleibt ganztägig verfügbar. Eine Raumbuchung reserviert keine Rechenkapazität.",
+      "right": "Das fiktive Nebel-Client-Zertifikat endet am 17. Juni 2049 um 12 Uhr UTC.",
+      "same": true
+    }
+  ],
+  "prior_confirmed_embedding_failures": {
+    "cases": [],
+    "reason": "No attributable prior confirmed embedding-quality failure available; historical ANN filter regressions are separately exercised by existing model-bound generation safety tests and are not relabeled as embedding quality failures."
+  }
+}
