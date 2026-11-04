@@ -76,7 +76,7 @@ def originals(before,after):
 
 def test_populated_archived027_upgrade_and_independent_restores(tmp_path,monkeypatch):
     monkeypatch.setattr(query_cache,'model_digest',lambda cfg:'a'*64)
-    assert version('agentic-rag')=='0.6.30'
+    assert version('agentic-rag')=='0.6.31'
     source=tmp_path/'027';source.mkdir()
     archive=tmp_path/'027.tar'
     with archive.open('wb') as stream:subprocess.run(['git','archive',SOURCE,'agentic_rag','sql','pyproject.toml'],cwd=ROOT,stdout=stream,check=True)
