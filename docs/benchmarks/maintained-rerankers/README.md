@@ -3,7 +3,7 @@ id: RAG089-REPRODUCTION
 title: Rebuild the maintained offline reranker benchmark
 type: task
 readers: [repository-maintainer]
-status: draft
+status: reviewed
 version: 0.6.32 / schema039
 last_reviewed: 2026-11-04
 summary: Build a separate wheel-only ONNX environment while preserving historical measurement identities.
@@ -22,6 +22,17 @@ This is a medium standalone operator procedure for [Issue #89](https://github.co
 The protocol `maintained-onnx-smoke-v1` records one fresh child and the supplied
 corpus per invocation. Its timing is descriptive; it does not repeat the old
 performance matrix or establish production capacity.
+
+## Terms
+
+| Term | Meaning here |
+|---|---|
+| Profile | A pinned benchmark model identity; it does not enable a production model. |
+| Wheel | A built Python distribution installed with its verified file hash. |
+| ONNX | A model graph executed by the native CPU runtime. |
+| Staging | A private, verified copy removed after inference. |
+| Unattempted | A case for which no inference observation exists; it is not a zero score. |
+| Source identity | Hashes of the runner, loader, corpus, model manifest and dependency specification. |
 
 ## Preserve the historical record
 
@@ -186,3 +197,12 @@ Starlette deprecation warning. They cover loader failures and partial
 accounting, unsupported profiles, timeout cleanup, unchanged runtime HTTP
 capacity/cancellation, and the existing evaluation contracts. No full-suite
 or production acceptance is claimed by this bounded benchmark change.
+
+The [compatibility result](verification/compatibility-result.json) records 54
+additional passed release/upgrade tests, including populated archived 029
+upgrades and independently restored backups with an owner without superuser
+rights. The [independent review](verification/code-review.json) accepted the
+complete 30-file implementation diff with zero Critical/High/Medium/Low
+findings; its [procedure review](verification/procedure-review.json) found
+zero Important/Minor issues. Final evidence, glossary/status and lifecycle
+updates after that reviewed commit change no executable code.

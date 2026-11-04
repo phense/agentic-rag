@@ -18,14 +18,18 @@
   with real synthetic ONNX scoring and no forbidden packages; depends C002.
 - [x] C004 Write/rehearse the medium reproduction guide, advisory reachability
   and environment inventory; record historic and new evidence separately.
-- [ ] C005 Apply patch release metadata and run focused affected checks;
+- [x] C005 Apply patch release metadata and run focused affected checks;
   independently review the complete bounded diff and fix C/H/M findings.
 
 ## Completion evidence
 
-- [ ] C006 All tests, compatibility checks and history hashes pass; publish exact
-  commands, terminal results, limits and review. Resolve bot PR85/86 as
-  superseded without changing archived manifests. Merge through normal PR.
+- [x] C006 All implementation tests, compatibility checks and history hashes pass;
+  publish exact commands, terminal results, limits and accepted review. Prepare
+  the accepted delta for the normal PR delivery gate.
+
+Delivery remains tracked in canonical Issue89: merge the verified PR, then
+close bot PR85/86 as superseded without changing archived manifests. A checked
+implementation task does not claim that merge or production rollout occurred.
 
 ## Dependencies
 

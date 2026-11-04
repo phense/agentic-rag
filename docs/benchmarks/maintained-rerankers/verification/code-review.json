@@ -1,0 +1,136 @@
+{
+  "review_id": "RAG-089-independent-complete-bounded",
+  "reviewer": "independent Codex reviewer /root/reranker89_review",
+  "reviewed_at": "2026-11-04T14:12:06.666894+00:00",
+  "base": "4695f7d6ae6aa6c243176681f1bafdfc6f823da1",
+  "head": "1429c2e953ce3fb84287752d826dae37fbe77f29",
+  "independence": "Reviewer did not implement this slice; no subagents spawned; only ignored review output and disposable test fixtures written.",
+  "verdict": "Ready",
+  "severity_counts": {
+    "Critical": 0,
+    "High": 0,
+    "Medium": 0,
+    "Low": 0
+  },
+  "findings": [],
+  "scope": {
+    "changed_files_count": 30,
+    "changed_files_sha256": {
+      "CHANGELOG.md": "74d84c7d00d07d31ae8c717fc4571abe653f60de4a54b6a5850e007095b8fe77",
+      "README.md": "bae9136d89dacc0d1ab17061d5f904b5b2ef1abe9a5d232b9ac208c9cdc60348",
+      "agentic_rag/service/upgrade.py": "1573ec60cbc9561db29a9d93d91e1ab85c6675edea02fef3578a432b04002523",
+      "docs/benchmarks/maintained-rerankers/README.md": "05114a173c11939df25aa3f7b9c1e0f0d6dd93118a1cf850210fdb3930f067e6",
+      "docs/benchmarks/maintained-rerankers/requirements.txt": "0250c9586b4bb46a9701bbdd5f6d00ae6a68774920ef02418e67c846bd8e1288",
+      "docs/benchmarks/maintained-rerankers/verification/rebuild-verification.json": "0a017b86c89a162d978403528a9237d071a51fc88673c3ef4e49703c7dbafbd8",
+      "docs/benchmarks/maintained-rerankers/verification/synthetic-observations.jsonl": "c9563a0795f51ef8dc677b4e3b71278e9e9ff08e1730e0b7edeb91d3f64260bc",
+      "docs/benchmarks/maintained-rerankers/verification/synthetic-result.json": "4340d2cb3dba7da6492f8b8a77849f016827a7bf5a98edad0017eb11f52d6232",
+      "docs/benchmarks/maintained-rerankers/verification/targeted-result.json": "bf865f43d9f2da7aabd1a78ac03c5c0ceffd1ad2962c6dc2e223210dc03e9e25",
+      "docs/benchmarks/maintained-rerankers/verification/targeted.log": "03d2505fb3071ebfabce9e6bc49916341629b38c983225237d39a8357882fa07",
+      "docs/openspec/changes/secure-reranker-reproduction/design.md": "f04b670eca516027931d1d4cc9bf9ea1c0b3d67ce3f5e35a2618b555423914b1",
+      "docs/openspec/changes/secure-reranker-reproduction/proposal.md": "8d92287b2b4d7954d9bdd868ffb77d0a6dc21f2281df9b79dc31dc808923d454",
+      "docs/openspec/changes/secure-reranker-reproduction/specs/reranker-reproduction/spec.md": "4a7cb14987163cf419f5328a9145231f014a09f14cdf7c82570fb1917d3a7fe2",
+      "docs/openspec/changes/secure-reranker-reproduction/tasks.md": "38e48e5135fe954b697a68e76625f45f8903a630c07d7e8c78e0083c784d9d1c",
+      "pyproject.toml": "828e5560caab69af649228d47c9799f7ba3c9400de18b371500361af0fc14792",
+      "scripts/benchmark_reranker_offline.py": "f50fe9b0c11f430396f29ce573b084335a65eb06b9346020860b0d255edc89d5",
+      "scripts/reranker_benchmark_models.json": "3fdc87ffe9bf4483acfd5572326e7b9635681209eba38a603b052c67806fae28",
+      "tests/benchmark/test_maintained_reranker.py": "2cfaa148fc78728cd19b1074d83fe78f3120ee9ae875b9d4184f5ebdedb04fe6",
+      "tests/service/test_extraction_policy_playbook.py": "92de3607cb2436a73a0ac9109a408d7543705cab87bd53e1de10125807277256",
+      "tests/service/test_feedback_upgrade.py": "8856ce47fb3bfad5b9a2a44ea85012e5aee206586294eaeaf5693b665ca36eaf",
+      "tests/service/test_lifecycle_playbook.py": "65988335ad7a038e8c8018c2d8bc92050c1a89cddd2c170c9da9056691e973eb",
+      "tests/service/test_lifecycle_upgrade.py": "ed4dc3d0cdc22b96256cf70c64c06c558718840c750ac13ec1dd5e286c117bc2",
+      "tests/service/test_metadata_upgrade.py": "c2fd4b56c5d73695e3fc47f723822b9b5d72f4677c77c2a04f3c0fe1b56781ca",
+      "tests/service/test_synthesis_upgrade.py": "07739ed4dbb694795bcdfdae2b0426ae496be1cf10c5e04f22295cedbefe2624",
+      "tests/service/test_upgrade.py": "20142b2e04a92613992b6bf8258b554f939c684d5a826745f42bd7ae17787ba8",
+      "tests/service/test_webhook_upgrade.py": "b94febbdc3dc22d982fc9ff50cc522fa697d322d352544065a0931429b9be5b5",
+      "tests/test_evidence_revisions.py": "630dd4ae511955ff4c604404821ce62f23e4755e0f0bf66df2ff668d25a595e0",
+      "tests/test_extraction_policy_schema.py": "c08a1e3a23626d28a8884266104cec19861ad556b4918ed03f675d4505444948",
+      "tests/test_synthesis_policy.py": "64cf7830386a06a40f7adb49e14ba427b7f608198b64d97f32ee1b22bb182827",
+      "uv.lock": "efc9e730c878d2fc5a24241744360f9d7a5dffed2c800d8d20b453448987bf88"
+    },
+    "interfaces_inspected": [
+      "agentic_rag/reranker_runtime.py:verify and unchanged OnnxRanker constructor/call",
+      "agentic_rag/reranker_profiles.py and production catalogue identity",
+      "agentic_rag/service/upgrade.py:_operator and supported version consumers",
+      "tests/conftest.py: native test module requests no database fixtures",
+      "historical models.json, corpus.json, server.py and existing benchmark README",
+      "pyproject.toml build/runtime constraints and uv.lock dependency artifacts"
+    ],
+    "requirements": [
+      "docs/openspec/changes/secure-reranker-reproduction/proposal.md AC-001..AC-004",
+      "docs/openspec/changes/secure-reranker-reproduction/specs/reranker-reproduction/spec.md",
+      "docs/openspec/changes/secure-reranker-reproduction/design.md",
+      "docs/openspec/changes/secure-reranker-reproduction/tasks.md",
+      "AGENTS.md compatibility, release and independent-review rules"
+    ]
+  },
+  "acceptance_evidence": {
+    "AC-001": "All177 historical Git-tracked files compared to base using git object hashes: zero modified. New results distinguish source/runtime/package/corpus/model identities. Historical original-protocol failure remains explicit.",
+    "AC-002": "All3 maintained profiles match historical repo, revision, license and the complete model.onnx/tokenizer.json artifact dictionaries. Jina v2 is distinct from production Jina tiny. CLI refuses jina-v3.5 before output creation; environment rejects Transformers, setuptools and Torch before loader imports. No model-download path is called.",
+    "AC-003": "Fresh independent native tests7/7 include genuine synthetic ONNX scoring, input integrity, exclusive output, corruption refusal, loader failure evidence, deadline failure and retained partial success/failure/unattempted counts. Worker has address-space/CPU limits, bounded threads and parent timeout; verified private staged files are removed after owned child exits.",
+    "AC-004": "47 requirement rows and every exported hash/version checked against uv.lock; offline uv export equals committed export ignoring header comments. Live fresh-wheel environment45 distributions including application0.6.32, no forbidden distributions, pip check0. Captured primary descriptions for all8 advisories inspected against bridge call sites and guide dispositions. Current targeted118 and compatibility54 terminal log hashes and tested-input hashes independently checked."
+  },
+  "fresh_independent_checks": [
+    {
+      "command": ".venv/bin/python -m pytest -q -p no:cacheprovider tests/benchmark/test_maintained_reranker.py",
+      "exit_code": 0,
+      "result": "7 passed in6.06s",
+      "network": false,
+      "database": false
+    },
+    {
+      "command": "uv lock --check --offline",
+      "exit_code": 0,
+      "result": "Resolved56 packages"
+    },
+    {
+      "command": "uv pip check --python /home/administrator/Claude/.scratch/rag089-maintained-032/bin/python",
+      "exit_code": 0,
+      "result": "45 packages compatible"
+    },
+    {
+      "command": "offline uv export --frozen --extra reranker --no-dev --no-emit-project --format requirements-txt, compared in memory to tracked export",
+      "exit_code": 0,
+      "result": "exact non-header export match;47 pinned rows;0 hashes or versions outside lock"
+    },
+    {
+      "command": "default corpus validation via unchanged cases() function",
+      "exit_code": 0,
+      "result": "96 valid cases; maximum primary passage138 characters"
+    },
+    {
+      "command": "git diff --check BASE..HEAD",
+      "exit_code": 0,
+      "result": "clean"
+    }
+  ],
+  "inspected_executor_evidence": [
+    {
+      "path": "docs/benchmarks/maintained-rerankers/verification/targeted-result.json",
+      "log": "docs/benchmarks/maintained-rerankers/verification/targeted.log",
+      "exit_code": 0,
+      "result": "118 passed,1 existing Starlette deprecation warning",
+      "log_sha256": "03d2505fb3071ebfabce9e6bc49916341629b38c983225237d39a8357882fa07",
+      "input_hash_drift": []
+    },
+    {
+      "path": ".engineering-method/runs/RAG-089/maintained-checks/release-upgrade-result.json",
+      "log": ".engineering-method/runs/RAG-089/maintained-checks/release-upgrade.log",
+      "exit_code": 0,
+      "result": "54 passed,1 warning; archived029 populated metadata upgrade/retry and restores, limited owner and independent restore coverage",
+      "log_sha256": "ebd32f946f60ccac2588a54a35c7841e8d1910eab0c4049e12b3cbf89c5d2a4f",
+      "input_hash_drift": []
+    },
+    {
+      "path": "docs/benchmarks/maintained-rerankers/verification/rebuild-verification.json",
+      "result": "fresh noneditable0.6.32 wheel plus44 dependencies; actual synthetic2-case graph clearly labeled; source/installed runtime hashes match current files"
+    }
+  ],
+  "limits": [
+    "No network, model download, provider call, DB access, production action, tracked edit, commit, branch or GitHub mutation performed.",
+    "No full-suite pass or production readiness claimed. Executor54-test compatibility run inspected, not reexecuted by reviewer.",
+    "Actual pretrained historical models were not loaded. Native tests and rebuild use an own synthetic graph; they prove loader/failure behavior, not public-model quality/performance.",
+    "Model files and native wheels remain trusted inputs; this is not an arbitrary-model sandbox. No macOS/Windows runtime claim.",
+    "Advisory sources were read from executor-captured primary-source responses under discovery; reviewer did not refresh the public web. No exhaustive upstream v3.5 custom Python audit claimed.",
+    "Content-only final evidence/task-status additions after this head require executor hash review; changed runtime behavior requires fresh independent review."
+  ]
+}
