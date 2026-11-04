@@ -203,19 +203,22 @@ def _original_support(conn, row):
 
 def _collect(conn, scope, domain, at, limit, *, only=None,filter=None):
     from ..metadata import argument
-    roots = conn.execute("""SELECT a.entity,a.attribute FROM fact_assertions a
+    metadata_clause = """
+          AND public.rag_metadata_document(d.id,%s)
+          AND assertion_eligible(d.id,%s,false)
+          AND NOT EXISTS(SELECT 1 FROM fact_assertions other JOIN documents od ON od.id=other.document_id
+            WHERE other.entity=a.entity AND other.attribute=a.attribute AND od.project_scope=d.project_scope
+              AND od.domain=d.domain AND other.disposition='accepted' AND other.event_at<=%s
+              AND NOT public.rag_metadata_document(od.id,%s))""" if filter is not None else ""
+    extra = (argument(filter),at,at,argument(filter)) if filter is not None else ()
+    roots = conn.execute(f"""SELECT a.entity,a.attribute FROM fact_assertions a
         JOIN documents d ON d.id=a.document_id
         WHERE d.project_scope=%s AND d.domain=%s AND a.disposition='accepted'
           AND a.relation='replacement' AND a.event_at<=%s
-          AND (%s::jsonb IS NULL OR (public.rag_metadata_document(d.id,%s)
-            AND assertion_eligible(d.id,%s,false)
-            AND NOT EXISTS(SELECT 1 FROM fact_assertions other JOIN documents od ON od.id=other.document_id
-              WHERE other.entity=a.entity AND other.attribute=a.attribute AND od.project_scope=d.project_scope
-                AND od.domain=d.domain AND other.disposition='accepted' AND other.event_at<=%s
-                AND NOT public.rag_metadata_document(od.id,%s))))
+          {metadata_clause}
           AND (%s::text IS NULL OR a.entity=%s) AND (%s::text IS NULL OR a.attribute=%s)
         GROUP BY a.entity,a.attribute ORDER BY a.entity,a.attribute LIMIT %s""",
-        (scope,domain,at,argument(filter),argument(filter),at,at,argument(filter),only[0] if only else None,only[0] if only else None,
+        (scope,domain,at)+extra+(only[0] if only else None,only[0] if only else None,
          only[1] if only else None,only[1] if only else None,limit+1)).fetchall()
     cases=[]; withheld=0
     for root in roots[:limit]:

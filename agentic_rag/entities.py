@@ -279,7 +279,9 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
             if not available(conn):
                 packet['warnings']=['Entity index unavailable: migration018 required; use exact-name search/get.']
                 return packet
-            row = conn.execute("""
+            link_filter = "AND public.rag_metadata_document(d.id,%(metadata)s)" if filter is not None else ""
+            fact_filter = "AND public.rag_metadata_document(document_id,%(metadata)s)" if filter is not None else ""
+            row = conn.execute(f"""
               WITH valid_links AS (
                 SELECT l.*,i.name alias,t.name target
                 FROM entity_aliases l JOIN entity_identities i ON i.id=l.alias_id
@@ -288,10 +290,10 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                 JOIN claim_evidence e ON (e.document_id=l.document_id AND e.source_key=l.source_key AND e.span_hash=l.span_hash)
                 JOIN knowledge_sources s ON s.source_key=e.source_key
                 WHERE l.state='accepted' AND l.effective_at<=%(at)s AND e.reviewed
-                  AND (%(metadata)s::jsonb IS NULL OR public.rag_metadata_document(d.id,%(metadata)s))
+                  {link_filter}
                   AND i.project_scope=%(scope)s AND t.project_scope=i.project_scope
                   AND i.domain=%(domain)s AND t.domain=i.domain AND
-            """+_SUPPORT+"""
+            """+_SUPPORT+f"""
               ), named AS (
                 SELECT * FROM entity_identities WHERE project_scope=%(scope)s AND domain=%(domain)s AND name=%(name)s
               ), roots AS (
@@ -322,7 +324,7 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                 FROM source_facts f
               ), eligible AS (
                 SELECT * FROM classified WHERE (%(history)s OR (NOT expired AND NOT superseded))
-                  AND (%(metadata)s::jsonb IS NULL OR public.rag_metadata_document(document_id,%(metadata)s))
+                  {fact_filter}
               ), conflicts AS (
                 SELECT attribute FROM eligible WHERE NOT %(history)s AND relation<>'extension'
                 GROUP BY attribute HAVING count(DISTINCT value)>1
@@ -340,7 +342,7 @@ def read(conn, name, *, domain, project=None, scope=None, attribute=None,
                   AND d.project_scope=i.project_scope AND d.domain=i.domain
                   AND (i.name=%(name)s OR t.id IN(SELECT id FROM roots))
                   AND l.document_id NOT IN(SELECT document_id FROM valid_links)
-                  AND (%(metadata)s::jsonb IS NULL OR public.rag_metadata_document(d.id,%(metadata)s))
+                  {link_filter}
                 ORDER BY l.document_id LIMIT %(links)s
               )
               SELECT (SELECT id FROM roots ORDER BY id LIMIT 1) identity_id,

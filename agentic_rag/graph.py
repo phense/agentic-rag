@@ -93,10 +93,12 @@ def path(conn, from_id: str, to_id: str, max_depth: int = 4, *,
 
 @read_boundary
 def timeline(conn, doc_id: str, *, filter=None, cfg=None) -> list[TimelineEdge]:
-    rows = bounded_rows(conn,
-        "SELECT * FROM graph_timeline(%s) g WHERE (%s::jsonb IS NULL OR (EXISTS(SELECT 1 FROM documents s WHERE s.slug=g.src_slug AND public.rag_metadata_document(s.id,%s)) AND EXISTS(SELECT 1 FROM documents d WHERE d.slug=g.dst_slug AND public.rag_metadata_document(d.id,%s))))",
-        (doc_id,argument(filter),argument(filter),argument(filter))
-    )
+    query = "SELECT * FROM graph_timeline(%s) g"
+    extra = ()
+    if filter is not None:
+        query += " WHERE EXISTS(SELECT 1 FROM documents s WHERE s.slug=g.src_slug AND public.rag_metadata_document(s.id,%s)) AND EXISTS(SELECT 1 FROM documents d WHERE d.slug=g.dst_slug AND public.rag_metadata_document(d.id,%s))"
+        extra = (argument(filter),argument(filter))
+    rows = bounded_rows(conn, query, (doc_id,)+extra)
     return [
         TimelineEdge(str(r["edge_id"]), r["src_slug"], r["dst_slug"],
                      r["predicate"], r["valid_from"], r["valid_to"])
@@ -111,7 +113,9 @@ def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8,fil
     """
     if type(limit) is not int or not 1 <= limit <= 8:
         raise ValueError('research neighbor limit must be between 1 and 8')
-    return conn.execute('''SELECT e.id edge_id,e.predicate,left(e.evidence,600) edge_evidence,e.confidence,
+    metadata_clause = 'AND public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)' if filter is not None else ''
+    extra = (argument(filter),argument(filter)) if filter is not None else ()
+    return conn.execute(f'''SELECT e.id edge_id,e.predicate,left(e.evidence,600) edge_evidence,e.confidence,
                d.id,d.title,d.slug,d.domain,d.dtype,d.verified_at,d.provenance,e.src_id,e.dst_id
                FROM edges e JOIN documents src ON src.id=e.src_id JOIN documents dst ON dst.id=e.dst_id
                JOIN documents d ON d.id=CASE WHEN e.src_id=%s::uuid THEN e.dst_id ELSE e.src_id END
@@ -122,7 +126,7 @@ def research_neighbors(conn, doc_id, *, domain, scopes, at, history, limit=8,fil
                AND (%s OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
                AND (%s::text IS NULL OR (src.domain=%s AND dst.domain=%s))
                AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
-               AND (%s::jsonb IS NULL OR (public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)))
+               {metadata_clause}
                ORDER BY e.predicate,d.slug,d.id,e.id LIMIT %s''',
         (doc_id,doc_id,doc_id,['references','depends_on','extends','derived_from','contradicts','contrasts_with'],
-         at,history,at,history,history,at,at,domain,domain,domain,scopes,scopes,scopes,argument(filter),argument(filter),argument(filter),limit+1)).fetchall()
+         at,history,at,history,history,at,at,domain,domain,domain,scopes,scopes,scopes)+extra+(limit+1,)).fetchall()

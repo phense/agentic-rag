@@ -68,14 +68,15 @@ def _state(conn, topic, scopes, domain, history, key,filter=None):
     planner Memoize. All eligibility filters remain before limiting. SQL scan cost depends on the
     visible corpus; transferred rows, chunks and excerpt work are bounded.
     """
-    row = conn.execute("""
+    metadata_clause = "AND public.rag_metadata_document(scoped.id,%(metadata)s)" if filter is not None else ""
+    row = conn.execute(f"""
       WITH matching_chunks AS MATERIALIZED (
         SELECT c.id chunk_id,c.document_id,c.idx,
           ts_rank_cd(c.tsv_en,(SELECT websearch_to_tsquery('english',%(query)s))) +
           ts_rank_cd(c.tsv_de,(SELECT websearch_to_tsquery('german',%(query)s))) rank
         FROM chunks c JOIN documents scoped ON scoped.id=c.document_id
         WHERE scoped.status='active' AND scoped.project_scope=ANY(%(scopes)s)
-          AND (%(metadata)s::jsonb IS NULL OR public.rag_metadata_document(scoped.id,%(metadata)s))
+          {metadata_clause}
           AND (%(domain)s::text IS NULL OR scoped.domain=%(domain)s)
           AND (c.tsv_en @@ (SELECT websearch_to_tsquery('english',%(query)s))
             OR c.tsv_de @@ (SELECT websearch_to_tsquery('german',%(query)s)))

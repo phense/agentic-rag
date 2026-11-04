@@ -432,7 +432,9 @@ def _identity_candidates(conn, query, domain, scopes, at, history, filter=None):
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)+", selector):
             return None
     from .metadata import argument
-    rows = conn.execute("""
+    metadata_clause = "AND public.rag_metadata_document(d.id,%s)" if filter is not None else ""
+    extra = (argument(filter),) if filter is not None else ()
+    rows = conn.execute(f"""
         SELECT d.id AS document_id, c.id AS chunk_id, d.title, d.slug, d.domain,
                d.dtype, left(c.content,4000) AS snippet,
                (1.0/(61+c.idx))::double precision AS score, d.verified_at, d.provenance
@@ -441,9 +443,9 @@ def _identity_candidates(conn, query, domain, scopes, at, history, filter=None):
           AND d.status='active' AND assertion_eligible(d.id,%s,%s)
           AND (%s::text IS NULL OR d.domain=%s)
           AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
-        AND (%s::jsonb IS NULL OR public.rag_metadata_document(d.id,%s))
+        {metadata_clause}
         ORDER BY c.idx,c.id LIMIT 150
-        """, (document_id, document_id, selector, at, history, domain, domain, scopes, scopes, argument(filter),argument(filter))).fetchall()
+        """, (document_id, document_id, selector, at, history, domain, domain, scopes, scopes)+extra).fetchall()
     return rows or None
 
 
@@ -459,11 +461,13 @@ def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain,filter=No
     initial={h.document_id:h for h in reversed(hits)}
     frontier=[(h.document_id,0,h.score) for h in seeds]
     predicates=['references','depends_on','extends','derived_from']
+    metadata_clause = 'AND public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)' if filter is not None else ''
+    extra = (argument(filter),argument(filter)) if filter is not None else ()
     discovered=0
     while frontier and discovered<20:
         current,level,score=frontier.pop(0)
         if level>=depth:continue
-        rows=conn.execute("""
+        rows=conn.execute(f"""
             SELECT DISTINCT d.id,d.slug,d.title,d.domain,d.dtype,d.verified_at,d.provenance
             FROM edges e JOIN documents src ON src.id=e.src_id JOIN documents dst ON dst.id=e.dst_id
             JOIN documents d ON d.id=CASE WHEN e.src_id=%s::uuid THEN e.dst_id ELSE e.src_id END
@@ -474,9 +478,9 @@ def _expand(conn,hits,query,k,depth,project,scope,as_of,history,domain,filter=No
               AND (%s::boolean OR (e.valid_from<=%s AND (e.valid_to IS NULL OR e.valid_to>%s)))
               AND (%s::text[] IS NULL OR (src.project_scope=ANY(%s) AND dst.project_scope=ANY(%s)))
               AND (%s::text IS NULL OR d.domain=%s)
-            AND (%s::jsonb IS NULL OR (public.rag_metadata_document(src.id,%s) AND public.rag_metadata_document(dst.id,%s)))
+            {metadata_clause}
             ORDER BY d.slug,d.id LIMIT 8
-            """,(current,current,current,predicates,at,history,at,history,history,at,at,scopes,scopes,scopes,domain,domain,argument(filter),argument(filter),argument(filter))).fetchall()
+            """,(current,current,current,predicates,at,history,at,history,history,at,at,scopes,scopes,scopes,domain,domain)+extra).fetchall()
         for r in rows:
             identity=str(r['id'])
             if identity in visited:continue

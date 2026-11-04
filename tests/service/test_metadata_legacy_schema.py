@@ -67,7 +67,7 @@ def test_archived029_no_filter_preserves_original_reads(legacy,tmp_path,operatio
     selected={'domain':'general','project':'/projects/alpha'}
     at=datetime.now(timezone.utc)
     if operation=='identity':
-        hits,_=search.search(conn,cfg,ids['start'],strategy='lexical',rerank_mode='off',**selected)
+        hits,_=search.search(conn,cfg,ids['start'],strategy='auto',rerank_mode='off',**selected)
         assert [h.document_id for h in hits]==[ids['start']]
     elif operation=='entity':
         packet=entities.read(conn,'lyra-retired',**selected)
@@ -95,7 +95,7 @@ def test_archived029_no_filter_preserves_original_reads(legacy,tmp_path,operatio
         path=tmp_path/'legacy-corrections.json'
         report=corrections.export_confirmed_corrections(cfg,output_path=path,**selected)
         assert report['cases']==1
-        assert json.loads(path.read_text())['cases'][0]['expected']['document_id']==ids['fact']
+        assert json.loads(path.read_text())['cases'][0]['document_id']==ids['fact']
     assert conn.failures==[]
 
 

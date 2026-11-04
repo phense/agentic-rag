@@ -275,6 +275,7 @@ def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,hist
         if not scored:return []
         # Every stage has its own READ COMMITTED snapshot. Keep scores bound to
         # their observed source, and recheck explicit filters at final projection.
+        metadata_clause = 'AND public.rag_metadata_document(d.id,%s)' if filter is not None else ''
         rows=conn.execute(f'''SELECT d.id document_id,c.id chunk_id,d.title,d.slug,d.domain,d.dtype,
             left(c.content,4000) snippet,d.verified_at,d.provenance,c.idx,sum(s.score)::double precision score
             FROM unnest(%s::uuid[],%s::text[],%s::double precision[],%s::text[]) s(id,hash,score,context_hash)
@@ -283,9 +284,9 @@ def candidates(conn,bound_query,querytext,*,domain=None,scopes=None,at=None,hist
             AND (s.context_hash IS NULL OR s.context_hash=public.chunk_context_source_hash(d.title,d.body,d.project_scope,c.content))
             AND public.assertion_eligible(d.id,COALESCE(%s::timestamptz,now()),%s)
             AND (%s::text IS NULL OR d.domain=%s) AND (%s::text[] IS NULL OR d.project_scope=ANY(%s))
-            AND (%s::jsonb IS NULL OR public.rag_metadata_document(d.id,%s))
+            {metadata_clause}
             GROUP BY d.id,c.id''',
-            ([r[0] for r in scored],[r[1] for r in scored],[r[2] for r in scored],[r[3] for r in scored],at,history,domain,domain,scopes,scopes,argument(filter),argument(filter))).fetchall()
+            ([r[0] for r in scored],[r[1] for r in scored],[r[2] for r in scored],[r[3] for r in scored],at,history,domain,domain,scopes,scopes)+extra).fetchall()
         rows.sort(key=lambda r:(-r['score'],r['slug'],r['idx'],str(r['chunk_id'])))
         return rows[:k]
 
