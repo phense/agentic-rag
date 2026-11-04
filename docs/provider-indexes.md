@@ -121,6 +121,41 @@ from comparison. See the verification record for commands and actual results.
    Model/revision/endpoint/dimensions/normalization/metric/representation define
    identity. Credential rotation, batch size and timeout changes preserve it.
 
+### Models with different document and query prompts
+
+An explicitly configured retrieval model can require distinct task prefixes.
+With the current application, add both optional fields to that profile:
+
+```toml
+document_prefix = "Document: "
+query_prefix = "Query: "
+```
+
+Use the model author's exact strings, including spaces, and configure the endpoint
+to embed the supplied input verbatim; it must not add the same prefix again. Both
+fields must be empty or both nonempty, printable, and at most 64 characters each.
+The application adds the document prefix during builds and the query prefix during
+search. These strings are part of the immutable generation identity: editing either
+requires a new generation and rebuild, even when model and dimensions match.
+Unconfigured profiles retain their original identity and unchanged wire inputs.
+The 4000-character raw-input limit remains; inspection separately reports the wire
+limit including prefixes. No source input is silently truncated.
+
+A prefixed profile probe sends the fixed synthetic string once per role (at most
+six HTTP requests). Selection also verifies both roles before changing the pointer
+(at most seven requests). Each role retains the configured finite inference timeout.
+These checks prove protocol capability, not model quality or artifact attestation.
+The Jina benchmark uses separate retrieval and text-matching tasks; do not combine
+vectors from different adapters into the same generation.
+
+Existing stores need no schema change. Keep the prior profile file with the prior
+binary when rehearsing this option. Before a code rollback, restore that profile
+file: old binaries reject the new configuration fields. Old readers with their
+unchanged configuration continue using the legacy index. Before reverting the
+selected generation, catch up its coverage for writes made after cutover using the
+existing rollback procedure below. Never reinterpret retained vectors under newly
+edited prefixes. This option does not activate a new production model.
+
 You should see the independent extraction slot and named profile with finite
 bounds. No profile edit changes the selected database generation.
 

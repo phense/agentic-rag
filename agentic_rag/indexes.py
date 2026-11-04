@@ -92,17 +92,18 @@ def _profile(selection,cfg):
     return profile
 
 
-def _infer(cfg,texts,profile,*,background=False):
+def _infer(cfg,texts,profile,*,background=False,purpose='document'):
     from .service.context import CURRENT
     from .service.fence import LEASE
     server=cfg.service_mode=='server' or (CURRENT.get() is not None and cfg.service_auth_file is not None)
-    if not server:return providers.embed_profile(texts,profile)
+    options={'purpose':purpose} if profile.document_prefix else {}
+    if not server:return providers.embed_profile(texts,profile,**options)
     from .service.priority import model_slot,check_background
     background=background or LEASE.get() is not None
     if background:
         check_background(cfg)
         profile=replace(profile,timeout=min(profile.timeout,10.0))
-    with model_slot(cfg,background=background):return providers.embed_profile(texts,profile)
+    with model_slot(cfg,background=background):return providers.embed_profile(texts,profile,**options)
 
 
 def create(conn,cfg,name,profile_name):
@@ -178,6 +179,8 @@ def _select(conn,cfg,name,expected_active,operation):
         # inference must still prove the selected capability and dimensions.
         probe='Synthetic connectivity probe; no stored knowledge.'[:profile.max_input_chars]
         providers.validate_vectors(_infer(cfg,[probe],profile),1,profile.dimensions,profile.normalization)
+        if profile.document_prefix:
+            providers.validate_vectors(_infer(cfg,[probe],profile,purpose='query'),1,profile.dimensions,profile.normalization)
         if expected_active is _UNSET:
             before=active(conn,cfg);expected_active=before.id if before else None
         elif isinstance(expected_active,Selection):expected_active=expected_active.id
@@ -200,7 +203,7 @@ def rollback(conn,cfg,name,*,expected_active=_UNSET):
 
 def query_vector(selection,cfg,text):
     profile=_profile(selection,cfg)
-    vectors=_infer(cfg,[text],profile)
+    vectors=_infer(cfg,[text],profile,purpose='query')
     vectors=providers.validate_vectors(vectors,1,profile.dimensions,profile.normalization)
     return BoundQuery(selection,vec_literal(vectors[0]))
 

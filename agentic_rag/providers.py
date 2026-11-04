@@ -109,6 +109,8 @@ class EmbeddingProfile:
     max_batch: int = 32
     max_input_chars: int = 4000
     timeout: float = 30.0
+    document_prefix: str = ''
+    query_prefix: str = ''
 
     @classmethod
     def from_mapping(cls, values):
@@ -139,10 +141,18 @@ class EmbeddingProfile:
         if type(self.timeout) not in (float,int) or not math.isfinite(self.timeout) or not .1 <= self.timeout <= 120:
             raise _config('Provider timeout must be finite, between 0.1 and 120 seconds.')
         _credential_refs(self.credential_env, self.credential_file)
+        if (any(not isinstance(p,str) or len(p)>64 or any(not c.isprintable() for c in p)
+                for p in (self.document_prefix,self.query_prefix))
+                or bool(self.document_prefix)!=bool(self.query_prefix)):
+            raise _config('Task prefixes must both be empty or both contain at most 64 printable characters.')
 
     @property
     def descriptor(self):
-        return {key:getattr(self,key) for key in ('provider','model','revision','url','dimensions','normalization','metric','representation')}
+        result={key:getattr(self,key) for key in ('provider','model','revision','url','dimensions','normalization','metric','representation')}
+        # Omit empty defaults: existing persisted generation identities are immutable.
+        if self.document_prefix:
+            result.update(document_prefix=self.document_prefix,query_prefix=self.query_prefix)
+        return result
 
     @property
     def identity(self):
@@ -158,11 +168,14 @@ def resolve_profile(cfg, name) -> EmbeddingProfile:
 def describe_profile(profile):
     """Offline/read-only inspection; no credential reads, requests or model calls."""
     _, egress = _endpoint(profile.url)
+    roles=2 if profile.document_prefix else 1
+    wire_chars=profile.max_input_chars+max(len(profile.document_prefix),len(profile.query_prefix))
     return {'identity':profile.identity,'descriptor':profile.descriptor,'destination':profile.url,
             'external_egress':egress,'capabilities':['embedding'],'max_batch':profile.max_batch,
             'max_input_chars':profile.max_input_chars,'max_total_input_chars':profile.max_batch*profile.max_input_chars,
-            'timeout_seconds':profile.timeout,'max_requests_per_batch':3,'max_requests_per_probe':3,
-            'max_requests_per_identity_check':1,'max_requests_per_selection':4,'max_response_bytes':MAX_RESPONSE_BYTES,
+            'max_wire_input_chars':wire_chars,'max_total_wire_input_chars':profile.max_batch*wire_chars,
+            'timeout_seconds':profile.timeout,'max_requests_per_batch':3,'max_requests_per_probe':3*roles,
+            'max_requests_per_identity_check':1,'max_requests_per_selection':1+3*roles,'max_response_bytes':MAX_RESPONSE_BYTES,
             'automatic_retries':0,'fallback':False,'credential_configured':bool(profile.credential_env or profile.credential_file),
             'max_concurrent_inference_per_process':2,
             'identity_guarantee':('ollama-sha256-tag' if profile.provider=='ollama'
@@ -281,19 +294,22 @@ def validate_vectors(vectors, count, dimensions, normalization='none'):
 
 
 @_bounded_inference
-def embed_profile(texts, profile):
+def embed_profile(texts, profile, *, purpose='document'):
+    if purpose not in ('document','query'):raise _config('Embedding purpose must be document or query.')
     if (not isinstance(texts,list) or not 1<=len(texts)<=profile.max_batch
             or any(not isinstance(t,str) or not t.strip() or len(t)>profile.max_input_chars for t in texts)):
         raise _config('Embedding batch exceeds configured bounds or contains empty/non-text input; split inputs explicitly.')
+    prefix=profile.query_prefix if purpose=='query' else profile.document_prefix
+    inputs=[prefix+t for t in texts] if prefix else texts
     headers=_headers(profile.credential_env,profile.credential_file)
     deadline=time.monotonic()+profile.timeout
     with _http_client(trust_env=False,follow_redirects=False,headers=headers,timeout=profile.timeout) as client:
         _identity(client,profile,deadline)
         if profile.provider=='ollama':
-            result=_json(client,'POST',profile.url+'/api/embed',deadline,json={'model':profile.model,'input':texts,'truncate':False})
+            result=_json(client,'POST',profile.url+'/api/embed',deadline,json={'model':profile.model,'input':inputs,'truncate':False})
             vectors=result.get('embeddings') if isinstance(result,dict) else None
         else:
-            result=_json(client,'POST',_base(profile)+'/embeddings',deadline,json={'model':profile.model,'input':texts,'encoding_format':'float'})
+            result=_json(client,'POST',_base(profile)+'/embeddings',deadline,json={'model':profile.model,'input':inputs,'encoding_format':'float'})
             if not isinstance(result,dict) or result.get('model')!=profile.revision:
                 raise ProviderError('identity_mismatch',False,'Embedding response did not confirm the pinned logical model ID.')
             rows=result.get('data')
@@ -309,7 +325,9 @@ def embed_profile(texts, profile):
 def verify_profile(profile):
     """Explicit caller-authorized synthetic capability probe; never reads corpus."""
     vectors=embed_profile(['Synthetic connectivity probe; no stored knowledge.'[:profile.max_input_chars]],profile)
-    return {**describe_profile(profile),'verified':True,'probe_inputs':1,'probe_dimensions':len(vectors[0])}
+    if profile.document_prefix:
+        embed_profile(['Synthetic connectivity probe; no stored knowledge.'[:profile.max_input_chars]],profile,purpose='query')
+    return {**describe_profile(profile),'verified':True,'probe_inputs':2 if profile.document_prefix else 1,'probe_dimensions':len(vectors[0])}
 
 
 def _llm_profile(cfg, timeout=None):
