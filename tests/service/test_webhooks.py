@@ -347,7 +347,10 @@ def test_038_scrubs_arbitrary_default_acl_grants(tmp_path):
                     assert conn.execute("SELECT relacl::text acl FROM pg_class WHERE oid='documents'::regclass").fetchone()['acl']==original
                     for table in webhooks.TABLES:
                         assert not conn.execute("SELECT has_table_privilege(%s,%s,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') bad",(role,table)).fetchone()['bad']
-                    assert not conn.execute("SELECT has_function_privilege(%s,'rag_webhook_manage(text,jsonb,jsonb)','EXECUTE') bad",(role,)).fetchone()['bad']
+                    for sequence in ['webhook_resource_order','webhook_events_capture_order_seq']:
+                        assert not conn.execute("SELECT has_sequence_privilege(%s,%s,'USAGE,SELECT,UPDATE') bad",(role,sequence)).fetchone()['bad']
+                    for function in ['rag_webhook_manage(text,jsonb,jsonb)','rag_webhook_finalize()']:
+                        assert not conn.execute("SELECT has_function_privilege(%s,%s,'EXECUTE') bad",(role,function)).fetchone()['bad']
         finally:admin.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))
 
 
@@ -395,34 +398,19 @@ requests.run_one(cfg)
 
 
 def test_capture_and_subscription_mutation_use_consistent_lock_order(wh):
-    # Mutation caught: management locks subscription then waits for quota lock,
-    # while capture holds quota lock then needs the subscription FK key lock.
+    # Mutation caught: FOR UPDATE prevents an emitter's FK KEY SHARE while
+    # a manager may still finish its transaction. NO KEY UPDATE must coexist.
     from concurrent.futures import ThreadPoolExecutor
     sub=subscribe(wh);delivery.capture(wh,True)
-    ready=threading.Event();manager_pid=[]
-    def disable():
-        with db.connect(wh,role='writer') as conn:
-            manager_pid.append(conn.info.backend_pid);ready.set()
-            return webhooks.disable(conn,wh,subscription_id=sub['id'],expected_revision=1)
-    with db.connect(wh) as writer,ThreadPoolExecutor(max_workers=1) as pool:
-        writer.execute('SELECT pg_advisory_xact_lock(72038,1)')
-        future=pool.submit(disable);assert ready.wait(timeout=3)
-        deadline=time.monotonic()+5
-        while time.monotonic()<deadline:
-            waiting=writer.execute('SELECT %s=ANY(pg_blocking_pids(%s)) waiting',(writer.info.backend_pid,manager_pid[0])).fetchone()['waiting']
-            if waiting:break
-            time.sleep(.01)
-        assert waiting, 'management never reached the deterministic lock boundary'
-        try:
-            store.save_document(writer,wh,title='Concurrent capture',body='Atomic capture survives concurrent disable',domain='general',dtype='memory',project='/p',commit=False)
-            writer.commit()
-        except BaseException:
-            writer.rollback()
-            raise
-        assert future.result(timeout=5)['enabled'] is False
+    with db.connect(wh,role='writer') as manager,ThreadPoolExecutor(max_workers=1) as pool:
+        changed=webhooks.update(manager,wh,subscription_id=sub['id'],expected_revision=1,endpoint='https://example.com/new')
+        assert changed['revision']==2
+        future=pool.submit(save,wh)
+        try:assert future.result(timeout=5)
+        finally:manager.rollback()
     with db.connect(wh) as conn:
         assert conn.execute('SELECT count(*) n FROM webhook_events').fetchone()['n']==1
-        assert conn.execute("SELECT state FROM webhook_deliveries").fetchone()['state']=='disabled'
+        assert conn.execute("SELECT state FROM webhook_deliveries").fetchone()['state']=='pending'
 
 
 def test_management_rpc_requires_optimistic_revision_even_for_direct_writer(wh):

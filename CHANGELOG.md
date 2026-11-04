@@ -5,7 +5,7 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
-## 0.6.29 — 2026-11-04
+## [0.6.29] - 2026-11-04
 
 - Add explicitly enabled, scoped transactional webhook capture and a separate bounded signed sender.
 - Add private local key provisioning, scoped CLI/REST/MCP management, pinned destination checks and additive schema038.

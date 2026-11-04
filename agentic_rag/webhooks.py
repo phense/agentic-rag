@@ -23,13 +23,33 @@ class WebhookError(ValueError):
 def schema_valid(conn):
     from .service.schema import owner_only_tables_valid
     if not owner_only_tables_valid(conn,list(TABLES)):return False
-    sequence=conn.execute("""SELECT c.relowner,c.relacl FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
-        WHERE n.nspname='public' AND c.relname='webhook_resource_order' AND c.relkind='S'""").fetchone()
-    if sequence is None:return False
+    sequences=conn.execute("""SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname='public' AND c.relname=ANY(%s) AND c.relkind='S'""",
+        (['webhook_resource_order','webhook_events_capture_order_seq'],)).fetchall()
+    if len(sequences)!=2:return False
     if conn.execute("""SELECT EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
         CROSS JOIN LATERAL aclexplode(coalesce(c.relacl,acldefault('s',c.relowner))) a
-        WHERE n.nspname='public' AND c.relname='webhook_resource_order' AND a.grantee<>c.relowner) bad""").fetchone()['bad']:return False
-    required={'rag_webhook_emit','rag_webhook_capture','rag_webhook_manage','rag_webhook_status'}
+        WHERE n.nspname='public' AND c.relname IN ('webhook_resource_order','webhook_events_capture_order_seq') AND a.grantee<>c.relowner) bad""").fetchone()['bad']:return False
+    columns=conn.execute("""SELECT a.attname,a.atttypid::regtype::text typ,a.attnotnull,a.attidentity
+        FROM pg_attribute a WHERE a.attrelid='public.webhook_events'::regclass
+        AND a.attname IN ('capture_xid','capture_order') AND NOT a.attisdropped""").fetchall()
+    if {r['attname']: (r['typ'],r['attnotnull'],r['attidentity']) for r in columns}!={
+        'capture_xid':('xid8',True,''),'capture_order':('bigint',True,'a')}:return False
+    checks=conn.execute("""SELECT c.relname,x.conname,pg_get_expr(x.conbin,x.conrelid) expression
+        FROM pg_constraint x JOIN pg_class c ON c.oid=x.conrelid
+        WHERE x.conrelid IN ('public.webhook_events'::regclass,'public.webhook_deliveries'::regclass)
+        AND x.convalidated AND x.contype='c' AND x.conname=ANY(%s)""",
+        (['webhook_event_staging_version','webhook_cancel_origin','webhook_cancel_marker'],)).fetchall()
+    if {(r['relname'],r['conname']):r['expression'] for r in checks}!={
+        ('webhook_events','webhook_event_staging_version'):'(resource_version >= 0)',
+        ('webhook_deliveries','webhook_cancel_origin'):"(cancelled_from = ANY (ARRAY['dead'::text, 'revoked'::text, 'disabled'::text]))",
+        ('webhook_deliveries','webhook_cancel_marker'):"((state = 'cancelled'::text) = (cancelled_from IS NOT NULL))"}:return False
+    deferred=conn.execute("""SELECT c.relname,t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+        WHERE t.tgenabled IN ('O','A') AND t.tgdeferrable AND t.tginitdeferred
+        AND t.tgfoid='public.rag_webhook_finalize()'::regprocedure""").fetchall()
+    if {(r['relname'],r['tgname']) for r in deferred}!={('webhook_events','webhook_event_admission'),
+        ('webhook_subscriptions','webhook_subscription_admission'),('webhook_deliveries','webhook_delivery_admission')}:return False
+    required={'rag_webhook_emit','rag_webhook_capture','rag_webhook_manage','rag_webhook_status','rag_webhook_finalize'}
     rows=conn.execute("""SELECT p.proname,p.prosecdef,p.proconfig,
         EXISTS(SELECT 1 FROM aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a
          WHERE a.grantee<>p.proowner AND (a.privilege_type<>'EXECUTE' OR a.is_grantable OR
@@ -38,7 +58,7 @@ def schema_valid(conn):
           (p.proname='rag_webhook_status' AND rolname IN ('rag_reader','rag_writer'))))) bad
         FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
         WHERE n.nspname='public' AND p.proname=ANY(%s)""",(list(required),)).fetchall()
-    if len(rows)!=4 or {r['proname'] for r in rows}!=required or any(not r['prosecdef'] or r['bad'] or
+    if len(rows)!=5 or {r['proname'] for r in rows}!=required or any(not r['prosecdef'] or r['bad'] or
             'search_path=pg_catalog, public, pg_temp' not in (r['proconfig'] or []) for r in rows):return False
     triggers=conn.execute("""SELECT c.relname,t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
         JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND t.tgenabled IN ('O','A')

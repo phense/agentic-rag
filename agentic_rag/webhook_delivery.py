@@ -306,13 +306,42 @@ def send_one(cfg):
     return {'delivery_id':str(row['delivery_id']),'event_id':str(row['event_id']),'outcome':outcome,'completed':fenced}
 
 
+def cancel(cfg,*,delivery_id,expected_state):
+    """Deliberate local retirement of one terminal delivery; retain evidence7days."""
+    _operator(cfg)
+    if expected_state not in ('dead','revoked','disabled'):raise WebhookError('webhook_invalid')
+    identity=uuid.UUID(delivery_id)
+    with db.connect(cfg) as conn:
+        _valid(conn)
+        row=conn.execute('SELECT state,cancelled_from,updated_at FROM webhook_deliveries WHERE id=%s FOR UPDATE',(identity,)).fetchone()
+        if row is None:raise WebhookError('webhook_unavailable',404)
+        if row['state']=='cancelled' and row['cancelled_from']==expected_state:
+            return {'delivery_id':str(identity),'state':'cancelled','cancelled_from':expected_state,
+                    'cancelled_at':row['updated_at'].isoformat(),'changed':False}
+        if row['state']!=expected_state:raise WebhookError('webhook_conflict',409)
+        cancelled=conn.execute("""UPDATE webhook_deliveries SET state='cancelled',cancelled_from=%s,
+            lease=NULL,lease_until=NULL,outcome='cancelled',updated_at=clock_timestamp() WHERE id=%s RETURNING updated_at""",
+            (expected_state,identity)).fetchone()['updated_at']
+        conn.execute("INSERT INTO audit_log(actor,op,summary) VALUES('webhook:operator','webhook.cancel',%s)",
+                     (str(identity)+':'+expected_state,))
+        return {'delivery_id':str(identity),'state':'cancelled','cancelled_from':expected_state,
+                'cancelled_at':cancelled.isoformat(),'changed':True}
+
+
 def prune(cfg):
     _operator(cfg)
     with db.connect(cfg) as conn:
-        _valid(conn);conn.execute('SELECT pg_advisory_xact_lock(72038,1)')
-        count=conn.execute("""DELETE FROM webhook_deliveries WHERE state IN ('acknowledged','cancelled')
-            AND updated_at<now()-interval '7 days' RETURNING id""").fetchall()
-        events=conn.execute("""DELETE FROM webhook_events e WHERE created_at<now()-interval '7 days'
-            AND NOT EXISTS(SELECT 1 FROM webhook_deliveries d WHERE d.event_id=e.id) RETURNING id""").fetchall()
+        _valid(conn)
+        conn.execute('UPDATE webhook_control SET enabled=enabled WHERE singleton')
+        # A same-transaction replay may own a terminal row while its new event
+        # waits for admission. Never wait for that row while holding control.
+        count=conn.execute("""WITH candidates AS (
+            SELECT id FROM webhook_deliveries WHERE state IN ('acknowledged','cancelled')
+            AND updated_at<now()-interval '7 days' FOR UPDATE SKIP LOCKED)
+            DELETE FROM webhook_deliveries d USING candidates c WHERE d.id=c.id RETURNING d.id""").fetchall()
+        events=conn.execute("""WITH candidates AS (
+            SELECT e.id FROM webhook_events e WHERE created_at<now()-interval '7 days'
+            AND NOT EXISTS(SELECT 1 FROM webhook_deliveries d WHERE d.event_id=e.id) FOR UPDATE SKIP LOCKED)
+            DELETE FROM webhook_events e USING candidates c WHERE e.id=c.id RETURNING e.id""").fetchall()
         conn.execute("INSERT INTO audit_log(actor,op,summary) VALUES('webhook:operator','webhook.prune',%s)",(str(len(count))+':'+str(len(events)),))
     return {'deliveries':len(count),'events':len(events)}

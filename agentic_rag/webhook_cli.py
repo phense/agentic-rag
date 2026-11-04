@@ -18,6 +18,7 @@ def add_parser(sub):
     p=commands.add_parser('key-export');p.add_argument('subscription_id');p.add_argument('--output',required=True,type=Path)
     p=commands.add_parser('capture');p.add_argument('state',choices=['on','off'])
     p=commands.add_parser('sender');p.add_argument('--limit',type=int,default=1)
+    p=commands.add_parser('cancel');p.add_argument('delivery_id');p.add_argument('--expected-state',required=True,choices=['dead','revoked','disabled'])
     commands.add_parser('prune')
 
 
@@ -25,11 +26,12 @@ def run(cfg,args):
     from . import db,mcp_server,webhooks,webhook_delivery
     from .service.context import CURRENT
     operation=args.webhook_cmd
-    if operation in ('key-init','key-export','capture','sender','prune'):
+    if operation in ('key-init','key-export','capture','sender','prune','cancel'):
         webhook_delivery._operator(cfg)
         if operation=='key-init':result=webhook_delivery.key_init(cfg,args.output)
         elif operation=='key-export':result=webhook_delivery.key_export(cfg,subscription_id=args.subscription_id,output=args.output)
         elif operation=='capture':result=webhook_delivery.capture(cfg,args.state=='on')
+        elif operation=='cancel':result=webhook_delivery.cancel(cfg,delivery_id=args.delivery_id,expected_state=args.expected_state)
         elif operation=='prune':result=webhook_delivery.prune(cfg)
         else:
             if not 1<=args.limit<=100:raise ValueError('webhook_invalid')

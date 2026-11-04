@@ -198,6 +198,9 @@ def test_cancel_expected_state_authority_replay_and_fence(wh,terminal):
     with pytest.raises(webhooks.WebhookError,match='webhook_conflict'):
         delivery.cancel(wh,delivery_id=str(row['id']),expected_state='dead' if terminal!='dead' else 'revoked')
     one=delivery.cancel(wh,delivery_id=str(row['id']),expected_state=terminal)
+    stale={'delivery_id':row['id'],'lease':lease,'attempts':1}
+    assert delivery.complete(wh,stale,'acknowledged') is False
+    assert delivery.complete(wh,stale,'network') is False
     assert delivery.cancel(wh,delivery_id=str(row['id']),expected_state=terminal)['cancelled_at']==one['cancelled_at']
     with db.connect(wh) as conn:
         assert conn.execute('SELECT lease,lease_until FROM webhook_deliveries').fetchone()=={'lease':None,'lease_until':None}
@@ -270,6 +273,7 @@ def test_actual_multi_document_mining_and_lifecycle_producers(wh,tmp_path,monkey
     "GRANT USAGE ON SEQUENCE webhook_events_capture_order_seq TO rag_reader",
     "ALTER TABLE webhook_events DISABLE TRIGGER webhook_event_admission",
     "ALTER TABLE webhook_subscriptions DISABLE TRIGGER webhook_subscription_admission",
+    "ALTER TABLE webhook_deliveries DISABLE TRIGGER webhook_delivery_admission",
     "ALTER TABLE webhook_deliveries DROP CONSTRAINT webhook_cancel_marker",
     "ALTER TABLE webhook_deliveries DROP CONSTRAINT webhook_cancel_origin",
     "ALTER TABLE webhook_events DROP CONSTRAINT webhook_event_staging_version",

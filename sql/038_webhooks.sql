@@ -18,7 +18,9 @@ CREATE TABLE public.webhook_subscriptions (
 );
 CREATE TABLE public.webhook_events (
  id uuid PRIMARY KEY, kind text NOT NULL, resource text NOT NULL CHECK(length(resource)<=256),
- resource_version bigint NOT NULL, domain text, project text NOT NULL, owner_namespace text,
+ resource_version bigint NOT NULL CONSTRAINT webhook_event_staging_version CHECK(resource_version>=0), domain text,
+ capture_xid xid8 NOT NULL DEFAULT pg_current_xact_id(),
+ capture_order bigint GENERATED ALWAYS AS IDENTITY, project text NOT NULL, owner_namespace text,
  anchors uuid[] NOT NULL DEFAULT '{}', payload jsonb NOT NULL CHECK(octet_length(payload::text)<=4096),
  wire text NOT NULL CHECK(octet_length(wire)<=4096), created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -30,7 +32,9 @@ CREATE TABLE public.webhook_deliveries (
  attempts integer NOT NULL DEFAULT 0 CHECK(attempts BETWEEN 0 AND 6), replay_count integer NOT NULL DEFAULT 0 CHECK(replay_count BETWEEN 0 AND 8),
  lease uuid, lease_until timestamptz, due_at timestamptz NOT NULL DEFAULT now(),
  outcome text CHECK(outcome IN ('acknowledged','network','timeout','response','destination','key','off','disabled','revoked','exhausted','cancelled')),
- updated_at timestamptz NOT NULL DEFAULT now(), UNIQUE(event_id,subscription_id)
+ cancelled_from text CONSTRAINT webhook_cancel_origin CHECK(cancelled_from IN ('dead','revoked','disabled')),
+ updated_at timestamptz NOT NULL DEFAULT now(), UNIQUE(event_id,subscription_id),
+ CONSTRAINT webhook_cancel_marker CHECK((state='cancelled')=(cancelled_from IS NOT NULL))
 );
 CREATE INDEX webhook_due ON public.webhook_deliveries(due_at) WHERE state IN ('pending','retry','leased');
 -- Scrub arbitrary ALTER DEFAULT PRIVILEGES, including unrelated grantees.
@@ -41,7 +45,7 @@ BEGIN
  JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
  CROSS JOIN LATERAL pg_catalog.aclexplode(coalesce(c.relacl,pg_catalog.acldefault(CASE WHEN c.relkind='S' THEN 's'::"char" ELSE 'r'::"char" END,c.relowner))) a
  LEFT JOIN pg_catalog.pg_roles r ON r.oid=a.grantee
- WHERE n.nspname='public' AND c.relname IN ('webhook_control','webhook_subscriptions','webhook_events','webhook_deliveries','webhook_resource_order') AND a.grantee<>c.relowner
+ WHERE n.nspname='public' AND c.relname IN ('webhook_control','webhook_subscriptions','webhook_events','webhook_deliveries','webhook_resource_order','webhook_events_capture_order_seq') AND a.grantee<>c.relowner
  LOOP EXECUTE format('REVOKE ALL ON %s public.%I FROM %s CASCADE',CASE WHEN x.relkind='S' THEN 'SEQUENCE' ELSE 'TABLE' END,x.relname,
  CASE WHEN x.grantee=0 THEN 'PUBLIC' ELSE quote_ident(x.rolname) END); END LOOP;
 END $acl$;
@@ -55,18 +59,19 @@ BEGIN
  SELECT array_agg(id) INTO matches FROM public.webhook_subscriptions WHERE enabled AND project=p_project AND kinds ? p_kind
  AND ((p_domain IS NOT NULL AND domain=p_domain) OR (p_domain IS NULL AND domain IS NULL AND namespace=p_namespace));
  IF matches IS NULL THEN RETURN; END IF;
- PERFORM pg_advisory_xact_lock(72038,1);
- -- Every table has finite admission; failure rolls canonical writes back too.
- IF (SELECT count(*) FROM public.webhook_events)>=ctl.max_records OR
-    (SELECT count(*) FROM public.webhook_deliveries)+cardinality(matches)>ctl.max_records THEN
+ -- Nonblocking per-transaction bound only; committed global admission is deferred.
+ IF (SELECT count(*) FROM public.webhook_events WHERE capture_xid=pg_current_xact_id() AND resource_version=0)>=ctl.max_records OR
+    (SELECT count(*) FROM public.webhook_deliveries d JOIN public.webhook_events e ON e.id=d.event_id
+      WHERE e.capture_xid=pg_current_xact_id() AND e.resource_version=0)+cardinality(matches)>ctl.max_records THEN
   RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
- eid:=gen_random_uuid(); ver:=nextval('public.webhook_resource_order');
+ eid:=gen_random_uuid(); ver:=0;
  correlation:=nullif(current_setting('rag_webhook.correlation',true),'');
  IF correlation IS NULL THEN correlation:=gen_random_uuid()::text; PERFORM set_config('rag_webhook.correlation',correlation,true); END IF;
  body:=jsonb_build_object('event_id',eid,'event_version',1,'kind',p_kind,'resource_id',p_resource,
   'resource_version',ver,'at',clock_timestamp(),'scope',jsonb_build_object('domain',p_domain,'project',p_project),
   'correlation_id',correlation,'state',p_state);
- IF octet_length(body::text)>4096 OR (SELECT coalesce(sum(octet_length(wire)+octet_length(payload::text)),0) FROM public.webhook_events)+2*octet_length(body::text)>ctl.max_bytes THEN
+ IF octet_length(body::text)>4096 OR (SELECT coalesce(sum(octet_length(wire)+octet_length(payload::text)),0) FROM public.webhook_events
+   WHERE capture_xid=pg_current_xact_id() AND resource_version=0)+2*octet_length(body::text)>ctl.max_bytes THEN
   RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
  INSERT INTO public.webhook_events(id,kind,resource,resource_version,domain,project,owner_namespace,anchors,payload,wire)
  VALUES(eid,p_kind,p_resource,ver,p_domain,p_project,p_namespace,p_anchors,body,body::text);
@@ -95,8 +100,6 @@ BEGIN
   END LOOP;
  ELSIF TG_TABLE_NAME='lifecycle_events' THEN
   SELECT operation INTO op FROM public.lifecycle_decisions WHERE id=NEW.decision_id;
-  -- One decision's row lock serializes its apply/correction notices.
-  PERFORM id FROM public.lifecycle_decisions WHERE id=NEW.decision_id FOR UPDATE;
   PERFORM public.rag_webhook_emit('lifecycle.'||NEW.event,NEW.decision_id::text,NEW.domain,NEW.project_scope,NULL,ARRAY[NEW.member_id,NEW.target_id],op);
  ELSIF TG_TABLE_NAME='edges' THEN
   IF NEW.predicate NOT IN ('supersedes','duplicate_of') THEN RETURN NULL; END IF;
@@ -127,15 +130,14 @@ BEGIN
  ns:=CASE WHEN public.rag_service_active() THEN current_setting('rag_service.namespace',true) ELSE 'local' END;
  actor_name:=CASE WHEN public.rag_service_active() THEN current_setting('rag_service.actor',true) ELSE 'webhook:local' END;
  IF ns IS NULL OR actor_name IS NULL THEN RAISE EXCEPTION 'webhook_unavailable' USING ERRCODE='42501'; END IF;
- -- Mutations use quota/admission before subscription/FK locks; status is a plain scoped read.
- IF p_op<>'status' THEN PERFORM pg_advisory_xact_lock(72038,1); END IF;
+ -- NO KEY UPDATE is compatible with capture delivery FK KEY SHARE. Admission is deferred.
  IF p_op='subscribe' THEN
   dom:=p_args->>'domain'; proj:=p_args->>'project';
  ELSE
   IF p_op='status' THEN
    SELECT * INTO s FROM public.webhook_subscriptions WHERE id=(p_args->>'subscription_id')::uuid AND namespace=ns AND actor=actor_name;
   ELSE
-   SELECT * INTO s FROM public.webhook_subscriptions WHERE id=(p_args->>'subscription_id')::uuid AND namespace=ns AND actor=actor_name FOR UPDATE;
+   SELECT * INTO s FROM public.webhook_subscriptions WHERE id=(p_args->>'subscription_id')::uuid AND namespace=ns AND actor=actor_name FOR NO KEY UPDATE;
   END IF;
   IF NOT FOUND THEN RAISE EXCEPTION 'webhook_unavailable' USING ERRCODE='P0002'; END IF;
   dom:=s.domain; proj:=s.project;
@@ -167,7 +169,13 @@ BEGIN
   END IF;
   IF (SELECT count(*) FROM public.webhook_subscriptions WHERE namespace=ns)>=32 OR (SELECT count(*) FROM public.webhook_subscriptions)>=10000 THEN RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
   INSERT INTO public.webhook_subscriptions(namespace,actor,credential_reference,domain,project,endpoint,kinds,idempotency_key,request_digest)
-   VALUES(ns,actor_name,p_reference,dom,proj,p_args->>'endpoint',p_args->'kinds',(p_args->>'idempotency_key')::uuid,digest) RETURNING * INTO s;
+   VALUES(ns,actor_name,p_reference,dom,proj,p_args->>'endpoint',p_args->'kinds',(p_args->>'idempotency_key')::uuid,digest)
+   ON CONFLICT(namespace,idempotency_key) DO NOTHING RETURNING * INTO s;
+  IF NOT FOUND THEN
+   SELECT * INTO prior FROM public.webhook_subscriptions WHERE namespace=ns AND idempotency_key=(p_args->>'idempotency_key')::uuid;
+   IF prior.request_digest IS DISTINCT FROM digest THEN RAISE EXCEPTION 'webhook_conflict' USING ERRCODE='40001'; END IF;
+   RETURN jsonb_build_object('id',prior.id,'revision',prior.revision,'generation',prior.generation,'enabled',prior.enabled);
+  END IF;
  ELSE
   IF s.revision IS DISTINCT FROM (p_args->>'expected_revision')::integer THEN RAISE EXCEPTION 'webhook_conflict' USING ERRCODE='40001'; END IF;
   IF p_op='disable' THEN
@@ -180,20 +188,16 @@ BEGIN
    UPDATE public.webhook_subscriptions SET generation=generation+1,revision=revision+1 WHERE id=s.id RETURNING * INTO s;
   ELSIF p_op='replay' THEN
    did:=(p_args->>'delivery_id')::uuid;
-   UPDATE public.webhook_deliveries SET state='pending',attempts=0,replay_count=replay_count+1,due_at=now(),lease=NULL,lease_until=NULL,outcome=NULL,updated_at=now()
+   UPDATE public.webhook_deliveries SET state='pending',attempts=0,replay_count=replay_count+1,due_at=now(),lease=NULL,lease_until=NULL,outcome=NULL,cancelled_from=NULL,updated_at=now()
     WHERE id=did AND subscription_id=s.id AND state IN ('dead','acknowledged','disabled','revoked','cancelled') AND replay_count<8;
    IF NOT FOUND THEN RAISE EXCEPTION 'webhook_unavailable' USING ERRCODE='P0002'; END IF;
   ELSIF p_op='test' THEN
    IF NOT s.enabled THEN RAISE EXCEPTION 'webhook_disabled'; END IF;
    -- Explicit test intent, delivery is always performed by the separate sender.
    did:=gen_random_uuid();
-   result:=jsonb_build_object('event_id',did,'event_version',1,'kind','test','resource_id',s.id,'resource_version',nextval('public.webhook_resource_order'),'at',clock_timestamp(),
+   result:=jsonb_build_object('event_id',did,'event_version',1,'kind','test','resource_id',s.id,'resource_version',0,'at',clock_timestamp(),
     'scope',jsonb_build_object('domain',s.domain,'project',s.project),'correlation_id',gen_random_uuid(),'state','test');
    IF NOT (SELECT enabled FROM public.webhook_control) THEN RAISE EXCEPTION 'webhook_off'; END IF;
-   IF (SELECT count(*) FROM public.webhook_events)>=(SELECT max_records FROM public.webhook_control) OR
-    (SELECT count(*) FROM public.webhook_deliveries)>=(SELECT max_records FROM public.webhook_control) OR
-    (SELECT coalesce(sum(octet_length(wire)+octet_length(payload::text)),0) FROM public.webhook_events)+2*octet_length(result::text)>(SELECT max_bytes FROM public.webhook_control) THEN
-     RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
    INSERT INTO public.webhook_events(id,kind,resource,resource_version,domain,project,owner_namespace,payload,wire)
     VALUES(did,'test',s.id::text,(result->>'resource_version')::bigint,s.domain,s.project,s.namespace,result,result::text);
    INSERT INTO public.webhook_deliveries(event_id,subscription_id) VALUES(did,s.id);
@@ -202,6 +206,44 @@ BEGIN
  INSERT INTO public.audit_log(actor,op,summary) VALUES(actor_name,'webhook.'||p_op,s.id::text);
  RETURN jsonb_build_object('id',s.id,'revision',s.revision,'generation',s.generation,'enabled',s.enabled);
 END $$;
+-- At transaction end all supported canonical producers have finished acquiring
+-- their resource locks. Serialize committed metadata admission and final event
+-- order here, never in the immediate producer. The no-op UPDATE creates a new
+-- row version: a concurrent stale REPEATABLE READ snapshot must abort40001.
+CREATE FUNCTION public.rag_webhook_finalize() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$
+DECLARE ctl record; e record; ver bigint; body jsonb;
+BEGIN
+ IF TG_TABLE_NAME='webhook_events' AND NOT EXISTS(SELECT 1 FROM public.webhook_events
+    WHERE capture_xid=pg_current_xact_id() AND resource_version=0) THEN RETURN NULL; END IF;
+ UPDATE public.webhook_control SET enabled=enabled WHERE singleton RETURNING * INTO ctl;
+ IF NOT FOUND THEN RAISE EXCEPTION 'incompatible_service_schema'; END IF;
+ FOR e IN SELECT id,payload FROM public.webhook_events
+   WHERE capture_xid=pg_current_xact_id() AND resource_version=0 ORDER BY capture_order
+ LOOP
+  ver:=nextval('public.webhook_resource_order');
+  body:=jsonb_set(e.payload,'{resource_version}',to_jsonb(ver));
+  IF octet_length(body::text)>4096 THEN RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
+  UPDATE public.webhook_events SET resource_version=ver,payload=body,wire=body::text WHERE id=e.id;
+ END LOOP;
+ IF (SELECT count(*) FROM public.webhook_events)>ctl.max_records OR
+    (SELECT count(*) FROM public.webhook_deliveries)>ctl.max_records OR
+    (SELECT coalesce(sum(octet_length(wire)+octet_length(payload::text)),0) FROM public.webhook_events)>ctl.max_bytes OR
+    (SELECT count(*) FROM public.webhook_subscriptions)>10000 OR
+    EXISTS(SELECT 1 FROM public.webhook_subscriptions GROUP BY namespace HAVING count(*)>32) THEN
+  RAISE EXCEPTION 'webhook_capacity' USING ERRCODE='54000'; END IF;
+ RETURN NULL;
+END $$;
+CREATE INDEX webhook_staged ON public.webhook_events(capture_xid,capture_order) WHERE resource_version=0;
+CREATE CONSTRAINT TRIGGER webhook_event_admission AFTER INSERT ON public.webhook_events
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.rag_webhook_finalize();
+CREATE CONSTRAINT TRIGGER webhook_subscription_admission AFTER INSERT ON public.webhook_subscriptions
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.rag_webhook_finalize();
+-- Also guard fanout when a caller explicitly forces constraints IMMEDIATE:
+-- the event admission then precedes delivery INSERT, so this check is essential.
+CREATE CONSTRAINT TRIGGER webhook_delivery_admission AFTER INSERT ON public.webhook_deliveries
+ DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION public.rag_webhook_finalize();
+
 -- Read wrapper prevents readers from invoking the mutating RPC.
 CREATE FUNCTION public.rag_webhook_status(p_args jsonb) RETURNS jsonb
 LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$ SELECT public.rag_webhook_manage('status',p_args) $$;

@@ -19,7 +19,7 @@ def test_capture_defaults_off_and_rolls_back(conn):
     conn.execute('UPDATE webhook_control SET enabled=true')
     conn.execute("INSERT INTO documents(slug,domain,dtype,title,body,project_scope) VALUES ('on','general','memory','PRIVATE TITLE','PRIVATE BODY','global')")
     event=conn.execute('SELECT payload FROM webhook_events').fetchone()['payload']
-    assert event['kind']=='memory.created' and event['resource_version']>=1
+    assert event['kind']=='memory.created' and event['resource_version']==0  # private until deferred commit admission
     assert 'PRIVATE' not in json.dumps(event)
     assert conn.execute('SELECT count(*) n FROM webhook_deliveries').fetchone()['n']==1
     conn.rollback()
@@ -60,8 +60,9 @@ def test_operator_contexts_and_private_files(tmp_path):
     from agentic_rag.config import Config
     from agentic_rag.service.queued_transaction import GROUP,EXECUTION
     from agentic_rag.service.fence import LEASE
+    from agentic_rag.service.context import CURRENT
     cfg=Config()
-    for context in (GROUP,EXECUTION,LEASE):
+    for context in (CURRENT,GROUP,EXECUTION,LEASE):
         token=context.set(object())
         try:
             with pytest.raises(ValueError,match='operator_local'):delivery.key_init(cfg,tmp_path/'forbidden')
