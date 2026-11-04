@@ -1,0 +1,65 @@
+[
+  {
+    "id": "minilm-l6",
+    "repo": "cross-encoder/msmarco-MiniLM-L6-en-de-v1",
+    "revision": "9eb610d90d409cfefb7422e13debd405f8465af6",
+    "license": "apache-2.0",
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 107494476,
+        "sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab",
+        "upstream_lfs_sha256": "5d849b007fb3975d130f6f476eea9977980f5f260cbef8b0c4ba00efac67f1ab"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 9096735,
+        "sha256": "96ef91dd5d1c3b157a0437e85ff1f29d0eb3cf32fd40f863dab45baa5e839fad",
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  {
+    "id": "mmarco",
+    "repo": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+    "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+    "license": "apache-2.0",
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quint8_avx2.onnx",
+        "bytes": 118620016,
+        "sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b",
+        "upstream_lfs_sha256": "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 17082660,
+        "sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+        "upstream_lfs_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626"
+      }
+    }
+  },
+  {
+    "id": "jina-v2",
+    "repo": "jinaai/jina-reranker-v2-base-multilingual",
+    "revision": "9cfeff2df7d40d1b78e75e5e9cebec92a99813c9",
+    "license": "cc-by-nc-4.0",
+    "pad": "<pad>",
+    "files": {
+      "model.onnx": {
+        "upstream_path": "onnx/model_quantized.onnx",
+        "bytes": 279577152,
+        "sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3",
+        "upstream_lfs_sha256": "c5220cf8fe023f8aa0ed2a3eb787d4451a7f17cf53f6b787e35718dd4b8815c3"
+      },
+      "tokenizer.json": {
+        "upstream_path": "tokenizer.json",
+        "bytes": 17082734,
+        "sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20",
+        "upstream_lfs_sha256": "3a56def25aa40facc030ea8b0b87f3688e4b3c39eb8b45d5702b3a1300fe2a20"
+      }
+    }
+  }
+]

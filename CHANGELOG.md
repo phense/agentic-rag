@@ -5,6 +5,10 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.32] - 2026-11-04
+
+- Add a separate maintained, hash-pinned, wheel-only ONNX benchmark path for the three historical ONNX profiles. It reuses the installed ranker, refuses Transformers/setuptools and custom-code v3.5, retains failed attempts, and never downloads models. The historical four-model manifest, measurements and failed protocol remain unchanged. See `docs/benchmarks/maintained-rerankers/README.md` for advisory dispositions, isolated rebuild and recovery. No database migration, production profile change or data rewrite is required; rollback uses the previous application environment.
+
 ## [0.6.31] - 2026-11-04
 
 - Require Pillow13 for the optional image decoder and lock13.0.0, including the upstream security fixes. Existing image originals, OCR readings and source hashes are not rewritten; no migration, automatic backfill or model download is introduced. Reinstall the images extra and restart processes to use the new decoder. Keep the previous environment for code rollback; do not replace current data with an old backup.

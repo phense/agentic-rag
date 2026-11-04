@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/home/administrator/Claude/.scratch/rag089-maintained-032/bin/python",
+    "-I",
+    "/home/administrator/Claude/.scratch/rag089-synthetic-rebuild-032/checkout/scripts/benchmark_reranker_offline.py",
+    "--profile",
+    "mmarco",
+    "--models-dir",
+    "/home/administrator/Claude/.scratch/rag089-synthetic-rebuild-032/models",
+    "--corpus",
+    "/home/administrator/Claude/.scratch/rag089-synthetic-rebuild-032/corpus.json",
+    "--output-dir",
+    "/home/administrator/Claude/.scratch/rag089-synthetic-rebuild-032/output",
+    "--threads",
+    "2",
+    "--timeout",
+    "20"
+  ],
+  "started": "2026-11-04T14:02:27.621127+00:00",
+  "finished": "2026-11-04T14:02:29.645414+00:00",
+  "exit_code": 0,
+  "seconds": 2.0242853919626214,
+  "wheel_sha256": "e37627d347e17504053cbe82e5f5c1604b5ee65e77ae0a7c23eb18d2f5bae6ca",
+  "script_sha256": "f50fe9b0c11f430396f29ce573b084335a65eb06b9346020860b0d255edc89d5",
+  "requirements_sha256": "0250c9586b4bb46a9701bbdd5f6d00ae6a68774920ef02418e67c846bd8e1288",
+  "environment": "fresh noneditable application wheel plus44 hash-verified runtime wheels; pip check exit0",
+  "actual_model": "OWN SYNTHETIC ReduceSum graph; not mMARCO or other pretrained weights",
+  "scored": 2,
+  "orders": [
+    [
+      "H",
+      "L"
+    ],
+    [
+      "H",
+      "L"
+    ]
+  ],
+  "network_model_downloads": 0,
+  "source_models_unchanged": true,
+  "staging_removed": true,
+  "production_touched": false
+}

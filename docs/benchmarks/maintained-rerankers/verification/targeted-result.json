@@ -1,0 +1,35 @@
+{
+  "head": "4695f7d6ae6aa6c243176681f1bafdfc6f823da1",
+  "started": "2026-11-04T14:01:43.278906+00:00",
+  "finished": "2026-11-04T14:02:19.464232+00:00",
+  "command": [
+    "/home/administrator/Claude/agentic-rag/.worktrees/request-tracing-60-20261030/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "--durations=20",
+    "tests/benchmark/test_maintained_reranker.py",
+    "tests/test_reranker_settings.py",
+    "tests/test_measured_rerank.py",
+    "tests/test_neural_rerank.py",
+    "tests/benchmark/test_rerank_evaluation.py"
+  ],
+  "exit_code": 0,
+  "seconds": 36.18,
+  "log_sha256": "03d2505fb3071ebfabce9e6bc49916341629b38c983225237d39a8357882fa07",
+  "sources_unchanged": true,
+  "note": "Observed on uncommitted implementation based on the recorded head; content hashes identify actual inputs.118 tests passed; no full suite claim.",
+  "verified_inputs": {
+    "agentic_rag/reranker_profiles.py": "45d1a2c9bd22f7361769e5b22e50a5c32c6c720e93249af8d7644886e9264f3b",
+    "agentic_rag/reranker_runtime.py": "405303362e701df0173d1d9d2558b1faeab2b7c1a38944dd13a7915a9dfb012a",
+    "agentic_rag/service/upgrade.py": "1573ec60cbc9561db29a9d93d91e1ab85c6675edea02fef3578a432b04002523",
+    "docs/benchmarks/maintained-rerankers/requirements.txt": "0250c9586b4bb46a9701bbdd5f6d00ae6a68774920ef02418e67c846bd8e1288",
+    "pyproject.toml": "828e5560caab69af649228d47c9799f7ba3c9400de18b371500361af0fc14792",
+    "scripts/benchmark_reranker_offline.py": "f50fe9b0c11f430396f29ce573b084335a65eb06b9346020860b0d255edc89d5",
+    "scripts/reranker_benchmark_models.json": "3fdc87ffe9bf4483acfd5572326e7b9635681209eba38a603b052c67806fae28",
+    "tests/benchmark/test_maintained_reranker.py": "2cfaa148fc78728cd19b1074d83fe78f3120ee9ae875b9d4184f5ebdedb04fe6"
+  }
+}
