@@ -144,6 +144,22 @@ filtering and invalid-ID refusal also passed; the owned database was removed.
 The initial snippet-extraction harness failed before opening a database because
 it did not handle indented Markdown fences; the corrected harness passed.
 
-CI, merge and both populated production upgrades remain open.
-No keys, subscriptions, endpoints
-or sender daemon have been configured on either production host.
+PR104 merged `a151ee5918cf4b1d8e0e8b18bddfe4adadc7658b` on2026-11-04,
+with both CI checks successful. Both production hosts now run029/schema038.
+All3 populated stores applied038 only, with independent source/target restores
+and preservation of all54 original tables, rows, ACLs, owners and sequences.
+Hetzner has24,428/24,505 documents in its main/dashboard stores; Peter Mac has
+14,845. No original text or vector was re-encoded. Configuration hashes are
+unchanged; HTTP health200, unauthenticated401, scoped original search and foreign
+denial passed. Scheduled backup/maintenance jobs were restored.
+
+The first Hetzner code cutover rolled back safely because the operator probe
+incorrectly requested owner-private SELECT through the restricted API credential.
+The correction checks that restriction and independently checks actual private
+state as the database owner before/after cutover. Product code, ACLs and migration
+were unchanged; existing independently verified backup hashes were rechecked.
+The resumed code cutover passed. Mac completed with exit0. All previous028
+runtimes and verified backups remain available. Canonical72 closed03:15:44Z.
+No keys, subscriptions, endpoints or sender daemon were configured on either
+production host; capture remains off. This operational verification does not
+relabel the historical full-suite log described above.

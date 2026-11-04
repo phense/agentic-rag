@@ -665,5 +665,7 @@ rotation and storage are finite; failures remain visible without silently
 discarding pending notices. Operators can switch capture off to unblock writes
 at capacity. No external receiver or sender daemon is configured by installation.
 [Procedure PB07201](docs/webhooks.md) includes a loopback receiver, signature
-verification, outage recovery and runtime rollback. Implementation verification,
-independent acceptance and production delivery are still pending.
+verification, outage recovery and runtime rollback. [Verification](docs/verification/webhooks.md) records independent corrected
+acceptance and delivery2026-11-04 to both hosts/schema038. All3 populated stores
+have verified source/target restores and original-data preservation. Capture
+remains off and no production receiver or sender is configured.
