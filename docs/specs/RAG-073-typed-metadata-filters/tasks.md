@@ -56,3 +56,7 @@ beyond256 indexed contextual rows is not independently exercised; raw ANN uses
 its independent root-authored PB review found one Important and one Minor,
 both addressed by a bounded source-checked documentation correction. No full-suite,
 production or closure pass is inferred from these targeted results.
+
+The initial root full stopped on the reproduced legacy CLI argument regression
+(1 failed,173 passed), never counted as a full pass. Frozen red3/3, affected
+103green and independent correction C0/H0/M0/Low0 cover the two adapter exclusions.

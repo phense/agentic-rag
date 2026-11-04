@@ -77,8 +77,14 @@ The implementation runs recorded 267 affected tests, 11 integration tests,
 32 contract/upgrade tests and 32 final narrow tests, all exit 0. These are
 separate, overlapping selections and must not be added into a unique-test count.
 The last selection is exactly hash-bound to the implementation; earlier runs
-precede the documented narrow validation/test additions. Final suite and release
-checks are recorded separately before the PR.
+precede the documented narrow validation/test additions. An initial root full
+run was stopped after 153.86 s with one observed legacy-feedback CLI failure
+and 173 passing tests; it is not a full-suite pass. Parser-wide optional
+arguments had leaked into unrelated feedback/webhook adapters. Three frozen
+regression cases failed before a two-line forwarding correction; the affected
+selection then passed 103 tests, exit 0, in 85.70 s. A separate independent
+review accepted that bounded correction with no findings. The final complete
+suite and release checks are recorded separately before the PR.
 
 ## Plans, limits and untested claims
 
