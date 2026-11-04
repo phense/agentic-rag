@@ -40,6 +40,7 @@ start off; normal knowledge transactions never open receiver connections. Use
 | `rag webhooks key-export ID` | `--output` | Local operator only; exclusive private file containing this subscription's current key. |
 | `rag webhooks capture on\|off` | desired state | Local operator only; persisted database-wide switch. Off preserves queued history. |
 | `rag webhooks sender` | optional `--limit` (1–100, default 1) | Local operator only; attempts due deliveries, with no implicit schedule. |
+| `rag webhooks cancel DELIVERY_ID` | `--expected-state dead\|revoked\|disabled` | Local operator only; auditable retirement of one terminal delivery. Repetition preserves its cancellation time; prune eligibility starts seven days later. |
 | `rag webhooks prune` | — | Local operator only; removes acknowledged/cancelled delivery history older than seven days and unreferenced old events. |
 
 ### Scoped retrieval feedback

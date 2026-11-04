@@ -72,27 +72,34 @@ and actual success/recovery results remain open.
 
 ## As-built reconciliation, 2026-11-04
 
-Runtime revision `2d42176` implements the boundaries above. The integration and
+Runtime revision `128d2cf` implements the corrected boundaries above. The integration and
 independent acceptance results are recorded separately; this mapping is a source
 inspection, not a production or full-suite verdict.
 
 | Boundary | Actual implementation |
 |---|---|
-| Atomic opt-in capture | SQL038 `rag_webhook_capture` triggers on documents, review/source history, lifecycle events, legacy edges and terminal service windows; `rag_webhook_emit` writes private event/delivery rows in that same transaction. |
-| Scoped management | `webhooks.py` calls narrow `rag_webhook_manage`/`rag_webhook_status` RPCs through the current connection. Mutations acquire the quota advisory lock before the subscription row; status is a plain scoped read. Queued GROUP/execution authority is retained. |
-| Operator boundary | `webhook_delivery._operator` refuses remote client, CURRENT, GROUP, EXECUTION and LEASE contexts. Capture, private keys and explicit sender have no remote tool. |
+| Atomic opt-in capture | SQL038 `rag_webhook_capture` triggers on documents, review/source history, lifecycle events, legacy edges and terminal service windows; `rag_webhook_emit` stages capture-time facts and delivery rows in that same transaction. Deferred event/subscription/delivery admission finalizes sortable order and exact wire bytes under a private control-row update at commit. |
+| Scoped management | `webhooks.py` calls narrow `rag_webhook_manage`/`rag_webhook_status` RPCs through the current connection. Mutations use NO KEY UPDATE, compatible with delivery FK KEY SHARE. Hard admission is deferred; status is a plain scoped read. Queued GROUP/execution authority is retained. |
+| Operator boundary | `webhook_delivery._operator` refuses remote client, CURRENT, GROUP, EXECUTION and LEASE contexts. Capture, private keys, named terminal cancellation and explicit sender have no remote tool. Cancellation is atomic with audit, clears leases and preserves the first cancellation time on repeat. |
 | Current authorization | Subscription credential reference is resolved again; current exact scope and resource anchors are checked before DNS and again immediately before the pinned socket. |
 | Signing and destination | Owner-only32-byte operator file derives per-subscription/generation HMAC keys. A bounded resolver validates all results; numeric connection, original TLS hostname, no proxies or redirects. |
-| Crash and retry | Thirty-second durable leases, attempts charged before I/O, ten-second network deadline, six attempts and eight explicit replays; stale completion cannot publish success or failure. |
+| Crash and retry | Thirty-second durable leases, attempts charged before I/O, ten-second network deadline, six attempts and eight explicit replays; stale completion cannot publish success or failure. A local operator retires a named dead/revoked/disabled delivery; seven-day pruning skips locked metadata rows. |
 | Consumer boundary | Bundled loopback receiver verifies exact bytes/key identity/freshness and durably records event IDs/resource order; no canonical content or downstream effects are retained. |
 | Upgrade/rollback | Additive038, unchanged001..037, archived028 readers/writer, separate source/target restores including a restricted owner; runtime rollback requires capture off and retained038 metadata. |
 
-Independent review at `18e9fd7` confirmed IR072-001: the immediate quota lock
-adds a canonical multi-document deadlock. IR072-002 confirmed missing explicit
-terminal retirement. The correction candidate keeps immediate immutable facts,
-defers strict admission and resource-order finalization until transaction end,
-and adds audited local terminal cancellation. The diagram now states that
-intended correction; the table above remains the inspected pre-correction
-runtime mapping until fresh tests and source reconciliation replace it.
-Canonical locks must not be acquired after deferred admission. Management must
-use NO KEY UPDATE so capture foreign-key checks cannot invert that boundary.
+Independent review at `18e9fd7` confirmed IR072-001 (canonical multi-document
+quota deadlock) and IR072-002 (missing terminal retirement). The implementation
+correction at `128d2cf` preserves immediate scope/state facts, defers strict
+admission and resource-order finalization, and adds audited local cancellation.
+The finalizer takes no canonical row locks. Its control-row update fences stale
+REPEATABLE READ snapshots; delivery admission also preserves hard quotas if a
+caller forces constraints early. Arbitrary later custom-SQL resource locking
+has no deadlock-freedom guarantee; normal API/CLI/mining producers keep default
+INITIALLY DEFERRED behavior.
+
+The corrected157-test selection covers the exact concurrency failure, mixed
+edge/memory order, READ COMMITTED/REPEATABLE READ quotas, real mining/lifecycle,
+management/FK/prune interaction and archived028 recovery. Root's47-command CLI
+rehearsal verifies signed delivery plus explicit capacity retirement/recovery.
+The changed architecture still awaits independent correction acceptance; none
+of these results substitutes for the final full suite or production proof.

@@ -13,11 +13,10 @@ summary: Bounded synthetic webhook, upgrade and recovery evidence; no production
 # Signed webhook verification
 
 Issue [72](https://github.com/phense/agentic-rag/issues/72) targets 0.6.29/schema038.
-The implementation is frozen at `2d42176`, based on the real 0.6.28/schema037
-release `7669284`. These are bounded correctness and compatibility observations,
-not a delivery SLA, production receiver test or merge approval. Independent
-complete review has found two blocking defects described below; the final full
-suite has not run.
+The corrected runtime is frozen at `128d2cf`, based on the real
+0.6.28/schema037 release `7669284`. These are bounded correctness and compatibility observations,
+not a delivery SLA, production receiver test or merge approval. The complete review found two defects; their implemented corrections await
+independent acceptance. The final full suite has not run.
 
 ## Focused checks and compatibility
 
@@ -51,31 +50,49 @@ inventory now uses PostgreSQL's sequence default-ACL kind `s`; exact restores
 still compare every original sequence privilege. Preservation comparisons allow
 the new additive sequence without exempting original sequences from comparison.
 
+## Review corrections and current focused evidence
+
+The complete review at `18e9fd7` reproduced a canonical multi-document quota
+lock cycle (IR072-001, High) and unreachable audited terminal retirement
+(IR072-002, Medium; PB Important). The old100-test pass is historical and does
+not prove those defects absent. The exact deadlock and missing cancellation
+failed at `41ac41d`. A further red case at `69f826b` demonstrated an early
+constraint/fanout quota gap; the corrected delivery admission closes it.
+
+At `128d2cf`, the final focused selection passed **157 tests**, Exit0,223.56s
+pytest time, with one existing Starlette/httpx warning. All457 recorded input
+hashes match. It includes deterministic multi-document and edge/memory ordering,
+record/byte/subscription quotas under READ COMMITTED and REPEATABLE READ,
+actual mining/lifecycle, audit rollback, cancellation/retention, queue/fence
+integration and archived028/restricted-owner restores. This is not a full suite.
+The earlier matrix's two failures were oversized test-project fixtures rejected
+before their quota assertions; corrected fixtures subsequently passed.
+
 ## Real CLI and bundled receiver
 
-On 2026-11-04, the coordinator ran 30 actual CLI commands against an owned,
-synthetic PostgreSQL 17 database and the bundled loopback HTTP receiver. The
-runtime, SQL, tested procedure, receiver and rehearsal-script hashes remained
-unchanged. README/feature-summary prose changed during the run, so the original
-whole-tree `sources_unchanged` flag is false; a separate identity reconciliation
-records those documentation-only differences. No whole-tree-unchanged claim is
-made for this run.
+On 2026-11-04, the coordinator ran **47 actual CLI commands** on `128d2cf`
+against an owned synthetic PostgreSQL17 database and the bundled loopback
+receiver. There were45 successful commands and2 expected denials. Every
+recorded source hash remained unchanged throughout this corrected rehearsal.
+The earlier30-command run is retained separately; its whole-tree identity was
+false because unrelated prose changed, and it is not relabeled unchanged.
 
 | Workflow | Before → observed result | Wall time |
 |---|---|---|
-| Default off | One ordinary save → 0 captured notices,0 sends | 4.575s |
-| Signed committed notices | Explicit enablement + test + save → 2 captured and 2 acknowledged notices; 53 canonical table hashes unchanged by delivery | 6.812s |
-| Receiver outage/replay | One path failure → retained failed attempt, successful due retry and one explicit replay with the same event ID | 17.428s |
-| Rotation/off/retention | New key identity accepted; switch off → 0 further sends and 4 retained delivery records | 21.973s |
+| Default off | One ordinary save →0 captured notices,0 sends |5.842s |
+| Signed committed notices | Enablement +test +save →2 captured/2 acknowledged;53 canonical table hashes unchanged by delivery |7.696s |
+| Receiver outage/replay | One path failure →retained attempt, successful due retry and explicit replay with unchanged event ID |16.255s |
+| Rotation/off/retention | New key identity accepted; off →0 sends,4 retained deliveries |22.864s |
+| Capacity recovery | Capacity failure rolls back; wrong terminal state refused; one cancellation/audit; repeat preserves retention; immediate prune0; simulated8-day aging permits prune1 delivery/1 event; subsequent capture acknowledged |31.638s |
 
-Times include separate Python CLI startups and local database/HTTP work. They do
-not measure production throughput or the multi-hour retry schedule. Separate
-receiver controls accepted duplicates without repeating work, rejected a
-tampered body and stale timestamp, and retained an older resource version as
-seen without replacing the current version. Nine direct example checks also
-passed, including deduplication after receiver restart and private-store mode.
-No model/provider or external HTTP service was called. The receiver, owned
-database and private test files were removed after the run.
+The retention probe advances timestamps only in its owned synthetic fixture;
+the operator command does not shorten the seven-day production retention.
+Times include Python CLI startup and local database/HTTP work, not throughput
+or an operational SLA. Separate receiver controls rejected tampering/stale
+signatures, deduplicated and withheld an older resource version. The original
+nine receiver checks remain applicable because its code is unchanged. No model
+inference or external HTTP service was used; owned database, receiver and private
+files were removed after the run.
 
 The integration tests additionally cover current credential revocation before
 the socket, foreign/read-only refusals, management/result rollback after process
@@ -86,12 +103,9 @@ seams; no public receiver or certificate authority was contacted.
 
 ## Open gates and operation boundary
 
-The complete review at `18e9fd7` confirmed a multi-document deadlock between
-the quota lock and a later canonical document lock (IR072-001, High). It also
-confirmed that permanently withheld deliveries have no audited retirement path
-and can exhaust capture capacity (IR072-002, Medium; PB Important). Both are
-being corrected with targeted red/green tests and fresh procedure rehearsal;
-the earlier focused passes do not establish readiness. Independent code/security/upgrade and
-[PB07201](../webhooks.md) review, final full-suite output, release checks, CI,
-merge and both production upgrades remain open. No keys, subscriptions, public
-endpoints or sender daemon have been configured on either production host.
+IR072-001/002 and PB072-IR-001 have targeted correction evidence; independent
+correction acceptance remains open. The final full-suite output, release/CI,
+merge and both populated production upgrades remain open. Node7, documentation17,
+lock and wheel checks have passed; the wheel contains38 SQL files and155 Python
+modules byte-equal to the corrected runtime. No keys, subscriptions, endpoints
+or sender daemon have been configured on either production host.

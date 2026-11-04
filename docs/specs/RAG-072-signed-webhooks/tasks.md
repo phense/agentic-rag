@@ -46,11 +46,11 @@ subscriptions, no overlapping file writers, no new framework or model calls.
 
 ### S072-2C: Confirmed review corrections
 
-- [ ] T072-C01: Freeze the exact canonical multi-document deadlock regression;
+- [x] T072-C01: Freeze the exact canonical multi-document deadlock regression;
   defer hard quota/order finalization, preserve capture-time scope/state, prove
   READ COMMITTED/REPEATABLE READ quota and mixed edge/memory ordering, real
   mining/lifecycle and archived028 behavior. IR072-001.
-- [ ] T072-C02: Local audited named terminal cancellation with expected state,
+- [x] T072-C02: Local audited named terminal cancellation with expected state,
   lease fencing, unchanged retention on repeat and no live-work deletion.
   Rehearse seven-day prune and capacity recovery. IR072-002/PB072-IR-001.
 - [ ] T072-C03: Independently review the complete correction boundary; retain
