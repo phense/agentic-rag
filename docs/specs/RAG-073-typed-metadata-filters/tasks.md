@@ -60,3 +60,10 @@ production or closure pass is inferred from these targeted results.
 The initial root full stopped on the reproduced legacy CLI argument regression
 (1 failed,173 passed), never counted as a full pass. Frozen red3/3, affected
 103green and independent correction C0/H0/M0/Low0 cover the two adapter exclusions.
+
+The later full on68a1ef1 stopped with1failure/629passed on archived035
+research (missing039 matcher resolved despite a NULL guard). Correctionbcba20d
+omits optional SQL entirely for omitted filters;17regression cases and360affected
+tests pass, with current input hashes and independent C0/H0/M0/Low0 review.
+Fresh root rehearsal `frozen-bcba20d-final` passes76/76 with unchanged fixture.
+Final full-suite remains a separate pending gate.

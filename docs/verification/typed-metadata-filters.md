@@ -27,8 +27,8 @@ keeps field registration and historical label adoption separate from installatio
 | Element | Recorded value |
 |---|---|
 | Source installation | 0.6.29/schema038, `a151ee5918cf4b1d8e0e8b18bddfe4adadc7658b` |
-| Implementation | `837517b116fb261021a82b40f6cfcacc778c1cf6`, 0.6.30/schema039 |
-| Root rehearsal | `frozen-837517b-3`, 2026-11-04 04:04 UTC, exit 0, 76/76 assertions |
+| Implementation | `bcba20dc5a6fba8a9e138b3e9b4eb0c767678381`, 0.6.30/schema039 |
+| Root rehearsal | `frozen-bcba20d-final`, 2026-11-04 04:56 UTC, exit 0, 76/76 assertions |
 | Fixture | 522 synthetic documents and 522 chunks; nine manually described controls, 512 nonmatching background originals, one CLI save |
 | Authority | Actual `rag_reader` under a general-domain principal bound to `/projects/metadata` |
 | Inference | No external or actual model inference; in-process embeddings stubbed, CLI points to a dead loopback endpoint |
@@ -47,9 +47,9 @@ variation rather than a randomized capacity experiment.
 
 | Condition | Original count | Unfiltered p50 / p95 (ms) | Filtered p50 / p95 (ms) |
 |---|---:|---:|---:|
-| Production Linux originals updated this month, importance ≥3 | 7 → 1 | 40.83 / 56.09 | 39.51 / 61.86 |
-| NOT production, including missing/null/wrong-type labels | 7 → 5 | 19.88 / 44.95 | 55.57 / 72.35 |
-| Originals containing both operations and storage labels | 7 → 1 | 38.94 / 42.88 | 24.23 / 31.95 |
+| Production Linux originals updated this month, importance ≥3 | 7 → 1 | 37.60 / 40.01 | 53.05 / 61.59 |
+| NOT production, including missing/null/wrong-type labels | 7 → 5 | 38.02 / 39.97 | 54.20 / 58.35 |
+| Originals containing both operations and storage labels | 7 → 1 | 38.65 / 40.27 | 44.40 / 54.49 |
 
 Each timed response was checked against the fixed expected-ID set. The same
 AST was also tested across the library and MCP function for all 13 cases; the
@@ -86,11 +86,22 @@ selection then passed 103 tests, exit 0, in 85.70 s. A separate independent
 review accepted that bounded correction with no findings. The final complete
 suite and release checks are recorded separately before the PR.
 
+A subsequent full run on `68a1ef1` stopped with one failure and 629 passing
+tests: PostgreSQL resolved the new039 matcher even inside a NULL-guarded
+predicate on archived035/038 stores. The bounded correction `bcba20d` omits
+that SQL fragment entirely when no filter is supplied. Explicit filters on
+older schemas still yield `unsupported_filter`. Seventeen regression cases
+and the affected selection of360 tests passed; the latter took295.30 s, with
+all input hashes unchanged. The independent correction review found no
+Critical, High, Medium or Low findings. The final root rehearsal was then
+repeated on `bcba20d` (76/76); the tables above use only that current run.
+Earlier failed and fixture-correction runs remain retained and are not passes.
+
 ## Plans, limits and untested claims
 
 A fresh `EXPLAIN (ANALYZE, BUFFERS)` under the actual RLS reader shows a sequential
 scan over 522 documents for the standalone metadata predicate, returning one
-row and removing 521. It completed in about 591 ms in that observed plan.
+row and removing 521. It completed in about 322 ms in that observed plan.
 No new application index is installed and no GIN acceleration is claimed.
 Selective lexical search timings above apply only to this fixture. Filters
 retain an explicit 50,000-visible-document work limit and a maximum 5 s per
@@ -115,14 +126,15 @@ From the repository root, the root probe command was:
 
 ```sh
 PGPORT=55460 PGUSER=administrator .venv/bin/python \
-  .engineering-method/inputs/RAG-073/root_rehearse.py frozen-837517b-3
+  .engineering-method/inputs/RAG-073/root_rehearse.py frozen-bcba20d-final
 ```
 
 Ignored artifacts under `.engineering-method/runs/RAG-073/` retain the
 implementation report, complete code-review manifest and SQL-body comparison;
-`root-rehearsal/frozen-837517b-3/` retains inputs, expected-case assertions,
+`root-rehearsal/frozen-bcba20d-final/` retains inputs, expected-case assertions,
 measurements, plan and terminal result. These are private engineering artifacts,
 not required product files. The first root attempt omitted required CLI `--dtype`;
 the second used a mismatched synthetic credential ID. Both failed runs are kept
-and excluded from successful evidence. The third changes only the probe and
-procedure, never product behavior or the acceptance conditions.
+and excluded from successful evidence. The third changed only the probe and
+procedure. The final `bcba20d` rehearsal uses the same76 assertions and unchanged
+fixture after the separately tested product compatibility correction.

@@ -7,7 +7,8 @@
 - Artifact path: `docs/specs/RAG-073-typed-metadata-filters/plan.md`.
 - BASE: `a151ee5918cf4b1d8e0e8b18bddfe4adadc7658b`, deployed029/schema038.
 - Status: Runtime039 and root exact-set/adapter rehearsal complete; as-built
-  reconciled. Independent PB review, final checks and both production updates pending.
+  reconciled. Independent code/PB reviews accepted; CLI and pre039 no-filter
+  compatibility regressions repaired. Final full-suite and both production updates pending.
 
 ## Summary
 

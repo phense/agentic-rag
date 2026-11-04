@@ -6,8 +6,8 @@ candidate completeness. Notation: Mermaid flowchart; sources `search.py:search`,
 `sql/033_trusted_replacements.sql`, `indexes.py:_neighbors`, `graph.py`,
 `context.py:build`, `profiles.py:_rows`, `research.py:research_async`,
 `benchmark/corrections.py:export_confirmed_corrections`. Verified2026-11-04 on
-`a151ee5` for design; reconciled with implementation `837517b` and root
-rehearsal `frozen-837517b-3` on 2026-11-04. No production performance claim.
+`a151ee5` for design; reconciled with implementation `837517b`, compatibility correction `bcba20d`
+and root rehearsal `frozen-bcba20d-final` on 2026-11-04. No production performance claim.
 Requirements AC-001..008/IC073-001..005.
 
 ## Question: Where can optional selection safely occur?
@@ -123,3 +123,9 @@ complete60-file bounded diff: C0/H0/M0, one Low test-coverage finding.
 The operator procedure is [PB07301](../metadata-filters.md); practical sample
 sizes, overhead and the observed bounded scan are in the
 [verification record](../verification/typed-metadata-filters.md).
+
+Unfiltered direct Python readers omit every039 matcher expression entirely,
+rather than relying on SQL short-circuit evaluation. This preserves parsing on
+archived035/038 stores. Explicit typed requests still require039 and retain the
+same predicate location before candidate limits. No matcher or truth gate is
+installed into the old schema to make a no-filter call work.
