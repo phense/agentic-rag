@@ -171,9 +171,11 @@ profile file and generation. For a code rollback, use the new binary in this ord
 3. Confirm `rag index status` selects `OLD_NAME` and a representative `rag search
    "KNOWN QUERY" --json` returns the expected original IDs without managed-embedding
    warnings. Stop and restore access if either check fails.
-4. Restore the prior profile file and only then start the prior binary. Old
-   binaries reject the new prefix fields. Repeat the search smoke check; keep
-   writers paused and restore the new binary/configuration if it fails.
+4. During the separately approved maintenance window, pause writers before
+   restoring the prior profile file and starting the prior binary. Old binaries
+   reject the new prefix fields. Repeat the search smoke check; keep writers
+   paused and restore the new binary/configuration if it fails. Resume writers
+   only after the check passes, then keep `OLD_NAME` current with bounded builds.
 
 Never reinterpret retained vectors under edited prefixes. Old readers with their
 unchanged configuration use the legacy index. This procedure activates no model
