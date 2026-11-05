@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.35] - 2026-11-05
+
+- Give remote transcript snapshots a separate configurable 256 MiB budget, while pending windows and handoffs retain their 16 MiB limit. Large native transcripts no longer prevent automatic capture solely because they exceed the outbox budget. Input over either bound remains retained; no pending input is evicted.
+- Release a snapshot only after a clean end-of-input marker for its exact hash and durable server acknowledgements for all staged windows. Preserve prefix hashes and cursors for append/rewrite detection, retain incomplete tails and unknown legacy acknowledgement state, and compact large released SQLite blobs outside the acknowledgement transaction. Lost acknowledgements, concurrent appends and credential partitions preserve unacknowledged input. Origin-audit export refuses released snapshots; keep original transcripts for later raw audits.
+- Stop client/uploaders, preserve their private spool and original transcripts, update the client and restart. The SQLite progress table is added in place; protocol 1 and PostgreSQL schema 039 are unchanged. For rollback, omit `spool_source_max_bytes` and keep newer spool state instead of overwriting pending work with an older copy. Durable acceptance still does not mean extraction has applied knowledge. See the central-service operating limits and recovery procedure (Issue110).
+
 ## [0.6.34] - 2026-11-04
 
 - Refresh the dashboard presentation (Issue108). Navigation is grouped into Workspace and Administration with one clearly marked active entry. Cards, forms, status badges and tables share one restrained style; request-trace filters sit in a compact grid; HTTP status and job outcome appear as colored badges with their original text. On narrow screens, tables become labelled cards instead of squeezed columns, and Escape closes the opened navigation. In sampled synthetic administrator views at 1440/390 px, measured text meets WCAG AA contrast thresholds and narrow-screen controls are at least 24 px; six sampled keyboard focus targets have at least 3:1 contrast. A new browser test records these bounded measurements, without claiming product-wide accessibility certification. Long domain, project-scope and status badges wrap so their full values remain readable.

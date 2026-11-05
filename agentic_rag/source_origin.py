@@ -185,7 +185,7 @@ def export_spool(path, partition, session, output):
         conn.row_factory = sqlite3.Row
         row = conn.execute('SELECT project,length(raw) bytes FROM sources WHERE partition=? AND session=?',
                            (partition, session)).fetchone()
-        if row is None or row['bytes'] > MAX_BYTES:
+        if row is None or not row['bytes'] or row['bytes'] > MAX_BYTES:
             raise ValueError('source_origin_missing_or_oversized_recording')
         raw = conn.execute('SELECT raw FROM sources WHERE partition=? AND session=?',
                            (partition, session)).fetchone()['raw']

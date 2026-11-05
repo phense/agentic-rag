@@ -29,6 +29,13 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
+- 🔵 **0.8** _(bug)_ **Large remote transcript capture and safe spool reclamation.**
+  Separate bounded raw snapshots from the pending-window budget, and release a
+  snapshot only after clean EOF plus durable acknowledgements. Preserve lost-ACK
+  recovery, append detection and credential partitions. Blocks local-to-Hetzner
+  client cutover until reviewed, merged and verified live.
+  → *Issue:* [#110](https://github.com/phense/agentic-rag/issues/110).
+
 - 🔵 **0.7** _(security)_ **Triage and remediate existing dependency alerts.** 16 open
   AnyIO/PyJWT alerts verified on 2026-10-03 (2 Critical, 6 High, 8 Medium). The deployed
   stdio/local-HTTP paths were triaged; the reported vulnerable paths are inactive in this

@@ -66,6 +66,7 @@ class Config:
     service_token_file: Path | None = None
     service_auth_file: Path | None = None
     service_spool_dir: Path = field(default_factory=lambda: Path.home()/'.agentic-rag'/'spool')
+    service_spool_source_max_bytes: int = 256*1024*1024
     db_name: str = "agentic_rag"
     db_host: str = ""  # "" = local unix socket
     embed_model: str = "bge-m3"
@@ -226,6 +227,8 @@ class Config:
             value=getattr(self,name)
             if isinstance(value,bool) or not isinstance(value,(int,float)) or not .01<=value<=upper:
                 raise ValueError(name+' must be a finite bounded duration')
+        if type(self.service_spool_source_max_bytes) is not int or not 1024<=self.service_spool_source_max_bytes<=1024**3:
+            raise ValueError('service spool_source_max_bytes must be an integer between 1024 and 1073741824')
         if self.service_mode not in {"standalone","client","server"}:
             raise ValueError("invalid service mode")
         if type(self.service_request_consumers) is not int or not 1<=self.service_request_consumers<=4:

@@ -372,7 +372,7 @@ for an explicit reviewed replay plan. No automatic rebind is provided.
 |---|---|
 | API | One process, eight active requests,64 transport slots,30s keepalive,1MiB request body/5s receive deadline; idle MCP SSE rejected |
 | Remote reads | k≤50, graph depth≤3,512KiB materialized document/graph/domain budget and1,000 graph/domain rows; oversized results fail explicitly |
-| Client |16MiB logical pending/raw/handoff budget;2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
+| Client |16MiB logical pending-window/handoff budget, plus256MiB retained raw snapshots configurable with `[service] spool_source_max_bytes` (maximum1GiB);2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
 | Central writes |8GiB database budget,2GiB free-space reserve,1,000 pending jobs,100 pending source windows per owner,64MiB pending source payloads; explicit429/507/503 pressure |
 | Worker | One database-fenced inference worker; retry with backoff; SIGTERM stops after current job; process group killed after330s by example unit |
 | Queued tools | Default two consumers per API process, `[service] request_consumers` 1–4; startup fails above half of the default thread pool; 12 control requests/s per namespace and four control slots unchanged |
@@ -400,6 +400,35 @@ Graph and domain queries check their row/byte budget inside the same SQL
 statement and suppress oversized values before sending them to the API process.
 Manual `spool --flush` still uploads previously staged input when a fresh source
 cannot be staged; its status records `source_staging_failed` for that source.
+
+From 0.6.35, retained transcript snapshots have a separate bounded budget. A
+90 MiB transcript fits the default 256 MiB source budget even though pending
+windows and checkpoints remain limited to 16 MiB. Both budgets apply across
+credential partitions sharing one spool file. At capacity, keep the original
+transcripts, restore upload capacity and flush; never delete pending input to
+make room. Malformed or incomplete tails remain buffered for repair or append.
+
+The client releases a raw snapshot only after reaching a clean end of that exact
+snapshot and receiving durable acknowledgements for all its staged windows.
+Queued extraction is sufficient to transfer ownership to the server; it does
+not mean knowledge has been applied. Prefix hashes and cursors remain locally
+to detect rewritten transcripts and permit later appends. Large released blobs
+are compacted outside the acknowledgement transaction; storage contention can
+defer disk reclamation without discarding unacknowledged work. Allow temporary
+space for SQLite compaction as well as the configured logical budgets.
+Origin-audit spool export applies only to retained snapshots; after release it
+refuses export rather than inventing an empty original. Keep the host transcript
+or a separate private archive when later raw-recording audits are required.
+
+Stop client/uploader processes before upgrading and preserve a private copy of
+their spool and original transcripts. Installing 0.6.35 adds one local SQLite
+progress table in place; PostgreSQL and the protocol are unchanged. Legacy
+snapshots without independently known acknowledgement cursors remain retained
+until a new window is acknowledged. Restart clients and run `spool --flush`;
+check `source_bytes`, pending/blocked counts and owned server receipt states.
+For code rollback, omit the new configuration key. Retain the upgraded spool;
+older clients retain snapshots but cannot perform the new release checks. Do
+not restore a pre-upgrade spool over newer pending work or delete originals.
 
 Review [PostgreSQL](../deploy/central-service/postgresql.conf.example),
 [Ollama](../deploy/central-service/ollama.conf.example) and

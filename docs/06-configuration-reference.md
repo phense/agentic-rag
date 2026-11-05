@@ -109,6 +109,7 @@ authentication files private. See the [server/client procedure](13-central-servi
 | `token_file` | unset | Client bearer credential in a protected0600 file |
 | `auth_file` | unset | Server verifier-only user/machine policy |
 | `spool_dir` | `~/.agentic-rag/spool` | Private pending input, handoff and bounded context cache |
+| `spool_source_max_bytes` | `268435456` | Client: combined retained transcript snapshots, 256 MiB; integer from 1024 through 1073741824. Separate from the 16 MiB pending-window/checkpoint budget; never evicts unacknowledged input |
 | `storage_path` | unset | Server filesystem path used for free-space admission; defaults to the database data directory |
 | `max_database_bytes` | `8589934592` | Database admission budget,8GiB; not a filesystem quota |
 | `min_free_bytes` | `2147483648` | Free-space reserve,2GiB |

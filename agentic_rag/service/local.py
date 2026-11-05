@@ -1,5 +1,6 @@
 """Local durable capture and offline continuation; never opens the knowledge DB."""
 from dataclasses import asdict
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -22,8 +23,8 @@ def capture_transcript(cfg,payload):
     path=Path(payload['transcript_path'])
     with RemoteClient(cfg) as client,path.open('rb') as stream:
         # A bounded snapshot, not a pointer to a file that may disappear after Stop.
-        raw=stream.read(client.spool.max_bytes+1)
-        if len(raw)>client.spool.max_bytes:
+        raw=stream.read(client.spool.max_source_bytes+1)
+        if len(raw)>client.spool.max_source_bytes:
             client.spool.note('source_capacity_exceeded')
             raise SpoolFull('transcript exceeds local buffer; retain source and run service spool recovery')
         try:client.spool.capture_source(payload['session_id'],project(payload),raw)
@@ -43,7 +44,10 @@ def stage_sources(client,*,max_windows=8):
                 before=client.spool.cursor(source['session'])
                 window=read_window(path,after_uuid=before or None)
                 if window.warnings:client.spool.note('source_input_needs_completion_or_repair')
-                if not window.last_uuid or window.last_uuid==before:break
+                if not window.last_uuid or window.last_uuid==before:
+                    if not window.has_more and not window.warnings:
+                        client.spool.mark_source_complete(source['session'],hashlib.sha256(source['raw']).hexdigest(),before)
+                    break
                 value=asdict(window)
                 value.pop('last_uuid')
                 value['events']=[{**event,'role':event['role'] or 'unknown'} for event in value['events']]
@@ -51,7 +55,10 @@ def stage_sources(client,*,max_windows=8):
                 client.stage_window({'version':1,'session_id':source['session'],'project':source['project'],
                     'input_cursor':before,'output_cursor':window.last_uuid,'window':value})
                 staged+=1
-                if not window.has_more:break
+                if not window.has_more:
+                    if not window.warnings:
+                        client.spool.mark_source_complete(source['session'],hashlib.sha256(source['raw']).hexdigest(),window.last_uuid)
+                    break
         finally:
             os.unlink(path)
         if staged>=max_windows:break

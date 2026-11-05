@@ -19,11 +19,14 @@ def canonical(value):
 
 
 class Spool:
-    def __init__(self,path,partition,*,max_items=2000,max_bytes=16*1024*1024):
+    def __init__(self,path,partition,*,max_items=2000,max_bytes=16*1024*1024,max_source_bytes=None):
         self.path,self.partition=Path(path),partition
         self.max_items,self.max_bytes=max_items,max_bytes
+        self.max_source_bytes=max_bytes if max_source_bytes is None else max_source_bytes
         if not isinstance(partition,str) or not 1<=len(partition)<=256 or not 1<=max_items<=100000 or not 1024<=max_bytes<=1024**3:
             raise ValueError('invalid spool limits/partition')
+        if type(self.max_source_bytes) is not int or not 1024<=self.max_source_bytes<=1024**3:
+            raise ValueError('invalid source spool limit')
         self.path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
         info=self.path.parent.lstat()
         if not stat.S_ISDIR(info.st_mode) or (os.name!='nt' and (info.st_uid!=os.getuid() or info.st_mode&0o077)):
@@ -48,6 +51,9 @@ class Spool:
           CREATE TABLE IF NOT EXISTS contexts(partition TEXT,session TEXT,project TEXT,text TEXT,created REAL,
             PRIMARY KEY(partition,session,project));
           CREATE TABLE IF NOT EXISTS sources(partition TEXT,session TEXT,project TEXT,raw BLOB,
+            PRIMARY KEY(partition,session));
+          CREATE TABLE IF NOT EXISTS source_progress(partition TEXT,session TEXT,size INTEGER NOT NULL,
+            digest TEXT NOT NULL,complete_cursor TEXT,ack_cursor TEXT NOT NULL DEFAULT '',
             PRIMARY KEY(partition,session));
           CREATE TABLE IF NOT EXISTS checkpoints(partition TEXT,session TEXT,payload TEXT,
             PRIMARY KEY(partition,session));
@@ -80,7 +86,6 @@ class Spool:
             if kind=='window' and (payload.get('input_cursor')!=self.cursor(session) or not payload.get('output_cursor') or payload['output_cursor']==payload['input_cursor']):
                 raise ValueError('conflicting or missing predecessor cursor')
             count,total=self.conn.execute('SELECT count(*),COALESCE(sum(bytes),0) FROM outbox').fetchone()
-            total+=self.conn.execute('SELECT COALESCE(sum(length(raw)),0) FROM sources').fetchone()[0]
             total+=self.conn.execute('SELECT COALESCE(sum(length(CAST(payload AS BLOB))),0) FROM checkpoints').fetchone()[0]
             if count>=self.max_items or total+size>self.max_bytes or size>1048576:
                 raise SpoolFull('spool capacity exceeded; pending input retained')
@@ -108,12 +113,19 @@ class Spool:
 
     def ack(self,identity,receipt):
         if len(canonical(receipt))>4096: raise ValueError('invalid receipt')
+        released=0
         with self.conn:
-            row=self.conn.execute('SELECT 1 FROM outbox WHERE id=? AND partition=?',(identity,self.partition)).fetchone()
+            row=self.conn.execute('SELECT kind,session,payload FROM outbox WHERE id=? AND partition=?',(identity,self.partition)).fetchone()
             if not row: return
             self.conn.execute('INSERT OR REPLACE INTO receipts VALUES(?,?,?,?)',(identity,self.partition,canonical(receipt),time.time()))
             self.conn.execute('DELETE FROM outbox WHERE id=? AND partition=?',(identity,self.partition))
             self.conn.execute('DELETE FROM receipts WHERE id NOT IN (SELECT id FROM receipts ORDER BY created DESC LIMIT 256)')
+            if row['kind']=='window':
+                cursor=json.loads(row['payload'])['output_cursor']
+                self.conn.execute('UPDATE source_progress SET ack_cursor=? WHERE partition=? AND session=?',
+                                  (cursor,self.partition,row['session']))
+                released=self._release_source(row['session'])
+        self._reclaim_source_space(released)
 
     def extraction_states(self,session):
         rows=[json.loads(r['receipt']) for r in self.conn.execute('SELECT receipt FROM receipts WHERE partition=? ORDER BY created DESC LIMIT 256',(self.partition,))]
@@ -153,29 +165,71 @@ class Spool:
         self.conn.execute('BEGIN IMMEDIATE')
         try:
             prior=self.conn.execute('SELECT raw,project FROM sources WHERE partition=? AND session=?',(self.partition,session)).fetchone()
-            if prior and (prior['project']!=project or not raw.startswith(prior['raw'])):
-                raise ValueError('source changed; buffered input retained; explicit recovery required')
+            progress=self.conn.execute('SELECT * FROM source_progress WHERE partition=? AND session=?',(self.partition,session)).fetchone()
+            if prior:
+                valid=raw.startswith(prior['raw'])
+                if progress and not prior['raw']:
+                    valid=(len(raw)>=progress['size'] and hashlib.sha256(raw[:progress['size']]).hexdigest()==progress['digest'])
+                if prior['project']!=project or not valid:
+                    raise ValueError('source changed; buffered input retained; explicit recovery required')
+                if progress and not prior['raw'] and len(raw)==progress['size']:
+                    self.conn.rollback()
+                    return  # Same fully acknowledged source; do not retain it again.
             total=self.conn.execute('SELECT COALESCE(sum(length(raw)),0) FROM sources').fetchone()[0]
             source_total=total-len(prior['raw'] if prior else b'')+len(raw)
-            total+=self.conn.execute('SELECT COALESCE(sum(bytes),0) FROM outbox').fetchone()[0]
-            total+=self.conn.execute('SELECT COALESCE(sum(length(CAST(payload AS BLOB))),0) FROM checkpoints').fetchone()[0]
-            reserve=min(1048576,self.max_bytes//4)
-            if source_total>self.max_bytes-reserve or total-len(prior['raw'] if prior else b'')+len(raw)>self.max_bytes or (not prior and self.conn.execute('SELECT count(*) FROM sources').fetchone()[0]>=self.max_items):
+            if source_total>self.max_source_bytes or (not prior and self.conn.execute('SELECT count(*) FROM sources').fetchone()[0]>=self.max_items):
                 raise SpoolFull('source spool capacity exceeded; original and buffered input must be retained')
             self.conn.execute('INSERT OR REPLACE INTO sources VALUES(?,?,?,?)',(self.partition,session,project,raw))
+            self.conn.execute('''INSERT INTO source_progress(partition,session,size,digest) VALUES(?,?,?,?)
+              ON CONFLICT(partition,session) DO UPDATE SET size=excluded.size,digest=excluded.digest,
+                complete_cursor=CASE WHEN source_progress.digest=excluded.digest AND source_progress.size=excluded.size
+                                     THEN source_progress.complete_cursor ELSE NULL END''',
+                              (self.partition,session,len(raw),hashlib.sha256(raw).hexdigest()))
             self.conn.commit()
         except BaseException:
             self.conn.rollback();raise
 
     def sources(self):
-        return [dict(r) for r in self.conn.execute('SELECT session,project,raw FROM sources WHERE partition=? ORDER BY rowid',(self.partition,))]
+        return [dict(r) for r in self.conn.execute('SELECT session,project,raw FROM sources WHERE partition=? AND length(raw)>0 ORDER BY rowid',(self.partition,))]
+
+    def mark_source_complete(self,session,digest,cursor):
+        """CAS an EOF marker for the parsed snapshot, never for a newer capture."""
+        released=0
+        with self.conn:
+            row=self.conn.execute('SELECT raw FROM sources WHERE partition=? AND session=?',(self.partition,session)).fetchone()
+            if row is None or not row['raw'] or hashlib.sha256(row['raw']).hexdigest()!=digest:return
+            # Legacy snapshots have no independently known ACK cursor. Retain them
+            # until an actual window ACK is observed; a staging cursor is not proof.
+            self.conn.execute('INSERT OR IGNORE INTO source_progress(partition,session,size,digest) VALUES(?,?,?,?)',
+                              (self.partition,session,len(row['raw']),digest))
+            self.conn.execute('UPDATE source_progress SET complete_cursor=? WHERE partition=? AND session=? AND digest=?',
+                              (cursor,self.partition,session,digest))
+            released=self._release_source(session)
+        self._reclaim_source_space(released)
+
+    def _release_source(self,session):
+        row=self.conn.execute('''SELECT length(s.raw) bytes FROM sources s JOIN source_progress p
+          USING(partition,session) WHERE s.partition=? AND s.session=? AND p.complete_cursor IS NOT NULL
+          AND p.complete_cursor=p.ack_cursor AND NOT EXISTS(SELECT 1 FROM outbox o WHERE o.partition=s.partition
+            AND o.session=s.session AND o.kind='window')''',(self.partition,session)).fetchone()
+        if row is None:return 0
+        self.conn.execute("UPDATE sources SET raw=x'' WHERE partition=? AND session=?",(self.partition,session))
+        return row['bytes']
+
+    def _reclaim_source_space(self,released):
+        if released<1024*1024:return
+        try:
+            # Outside the ACK transaction. SQLite makes VACUUM atomic; contention
+            # may defer physical reclamation, never the durable ACK or pending work.
+            self.conn.execute('VACUUM')
+        except sqlite3.OperationalError:
+            pass
 
     def _remember_checkpoint(self,packet):
         text=canonical(packet)
         prior=self.conn.execute('SELECT length(CAST(payload AS BLOB)) FROM checkpoints WHERE partition=? AND session=?',(self.partition,packet['session_id'])).fetchone()
         total=self.conn.execute('SELECT COALESCE(sum(length(CAST(payload AS BLOB))),0) FROM checkpoints').fetchone()[0]
         total+=self.conn.execute('SELECT COALESCE(sum(bytes),0) FROM outbox').fetchone()[0]
-        total+=self.conn.execute('SELECT COALESCE(sum(length(raw)),0) FROM sources').fetchone()[0]
         if total-(prior[0] if prior else 0)+len(text.encode())>self.max_bytes or (not prior and self.conn.execute('SELECT count(*) FROM checkpoints').fetchone()[0]>=self.max_items):
             raise SpoolFull('checkpoint cache full; durable input retained')
         self.conn.execute('INSERT OR REPLACE INTO checkpoints VALUES(?,?,?)',(self.partition,packet['session_id'],text))
