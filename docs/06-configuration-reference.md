@@ -109,6 +109,7 @@ authentication files private. See the [server/client procedure](13-central-servi
 | `token_file` | unset | Client bearer credential in a protected0600 file |
 | `auth_file` | unset | Server verifier-only user/machine policy |
 | `spool_dir` | `~/.agentic-rag/spool` | Private pending input, handoff and bounded context cache |
+| `spool_source_max_bytes` | `268435456` | Client: combined retained transcript snapshots, 256 MiB; integer from 1024 through 1073741824. Separate from the 16 MiB pending-window/checkpoint budget; never evicts unacknowledged input |
 | `storage_path` | unset | Server filesystem path used for free-space admission; defaults to the database data directory |
 | `max_database_bytes` | `8589934592` | Database admission budget,8GiB; not a filesystem quota |
 | `min_free_bytes` | `2147483648` | Free-space reserve,2GiB |
@@ -446,7 +447,7 @@ environment (they override the managed window). Verify with `/autocompact`,
 which prints `500000 tokens (from settings)` or `capped to … by model`.
 
 The owned hook timeouts are `SessionStart 10`, `UserPromptSubmit 5`,
-`Stop 10`, `PreCompact 3`, `PostCompact 3`, and `SessionEnd 1` seconds. Claude
+`Stop 30`, `PreCompact 30`, `PostCompact 3`, and `SessionEnd 30` seconds. Claude
 has no per-hook `additionalContextLimit` field; the 10,000-character cap is
 enforced by agentic-rag's `context_max_chars` instead.
 
@@ -507,7 +508,7 @@ trust only the commands you have inspected.
 
 `rag install --agy` manages only `~/.gemini/config/hooks.json` — one named
 hook, `agentic-rag`, with `SessionStart`, `PreInvocation`, and `Stop`
-handlers (timeouts 10/5/10 s). There is no compaction policy to manage:
+handlers (timeouts 10/5/30 s). There is no compaction policy to manage:
 Antigravity's automatic context summarization runs provider-side without a
 user-settable threshold, and `/compact` is guided by the injected prompt
 instead. Gemini 3.8 Flash and Gemini 3.1 Pro both offer a 1,048,576-token

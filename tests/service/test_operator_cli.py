@@ -86,7 +86,8 @@ def test_spool_flush_drains_durable_input_when_staging_is_full(owned,tmp_path,mo
         assert operator.run(args,remote)==0
         assert json.loads(capsys.readouterr().out)['pending']==0
         with RemoteClient(remote) as client:
-            assert client.spool.sources()[0]['raw']==raw
+            assert client.spool.sources()==[] and client.spool.status()['source_bytes']==0
+            assert len(client.spool.extraction_states('pending-tail'))==1
         with db.connect(cfg) as conn:
             assert conn.execute('SELECT count(*) n FROM service_windows').fetchone()['n']==1
 

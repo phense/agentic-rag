@@ -23,7 +23,7 @@ HOOK_MODULE = "agentic_rag.hooks.agy"
 _EVENTS = {
     "SessionStart": ("session-start", 10),
     "PreInvocation": ("pre-invocation", 5),
-    "Stop": ("stop", 10),
+    "Stop": ("stop", 30),
 }
 _GROUPED_EVENTS = ("PreToolUse", "PostToolUse")
 

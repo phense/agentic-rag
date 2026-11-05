@@ -89,13 +89,15 @@ def capture(cfg,payload):
         with RemoteClient(cfg) as client:
             partition=client.partition
     else:partition='gemini-local'
-    with Spool(cfg.service_spool_dir/'spool.sqlite',partition) as spool:
+    with Spool(cfg.service_spool_dir/'spool.sqlite',partition,max_source_bytes=cfg.service_spool_source_max_bytes) as spool:
         prior=next((r for r in spool.sources() if r['session']==session),None)
         normalized=prior['raw'] if prior else b''
         seen={json.loads(line)['uuid'] for line in normalized.splitlines()}
         new=[record for record in records if record['uuid'] not in seen]
         normalized+=b''.join((canonical(record)+'\n').encode() for record in new)
-        spool.capture_source(session,project(payload),normalized)
+        # The normalized history includes observed prompts absent from the host
+        # recording, so it remains adapter state after durable upload.
+        spool.capture_source(session,project(payload),normalized,retain_raw=True)
         # A bounded mirror lets the existing local mining/checkpoint parser keep
         # its original DTOs. Pending evidence remains in the private spool.
         mirror=cfg.service_spool_dir/'gemini'/(hashlib.sha256((partition+session).encode()).hexdigest()+'.jsonl')

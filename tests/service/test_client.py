@@ -56,3 +56,41 @@ def test_cached_context_is_owned_and_explicitly_stale_offline(service_store,tmp_
         assert 'STALE' in client.context('s','/projects/a')
         assert 'alpha' not in client.context('other-session','/projects/a')
         assert 'alpha' not in client.context('s','/other-project')
+
+
+def test_native_snapshot_release_requires_real_durable_server_ack(service_store,tmp_path):
+    import json
+    from agentic_rag.service.client import RemoteClient
+    from agentic_rag.service.local import capture_transcript,stage_sources
+    cfg,_=service_store;app,_=app_fixture(tmp_path,cfg);remote=client_config(tmp_path,cfg)
+    source=tmp_path/'large.jsonl'
+    raw=(json.dumps({'uuid':'one','message':{'role':'user','content':'A native fact survives a lost response.'}})+'\n').encode()
+    raw+=(json.dumps({'type':'tool-result','padding':'x'*(17*1024*1024)})+'\n').encode()
+    source.write_bytes(raw)
+    capture_transcript(remote,{'session_id':'native-release','cwd':'/projects/a','transcript_path':str(source)})
+    source.unlink()
+    class LostAck:
+        lost=False
+        @contextmanager
+        def stream(self,method,url,**kwargs):
+            with sender.stream(method,url,**kwargs) as response:
+                if url.endswith('/v1/windows') and not self.lost:
+                    self.lost=True
+                    response.read()
+                    assert response.status_code==202 and response.json()['durable'] is True
+                    raise httpx.ReadTimeout('lost after real server commit')
+                yield response
+    with TestClient(app,base_url='https://testserver') as sender:
+        with RemoteClient(remote,sender=LostAck()) as client:
+            assert stage_sources(client)==1
+            client.flush(seconds=10)
+            assert client.spool.status()['source_bytes']==len(raw)
+            assert len(client.spool.pending())==1
+        with db.connect(cfg) as conn:
+            assert conn.execute("SELECT count(*) n FROM service_windows WHERE payload->>'session_id'='native-release'").fetchone()['n']==1
+        with RemoteClient(remote,sender=sender) as client:
+            client.spool.retry_blocked();client.flush(seconds=10)
+            assert client.spool.status()['source_bytes']==0 and client.spool.pending()==[]
+            assert len(client.spool.extraction_states('native-release'))==1
+        with db.connect(cfg) as conn:
+            assert conn.execute("SELECT count(*) n FROM service_windows WHERE payload->>'session_id'='native-release'").fetchone()['n']==1

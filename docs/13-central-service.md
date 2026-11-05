@@ -372,7 +372,7 @@ for an explicit reviewed replay plan. No automatic rebind is provided.
 |---|---|
 | API | One process, eight active requests,64 transport slots,30s keepalive,1MiB request body/5s receive deadline; idle MCP SSE rejected |
 | Remote reads | k≤50, graph depth≤3,512KiB materialized document/graph/domain budget and1,000 graph/domain rows; oversized results fail explicitly |
-| Client |16MiB logical pending/raw/handoff budget;2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
+| Client |16MiB logical pending-window/handoff budget, plus256MiB retained raw snapshots configurable with `[service] spool_source_max_bytes` (maximum1GiB);2,000 source/cursor entries;256 receipt and64 context records; never evict pending input |
 | Central writes |8GiB database budget,2GiB free-space reserve,1,000 pending jobs,100 pending source windows per owner,64MiB pending source payloads; explicit429/507/503 pressure |
 | Worker | One database-fenced inference worker; retry with backoff; SIGTERM stops after current job; process group killed after330s by example unit |
 | Queued tools | Default two consumers per API process, `[service] request_consumers` 1–4; startup fails above half of the default thread pool; 12 control requests/s per namespace and four control slots unchanged |
@@ -400,6 +400,65 @@ Graph and domain queries check their row/byte budget inside the same SQL
 statement and suppress oversized values before sending them to the API process.
 Manual `spool --flush` still uploads previously staged input when a fresh source
 cannot be staged; its status records `source_staging_failed` for that source.
+
+From 0.6.35, retained transcript snapshots have a separate bounded budget. A
+90 MiB transcript fits the default 256 MiB source budget even though pending
+windows and checkpoints remain limited to 16 MiB. Both budgets apply across
+credential partitions sharing one spool file. At capacity, keep the original
+transcripts, restore upload capacity and flush; never delete pending input to
+make room. Malformed or incomplete tails remain buffered for repair or append.
+
+The client releases a native raw snapshot only after reaching a clean end of that exact
+snapshot and receiving durable acknowledgements for all its staged windows.
+Queued extraction is sufficient to transfer ownership to the server; it does
+not mean knowledge has been applied. Prefix hashes and cursors remain locally
+to detect rewritten transcripts and permit later appends. Large released blobs
+are compacted outside the acknowledgement transaction; storage contention can
+defer disk reclamation without discarding unacknowledged work. Allow temporary
+space for SQLite compaction as well as the configured logical budgets.
+Origin-audit spool export applies only to retained snapshots; after release it
+refuses export rather than inventing an empty original. Keep the host transcript
+or a separate private archive when later raw-recording audits are required.
+Gemini deliberately retains its normalized history, including observed prompts
+absent from its host recording, because later turns need that adapter state.
+Its per-recording 16 MiB input limit remains unchanged; retained normalized
+history shares the configured source budget and its private mirror also uses disk.
+
+Capture can use several times the largest snapshot size in RAM, and staging
+loads retained snapshots and reparses each source per window. The byte budgets
+are logical limits, not RAM or filesystem quotas. Allow temporary space for
+source copies, SQLite journals, staging and compaction; measure capacity before
+raising the source budget. The 2,000 source-entry limit is across the spool's
+lifetime, including acknowledged rows; do not delete cursor/hash metadata to
+bypass it, because that metadata prevents incorrect replay.
+Safe retirement is tracked in [Issue75](https://github.com/phense/agentic-rag/issues/75).
+
+SQLite waits at most 10 seconds for a competing transaction. Before switching
+to remote capture, give configurable capture hooks (Stop, PreCompact and
+SessionEnd, or all Gemini recording hooks) at least 30 seconds. New native
+plugin packages use these values (30,000 milliseconds for Gemini); existing
+per-user hook settings need an explicit adjustment. Host hard termination
+limits still apply: final shutdown hooks remain best effort. Retain originals,
+capture during normal turns and run the periodic uploader. If capture times
+out or the host kills it, inspect hook errors and recapture the original after
+contention clears; do not interpret an empty pending count as source coverage.
+
+Stop client/uploader processes before upgrading and preserve a private copy of
+their spool and original transcripts. Installing 0.6.35 adds one local SQLite
+progress table in place; PostgreSQL and the protocol are unchanged. Legacy
+snapshots without independently known acknowledgement cursors remain retained
+until the current native adapter recaptures them and acknowledgements cover
+their complete windows. Restart clients and run `spool --flush`;
+check `source_bytes`, pending/blocked counts and owned server receipt states.
+For code rollback, first flush and release snapshots using the updated client.
+The old client charges snapshots, windows and handoffs against one 16 MiB
+budget and reserves 1 MiB for new windows. If retained sources are not below
+15 MiB, or the combined old budget is exceeded, rollback stalls new windows
+and checkpoints with `SpoolFull`. Keep or restore the updated client until
+that pressure is resolved; do not discard input to force a downgrade. When
+within the old bounds, omit the new configuration key and retain the upgraded
+spool. On roll-forward, current bytes are checked again before release. Never
+restore a pre-upgrade spool over newer pending work or delete originals.
 
 Review [PostgreSQL](../deploy/central-service/postgresql.conf.example),
 [Ollama](../deploy/central-service/ollama.conf.example) and

@@ -158,7 +158,7 @@ class RemoteClient(RemoteConnection):
     def __init__(self,cfg,*,sender=None):
         super().__init__(cfg,sender=sender)
         self.partition=hashlib.sha256((self.url+'\0'+hashlib.sha256(self.token.encode()).hexdigest()).encode()).hexdigest()
-        try:self.spool=Spool(cfg.service_spool_dir/'spool.sqlite',self.partition)
+        try:self.spool=Spool(cfg.service_spool_dir/'spool.sqlite',self.partition,max_source_bytes=cfg.service_spool_source_max_bytes)
         except BaseException:
             if self.owns_sender:self.sender.close()
             raise

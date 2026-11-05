@@ -20,8 +20,8 @@ def test_owned_entries_cover_six_events_with_matchers_and_timeouts():
     assert "matcher" not in entries["SessionEnd"][0]
     timeouts = {event: entry[0]["hooks"][0]["timeout"]
                 for event, entry in entries.items()}
-    assert timeouts == {"SessionStart": 10, "UserPromptSubmit": 5, "Stop": 10,
-                        "PreCompact": 3, "PostCompact": 3, "SessionEnd": 1}
+    assert timeouts == {"SessionStart": 10, "UserPromptSubmit": 5, "Stop": 30,
+                        "PreCompact": 30, "PostCompact": 3, "SessionEnd": 30}
     command = entries["PreCompact"][0]["hooks"][0]["command"]
     assert command == f"{shlex.quote(PY)} -m agentic_rag.hooks.pre_compact"
     assert all("additionalContextLimit" not in e[0]["hooks"][0]

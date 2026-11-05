@@ -28,7 +28,7 @@ def files(host, *, python=None, config=None, read_only=False):
         events=('SessionStart','UserPromptSubmit','Stop','PreCompact','PostCompact','SessionEnd')
     hooks={event:[{'hooks':[{'type':'command',
         'command':prefix+shlex.quote(python)+' -m agentic_rag.plugins.lifecycle --host '+host+' --event '+event,
-        'timeout':3000 if host=='gemini' else 3}]}] for event in events}
+        'timeout':30000 if host=='gemini' else (30 if event in {'Stop','PreCompact','SessionEnd'} else 3)}]}] for event in events}
     mcp={'command':python,'args':['-m','agentic_rag.plugins.mcp']+(['--read-only'] if read_only else []),
          **({'env':{'AGENTIC_RAG_CONFIG':str(Path(config).absolute())}} if config else {})}
     manifest={'name':'agentic-rag','version':version('agentic-rag'),'description':'Source-backed knowledge, durable compaction handoffs and bounded queued tools.'}

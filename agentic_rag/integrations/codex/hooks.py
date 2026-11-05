@@ -13,10 +13,10 @@ _HOOK_MODULES = {
         "session_start", 10, "startup|resume|clear|compact", 10000
     ),
     "UserPromptSubmit": ("prompt_recall", 5, None, 5000),
-    "Stop": ("stop_enqueue", 10, None, None),
-    "PreCompact": ("pre_compact", 3, "manual|auto", None),
+    "Stop": ("stop_enqueue", 30, None, None),
+    "PreCompact": ("pre_compact", 30, "manual|auto", None),
     "PostCompact": ("post_compact", 3, "manual|auto", None),
-    "SessionEnd": ("session_end", 3, None, None),
+    "SessionEnd": ("session_end", 30, None, None),
 }
 
 

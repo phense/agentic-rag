@@ -14,7 +14,7 @@ def test_owned_hook_covers_three_flat_events_with_timeouts():
     for event, command, timeout in (
             ("SessionStart", "session-start", 10),
             ("PreInvocation", "pre-invocation", 5),
-            ("Stop", "stop", 10)):
+            ("Stop", "stop", 30)):
         handler, = owned[event]
         assert handler["type"] == "command"
         assert handler["command"] == (
