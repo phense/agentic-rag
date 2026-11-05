@@ -25,10 +25,10 @@ ONE_MILLION_SUFFIX = "[1m]"
 _HOOK_MODULES = {
     "SessionStart": ("session_start", 10, "startup|resume|clear|compact"),
     "UserPromptSubmit": ("prompt_recall", 5, None),
-    "Stop": ("stop_enqueue", 10, None),
-    "PreCompact": ("pre_compact", 3, "manual|auto"),
+    "Stop": ("stop_enqueue", 30, None),
+    "PreCompact": ("pre_compact", 30, "manual|auto"),
     "PostCompact": ("post_compact", 3, "manual|auto"),
-    "SessionEnd": ("session_end", 1, None),
+    "SessionEnd": ("session_end", 30, None),
 }
 
 

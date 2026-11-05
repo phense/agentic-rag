@@ -94,10 +94,10 @@ def test_merge_hooks_installs_each_owned_lifecycle_event_once():
     expected = {
         "SessionStart": ("startup|resume|clear|compact", 10, 10000),
         "UserPromptSubmit": (None, 5, 5000),
-        "Stop": (None, 10, None),
-        "PreCompact": ("manual|auto", 3, None),
+        "Stop": (None, 30, None),
+        "PreCompact": ("manual|auto", 30, None),
         "PostCompact": ("manual|auto", 3, None),
-        "SessionEnd": (None, 3, None),
+        "SessionEnd": (None, 30, None),
     }
     for event, entries in merged["hooks"].items():
         owned = [
