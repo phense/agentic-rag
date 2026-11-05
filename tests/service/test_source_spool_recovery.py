@@ -74,6 +74,25 @@ def test_late_ack_never_releases_newer_appended_capture(tmp_path):
         assert s.status()['source_bytes']==len(first+b' later')
 
 
+def test_old_client_append_between_rollback_and_upgrade_preserves_new_input(tmp_path):
+    # Old capture_source knows only sources, not the additive progress table.
+    with Spool(tmp_path/'private'/'spool.sqlite','a') as s:
+        first=b'first original';later=first+b' appended by the previous client'
+        s.capture_source('s','/p',first)
+        one=s.enqueue('window','s',{'input_cursor':'','output_cursor':'first'})
+        s.mark_source_complete('s',hashlib.sha256(first).hexdigest(),'first')
+        with s.conn:
+            s.conn.execute('INSERT OR REPLACE INTO sources VALUES(?,?,?,?)',('a','s','/p',later))
+        s.ack(one,{'receipt':'earlier-window'})
+        assert s.sources()[0]['raw']==later
+        # Recapture under the current client repairs metadata and resumes normally.
+        s.capture_source('s','/p',later)
+        two=s.enqueue('window','s',{'input_cursor':'first','output_cursor':'last'})
+        s.mark_source_complete('s',hashlib.sha256(later).hexdigest(),'last')
+        s.ack(two,{'receipt':'later-window'})
+        assert s.status()['source_bytes']==0
+
+
 @pytest.mark.parametrize('tail',[b'{"uuid":',b'not-json\n'])
 def test_incomplete_or_malformed_tail_is_retained_after_preceding_ack(tmp_path,tail):
     # Mutation: mark a parsed prefix complete despite warnings about retained input.
@@ -153,6 +172,9 @@ def test_legacy_spool_upgrade_retains_unknown_ack_and_releases_new_ack(tmp_path)
         s.mark_source_complete('s',hashlib.sha256(b'legacy original').hexdigest(),'c1')
         assert s.status()['source_bytes']==15
         s.ack(row,{'receipt':'durable-after-upgrade'})
+        assert s.status()['source_bytes']==15  # old adapter/origin is not yet known
+        s.capture_source('s','/p',b'legacy original')
+        s.mark_source_complete('s',hashlib.sha256(b'legacy original').hexdigest(),'c1')
         assert s.status()['source_bytes']==0
     with Spool(path,'a') as s:
         s.capture_source('unknown','/p',b'old fully staged')
@@ -193,3 +215,62 @@ def test_source_budget_toml_and_repeat_capture_do_not_reset_pending_eof(tmp_path
         s.capture_source('s','/p',raw)
         s.ack(row,{'receipt':'durable'})
         assert s.status()['source_bytes']==0
+
+
+def test_gemini_retains_normalized_history_for_later_observed_prompts(tmp_path):
+    from agentic_rag.plugins.gemini import capture
+    cfg=cfg_for(tmp_path);recording=tmp_path/'gemini.jsonl'
+    recording.write_text('{"sessionId":"g"}\n')
+    payload={'session_id':'g','cwd':'/p','transcript_path':str(recording)}
+    internal,_=capture(cfg,{**payload,'_observed_prompt':'First observed prompt'})
+    capture_transcript(cfg,internal)  # AfterAgent delegates to the native hook.
+    with RemoteClient(cfg) as c:
+        assert stage_sources(c)==1
+        for row in c.spool.pending():c.spool.ack(row['id'],{'receipt':'durable'})
+        assert c.spool.status()['source_bytes']>0  # required normalized adapter state
+    capture(cfg,{**payload,'_observed_prompt':'Second observed prompt'})
+    with RemoteClient(cfg) as c:
+        raw=c.spool.sources()[0]['raw']
+        assert b'First observed prompt' in raw and b'Second observed prompt' in raw
+
+
+def test_gemini_uses_configured_source_budget_when_native_capture_exceeds_16_mib(tmp_path):
+    from agentic_rag.plugins.gemini import capture
+    cfg=cfg_for(tmp_path);recording=tmp_path/'gemini.jsonl'
+    recording.write_text('{"sessionId":"g"}\n')
+    with RemoteClient(cfg) as c:c.spool.capture_source('native','/p',b'x'*(20*1024*1024))
+    capture(cfg,{'session_id':'g','cwd':'/p','transcript_path':str(recording),'_observed_prompt':'Keep this prompt'})
+    with RemoteClient(cfg) as c:
+        assert len(c.spool.sources())==2
+
+
+def test_simultaneous_source_capture_waits_for_large_writer_instead_of_losing_tail(tmp_path):
+    import threading
+    import time
+    path=tmp_path/'private'/'spool.sqlite'
+    ready=threading.Event();start=threading.Event();result=[]
+    def capture_later():
+        try:
+            with Spool(path,'a') as second:
+                ready.set();assert start.wait(3)
+                second.capture_source('last-turn','/p',b'Last turn must survive contention')
+                result.append('captured')
+        except BaseException as exc:result.append(exc)
+    with Spool(path,'a') as first:
+        thread=threading.Thread(target=capture_later);thread.start()
+        try:
+            assert ready.wait(3)
+            first.conn.execute('BEGIN IMMEDIATE');start.set()
+            time.sleep(.6)  # Longer than the former 250 ms busy timeout.
+        finally:first.conn.rollback();start.set();thread.join(4)
+        assert not thread.is_alive() and result==['captured']
+        assert first.sources()[0]['raw']==b'Last turn must survive contention'
+
+
+@pytest.mark.parametrize('host',['claude','codex','gemini'])
+def test_native_package_capture_hooks_allow_bounded_large_snapshot_contention(host):
+    from agentic_rag.plugins.package import files
+    hooks=json.loads(files(host)['hooks/hooks.json'])['hooks']
+    events=hooks if host=='gemini' else ('Stop','PreCompact','SessionEnd')
+    for event in events:
+        assert hooks[event][0]['hooks'][0]['timeout']==(30000 if host=='gemini' else 30)

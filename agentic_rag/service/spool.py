@@ -38,7 +38,9 @@ class Spool:
                 raise ValueError('spool file permissions must be owner-only')
         finally:
             os.close(fd)
-        self.conn=sqlite3.connect(self.path,timeout=.25)
+        # Large synchronous snapshots can hold a write lock for several seconds.
+        # Keep contention bounded without dropping a concurrent final capture.
+        self.conn=sqlite3.connect(self.path,timeout=10)
         self.conn.row_factory=sqlite3.Row
         self.conn.execute('PRAGMA journal_mode=DELETE')
         self.conn.execute('PRAGMA synchronous=FULL')
@@ -54,6 +56,7 @@ class Spool:
             PRIMARY KEY(partition,session));
           CREATE TABLE IF NOT EXISTS source_progress(partition TEXT,session TEXT,size INTEGER NOT NULL,
             digest TEXT NOT NULL,complete_cursor TEXT,ack_cursor TEXT NOT NULL DEFAULT '',
+            retain_raw INTEGER NOT NULL DEFAULT -1,
             PRIMARY KEY(partition,session));
           CREATE TABLE IF NOT EXISTS checkpoints(partition TEXT,session TEXT,payload TEXT,
             PRIMARY KEY(partition,session));
@@ -64,6 +67,8 @@ class Spool:
 
         if 'last_checked' not in {r[1] for r in self.conn.execute('PRAGMA table_info(tool_requests)')}:
             self.conn.execute('ALTER TABLE tool_requests ADD COLUMN last_checked REAL NOT NULL DEFAULT 0')
+        if 'retain_raw' not in {r[1] for r in self.conn.execute('PRAGMA table_info(source_progress)')}:
+            self.conn.execute('ALTER TABLE source_progress ADD COLUMN retain_raw INTEGER NOT NULL DEFAULT -1')
 
     def __enter__(self): return self
     def __exit__(self,*args): self.conn.close()
@@ -159,7 +164,7 @@ class Spool:
         row=self.conn.execute('SELECT text FROM contexts WHERE partition=? AND session=? AND project=?',(self.partition,session,project or '')).fetchone()
         return row['text'] if row else None
 
-    def capture_source(self,session,project,raw):
+    def capture_source(self,session,project,raw,*,retain_raw=False):
         if not isinstance(raw,bytes) or not isinstance(session,str) or not 1<=len(session)<=256:
             raise ValueError('invalid local source')
         self.conn.execute('BEGIN IMMEDIATE')
@@ -180,11 +185,12 @@ class Spool:
             if source_total>self.max_source_bytes or (not prior and self.conn.execute('SELECT count(*) FROM sources').fetchone()[0]>=self.max_items):
                 raise SpoolFull('source spool capacity exceeded; original and buffered input must be retained')
             self.conn.execute('INSERT OR REPLACE INTO sources VALUES(?,?,?,?)',(self.partition,session,project,raw))
-            self.conn.execute('''INSERT INTO source_progress(partition,session,size,digest) VALUES(?,?,?,?)
+            self.conn.execute('''INSERT INTO source_progress(partition,session,size,digest,retain_raw) VALUES(?,?,?,?,?)
               ON CONFLICT(partition,session) DO UPDATE SET size=excluded.size,digest=excluded.digest,
+                retain_raw=CASE WHEN source_progress.retain_raw=1 THEN 1 ELSE excluded.retain_raw END,
                 complete_cursor=CASE WHEN source_progress.digest=excluded.digest AND source_progress.size=excluded.size
                                      THEN source_progress.complete_cursor ELSE NULL END''',
-                              (self.partition,session,len(raw),hashlib.sha256(raw).hexdigest()))
+                              (self.partition,session,len(raw),hashlib.sha256(raw).hexdigest(),int(retain_raw)))
             self.conn.commit()
         except BaseException:
             self.conn.rollback();raise
@@ -208,13 +214,16 @@ class Spool:
         self._reclaim_source_space(released)
 
     def _release_source(self,session):
-        row=self.conn.execute('''SELECT length(s.raw) bytes FROM sources s JOIN source_progress p
+        row=self.conn.execute('''SELECT s.raw,p.digest FROM sources s JOIN source_progress p
           USING(partition,session) WHERE s.partition=? AND s.session=? AND p.complete_cursor IS NOT NULL
-          AND p.complete_cursor=p.ack_cursor AND NOT EXISTS(SELECT 1 FROM outbox o WHERE o.partition=s.partition
+          AND p.retain_raw=0 AND length(s.raw)=p.size AND p.complete_cursor=p.ack_cursor
+          AND NOT EXISTS(SELECT 1 FROM outbox o WHERE o.partition=s.partition
             AND o.session=s.session AND o.kind='window')''',(self.partition,session)).fetchone()
-        if row is None:return 0
+        # A previous client can append during rollback without updating the new
+        # table. Recheck the bytes under this transaction before releasing them.
+        if row is None or hashlib.sha256(row['raw']).hexdigest()!=row['digest']:return 0
         self.conn.execute("UPDATE sources SET raw=x'' WHERE partition=? AND session=?",(self.partition,session))
-        return row['bytes']
+        return len(row['raw'])
 
     def _reclaim_source_space(self,released):
         if released<1024*1024:return

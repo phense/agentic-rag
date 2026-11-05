@@ -408,7 +408,7 @@ credential partitions sharing one spool file. At capacity, keep the original
 transcripts, restore upload capacity and flush; never delete pending input to
 make room. Malformed or incomplete tails remain buffered for repair or append.
 
-The client releases a raw snapshot only after reaching a clean end of that exact
+The client releases a native raw snapshot only after reaching a clean end of that exact
 snapshot and receiving durable acknowledgements for all its staged windows.
 Queued extraction is sufficient to transfer ownership to the server; it does
 not mean knowledge has been applied. Prefix hashes and cursors remain locally
@@ -419,16 +419,46 @@ space for SQLite compaction as well as the configured logical budgets.
 Origin-audit spool export applies only to retained snapshots; after release it
 refuses export rather than inventing an empty original. Keep the host transcript
 or a separate private archive when later raw-recording audits are required.
+Gemini deliberately retains its normalized history, including observed prompts
+absent from its host recording, because later turns need that adapter state.
+Its per-recording 16 MiB input limit remains unchanged; retained normalized
+history shares the configured source budget and its private mirror also uses disk.
+
+Capture can use several times the largest snapshot size in RAM, and staging
+loads retained snapshots and reparses each source per window. The byte budgets
+are logical limits, not RAM or filesystem quotas. Allow temporary space for
+source copies, SQLite journals, staging and compaction; measure capacity before
+raising the source budget. The 2,000 source-entry limit is across the spool's
+lifetime, including acknowledged rows; do not delete cursor/hash metadata to
+bypass it, because that metadata prevents incorrect replay.
+Safe retirement is tracked in [Issue75](https://github.com/phense/agentic-rag/issues/75).
+
+SQLite waits at most 10 seconds for a competing transaction. Before switching
+to remote capture, give configurable capture hooks (Stop, PreCompact and
+SessionEnd, or all Gemini recording hooks) at least 30 seconds. New native
+plugin packages use these values (30,000 milliseconds for Gemini); existing
+per-user hook settings need an explicit adjustment. Host hard termination
+limits still apply: final shutdown hooks remain best effort. Retain originals,
+capture during normal turns and run the periodic uploader. If capture times
+out or the host kills it, inspect hook errors and recapture the original after
+contention clears; do not interpret an empty pending count as source coverage.
 
 Stop client/uploader processes before upgrading and preserve a private copy of
 their spool and original transcripts. Installing 0.6.35 adds one local SQLite
 progress table in place; PostgreSQL and the protocol are unchanged. Legacy
 snapshots without independently known acknowledgement cursors remain retained
-until a new window is acknowledged. Restart clients and run `spool --flush`;
+until the current native adapter recaptures them and acknowledgements cover
+their complete windows. Restart clients and run `spool --flush`;
 check `source_bytes`, pending/blocked counts and owned server receipt states.
-For code rollback, omit the new configuration key. Retain the upgraded spool;
-older clients retain snapshots but cannot perform the new release checks. Do
-not restore a pre-upgrade spool over newer pending work or delete originals.
+For code rollback, first flush and release snapshots using the updated client.
+The old client charges snapshots, windows and handoffs against one 16 MiB
+budget and reserves 1 MiB for new windows. If retained sources are not below
+15 MiB, or the combined old budget is exceeded, rollback stalls new windows
+and checkpoints with `SpoolFull`. Keep or restore the updated client until
+that pressure is resolved; do not discard input to force a downgrade. When
+within the old bounds, omit the new configuration key and retain the upgraded
+spool. On roll-forward, current bytes are checked again before release. Never
+restore a pre-upgrade spool over newer pending work or delete originals.
 
 Review [PostgreSQL](../deploy/central-service/postgresql.conf.example),
 [Ollama](../deploy/central-service/ollama.conf.example) and
