@@ -9,9 +9,14 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.33-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.34-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.34 dashboard refresh:** clearer grouped navigation, consistent cards, tables
+and status badges, readable narrow-screen layouts and improved text contrast in
+the sampled synthetic administrator views. Behavior,
+permissions and stored data are unchanged; see the [dashboard reference](docs/dashboard-reference.md#layout-and-accessibility).
 
 **0.6.33 embedding comparison:** optional task prefixes preserve model-bound
 generation identities. The [local BGE/Jina CPU results](docs/benchmarks/2026-11-04-embedding-comparison/README.md)

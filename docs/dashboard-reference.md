@@ -5,10 +5,10 @@ type: reference
 doc_id: dashboard-reference
 readers: [operator, knowledge-user]
 status: reviewed
-version: 0.6.15
+version: 0.6.34
 depends_on: [C-059]
 assets: []
-last_reviewed: 2026-10-30
+last_reviewed: 2026-11-04
 summary: Access authority, setup checks, browser security and finite resource budgets.
 ---
 
@@ -81,6 +81,32 @@ cookies cannot authenticate them. Machine keys cannot open a dashboard session.
 Responses are no-store, scripts/styles are packaged locally, framing is denied,
 and credentials are not written to browser persistent storage. Loopback HTTP
 uses a separate cookie and is intended for private local access/testing.
+
+## Layout and accessibility
+
+Since 0.6.34 the sidebar groups the pages into **Workspace** (Overview, Knowledge,
+Request tracing) and, for administrators, **Administration** (Clients & access,
+Settings, Setup assistant). The current page carries a visible marker and
+`aria-current="page"`. Below 720 px width the sidebar opens from the menu button;
+Escape closes it again. Tables then show each row as a card with the column name
+beside every value, so no column is hidden behind horizontal scrolling.
+
+The browser test `tests/browser/test_dashboard_visual_browser.py` samples the
+login and administrator views at 1440 px and 390 px with synthetic data. It checks
+visible text nodes and six representative keyboard-focus targets, and fails on:
+
+- text below WCAG AA contrast (4.5:1, or 3:1 for large text),
+- a keyboard focus ring thinner than 2 px or below 3:1 contrast,
+- controls smaller than 24 × 24 px on narrow screens,
+- horizontal page overflow or a missing active navigation entry.
+
+A separate regression checks that long domain, project-scope and outcome badges
+remain fully readable at both widths. These are bounded Chromium measurements,
+not a product-wide WCAG certification. The visual audit does not cover all
+member/read-only views, loading states, CSS-generated text or every focus target.
+
+The dashboard uses the installed system fonts and packaged files only. It loads no
+web fonts, images or scripts from other hosts.
 
 ## Resource budgets
 

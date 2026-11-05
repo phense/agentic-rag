@@ -5,6 +5,11 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.34] - 2026-11-04
+
+- Refresh the dashboard presentation (Issue108). Navigation is grouped into Workspace and Administration with one clearly marked active entry. Cards, forms, status badges and tables share one restrained style; request-trace filters sit in a compact grid; HTTP status and job outcome appear as colored badges with their original text. On narrow screens, tables become labelled cards instead of squeezed columns, and Escape closes the opened navigation. In sampled synthetic administrator views at 1440/390 px, measured text meets WCAG AA contrast thresholds and narrow-screen controls are at least 24 px; six sampled keyboard focus targets have at least 3:1 contrast. A new browser test records these bounded measurements, without claiming product-wide accessibility certification. Long domain, project-scope and status badges wrap so their full values remain readable.
+- All views, actions, permissions, confirmations, loading/error/empty states and keyboard paths remain. Only packaged static dashboard files change; there is no schema, API, stored-data, configuration or model change, and fonts and scripts stay local. Update the code and restart the API; browsers receive the new files on the next page load because dashboard responses are not cached. Code rollback restores the previous files.
+
 ## [0.6.33] - 2026-11-04
 
 - Bind optional document/query task prefixes to immutable embedding profiles. Use the document role for index builds and semantic duplicate checks, the query role for search, and both role probes before selecting a generation. Empty prefixes preserve the previous identity and request bytes. Existing installations need a code update and process restart; schema 039, stored knowledge and existing generations remain unchanged. Follow PB061-OPS for writer pause, profile/configuration preservation and ordered rollback before an older binary reads prefixed profiles.
