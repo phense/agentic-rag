@@ -276,7 +276,11 @@ class RemoteClient(RemoteConnection):
         except RemoteError as exc:
             self.spool.request_error(handle,exc.code)
             if exc.status==404 and row['server_id'] is not None:
-                if consume:self.spool.request_finish(handle)
+                # The server no longer holds this request or its result (TTL
+                # passed), so the handle can never be read again. Drop it even
+                # on a non-consuming background flush; keeping it would leak a
+                # slot of the bounded request spool forever.
+                self.spool.request_finish(handle)
                 return {'request_id':row['server_id'],'state':'expired','durable':True,'code':'result_expired'},False
             terminal=400<=exc.status<500 and exc.status not in {408,429}
             return ({'request_id':row['server_id'] or handle,'state':'blocked' if terminal else 'pending',

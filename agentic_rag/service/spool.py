@@ -10,6 +10,11 @@ import stat
 import time
 
 
+REQUEST_SPOOL_MAX_ITEMS=64
+REQUEST_SPOOL_MAX_BYTES=4*1024*1024
+REQUEST_ENVELOPE_MAX_BYTES=60*1024
+
+
 class SpoolFull(RuntimeError):
     pass
 
@@ -273,7 +278,12 @@ class Spool:
                 self.conn.rollback()
                 return existing['id']
             count,total=self.conn.execute('SELECT count(*),COALESCE(sum(length(CAST(envelope AS BLOB))),0) FROM tool_requests').fetchone()
-            if count>=64 or total+len(envelope.encode())>4*1024*1024 or len(envelope.encode())>60*1024:
+            if count>=REQUEST_SPOOL_MAX_ITEMS or total+len(envelope.encode())>REQUEST_SPOOL_MAX_BYTES:
+                # Reclaim slots of acknowledged requests the server already
+                # reported as gone; they can never complete or be read again.
+                self.conn.execute("DELETE FROM tool_requests WHERE server_id IS NOT NULL AND code IN ('not_found','result_expired')")
+                count,total=self.conn.execute('SELECT count(*),COALESCE(sum(length(CAST(envelope AS BLOB))),0) FROM tool_requests').fetchone()
+            if count>=REQUEST_SPOOL_MAX_ITEMS or total+len(envelope.encode())>REQUEST_SPOOL_MAX_BYTES or len(envelope.encode())>REQUEST_ENVELOPE_MAX_BYTES:
                 raise SpoolFull('request spool full; pending requests retained')
             identity='local.'+str(uuid.uuid4())
             self.conn.execute('INSERT INTO tool_requests(id,partition,fingerprint,envelope,created) VALUES(?,?,?,?,?)',
