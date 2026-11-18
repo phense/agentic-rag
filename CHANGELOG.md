@@ -5,6 +5,12 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.36] - 2026-11-18
+
+- Stop leaking request-spool slots. Background flushes (`consume=False`) kept acknowledged handles forever after the server answered 404 because the result TTL had passed. The request spool is capped at 64 entries, independent of `spool_source_max_bytes`, so once dead handles filled it every later tool call of that client (`memory_search`, `memory_save`, `memory_context`, …) failed with `request spool full`. Observed on one client for five days; capture and extraction were unaffected, because transcripts use the separate source spool.
+- A 404 for an acknowledged handle now drops it regardless of `consume`. When the request spool is at capacity, acknowledged handles already marked `not_found`/`result_expired` are reclaimed before a new request is refused. Unacknowledged and live handles are never reclaimed, so lost-ACK replay keeps its guarantee. The limits are named module constants (`REQUEST_SPOOL_MAX_ITEMS`, `REQUEST_SPOOL_MAX_BYTES`, `REQUEST_ENVELOPE_MAX_BYTES`).
+- Update the client and restart it and its uploader; the spool is unchanged and no server, schema or protocol change is involved. A spool that is already full drains on the first flush after the update.
+
 ## [0.6.35] - 2026-11-05
 
 - Give remote transcript snapshots a separate configurable 256 MiB budget, while pending windows and handoffs retain their 16 MiB limit. Large native transcripts no longer prevent automatic capture solely because they exceed the outbox budget. Input over either bound remains retained; no pending input is evicted.
