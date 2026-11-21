@@ -5,7 +5,10 @@
         "-m",
         "agentic_rag.plugins.mcp"
       ],
-      "command": "python3"
+      "command": "python3",
+      "env": {
+        "PYTHONSAFEPATH": "1"
+      }
     },
     "agentic-rag-ro": {
       "args": [
@@ -15,6 +18,7 @@
       ],
       "command": "python3",
       "env": {
+        "PYTHONSAFEPATH": "1",
         "RAG_READONLY": "1"
       }
     }

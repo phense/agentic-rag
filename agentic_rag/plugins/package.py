@@ -23,15 +23,16 @@ def files(host, *, python=None, config=None, read_only=False):
     python=str(Path(python or sys.executable).absolute())
     prefix=('AGENTIC_RAG_CONFIG='+shlex.quote(str(Path(config).absolute()))+' ') if config else ''
     if host=='antigravity':
-        base_env={'AGENTIC_RAG_CONFIG':str(Path(config).absolute())} if config else {}
+        base_env={'PYTHONSAFEPATH':'1',**({'AGENTIC_RAG_CONFIG':str(Path(config).absolute())} if config else {})}
         ro_env={**base_env,'RAG_READONLY':'1'}
-        mcp_rw={'command':python,'args':['-m','agentic_rag.plugins.mcp'],**({'env':base_env} if base_env else {})}
+        mcp_rw={'command':python,'args':['-m','agentic_rag.plugins.mcp'],'env':base_env}
         mcp_ro={'command':python,'args':['-m','agentic_rag.plugins.mcp','--read-only'],'env':ro_env}
         mcp_servers={'agentic-rag-ro':mcp_ro} if read_only else {'agentic-rag':mcp_rw,'agentic-rag-ro':mcp_ro}
+        agy_prefix='PYTHONSAFEPATH=1 '+prefix
         agy_events=(('SessionStart',10),('PreInvocation',5),('Stop',30))
         hooks_doc={} if read_only else {'agentic-rag':{'enabled':True,**{
             event:[{'type':'command',
-                'command':prefix+shlex.quote(python)+' -m agentic_rag.plugins.lifecycle --host antigravity --event '+event,
+                'command':agy_prefix+shlex.quote(python)+' -m agentic_rag.plugins.lifecycle --host antigravity --event '+event,
                 'timeout':timeout}] for event,timeout in agy_events}}}
         manifest={'$schema':'https://antigravity.google/schemas/v1/plugin.json',
             'author':{'name':'Peter Hense'},

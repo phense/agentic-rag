@@ -43,10 +43,14 @@ def test_antigravity_plugin_package_lifecycle_and_dual_mcp(tmp_path):
     servers = mcp_doc["mcpServers"]
     assert set(servers) == {"agentic-rag", "agentic-rag-ro"}
     assert servers["agentic-rag"]["args"] == ["-m", "agentic_rag.plugins.mcp"]
-    assert servers["agentic-rag"]["env"] == {"AGENTIC_RAG_CONFIG": str(cfg_path)}
+    assert servers["agentic-rag"]["env"] == {
+        "AGENTIC_RAG_CONFIG": str(cfg_path),
+        "PYTHONSAFEPATH": "1",
+    }
     assert servers["agentic-rag-ro"]["args"] == ["-m", "agentic_rag.plugins.mcp", "--read-only"]
     assert servers["agentic-rag-ro"]["env"] == {
         "AGENTIC_RAG_CONFIG": str(cfg_path),
+        "PYTHONSAFEPATH": "1",
         "RAG_READONLY": "1",
     }
 
@@ -54,7 +58,7 @@ def test_antigravity_plugin_package_lifecycle_and_dual_mcp(tmp_path):
     owned = hooks_doc["agentic-rag"]
     assert owned["enabled"] is True
     assert set(owned) == {"enabled", "SessionStart", "PreInvocation", "Stop"}
-    expected_cfg = f"AGENTIC_RAG_CONFIG={shlex.quote(str(cfg_path))}"
+    expected_cfg = f"PYTHONSAFEPATH=1 AGENTIC_RAG_CONFIG={shlex.quote(str(cfg_path))}"
     for event, timeout in (("SessionStart", 10), ("PreInvocation", 5), ("Stop", 30)):
         handler, = owned[event]
         assert handler["type"] == "command"
