@@ -88,6 +88,8 @@ def _main(argv: list[str] | None = None) -> int:
                         help="target the Antigravity CLI (agy) hooks.json")
     p_inst.add_argument("--agy-home", type=Path, default=None,
                         help=argparse.SUPPRESS)
+    p_inst.add_argument("--agy-config-dir", type=Path, default=None,
+                        help="target a custom Antigravity config directory (e.g. ACP/T3 Code)")
     p_inst.add_argument("--opencode", action="store_true", help="install native OpenCode RAG hooks")
     p_inst.add_argument("--opencode-config-dir", type=Path, default=None)
     p_inst.add_argument("--uninstall", action="store_true", help="remove the exact owned OpenCode loader")
@@ -394,12 +396,20 @@ def _main(argv: list[str] | None = None) -> int:
     if (args.cmd == "install" and args.agy_home is not None
             and not args.agy):
         p.error("--agy-home requires --agy")
+    if (args.cmd == "install" and args.agy_config_dir is not None
+            and not args.agy):
+        p.error("--agy-config-dir requires --agy")
+    if (args.cmd == "install" and args.agy_home is not None
+            and args.agy_config_dir is not None):
+        p.error("--agy-home and --agy-config-dir are mutually exclusive")
     if (args.cmd == "install" and args.restore is not None
-            and (args.codex_home is not None or args.agy_home is not None)):
+            and (args.codex_home is not None or args.agy_home is not None
+                 or args.agy_config_dir is not None)):
         p.error("--restore reads its target home from the rollback record")
     if args.cmd == "install":
         if args.opencode:
-            if args.codex or args.agy or args.restore or args.codex_home or args.agy_home:
+            if (args.codex or args.agy or args.restore or args.codex_home
+                    or args.agy_home or args.agy_config_dir):
                 p.error("--opencode cannot be combined with other targets or --restore")
             from .integrations.opencode.install import install as install_opencode
             try:
@@ -635,6 +645,7 @@ def _main(argv: list[str] | None = None) -> int:
             rep = install_mod.install(
                 cfg, with_launchd=False, codex=False, check=args.check,
                 restore_path=args.restore, agy=True, agy_home=args.agy_home,
+                agy_config_dir=args.agy_config_dir,
             )
         else:
             rep = install_mod.install(

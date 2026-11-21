@@ -19,7 +19,7 @@ All subcommands live in `agentic_rag/cli.py`, a thin `argparse` layer over the l
 | Command | Flags | What it does |
 |---|---|---|
 | `rag init-db` | — | Applies pending SQL migrations from `sql/`, creates the schema, seeds the `general` domain. Prints which migrations applied. |
-| `rag install` | `--no-launchd` · `--codex` · `--agy` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges six Claude hooks plus `autoCompactWindow = 500000` into `~/.claude/settings.json` (unique `settings.json.bak.<id>` backup, mode-0600 rollback record, printed restore command), and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` previews either target and writes nothing (for Claude: no MCP registration, no launchd). `--restore` is mutually exclusive with `--check`, accepts a Claude or Codex record, and dispatches on the record's target: `--codex --restore` still works for Codex records; a Claude record with `--codex` is refused. `--agy` manages only `~/.gemini/config/hooks.json` for the Antigravity CLI (one named `agentic-rag` hook; no policy, no MCP, no scheduler) and accepts the same `--check`/`--restore`; `--codex` and `--agy` are mutually exclusive, and an Antigravity record must be restored with `--agy`. Does **not** create the database. |
+| `rag install` | `--no-launchd` · `--codex` · `--agy` · `--agy-config-dir <PATH>` · `--check` · `--restore <ROLLBACK_RECORD>` | With no target flag, registers the two Claude MCP servers, merges six Claude hooks plus `autoCompactWindow = 500000` into `~/.claude/settings.json` (unique `settings.json.bak.<id>` backup, mode-0600 rollback record, printed restore command), and installs the macOS backup job unless skipped. `--codex` instead manages only Codex config/hooks/prompt and never registers Claude MCP or another scheduler. `--check` previews either target and writes nothing (for Claude: no MCP registration, no launchd). `--restore` is mutually exclusive with `--check`, accepts a Claude or Codex record, and dispatches on the record's target: `--codex --restore` still works for Codex records; a Claude record with `--codex` is refused. `--agy` manages only `~/.gemini/config/hooks.json` (or `<PATH>/hooks.json` with `--agy-config-dir`) for Antigravity (one named `agentic-rag` hook; no policy, no MCP, no scheduler) and accepts the same `--check`/`--restore`; `--codex` and `--agy` are mutually exclusive, and an Antigravity record must be restored with `--agy`. For full Antigravity MCP + hooks packaging, use `rag plugin install --host antigravity`. Does **not** create the database. |
 
 ### Signed webhooks
 
@@ -309,7 +309,10 @@ starts, so open a new conversation after installing.
 
 `--agy-home <path>` is the hidden test/rollout analogue of `--codex-home`
 (the file is `<home>/.gemini/config/hooks.json`) and cannot be combined with
-`--restore`.
+`--restore` or `--agy-config-dir`. `--agy-config-dir <path>` targets a custom
+Antigravity config root (`<path>/hooks.json`, for example an ACP host's
+`--gemini-dir` config directory). For full MCP + hook packaging, prefer
+`rag plugin install --host antigravity` (see [Antigravity integration](antigravity.md)).
 
 ### Antigravity hook output contract
 
@@ -318,7 +321,7 @@ Every event prints one JSON object and exits 0; failures are logged under
 
 | Event | Observable result |
 |---|---|
-| `SessionStart` | `{"injectSteps":[{"ephemeralMessage": <context>}]}` with pins, domain map, project knowledge (from `workspacePaths[0]`), and the same-session checkpoint (`startup` selection rules; capped at `context_max_chars`). A database failure injects `⚠️ agentic-rag unavailable: …` instead of nothing. Fires only for new conversations (not `-c`/`/resume`). |
+| `SessionStart` | `{"injectSteps":[{"systemMessage":{"systemMessage": <context>}}]}` with pins, domain map, project knowledge (from `workspacePaths[0]` or `cwd`), and the same-session checkpoint (`startup` selection rules; capped at `context_max_chars`). A database failure injects `⚠️ agentic-rag unavailable: …` instead of nothing. Fires only for new conversations (not `-c`/`/resume`). |
 | `PreInvocation` | `{}` unless `invocationNum` is 0. On the first call of a turn it reads the transcript tail: a trailing `/compact` request persists a `PreCompact`/`manual` checkpoint at cursor `agy-step-<idx>`, queues enrichment, and injects `assets/agy/compact_prompt.md` (`Version: 1.0`) plus `agentic-rag checkpoint: <id>`; a new automatic-compaction marker (`CHECKPOINT` step or `<CONTEXT_SUMMARY>` block) persists a `PreCompact`/`auto` checkpoint, marks it compacted, stores the summary as handoff, logs `agy.auto_compaction`, and injects the `compact`-source context; otherwise an error signature in the new prompt injects the recall block. |
 | `Stop` | `{}` always (never blocks the stop). When the last request was `/compact` and the newest manual `PreCompact` checkpoint carries that cursor, marks it compacted and attaches the following model response as the bounded, secret-stripped handoff; always queues the transcript delta for mining. |
 

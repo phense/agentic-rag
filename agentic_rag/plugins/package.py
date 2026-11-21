@@ -10,7 +10,7 @@ import stat
 import sys
 import tempfile
 
-HOSTS=('claude','codex','gemini')
+HOSTS=('claude','codex','gemini','antigravity')
 RECORD='.rag-package.json'
 
 
@@ -19,9 +19,33 @@ def _json(value):
 
 
 def files(host, *, python=None, config=None, read_only=False):
-    if host not in HOSTS:raise ValueError('unsupported native host; use existing agy/OpenCode adapter')
+    if host not in HOSTS:raise ValueError('unsupported native host; use existing OpenCode adapter')
     python=str(Path(python or sys.executable).absolute())
     prefix=('AGENTIC_RAG_CONFIG='+shlex.quote(str(Path(config).absolute()))+' ') if config else ''
+    if host=='antigravity':
+        base_env={'PYTHONSAFEPATH':'1',**({'AGENTIC_RAG_CONFIG':str(Path(config).absolute())} if config else {})}
+        ro_env={**base_env,'RAG_READONLY':'1'}
+        mcp_rw={'command':python,'args':['-m','agentic_rag.plugins.mcp'],'env':base_env}
+        mcp_ro={'command':python,'args':['-m','agentic_rag.plugins.mcp','--read-only'],'env':ro_env}
+        mcp_servers={'agentic-rag-ro':mcp_ro} if read_only else {'agentic-rag':mcp_rw,'agentic-rag-ro':mcp_ro}
+        agy_prefix='PYTHONSAFEPATH=1 '+prefix
+        agy_events=(('SessionStart',10),('PreInvocation',5),('Stop',30))
+        hooks_doc={} if read_only else {'agentic-rag':{'enabled':True,**{
+            event:[{'type':'command',
+                'command':agy_prefix+shlex.quote(python)+' -m agentic_rag.plugins.lifecycle --host antigravity --event '+event,
+                'timeout':timeout}] for event,timeout in agy_events}}}
+        manifest={'$schema':'https://antigravity.google/schemas/v1/plugin.json',
+            'author':{'name':'Peter Hense'},
+            'description':'Source-backed knowledge, durable compaction handoffs and bounded queued tools.',
+            'displayName':'agentic-rag',
+            'homepage':'https://github.com/phense/agentic-rag',
+            'license':'MIT',
+            'name':'agentic-rag',
+            'repository':'https://github.com/phense/agentic-rag',
+            'version':version('agentic-rag')}
+        return {'.antigravity-plugin/plugin.json':_json(manifest),
+                'hooks.json':_json(hooks_doc),
+                'mcp_config.json':_json({'mcpServers':mcp_servers})}
     if host=='gemini':
         events=('SessionStart','BeforeAgent','BeforeModel','AfterAgent','PreCompress','SessionEnd')
     else:

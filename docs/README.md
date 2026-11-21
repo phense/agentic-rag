@@ -82,6 +82,10 @@ synthetic implementation evidence from real-model and production readiness.
 bounded audited backfill, source014→015 upgrade, interruption and recovery limits;
 [measured evidence](benchmarks/2026-10-03-contextual-indexing/README.md).
 
+## Antigravity integration
+
+[Antigravity integration](antigravity.md) — native plugin packaging (MCP read-write + read-only servers and lifecycle hooks), standalone `~/.gemini/config` and ACP/T3 Code custom config installation, migration from legacy `hooks.json`, and limits.
+
 ## OpenCode integration
 
 [OpenCode and DeepSeek](opencode.md) — native context/recall, compaction continuity, idle mining, installation and scope.

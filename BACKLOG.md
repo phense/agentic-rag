@@ -29,6 +29,14 @@ see [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and
 
 ## §0 — Continuity rollout blockers (Codex, Claude, and Antigravity)
 
+- 🔵 **0.9** _(enh)_ **Native Antigravity plugin packaging, MCP integration, and agy 1.5/ACP compatibility.**
+  Adds `rag plugin --host antigravity` (`.antigravity-plugin/plugin.json`,
+  `mcp_config.json` with `agentic-rag` + `agentic-rag-ro`, plugin-root `hooks.json`),
+  `systemMessage` injection, `cwd` fallback, subagent suppression, ACP
+  `<user_request>` transcript unwrapping, `--agy-config-dir`, and standalone
+  `RAG_READONLY=1` enforcement for `--read-only`.
+  → *Issue:* [#113](https://github.com/phense/agentic-rag/issues/113).
+
 - 🔵 **0.8** _(bug)_ **Large remote transcript capture and safe spool reclamation.**
   Separate bounded raw snapshots from the pending-window budget, and release a
   snapshot only after clean EOF plus durable acknowledgements. Preserve lost-ACK

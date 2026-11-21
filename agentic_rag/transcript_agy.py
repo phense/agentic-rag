@@ -34,6 +34,12 @@ AUTO_COMPACTION_TAG = "<CONTEXT_SUMMARY>"
 TAIL_BYTES = 256 * 1024
 
 _REQUEST_RE = re.compile(r"<USER_REQUEST>\s*(.*?)\s*</USER_REQUEST>", re.S)
+_ACP_WRAPPER_RE = re.compile(
+    r"^(?:\s*<t3_code_instructions>.*?</t3_code_instructions>\s*)*"
+    r"<user_request>\s*(.*?)\s*</user_request>"
+    r"(?:\s*<runtime_info>.*?</runtime_info>\s*)*$",
+    re.S,
+)
 _DROP_BLOCKS_RE = re.compile(
     r"<(ADDITIONAL_METADATA|USER_SETTINGS_CHANGE|EPHEMERAL_MESSAGE)>.*?"
     r"</\1>", re.S)
@@ -99,8 +105,11 @@ def user_request_text(content: str) -> str:
     """The user's own words: unwrap ``<USER_REQUEST>`` and drop client blocks."""
     match = _REQUEST_RE.search(content)
     text = match.group(1) if match else content
-    text = _DROP_BLOCKS_RE.sub("", text)
-    return text.strip()
+    text = _DROP_BLOCKS_RE.sub("", text).strip()
+    wrapped = _ACP_WRAPPER_RE.fullmatch(text)
+    if wrapped:
+        text = wrapped.group(1).strip()
+    return text
 
 
 def is_compact_request(content: str) -> bool:

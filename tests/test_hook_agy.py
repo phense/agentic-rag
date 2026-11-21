@@ -40,7 +40,7 @@ def _payload(tmp_path, transcript, **over):
 
 
 def _messages(result):
-    return [step["ephemeralMessage"] for step in result.get("injectSteps", [])]
+    return [step["systemMessage"]["systemMessage"] for step in result.get("injectSteps", [])]
 
 
 def _project(tmp_path):

@@ -1,0 +1,26 @@
+{
+  "agentic-rag": {
+    "PreInvocation": [
+      {
+        "command": "PYTHONSAFEPATH=1 python3 -m agentic_rag.plugins.lifecycle --host antigravity --event PreInvocation",
+        "timeout": 5,
+        "type": "command"
+      }
+    ],
+    "SessionStart": [
+      {
+        "command": "PYTHONSAFEPATH=1 python3 -m agentic_rag.plugins.lifecycle --host antigravity --event SessionStart",
+        "timeout": 10,
+        "type": "command"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "PYTHONSAFEPATH=1 python3 -m agentic_rag.plugins.lifecycle --host antigravity --event Stop",
+        "timeout": 30,
+        "type": "command"
+      }
+    ],
+    "enabled": true
+  }
+}
