@@ -1,11 +1,17 @@
 """Plugin-only status/cancel tools; legacy MCP surfaces retain their contract."""
+import os
 import sys
 from ..config import load_config
 from ..mcp_server import build_server
 from ..service.client import RemoteClient
 
 
+def _env_readonly() -> bool:
+    return os.environ.get('RAG_READONLY','').strip()=='1'
+
+
 def build(read_only=False):
+    read_only=bool(read_only) or _env_readonly()
     server=build_server(read_only)
     cfg=load_config()
     if cfg.service_mode=='client':
@@ -24,7 +30,10 @@ def build(read_only=False):
 
 
 def main():
-    build('--read-only' in sys.argv).run(transport='stdio')
+    read_only='--read-only' in sys.argv or _env_readonly()
+    if read_only:
+        os.environ['RAG_READONLY']='1'
+    build(read_only).run(transport='stdio')
 
 
 if __name__=='__main__':main()

@@ -7,7 +7,7 @@ three installed events into the shared provider-neutral machinery:
 
 ``session-start``
     Inject pins, the domain map, project knowledge, and the continuation
-    checkpoint as one ephemeral message (fail-closed-VISIBLE, like Claude's
+    checkpoint as one ``systemMessage`` (fail-closed-VISIBLE, like Claude's
     ``SessionStart``); trigger the daily maintenance guarantee.
 
 ``pre-invocation``
@@ -52,6 +52,9 @@ def _cwd(payload: dict) -> str | None:
         for item in paths:
             if isinstance(item, str) and item.strip():
                 return item
+    cwd = payload.get("cwd")
+    if isinstance(cwd, str) and cwd.strip():
+        return cwd
     return None
 
 
@@ -76,7 +79,11 @@ def internal_payload(payload: dict, **extra) -> dict:
 
 
 def inject(*messages: str) -> dict:
-    steps = [{"ephemeralMessage": text} for text in messages if text and text.strip()]
+    steps = [
+        {"systemMessage": {"systemMessage": text}}
+        for text in messages
+        if text and text.strip()
+    ]
     return {"injectSteps": steps} if steps else {}
 
 
@@ -313,9 +320,28 @@ _HANDLERS = {
 }
 
 
+_BLOCKED_TYPES = {"subagent", "maintenance"}
+_BLOCKED_FLAGS = (
+    "is_sidechain", "isSidechain",
+    "is_subagent", "isSubagent",
+    "parent_session_id", "parentSessionId", "parentConversationId",
+    "subagent_id", "subagentId",
+    "fork", "isFork",
+    "stop_hook_active", "stopHookActive",
+)
+
+
+def _eligible(payload: dict) -> bool:
+    return common.is_interactive(payload) and not (
+        any(payload.get(key) for key in _BLOCKED_FLAGS)
+        or payload.get("agent_type") in _BLOCKED_TYPES
+        or payload.get("agentType") in _BLOCKED_TYPES
+    )
+
+
 def run(event: str, payload: dict) -> dict:
     handler = _HANDLERS.get(event)
-    if handler is None or not common.is_interactive(payload):
+    if handler is None or not _eligible(payload):
         return {}
     try:
         return handler(payload)

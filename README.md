@@ -9,9 +9,17 @@ full-text search, lifecycle hooks, and a provider CLI you control — without a
 hosted RAG service.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.6.36-informational.svg)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.6.37-informational.svg)](pyproject.toml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](pyproject.toml)
 [![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-336791.svg)](https://github.com/pgvector/pgvector)
+
+**0.6.37 native Antigravity integration:** `rag plugin --host antigravity` packages
+an owned native Antigravity plugin (`.antigravity-plugin/plugin.json`, `mcp_config.json`
+with both `agentic-rag` and `agentic-rag-ro`, and plugin-root `hooks.json`) for
+standalone `agy` (`~/.gemini/config`) and custom/ACP hosts such as T3 Code, updates
+Antigravity hooks to `systemMessage` and `cwd` fallback, and unwraps ACP
+`<user_request>` transcript blocks. No schema migration is required; see
+[Antigravity integration](docs/antigravity.md).
 
 **0.6.34 dashboard refresh:** clearer grouped navigation, consistent cards, tables
 and status badges, readable narrow-screen layouts and improved text contrast in

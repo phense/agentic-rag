@@ -292,7 +292,7 @@ def test_prepared_vector_template_restores_without_superuser(tmp_path,monkeypatc
 def test_current_release_is_supported_for_operator_backups():
     from agentic_rag.service import upgrade
     from importlib.metadata import version
-    assert version('agentic-rag') == '0.6.36'
+    assert version('agentic-rag') == '0.6.37'
     assert '0.6.24' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.25' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.26' in upgrade.SUPPORTED_VERSIONS
@@ -301,5 +301,5 @@ def test_current_release_is_supported_for_operator_backups():
     assert '0.6.30' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.33' in upgrade.SUPPORTED_VERSIONS
     assert '0.6.34' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.36' in upgrade.SUPPORTED_VERSIONS
-    assert '0.6.37' not in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.37' in upgrade.SUPPORTED_VERSIONS
+    assert '0.6.38' not in upgrade.SUPPORTED_VERSIONS

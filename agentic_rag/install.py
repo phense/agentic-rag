@@ -457,17 +457,23 @@ def install(cfg: Config, *, settings_path: Path | None = None,
             codex_home: Path | None = None,
             restore_path: Path | None = None,
             state_dir: Path | None = None,
-            agy: bool = False, agy_home: Path | None = None) -> InstallReport:
+            agy: bool = False, agy_home: Path | None = None,
+            agy_config_dir: Path | None = None) -> InstallReport:
     if restore_path is not None and check:
         raise ValueError("restore and check are mutually exclusive")
     if codex and agy:
         raise ValueError("--codex and --agy are mutually exclusive")
+    if agy_home is not None and agy_config_dir is not None:
+        raise ValueError("--agy-home and --agy-config-dir are mutually exclusive")
     if restore_path is not None:
         restored = restore_rollback(restore_path, codex_flag=codex, agy_flag=agy)
         return InstallReport(None, None, False, restored_paths=restored)
     if agy:
-        hooks_path = agy_install.hooks_path_for_home(
-            None if agy_home is None else _absolute(agy_home))
+        if agy_config_dir is not None:
+            hooks_path = agy_install.hooks_path_for_config_dir(_absolute(agy_config_dir))
+        else:
+            hooks_path = agy_install.hooks_path_for_home(
+                None if agy_home is None else _absolute(agy_home))
         report = agy_install.install_agy(
             hooks_path, python=sys.executable, check=check)
         rollback_path = None

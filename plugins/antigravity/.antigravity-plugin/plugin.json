@@ -1,0 +1,13 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "author": {
+    "name": "Peter Hense"
+  },
+  "description": "Source-backed knowledge, durable compaction handoffs and bounded queued tools.",
+  "displayName": "agentic-rag",
+  "homepage": "https://github.com/phense/agentic-rag",
+  "license": "MIT",
+  "name": "agentic-rag",
+  "repository": "https://github.com/phense/agentic-rag",
+  "version": "0.6.37"
+}

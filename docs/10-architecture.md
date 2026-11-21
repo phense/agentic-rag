@@ -457,17 +457,20 @@ again and preserves concurrent destinations/recovery evidence rather than
 overwriting. The user must inspect and trust changed handlers with `/hooks`;
 the installer cannot grant trust.
 
-### Antigravity CLI hooks
+### Antigravity CLI and native plugin hooks
 
-`rag install --agy` merges one named hook into `~/.gemini/config/hooks.json`;
-all three handlers run `python -m agentic_rag.hooks.agy <event>` and print a
-JSON object.
+`rag plugin install --host antigravity` packages an owned plugin
+(`.antigravity-plugin/plugin.json`, `mcp_config.json`, `hooks.json`) that routes
+all three events through `python -m agentic_rag.plugins.lifecycle --host antigravity --event <Event>`.
+`rag install --agy` (with optional `--agy-config-dir`) remains supported for
+hooks-only setups in `hooks.json` running `python -m agentic_rag.hooks.agy <event>`.
+Both paths print one JSON object and share the same handler logic.
 
 | Event | Timeout | Role | What it does | Failure mode |
 |---|---|---|---|---|
-| `SessionStart` | 10s | `writer` | Builds the same context as the Claude hook from `workspacePaths[0]` / `conversationId` and returns it as one `ephemeralMessage`; triggers maintenance. | **Fail closed, visibly** — injects `⚠️ agentic-rag unavailable`. |
+| `SessionStart` | 10s | `writer` | Builds the same context as the Claude hook from `workspacePaths[0]` (or `cwd`) / `conversationId` and returns it as one `systemMessage`; triggers maintenance. | **Fail closed, visibly** — injects `⚠️ agentic-rag unavailable`. |
 | `PreInvocation` | 5s | `writer`/`reader` | First invocation of a turn only. `/compact` request → PreCompact (`agy-step-<idx>`, manual) + compact prompt injection; new auto marker → PreCompact+PostCompact (auto) + checkpoint re-injection; else error-signature recall. | **Fail open** — logged, `{}`. |
-| `Stop` | 10s | `writer` | PostCompact for a finished `/compact` turn (handoff from the following model step), then the transcript-delta enqueue. | **Fail open** — always `{}`. |
+| `Stop` | 30s | `writer` | PostCompact for a finished `/compact` turn (handoff from the following model step), then the transcript-delta enqueue. | **Fail open** — always `{}`. |
 
 ## The two MCP servers
 

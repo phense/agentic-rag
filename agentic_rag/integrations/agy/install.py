@@ -32,6 +32,10 @@ def hooks_path_for_home(home: Path | None = None) -> Path:
     return base / ".gemini" / "config" / "hooks.json"
 
 
+def hooks_path_for_config_dir(config_dir: Path) -> Path:
+    return Path(config_dir) / "hooks.json"
+
+
 @dataclass(frozen=True)
 class AgyInstallReport:
     hooks_path: Path
@@ -64,11 +68,26 @@ def _render(data: dict) -> str:
 
 def _warnings(hooks_path: Path) -> tuple[str, ...]:
     warnings: list[str] = []
-    app_dir = hooks_path.parent.parent / "antigravity-cli"
-    if not app_dir.is_dir():
+    parent = hooks_path.parent.parent
+    app_dir = parent / "antigravity-cli"
+    acp_dir = parent / "antigravity-acp"
+    if not app_dir.is_dir() and not acp_dir.is_dir():
         warnings.append(
             f"{app_dir} not found; the Antigravity CLI has not run on this "
             "machine yet — hooks load once `agy` starts")
+    plugin_hooks = hooks_path.parent / "plugins" / "agentic-rag" / "hooks.json"
+    if plugin_hooks.is_file():
+        has_hooks = True
+        try:
+            parsed = json.loads(plugin_hooks.read_text(encoding="utf-8"))
+            if isinstance(parsed, dict) and not parsed:
+                has_hooks = False
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            pass
+        if has_hooks:
+            warnings.append(
+                f"native Antigravity plugin hooks also exist at {plugin_hooks}; "
+                "disable one integration to avoid duplicate hook execution")
     return tuple(warnings)
 
 

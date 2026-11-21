@@ -38,6 +38,31 @@ def test_user_request_text_unwraps_and_drops_client_blocks():
     assert ta.user_request_text("plain words") == "plain words"
 
 
+def test_user_request_text_unwraps_acp_wrapper_and_preserves_inline_mentions():
+    acp_content = (
+        "<USER_REQUEST>\n"
+        "<t3_code_instructions>\n## T3 Code interaction mode\nUse tools.\n</t3_code_instructions>\n\n"
+        "<user_request>\n/compact focus on MCP\n</user_request>"
+        "<runtime_info>Running in T3 Code.</runtime_info>\n"
+        "</USER_REQUEST>\n"
+        "<ADDITIONAL_METADATA>\nThe current local time is: 2026-11-21.\n</ADDITIONAL_METADATA>"
+    )
+    assert ta.user_request_text(acp_content) == "/compact focus on MCP"
+    assert ta.is_compact_request(acp_content)
+
+    inline = "<USER_REQUEST>\nWhy does <user_request>foo</user_request> appear here?\n</USER_REQUEST>"
+    assert ta.user_request_text(inline) == "Why does <user_request>foo</user_request> appear here?"
+
+    inner_tag = (
+        "<USER_REQUEST>\n"
+        "<t3_code_instructions>rules</t3_code_instructions>\n"
+        "<user_request>Inspect <runtime_info>tag</runtime_info> safely</user_request>"
+        "<runtime_info>host meta</runtime_info>\n"
+        "</USER_REQUEST>"
+    )
+    assert ta.user_request_text(inner_tag) == "Inspect <runtime_info>tag</runtime_info> safely"
+
+
 def test_compact_request_detection_accepts_instructions():
     assert ta.is_compact_request(user(2, "/compact")["content"])
     assert ta.is_compact_request(user(2, "/compact focus on tests")["content"])

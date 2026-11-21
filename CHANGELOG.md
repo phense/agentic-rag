@@ -5,6 +5,14 @@ All notable changes to agentic-rag are documented here. The format follows
 [semantic versioning](https://semver.org/). It is **pre-1.0** — the entries below summarize
 milestones rather than every commit, and interfaces may still change between `0.x` releases.
 
+## [0.6.37] - 2026-11-21
+
+- Add native Antigravity plugin packaging (`rag plugin install|update|doctor|uninstall|recover --host antigravity`) and static reference files under `plugins/antigravity/`. Generated packages include `.antigravity-plugin/plugin.json`, plugin-root `mcp_config.json` (both `agentic-rag` and `agentic-rag-ro`, or `agentic-rag-ro` only with `--read-only`), and plugin-root `hooks.json` routed through `agentic_rag.plugins.lifecycle --host antigravity`. Validated with `agy plugin validate --strict` and `agy plugin list --json` on `agy` 1.5.14.
+- Enforce `RAG_READONLY=1` in `agentic_rag.plugins.mcp` when invoked with `--read-only` so standalone PostgreSQL connections always bind to the `rag_reader` role.
+- Update `agentic_rag/hooks/agy.py` to emit the non-deprecated Antigravity `systemMessage` injection step, fall back to top-level `cwd` when `workspacePaths` is absent, and suppress subagent/sidechain/fork/maintenance hook payloads.
+- Update `agentic_rag/transcript_agy.py` to strip ACP harness wrappers (`<t3_code_instructions>`, `<runtime_info>`) and unwrap nested `<user_request>` blocks so `/compact` detection, prompt recall, and mining digests see only actual user input.
+- Add `--agy-config-dir` to `rag install --agy` for custom Antigravity config directories and warn when a native plugin `hooks.json` already exists under the same config root. No database schema, central-service protocol, or existing Claude/Codex/OpenCode configuration changes are required; disable any legacy `"agentic-rag"` entry in `~/.gemini/config/hooks.json` when switching to the native plugin to avoid duplicate hook execution. See `docs/antigravity.md` (Issue #113).
+
 ## [0.6.36] - 2026-11-18
 
 - Stop leaking request-spool slots. Background flushes (`consume=False`) kept acknowledged handles forever after the server answered 404 because the result TTL had passed. The request spool is capped at 64 entries, independent of `spool_source_max_bytes`, so once dead handles filled it every later tool call of that client (`memory_search`, `memory_save`, `memory_context`, …) failed with `request spool full`. Observed on one client for five days; capture and extraction were unaffected, because transcripts use the separate source spool.
