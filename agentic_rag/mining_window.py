@@ -88,7 +88,18 @@ def read_window(path: str | Path, *, after_uuid: str | None = None,
             chain.update(raw)
             identity, text = _content(ev) if isinstance(ev, dict) else (None, '')
             if identity:
-                digest = hashlib.sha256(json.dumps(ev, sort_keys=True).encode()).hexdigest()
+                # Claude/Codex identities are unique event ids, so compare what
+                # a record can contribute to a window rather than its whole
+                # JSON: Claude Code re-appends earlier events (for example on
+                # /compact of a resumed session) with drifted metadata such as
+                # slug, promptId or toolUseResult. Changed mined prose, role,
+                # tool name or conversation-record status still conflicts. An
+                # agy identity is only a step index, so a repeated step keeps
+                # the strict whole-record comparison. ensure_ascii keeps lone
+                # surrogates encodable.
+                material = ev if is_step(ev) else [identity, text, conversation_record(ev)]
+                digest = hashlib.sha256(
+                    json.dumps(material, sort_keys=True).encode()).hexdigest()
                 if identity in seen:
                     if seen[identity] != digest:
                         raise ValueError('conflicting duplicate transcript identity; recovery required')
