@@ -624,3 +624,53 @@ def test_cli_install_agy_flag_rules(tmp_path, monkeypatch, capsys):
     assert "mutually exclusive" in capsys.readouterr().err
     with pytest.raises(SystemExit):
         cli._main(["install", "--agy-home", "/h"])
+
+
+def test_queue_requeue_recoverable_mine_errors_preflights_cursor(cli_env, capsys, tmp_path):
+    line = json.dumps({"uuid": "u1", "message": {"role": "user", "content": "hi"}}) + "\n"
+    good, bad = tmp_path / "good.jsonl", tmp_path / "bad.jsonl"
+    good.write_text(line)
+    bad.write_text("")
+    ids = [cli_env.execute(
+        "INSERT INTO mining_queue(kind, session_id, transcript_path, status, attempts, last_uuid,"
+        " last_error, finished_at) VALUES ('mine', %s, %s, 'error', 3, %s,"
+        " 'conflicting duplicate transcript identity; recovery required', now()) RETURNING id",
+        (session, str(path), cursor)).fetchone()["id"]
+        for session, path, cursor in (("good", good, None), ("bad", bad, "u1"))]
+    cli_env.commit()
+    args = ["queue", "requeue-recoverable-mine-errors", "--class", "duplicate-identity"]
+    assert main(args + ["--expect", "0", "--yes"]) == 1
+    assert "--expect must be at least 1" in capsys.readouterr().err
+    assert main(args + ["--expect", "1", "--yes"]) == 1
+    out = capsys.readouterr()
+    assert f"#{ids[1]} session bad: preflight FAILED" in out.out
+    assert f"#{ids[0]} session good: ok" in out.out
+    assert "failed preflight" in out.err
+    assert main(args + ["--expect", "1", "--exclude-id", "999999"]) == 1
+    assert "not among candidates" in capsys.readouterr().err
+    exclude = ["--exclude-id", str(ids[1])]
+    assert main(args + ["--expect", "2", "--yes"] + exclude) == 1
+    assert "count mismatch" in capsys.readouterr().err
+    assert main(args + ["--expect", "1"] + exclude) == 1
+    assert "refusing without --yes" in capsys.readouterr().err
+    cli_env.rollback()
+    assert {r["status"] for r in cli_env.execute("SELECT status FROM mining_queue")} == {"error"}
+    assert main(args + ["--expect", "1", "--yes"] + exclude) == 0
+    assert f"requeued 1 job(s): #{ids[0]}" in capsys.readouterr().out
+    cli_env.rollback()
+    status = dict(
+        (r["id"], r["status"]) for r in cli_env.execute("SELECT id, status FROM mining_queue"))
+    assert status == {ids[0]: "pending", ids[1]: "error"}
+
+
+def test_queue_requeue_recoverable_refuses_client_mode_and_bad_expect_before_db(
+        monkeypatch, capsys):
+    from agentic_rag.config import Config
+    monkeypatch.setattr(cli.db, "connect", lambda *a, **kw: pytest.fail("must not connect to DB"))
+    monkeypatch.setattr(cli, "load_config", lambda: Config(service_mode="client"))
+    args = ["queue", "requeue-recoverable-mine-errors", "--class", "duplicate-identity"]
+    assert cli._main(args + ["--expect", "1", "--yes"]) == 1
+    assert "unsupported_in_client_mode" in capsys.readouterr().err
+    monkeypatch.setattr(cli, "load_config", lambda: Config(service_mode="standalone"))
+    assert cli._main(args + ["--expect", "0", "--yes"]) == 1
+    assert "--expect must be at least 1" in capsys.readouterr().err

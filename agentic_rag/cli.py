@@ -253,6 +253,16 @@ def _main(argv: list[str] | None = None) -> int:
     q_requeue = queue_sub.add_parser("requeue-legacy-provider-failures")
     q_requeue.add_argument("--expect", type=int, default=60)
     q_requeue.add_argument("--yes", action="store_true")
+    q_recover = queue_sub.add_parser(
+        "requeue-recoverable-mine-errors",
+        help="resume errored mine jobs whose exact error is fixed in code")
+    q_recover.add_argument("--class", dest="error_class", required=True,
+                           choices=sorted(jobs_mod.RECOVERABLE_MINE_ERRORS))
+    q_recover.add_argument("--expect", type=int, required=True,
+                           help="number of jobs to requeue after exclusions (>= 1)")
+    q_recover.add_argument("--exclude-id", type=int, action="append", default=[],
+                           help="candidate job id to leave in 'error' (repeatable)")
+    q_recover.add_argument("--yes", action="store_true")
 
     p_pin = sub.add_parser("pin")
     pin_sub = p_pin.add_subparsers(dest="pin_cmd", required=True)
@@ -845,6 +855,15 @@ def _main(argv: list[str] | None = None) -> int:
         _print_search(result["results"], result["warnings"], result.get("temporal"), args.json)
         return 0
 
+    if args.cmd == "queue" and args.queue_cmd == "requeue-recoverable-mine-errors":
+        if args.expect < 1:
+            print("--expect must be at least 1", file=sys.stderr)
+            return 1
+        if cfg.service_mode == "client":
+            print("unsupported_in_client_mode: queue recovery runs on the service host",
+                  file=sys.stderr)
+            return 1
+
     conn = db.connect(cfg, role="writer")
     try:
         if args.cmd == "domain" and args.domain_cmd == "add":
@@ -1022,6 +1041,50 @@ def _main(argv: list[str] | None = None) -> int:
                 print("count changed during requeue; no changes", file=sys.stderr)
                 return 1
             print(f"requeued {count} legacy provider-failure job(s)")
+            return 0
+
+        if args.cmd == "queue" and args.queue_cmd == "requeue-recoverable-mine-errors":
+            rows = jobs_mod.recoverable_mine_errors(conn, args.error_class)
+            conn.commit()
+            excluded = set(args.exclude_id)
+            unknown = sorted(excluded - {r["id"] for r in rows})
+            print(f"candidate count: {len(rows)}")
+            if unknown:
+                print(f"--exclude-id not among candidates: {unknown}; no changes", file=sys.stderr)
+                return 1
+            selected, failed = [], 0
+            # Preflight outside the enqueue lock: it may read whole transcripts.
+            for row in rows:
+                label = f"  #{row['id']} session {_safe(row['session_id'])}"
+                if row["id"] in excluded:
+                    print(f"{label}: excluded")
+                    continue
+                try:
+                    detail = jobs_mod.preflight_mine_job(conn, cfg, row)
+                except (OSError, UnicodeError, ValueError) as exc:
+                    conn.rollback()
+                    failed += 1
+                    print(f"{label}: preflight FAILED: {_safe(str(exc))}")
+                    continue
+                selected.append(row["id"])
+                print(f"{label}: ok ({detail})")
+            if failed:
+                print(f"{failed} job(s) failed preflight; fix them or pass --exclude-id; no changes",
+                      file=sys.stderr)
+                return 1
+            if len(selected) != args.expect:
+                print(f"count mismatch: expected {args.expect}, found {len(selected)}; no changes",
+                      file=sys.stderr)
+                return 1
+            if not args.yes:
+                print("refusing without --yes", file=sys.stderr)
+                return 1
+            if not jobs_mod.requeue_recoverable_mine_errors(
+                    conn, error_class=args.error_class, job_ids=selected,
+                    excluded_ids=sorted(excluded)):
+                print("candidates changed during requeue; no changes", file=sys.stderr)
+                return 1
+            print(f"requeued {len(selected)} job(s): {', '.join(f'#{i}' for i in selected)}")
             return 0
 
         if args.cmd == "review":

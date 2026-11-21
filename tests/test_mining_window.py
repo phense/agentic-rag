@@ -107,3 +107,113 @@ def test_ambiguous_legacy_cursor_never_skips_intervening_event(tmp_path):
                  record('unseen', 'must not skip'), record('old', 'processed'))
     with pytest.raises(ValueError, match='recovery required'):
         read_window(path, after_uuid='old')
+
+
+def drifted(event, **metadata):
+    """Re-appended copy of an event whose host-only metadata changed."""
+    return {**event, **metadata}
+
+
+def tool_record(identity, name, role='assistant'):
+    return {'uuid': identity, 'message': {'role': role, 'content': [
+        {'type': 'tool_use', 'name': name, 'input': {}}]}}
+
+
+def test_reappended_events_with_drifted_host_metadata_are_duplicates(tmp_path):
+    # /compact of a resumed Claude Code session re-appends earlier events with
+    # changed slug/promptId/toolUseResult but identical conversation content.
+    one = {**record('one', 'first fact'), 'slug': 'old-slug', 'promptId': 'p1'}
+    two = {**tool_record('two', 'Bash'), 'toolUseResult': {'stdout': 'x'}}
+    path = write(tmp_path / 's.jsonl', one, two, record('three', 'third fact'),
+                 drifted(one, slug='new-slug', promptId='p2'),
+                 drifted(two, toolUseResult={'stdout': 'y'}),
+                 record('four', 'after rewrite'))
+    text, _ = collect(path)
+    assert text.count('first fact') == 1
+    assert text.count('[assistant tool: Bash]') == 1
+    assert text.endswith('[user] after rewrite')
+
+
+@pytest.mark.parametrize('original,changed', [
+    (record('same', 'one'), record('same', 'different prose')),
+    (record('same', 'one'), {'uuid': 'same', 'message': {'role': 'assistant', 'content': 'one'}}),
+    (tool_record('same', 'Bash'), tool_record('same', 'Edit')),
+    (record('same', 'one'), {**record('same', 'one'), 'isCompactSummary': True}),
+    (record('same', 'one'), {**record('same', 'one'), 'isMeta': True}),
+])
+def test_duplicate_identity_with_changed_conversation_content_conflicts(tmp_path, original, changed):
+    path = write(tmp_path / 's.jsonl', original, changed)
+    with pytest.raises(ValueError, match='conflicting duplicate'):
+        read_window(path)
+
+
+def test_cursor_before_and_inside_reappended_block_resumes_without_repeats(tmp_path):
+    one, two = record('one', 'alpha'), record('two', 'beta')
+    path = write(tmp_path / 's.jsonl', one, two)
+    before = read_window(path)
+    assert before.text == '[user] alpha\n[user] beta'
+    with path.open('a') as stream:
+        for event in (drifted(one, slug='s2'), drifted(two, slug='s2'), record('three', 'gamma')):
+            stream.write(json.dumps(event) + '\n')
+    after = read_window(path, after_uuid=before.last_uuid)
+    assert after.text == '[user] gamma'
+    assert json.loads(after.last_uuid[4:])['line'] == 4
+    # A cursor issued on a duplicate line keeps working: duplicates are empty.
+    inside = 'mw1:' + json.dumps({'line': 2, 'offset': 0, 'hash': _prefix_hash(path, 2)},
+                                 separators=(',', ':'))
+    assert read_window(path, after_uuid=inside).text == '[user] gamma'
+
+
+def _prefix_hash(path, line):
+    import hashlib
+    chain = hashlib.sha256()
+    with path.open('rb') as stream:
+        for number, raw in enumerate(stream):
+            chain.update(raw)
+            if number == line:
+                return chain.hexdigest()
+
+
+def test_unchanged_transcripts_keep_their_windows_and_cursors(tmp_path):
+    path = write(tmp_path / 's.jsonl', record('one', 'a' * 50), tool_record('two', 'Read'),
+                 record('three', 'tail'))
+    first = read_window(path, max_chars=40, per_block=800)
+    assert first.text == '[user] ' + 'a' * 33
+    assert json.loads(first.last_uuid[4:]) == {'line': 0, 'offset': 40, 'hash': _prefix_hash(path, 0)}
+    text, cursor = collect(path, max_chars=40)
+    assert text == '[user] ' + 'a' * 50 + '\n[assistant tool: Read][user] tail'
+    assert json.loads(cursor[4:])['line'] == 2
+
+
+def test_legacy_uuid_cursor_on_reappended_identity_stays_fail_closed(tmp_path):
+    one = record('one', 'alpha')
+    path = write(tmp_path / 's.jsonl', one, record('two', 'beta'), drifted(one, slug='s2'))
+    with pytest.raises(ValueError, match='legacy mining cursor missing or ambiguous'):
+        read_window(path, after_uuid='one')
+
+
+def test_codex_duplicates_tolerate_metadata_and_agy_steps_stay_strict(tmp_path):
+    codex = {'type': 'response_item', 'timestamp': 't1', 'payload': {
+        'type': 'message', 'id': 'msg_1', 'role': 'user',
+        'content': [{'type': 'input_text', 'text': 'codex words'}]}}
+    path = write(tmp_path / 'codex.jsonl', codex, drifted(codex, timestamp='t2'))
+    assert read_window(path).text == '[user] codex words'
+    changed = {**codex, 'payload': {**codex['payload'],
+               'content': [{'type': 'input_text', 'text': 'other words'}]}}
+    write(path, codex, changed)
+    with pytest.raises(ValueError, match='conflicting duplicate'):
+        read_window(path)
+    # An agy identity is only a step index: a repeated step stays strict.
+    step = {'step_index': 0, 'type': 'USER_INPUT', 'content': 'agy words', 'created_at': 'c1'}
+    path = write(tmp_path / 'agy.jsonl', step, dict(step))
+    assert read_window(path).text.count('agy words') == 1
+    write(path, step, drifted(step, created_at='c2'))
+    with pytest.raises(ValueError, match='conflicting duplicate'):
+        read_window(path)
+
+
+def test_lone_surrogate_duplicate_is_digestible(tmp_path):
+    path = tmp_path / 's.jsonl'
+    line = '{"uuid": "one", "message": {"role": "user", "content": "bad \\ud800 text"}}\n'
+    path.write_text(line + line.replace('"uuid"', '"slug": "x", "uuid"'))
+    assert read_window(path).text.count('bad') == 1

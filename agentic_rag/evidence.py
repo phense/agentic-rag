@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from .secrets import strip_secrets_json,strip_secrets
-from .validity import parse_time
+from .validity import parse_time, same_instant
 
 KINDS={'stated','proposal','hypothetical','inference'}
 
@@ -54,7 +54,7 @@ def attach(conn,doc_id,items,actor):
         conn.execute('INSERT INTO knowledge_sources(source_key,namespace,source_id,role,source_at) VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
                      (key,item['namespace'],item['source_id'],item['role'],at))
         source=conn.execute('SELECT role,source_at FROM knowledge_sources WHERE source_key=%s FOR UPDATE',(key,)).fetchone()
-        if source['role']!=item['role'] or source['source_at']!=at:
+        if source['role']!=item['role'] or not same_instant(source['source_at'],at):
             raise ValueError('source identity has conflicting metadata')
         span=_hash(item['quote'])
         row=conn.execute('INSERT INTO claim_evidence(document_id,source_key,span_hash,quote,complete) VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING RETURNING source_key',

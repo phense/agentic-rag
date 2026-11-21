@@ -24,6 +24,17 @@ def parse_time(value: str | datetime | None) -> datetime | None:
     return value.astimezone(timezone.utc)
 
 
+def same_instant(a: str | datetime | None, b: str | datetime | None) -> bool:
+    """Exact instant equality that ignores the tzinfo a value carries.
+
+    psycopg returns timestamptz in the session TimeZone. Python's == between
+    datetimes with different tzinfo objects is always False inside a DST fold
+    (PEP 495), so a UTC value and the same instant read back as Europe/Berlin
+    would otherwise compare unequal.
+    """
+    return parse_time(a) == parse_time(b)
+
+
 def selection(as_of=None, history=False):
     if history and as_of is not None:
         raise ValueError('history and as_of are mutually exclusive')
@@ -75,8 +86,8 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
         # A duplicate reuses an existing claim. Follow attach()'s claim-then-
         # source order so concurrent attachment cannot deadlock this replay.
         duplicate_ids = [c['document_id'] for c in candidates if c['disposition'] == 'accepted'
-                         and c['event_at'] == when and c['value'] == value
-                         and c['relation'] == relation and c['expires_at'] == expiry]
+                         and same_instant(c['event_at'], when) and c['value'] == value
+                         and c['relation'] == relation and same_instant(c['expires_at'], expiry)]
         if duplicate_ids:
             conn.execute('SELECT document_id FROM claim_records WHERE document_id=ANY(%s) '
                          'ORDER BY document_id FOR UPDATE', (duplicate_ids,))
@@ -97,11 +108,11 @@ def save(conn, cfg, *, entity, attribute, value, event_at, evidence,
         if reason is None:
             for c in candidates:
                 if c['disposition'] != 'accepted': continue
-                if c['event_at'] == when and c['value'] == value and c['relation'] == relation and c['expires_at'] == expiry:
+                if same_instant(c['event_at'], when) and c['value'] == value and c['relation'] == relation and same_instant(c['expires_at'], expiry):
                     retain_source(conn,str(c["document_id"]),evidence,actor)
                     if commit: conn.commit()
                     return AssertionResult(str(c['document_id']),c['slug'],'accepted',duplicate=True)
-                if c['event_at'] == when and c['value'] != value and relation != 'extension':
+                if same_instant(c['event_at'], when) and c['value'] != value and relation != 'extension':
                     reason = 'conflicting values at the same event time'; break
                 if c['value'] != value and relation == 'assertion' and c['relation'] != 'extension' and not (c['relation']=='replacement' and c['event_at'] > when):
                     reason = 'different existing value without explicit replacement'; break

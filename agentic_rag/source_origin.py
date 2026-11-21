@@ -16,7 +16,7 @@ import stat
 from . import db, evidence
 from .mining_window import _content
 from .transcript_origin import conversation_record
-from .validity import parse_time
+from .validity import parse_time, same_instant
 
 MAX_BYTES = 64 * 1024 * 1024
 MAX_GENERATED = 4096
@@ -119,7 +119,7 @@ def quarantine(conn, namespace, sources, *, proof):
         # Validate the entire recording's existing metadata before any write.
         for key, source in prepared:
             existing = conn.execute('SELECT role,source_at FROM knowledge_sources WHERE source_key=%s FOR UPDATE', (key,)).fetchone()
-            if existing and (existing['role'] != source['role'] or existing['source_at'] != source['source_at']):
+            if existing and (existing['role'] != source['role'] or not same_instant(existing['source_at'], source['source_at'])):
                 raise ValueError('source_origin_metadata_conflict')
         for key, source in prepared:
             conn.execute('INSERT INTO knowledge_sources(source_key,namespace,source_id,role,source_at) VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',
@@ -163,7 +163,7 @@ def _window_covered(payload, records):
             if not (original is not None and type(offset) is int and offset >= 0
                     and isinstance(text, str) and original['text'][offset:offset+len(text)] == text
                     and original['role'] == event.get('role')
-                    and original['source_at'] == parse_time(event.get('timestamp'))):
+                    and same_instant(original['source_at'], parse_time(event.get('timestamp')))):
                 return False
         except (ValueError, TypeError):
             return False
@@ -220,7 +220,7 @@ def _coverage(conn, namespace, sources, records):
     existing = {r['source_key']: r for r in conn.execute(
         'SELECT source_key,role,source_at FROM knowledge_sources WHERE source_key=ANY(%s)', (keys,))}
     conflicts = [key for key, source in zip(keys, sources) if key in existing
-                 and (existing[key]['role'] != source['role'] or existing[key]['source_at'] != source['source_at'])]
+                 and (existing[key]['role'] != source['role'] or not same_instant(existing[key]['source_at'], source['source_at']))]
     unknown = [r['source_key'] for r in conn.execute(
         'SELECT source_key FROM knowledge_sources WHERE namespace=%s AND NOT (source_id=ANY(%s)) ORDER BY source_key LIMIT 257',
         (namespace, list(records)))]
